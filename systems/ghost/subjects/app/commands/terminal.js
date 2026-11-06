@@ -21,7 +21,13 @@ export const terminal = new Vector()
   )
   .open(
     { nature: "/terminal/new", valence: "open a terminal and seat it. Example: /terminal/new" },
-    async (ctx) => seated(ctx.client.app, await ctx.client.runtime.entities.terminal.create({})),
+    async (ctx) =>
+      seated(
+        ctx.client.app,
+        await ctx.client.runtime.entities.terminal.create({
+          user: ctx.client.runtime.lighthouse.user.id,
+        }),
+      ),
   )
   .open(
     { nature: "/terminal/close", valence: "close the seated terminal; the first remaining is seated. Example: /terminal/close" },

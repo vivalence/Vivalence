@@ -138,11 +138,12 @@ export function translateTools(tools) {
   }));
 }
 
-export const fault = (error) => ({
-  kind: error.status === 529 ? "overloaded" : error.status === 429 ? "throttled" : "request",
-  retryable: [408, 429, 500, 529].includes(error.status),
-  provider: { status: error.status, message: error.message },
-});
+export const fault = (error) =>
+  Object.assign(new Error(`anthropic ${error.status ?? ""} ${error.message}`.trim(), { cause: error }), {
+    kind: error.status === 529 ? "overloaded" : error.status === 429 ? "throttled" : "request",
+    retryable: [408, 429, 500, 529].includes(error.status),
+    provider: { status: error.status, message: error.message },
+  });
 
 // --- inbound: Anthropic response → turn ---
 

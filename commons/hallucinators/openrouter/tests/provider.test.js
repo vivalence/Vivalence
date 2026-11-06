@@ -1,4 +1,4 @@
-import { specimen } from "@vivalence/typology";
+import { specimen, v } from "@vivalence/typology";
 import provider from "../provider/index.js";
 import {
   buildParams,
@@ -575,17 +575,17 @@ specimen.describe("openrouter provider", () => {
 
   specimen.describe("provider(service)", () => {
     specimen.it(
-      "returns 3 dialogue faculties (no network) with render + stream, and one choice faculty with render only",
+      "returns 3 dialogue faculties (no network) with render + stream, one choice faculty and three picture faculties with render only",
       async () => {
         const faculties = await provider({ secrets: { key: "fake-key" } });
-        specimen.expect(faculties).toHaveLength(4);
+        specimen.expect(faculties).toHaveLength(7);
         for (const faculty of faculties.filter((faculty) => faculty.type === "dialogue")) {
           specimen.expect(Array.isArray(faculty.tune)).toBe(true);
           specimen.expect(typeof faculty.via.render).toBe("function");
           specimen.expect(typeof faculty.via.stream).toBe("function");
         }
         const [choice] = faculties.filter((faculty) => faculty.type === "choice");
-        specimen.expect(choice.config.model).toBe("typesafe/jev-1.13");
+        specimen.expect(choice.id).toBe("typesafe/jev-1.13");
         specimen.expect([choice.context, choice.options, choice.choices]).toEqual([32000, 255, null]);
         specimen.expect(Object.keys(choice.via)).toEqual(["render"]);
       },
@@ -651,6 +651,137 @@ specimen.describe("openrouter provider", () => {
       });
       specimen.expect(faculties.filter((faculty) => faculty.type === "dialogue")).toHaveLength(1);
       specimen.expect(faculties[0].context).toBe(262144);
+    });
+  });
+
+  specimen.describe("picture faculties", () => {
+    const original = globalThis.fetch;
+    const service = { secrets: { key: "sk-or-test" } };
+    const PNG = "iVBORw0KGgo";
+    const picture = (data) => ({ type: "image", media: "image/png", data });
+    const OK = {
+      created: 1762700000,
+      data: [{ b64_json: PNG, media_type: "image/png" }],
+      usage: { prompt_tokens: 12, completion_tokens: 4160, total_tokens: 4172, cost: 0.04 },
+    };
+    let calls;
+
+    const stub = (status, body) => {
+      calls = [];
+      globalThis.fetch = (url, init) => {
+        calls.push({ url, init, body: JSON.parse(init.body) });
+        return Promise.resolve(new Response(JSON.stringify(body), { status }));
+      };
+    };
+
+    specimen.afterEach(() => {
+      globalThis.fetch = original;
+    });
+
+    const faculty = async (id) => (await provider(service)).find((each) => each.id === id);
+
+    specimen.it("offers three picture faculties after the choice rows, each a valid Faculty", async () => {
+      const faculties = await provider(service);
+      const pictures = faculties.filter((each) => each.type === "picture");
+      specimen.expect(pictures.map((each) => each.id)).toEqual([
+        "openai/gpt-image-2",
+        "black-forest-labs/flux.2-pro",
+        "google/gemini-2.5-flash-image",
+      ]);
+      specimen.expect(faculties.slice(-3)).toEqual(pictures);
+      for (const each of pictures) {
+        specimen.expect(Object.keys(each.via)).toEqual(["render"]);
+        specimen.expect(each.context).toBe(0);
+        specimen.expect(each.limits.mask).toBe(false);
+        specimen.expect([...v.primitives.hallucination.Faculty.errors(each)]).toEqual([]);
+      }
+    });
+
+    specimen.it("a bare prompt posts model, prompt, aspect_ratio and n with the bearer key", async () => {
+      stub(200, OK);
+      const flux = await faculty("black-forest-labs/flux.2-pro");
+      await flux.via.render({ prompt: "a red fox", images: [], settings: { aspect: "16:9", count: 2, seed: 7 } });
+      specimen.expect(calls).toHaveLength(1);
+      specimen.expect(calls[0].url).toBe("https://openrouter.ai/api/v1/images");
+      specimen.expect(calls[0].init.headers.Authorization).toBe("Bearer sk-or-test");
+      specimen.expect(calls[0].body).toEqual({ model: "black-forest-labs/flux.2-pro", prompt: "a red fox", aspect_ratio: "16:9", n: 2, seed: 7 });
+    });
+
+    specimen.it("two references post as two input_references data urls", async () => {
+      stub(200, OK);
+      const gpt = await faculty("openai/gpt-image-2");
+      await gpt.via.render({
+        prompt: "put the mug on the desk",
+        images: [{ image: picture("AAAA"), role: "init" }, { image: { type: "image", media: "image/jpeg", data: "BBBB" }, role: "subject" }],
+        settings: { format: "webp", background: "opaque", size: "1536x1024" },
+      });
+      specimen.expect(calls[0].body).toEqual({
+        model: "openai/gpt-image-2",
+        prompt: "put the mug on the desk",
+        input_references: [
+          { type: "image_url", image_url: { url: "data:image/png;base64,AAAA" } },
+          { type: "image_url", image_url: { url: "data:image/jpeg;base64,BBBB" } },
+        ],
+        size: "1536x1024",
+        output_format: "webp",
+        background: "opaque",
+      });
+    });
+
+    specimen.it("the answer is a valid Picture.Response, media from media_type", async () => {
+      stub(200, OK);
+      const gemini = await faculty("google/gemini-2.5-flash-image");
+      const response = await gemini.via.render({ prompt: "a red fox", images: [] });
+      specimen.expect(response).toEqual({ images: [{ type: "image", media: "image/png", data: PNG }], usage: OK.usage });
+      specimen.expect([...v.primitives.hallucination.Picture.Response.errors(response)]).toEqual([]);
+    });
+
+    specimen.it("a mask is refused before any fetch", async () => {
+      stub(200, OK);
+      const gpt = await faculty("openai/gpt-image-2");
+      const request = { prompt: "fill the hole", images: [{ image: picture("AAAA"), role: "init" }], mask: picture("MMMM") };
+      await specimen.expect(gpt.via.render(request)).rejects.toThrow("openrouter paints no mask");
+      specimen.expect(calls).toHaveLength(0);
+    });
+
+    specimen.it("more references than the row's limit are refused before any fetch", async () => {
+      stub(200, OK);
+      const gemini = await faculty("google/gemini-2.5-flash-image");
+      const images = Array.from({ length: 4 }, () => ({ image: picture("AAAA"), role: "style" }));
+      await specimen.expect(gemini.via.render({ prompt: "collage", images })).rejects.toThrow("at most 3 references, 4 given");
+      specimen.expect(calls).toHaveLength(0);
+    });
+
+    specimen.it("an aspect the row lacks is refused before any fetch", async () => {
+      stub(200, OK);
+      const gpt = await faculty("openai/gpt-image-2");
+      await specimen.expect(gpt.via.render({ prompt: "a wide fox", images: [], settings: { aspect: "21:9" } })).rejects.toThrow("not 21:9");
+      specimen.expect(calls).toHaveLength(0);
+    });
+
+    specimen.it("a 502 faults overloaded, retryable", async () => {
+      stub(502, { error: { message: "Generation failed" } });
+      const flux = await faculty("black-forest-labs/flux.2-pro");
+      const error = await flux.via.render({ prompt: "a fox", images: [] }).catch((caught) => caught);
+      specimen.expect(error).toEqual({ kind: "overloaded", retryable: true, provider: { status: 502, message: "Generation failed" } });
+    });
+
+    specimen.it("statics.pictures replaces the picture table", async () => {
+      const faculties = await provider({
+        secrets: { key: "sk-or-test" },
+        statics: {
+          pictures: {
+            solo: { id: "bytedance-seed/seedream-4.5", tune: [0.5, 0.5, 0.5, 0.5], limits: { references: 8, mask: false, aspects: ["1:1"] } },
+          },
+        },
+      });
+      const pictures = faculties.filter((each) => each.type === "picture");
+      specimen.expect(pictures.map((each) => each.id)).toEqual(["bytedance-seed/seedream-4.5"]);
+      specimen.expect(pictures[0].limits.references).toBe(8);
+    });
+
+    specimen.it("fetch is restored after each step", () => {
+      specimen.expect(globalThis.fetch).toBe(original);
     });
   });
 });

@@ -52,13 +52,13 @@ export const TRAIT_SCHEMA = {
   ],
   PREPARED: [{ key: "parts", kind: "json", optional: true }, { key: "tools", kind: "json", optional: true }],
   INTELLIGENT: [
-    { key: "tune", kind: "string", optional: true },
+    { key: "tier", kind: "string", optional: true },
     { key: "effort", kind: "enum", options: ["none", "low", "medium", "high"], optional: true },
     { key: "rounds", kind: "integer", optional: true },
     { key: "thinking", kind: "boolean", optional: true },
   ],
   VOCAL: [
-    { key: "language", kind: "string", optional: true }, { key: "tune", kind: "string", optional: true },
+    { key: "language", kind: "string", optional: true }, { key: "tier", kind: "string", optional: true },
     { key: "polish", kind: "boolean", optional: true },
   ],
   ONTOLOGICAL: [], TOPOGRAPHICAL: [], MASKED: [], AIMED: [], QUEUEING: [],

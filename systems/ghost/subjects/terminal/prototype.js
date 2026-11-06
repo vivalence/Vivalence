@@ -37,6 +37,9 @@ export class Terminal extends Entity {
   get buffer() {
     return this.$buffer.get();
   }
+  set buffer(value) {
+    this.$buffer.set(value);
+  }
   get dock() {
     return { ...belt.dock.DEFAULT_DOCK, ...this.client.mask.trait.DOCKED, ...this.client.runtime.lighthouse.user.trait.DOCKED, ...this.trait.DOCKED };
   }
@@ -46,7 +49,8 @@ export class Terminal extends Entity {
     const base = Object.fromEntries(Object.entries(super.toJSON()).filter(([key]) => kept(key)));
     const daemon = this.daemon === null || is.string(this.daemon) ? this.daemon : this.daemon.id;
     const thread = this.thread === null ? null : this.thread.id;
-    return { ...base, daemon, thread };
+    const buffer = this.buffer === null ? null : this.buffer.id;
+    return { ...base, daemon, thread, buffer };
   }
 
   setThread(thread) {
@@ -54,5 +58,10 @@ export class Terminal extends Entity {
     if (is.string(thread.mode)) return Promise.reject(new Error(`${thread.id}: its mode ${thread.mode} belongs to a host that is not mounted`));
     const daemon = thread.mode === null || thread.mode.daemon === null ? null : thread.mode.daemon.id;
     return this.repository.updateOne({ id: this.id }, { daemon, thread: thread.id });
+  }
+
+  setBuffer(buffer) {
+    if (buffer === null) return this.repository.updateOne({ id: this.id }, { buffer: null });
+    return this.repository.updateOne({ id: this.id }, { buffer: buffer.id });
   }
 }

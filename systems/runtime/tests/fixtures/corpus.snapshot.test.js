@@ -41,7 +41,7 @@ async function project(entities) {
       .map((trace) => ({ status: trace.trait.TRACED.snapshot.status, signal: trace.trait.TRACED.signal, literal: trace.literal.slug })),
     modes: bySlug(modes).map((mode) => ({ slug: mode.slug, type: mode.type, traits: mode.traits })),
     intents: bySlug(intents).map((intent) => ({ slug: intent.slug, traits: intent.traits, trait: intent.trait })),
-    threads: threads.map((thread) => ({ cursor: thread.cursor, counter: thread.counter })),
+    threads: threads.map((thread) => ({ counter: thread.counter })),
   };
 }
 

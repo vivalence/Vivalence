@@ -1,4 +1,5 @@
 import { mime, Vector } from "@vivalence/typology";
+import { gestalten } from "@vivalence/runtime";
 import { doctor, doors, persona, research, web } from "./tools/index.js";
 import { harness as voice } from "./harness.js";
 export { primer } from "./harness.js";
@@ -23,7 +24,8 @@ export const manifest = {
 export const tools = new Vector()
   .graft(doctor)
   .graft(web)
-  .graft(research);
+  .graft(research)
+  .graft(gestalten.tools.entity, gestalten.tools.buffer, gestalten.tools.thread, gestalten.tools.mode);
 
 export const views = [{ slug: "hello-world", mount: "app/App.svelte", mime: mime.dom.svelte }];
 

@@ -39,7 +39,7 @@ specimen.describe("memo — the primer the Magister sees", () => {
 
   specimen.it("an object render carries magister · srs · language, tuned fast unless the request tunes", async () => {
     const { policy, system } = await assemble()("/render");
-    specimen.expect(policy).toEqual({ tune: "fast" });
+    specimen.expect(policy).toEqual({ tier: "fast" });
     specimen.expect(Object.keys(await system)).toEqual(["magister", "srs", "language"]);
     specimen.expect((await system).language).toBe("Known: English. Learning: Latin.");
     specimen.expect((await system).srs.startsWith("This daemon schedules its cards with SM-2")).toBe(true);

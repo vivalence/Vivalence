@@ -11,13 +11,14 @@ phases
 phases
   .branch({ nature: "/manual", valence: "an empty thread gets one blank buffer; the frame holds the thread's oldest buffer until it leaves. Example: /manual" })
   .use(async (stallCtx, next) => {
-    if (stallCtx.terminal.stall.$buffers.get().length === 0)
-      await stallCtx.terminal.client.runtime.entities.buffer.create({ mode: stallCtx.terminal.thread.mode.id, thread: stallCtx.terminal.thread.id, data: {} });
+    if (stallCtx.terminal.thread.mode.traits.includes("VIEWABLE") && stallCtx.terminal.stall.$buffers.get().length === 0)
+      await stallCtx.terminal.client.runtime.entities.buffer.ensure({ mode: stallCtx.terminal.thread.mode.id, thread: stallCtx.terminal.thread.id, data: {} });
     await next();
   })
-  .do((stallCtx) => {
+  .do(async (stallCtx) => {
     if (stallCtx.terminal.stall.$buffers.get().includes(stallCtx.terminal.stall.$buffer.get())) return;
-    stallCtx.terminal.stall.$buffer.set(stallCtx.terminal.stall.$buffers.get()[0] ?? null);
+    if (stallCtx.terminal.stall.$buffers.get().length === 0 && stallCtx.terminal.stall.$buffer.get() === null) return;
+    await stallCtx.terminal.setBuffer(stallCtx.terminal.stall.$buffers.get()[0] ?? null);
   });
 
 /* @beef

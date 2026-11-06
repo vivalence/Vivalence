@@ -1,5 +1,6 @@
 import { render } from "solid-js/web";
 import { emit, scales, THEMES } from "@vivalence/dapper";
+import "@vivalence/dapper/font.css";
 import "@vivalence/drapes/parts.css";
 import * as ambient from "./ambient/index.js";
 import { Cover } from "./panels/cover/cover.jsx";

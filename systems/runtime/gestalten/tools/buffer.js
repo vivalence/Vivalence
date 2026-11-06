@@ -9,8 +9,9 @@ export const buffer = new Vector()
       nature: "/buffer/update",
       valence: "Write a buffer — the shared working surface between you and the user. Pass " +
         "the buffer id and a data patch; the patch merges over the existing data keys. For a content " +
-        "buffer pass `source` instead: the file it loads is rewritten in place, same row, new hash. The ids of " +
-        "this thread's buffers are in the thread section of your context. Returns { message, " +
+        "buffer pass `source` instead: the file it loads is rewritten, same row, new hash. This thread's id " +
+        "is in the runtime row of your context; its buffer ids come from entity_find { entity: \"buffer\", where: { thread } }, " +
+        "or from the thread section when your primer carries one. Returns { message, " +
         "buffer: [{ id, index, status, mime, data, trait }] }. " +
         'Example: { id: "01a09010-18e0-736f-ad3f-a65b44d3fa43", data: { summary: "Six species on four continents." } }',
       input: v.object({

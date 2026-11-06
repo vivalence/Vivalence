@@ -62,6 +62,7 @@ export default function read(paladin) {
   };
 
   const part = async (source, value, at) => {
+    if (is.string(value) && value.startsWith("@")) return { module: value };
     const located = locate(source, value, at);
     if (!located.path) return located.held;
     return await paladin.read.json(located.path).catch((error) => {

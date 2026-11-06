@@ -250,10 +250,25 @@ export async function vocalize(faculty, { source, settings }, policy) {
   }
 }
 
+export async function depict(faculty, request, policy) {
+  const span = policy.controller.stdout;
+  policy.controller.start();
+  span.log({ faculty: faculty.type, id: faculty.id, references: request.images.length, mask: request.mask !== undefined });
+  try {
+    const response = await faculty.via.render(request, { signal: policy.controller.abort.signal });
+    return { ...response, provider: faculty.provider, id: faculty.id };
+  } catch (fault) {
+    policy.controller.fault(fault);
+    throw fault;
+  } finally {
+    policy.controller.stop();
+  }
+}
+
 export async function choose(faculty, round, policy) {
   const span = policy.controller.stdout;
   policy.controller.start();
-  span.log({ faculty: faculty.type, model: faculty.config?.model, questions: Object.fromEntries(Object.entries(round.questions).map(([key, question]) => [key, question.type])) });
+  span.log({ faculty: faculty.type, id: faculty.id, questions: Object.fromEntries(Object.entries(round.questions).map(([key, question]) => [key, question.type])) });
   try {
     const verdict = await faculty.via.render(round, { signal: policy.controller.abort.signal });
     span.log({ verdict });

@@ -1,2 +1,2 @@
-export * as fs from "./fs.js";
-export * as shell from "./shell.js";
+export { fs } from "./fs.js";
+export { shell } from "./shell.js";

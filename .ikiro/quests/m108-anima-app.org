@@ -43,6 +43,8 @@
 | 8b | mint the =Runtime= early, wire later; =entities= stays late: =mode= · =daemon= repositories read =reference= at construction, the slug is the server's | /"could we instantiate the runtime prototype directly on the client earlier, or in the client die earlier? and then do all of the wiring a little bit later on?"/ |
 | 8c | wait until the Dataspace is INSTANTIATED, not populated — every repository's =$entities= exists at =new Dataspace=, the fill is a =.set=; no =$entities= atom on =Runtime= | /"I'm not sure I want entities on atom. Generally, I'm not opposed to the idea of waiting until data space."/ |
 | 8d | LOCKED A: the factory mints and connects; the =connection= beat only closes the multiplex | /"a"/ |
+| 9 | 11-10 go: modeline display glyph = the widget's =cur= glyph — =framed= cut, both read =dock.view= (unruled: docked+no frame drawn as full was the cut behaviour) | /"icon in modeline vs widget dont match. make em."/ |
+| 9b | 11-10: dock follows the bottom — the pre-m108 =Dock.svelte= pin ported (=e96261a30:…/a/widgets/Dock.svelte:261=) | /"the dock doesnt scroll to bottom properly. before the rebuild of anima from tbone pincer to repl we had some logic in the dock scrolling that was well done."/ |
 
 * the law
 
@@ -509,11 +511,128 @@ export function preferences(mode) {
 }
 #+END_SRC
 
+** 11-06/07 — phone pass (his: /"we rebuild anima recently … isall thta still ther?"/ · /"the top bar isnt taken into account on placement of the boundries"/ · /"holding it selects aka highlights the icon. the sidebar doesnt close when tapping the logo"/ · /"bottom mode bar is weird. recast. adn i need the dock/view widget"/ · /"lets try to give the widgets a dense view. tap-able. less text"/ · /"revert the change to the entity widget. but make it better. just, full view"/ · /"get me full on mobile too"/ · /"make it uni-width"/ · /"move trace inline not its own row"/ · /"othr way round. work on alignment"/ · /"phone implements same layout"/ · /"i cant drag this"/)
+PWA intact: =src/index.html= manifest · apple meta · =viewport-fit=cover=, =static/manifest.json= unchanged since =e96261a30^=. Landed, each served on :1794 and tests green (drapes =bar · mark · pop · srow · a11y=, ghost =commands=, anima =dock=):
+#+BEGIN_SRC css
+/* subsystems/drapes/parts.css */
+.client { position: relative; height: 100%; display: flex; flex-direction: column; … }   /* was absolute inset:0 — #app's safe-area padding never bound */
+.mark { … user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.phone .seg { padding: 0; min-width: 44px; margin: 0; justify-content: center; }
+.phone .seg.ent { padding: 0 8px; justify-content: flex-start; }
+.phone .seg.sp { min-width: 4px; }
+.phone .seg.ent .lab { flex-shrink: 0; }
+.phone .seg.ent .q { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.seg.sys { position: relative; }
+.seg.sys .dot { width: 9px; height: 9px; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.phone .srow { min-height: 36px; padding: 4px 8px; }
+.phone .srow.choice { flex-direction: column; align-items: stretch; gap: 2px; }
+.phone .srow.choice .cc { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 4px; }
+.phone [data-sec="entity"] .srow { min-height: 44px; padding: 0 8px; }
+.phone .wid:has([data-sec="entity"]) { left: 0 !important; right: 0; top: 0; bottom: var(--bar-h) !important; width: auto !important; max-height: none !important; border-radius: 0; }
+.dset .track.slider { … touch-action: none; … }
+.panel .ph .crumb { … white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.phone .keys.kcols button { grid-template-columns: 6ch minmax(0, 1fr) minmax(0, 1fr); }
+#+END_SRC
+#+BEGIN_SRC jsx
+// subsystems/drapes/Bar.jsx — phone = glyphs(): [word ‹mode›] · spacer · Meter · Glyph · cube · dot; desktop = worded(), unchanged
+      {held.phone ? glyphs() : worded()}
+// subsystems/drapes/Mark.jsx — the hold-swallow belongs to ONE pointerdown (iOS fires no click after a long press)
+  let fired = false;
+  const hold = holding(() => { fired = true; held.onHold(); }, held.delay);
+      onClick={(event) => !fired && held.onPick && held.onPick(event)}
+      onPointerDown={() => { fired = false; if (held.onHold) hold.press(); }}
+      onPointerCancel={hold.release}
+// subsystems/drapes/Pop.jsx — the share track drags like the Seam: live value in the part, ONE /split on release
+      act({ signal: `${props.dset.slide} ${(measure(released) / 100).toFixed(2)}` });
+// systems/anima/src/surfaces/chrome/layout.jsx — his ruling /"phone implements same layout"/
+export const layout = ({ dock }) => { … both: frame && docked && dock.view === "docked", direction: lookup(DIRECTIONS, dock.align, "dock align") };
+        <Show when={!(viewport().narrow && sided())}><Split dock={dock()} /></Show>
+// systems/anima/src/surfaces/chrome/panels/modeline/modeline.jsx — widget · popover measured against .client, as dock.jsx:30
+  const room = event.currentTarget.closest(".client").getBoundingClientRect();
+// systems/ghost/subjects/client/commands/doctor.js:10
+      client: { slug: ctx.client.mask.manifest.slug, remote: runtime.remote.origin },
+#+END_SRC
+Cut: dock =Strip= · the ⤢ button · frame =back= button · every =!props.phone= gate on dock/frame head buttons · =marked.held= · =.phone .seg.ent .lab 9ch= · =.strip= CSS. Dojo (registry =dojo/buffer/parts/Drawer.svelte:325= =overflow: auto=) by an agent, served by the runtime watcher.
+
+** 11-07 — wordmark · fonts
+/"same font size, same black color. and use the k2d theme font"/ (his screenshot: VIVALENCE grey 18px, ANIMA black 22px) · the flag pasted back = show-me subject · /"amen"/ ×3 · /"land."/
+- cause: four rows fought over =.v=; =.card.plain .brandline .wm= (5 classes, 22px) outranks =.wm.caps= (4) but not =.wm.caps .v= (5, 18px); =opacity: .8= on =.v=; K2D declared nowhere on anima.
+- =systems/anima/src/surfaces/chrome/mount.jsx:3= =import "@vivalence/dapper/font.css";= (alias =vite.config.mjs:211= existed, no importer).
+#+begin_src css
+/* subsystems/drapes/parts.css:666 */
+.island .brandline .wm.caps { font-family: "K2D", var(--font-family-brand), sans-serif; font-size: 18px; font-weight: 600; letter-spacing: .08em; color: var(--text-strong); }
+.island .brandline .wm.caps .v { font-size: inherit; font-weight: inherit; color: inherit; margin: 0; }
+#+end_src
+- =subsystems/dapper/primitives/font.css=: every live =url("/static/fonts/= → =url("/fonts/= (=systems/anima/static/= IS vite's publicDir; =/static/…= fell to the SPA fallback =200 text/html=; m46 =:15857= had said so). Probe after: 37 =font/ttf= · 14 =font/woff2=; DOM: body =IBM Plex Sans=, K2D·Plex·Space Mono·VT323·Inter·Poppins =loaded=.
+- =.v= dead comment block keeps =../static/= (his lines).
+
+** 11-07 — composer · seam · empty frame · =/buffer= label
+/"textarea must grow on multiline"/ · /"make the drag handle boundry between dock and frame larger. bit thicker border and make the grabby area overflow a bit to be greedy"/ · /"if there is buffers, list them, allow me to click them."/ · his screenshot: =no buffer dojo on thread … — its buffers: dojo #0= · /"dont ask for css shit. just do"/
+#+begin_src css
+/* subsystems/drapes/parts.css:219 — the comp's answer (dom/panes/dock.jsx:214), no JS measuring */
+.composer { flex-shrink: 1; min-height: 0; … }
+.field { display: flex; align-items: flex-end; min-height: 0; … }
+.field textarea { … field-sizing: content; min-height: 28px; max-height: min(180px, 100%); }
+/* :69 */ .seam.v { width: 12px; margin: 0 -6px; … transparent 5px, var(--boundary) 5px, var(--boundary) 7px, transparent 7px); }
+#+end_src
+- the dock is =flex: 0 0 share= (190px phone): a grown composer painted over the modeline; shrink caps it (dock 190 → composer 142 → textarea 118), the journal collapses to its padding in that dock. Served, measured: 28 → 68 → cap, cleared back to 28.
+- =frame.jsx:101= =Empty=: one =button.cmd= per thread buffer → =/buffer <label>=; =parts.css:85= hover underline.
+#+begin_src js
+// systems/ghost/gestalten/belt/input.js:13 — /buffer cast the raw signal: ["dojo", "#0"] → "dojo"; its own hint printed "dojo #0"
+export const lined = (signal) => ({ ...signal, body: signal.body.length === 0 ? [] : [signal.body.join(" ")] });
+// buffer.js:11 · full.js:22 · attach.js:9 · detach.js:9
+    const { name } = belt.input.cast(Labeled, belt.input.lined(ctx.signal));
+#+end_src
+- a command file exports Vectors only: =commands/index.js= =export *= grafts every export (first cut exported =lined= from =buffer.js= → =vector.trie is not iterable=). =commands.test.js:317= unquoted case added, ok 32 steps. Proven on his thread =#01a1b1c1…=: =/buffer dojo #0= seats, =/buffer nope= faults.
+
+** 11-10 — intent · new buffer · one blank buffer (his: /"remove intent."/ · /"i want a way to add new buffers."/ · /"renaem to \"new\""/ · /"a: should be only one. b: runtime/runtime is not viewable so should be emtpy"/ · /"go b and probe"/ · /"both"/)
+- anima boot faulted =this.em.repositoryMap[name] is undefined=: =mode/hydration.js:8= branched ="intent"=, unregistered in =factory.js:39= → cut (his ruling). Console clean on reload.
+#+begin_src js
+// systems/ghost/subjects/terminal/commands/buffer.js — /buffer/new; sidebar key "new" (sections.js:193, off when no thread)
+).open(
+  { nature: "/buffer/new", valence: "a new buffer on the seated thread, framed. Example: /buffer/new" },
+  async (ctx) => {
+    const made = await ctx.client.runtime.entities.buffer.create({ thread: ctx.terminal.thread.id, mode: ctx.terminal.mode.id });
+    ctx.terminal.$buffer.set(made);
+    return `buffer #${made.id} · ${named(made)}`;
+  },
+);
+// subsystems/typology/entities/Buffer.ts — both (1 · 2): the twitch mints at birth, the stall ensures
+  async ensure({ thread, ...fields }: any) {
+    return (await this.findOne({ thread }, { orderBy: { index: "ASC" } })) ?? (await this.create({ thread, ...fields }));
+  }
+twitch.open("/after/thread/create", async (ctx) => {
+  const mode = await ctx.input.em.findOneOrFail(ModeEntity, ctx.input.entity.mode);
+  if (!mode.traits.includes("VIEWABLE")) return;
+  await ctx.input.em.getRepository(BufferEntity).ensure({ thread: ctx.input.entity.id, mode: mode.id, data: {} });
+  await ctx.input.em.flush();
+});
+// systems/ghost/subjects/terminal/stall.js:14 — /manual: VIEWABLE gate, create → ensure
+    if (stallCtx.terminal.thread.mode.traits.includes("VIEWABLE") && stallCtx.terminal.stall.$buffers.get().length === 0)
+      await stallCtx.terminal.client.runtime.entities.buffer.ensure({ … });
+#+end_src
+- departures: the twitch sits in =Buffer.ts= (its entity), not =Thread.ts=; =stall.js= KEEPS its creator as =ensure= (his "both"), not cut.
+- proof: =runtime #4 · #5= 6 ms apart on his db = Chrome + Firefox on :2501 (=lsof ESTABLISHED=); scratchpad probes: N clients → N creates; birth on VIEWABLE → 1 (=test #0=), two flushed ensures → 1, non-VIEWABLE → 0. =stall.test.js= 8 ok (+ non-VIEWABLE case), ghost =commands= 32 ok, runtime =datamap.scoped · scope.params · buffer.labeled · mint · mode/traits · entities/view · terminal.unseated= ok.
+
+* review — 11-07 wordmark · font.css
+| S | stop | rides | verdict | his words |
+|---|---|---|---|---|
+| 1 | font.css enters anima at the mount | /"use the k2d theme font"/ | amen | /"amen"/ |
+| 2 | the wordmark is one rule, the span inherits | /"same font size, same black color"/ | amen | /"amen"/ |
+| 3 | every font url rides the publicDir, no /static | flag → his paste | amen | /"amen"/ · /"land."/ LANDED |
+
 * handoff
 
 - goal: anima on m107's App style — the entry mints client + App, the surface is ={ bundle, mount }=, panes consume =ambient.app=.
 - done 10-26: milestones 1 · 2 · 3 (=* changelog=); 10-27: cover panel · =send.js= · =split.jsx= cut · ghost app =lifecycle.js= · Q8d the factory mints the runtime · =src/index.html= head restored (doctype · charset · theme script · =rel="icon"=; cut in snap =450bf5b2= 10-27 10:37), esm.sh importmap left out (go).
+- done 11-06/07 (phone pass): =.client= flowed so the safe-area binds; widget · popover · slider measured on =.client=; Mark hold = one press; phone bar = glyphs with =[word ‹mode›]=; dense =choice= rows, entity widget full view; =layout()= has no phone arm (Strip · ⤢ · back cut); share track drags; =/doctor= reads =runtime.remote=; dojo drawer clips (registry).
+- done 11-07 (wordmark · fonts): font.css imported at the mount; wordmark one rule, =.v= inherits; every font url on =/fonts/= (=** 11-07 — wordmark · fonts=, =* review=).
+- done 11-07 (composer · seam · empty frame): textarea =field-sizing: content= under the dock's shrink; seam 12px/2px; =Empty= lists the thread's buffers as =/buffer <label>= buttons; =belt.input.lined= — =/buffer= reads the rest of the line (4 commands) (=** 11-07 — composer …=).
 - done 11-06 (theme pass): sidebar chip =/theme/set= (=sections.js:229=); repl arrows — =belt.completions.choosing · listed= bound =/repl/next= in the chooser too, anima =repl.jsx= reads =bridge.selected=, hints cut, =composer.jsx= resets the selection on type; =bridge.js= =$theme= persistent, keys =viva.bridge.terminal · viva.bridge.theme=; =index.html:7= pre-paint reads =viva.bridge.theme=; drapes =preferences= on =persistentAtom("viva.mode.<slug>")= (dojo bundle proven). Benched: =remote-repository.js= =persist()= cut (0 product callers). Ignored: =local-repository.js=.
-- next: his go on =Thread.ts= =/after/thread/create= minting the MANUAL blank buffer, =stall.js= =/manual= losing its creator (two clients = two creators, 10-29); then milestone 4 — anima's 9 test files onto =surfaces/chrome/= (=tests/world.js:10= still bundles =src/surface/=, gone).
+- done 11-10: =intent= cut from the mode branch; =/buffer/new= + sidebar =new=; one blank buffer per VIEWABLE thread — =Buffer.ts= =/after/thread/create= + =ensure=, stall gated + =ensure= (=** 11-10=).
+- done 11-10 (Q9 · Q9b): =drapes/Bar.jsx= =<Show when={SOLID[props.view](props.align)} keyed>= (=framed= cut: Bar · Pop · modeline · =design/worlds.js= · =pop.test.js= green); =panels/dock/dock.jsx= =following(journal)= → ={repin, release}= — 24px =SLACK=, unpin only on an upward scroll, rAF-coalesced pin, ResizeObserver + MutationObserver (subtree · characterData), repin on =thread= change. Vite :1794 serves both; NOT seen in a browser.
+- done 11-11 (F5 frame: JSON tree · empty dropdown): the view list was a one-shot fetch read before the View store filled. Locked Q0B /"b"/: =belt.view.candidates(...pools)= — a =computed= merging =buffer.$views= + =buffer.mode.$views=, a view once (no =Set=: /"the concept … of set"/); =buffer.views= only ADDS, the selection is =RENDERED= (ruling 39's overwrite superseded). Ghost =Buffer.$views= atom (/"yes."/); =buffer.$candidates= REJECTED (/"Candidates is not a property of the buffer"/). Both chromes =widgets/buffer= =candidates(buffer, files)= filter =belt.view.held= (a view lists once its entry File is held — view and File arrive apart; unruled, mine); =framed= · =cells= plain filters; anima =frame.jsx= · =view.jsx=, ghost =frame.jsx= (=settled= keeps the daemon ERROR row) · =journal.jsx= · =commands/frame.js= · =cell.js=. CUT (/"cut clean and prune"/): =belt.view.row= · =/attached/view/:id= (m87 law 9's view half) + tests + =20.01_slowstart.mdx:386=. Seen in Chrome :1794, darkroom mounted after a reload ×3; tty NOT run, his Firefox NOT seen. Suites: ghost =view.test.js= 5 · =tests/surfaces/= 4 · runtime =beats.coverage= 10 · =hello= 24 green; =client.test.js= step 3 red on the =NOT_FOUND= expect (unread, red before the candidates edit).
+- direction 11-11 (Q2B, /"the direction is okay, but I don't need to implement this today"/): a generic viewer (inspector · source editor · state view · movie) = a view of a RUNTIME mode joining the pool when the buffer's mime matches — a third pool =runtime.$views= + a View trait naming its mimes (name · grammar unasked); an OFFER in the dropdown, never a forced match (m96 ruling 13 stands).
+- next: his look at the glyph + dock follow; restart :2501 (Buffer.ts is outside =runtime/watch=; drops =/attached/view/:id= too), his look at a new thread · =new= key; then milestone 4 — anima's 9 test files onto =surfaces/chrome/= (=tests/world.js:10= still bundles =src/surface/=, gone).
 - never: a shim or dual read of =client.surface= beside =client.app=; =?url=; =$telemetry=; the struck words; =client.$runtime= or an =$entities= atom (Q8).
-- owed: milestone 4; his 45 threads each hold a buffer pair (=index= 0,0); the =delete= row key could be per-row ✕ (unruled); the five QA markers; =$popover= holds two shapes — ghost's ={held, anchor}= and anima's ={x, y}= (anima's Popover shows only the point); known issues =mode-views-read-old-anima-daemon= (his ruling) · =repl-answer-unpainted= · =terminal-tabs-in-arrival-order=; ghost tty =widgets/entity/entity.jsx= ignores =sections.traits= (lists all modes); the chips show only past 6 rows; anima chess =board/play= pane: /"Failed to resolve module specifier "@opentui/solid""/ (seen 10-27 after Q8d, which picks no view; earlier state unread).
+- owed: milestone 4; 11-11: a tty walk of the frame · his Firefox F5 · =held= ruling · =/buffer/create= =views: […]= is inert since the merge (the pin adds nothing its mode does not ship; valence =generative.js:82= still says "instead of the mode's default"; the fresh view still paints, =pick= takes the latest) — Locked Q1 /"a"/, NOT applied (/"its edge case. you chose for now."/): the input becomes =rendered: Rendered.optional()= written as =traits: ["RENDERED"]= · =trait: { RENDERED: ctx.input.rendered }= merged with =label='s; blast =generative.js:106-126= · primers =commons/instances/hello-world/harness.js:15= · =commons/playground/chaosmonkey/reader/harness.js:11= (his prose) · =tests/mode/generative.test.js:192= (=known-issues.org= at cap, held here) · the flag-shape hook (codestyle comms /"what???"/ ×3 11-11, his to wire) · a buffer whose =mode= is an id now THROWS on =mode.$views= (was =[]=); Q9 ruling — docked with no frame: glyph docked (landed) or the widget's =cur= moves to full; Q9b the old =unread= count + jump-to-bottom (no composer slot); his =runtime #4 · #5= rows; a thread emptied by delete with two clients open → two stall =ensure=s race (each unflushed); phone: =Pop.jsx:51= · =Tele.jsx:10= clamp on the WINDOW (=bridge.$viewport=), not =.client= (≤ safe-area-bottom overrun) — fix = the store carries the client box, one writer =cover.jsx= root; =$phonePane= now means only sidebar-or-not (stale name); =#app= pads top · bottom only (landscape notch); dead: =drapes/controls/ViewportLock.svelte= · =visible.js= (Svelte, 0 readers), =index.html:21= =--safe-area-*= vars (0 readers); unverified on his phone: the 52px bar with zero-margin segs, row split on a 390px screen; his 45 threads each hold a buffer pair (=index= 0,0); the =delete= row key could be per-row ✕ (unruled); the five QA markers; =$popover= holds two shapes — ghost's ={held, anchor}= and anima's ={x, y}= (anima's Popover shows only the point); known issues =mode-views-read-old-anima-daemon= (his ruling) · =repl-answer-unpainted= · =terminal-tabs-in-arrival-order=; ghost tty =widgets/entity/entity.jsx= ignores =sections.traits= (lists all modes); the chips show only past 6 rows; anima chess =board/play= pane: /"Failed to resolve module specifier "@opentui/solid""/ (seen 10-27 after Q8d, which picks no view; earlier state unread).

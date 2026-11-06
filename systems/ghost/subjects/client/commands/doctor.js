@@ -7,7 +7,7 @@ export const doctor = new Vector().open(
     const thread = ctx.terminal.thread;
     const mode = ctx.terminal.mode;
     return {
-      client: { slug: ctx.client.mask.manifest.slug, remote: ctx.client.mask.statics.remote.origin },
+      client: { slug: ctx.client.mask.manifest.slug, remote: runtime.remote.origin },
       user: runtime.lighthouse.user === null ? null : runtime.lighthouse.user.username ?? runtime.lighthouse.user.id,
       lighthouse: runtime.lighthouse.status.code,
       runtime: { reference: runtime.reference.absolute, standing: runtime.status.code, daemons: runtime.entities.daemon.$entities.get().length },

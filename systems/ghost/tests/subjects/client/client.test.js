@@ -71,7 +71,7 @@ specimen.describe("the client against a world — attach, sign in, see the runti
     const memo = first(clientDie).mode;
     const buffer = await clientDie.runtime.entities.buffer.create({ mode: memo.id, thread: first(clientDie).thread.id, data: {} });
     specimen.expect(buffer.views).toEqual([]);
-    const views = await ghost.belt.view.candidates(buffer, clientDie.runtime.attach);
+    const views = ghost.belt.view.candidates(buffer.$views, buffer.mode.$views).get();
     specimen.expect(views.map((view) => view.mime).sort()).toEqual([mime.dom.svelte, mime.tty.solid].sort());
     specimen.expect(views.every((view) => view.slug === "memo")).toBe(true);
     const picked = ghost.belt.view.pick(views.filter(chrome.runs));

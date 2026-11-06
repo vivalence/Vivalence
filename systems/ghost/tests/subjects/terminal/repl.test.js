@@ -67,7 +67,7 @@ specimen.describe("repl — a line runs on the terminal's Repl; its records land
       "/dock/lens",
       "/split",
       "/frame/set",
-      "/tune",
+      "/tier",
       "/effort",
       "/rounds",
       "/leader",

@@ -110,10 +110,10 @@ export default async function provider(service) {
     const seat = { ...model, statics };
     faculties.push({
       type: "dialogue",
+      id: model.slug,
       tune: model.tune,
       context: model.context,
       channels: { in: ["text", "image", "document", "tool_result"], out: ["text", "tool_use", "object"] },
-      config: { model: model.slug },
       via: {
         stream: (request, { signal } = {}) => dialogue(seat, request, signal),
         render: (request, { signal } = {}) => collect(dialogue(seat, request, signal)),
@@ -123,6 +123,7 @@ export default async function provider(service) {
 
   faculties.push({
     type: "verbatim",
+    id: "stub-verbatim",
     tune: [0.4, 0.6, 0.8, 0.9],
     channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
     via: {
@@ -144,6 +145,7 @@ export default async function provider(service) {
 
   faculties.push({
     type: "speech",
+    id: "stub-speech",
     tune: [0.3, 0.5, 0.8, 0.9],
     channels: { in: [{ type: "text" }], out: [{ type: "audio", codec: "pcm_16000" }] },
     via: {

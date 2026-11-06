@@ -8,6 +8,7 @@ const edgeMeta = (pattern, effect) => {
   if (pattern?.yields !== undefined) meta.yields = pattern.yields;
   if (pattern?.feeds !== undefined) meta.feeds = pattern.feeds;
   if (pattern?.valence !== undefined) meta.valence = pattern.valence;
+  if (pattern?.load !== undefined) meta.load = pattern.load;
   if (effect?.methods) meta.methods = Object.keys(effect.methods);
   return meta;
 };

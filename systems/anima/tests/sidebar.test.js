@@ -21,11 +21,12 @@ const ENTITY = `<div class="subj " data-sec="entity"><div class="subjh" title="c
 </div></div>`;
 
 const HARNESS = `<div class="subj " data-sec="harness"><div class="subjh" title="ctrl-v h"><span class="t">harness</span></div><div class="subjb">
-<div class="srow choice"><span class="cl">tune</span><span class="cc"><button class="">frugal</button><button class="cur">fast</button><button class="">balanced</button><button class="">capable</button><button class="">unleashed</button><button class="">eager</button></span></div>
+<div class="srow choice"><span class="cl">tier</span><span class="cc"><button class="">frugal</button><button class="cur">fast</button><button class="">balanced</button><button class="">capable</button><button class="">unleashed</button><button class="">eager</button></span></div>
 <div class="srow choice"><span class="cl">effort</span><span class="cc"><button class="">none</button><button class="cur">low</button><button class="">medium</button><button class="">high</button></span></div>
 <div class="srow stepper"><span class="cl">rounds</span><button aria-label="less">−</button><span class="v">6</span><button aria-label="more">+</button></div>
 <div class="srow meter"><span class="cl">context</span><span class="track"><span class="fill " style="width:0%"></span></span><span class="v">0 %</span></div>
-<div class="srow value"><span class="lab">tools</span><span class="v">—</span></div>
+<button class="srow sub"><span>primer</span><span class="c">2</span><span class="chev">▸</span></button>
+<button class="srow sub"><span>tools</span><span class="c">2</span><span class="chev">▸</span></button>
 </div></div>`;
 
 const TAGS = ["terminals", "threads", "modes", "buffers", "activity", "harness", "display", "box", "system", "control"];
@@ -53,14 +54,14 @@ specimen.describe("sidebar — Dom.sidebar: .sbhead · .sbbody of sections · .s
     rig.close();
   });
 
-  specimen.it("rows are lines: a terminal · a tune chip · a dset view; the screen-only ones move surface atoms", async () => {
+  specimen.it("rows are lines: a terminal · a tier chip · a dset view; the screen-only ones move surface atoms", async () => {
     const { rig, sent, client } = await seated();
     fire(rig.target.querySelectorAll(".srow.item")[1], "click");
-    fire(rig.target.querySelector("[data-line='/tune capable']"), "click");
+    fire(rig.target.querySelector("[data-line='/tier capable']"), "click");
     fire(rig.target.querySelector(".dset [data-line='/dock full']"), "click");
     fire(rig.target.querySelector(".dset [aria-label='more']"), "click");
     fire(rig.target.querySelector("[data-line='/dock/lens chat']"), "click");
-    specimen.expect(sent).toEqual(["/terminal 1", "/tune capable", "/dock full", "/split 0.43", "/dock/lens chat"]);
+    specimen.expect(sent).toEqual(["/terminal 1", "/tier capable", "/dock full", "/split 0.43", "/dock/lens chat"]);
     fire(rig.target.querySelector("[data-line='/sidebar/width 296']"), "click");
     fire(rig.target.querySelector("[data-line='/telemetry']"), "click");
     await settle();

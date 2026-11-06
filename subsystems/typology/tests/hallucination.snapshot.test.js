@@ -28,6 +28,7 @@ function scriptedCortex(script, seen) {
   return new Cortex().register([
     {
       type: "dialogue",
+      id: "dialogue-1",
       tune: [0.5, 0.5, 0.5],
       channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
       via: {
@@ -173,6 +174,7 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
         const cortex = new Cortex().register([
           {
             type: "dialogue",
+            id: "dialogue-2",
             tune: [0.5, 0.5, 0.5],
             channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
             via: {
@@ -211,6 +213,7 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
         const cortex = new Cortex().register([
           {
             type: "dialogue",
+            id: "dialogue-3",
             tune: [0.5, 0.5, 0.5],
             channels: { in: ["text"], out: ["object"] },
             via: {

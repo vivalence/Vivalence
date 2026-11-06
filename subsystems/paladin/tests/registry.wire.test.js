@@ -100,6 +100,19 @@ describe("registry.wire — a daemon mask to its bag", () => {
     expect(bag.modes[1].reference.absolute).toBe("/held");
   });
 
+  it("a mode's own consume is wired like the daemon's — each entry a citizen; a mode that names none holds an empty one", async () => {
+    const consuming = { ...mask.modes[1], consume: { light: { module: "@probe/lighthouse/light", statics: { beam: 2 } } } };
+    const bag = await boot(MODULES).wire({ ...mask, modes: [consuming, mask.modes[0], "@probe/game/board"] });
+    expect(typeof bag.modes[0].consume.light.provider).toBe("function");
+    expect(bag.modes[0].consume.light.statics).toEqual({ beam: 2 });
+    expect(bag.modes[0].consume.light.identifier).toBe("@probe/lighthouse/light");
+    expect(bag.modes[1].consume).toEqual({});
+    expect(bag.modes[2].consume).toEqual({});
+    expect(typeof bag.consume.light.provider).toBe("function");
+    expect(consuming.consume.light).toEqual({ module: "@probe/lighthouse/light", statics: { beam: 2 } });
+    await expect(boot(MODULES).wire({ ...mask, modes: [{ ...mask.modes[1], consume: { x: { module: "@gone/service/x" } } }] })).rejects.toThrow("package @gone not supplied");
+  });
+
   it("a slot naming an unsupplied package throws that package, not the whole bag silently", async () => {
     await expect(boot(MODULES).wire({ ...mask, datamap: { module: "@gone/datamap/x" } })).rejects.toThrow("package @gone not supplied");
   });

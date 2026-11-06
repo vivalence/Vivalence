@@ -1,0 +1,405 @@
+#+title: harness metadata — the loaded harness reaches the client before the first turn; a tool is armed or disarmed per thread; every mode fact rides its trait
+#+filetags: :runtime:harness:metadata:traits:tools:ghost:anima:
+#+status: DONE 11-08 /"not now. move to doen and disarmament to benched"/ — milestone 3 → `benched/harness-disarming.org`; LANDED 11-08 on /"go. land quests/harness-metadata.org"/ — milestones 1 · 2 · 4 on the tree (13 files + a snapshot test), 3 DEFERRED whole (Q9); every mode fact rides its trait, `/metadata/harness` = routes · primer · tools pinned (`tests/snapshots/harness-metadata.snapshot.json`), the widget lists primer + tools; one miswire found at land: a metadata row is `.open`, never `.get` (`connection.call` POSTs → 405) — `repling.js:5` had it too, fixed. Sibling of `m117-root-harness.org`.
+#+phase: done
+#+progress: 3/3 (the 4th benched)
+#+next: —
+<!-- limit: 26000 chars -->
+
+* intent
+/"how could we get the loaded harness into the client before the first execution? also how might we be able to enable and disable individual tools?"/
+/"on trait harnessed we migth expose metadata."/
+/"this too. why is shard reaching into anythign?"/ — on `host.js:31` `/emitter`
+/"yes. we watn the metadata attached inside the traits generally"/
+/"manifest also via metadata."/ · /"status too."/
+/"add [the harness widget] this information to the harness widget"/ — tune · effort · rounds · context · tools `—`
+
+* the dialogue
+- 17:23 /"how could we get the loaded harness into the client before the first execution? also how might we be able to enable and disable individual tools?"/ → two sketches: a `/harness/primer` leaf per thread (now `* deferred`) · `ARMED.off` pruned in `arming`.
+- 17:25 /"on trait harnessed we migth expose metadata."/ → the finalizer opens `/metadata/harness`; `host.js:33` cut.
+- 17:27 /"this too. why is shard reaching into anythign?"/ (the `/emitter` row) → the whole `host.js` loop cut; `/aperture · /statics · /mountpoint` → `1-population.js`.
+- 17:28 /"yes. we watn the metadata attached inside the traits generally"/ · /"manifest also via metadata."/ · /"status too."/ → Q1 · Q2.
+- 17:29 /"primer? primer is something specific. your brain is mangled here."/ → Q5 (surfaced at the fold; the harness never showed it to me mid-turn).
+- 17:29 /"/show-me consle.log json.stringify of this."/ → S1, probed.
+- 11-08 S2 /"(_, ctx) = signature wrong. _ not needed."/ · /"do we set all mode metadata in their repsective traits or is it kinda piecemeal rn? i'd prefer metadata per trait all over"/ → every `(_, ctx)` → `(ctx)`; statics · mountpoint rows: zero readers, measured below.
+- 11-08 S2 /"there is alwasy statics and mount point … we just autocomplete one if one isn't given … check my mount point assumption. b"/ → holds: `paladin/instance/lifecycle/2-resolution.js:104` autocompletes `mode_<type>_<slug>` under the daemon's; `registry.js:260` `statics: {…}` always an object. Q6 = B.
+- 11-08 S4 /"system: shape.primer.strip(primer), -> call it primer too. routes: shape.strip(harness), -> those arent routes. those are ...? faculties? not sure. hmm. show me."/ · /"is this right?? because i assume those are nested.?? we;re loosing information here. add more detail on the tools … youre not properly stripwiring here. snapshot or underlying issue?"/ → primer: UNDERLYING (`shape.primer.strip` flattened by `nodes()`) → `shape.strip(primer)` + `load` plucked; tools: SNAPSHOT (my print was `Object.keys`, the strip holds 11035 chars of schematics); Q5 re-read.
+- 11-08 S4 /"ok. we call routes routes. its fine."/ → Q7.
+- 11-08 S5 /"can we keep armed on intelligent for now? or maybe not since intelligent is pretty general and armed very specific? not sure. think through both"/ → A `INTELLIGENT.disarmed` · B `ARMED.off`; /"b,. amen."/ → Q8.
+- 11-08 S7 /"amen."/ → the walk ends; probes: `probe-mode-metadata.js` · `probe-metadata-emitter.js` · `probe-metadata-harness.js` (+ `.full.json`) · `probe-armed.js` · `probe-disarming.js` · `probe-widget.js`.
+- 11-08 S6 /"so. lets not implement the disamrning yet. we skip that. we design the trait. but i dont want it implemented at all yet."/ → Q9; milestone 3 moved whole; S7 killed; 8 → 7 stops.
+- 11-08 S3 /"emitter has no readers, but it's still part of the infrastructure. We should not return it, it's part of the system. We do emit buffers. And I think we do want the metadata out there."/ → Q6′: the row stays on EMITTER; `probe-metadata-emitter.js` prints memo's `session` route.
+- 17:32 /"absolutely fantastic. ok. write a quest."/ · /"tangle ready"/ · /"add [the widget] this information to the harness widget"/ · /"do we call it skills or tools"/ → this file; tools (`gestalten/tools/`, was `skills/`).
+
+* rulings
+| Q | ruling | his words | at |
+|---|---|---|---|
+| 1 | a mode fact is opened by its TRAIT on `mode.aperture`, never by the host shard | /"we watn the metadata attached inside the traits generally"/ | `harnessed.js:247` · `emitter.js:65` |
+| 2 | the mode's own rows live under `/metadata` with the rest | /"manifest also via metadata."/ /"status too."/ | `1-population.js:15` |
+| 3 | `/metadata/harness` = `routes · system · tools`, strips, nothing fires | /"absolutely fantastic."/ | S1 |
+| 5 | the strip of the primer is `shape.strip(primer)`, nested, one walker — `shape.primer.strip` (a flat second walk) is the mangle; the key is `primer`; `load` joins the pluck | /"primer? primer is something specific. your brain is mangled here."/ · 11-08 /"call it primer too"/ · /"i assume those are nested.?? we;re loosing information here."/ | `strip.js:10` · `harnessed.js:247` |
+| 7 | the harness strip's key is `routes` | /"we call routes routes. its fine."/ | `harnessed.js:249` |
+| 8 | `ARMED` is its own thread trait, one trait one consumer (`arming`); INTELLIGENT stays total onto the policy | /"can we keep armed on intelligent for now? … intelligent is pretty general and armed very specific?"/ · /"b,. amen."/ | `traits/armed.js` · `harnessed.js:32` |
+| 9 | the switch is designed, not implemented: no `disarming`, no `/arm` · `/disarm`, no `ARMED` read; the widget lists tools read only | /"lets not implement the disamrning yet. we skip that. we design the trait. but i dont want it implemented at all yet."/ | `quests/benched/harness-disarming.org` |
+| 4 | the harness widget shows the primer sections and the tools | /"add this information to the harness widget"/ | `sections.js:195` |
+| 6 | a mode fact rides the trait that owns it: status · manifest the mode's own (core beat), aperture EXPOSED, emitter · harness · repl theirs; statics · mountpoint on a mode: no row (zero readers) | /"i'd prefer metadata per trait all over"/ · /"b"/ | `1-population.js:15` · `exposed.js:8` |
+| 6′ | a trait's surface is published under `/metadata` by the trait, readers or none — emitter · harness · repl · aperture; only a fact no trait owns is reader-gated (statics · mountpoint) | /"emitter has no readers, but it's still part of the infrastructure … We do emit buffers. And I think we do want the metadata out there."/ | `emitter.js:65` |
+
+* terrain — measured 11-07
+The host shard reaches into every mode:
+#+BEGIN_SRC js
+// systems/runtime/gestalten/shard/host.js:24
+  for (const mode of fromm.modes(context.modes).flat) {
+    const meta = context.aperture.branch(mode.reference.nature).branch("/metadata");
+
+    meta.open("/aperture", () => shape.strip(mode.aperture));
+    if (mode.statics) meta.open("/statics", () => mode.statics);
+    if (mode.mountpoint) meta.open("/mountpoint", () => mode.mountpoint.absolute);
+
+    if (mode.implements("EMITTER")) meta.open("/emitter", () => shape.strip(mode.module.emitter));
+
+    if (mode.implements("HARNESSED")) {
+      meta.open("/harness", () => shape.strip(mode.aperture.branch("/harness")));
+    }
+  }
+#+END_SRC
+The oracle, one trait already doing it right:
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/repling.js:5
+  mode.aperture.get("/metadata/repl", () => shape.strip(mode.repl));
+#+END_SRC
+`mode.aperture` is mounted LIVE under the host at its reference, so the trait's row and the shard's row are one node:
+#+BEGIN_SRC js
+// systems/runtime/gestalten/belt/modes.js:9
+    context.aperture.branch(mode.reference.nature, mode.aperture);
+#+END_SRC
+The client takes the strip at attach, before any turn:
+#+BEGIN_SRC js
+// systems/ghost/entities/mode/traits/harnessed.js:30
+  mode.metadata.harness = await mode.connection.call("/metadata/harness");
+  mode.harness = shape.connection.wire(harness, mode.metadata.harness);
+#+END_SRC
+The armory is built per request; the model's catalog IS the Vector; a miss lists it:
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/harnessed.js:76
+const arming = async (ctx, primer) => {
+  const armed = new Vector()
+    .graft(paladin.tools.fs.fs)
+    .graft(paladin.tools.shell.shell);
+// subsystems/typology/gestalten/belt/hallucinate.js:103
+        ? `unknown tool: ${call.name} — armed: ${armory(tools) || "(none)"}`
+#+END_SRC
+Off = a pruned trie, the datamap's way:
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shard/datamap.js:189
+  if (only) for (const nature of [...aperture.trie.keys()]) if (!only.includes(nature.replace(/^\//, ""))) aperture.trie.delete(nature);
+#+END_SRC
+A tool name ⟷ its steps:
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/toolcall.js:21
+  get name() {
+    return this.absolute.join("_");
+  }
+#+END_SRC
+Per-thread knobs already ride a thread trait and the same three writers:
+#+BEGIN_SRC js
+// subsystems/typology/schematics/traits/index.js:37
+  INTELLIGENT: Intelligent.default({}).optional(),
+// systems/ghost/subjects/terminal/commands/intelligent.js:13
+      await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT }));
+// systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:195
+const intelligent = (world) => {
+  const held = harness(world.thread);
+  return [
+    choice("tune", TUNES, held.tune, "/tune"),
+    choice("effort", EFFORTS, held.effort, "/effort"),
+    stepper("rounds", held.rounds, `/rounds ${held.rounds - 1}`, `/rounds ${held.rounds + 1}`),
+    meter("context", held.context, `${held.context} %`, held.context >= 85 ? "cau" : ""),
+    value("tools", UNCLAIMED, ""),
+  ];
+};
+#+END_SRC
+Drapes already renders `sub · item · check` rows (`subsystems/drapes/Srow.jsx:30 · :36 · :106`); a check's act dispatches its `signal` on the terminal repl (`sidebar.jsx:43`). Readers of a MODE's `/status` · `/manifest`: none outside `1-population.js` (`beats.coverage:115` · `composition:37` read the HOST's).
+
+* the law
+- a trait opens its own `/metadata/<fact>` on `mode.aperture` in its finalizer; the host shard opens host facts + `/metadata/modes` only; the core beat holds status · manifest, the mode's own; a trait publishes its surface readers or none (Q6′); a fact no trait owns and nobody reads is no row (Q6: statics · mountpoint — paladin fills both, `instance/lifecycle/2-resolution.js:104` · `registry.js:260`, a guard on them was a defect).
+- `/metadata/harness` fires nothing: `priming` with `input: {}`, the boot half of `arming` (`armory`), three `shape.strip`s — `routes · primer · tools`, nested, schematics whole; ONE walker (Q5); `routes` stays (Q7; the cortex's axes are `avenue` × `via`, `cortex.js:45 · :27`).
+- `/metadata/harness/primer/(.*)` reads ONE section as the model reads it (`shape.primer.read`), the client peeks it on a leaf's open; a nested nature rides the remainder pattern `(.*)` → `ctx.params` numeric → `fromm.params(…).path` (`:x` is one segment).
+- a metadata row is `mode.aperture.open`, never `.get`: `Aperture.get` answers GET only (`aperture.js:5`), the client's `connection.call` POSTs (`connection.js:97`) → 405 (found at land 11-08, `harness-wire.test` red; `repling.js:5` carried the same).
+- (deferred, Q9) off is PRUNED, never gated: a disarmed tool is absent from the catalog and from dispatch; an unknown name throws at `trie.get`.
+- (deferred, Q9) the thread owns the switch (`trait.ARMED.off`), its own trait beside `INTELLIGENT` (Q8); the widget and `/arm` · `/disarm` write it through `traits.patch`.
+
+* as code — the tangle
+*** subsystems/typology
+***** gestalten/shape/strip.js
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shape/strip.js:10
+   if (pattern?.valence !== undefined) meta.valence = pattern.valence;
++  if (pattern?.load !== undefined) meta.load = pattern.load;
+   if (effect?.methods) meta.methods = Object.keys(effect.methods);
+#+END_SRC
+*** systems/runtime
+***** gestalten/shard/host.js
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/shard/host.js:22
+   root.open("/modes", () => fromm.modes(context.modes).flat.map(listed(context)));
+-
+-  for (const mode of fromm.modes(context.modes).flat) {
+-    const meta = context.aperture.branch(mode.reference.nature).branch("/metadata");
+-
+-    meta.open("/aperture", () => shape.strip(mode.aperture));
+-    if (mode.statics) meta.open("/statics", () => mode.statics);
+-    if (mode.mountpoint) meta.open("/mountpoint", () => mode.mountpoint.absolute);
+-
+-    if (mode.implements("EMITTER")) meta.open("/emitter", () => shape.strip(mode.module.emitter));
+-
+-    if (mode.implements("HARNESSED")) {
+-      meta.open("/harness", () => shape.strip(mode.aperture.branch("/harness")));
+-    }
+-  }
+ };
+#+END_SRC
+***** subjects/mode/lifecycle/1-population.js
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/lifecycle/1-population.js:15
+   die.mode.aperture = new Aperture()
+     .use(shard.context.spread(contexts.host, die.context))
+     .use(shard.context.bind("mode", die.mode))
+-    .open("/status", (_, ctx) => ctx.mode.status.reflection)
+-    .open("/manifest", (_, ctx) => ctx.mode.manifest);
++    .open("/metadata/status", (ctx) => ctx.mode.status.reflection)
++    .open("/metadata/manifest", (ctx) => ctx.mode.manifest);
+   if (die.mode.module.aperture) die.mode.aperture.graft(die.mode.module.aperture);
+#+END_SRC
+***** subjects/mode/traits/emitter.js
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/emitter.js:65
+   return () => {
+     mode.aperture.branch("/emit", emitter);
++    mode.aperture.get("/metadata/emitter", () => shape.strip(mode.module.emitter));
+     // the emitter is NOT armed as a tool: a tool that draws has to exist separately and delegate.
+#+END_SRC
+***** subjects/mode/traits/exposed.js
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/exposed.js:8
+   return () => {
+     mode.call = shape.proxy(mode.aperture);
++    mode.aperture.get("/metadata/aperture", () => shape.strip(mode.aperture));
+   };
+#+END_SRC
+***** subjects/mode/traits/harnessed.js
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/harnessed.js:76
+-const arming = async (ctx, primer) => {
++const armory = (ctx, primer) => {
+   const armed = new Vector()
+     .graft(paladin.tools.fs.fs)
+     .graft(paladin.tools.shell.shell);
+   for (const [slug, provider] of Object.entries(ctx.providers ?? {})) {
+     if (provider.tools) {
+       armed.branch(`/service/${slug}`).use(shard.context.bind("service", provider)).graft(provider.tools);
+     }
+   }
+   if (ctx.domain?.tools) armed.branch(ctx.domain.manifest.slug, ctx.domain.tools);
+   if (ctx.mode.tools) armed.graft(ctx.mode.tools);
+   if (ctx.mode.generator?.tools) armed.graft(ctx.mode.generator.tools);
+-  if (ctx.mode.looping) armed.branch("/repl").graft(await ctx.mode.looping(ctx));
+   if (shape.primer.lazy(primer).length) armed.graft(tools.primer.primer);
++  return armed;
++};
++
++const arming = async (ctx, primer) => {
++  const armed = armory(ctx, primer);
++  if (ctx.mode.looping) armed.branch("/repl").graft(await ctx.mode.looping(ctx));
+   for (const [name, supplied] of Object.entries(ctx.input.tools ?? {})) {
+     const { execute, ...edge } = typeof supplied === "function" ? { execute: supplied } : supplied;
+     armed.open({ nature: new ToolCall(name).signal.pathname, ...edge }, execute);
+   }
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:247
+   return () => {
+     mode.harness = shape.object(harness, steer.strategy.echo);
+     mode.aperture.branch("/harness", harness);
++    mode.aperture.get("/metadata/harness", (ctx) => {
++      const primer = priming({ ...ctx, input: {} });
++      return { routes: shape.strip(harness), primer: shape.strip(primer), tools: shape.strip(armory(ctx, primer)) };
++    });
++    mode.aperture.open({ nature: "/metadata/harness/primer/(.*)", input: v.object({ thread: v.string().desc('The thread whose harness is read. Example: "01a09010-13aa-778b-bce7-19c38f835337"') }) }, async (input, ctx) => {
++      const thread = await ctx.entities.thread.findOneOrFail({ id: input.thread });
++      return shape.primer.read(priming({ ...ctx, input: {} }), fromm.params(ctx.params).path.absolute, { ...ctx, thread });
++    });
+   };
+#+END_SRC
+`armory` is the boot half `/metadata/harness` strips; `arming` adds the request's repl · `input.tools` · binds. The switch (`disarming`) is DEFERRED whole → `quests/benched/harness-disarming.org` (Q9).
+*** systems/ghost
+***** entities/mode/traits/harnessed.js
+#+BEGIN_SRC diff
+// systems/ghost/entities/mode/traits/harnessed.js:31
+   mode.metadata.harness = await mode.connection.call("/metadata/harness");
+-  mode.harness = shape.connection.wire(harness, mode.metadata.harness);
++  mode.harness = shape.connection.wire(harness, mode.metadata.harness.routes);
+#+END_SRC
+*** systems/anima
+***** src/surfaces/chrome/panels/sidebar/sections.js — LANDED 11-08, the tree as it stands
+#+BEGIN_SRC js
+// systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:41
+const NOTHING = { routes: { branches: {} }, primer: { branches: {} }, tools: { branches: {} } };
+export const given = (thread) => (thread !== null && thread.mode.implements("HARNESSED") ? thread.mode.metadata.harness : NOTHING);
+
+const leaves = (node, steps = [], inherited = "eager") =>
+  Object.entries(node.branches).flatMap(([nature, child]) => {
+    const load = child.meta?.load ?? child.effect?.load ?? inherited;
+    return "effect" in child ? [{ steps: [...steps, nature], load }] : leaves(child, [...steps, nature], load);
+  });
+
+const peeked = (world, nature, load) => {
+  const key = `primer/${nature}`;
+  const open = key in world.sections.expand;
+  return [
+    item({ label: nature, sub: load, mark: open ? "◉" : load === "lazy" ? "◇" : "●", mk: "glyph", fn: "peek", arg: key }),
+    ...(open ? [note(world.sections.peeks[key] ?? "…")] : []),
+  ];
+};
+const section = (world, key, count) => ({ type: "sub", label: key, count: String(count), fn: "expand", arg: key, open: key in world.sections.expand });
+const folder = (world, key, label, count) => item({ label, sub: String(count), mark: key in world.sections.expand ? "▾" : "▸", mk: "chev", fn: "expand", arg: key });
+const tooled = (world, node, path = []) =>
+  Object.entries(node.branches).flatMap(([nature, child]) => {
+    const steps = [...path, nature];
+    const key = `tools/${steps.join("/")}`;
+    if (Object.keys(child.branches).length === 0) {
+      const open = key in world.sections.expand;
+      return [
+        item({ label: steps.join("/"), mark: open ? "◉" : "●", mk: "glyph", fn: "expand", arg: key }),
+        ...(open ? [note(child.effect.valence ?? ""), value("input", Object.keys(child.effect.input?.properties ?? {}).join(" · "), "")] : []),
+      ];
+    }
+    return [folder(world, key, steps.join("/"), leaves(child).length), ...(key in world.sections.expand ? tooled(world, child, steps) : [])];
+  });
+// :217 intelligent()
+    section(world, "primer", primer.length),
+    ...("primer" in world.sections.expand ? primer.flatMap(({ steps, load }) => peeked(world, steps.join("/"), load)) : []),
+    section(world, "tools", leaves(tools).length),
+    ...("tools" in world.sections.expand ? tooled(world, tools) : []),
+#+END_SRC
+***** src/surfaces/chrome/panels/sidebar/sidebar.jsx
+#+BEGIN_SRC js
+// systems/anima/src/surfaces/chrome/panels/sidebar/sidebar.jsx:32 — FNS
+  peek: async (app, terminal, key) => {
+    FNS.expand(app, terminal, key);
+    if (key in app.bridge.sections.peeks) return;
+    const text = await terminal.mode.connection.call(`/metadata/harness/primer/${key.replace(/^primer\//, "")}`, { thread: terminal.thread.id }).catch((error) => error.message);
+    patched(app, { peeks: { ...app.bridge.sections.peeks, [key]: text } });
+  },
+#+END_SRC
+*** systems/ghost
+***** subjects/app/prototypes/bridge.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/app/prototypes/bridge.js:19
+-  $sections = atom({ filter: {}, expand: {}, pick: null, hostsOff: { thread: [], mode: [] }, traits: { thread: [], mode: ["VIEWABLE"] } });
++  $sections = atom({ filter: {}, expand: {}, peeks: {}, pick: null, hostsOff: { thread: [], mode: [] }, traits: { thread: [], mode: ["VIEWABLE"] } });
+#+END_SRC
+*** subsystems/drapes
+***** Srow.jsx · parts.css
+#+BEGIN_SRC jsx
+// subsystems/drapes/Srow.jsx:30 — a sub with fn is a button; without, the div it was
+  sub: (props) => (
+    <Dynamic component={props.row.fn ? "button" : "div"} class="srow sub" onClick={props.row.fn ? () => props.onAct(props.row) : undefined}>
+      <span>{props.row.label}</span>
+      <span class="c">{props.row.count}</span>
+      <Show when={props.row.fn}>
+        <span class="chev">{props.row.open ? "▾" : "▸"}</span>
+      </Show>
+    </Dynamic>
+  ),
+// :38 item — the mark carries its kind
+      <span class={words("mk", props.row.mk)}>{props.row.mark}</span>
+// :135 — NEW, the one row that wraps
+  note: (props) => <div class="srow note">{props.row.text}</div>,
+// subsystems/drapes/parts.css:400
+.srow .mk.glyph { font-size: 0.85em; }
+.srow .mk.chev { font-size: 1.25em; }
+.srow.sub .chev { margin-left: 8px; color: var(--text-muted); font-weight: 400; font-size: 1.25em; }
+button.srow.sub { text-align: left; cursor: pointer; }
+.srow.note { padding: 2px 12px 6px 46px; color: var(--text-muted); font-size: 11.5px; … white-space: normal; overflow-wrap: anywhere; }
+#+END_SRC
+What he sees under `h` (both sections closed by default; a click folds):
+#+BEGIN_EXAMPLE
+primer                                              8  ▸
+tools                                              16  ▸
+--- primer open, identity peeked
+primer                                              8  ▾
+  ◉ identity                                     eager
+      You are the operator's hands inside vivalence. Your role: act on what the operator asks …
+  ● world                                        eager
+  ● thread                                       eager
+  ● runtime                                      eager
+  ◇ hello-world/hello                             lazy
+--- tools open, fs open, fs/tree open
+tools                                              16  ▾
+  ▾ fs                                               7
+  ◉ fs/tree
+      The directory tree under an absolute path. Ground here before reading: …
+      input                                 path · depth
+  ● fs/find
+  ▸ shell                                            1
+#+END_EXAMPLE
+Rows read only (Q9); the `check` rows that dispatch `/arm` · `/disarm` wait in `quests/benched/harness-disarming.org`.
+
+* milestones
+1. **mode metadata on the mode** — LANDED 11-08. `host.js` loop gone; `1-population.js` opens `status · manifest` under `/metadata`; `exposed.js` opens `/metadata/aperture`; `emitter.js` opens `/metadata/emitter`; `probe.viva.js:4` `(_, ctx)` → `(ctx)`; `chess.routes.json` HOT loses `metadata/application · statics · mountpoint` (bak.3 rows). Green: `beats.coverage` · `hello` · `chess.routes.json` HOT; ghost `exposed.js:4` · `Dashboard.svelte:127` unchanged.
+2. **the harness strip** — LANDED 11-08 (`tests/harness.metadata.snapshot.test.js` pins the three keys). `load` in `strip.js` pluck; `armory` split; `/metadata/harness` = routes · primer · tools; ghost wires `.routes`. Green: `harness-wire.test` · `harness.primer.test` + a `strip` row · `probe-metadata-harness.full.json` as `tests/snapshots/`.
+3. **the armory switch** — DEFERRED (Q9): `ARMED { off }` designed (Q8), nothing lands; every hunk whole in `quests/benched/harness-disarming.org`.
+4. **the harness widget** — LANDED 11-08 (rows probed: stub 2 + 2 · real 8 + 16; the sidebar rig is red before any test, `anima-rig-client-terminal-gone`). `sections.js` primer rows + tool rows, read only; `sidebar.test.js:23` oracle re-cut; `tests/world.js` mode carries `metadata.harness` + `implements`.
+
+* blast table
+| consumer | reads | breaks | when |
+|---|---|---|---|
+| `systems/ghost/entities/mode/traits/harnessed.js:31` | `metadata.harness` as a strip | yes → `.routes` | milestone 2 |
+| `systems/anima/tests/harness-wire.test.js:36` | `shape.strip(mode.aperture.branch("/harness"))` | shape asserted | milestone 2 |
+| `systems/runtime/tests/runtime/beats.coverage.test.js:230` | `integration.metadata` opens per-mode rows | if asserted | milestone 1 |
+| `systems/runtime/tests/fixtures/chess.routes.json` | route order | ZERO readers (`boot.test.js` gone) — dead fixture, his cut | — |
+| `systems/ghost/entities/mode/traits/exposed.js:4` · `commons/dashboards/dataspace/Dashboard.svelte:127` | `/metadata/aperture` | no — same node | — |
+| `systems/anima/tests/sidebar.test.js:23` | HARNESS literal | yes | milestone 4 |
+| `~/.viva/registry/*` modes | `/status` · `/manifest` on a mode | grep at land | milestone 1 |
+
+* testing assessment
+COVERAGE GAP: no test pins `/metadata/harness`'s three keys; milestone 2 adds the probe JSON as a snapshot.
+
+* QA
+- `#+marker_qa: harness-metadata/P-popover · held 11-08 · I press ctrl-v h on the runtime mode, I see primer 4 · tools 15 closed; a click on identity shows its text` (his screens 21:48 · 22:01 · 22:14 · 22:29)
+
+* deferred
+- a per-thread rendered peek (`/harness/primer/render` → `primed(ctx)` whole, `activating` moved beside it: `Activity.ts:60` CREATES a row per call) — the `system` text as the model sees it; `Request.parts` required (`harness.js:19`) → a `Peek` schema. His call.
+- `context` stays `0 %` — the count is m117's.
+- the ghost tty popover `harness: placeholder` (`popover.jsx:15`) — same rows, a widget owed.
+- a mode-level default (`manifest` or `module.armed`) under the thread's — none till a second consumer.
+- milestone 3, the armory switch (Q9): `ARMED { off }` schema + vocabulary row · `claiming` read · `disarming` (traverse → `NotFound`) · `/arm` · `/disarm` · `harness.armed.test.js` · the widget's `check` rows · QA T-attach — whole in `quests/benched/harness-disarming.org`.
+
+* review — 11-07 (show-me, 8 → 7 stops; S2 probe `scratchpad/probe-mode-metadata.js`)
+| S | stop | rides | verdict | his words |
+|---|---|---|---|---|
+| 1 | /metadata/harness rides HARNESSED | Q1 · Q3 | amen | /"absolutely fantastic."/ |
+| 2 | the mode's own rows ride the core beat; the host loop dies | Q1 · Q2 · Q6 | amen | /"b"/ · /"amen"/ |
+| 3 | EMITTER opens /metadata/emitter | Q1 · Q6′ | amen | /"it's part of the system"/ · /"amen"/ |
+| 4 | the strip of a primer; ghost wires `.routes` | Q3 · Q5 · Q7 | amen | /"we call routes routes. its fine."/ · /"amen"/ |
+| 5 | ARMED beside INTELLIGENT | law 4 · Q8 | amen | /"b,. amen."/ |
+| 6 | armory · disarming · arming | law 2 · 3 | skipped → Q9 | /"lets not implement the disamrning yet."/ (miswire fixed in the moved hunk) |
+| 7 | /arm · /disarm | law 4 | killed → Q9 | |
+| 8 | the harness widget | Q4 · Q5 · Q9 | amen | /"amen."/ |
+
+* changelog
+- 11-08 his console: `/metadata/harness/primer/thread` 500 /"Cannot read properties of undefined (reading 'id')"/ — the `thread` section reads `ctx.thread`; the route now takes `{ thread }` (`v.object`, the client sends `terminal.thread.id`), a failed peek shows its message as the note; the rig's daemon gained a `mountpoint` (the `runtime` section reads it). `harness.metadata.snapshot` + `harness-wire` `ok | 2 passed (8 steps)`.
+- 11-08 /"what should happen on primer click?"/ → **a** /"do /metadata/harness/primer/:primer"/ → `harnessed.js` opens `/metadata/harness/primer/(.*)` (the remainder pattern: natures nest, `hello-world/guides/render`; `:primer` is one segment) → `shape.primer.read(priming(…), fromm.params(ctx.params).path.absolute, ctx)`; client: `FNS.peek` (sidebar.jsx) folds the leaf + reads once into `bridge.sections.peeks[key]`, the leaf shows a `note`; rig `scenarios/mode.js` learns `primer` + PRIMER · AGENTIC; `harness.metadata.snapshot.test.js` pins identity's text + an unknown nature throws.
+- 11-08 /"stupid icon"/ (the mark's `tool` class collided with the dock's `.tool` card → a pill) → marks tagged `glyph` · `chev`; /"make the whole tools and primer section toggleable"/ → `section(world, key, n)`: a `sub` row with `fn: expand`, rendered a `button` with a `chev` (drapes `Srow.jsx` sub via `Dynamic`), both CLOSED by default; primer leaf click → `none` till ruled (was a fault).
+- 11-08 /"tools is still its own section"/ → `sub("tools", n)` header like `primer`, the branch tree beneath; /"reduce the tool icon size by 15% and increase the fold icon size by 25%"/ → `item.mk` ∈ `tool` · `fold`, `parts.css` `.mk.tool 0.85em` · `.mk.fold 1.25em`; /"what should happen when i click a tool?"/ → ruled **a**: a leaf folds open to its valence (`note` row, NEW in drapes `Srow.jsx` + `srow.test.js`) and its input fields (`value("input", …)`); a click had dispatched `undefined` (fault) before. Arm/disarm stays milestone 3 (Q9).
+- 11-08 his screen /"someting is wrong"/ · /"0%?"/ · /"the primer is missing"/ · /"the _ is internal. we use /. make all tools and each branch of tools foldable and closed by default"/ → `sections.js`: tool rows are a tree keyed `tools/<path>` on `sections.expand` (`fn: expand`), `▸`/`▾`, closed by default, leaves `fs/tree`; `ToolCall` import gone. Probed on the real strip: closed = one row `▸ tools 16`; open = 7 branch rows; `tools/fs` open = 7 leaves. Live read (his token, a scratch tab, closed): `harness/runtime` primer 4 · tools 15; every registry mode primer 0 (no PRIMER declared: dojo 17 · play 26 · coach 18 · aprende 14 …) — his screen was `spanish/game/dojo`; the widget shows the mode's truth. `0 %` = the context count, m117's (deferred).
+- 11-08 go /"go. land quests/harness-metadata.org"/ — milestones 1 · 2 · 4 landed in one pass (13 files): `strip.js` `load` · `host.js` loop cut · `1-population.js` `/metadata/status` · `/metadata/manifest` `(ctx)` · `exposed.js` · `emitter.js` · `harnessed.js` (`armory` split + `/metadata/harness`) · ghost `harnessed.js` `.routes` · `probe.viva.js` `(ctx)` · anima `sections.js` · tests `beats.coverage` (mode rows → six 404s) · `harness.primer` (+ `meta.load` row) · anima `harness-wire` (over the wire, `.routes`) · `world.js` + `sidebar.test.js` oracle · NEW `tests/harness.metadata.snapshot.test.js` + snapshot (routes 29044 · primer 16 · tools 4928 chars). Miswire at land: the tangle's `.get` → 405 on `connection.call`; → `.open` ×3 + `repling.js:5` (mine, reported). Pasted: typology `ok | 8 passed (23 steps)` · `beats.coverage` `ok | 1 passed (10 steps)` · `harness.primer` `ok | 1 passed (5 steps)` · `harness-wire` `ok | 1 passed (4 steps)` · snapshot `ok | 1 passed (2 steps)` · repling · looping ×5 `ok | 5 passed (18 steps)`; `sidebar.test.js` red at baseline (esbuild, known issue). Live `:2501` restarted under `--watch`, `/status` RUNNING. Census: typology `ok | 159 passed (689 steps) | 0 failed` · runtime `96 passed (610 steps) | 2 failed` → `hello.test.js:165` expected the mode's manifest 404 under `/metadata` — the quest's own move, now `[200, "probe"]` → `ok | 2 passed (24 steps)`; `filetraits.coverage` FILESET pre-existing (known-issues `:2811`) · ghost `28 passed (102 steps) | 5 failed`, every red pre-existing (`ghost-base-tree-reds-11-06` + shell `Download …` stderr noise under a cold HOME).
+- 11-07 fold — Q5 landed: every `primer:` key in the tangle → `system:`; codestyle his-language gained the `primer` · `system` row.
+- 11-07 — quest written on /"ok. write a quest."/ · /"tangle ready"/; the probe `scratchpad/probe-metadata-harness.json` (41117 chars: routes 29044 · primer 469 · tools 11604) backs S1. Names MINE: `ARMED { off }` (joins `arming · armed · armory`), `/arm` · `/disarm`, `shape.primer.strip`, `given`.
+
+* handoff
+goal: the client holds the harness (routes · primer · tools) at attach; a tool is off per thread; no shard reaches into a mode.
+done: milestones 1 · 2 · 4 LANDED 11-08; `/metadata/harness` pinned; the widget folds primer · tools (closed), a primer leaf peeks its text over `/metadata/harness/primer/(.*)`, a tool leaf its valence + input; held on his screen 22:29.
+next: — (unnumbered by his word /"no need to number"/); the switch sits in `quests/benched/harness-disarming.org`.
+never: a gate on a disarmed tool (it stays in the catalog); a per-request `only` allowlist (REJECTED mine: default all on, a toggle flips one).
+owed: the tty popover widget; `chess.routes.json` dead (zero readers) — his cut; the sidebar rig (`anima-rig-client-terminal-gone`) so `sidebar.test.js` runs again. Registry modes' `/status` · `/manifest`: grepped at land, none.

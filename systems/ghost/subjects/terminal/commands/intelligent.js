@@ -1,15 +1,15 @@
 import { Vector, traits, v } from "@vivalence/typology";
 import * as belt from "../../../gestalten/belt/index.js";
 
-const Tuned = v.object({ tune: v.primitives.hallucination.Tier.desc('A tier. Example: "fast"') });
+const Tiered = v.object({ tier: v.primitives.hallucination.Tier.desc('A tier. Example: "fast"') });
 const Effortful = v.object({ effort: v.enum(belt.intelligent.EFFORTS).desc('Reasoning effort. Example: "high"') });
 const Rounded = v.object({ rounds: v.integer({ minimum: 1, maximum: 50 }).desc("The round budget. Example: 12") });
 
 export const intelligent = new Vector()
   .open(
-    { nature: "/tune", valence: "the seated thread's model tier — INTELLIGENT.tune. Example: /tune fast", input: Tuned, chord: "leader/h/t" },
+    { nature: "/tier", valence: "the seated thread's model tier — INTELLIGENT.tier. Example: /tier fast", input: Tiered, chord: "leader/h/t" },
     async (ctx) => {
-      const INTELLIGENT = belt.input.cast(Tuned, ctx.signal);
+      const INTELLIGENT = belt.input.cast(Tiered, ctx.signal);
       await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT }));
       return { INTELLIGENT };
     },

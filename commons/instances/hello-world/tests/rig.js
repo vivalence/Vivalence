@@ -44,6 +44,7 @@ export const faculty = (script) => {
     seen,
     faculty: {
       type: "dialogue",
+      id: "dialogue-1",
       tune: [0.5, 0.5, 0.5],
       via: {
         stream: async function* (request) {

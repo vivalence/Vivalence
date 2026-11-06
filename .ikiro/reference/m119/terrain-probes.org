@@ -1,0 +1,50 @@
+#+title: m119 terrain §4 · §5 — the two design probes, moved whole from the quest 11-09 (cap)
+# limit: 12000 chars
+
+* §4 probe — =:memory:=, the real entities, 11-09
+
+=.ikiro/reference/m119/filter-params.probe.js= (run: =deno run -A --no-check --config deno.jsonc .ikiro/reference/m119/filter-params.probe.js=) — a filter =mode= over Literal · Thread · Buffer, a =beforeCreate= stamp, =RequestContext= + =setFilterParams=.
+
+#+BEGIN_EXAMPLE
+THREW  A   raw global em, no context                       "Using global EntityManager instance methods for context specific actions is disallowed"
+ok     B   em.find inside scope(mode=italian)                ["ciao","grazie"]
+ok     B2  repository.find inside scope(mode=chess)          ["e4"]
+ok     C   fork() inside scope inherits params               ["ciao","grazie"]
+ok     D   filters:{mode:false} inside scope reads all       3
+ok     E   beforeCreate stamps mode from params              ["e4","d4"]
+THREW  E2  create, no mode, NO params → flush                "stamp: LiteralEntity created with no mode in context"
+ok     F   count inside scope                                2
+ok     G   nativeUpdate touches only own rows                {"touched":2,"mimes":["ciao:italian","grazie:italian","e4:","d4:"]}
+ok     H   two scopes interleaved keep their own params      {"a":["ciao","grazie"],"b":["e4","d4"]}
+ok     I   async generator made inside scope, pulled OUTSIDE ["ciao","grazie"]
+THREW  I2  generator asking the GLOBAL em                    "Using global EntityManager instance methods … is disallowed"
+ok     I3  same, carried via datamap.shard.carry()           ["ciao","grazie"]
+ok     J   datamap.shard.bind middleware sets params         ["e4","d4"]
+ok     K   user filter + mode filter both on (Thread)        1
+THREW  K2  Thread read, mode params, NO user params          "No arguments provided for filter 'user'"
+ok     L   populate Mode.literals of ITALIAN from a CHESS scope   []
+THREW  M   em.fork() OUTSIDE any context, then find          "No arguments provided for filter 'mode'"
+ok     M2  same fork, filters:false                          4
+ok     M3  fork taken INSIDE scope(italian), pulled outside  ["ciao","grazie"]
+THREW  N   populate a sibling's literals, NO mode params     "No arguments provided for filter 'mode'"
+#+END_EXAMPLE
+
+* §5 probe — the per-context enable (the gravity fix)
+
+A =default: true= mode filter throws on every daemon-WIDE read (=dataset.js= ×16, =stucatch/vivaware/domain/ingress.js= ×8, =education/modes/games/dojo/aperture/index.js:32=). A filter added on the CONTEXT em is the context's alone:
+
+#+BEGIN_SRC js
+// probe P1–P7 — the enable
+const enable = (ctx, name, cond, entity) => ctx.addFilter({ name, cond, entity, default: true });
+#+END_SRC
+
+#+BEGIN_EXAMPLE
+ok     P1  context A: addFilter(mode) + params → fenced                                  ["ciao","grazie"]
+ok     P2  context B, no addFilter: daemon-wide read, no throw                            ["ciao","grazie","e4","d4"]
+ok     P3  entity-declared daemon filter (default:false) ENABLED in a context by addFilter of the same name   {"mine":4,"none":0}
+ok     P4  after P3, a fresh context still reads daemon-wide (no leak to the global em)   4
+ok     P5  fork of an enabled context carries the filter AND params                      ["e4","d4"]
+THREW  P6  enabled context, params FORGOTTEN → throws, not silent                        "No arguments provided for filter 'mode'"
+ok     P7  nested: daemon enabled, then mode enabled in a fork → both bite               ["d4","e4"]
+#+END_EXAMPLE
+

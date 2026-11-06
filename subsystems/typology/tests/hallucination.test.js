@@ -51,6 +51,7 @@ function populatedCortex() {
   return new Cortex().register([
     {
       type: "dialogue",
+      id: "dialogue-1",
       tune: [0.9, 1.0, 0.3],
       channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
       via: {
@@ -69,6 +70,7 @@ function populatedCortex() {
     },
     {
       type: "dialogue",
+      id: "dialogue-2",
       tune: [0.4, 0.6, 0.6],
       channels: { in: ["text"], out: ["text"] },
       via: {
@@ -78,6 +80,7 @@ function populatedCortex() {
     },
     {
       type: "speech",
+      id: "speech-3",
       tune: [0.3, 0.8, 0.7],
       channels: { in: ["text"], out: ["audio"] },
       via: {
@@ -86,6 +89,7 @@ function populatedCortex() {
     },
     {
       type: "object",
+      id: "object-4",
       tune: [0.3, 0.7, 0.8],
       channels: { in: ["text"], out: ["object"] },
       via: {
@@ -100,7 +104,7 @@ specimen.describe("Hallucination", () => {
     specimen.it("system sections cross keyed and ordered; turns carry no system turn", async () => {
       let seen = null;
       const cortex = new Cortex().register([{
-        type: "dialogue", tune: [0.5, 0.5, 0.5],
+        type: "dialogue", id: "dialogue-5", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text"], out: ["text"] },
         via: { render: async (request) => ((seen = request), { role: "assistant", parts: [{ type: "text", text: "ok" }], meta: { state: "complete" } }) },
       }]);
@@ -119,7 +123,7 @@ specimen.describe("Hallucination", () => {
     specimen.it("an explicit cache.marks wins over the derived marks", async () => {
       let seen = null;
       const cortex = new Cortex().register([{
-        type: "dialogue", tune: [0.5, 0.5, 0.5],
+        type: "dialogue", id: "dialogue-6", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text"], out: ["text"] },
         via: { render: async (request) => ((seen = request), { role: "assistant", parts: [{ type: "text", text: "ok" }], meta: { state: "complete" } }) },
       }]);
@@ -140,7 +144,7 @@ specimen.describe("Hallucination", () => {
         await populatedCortex().hallucinate.dialogue.render({ controller: new Controller(), policy: { rounds: 0 }, turns: [userTurn("hi")] });
       } catch (thrown) { error = thrown; }
       specimen.expect(error.message).toContain("invalid dialogue hallucination");
-      await populatedCortex().hallucinate.dialogue.render({ controller: new Controller(), policy: { rounds: 3, tune: "balanced" }, turns: [userTurn("hi")] });
+      await populatedCortex().hallucinate.dialogue.render({ controller: new Controller(), policy: { rounds: 3, tier: "balanced" }, turns: [userTurn("hi")] });
     });
 
     specimen.it("cortex.hallucinate is the ONE typed-fetch surface over an open vector", () => {
@@ -153,7 +157,7 @@ specimen.describe("Hallucination", () => {
   specimen.describe("render → the response yield", () => {
     specimen.it("single-shot returns a complete yield carrying the message", async () => {
       const folded = await populatedCortex().hallucinate
-        .dialogue.render({ controller: new Controller(), policy: { tune: "balanced" }, turns: [userTurn("hello")] });
+        .dialogue.render({ controller: new Controller(), policy: { tier: "balanced" }, turns: [userTurn("hello")] });
       specimen.expect(folded.meta.state).toBe("complete");
       specimen.expect(folded.output.message).toBe("[sonnet] hello");
       specimen.expect(folded.turns).toHaveLength(1);
@@ -162,15 +166,15 @@ specimen.describe("Hallucination", () => {
     specimen.it("tune selects the faculty: unleashed → opus, balanced → sonnet", async () => {
       const hal = populatedCortex().hallucinate;
       const turns = [userTurn("test")];
-      specimen.expect((await hal.dialogue.render({ controller: new Controller(), policy: { tune: "unleashed" }, turns })).output.message).toContain("[opus]");
-      specimen.expect((await hal.dialogue.render({ controller: new Controller(), policy: { tune: "balanced" }, turns })).output.message).toContain("[sonnet]");
+      specimen.expect((await hal.dialogue.render({ controller: new Controller(), policy: { tier: "unleashed" }, turns })).output.message).toContain("[opus]");
+      specimen.expect((await hal.dialogue.render({ controller: new Controller(), policy: { tier: "balanced" }, turns })).output.message).toContain("[sonnet]");
     });
 
     specimen.it("a tools Vector on the request is LOWERED to the wire catalog and dispatched", async () => {
       let received = null;
       const folded = await populatedCortex().hallucinate.dialogue.render({
         controller: new Controller(),
-        policy: { tune: "unleashed" },
+        policy: { tier: "unleashed" },
         turns: [userTurn("what is casa")],
         tools: toolVector("lookup", async (ctx) => ((received = ctx.input), { message: `${ctx.input.query} means house` })),
       });
@@ -185,14 +189,14 @@ specimen.describe("Hallucination", () => {
       modeTools.open({ nature: "lookup" }, async () => ((ran = true), { message: "house" }));
       const armed = new Vector().graft(modeTools);
       await populatedCortex().hallucinate
-        .dialogue.render({ controller: new Controller(), policy: { tune: "unleashed" }, turns: [userTurn("casa")], tools: armed });
+        .dialogue.render({ controller: new Controller(), policy: { tier: "unleashed" }, turns: [userTurn("casa")], tools: armed });
       specimen.expect(ran).toBe(true);
     });
 
     specimen.it("an unknown tool becomes an error result and the response still completes", async () => {
       let toolResultTurn = null;
       const cortex = new Cortex().register([{
-        type: "dialogue", tune: [0.5, 0.5, 0.5],
+        type: "dialogue", id: "dialogue-7", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text"], out: ["text"] },
         via: {
           render: async ({ turns }) => {
@@ -212,7 +216,7 @@ specimen.describe("Hallucination", () => {
 
     specimen.it("rounds ceiling closes length and render throws", async () => {
       const cortex = new Cortex().register([{
-        type: "dialogue", tune: [0.5, 0.5, 0.5],
+        type: "dialogue", id: "dialogue-8", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text"], out: ["text", "tool_use"] },
         via: { render: async () => ({ role: "assistant", parts: [{ type: "tool_use", id: "t1", name: "loop", input: {} }], meta: { state: "tools" } }) },
       }]);
@@ -233,7 +237,7 @@ specimen.describe("Hallucination", () => {
     specimen.it("streams packets across a tool round and closes the response", async () => {
       const source = await populatedCortex().hallucinate.dialogue.stream({
         controller: new Controller(),
-        policy: { tune: "unleashed" },
+        policy: { tier: "unleashed" },
         turns: [userTurn("what is casa")],
         tools: toolVector("lookup", async (ctx) => ({ message: `${ctx.input.query} means house`, buffer: [{ id: "b1" }] })),
       });
@@ -255,7 +259,7 @@ specimen.describe("Hallucination", () => {
 
     specimen.it("throws when no speech faculty carries a render avenue", async () => {
       const cortex = new Cortex().register([{
-        type: "speech", tune: [0.5, 0.5, 0.5],
+        type: "speech", id: "speech-9", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text"], out: ["audio"] },
         via: { stream: async function* () {} },
       }]);
@@ -268,13 +272,13 @@ specimen.describe("Hallucination", () => {
   specimen.describe("object derivation", () => {
     specimen.it("a real object faculty renders straight to the object channel", async () => {
       const folded = await populatedCortex().hallucinate
-        .object.render({ controller: new Controller(), policy: { tune: "balanced" }, turns: [userTurn("hello")] });
+        .object.render({ controller: new Controller(), policy: { tier: "balanced" }, turns: [userTurn("hello")] });
       specimen.expect(folded.output.object.echo).toBe("hello");
     });
 
     specimen.it("the object avenue resolves the dialogue faculty and folds its structured turn", async () => {
       const cortex = new Cortex().register([{
-        type: "dialogue", tune: [0.5, 0.5, 0.5],
+        type: "dialogue", id: "dialogue-10", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text"], out: ["object"] },
         via: {
           render: async (request) => {
@@ -296,7 +300,7 @@ specimen.describe("Hallucination", () => {
       let seenSchema = null;
       const schema = { marker: "OUT" };
       const cortex = new Cortex().register([{
-        type: "dialogue", tune: [0.5, 0.5, 0.5],
+        type: "dialogue", id: "dialogue-11", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text"], out: ["object"] },
         via: {
           render: async (request) => {
@@ -316,7 +320,7 @@ specimen.describe("Hallucination", () => {
 
     specimen.it("object synthesis runs real tools before the structured turn, lexicon-native", async () => {
       const cortex = new Cortex().register([{
-        type: "dialogue", tune: [0.5, 0.5, 0.5],
+        type: "dialogue", id: "dialogue-12", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text", "tool_result"], out: ["text", "tool_use", "object"] },
         via: {
           render: async (request) => {

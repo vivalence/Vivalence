@@ -58,11 +58,11 @@ specimen.describe("stub · the controller machine over a scripted run", () => {
     const thread = await world.createThread();
 
     const events = [];
-    for await (const packet of await fire(thread, "--tool entity_find --rounds 1 --pace 5ms")) events.push(packet.event);
+    for await (const packet of await fire(thread, "--tool fs_tree --rounds 1 --pace 5ms")) events.push(packet.event);
 
     await until(() => roster.rows.length);
     const walked = roster.rows.map((frame) => frame.last).filter(Boolean);
-    specimen.expect(walked.some((last) => last.startsWith("hallucination › entity_find/"))).toBe(true);
+    specimen.expect(walked.some((last) => last.startsWith("hallucination › fs_tree/"))).toBe(true);
     specimen.expect(events).toContain("/tool/yield");
     specimen.expect(events.at(-1)).toBe("/response/close");
     roster.off();

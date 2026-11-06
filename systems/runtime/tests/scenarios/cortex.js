@@ -10,6 +10,7 @@ export async function create({ harness } = {}) {
   const deweyEntity = entities.mode.create({
     slug: "dewey",
     type: "teacher",
+    daemon: held.slug,
     traits: ["EXPOSED", "HARNESSED"],
     installed: "installed",
   });
@@ -24,7 +25,6 @@ export async function create({ harness } = {}) {
   dewey.reference = new Path(`/mode/${dewey.type}/${dewey.slug}`);
   dewey.entity = deweyEntity;
   dewey.id = deweyEntity.id;
-  dewey.module.tune = "balanced";
 
   dewey.module.harness = harness ?? new Vector();
   if (!harness) {
@@ -36,7 +36,7 @@ export async function create({ harness } = {}) {
 
   const daemon = Object.assign(held, { type: "daemon", aperture: new Aperture(), modes: { teacher: { dewey } }, cortex });
 
-  daemon.aperture.use(shard.context.spread(contexts.host, daemon));
+  daemon.aperture.use(shard.context.spread(contexts.daemonDie, daemon));
 
   const finalizer = HARNESSED(dewey, daemon);
   if (typeof finalizer === "function") await finalizer();
@@ -48,7 +48,6 @@ export async function create({ harness } = {}) {
       user: fixtures.user,
       mode: deweyEntity,
       trait: {},
-      cursor: 0,
       counter: 0,
     });
     await em.flush();

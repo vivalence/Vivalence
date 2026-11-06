@@ -16,7 +16,7 @@ export class Bridge {
   $float = atom({});
   $selection = atom(null);
   $signin = atom({ user: "", pass: "" });
-  $sections = atom({ filter: {}, expand: {}, pick: null, hostsOff: { thread: [], mode: [] }, traits: { thread: [], mode: ["VIEWABLE"] } });
+  $sections = atom({ filter: {}, expand: {}, peeks: {}, pick: null, hostsOff: { thread: [], mode: [] }, traits: { thread: [], mode: ["VIEWABLE"] } });
 
   get terminal() {
     return this.$terminal.get();

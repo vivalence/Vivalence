@@ -1,6 +1,6 @@
 import { Blacklist, contexts, is, Pool, shape, shard, Vector } from "@vivalence/typology";
 
-export const EMITTER = async (mode, context) => {
+export const EMITTER = async (mode, modeDie) => {
   if (!mode.module.emitter) return;
 
   // trait habit: middleware rides a live Vector we own; the read-only module declaration
@@ -17,20 +17,24 @@ export const EMITTER = async (mode, context) => {
   });
 
   emitter.use(async (ctx, next) => {
-    Object.assign(ctx, shard.context.lift(contexts.host, context));
+    Object.assign(ctx, shard.context.lift(contexts.modeDie, modeDie));
     ctx.mode = mode;
     // ctx.thread
 
     if (!ctx.input) console.log("INPUT MISSING?!", { ctx });
 
     // emitter requires thread.
-    ctx.thread = await context.entities.thread.findOneOrFail({ id: ctx.input.thread });
+    ctx.thread = await modeDie.entities.thread.findOneOrFail({ id: ctx.input.thread });
 
     ctx.input.blacklist = new Blacklist(ctx.input.blacklist);
     // ctx.hallucination
 
     await next();
   });
+
+  emitter.use(
+    shard.datamap.bind(modeDie.entities.em, "thread", (ctx) => ({ thread: ctx.thread.id })),
+  );
 
   emitter.use(async (ctx, next) => {
     await next();
@@ -55,7 +59,7 @@ export const EMITTER = async (mode, context) => {
       for (const buffer of result.output.buffer) ctx.thread.bindBuffer(buffer);
     }
 
-    await context.entities.em.flush();
+    await modeDie.entities.em.flush();
 
     ctx.output = result;
   });
@@ -64,6 +68,7 @@ export const EMITTER = async (mode, context) => {
 
   return () => {
     mode.aperture.branch("/emit", emitter);
+    mode.aperture.open("/metadata/emitter", () => shape.strip(mode.module.emitter));
     // the emitter is NOT armed as a tool: a tool that draws has to exist separately and delegate.
     mode.emit = shape.object(emitter);
   };

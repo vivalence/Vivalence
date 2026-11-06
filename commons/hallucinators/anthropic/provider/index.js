@@ -88,6 +88,7 @@ export default async function provider(service) {
     const { render, stream } = makeDialogue(model);
     faculties.push({
       type: "dialogue",
+      id: model.id,
       tune: model.tune,
       context: model.context,
       channels: {
@@ -100,7 +101,6 @@ export default async function provider(service) {
         ],
         out: ["text", "tool_use", ...(model.thinking ? ["thinking"] : [])],
       },
-      config: { model: model.id },
       via: { render, stream },
     });
   }

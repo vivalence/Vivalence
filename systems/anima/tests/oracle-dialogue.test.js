@@ -13,6 +13,7 @@ const lastUserText = (turns) => {
 
 const seer = () => ({
   type: "dialogue",
+  id: "dialogue-1",
   tune: [0.9, 1.0, 0.3],
   context: 200000,
   channels: { in: ["text"], out: ["text"] },

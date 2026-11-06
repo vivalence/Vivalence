@@ -10,7 +10,7 @@ specimen.beforeAll(async () => {
   scenario = await datamap.seed();
   daemon = {
     entities: scenario.repos,
-    datamap: { getMetadata: () => scenario.orm.getMetadata() },
+    datamap: scenario.datamap,
     twitch: new Twitch(),
   };
   daemon.entities.em = scenario.em;
@@ -20,7 +20,7 @@ specimen.beforeAll(async () => {
     manifest: { type: "topography", slug: "fixture", traits: [] },
     id: scenario.fixtures.mode.id,
     stdout: new Span("mode/topography/fixture"),
-    entity: { installed: "" },
+    entity: { installed: "", daemon: scenario.fixtures.daemon },
     module: { source: corpus, dataset: topography.dataset() },
   };
 
@@ -88,14 +88,14 @@ specimen.describe("what install wrote on the mode's stdout", () => {
 specimen.describe("what install refuses", () => {
   specimen.it("is inert on an already-installed mode", async () => {
     const before = await scenario.repos.symbol.count({});
-    await DATASET({ ...mode, entity: { installed: "installed" } }, daemon);
+    await DATASET({ ...mode, entity: { installed: "installed", daemon: scenario.fixtures.daemon } }, daemon);
     specimen.expect(await scenario.repos.symbol.count({})).toBe(before);
   });
 
   specimen.it("throws rather than installing anything outside the dataspace", async () => {
     const userspace = {
       ...mode,
-      entity: { installed: "" },
+      entity: { installed: "", daemon: scenario.fixtures.daemon },
       module: {
         ...mode.module,
         dataset: new Dataset({ schema: {}, thread: [[{ slug: "leak" }]] }),
@@ -116,7 +116,7 @@ specimen.describe("what install does with a loader", () => {
     const loaded = {
       ...mode,
       slug: "loaded",
-      entity: { installed: "" },
+      entity: { installed: "", daemon: scenario.fixtures.daemon },
       module: {
         mount: mode.module.source,
         dataset: new Dataset({

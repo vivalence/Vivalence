@@ -5,6 +5,70 @@
 Issues we know about and have NOT fixed. Each entry: symptom, root cause hypothesis,
 evidence, attempts, why not fixed now, fallback workaround.
 
+* watch-restart-leaks-esbuild-children — OPEN (found 11-09, dev)
+** Symptom
+=runtime/watch= (pid of =deno run --watch … run.js=) holds 33 =@esbuild/darwin-arm64= children after a day of restarts; each in-process restart spawns a new esbuild service, none is stopped.
+** Root cause
+=subsystems/paladin/gestalten/belt/bundler.js= calls =esbuild.build= and never =esbuild.stop()=; a =--watch= restart drops the module, not the child.
+** Ruling
+none. Direction: a bundler row stops its service in the runtime's =finally= (an execution closes what it opened).
+
+* wire-swallows-malformed-harness-metadata — OPEN (found 11-09, prod skew)
+** Symptom
+anima: `TypeError: can't access property "stream", e.harness.dialogue is undefined`; dock send dead, no server fault.
+** Root cause
+=subsystems/typology/gestalten/shape/connection.js:5= =node?.branches ?? {}= — an envelope ({routes, primer, tools}) or =undefined= wires to ={}= silently. Seen when runtime (def3c848) and anima (df54e5b7) rode different snaps for an hour.
+** Ruling
+none. Direction: a node without =branches= THROWS at wire time.
+
+* recipe-runtime-block-hides-ledger-modes — OPEN (found 11-09, prod)
+** Symptom
+prod =runtime: "/runtime/runtime", modes: []=; anima HOME =/runtime/runtime/mode/harness/runtime= dangling; no runtime harness.
+** Root cause
+=subsystems/paladin/instance/lifecycle/1-population.js:58= =inherit(module, ledger, slot)= falls through WHOLE slots: a recipe =runtime: {statics}= drops the ledger's =runtime.modes=. localhost's recipe has no block → ledger wins; prod's has → nothing.
+** State
+prod recipe patched by hand 11-09 (=instance.viva.jsonc:12=, =.bak-20261109= beside it); canonical ledger carries =modes= since 42fd3068. localhost's recipe ALSO restates =runtime= since 11-09 (m118: =modes= = harness + =@commons/editor/darkroom=, statics copied) — a ledger =runtime.modes= change must be mirrored there till the ruling.
+** Ruling
+his: per-key fall-through for =runtime=, or a recipe never restates the ledger's =runtime=.
+
+* runtime-and-anima-deploy-off-one-mutable-tag — OPEN (found 11-09, prod)
+** Symptom
+R000 compose =pull_policy: build= + =FROM runtime:alpine= rebuilt on today's tag at a recreate; S000 anima kept the 11-06 bundle → a contract skew (=harness.dialogue=) for an hour.
+** Root cause
+two images, one mutable =:alpine=, two independent recreates; the quest's own line ruled =:alpine= stays.
+** Ruling
+his: one deploy moves both, or the compose files pin =:$SHA= together.
+
+* dock-blank-turn-on-provider-fault — OPEN (found 11-09, prod)
+** Symptom
+three turns answered by an empty =>>= row at 15:39; the cause (=invalid x-api-key=, 401 in 150 ms) visible only in the runtime log.
+** Root cause
+the stream closes =/response/close meta.state: "error"= and the client renders nothing of =meta.fault=. The provider ALSO threw a plain object → span logged =[object Object]= — fixed in tree 11-09 (=commons/hallucinators/anthropic/provider/translate.js:141= → an Error carrying kind · retryable · provider).
+** Ruling
+none. The dock shows =meta.fault.message= on the turn.
+
+* anima-bundle-volume-survives-recreate — OPEN (found 11-09, prod)
+** Symptom
+=docker compose up -d --force-recreate= on S000 served the OLD bundle; only =-V= rebundled.
+** Root cause
+=systems/anima/Dockerfile= =VOLUME …/build= (anonymous) + entrypoint bundles only when =index.html= is absent; Coolify's Redeploy drops anon volumes, a plain recreate keeps them.
+** Ruling
+none. Direction: bundle unconditionally, or no VOLUME.
+
+* anima-bake-ships-instance-secrets — OPEN (found 11-06, prod deploy)
+** Symptom
+vivalence.com grey, `GL: Decode`; with `SECRET_VIVA_JWT` on the anima host the secret lands in the public bundle.
+** Root cause
+`paladin/paladin/lifecycle.js:128` bakes `paladin.instance` WHOLE (secrets in); `:133` hard-decodes it on the client, `Lighthouse.secrets.jwt` required `minLength: 24` (`primitives/instance.js:75`). anima reads no secret.
+** Evidence
+S000 probe: `must not have fewer than 24 characters`; bundle `secrets:{jwt:"null`.
+** Ruling
+his.
+** Why not fixed
+paladin + typology change: the bake strips `secrets`, the client decode drops them.
+** Workaround
+anima env `SECRET_VIVA_JWT` = a DECOY.
+
 * ghost-run-error-prefix-vs-shell-test — OPEN (found 11-04, shell lifecycle pass)
 ** Symptom
 =systems/ghost/tests/subjects/shell/lifecycle.test.js:188,198= expect =viva /chrome: …=; =run.js:19= prints =[ERROR] /chrome: …= — 2 steps red under an empty HOME.
@@ -14,7 +78,7 @@ evidence, attempts, why not fixed now, fallback workaround.
 None — test strings → =[ERROR]=, or =run.js:19= → =viva=.
 
 * ghost-base-tree-reds-11-06 — OPEN (daemon-entities-both-sides pass)
-=systems/ghost/tests/subjects/client/console.test.js:30= /help lists =anima=, expected =whoami=; =subjects/terminal/prototype.test.js:9= the dock carries =shown: "full"=; =subjects/shell/lifecycle.test.js= /"client.factory"/ flakes 1 in 3. Ruling: none.
+=systems/ghost/tests/subjects/client/console.test.js:30= /help lists =anima=, expected =whoami=; =subjects/terminal/prototype.test.js:9= the dock carries =shown: "full"=; =subjects/shell/lifecycle.test.js= /"client.factory"/ flakes 1 in 3. Ruling: none. 11-08 (harness-metadata land): =subjects/terminal/repl.test.js= /help carries =/anima= · =/anima/open= (same cause as console); =subjects/client/client.test.js:66= expects a fault =code NOT_FOUND= on a bare turn to =home/probe=, the tree's =commands/turn.js:9= (WIP, not in HEAD) throws a plain Error /"takes no turn — not HARNESSED"/ with no code; =shell/lifecycle.test.js= ×3 stderr carries =Download https://jsr.io/…= under a cold HOME.
 
 * anima-suite-aborts-on-two-files — OPEN (found 10-23, m98 · m99 testing pass; narrowed 10-24 m105 Q8)
 ** Symptom
@@ -117,13 +181,17 @@ Box is in the UI pass's scope (=reference/client-design-briefing-ii.md= §3); an
 ** Why not fixed now
 Typology is HOLY; his go.
 
-* chess-kit-open-sets-terminal-buffer — OPEN (found 10-16)
-
+* terminal-buffer-arrives-as-id — OPEN (found 11-11, Terminal.buffer land)
 ** Symptom
-=~/.viva/registry/chess/modes/board/play/buffer/kit/open.js:22= assigns =terminal.buffer=; ghost's terminal has no setter for it. Dom-only path today, so it does not bite until the kit mounts on tty. The kit is a 5× byte-identical copy across the chess modes, enforced by =tests/kit.test.js:30=.
-
+=subsystems/typology/prototypes/entity-manager.js:85= resolves an m:1 through the identity map only; a Terminal update merged before its Buffer leaves =terminal.buffer= an id string. =drapes/panels/Frame.svelte:102= tolerates it; ghost · anima frames do not; =terminal.thread= too. Unprobed.
 ** Why not fixed now
-Registry package, no VCS; his go, and the buffer verb it should call is part of the one-bag design (=frame-bag-drift=).
+His ruling: resolve on merge, or a frame guard.
+
+* corpus-snapshot-counter-drift — OPEN (found 11-11, base tree)
+** Symptom
+=systems/runtime/tests/fixtures/corpus.snapshot.test.js:56= red on the base tree: =threads[0].counter= 1, frozen 0 — the seed's thread mints a buffer (=Buffer.ts= =/after/thread/create=).
+** Why not fixed now
+=SNAPSHOT_HOT=1= regenerates, never verifies; his call whether the seed should mint.
 
 * ghost-scenario-boots-nothing — OPEN (found 10-16)
 
@@ -270,20 +338,7 @@ Shortest path, from the esbuild metafile:
 Probe bypassing the barrel: =gestalten + prototypes, NO schematics: 457 KB,
 typebox present: false=.
 
-Isolated 4000-export fixture — **only one construction shape shakes**, and
-the near-misses are indistinguishable by eye:
-
-| construction                                     | v unused | v used |
-|--------------------------------------------------+----------+--------|
-| =export const v = { check, object, heavy }=      |     32 B | 214968 |
-| =export const v = { check: core.check, heavy }=  |   214944 |        |
-| =export const v = { ...core, heavy }=            |   214876 |        |
-| =export const v = { ...core, get heavy() {…} }=  |   214917 |        |
-| =core.heavy = heavy; export const v = core=      |   214863 |        |
-
-ONE property access, spread, or call anywhere in the initializer marks the
-whole statement impure and everything it references is retained. Getters do
-NOT rescue it. Identifier references only.
+Isolated 4000-export fixture: only =export const v = { check, object, heavy }= (identifier references only) shakes to 32 B; a spread, a =core.x= access, a getter, or =core.heavy = heavy= each retain ~215 KB. ONE impure initializer pins the whole statement.
 
 ** Why not fixed now
 beef wants =import { v } from "@vivalence/typology"= to keep working
@@ -340,10 +395,7 @@ Zero change. Namespace materialization is a genuine *reference*, not a side
 effect — esbuild cannot drop members of a namespace object that is used. No
 esbuild setting fixes it; only not touching the namespace does.
 
-*Ruled out — upgrading.* typebox latest is 1.3.12 (2026-08-10); we pin
-1.3.0. =build/index.mjs= is byte-identical on the pin, =locale/index.mjs=
-identical, =_locale.mjs= down to 40 modules from 41 (they de-duplicated a
-doubled =fr_CA=). Upgrading buys ~7 KB.
+*Ruled out — upgrading.* 1.3.12 vs our 1.3.0 pin: =build/index.mjs= · =locale/index.mjs= byte-identical; buys ~7 KB.
 
 *Untested, cheapest lead for next session.* =v.js= touches exactly 15
 members — =Type.{Any,Array,Boolean,Integer,Intersect,Literal,Null,Number,
@@ -355,15 +407,7 @@ a one-line change. Verify the names exist on that subpath first — the root's
 =Type= comes from =build/typebox.mjs=, a curated named-export list (which is
 also where the 25 KB =Script= TS-parser hangs off =Type=).
 
-*On an upstream PR* — the root's =export * as Type= + =export default Type=
-and =export * as Locale= are all documented public API; removing any of them
-BREAKS every consumer, so those PRs will not land. The only non-breaking
-upstream change is adding =sideEffects: false= to package.json, which is
-correct hygiene but MEASURED not to help this case. Do not open a PR on an
-unproven mechanism — the locale carrier is still unidentified (nothing
-outside =locale/= references =Locale=, yet all 40 are retained, so the
-retention path is not understood). Prove the named-import fix first; if it
-works, no upstream work is needed at all.
+*On an upstream PR* — removing =export * as Type= · =export default Type= · =export * as Locale= breaks public API; =sideEffects: false= is measured not to help. No PR: the locale carrier is unidentified (nothing outside =locale/= references =Locale=, yet all 40 are retained). Prove the named-import fix first.
 
 Cheap mitigation available WITHOUT the facade refactor: an esbuild alias in
 =subsystems/typology/gestalten/bundle/svelte.js= stubbing
@@ -582,115 +626,15 @@ verdict above); lazy =$story= seed / direct trace import stay on the table if
 SSR ever returns.
 
 * user/thread isolation — the m25 breakage sweep (LIVE, UNFIXED)
-
-Full map + evidence in =.ikiro/quests/m25-user-and-thread-handling.org= ("where it breaks").
-Recorded here so the security-critical ones don't sink into a design quest. Nothing gated on
-beef except the ruling — these are FINDINGS, no code touched.
-
-** CROWN — cross-user IDOR on the harness dialogue path (BREAKS, security)
-*** Symptom
-Any authenticated user reads AND writes ANY other user's conversation by putting a foreign
-thread id in the request body: POST =/mode/*/harness/dialogue/stream= with
-={thread: <VICTIM_ID>, parts:[…]}=.
-
-*** Root cause
-Isolation rests ENTIRELY on the MikroORM =user= filter (=default:true=); =authorize()=
-only sets =ctx.user=, there is NO server-side thread-ownership check anywhere. =Turn.ts:54-93=
-declares no =user= filter and no user column (every sibling userspace entity has one).
-=harnessed.js:27= loads the thread row USER-scoped (foreign id → null) but never gates on the
-null and discards the row; :62 binds the raw id STRING; the =/dialogue= branch runs
-=turn.history({thread})= (victim's convo → attacker's LLM context) and =turn.chain({thread})=
-(create+flush BEFORE any LLM call → attacker+assistant turns in the victim's thread).
-
-*** Why not fixed
-m25 design decision (beef's). The fix is two moves: (1) give Turn a =user= filter through the
-thread relation (={thread:{user:args.user}}=, like =Buffer.ts:36-41=) — also closes the
-=entity_find= skill leak/enumeration (rank 5); (2) gate the harness on the already-loaded
-=harnessed.js:27= thread row being non-null. Typology/entities are HOLY — needs go.
-
-** thread bricked by abort-mid-tool-stream (BREAKS, deterministic)
-*** Symptom
-Model calls a write-tool, user hits stop / sends a follow-up → thread permanently unusable
-(every later send → Anthropic 400, non-retryable) until DB row surgery.
-
-*** Root cause
-=harnessed.js:103-126= streamed persistence is =try{…flush()}catch{remove;throw}= with NO
-=finally=. A write-tool's mid-stream =em.flush= commits the assistant =tool_use= turn (half a
-pair) before its =tool_result= exists; a client abort runs the generator's =return()= — NEITHER
-the post-loop flush NOR the catch — so the dangling =tool_use= persists and every later
-=render()= 400s.
-
-*** Why not fixed
-Needs a transactional / finally-guarded scribe. Design call in the quest.
-
-** boot crash on multi-user education daemon (BREAKS, gated on ≥2 users)
-=resolution.js:29= wraps modes() in ONE RequestContext fork; :52 =Promise.all= runs trait
-finalizers concurrently; the INTENTED boot walk (=intented.js:24-28=) mutates that shared
-fork's =user= filter param mid-walk → wrong-user findOne miss → create → Intent
-=unique[user,slug,mode]= violation → =Promise.all= rejects → uncaught → runtime boot-loops.
-Fires with ≥2 INTENTED modes (education: clinic + dojo, ex rep-o-gram) AND ≥2 users; single-user dev
-DB is safe today. Fix: fork-per-walk (the twitch path at =intented.js:16= already does).
-
-** account-switch leak, same tab (BREAKS, client)
-Same-tab logout→login as a different user: =logout()= clears identity but never tears down
-daemons/subscriptions (=populate()= early-returns on =$daemons.length=; =daemon.release=
-assigned at =dossier.js:62=, called NOWHERE) → userB renders userA's REAL threads/intents and
-userA's authed-once SSE keeps streaming. Client-side lifecycle fix.
-
-** tool DoS by input.tools nature-collision (BREAKS, probe-proven)
-A crafted harness body =tools:{entity_find:{…}}= — JSON can't carry a function → =execute=
-undefined → =armed.open({nature:"/entity/find"}, undefined)= navigates the SHARED module-scope
-skill Vector subtree (slurp shares edges) and overwrites the real leaf's effect with undefined
-→ that tool ERRORs daemon-wide for every later request/user until restart. One request, no
-auth-crafting beyond a valid token. Fix: guard =armed.open= against undefined execute, or
-don't share the collided leaf.
-
-** object.render output contract drift (LATENT, two consumers broken)
-*** Symptom
-=dealer.viva.js:61= destructures ={ object }= off =mode.harness.object.render(...)= — that
-field does not exist on the folded transcript; dealer has been reading =undefined=
-silently (its filter over =object?.faces= just yields nothing). The openrouter provider
-suite carries 2 red steps for the same family: tests feed =output: { object: schema }=
-while =buildParams= reads =request.output?.schema=. The anthropic suite carries the SAME
-2 reds (its =provider.test.js output.object= steps + the =translate.snapshot= buildParams
-pin, which expects a =respond= tool + =tool_choice: any= the =output?.schema= read never
-appends) — all four baseline reds across both providers are this one contract decision.
-
-*** Root cause
-The real contract is =render.output.object= (=belt/soma.js transcript= mints
-=output.object= from sealed object parts; primer =aperture.js:53= reads it correctly).
-Somewhere a ={object}=-shaped contract was designed (typology codemap: "compile emits
-output {object}") and providers/tests half-migrated. Two spellings live at once.
-
-*** Why not fixed
-Needs the contract DECISION (=output.schema= vs =output.object= on the Request, and
-whether render lifts =.object= top-level), which crosses typology compile + both
-providers + harness assemble. Francesca's appraise hook uses =render.output.object= —
-the working spelling.
-
-** armed domain tools carry a =language-learning_= prefix nobody wires — SOLVED (fix owed)
-ROOT CAUSE (m38 wake, transcript audit): the domain IS a TOOLED flatmode.
-=domain.viva.js= declares =traits: ["EXPOSED", "TOOLED"]= with =slug:
-"language-learning"=, so an AGENTIC mode's finalizer (=daemon/traits/agentic.js= —
-=flatmodes().filter(implements("TOOLED")).forEach(source =>
-mode.tools.branch(source.slug).slurp(source.tools))=) harvests the domain's tools
-namespaced =language-learning_*= — while =harnessed.js:54= arms the SAME tools bare at
-layer ④. Both names land in one catalog; the model calls both (live transcript:
-=progress= AND =language-learning_progress= in the same opener turn, every session).
-Not intermittent, not per-request magic — deterministic for every AGENTIC mode
-(francesca). Non-AGENTIC harnessed modes show only bare names, which is why probes of
-the raw module produced bare names.
-
-FIXED (beef's go, prefix KEPT — "i'd like the tools to still carry the mode slug"):
-=harnessed.js= layer ④ now branches domain tools under the domain slug
-(=armed.branch("/" + daemon.domain.manifest.slug)=) so the canonical names ARE
-=language-learning_progress= etc. for every harnessed mode; =agentic.js= filters
-=source.manifest?.type !== "domain"= so AGENTIC modes no longer double-harvest.
-Consumers updated: =francesca.md= names the prefixed tools; the appraise hook's
-retro-fitted round is =language-learning_review= (catalog-valid — imitation now lands
-on a real tool, double-write still guarded by =appraised()=). Runtime 52/325 green.
-Note: the layer comment at =harnessed.js:38= is still the old 4-layer wording — the
-comment-litter gate blocks editing it; beef can touch it.
+Full map, evidence, ranks: =.ikiro/quests/benched/m25-user-and-thread-handling.org= "where it breaks" (14 BREAKS / 6 root causes). Kept here so the security rows don't sink with the bench. One line each, fix direction in the quest:
+- CROWN cross-user IDOR on =/mode/*/harness/dialogue/stream= — Turn has no =user= filter, the harness discards the user-scoped thread row (=Turn.ts=, =harnessed.js:27,62=). Fix: Turn filter through =thread.user= + gate on the loaded row. HOLY, needs go.
+- thread bricked by abort mid tool-stream — =harnessed.js:103-126= flushes the =tool_use= turn, no =finally=; every later render 400s.
+- boot crash on a multi-user INTENTED daemon — one RequestContext fork shared by concurrent trait finalizers (=resolution.js:29,52=, =intented.js:24-28=); fork-per-walk.
+- account-switch leak, same tab — =logout()= never tears daemons down (=daemon.release= assigned =dossier.js:62=, called nowhere).
+- tool DoS by =input.tools= nature-collision — a function-less tool overwrites the SHARED skill leaf's effect daemon-wide (probe-proven).
+- object.render output contract drift (LATENT, two consumers).
+- armed domain tools carry a =language-learning_= prefix nobody wires — SOLVED, fix owed.
+- forged owner on create (11-10, m119 =ctx.scope= cut) — =/userspace/entities/{thread,intent}/create= takes any =user= id: the entity lands owned by that user, invisible to its creator. Plain =create=, a filter fences reads only; Terminal · Buffer · Turn refuse (their =create= resolves user · thread under the filter). Evidence: =reference/m119/user-fence.probe.js= J · M · L.
 
 * mikro-orm folds several conditions on one m:n into ONE join — WORKED AROUND (dojo-local)
 
@@ -991,32 +935,6 @@ Patch, proven on a scratch copy (=ok | 1 passed (18 steps) | 0 failed=) — the 
 #+END_SRC
 The choice (beef): rename — the step tests the instance's own blank — or keep the JWT and add a step asserting inheritance: the ledger holds it, =instance/init= answers =present=.
 Met at the m79 sandbox pass (10-05): =0 passed (17 steps) | 1 failed= on an unpatched copy and with m79 applied, the same step — independent of m79.
-
-* runtime-registry-count-fork-2-multiplayer-stale — PRE-EXISTING RED (ledgered at the m53 T1 landing)
-
-** Symptom
-=systems/runtime/tests/registry.count.test.js= step /"fork 2: multiplayer + hello-world wafers resolve under @commons"/
-fails: =Expected null to be truthy= at line 62 (=revelio({ owner: "@commons", type: "instance", slug: "multiplayer" })=).
-Runtime one-shot: 53 passed / 1 failed (332 steps).
-
-** Root cause
-There is no =@commons/instance/multiplayer=: =commons/instances/= holds =hello-world= · =localhost= · =bak/=
-(=bak/starter/multiplayer.viva.js= · =bak/multiplayer.bak/multiplayer.viva.js= — both under the walker's
-ignore, as they should be). The step names a wafer that moved to the graveyard; the other three steps
-(the census) are green and are the ones beef wanted (/"this is a dumb test"/ verdict on the literal count).
-
-** Evidence
-Fails identically before and after the m53 T1 paladin/runtime hunks (the walker still skips =bak= and
-=*.bak=; the =multiplayer= module was never in the pensieve). =find commons -name multiplayer.viva.js=
-→ the lighthouse + the two bak copies only.
-
-** Why not fixed now
-Runtime tests are beef's call (the step asserts a fixture he retired). Fix = drop the =multiplayer=
-line or point it at =@commons/lighthouse/multiplayer=.
-
-** Workaround
-Read the runtime verdict as 53/1 with this step as the one red; verify it is STILL the only red
-before blaming a patch (the typology red is the hallucination snapshot tool-loop, also ledgered).
 
 * buffer-app-bundles-carry-2.6-mb-of-dead-weight — OPEN (measured at the m53 s2 landing; beef: /"why bundle so large??"/)
 
@@ -1381,13 +1299,7 @@ Open a terminal on the italian daemon first, then the buffer.
 * four-ui-surfaces-ship-a-successor-beside-the-incumbent — OPEN (beef, at the dapper/drapes/droneaid/education/anima survey: /"mark this as a known issue."/)
 
 ** Symptom
-No crash. Four independent places in the UI stack carry TWO implementations of the
-same thing side by side, the older one wired to every consumer and the newer one
-green under its own tests with zero consumers. Nothing reports a conflict, because
-every half is individually correct. The cost is paid at read time: a person opening
-=dapper/= or =education/modes/= cannot tell which spelling is live without grepping
-consumers, and a census of either tree is wrong by ~30% unless the dead half is
-excluded by hand.
+No crash. Four places in the UI stack carry an older spelling wired to every consumer beside a newer one green under its own tests with zero consumers; a census of =dapper/= or =education/modes/= is ~30% wrong unless the dead half is excluded by hand.
 
 ** The four instances (measured at the survey, all four trees on disk)
 *** 1. dapper emits two colour contracts, one has no consumers
@@ -1412,13 +1324,7 @@ reach for — popovers, modals, the chess end card — is the one the live contr
 cannot name.
 
 *** 2. dapper carries =primitives/= as a dead fork of =lib/=
-#+begin_example
-primitives/colors.js   391 lines  ┐
-lib/colors.js          452 lines  ┘ differ
-primitives/tokens.js   128 lines  ┐
-lib/tokens.js          130 lines  ┘ differ
-primitives/builders.js  78 lines  = lib/builders.js (identical)
-#+end_example
+=primitives/{colors,tokens}.js= (391 · 128 rows) differ from =lib/= (452 · 130); =builders.js= identical.
 
 Live path is =lib/=: =mod.js= re-exports it, =lifecycle/index.js= (the postcss door
 named in =deno.jsonc=) imports =../lib/system.js=. =primitives/= is reached only by
@@ -1427,12 +1333,7 @@ exported from neither =mod.js= nor =deno.jsonc=, so that whole belt is a second 
 door. Two palettes on disk, differing, no marker naming the winner.
 
 *** 3. drapes =context/= builds the old contract in JS, for nobody
-=context/decorum.js= (=Decorum.use()=), =context/Zone.svelte=, =SkeletonProvider.svelte=,
-=useSkeleton.js=. Zero importers outside =subsystems/drapes/=. =Zone.svelte= re-declares
-16 CSS variables by hand per skeleton level onto a =display: contents= wrapper —
-a pure naming shim over what the cascade already does — and it spells the INCUMBENT
-contract (=--colors-skeleton-{n}-*=), so it is a dead consumer of the half that is
-itself due for retirement.
+=context/decorum.js= (=Decorum.use()=) · =Zone.svelte= · =SkeletonProvider.svelte= · =useSkeleton.js=: zero importers outside drapes. =Zone.svelte= re-declares 16 variables per skeleton level in the INCUMBENT contract — a dead consumer of the half due for retirement.
 
 Adjacent, same shape: =skins/= is 7 components plus a =bak/= of 7 more, and has two
 consumers repo-wide, each taking one — =education .../dataspace/Dashboard.svelte:3=
@@ -1502,14 +1403,6 @@ grep -rl -- "--zone-"      --include=*.svelte --include=*.css .  # successor, ex
 — and exclude =modes/games/bak/= + =bak/tmp/= from any education census, or the count
 is wrong by a third.
 
-** Cross-cutting note from the same survey (not a defect, worth keeping)
-Colour discipline IMPROVES inward — anima 0 hex across 56 views, education 11 of 67
-(and the 11 are illustration: =Riddler.svelte= draws a jester in CSS, =.cone.gold=,
-=.pom.red= — palette-as-artwork, not chrome), droneaid =Assembly.svelte= all-hex with
-13 vars and a Google-Fonts =Archivo= link. Component reuse runs BACKWARDS — education
-33 drapes imports, anima 9, droneaid 0. *The design system's strongest consumer is the
-package furthest from it, and its weakest is the system it was built for.*
-
 * path-codec-encode-assumes-an-array — OPEN
 ** Symptom
 =v.primitives.instance.Instance.encode(instance)= on a settled (decoded) instance throws
@@ -1535,7 +1428,7 @@ instead and asks for =runtime= alone (paladin judged the leaves at settle).
 Never encode a decoded instance; judge before decode (paladin's =settle= order: cast → faults →
 decode) or judge shape without codec leaves.
 
-* an-empty-cortex-must-warn-at-boot-in-the-runtime-and-in-kajuit — OPEN (moved from compacts/MARKERS.md at the skills fold; carried five folds unexecuted)
+* an-empty-cortex-must-warn-at-boot-in-the-runtime-and-in-kajuit — OPEN (moved from compacts/MARKERS.md)
 ** Symptom · Root cause · Evidence · Ruling
 Beef, verbatim: *"ahh ohh this is imortant as a knowon issue. i watn to be warned differntly
 about this. kajuit adn runtime."*
@@ -1564,14 +1457,7 @@ Beef, verbatim: *"do a comparison between the keys i provided you in hallucinato
 etc, all specific copy paste by me, and compare it to the snapshot. are we snapshotting
 completely and correctly?"*
 
-The three copy-pastes to compare against:
-
-1. the `acid()` boot dump — `{ mask, service, faculties }` for `@commons/hallucinator/anthropic`
-2. the `Cortex { faculties: Map(1) { "dialogue" => [3] } }` dump from the same boot
-3. `GET /daemon/hello/metadata/cortex` → the live 3-faculty strip, pulled under beef's token
-
-Against `systems/runtime/tests/snapshots/cortex-contract-strip.snapshot.json` (one faculty)
-and `cortex-contract-render.snapshot.json`, pinned by `systems/runtime/tests/cortex-contract.snapshot.test.js`.
+Compared: his `acid()` boot dump · the `Cortex { faculties }` dump · live `GET /daemon/hello/metadata/cortex` (3 faculties) against `cortex-contract-strip.snapshot.json` (one faculty) + `cortex-contract-render.snapshot.json`, pinned by `systems/runtime/tests/cortex-contract.snapshot.test.js`.
 
 **First reading, taken live. The specific holes and the specific drift:**
 
@@ -1588,37 +1474,20 @@ behind conditional spreads. What each surface actually carries:
 | config     | CONDITIONAL | *** ABSENT ***    | *** ABSENT ***    | {model: …} ×3    |
 | via        | always      | ["render"]        | render+stream ×2, render ×1 | render+stream ×3 |
 
-*** HOLE 1 — `provider` is never exercised anywhere.*** Stamped in
-`systems/runtime/subjects/daemon/lifecycle/population.js:113` (`{...faculty, provider: service.manifest.slug}`),
-emitted by the strip, rendered by the client. No fixture on either test path declares it:
-`contractFaculty()` (`cortex-contract.snapshot.test.js:19`) and the shared
-`commons/fixtures/testing/data/faculties.js:65-117` both omit it. The conditional spread therefore
-never fires in any test, and the key is absent from both pinned JSONs.
+*** HOLE 1 — `provider` is never exercised.*** Stamped at `systems/runtime/subjects/daemon/lifecycle/population.js:113`, emitted by the strip, read by the client; `contractFaculty()` (`cortex-contract.snapshot.test.js:19`) and `commons/fixtures/testing/data/faculties.js:65-117` omit it, so the conditional spread never fires in a test.
 
-*** HOLE 2 — `config` is never exercised anywhere.*** Same two fixtures, same omission.
-Real providers set `config: { model: "claude-opus-5" }`
-(`commons/hallucinators/anthropic/provider/index.js:68`ff). It is the only field that names
-WHICH model a faculty is.
+*** HOLE 2 — `config` is never exercised.*** Same two fixtures omit it; real providers set `config: { model: "claude-opus-5" }` (`commons/hallucinators/anthropic/provider/index.js:68`ff), the only field naming WHICH model.
 
-*** Both unpinned fields are the two the client reads.*** hello-world `App.svelte` renders
-`faculty.provider` and `faculty.config?.model` in the attached list; `Intelligent.svelte:31`
-reads the faculty list for the tune picker. The wire could stop emitting either and the
-whole suite stays green.
+*** Both unpinned fields are the two the client reads*** (hello-world `App.svelte` · `Intelligent.svelte:31`): the wire could drop either and the suite stays green.
 
 *** HOLE 3 — the contract snapshot pins a ONE-faculty cortex.*** `cortex-contract-strip.snapshot.json`
 is a single-element array, single avenue `["render"]`. Multi-faculty ORDER across
 `[...cortex.faculties.values()].flat()` is asserted in `cortex.stripwire.test.js` but never
 frozen in a snapshot, so a reordering is caught only by that test's own expectations.
 
-*** HOLE 4 — object-form `channels` never reaches a snapshot.*** `commons/fixtures/testing/data/faculties.js:126,148`
-declare `channels: { in: [{ type: "audio", codec: "pcm_16000" }] }` for verbatim/speech.
-Only flat-string dialogue channels are pinned. The strip copies `channels` by reference, so
-the two shapes are untested against each other.
+*** HOLE 4 — object-form `channels` never reaches a snapshot.*** `faculties.js:126,148` declare `channels: { in: [{ type: "audio", … }] }`; only flat-string channels are pinned, and the strip copies `channels` by reference.
 
-*** DRIFT — `tune` arity, benign but unrecorded.*** Fixtures declare 3-length tune;
-`Cortex.register` (`prototypes/cortex.js:48`) pads to 4 with 0.5. Live providers declare 4
-natively. The snapshot froze the PADDED value, so it pins the pad, not the declaration —
-correct today, silent if the pad ever changes.
+*** DRIFT — `tune` arity.*** Fixtures declare 3, `Cortex.register` (`prototypes/cortex.js:48`) pads to 4 with 0.5, live providers declare 4; the snapshot pins the pad, not the declaration.
 
 Settle at the fold: is a second contract fixture owed — one provider-stamped,
 config-bearing, both-avenues faculty — or does `cortex-contract` deliberately pin the
@@ -1922,37 +1791,7 @@ Met again by m78's pin bracket (one-file runs, before and after, identical): edu
 - =systems/runtime/tests/scenarios/daemon.js:25= =create()= seeds no domain, and dojo calls =mountMode(dojo)= bare, while =commons/fixtures/testing/data/seed.js:6-8= says a mode calling domain repository methods must mount its domain. That is the missing =retentions= · =byLastSignal= · =feed= · =novel= · =review= · =due=.
 - =kernel/literal.test.js:2= · =userspace/scoping.test.js:3-4= import =../../../../fixtures/data/= from the =commons/= era.
 - vcompany =FAILED | 16 passed (65 steps) | 11 failed (30 steps)=: its own rig writes =mode.module.mount= (=~/.viva/registry/vcompany/tests/scenarios.js:28,54=), DATASET reads =mode.module.source.dirname= (=systems/runtime/subjects/mode/traits/dataset.js:58=).
-Patch set, proven on the copies — education =ok | 39 passed (187 steps)=, vcompany =FAILED | 25 passed (113 steps) | 2 failed (4 steps)=, runtime with the rig change =ok | 76 passed (429 steps)=:
-#+BEGIN_SRC diff
-// systems/runtime/tests/scenarios/daemon.js
--export async function create() {
--  const { orm, em, datamap, entities, fixtures } = await seed();
-+export async function create(options = {}) {
-+  const { orm, em, datamap, entities, fixtures } = await seed(options.entities);
-// systems/runtime/tests/scenarios/index.js
-+export * as fixtures from "./fixtures.js"
-// ~/.viva/registry/education/domain/tests/scenarios/domain.js
--  const scenario = await scenarios.create();
-+  const scenario = await scenarios.create({ entities: domain.entities });
--    .use(shard.secure.authorize())
-+    .use(good.lighthouse.shard.authorize)
-// ~/.viva/registry/education/modes/games/dojo/tests/{aperture,emitter,tools}.test.js
-+import { entities } from "../../../../domain/entities/index.js";
--    scenario = await mountMode(dojo);
-+    scenario = await mountMode(dojo, { entities });
-// ~/.viva/registry/education/domain/tests/kernel/literal.test.js — userspace/scoping.test.js the same, its tiers. → fixtures.tiers.
--import { seed } from "../../../../fixtures/data/seed.js";
-+import { fixtures } from "@vivalence/runtime/scenarios";
-+import { entities } from "../../entities/index.js";
--  scenario = await seed();
-+  scenario = await fixtures.seed(entities);
-// ~/.viva/registry/vcompany/tests/scenarios.js — NO VCS: capture to ~/.viva/bak/ first (skill readme)
--  mode.module.mount = at(manifest);
-+  mode.module.source = at(manifest);
--  scenario.mode.module.mount = new Path(
-+  scenario.mode.module.source = new Path(
-#+END_SRC
-=create(options)= mirrors =mountMode(viva, options)= (=systems/runtime/tests/scenarios/mode.js:120=); =fixtures= on the scenarios barrel keeps =commons/fixtures/testing/data/= at its one consumer, =systems/runtime/tests/scenarios/fixtures.js=.
+Patch set, proven on the copies 10-05 → =reference/known-issues/registry-mode-suites-patch.org= (education =ok | 39 passed (187 steps)=, vcompany =25 passed | 2 failed=, runtime =ok | 76 passed (429 steps)=).
 ** Ruling
 none yet. Owed with the patch: the vdex ordering — the 2 left in vcompany. =vcompany/modes/office/vdex/aperture/index.js:39-40= throws /"is one document already"/ (the id is taken) before =:42= throws /"exists"/ (the path is taken); =vdex/tests/tools.test.js:80= re-files =22.07 Payroll= and expects "exists", =vdex.snapshot.test.js:150= is the same family. Which refusal wins a same-id re-file: the id check (the test changes) or the path check (=:39= lets its own path through).
 ** Why not fixed
@@ -2472,20 +2311,6 @@ m82 Q10 (10-10): sheets ports to OpenTUI + Solid; =Table= is re-cut there over t
 ** Why not fixed
 Found by a design probe; no code go.
 
-* prod-runs-the-pre-m80-runtime — OPEN (m80 moved to done 10-10; beef: /"m80 i do prod in time."/)
-
-** Symptom
-A push deploys the m80 · m81 runtime to prod (=.gitlab-ci.yml:1-3= =when: always=, deploy jobs =:36-52=, no branch filter) onto prod's pre-m80 state.
-
-** Root cause
-Prod's runtime finds no =instance.viva.json=; anima's one Coolify key is =PUBLIC_VIVA_LIGHTHOUSE_REMOTE= while the code reads =PUBLIC_VIVA_RUNTIME_REMOTE= (=systems/anima/src/app/+layout.svelte:29=); the lighthouse container's =commons/instances/multiplayer= is gone and every prod account lives in its =multiplayer.viva.db=.
-
-** Ruling
-beef runs the cutover, on his clock (10-10).
-
-** Workaround
-No push until the cutover: volume backup · =instance.viva.json= · the env key · the lighthouse container retired · push. Detail: =quests/done/m80-lighthouseless.org= =* handoff=.
-
 * package-docs-show-pre-m80-recipes — OPEN (carried from m80's owed list at its close, 10-10)
 
 ** Symptom
@@ -2611,10 +2436,6 @@ A bare line on a thread of =/daemon/chess/mode/board/play= (HARNESSED) answers =
 
 ** Why not fixed now
 Server side, chess package (a position read with no =white= side — the board/play harness or a chess tool), outside m86. Fallback: =/mode harness/runtime= or =/mode srs/memo= first.
-
-* memo-tty-face-on-dead-sheets — OPEN (found 10-16) — 10-22 the ghost tty look (m95 ** 10) walked =/mode srs/memo= live in tmux: the memo view rendered (=1/10 · word · untouched · Latin / deus / tab reveals=); CLOSE after one walk by beef
-
-10-27: the 10-16 cause is gone — =commons/fixtures/memo/mode/buffer/memo.jsx= no longer imports =@vivalence/sheets=, sheets is a workspace member (=deno.jsonc:19=). Open only for beef's one walk of =/mode srs/memo= in the frame.
 
 * harness-input-unvalidated — OPEN (found 10-22)
 
@@ -2830,14 +2651,138 @@ None — a catalog-checked nature at =gathered=, or the chip built from the verb
 * spanish-sentence-audio-orphans — OPEN (11-06)
 21 orphan mp3s + 25 stale slugs in =english-to-spanish/freight/audio/sentences/= — cause and his call: =quests/m115-mando.org= =* spanish dataset 11-06 ** owed=.
 
-* ci-image-build-lacks-patch-and-argon2-scripts — OPEN (11-06, master =bf2d0299= pushed, CI red)
+* anima-tests-world-rig-dead — OPEN (11-06, phone pass)
 ** Symptom
-=build-and-push= dies at =Dockerfile:53=: =systems/ghost/install.sh: … 17: patch: not found=, exit 127. Earlier in the same build: =Ignored build scripts for packages: npm:argon2@0.44.0=.
-** Root cause
-=install.sh:17= applies =subsystems/sheets/opentui-core.patch= with =patch=; the root =Dockerfile:3= apk list has none. =Dockerfile:51= allows =npm:svelte-preprocess= only; =deno.jsonc:27= allows =better-sqlite3,argon2,svelte-preprocess=.
-** Evidence
-His CI paste 11-06 16:58; =apk add patch= on alpine 3.20 arm64 = 208 KiB (measured on R000). argon2 0.44.0 ships =prebuilds/linux-arm64/argon2.armv8.musl.node= — no build tools owed.
+=chrome · sidebar · tele · bar · regions .test.js= all abort: =tests/world.js:13= =ENTRY= bundles =./panes/index.js= · =./renderers.js= · =./view.js=, none exist since m108 m2. Five suites red before any step; =regions.test.js:179= still asserts the phone pane · strip · back button, all cut 11-06 (his /"phone implements same layout"/).
 ** Ruling
-/"patch — makes sense to add to root image?"/ — yes. Hunk: =quests/prod-deploy.org= =** milestone 1 — Dockerfile=.
+m108 milestone 4 (the rig onto =surfaces/chrome/=); the phone-pane steps die with it.
+
+* popover-bounds-are-the-window — OPEN (11-06, phone pass)
+** Symptom
+=drapes/Pop.jsx:51= · =Tele.jsx:10= clamp against =bridge.$viewport= = =innerWidth/innerHeight=; =.client= is now inset by the safe area, so a popover near the modeline can overrun by =safe-area-inset-bottom= (~34px). =Wid= and the modeline popover already measure =.client= (=modeline.jsx:71=, =dock.jsx:30=).
+** Ruling
+None — the store carries the client box, one writer at the =cover.jsx= root.
+
+* prod-anima-is-the-pre-rewrite-svelte — OPEN (11-06 23:10 curl)
+** Symptom
+=curl https://vivalence.com/= answers sveltekit markers + =cdn.jsdelivr.net/npm/eruda= (debug console ON); the Solid anima and every phone fix of 11-06 are not on prod.
+** Ruling
+=prod-deploy= — his deploy.
+
+* fileset-walk-lands-no-file-rows — OPEN
+** Symptom
+=tests/mode/filetraits.coverage.test.js:92= FILESET rows =[]=, expected 2; =0 passed (6 steps) | 1 failed=.
+** Root cause
+Not traced: :100 passes; =paladin.find.walk= (=traits/fileset.js:9=) empty under the temp dir, or =mount= misses the =$like= :101.
+** Evidence
+11-07 red on a HEAD sandbox too.
+** Ruling
+none
 ** Why not fixed
-Waits for go.
+outside m117's blast.
+** Workaround
+none
+
+* fs-tools-mountpoint-gate-is-prose-only — OPEN (11-09)
+** Symptom
+=world.md= asks before "anything outside the mountpoint"; no code refuses a write outside it.
+** Root cause
+=subsystems/paladin/gestalten/tools/fs.js:21= =absolute()= refuses a relative path only; =fs.js:8= =resolve(root, path)= bounds, no tool calls it.
+** Ruling
+None. m117 Q4 (the root's single rule =allow=; a mode's policy brings =deny=) is the gate's home.
+** Why not fixed
+Infra, not the harness (/"the infra is already there. i want a hanress. not code."/).
+** Workaround
+The prose ask, =world.md= row 6.
+
+* mode-row-name-and-description-read-slug-and-empty — OPEN (11-09, the rig)
+** Symptom
+The Mode row of =harness/runtime= reads =name = "runtime"=, =description = ""=; the manifest says =Runtime Harness= · =default runtime harness=. The live db has them right.
+** Root cause
+Unmeasured; =systems/runtime/subjects/mode/lifecycle/1-population.js:25= =ensure({ ...die.mode.manifest })= on the rig's =mountMode=.
+** Why not fixed
+Found on a review walk; the =modes= CSV (m117 Q12″) shows the columns.
+
+* primer-cache-mark-lands-on-the-last-section — OPEN (11-09)
+** Symptom
+The anthropic cache mark sits on the last primer section when none is named =thread= (=harnessed.js:200= =marking=); a volatile last section (=threads=, per turn) invalidates the cached prefix every turn.
+** Ruling
+None. The volatile cut is keyed to one name.
+** Workaround
+Volatile sections last and few.
+
+* rel-ignores-its-schema-argument — OPEN (11-09)
+** Symptom
+=v.rel(v.user())= builds the whole User schema and throws it away: =subsystems/typology/schematics/index.js:23= =rel: (schema) => v.union([ID, opaque])= never reads =schema=. With 14 cross-related schematics =v.thread()= went 25ms → 6.5s, =v.user()= 10837 nodes; =skill.entity.test.js= hung past 600s.
+** Workaround
+Never call a factory inside =v.rel(…)=; the Q8 tangle passes =v.rel()= (29ms).
+
+* stored-empty-trait-data-invalid-against-its-schema — OPEN (11-09, the live db)
+** Symptom
+Thread rows store the whole vocabulary filled — =LABELED: {}= · =AIMED: {}= beside the worn traits — and =Label= requires =name=, =Aimed= requires =mount=: the stored object fails its own schema. =traits/index.js= =Label.default({})= defaults to an invalid value.
+** Root cause
+=belt/traits.js:30= =cast= validates WORN names only, so the fill is never checked.
+** Workaround
+=primer.entity.test.js= mirrors cast (worn names only).
+
+* runtime-host-reference-unknown-on-a-daemon-host — OPEN (11-09)
+** Symptom
+The map's first row prints =/runtime= without a slug when the harness runs on a daemon host: the host ctx carries only its own =reference= (=mode.js= =ctx.reference.absolute=); the runtime's =/runtime/<slug>= (=paladin/instance/lifecycle/2-resolution.js:49=) is not in the context.
+** Workaround
+=runtimeHost(ctx)= in =runtime-harness.viva.js=: the host's own reference when it starts with =/runtime/=, else =/runtime=.
+
+* runtime-own-mode-rows-carry-no-module-id — OPEN (11-09)
+** Symptom
+A daemon's modes name their module in =Daemon.mask.modes= (=@chess/board/play=); the runtime's own Mode rows (=daemon = null=: =harness/runtime=, =editor/darkroom=) have no mask and no module column — the map's =module= cell is empty for them.
+
+* m118-darkroom-tails — OPEN (11-09, m118 DONE)
+** Symptom
+Open on the closed quest =done/m118-darkroom.org=: the =/picture/settle= name (his); (c) tools on the desk; the =/tune= → =/tier= rename (his word); the =imagescript= pin; =generative.js:25= offers =dom.svelte=; a fence-legibility guard + a bare-letter-question Stop arm (his wiring); T-themes unwalked (=/theme parchment= re-inked nothing); a stall-minted buffer carries =data: {}= — the desk primes itself, the datamap never fills a mode schema.
+
+* buffer-create-null-thread-on-not-null-column — OPEN (11-09, m119 show-me)
+** Symptom
+Unprobed. A GENERATIVE buffer created with no =turn= and no =ctx.thread= writes =thread: null= into a NOT NULL column.
+** Root cause
+=systems/runtime/subjects/mode/traits/generative.js:130= ={ thread: ctx.thread ?? null }=; =subsystems/typology/entities/Buffer.ts:93= =thread= carries no =nullable=.
+** Evidence
+Code read only, 11-09; no caller without a thread found yet, no run.
+** Ruling
+none
+** Why not fixed
+Outside m119's scope (Q5: writes keep naming their columns).
+** Workaround
+none
+
+* chess-boot-rig-waits-for-stale-ready-line — OPEN (found 11-09, m119 land)
+** Symptom: =~/.viva/registry/chess/tests/boot.test.js= step /"run.js on the instance says Status:RUNNING"/ runs to its 2m deadline; /"SIGTERM → exit 0"/ then sees =DEADLINE=. The seat step passes.
+** Root cause: =boot.test.js:12= =READY = /^Status:RUNNING$/= — no file under =systems · subsystems · commons= prints it; the runtime's ready line is =[runtime/<slug>] start= (=hello.js= =READY=).
+** Evidence: the rerun's log shows =[runtime/house/daemon/chess/mode/board/play] start= … =[runtime/house] start=, then the deadline.
+** Ruling: none yet — a registry rig's line, his package.
+** Why not fixed: off-root (jj registry); m119 touched its =rig.js= creates only.
+** Workaround: none; the kit suite (=tests/kit.test.js= ok 1 passed (11 steps)) covers the mode.
+
+* yields-route-fault-loses-its-reason — OPEN (11-10, reader-mode Q16 probe)
+** Symptom
+A =yields= route whose effect throws mid-stream reaches the client as /"error reading a body from connection"/; the thrown message never arrives.
+** Root cause
+=subsystems/typology/prototypes/response.js:18= =pull= awaits =iterator.next()= with no catch: the throw errors the ReadableStream, no closing error frame is written.
+** Evidence
+Probe 11-10: one yield, then a throw → the client saw the yield, then that message.
+** Ruling
+None. reader-mode Q16 ships =failed= on the row after the last packet, no reason.
+** Why not fixed
+Outside the reader quest; touches every streaming route.
+** Workaround
+The last packet received names the step that held.
+
+* buffer-view-lost-on-reload — OPEN (found 11-11, reader-mode walk)
+** Symptom
+A page reload in anima paints a framed buffer as raw JSON; the frame's view chooser is empty. Darkroom too (control, same walk).
+** Root cause
+Unproven. =systems/ghost/gestalten/belt/view.js:11= answers =[]= when =buffer.mode= is not an object.
+** Evidence
+11-11: =/thread/new= in reader · darkroom paints the view; reload → JSON. =/thread <id>= paints it again.
+** Why not fixed
+Client hydration, outside the reader quest.
+** Workaround
+Re-enter the thread: =/thread <id>=.

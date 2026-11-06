@@ -15,11 +15,9 @@ export const resolve = (root, path = ".") => {
   return full;
 };
 
-// nothing is bound: every path the tools take is absolute. The mode section of the context names this
-// mode's places (source · mountpoint · files); mode_find lists every mode's. A refusal says so.
-const PLACES = "your mode's places are in the mode section of your context; mode_find lists every mode's";
+const PATHS = "every mode's paths (source · mountpoint · files) come from mode_find";
 export const absolute = (path) => {
-  if (!path.startsWith("/")) throw new Error(`path '${path}' is not absolute — ${PLACES}`);
+  if (!path.startsWith("/")) throw new Error(`path '${path}' is not absolute — ${PATHS}`);
   return normalize(path);
 };
 const PATH = (what) =>
@@ -38,9 +36,9 @@ export const fs = new Vector()
     {
       nature: "/fs/tree",
       valence:
-        "The directory tree under an absolute path. Ground here before reading: your mode's places " +
-        "(source · mountpoint · files) are in the mode section of your context, every mode's come " +
-        'from mode_find. Example: { path: "/home/operator/jdex", depth: 2 }.',
+        "The directory tree under an absolute path. Ground here before reading: every mode's paths " +
+        "(source · mountpoint · files) come from mode_find. " +
+        'Example: { path: "/home/operator/jdex", depth: 2 }.',
       input: v.object({
         path: PATH("a directory"),
         depth: v.integer({ minimum: 1, maximum: 5 }).default(2),

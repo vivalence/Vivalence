@@ -153,7 +153,7 @@
   const named = (page) => page.label?.name ?? page.trait?.LABELED?.name ?? `buffer ${page.index}`;
 
   function open(page) {
-    if (terminal) terminal.buffer = page;
+    if (terminal) terminal.setBuffer(page);
   }
 </script>
 

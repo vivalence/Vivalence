@@ -3,7 +3,7 @@ import { BRIEF } from "./brief.js";
 
 // the researcher's own budget — NOT the thread's INTELLIGENT.rounds, which is the OUTER
 // conversation's per-turn tool cap and would starve a research pass if it were dialed low.
-// two searches, six reads, a draw, a redraw, slack. the thread's tune IS inherited.
+// two searches, six reads, a draw, a redraw, slack. the thread's tier IS inherited.
 export const ROUNDS = 30;
 
 // the harness IS the researcher: turns, the em fork, the armed catalog, persistence and the

@@ -17,7 +17,7 @@ export const Request = v.object({
   terminal: v.string().optional().desc('The calling terminal, whenever a terminal calls. Example: "t1"'),
   turn: v.string().optional().desc('The id the user turn is minted under; the caller picks it to find the turn again. Example: "6f1c0d2e"'),
   parts: v.array(hallucination.Part.Any).desc('The user turn\'s parts. Example: [{ "type": "text", "text": "ciao" }]'),
-  tune: hallucination.Tune.optional(),
+  ...hallucination.Selector,
   config: v.record(v.string(), v.unknown()).optional().desc('Policy overrides. Example: { "rounds": 2 }'),
   system: v.record(v.string(), v.unknown()).optional().desc('Named primer sections, each a string or a Primer. Example: { "system": "You are memo." }'),
   output: v.record(v.string(), v.unknown()).optional().desc('A schema the answer must fit. Example: { "type": "object" }'),

@@ -13,7 +13,7 @@ import { provider, descriptors, DAEMON } from "./datamap.js";
 
 export class ProbeEntity extends VirtualEntity {
 ```
-**`gestalten/belt/`: 25 members (167 exports), reach ~366, spread onto the root (`gestalten/index.js:8`): `control`·`sleep` import bare; `cortex.js` `strip`·`wire` collide with `shape/`.** An explicit export SHADOWS an `export *`, two of one name DROP it, silently. `atom` = `belt.atom`, fires on subscribe.
+**`gestalten/belt/`: 25 members (168 exports), reach ~366, spread onto the root (`gestalten/index.js:8`): `control`·`sleep` import bare; `cortex.js` `strip`·`wire` collide with `shape/`.** An explicit export SHADOWS an `export *`, two of one name DROP it, silently. `atom` = `belt.atom`, fires on subscribe.
 ```js
 // subsystems/typology/tests/gestalten/belt/control.test.js:1
 import { control, Controller, sleep, Span, specimen } from "@vivalence/typology";
@@ -74,7 +74,7 @@ export * from "./prototypes/index.client.js";
 export * from "./gestalten/index.client.js";
 export * from "./schematics/index.js";
 ```
-**`prototypes/`: 49 rows → `mod.ts`; seek·wafer·scope·blacklist·action·yield untested; `harness/`·`orm/`·`signatures/` EMPTY untracked. `errors/`: BaseError+4 stars, `vector.js` Long·Short·NotFound·ValidationError (10 direct), `production.js` empty.** `vector.js`: `branch(sig, vector)` ATTACHES live, RETURNS the child; `graft` deep-copies (/"always attach. but lets have one dedicated for deep copy."/ 10-01); ONE effect per node. `signature.js:16`'s ctor RETURNS a same-class arg: subclasses declare no fields.
+**`prototypes/`: 49 rows → `mod.ts`; seek·wafer·scope·blacklist·action·yield untested. `errors/`: BaseError+4 stars, `vector.js` Long·Short·NotFound·ValidationError (10 direct), `production.js` empty.** `vector.js`: `branch(sig, vector)` ATTACHES live, RETURNS the child; `graft` deep-copies (/"always attach. but lets have one dedicated for deep copy."/ 10-01); ONE effect per node. `signature.js:16`'s ctor RETURNS a same-class arg: subclasses declare no fields.
 ```js
 // subsystems/typology/tests/datamap.test.js:1
 import { Datamap, Twitch, sleep, specimen } from "@vivalence/typology";
@@ -83,14 +83,14 @@ import { EntitySchema, MikroORM } from "@mikro-orm/sqlite";
           const [effect, carry, steps] = steer.dispatch.traverse(target, signal);
           if (!effect) throw new NotFound(signal);
 ```
-**`prototypes/pipe.js` · `queue.js` · `span.js` — TELEMETRY's flow algebra, LANDED 10-23.** Pipe fans out, Queue buffers, a nanostore holds; `fromm.sink` makes each a write, attaching is ONE act, `pipe.tap(sink)` → untap; `fold` · `for await` tap a nanostore · a Queue. A span's pipe taps its parent's, a record `{at, path, track, data}` (`at` epoch ms) climbs to the root, `$history` is its fold; eight STANDARD tracks (`start stop request response fault log entity status`) are a Vector `span.tracked`, each a span method; importance is an axis BESIDE a track; the Controller's `start() stop() fault(error)` move its status AND write the track. Reference: `documentation/content/40-49_reference/42_primitives/`.
+**`prototypes/pipe.js` · `queue.js` · `span.js` — TELEMETRY's flow algebra.** Pipe fans out, Queue buffers, a nanostore holds; `fromm.sink` makes each a write, attaching is ONE act, `pipe.tap(sink)` → untap; `fold` · `for await` tap a nanostore · a Queue. A span's pipe taps its parent's, a record `{at, path, track, data}` climbs to the root, `$history` is its fold; eight STANDARD tracks (`start stop request response fault log entity status`) are a Vector `span.tracked`, each a span method; importance is an axis BESIDE a track; the Controller's `start() stop() fault(error)` move its status AND write the track. Ref: `documentation/content/40-49_reference/42_primitives/`.
 ```js
 // subsystems/typology/prototypes/span.js:45
   tracks(vector) {
     this.tracked.graft(vector);
     for (const nature of vector.trie.keys()) this[nature] ??= (data) => this.track(nature, data);
 ```
-**`schematics/entities/`: `index.js` re-exports DataEntitySchema+7 descriptors (2 direct); `base.js` VirtualEntitySchema bypasses it; `turn.js` DEAD.**
+**`schematics/entities/`: `index.js` re-exports DataEntitySchema + 14 `*Schematic` (ex-Descriptor 11-09) spreading `base.js` `DataSchematic`·`VirtualSchematic`, `is`·`examples`, fields `.desc().examples()`; `traits/index.js` `names`.**
 ```js
 // subsystems/typology/tests/schematics.test.js:1
 import { specimen, v } from "@vivalence/typology";

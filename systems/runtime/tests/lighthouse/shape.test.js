@@ -62,7 +62,11 @@ specimen.describe("lighthouse shape (the runtime aperture, in-process)", () => {
     specimen.assert(firstTerminal?.index === 0, String(firstTerminal?.index));
     specimen.assert(firstTerminal?.user?.authentication === undefined, JSON.stringify(Object.keys(firstTerminal?.user ?? {})));
     const secondTerminal = await finnConnection.call("/userspace/entities/terminal/create", {
-      data: { traits: ["LABELED"], trait: { LABELED: { name: "grammar" } } },
+      data: {
+        user: finn.user.id,
+        traits: ["LABELED"],
+        trait: { LABELED: { name: "grammar" } },
+      },
     });
     specimen.assert(
       secondTerminal?.index === 1 && secondTerminal?.trait?.LABELED?.name === "grammar",
@@ -76,16 +80,22 @@ specimen.describe("lighthouse shape (the runtime aperture, in-process)", () => {
     specimen.assert(Array.isArray(theirs) && theirs.length === 1, String(theirs?.length));
     const widened = await finnConnection.call("/userspace/entities/terminal/find", { where: { user: kiro.user.id } });
     specimen.assert(
-      Array.isArray(widened) && widened.length === 2 && widened.every((row) => owner(row) === finn.user.id),
+      Array.isArray(widened) && widened.length === 0,
       `returned ${widened?.length} rows, owners ${JSON.stringify([...new Set(widened?.map(owner))])}`,
     );
   });
 
   specimen.it("an index outlives a closed terminal — the next one counts past the highest", async () => {
-    const middle = await finnConnection.call("/userspace/entities/terminal/create", { data: {} });
-    const top = await finnConnection.call("/userspace/entities/terminal/create", { data: {} });
+    const middle = await finnConnection.call("/userspace/entities/terminal/create", {
+      data: { user: finn.user.id },
+    });
+    const top = await finnConnection.call("/userspace/entities/terminal/create", {
+      data: { user: finn.user.id },
+    });
     await finnConnection.call("/userspace/entities/terminal/removeOne", { where: { id: middle.id } });
-    const next = await finnConnection.call("/userspace/entities/terminal/create", { data: {} });
+    const next = await finnConnection.call("/userspace/entities/terminal/create", {
+      data: { user: finn.user.id },
+    });
     specimen.assert(next?.index === top.index + 1, JSON.stringify({ middle: middle.index, top: top.index, next: next?.index }));
     for (const made of [top, next]) await finnConnection.call("/userspace/entities/terminal/removeOne", { where: { id: made.id } });
   });
@@ -99,7 +109,9 @@ specimen.describe("lighthouse shape (the runtime aperture, in-process)", () => {
   });
 
   specimen.it("a runtime-level thread — mode null", async () => {
-    thread = await finnConnection.call("/userspace/entities/thread/create", { data: {} });
+    thread = await finnConnection.call("/userspace/entities/thread/create", {
+      data: { user: finn.user.id },
+    });
     specimen.assert(thread?.id && owner(thread) === finn.user.id, JSON.stringify(thread));
     specimen.assert((thread.mode ?? null) === null, JSON.stringify(thread.mode));
     const theirs = await kiroConnection.call("/userspace/entities/thread/find", { where: {} });

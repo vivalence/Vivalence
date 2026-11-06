@@ -13,7 +13,7 @@ export const domain = async (die, next) => {
   });
 
   if (die.daemon.domain.aperture) {
-    die.daemon.domain.aperture.use(shard.context.spread(contexts.host, die.daemon));
+    die.daemon.domain.aperture.use(shard.context.spread(contexts.daemonDie, die.daemon));
     die.daemon.aperture.graft(die.daemon.domain.aperture);
     die.daemon.call = shape.proxy(die.daemon.domain.aperture, steer.strategy.direct);
   }

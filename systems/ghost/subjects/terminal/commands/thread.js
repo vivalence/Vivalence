@@ -22,7 +22,14 @@ export const thread = new Vector()
   )
   .open(
     { nature: "/thread/new", valence: "a new thread on the seated mode, seated. Example: /thread/new" },
-    async (ctx) => seated(ctx, await ctx.client.runtime.entities.thread.create({ mode: ctx.terminal.mode.id })),
+    async (ctx) =>
+      seated(
+        ctx,
+        await ctx.client.runtime.entities.thread.create({
+          user: ctx.client.runtime.lighthouse.user.id,
+          mode: ctx.terminal.mode.id,
+        }),
+      ),
   )
   .open(
     { nature: "/thread/label", valence: "name the seated thread — LABELED. Example: /thread/label \"flamingo — six species\"", input: Named, chord: "leader/e/l" },

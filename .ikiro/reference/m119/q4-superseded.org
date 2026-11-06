@@ -1,0 +1,43 @@
+#+title: m119 — superseded by Q4 (11-09): S3's datamap hunk and milestone 5
+# limit: 8000 chars
+
+Moved whole from =quests/m119-scope-params.org= on /"what? no. stupid. why would we? is that needed?"/ · /"b."/. The =args: false= switch (=User.ts:52=) made both unnecessary.
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/datamap.js:12
+     this.shard = {
+-      scope: (task) => RequestContext.create(orm.em, task),
+-      bind: (name, resolve) => async (ctx, next) => {
+-        RequestContext.getEntityManager(orm.em.name)?.setFilterParams(name, resolve(ctx));
+-        await next();
+-      },
++      scope: (task, params = {}) =>
++        RequestContext.create(orm.em, () => {
++          for (const [name, value] of Object.entries(params)) this.shard.enable(name, value);
++          return task();
++        }),
++      enable: (name, value) => {
++        const em = RequestContext.getEntityManager(orm.em.name);
++        if (!em) throw new Error(`[datamap] ${name} bound outside a request context`);
++        for (const meta of orm.getMetadata().getAll().values()) {
++          if (meta.filters?.[name]) em.addFilter({ ...meta.filters[name], name, entity: meta.className, default: true });
++        }
++        em.setFilterParams(name, value);
++      },
++      bind: (name, resolve) => async (ctx, next) => {
++        this.shard.enable(name, resolve(ctx));
++        await next();
++      },
+#+END_SRC
+
+
+** 5 · the runtime — its beats name the root scope
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/3-integration.js:23
+-        files: await die.runtime.datamap.shard.scope(() => die.runtime.entities.file.sweep()),
++        files: await die.runtime.datamap.shard.scope(() => die.runtime.entities.file.sweep(), { daemon: { daemon: null } }),
+#+END_SRC
+
+Same at =runtime/1-population.js= (its one =scope=), =belt/modes.js:31= (=prune= takes the host's params: =context.slug ?? null=), =lighthouse/traits/autologin.js:17=. No runtime read names =mode= (ruling 7). The userspace mounts (=3-integration.js:56-64=) and =/attached= reads (=2-resolution.js:45 · 56=) are unchanged: no mode bound there, no mode filter active.
+

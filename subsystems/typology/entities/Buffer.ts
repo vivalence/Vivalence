@@ -31,6 +31,10 @@ export class BufferRepository extends DataRepository {
     bound?.bindBuffer(buffer);
     return buffer;
   }
+
+  async ensure({ thread, ...fields }: any) {
+    return (await this.findOne({ thread }, { orderBy: { index: "ASC" } })) ?? (await this.create({ thread, ...fields }));
+  }
 }
 
 export class BufferEntity extends DataEntity {
@@ -64,6 +68,8 @@ export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
       cond: (args: any) => ({ thread: { user: args.user } }),
       default: true,
     },
+    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
+    thread: { cond: (args: any) => (args?.thread ? { thread: args.thread } : {}), default: true, args: false },
   },
   properties: {
     status: {
@@ -73,7 +79,7 @@ export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
     },
     data: { type: types.json, defaultRaw: `'{}'` },
     mime: { type: types.string, default: mime.json, nullable: true },
-    files: { kind: "m:n", entity: () => FileEntity, owner: true, pivotTable: "buffer_files", joinColumns: ["buffer_id"], inverseJoinColumns: ["file_id"] },
+    files: { kind: "m:n", eager: true, entity: () => FileEntity, owner: true, pivotTable: "buffer_files", joinColumns: ["buffer_id"], inverseJoinColumns: ["file_id"] },
     views: { kind: "m:n", entity: () => ViewEntity, owner: true, pivotTable: "buffer_views", joinColumns: ["buffer_id"], inverseJoinColumns: ["view_id"] },
     turns: { kind: "m:n", entity: () => TurnEntity, owner: true, pivotTable: "buffer_turns", joinColumns: ["buffer_id"], inverseJoinColumns: ["turn_id"] },
     notes: { kind: "1:m", entity: () => NoteEntity, mappedBy: (note) => note.buffer },
@@ -87,7 +93,7 @@ export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
       fieldName: "mode",
       nullable: true,
       updateRule: "cascade",
-      deleteRule: "cascade",
+      deleteRule: "set null",
     },
 
     thread: {
@@ -123,6 +129,12 @@ const twitch = new Vector().open("/before/buffer/create", async (ctx) => {
   const mode = ctx.input.entity.mode ? await ctx.input.em.findOne(ModeEntity, ctx.input.entity.mode) : null;
   ctx.input.entity.traits = [...ctx.input.entity.traits, "LABELED"];
   ctx.input.entity.trait = { ...ctx.input.entity.trait, LABELED: { name: `${mode?.slug ?? "home"} #${ctx.input.entity.index}` } };
+});
+twitch.open("/after/thread/create", async (ctx) => {
+  const mode = await ctx.input.em.findOneOrFail(ModeEntity, ctx.input.entity.mode);
+  if (!mode.traits.includes("VIEWABLE")) return;
+  await ctx.input.em.getRepository(BufferEntity).ensure({ thread: ctx.input.entity.id, mode: mode.id, data: {} });
+  await ctx.input.em.flush();
 });
 
 export default {

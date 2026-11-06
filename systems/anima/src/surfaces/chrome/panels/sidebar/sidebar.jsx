@@ -29,6 +29,12 @@ export const FNS = {
     terminal.legend.dispatch("leader");
   },
   expand: (app, terminal, kind) => patched(app, { expand: kind in app.bridge.sections.expand ? Object.fromEntries(Object.entries(app.bridge.sections.expand).filter(([held]) => held !== kind)) : { ...app.bridge.sections.expand, [kind]: true } }),
+  peek: async (app, terminal, key) => {
+    FNS.expand(app, terminal, key);
+    if (key in app.bridge.sections.peeks) return;
+    const text = await terminal.mode.connection.call(`/metadata/harness/primer/${key.replace(/^primer\//, "")}`, { thread: terminal.thread.id }).catch((error) => error.message);
+    patched(app, { peeks: { ...app.bridge.sections.peeks, [key]: text } });
+  },
   dpick: (app, terminal, kind) => patched(app, { pick: app.bridge.sections.pick === kind ? null : kind }),
   attach: (app, terminal) => terminal.controller.stdout.fault(new Error("attach: this client has no upload yet — the composer owns it")),
   none: () => undefined,

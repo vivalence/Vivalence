@@ -14,7 +14,7 @@ let directory;
 
 const context = () => ({ entities: scenario.repos, reference: new Path("/daemon/test") });
 const threaded = async () => {
-  const thread = scenario.em.create(ThreadEntity, { user: scenario.fixtures.user, mode: scenario.fixtures.mode, trait: {}, cursor: 0, counter: 0 });
+  const thread = scenario.em.create(ThreadEntity, { user: scenario.fixtures.user, mode: scenario.fixtures.mode, trait: {}, counter: 0 });
   await scenario.em.flush();
   return thread;
 };

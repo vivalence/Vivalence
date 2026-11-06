@@ -1,5 +1,6 @@
 import { RequestContext } from "@mikro-orm/core";
 import * as shape from "../gestalten/shape/index.js";
+import * as datamap from "../gestalten/shard/datamap.js";
 
 export class Datamap {
   constructor(orm) {
@@ -11,10 +12,7 @@ export class Datamap {
     }
     this.shard = {
       scope: (task) => RequestContext.create(orm.em, task),
-      bind: (name, resolve) => async (ctx, next) => {
-        RequestContext.getEntityManager(orm.em.name)?.setFilterParams(name, resolve(ctx));
-        await next();
-      },
+      bind: (name, resolve) => datamap.bind(orm.em, name, resolve),
       carry: () => {
         const context = RequestContext.currentRequestContext();
         return (task) => (context ? RequestContext.storage.run(context, task) : task());

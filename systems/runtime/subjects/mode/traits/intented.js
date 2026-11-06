@@ -13,11 +13,11 @@ const ensure = async (em, mode, user) => {
   await em.flush();
 };
 
-export const INTENTED = async (mode, context) => {
+export const INTENTED = async (mode, modeDie) => {
   if (!is.array(mode.module.dataset?.intent)) return;
 
-  context.twitch.open("/after/user/create", async (ctx) => {
-    for (const peer of fromm.modes(context.modes).flat) {
+  mode.twitch.open("/after/user/create", async (ctx) => {
+    for (const peer of fromm.modes(modeDie.modes).flat) {
       if (!peer.implements("INTENTED")) continue;
       if (!is.array(peer.module.dataset?.intent)) continue;
       await ensure(ctx.input.em, peer, ctx.input.entity);
@@ -25,8 +25,8 @@ export const INTENTED = async (mode, context) => {
   });
 
   return async () => {
-    for (const user of await context.entities.user.findAll({ filters: { user: false } })) {
-      await ensure(context.entities.em, mode, user);
+    for (const user of await modeDie.entities.user.findAll({ filters: { user: false } })) {
+      await ensure(modeDie.entities.em, mode, user);
     }
   };
 };

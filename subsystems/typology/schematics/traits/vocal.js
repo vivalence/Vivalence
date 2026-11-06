@@ -1,9 +1,9 @@
 import { v } from "../v.js";
-import { Tier, Tune } from "../primitives/hallucination.js";
+import { Selector } from "../primitives/hallucination.js";
 
 export const Vocal = v.object({
   language: v.string().optional(),
-  tune: v.union([Tier, Tune]).optional(),
+  ...Selector,
   harmonize: v
     .object({
       window: v.integer({ minimum: 1 }).optional(),

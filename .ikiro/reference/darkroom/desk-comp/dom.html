@@ -1,0 +1,39 @@
+<div class="kit" data-zone="1" style="width: 1100px; height: 720px; box-sizing: border-box; display: flex; gap: var(--size-space-sm); padding: var(--size-space-sm)" sc-camel-on-drag-over="{{dragOver}}" sc-camel-on-drag-leave="{{dragLeave}}" sc-camel-on-drop="{{drop}}">
+
+<aside class="side">
+<div class="set"><span class="kit-label">next</span>
+<span class="kit-choice" style="padding-left: var(--size-space-2xs)"><button aria-pressed="{{iterate}}" sc-camel-on-click="{{setIterate}}">on {{shownId}}</button><button aria-pressed="{{fresh}}" sc-camel-on-click="{{setFresh}}">fresh</button></span></div>
+<div class="set"><span class="kit-label">model</span>
+<sc-for list="{{models}}" as="m" hint-placeholder-count="3"><button class="kit-row" aria-current="{{m.on}}" sc-camel-on-click="{{m.pick}}"><span class="k">{{m.key}}</span><span class="n">{{m.name}}</span><span class="vendor">{{m.vendor}}</span><span class="v hint" title="{{m.meta}}">?</span></button></sc-for></div>
+<div class="set"><span class="kit-label">aspect</span>
+<span class="kit-choice" style="padding-left: var(--size-space-2xs)"><sc-for list="{{aspects}}" as="a" hint-placeholder-count="4"><button class="{{a.cls}}" aria-pressed="{{a.on}}" sc-camel-on-click="{{a.pick}}">{{a.label}}</button></sc-for></span></div>
+<div class="set"><span class="kit-label">count</span>
+<span class="kit-choice" style="padding-left: var(--size-space-2xs)"><button aria-pressed="{{c1}}" sc-camel-on-click="{{setC1}}">1</button><button aria-pressed="{{c2}}" sc-camel-on-click="{{setC2}}">2</button><button aria-pressed="{{c4}}" sc-camel-on-click="{{setC4}}">4</button></span></div>
+<div class="set" style="margin-top: var(--size-space-sm)"><span class="kit-label">references</span>
+<sc-for list="{{refs}}" as="r" hint-placeholder-count="2">
+<div class="ref">
+<button class="pic thumb {{r.cls}}" aria-label="show reference {{r.name}}" sc-camel-on-click="{{r.show}}"><img src="{{r.src}}" alt=""></button>
+<span class="n" style="display:flex;align-items:center"><span style="flex:1;overflow:hidden;text-overflow:ellipsis">{{r.name}}</span><button class="x" aria-label="remove {{r.name}}" sc-camel-on-click="{{r.remove}}">×</button></span>
+<span class="kit-choice"><button aria-pressed="{{r.isStyle}}" sc-camel-on-click="{{r.style}}">style</button><button aria-pressed="{{r.isSubject}}" sc-camel-on-click="{{r.subject}}">subject</button><button aria-pressed="{{r.isStructure}}" sc-camel-on-click="{{r.structure}}">structure</button></span>
+</div>
+</sc-for>
+<button class="add {{overCls}}" aria-label="add a reference" title="drop a file, or a picture from the strip" sc-camel-on-click="{{addRef}}">+ drop</button></div>
+</aside>
+
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--size-space-xs)">
+<div class="pic is-frame" style="flex: 1">
+<sc-if value="{{hasShown}}" hint-placeholder-val="{{true}}"><img src="{{shown.src}}" alt=""></sc-if>
+<sc-if value="{{faulted}}" hint-placeholder-val="{{false}}"><span class="empty fault"><span class="kit-dot is-fault"></span>{{fault}}</span></sc-if>
+<sc-if value="{{over}}" hint-placeholder-val="{{false}}"><span class="empty" style="position:absolute;inset:0;display:grid;place-items:center;box-shadow:inset 0 0 0 var(--size-ring) var(--signal-primary-ink);color:var(--signal-primary-ink);background:var(--signal-primary-tint)">drop · a reference</span></sc-if>
+<sc-if value="{{busy}}" hint-placeholder-val="{{false}}"><span class="empty"><span class="kit-dot is-running" style="display:inline-block;margin-right:8px"></span>{{busyPrompt}}</span></sc-if>
+<sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}"><span class="empty">no picture yet · say one</span></sc-if>
+</div>
+<div class="status"><span style="flex:1"></span><sc-if value="{{hasShown}}" hint-placeholder-val="{{true}}"><span class="hint" title="{{shown.meta}}">?</span></sc-if></div>
+<div class="strip">
+<sc-for list="{{pictures}}" as="p" hint-placeholder-count="5">
+<button class="pic thumb {{p.cls}}" aria-label="show {{p.id}}" title="{{p.title}}" sc-camel-on-click="{{p.show}}" draggable="true" sc-camel-on-drag-start="{{p.drag}}"><img src="{{p.src}}" alt=""></button>
+</sc-for>
+</div>
+<label class="kit-field" style="align-items: start; padding-top: 6px; padding-bottom: 6px"><span class="p" style="line-height: 20px">›</span><textarea rows="1" value="{{draft}}" sc-camel-on-change="{{type}}" sc-camel-on-input="{{grow}}" sc-camel-on-key-down="{{key}}" placeholder="say it" aria-label="say it" style="line-height: 20px; overflow: hidden"></textarea></label>
+</div>
+</div>

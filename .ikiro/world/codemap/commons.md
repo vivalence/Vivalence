@@ -54,12 +54,7 @@ export { instance, stack, tiers } from "./tiers.js";
   translateTurns,
 } from "../provider/translate.js";
 ```
-**harnesses/runtime** (manifest · harness), no test; `daemon/` empty.
-```js
-// commons/harnesses/runtime/runtime-harness.viva.js:12
-export const harness = new Vector();
-
-```
+**harnesses/runtime** (manifest · harness · primer · tools) + `identity.md` · `world.md`, the harness an instance brings (m117); no test.
 **instances/hello-world/mode.viva.js** ← harness (← page/style) · page/{index,draw}; `localhost/` empty.
 ```js
 // commons/instances/hello-world/tests/catalog.snapshot.test.js:37

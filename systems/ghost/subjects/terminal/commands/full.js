@@ -6,8 +6,6 @@ const Labeled = v.object({ name: v.string().optional().desc('The buffer\'s label
 
 const named = (buffer) => buffer.trait.LABELED.name;
 
-const lined = (signal) => ({ ...signal, body: signal.body.length === 0 ? [] : [signal.body.join(" ")] });
-
 const FOUND = [
   [(name) => name === undefined, (ctx) => ctx.terminal.buffer],
   [() => true, (ctx, name) => ctx.terminal.thread.$buffers.get().find((candidate) => named(candidate) === name)],
@@ -21,12 +19,12 @@ const VIEWED = [
 export const full = new Vector().graft(buffer).open(
   { nature: "/buffer/full", valence: "the buffer fullscreen in the frame, or back to the dock. Example: /buffer/full memo #1", input: Labeled },
   async (ctx) => {
-    const { name } = belt.input.cast(Labeled, lined(ctx.signal));
+    const { name } = belt.input.cast(Labeled, belt.input.lined(ctx.signal));
     const found = FOUND.find(([test]) => test(name))[1](ctx, name);
     if (found === undefined || found === null)
       throw new Error(name === undefined ? "no frame open" : `no buffer ${name} on thread #${ctx.terminal.thread.id} — its buffers: ${ctx.terminal.thread.$buffers.get().map(named).join(" · ") || "none"}`);
     const view = VIEWED.find(([test]) => test(ctx, found))[1]();
-    ctx.terminal.$buffer.set(found);
+    await ctx.terminal.setBuffer(found);
     const DOCKED = { view };
     await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED }));
     return { DOCKED };

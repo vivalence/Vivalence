@@ -33,7 +33,6 @@ class TestIntent {
 class TestThread {
   mode = null;
   intent = null;
-  cursor = 0;
   counter = 0;
   traits = [];
   toJSON() {
@@ -291,17 +290,16 @@ specimen.describe("RemoteEntityManager", () => {
 
     const mode = entityManager.merge("mode", { id: "m-1", slug: "test" }, TestMode);
     const thread = entityManager.merge("thread", {
-      id: "t-1", mode: mode, intent: { id: "i-1" }, cursor: 5, counter: 10,
+      id: "t-1", mode: mode, intent: { id: "i-1" }, counter: 10,
     }, TestThread);
     specimen.expect(thread).toBeInstanceOf(TestThread);
     specimen.expect(thread.mode).toBe(mode);
     specimen.expect(thread.intent).toEqual({ id: "i-1" });
-    specimen.expect(thread.cursor).toBe(5);
     specimen.expect(thread.counter).toBe(10);
 
-    const casted = await entityManager.cast("thread", { id: "t-2", mode: "m-1", cursor: 3 }, TestThread);
+    const casted = await entityManager.cast("thread", { id: "t-2", mode: "m-1", counter: 3 }, TestThread);
     specimen.expect(casted.mode).toBe(mode);
-    specimen.expect(casted.cursor).toBe(3);
+    specimen.expect(casted.counter).toBe(3);
 
     const resilienceManager = new RemoteEntityManager(connection, schema);
     resilienceManager.register("mode", new RemoteRepository(TestEnrichedMode).connect(connection.branch("/entities/mode")));

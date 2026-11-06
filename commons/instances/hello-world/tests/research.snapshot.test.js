@@ -8,7 +8,7 @@ const SNAPSHOTS = new URL("./snapshots", import.meta.url).pathname;
 
 const invoke = (rigged, input) => {
   const outer = new Vector().graft(research);
-  outer.use(shard.context.spread(contexts.host, rigged.daemon));
+  outer.use(shard.context.spread(contexts.daemonDie, rigged.daemon));
   outer.use(shard.context.bind("mode", rigged.mode));
   outer.use(shard.context.bind("thread", "thread-1"));
   return steer.dispatch.invoke(

@@ -19,14 +19,14 @@ when_to_use: >-
 
 ## before — per noun touched
 
-- **grep the surface** — `grep -rn "export " <subsystem>/<dir>/`; an existing primitive WINS, never a hand-rolled walker.
+- **grep the surface** — `grep -rn "export " <subsystem>/<dir>/`; an existing primitive WINS. A scope VALUE is read off the host die, never a repository class (REJECTED 11-09 `entities.mode.daemon`).
 - **verify imports** — grep the ROOT barrel; a `<pkg>/<sub>` import is a defect, even quoted (REJECTED 10-24 ×2); `v` is typebox.
 - **ontology before verbs** — contested term → skill `name`.
-- **grep a NAME before typing it** — repo, typology, `~/.viva/registry`; a word refused once is refused everywhere.
+- **grep a NAME before typing it** — repo, typology, `~/.viva/registry`; a word refused once is refused everywhere. A fix mid-land reads the quest's `never` first (11-09).
 - **staged commands · a carried file:line are NOTES** — a fresh per-op `go`, re-read on `@`; VCS commands beef runs. "test this" on a design = a scratchpad probe (REJECTED 10-13).
-- **name the path's frame owner** — typed → cwd · declaration → its repo · record → its registry root; it decides placement (`find <owner> -name "*.test.js"`). PRINT a runtime value before deriving a path.
+- **name the path's frame owner** — typed → cwd · declaration → its repo · record → its registry root. PRINT a runtime value before deriving a path.
 - **a recorded defect or a ruled rename in a file you touch lands WITH the touch; `fix` on a found cause = the fix, HOLY too** — never "OWED" or "your call" (REJECTED /"chrome not at all"/ · /"Fix, do"/ · 10-26 m108 7b deferred → word-guard deny).
-- **guards read the whole command** — VCS words in `echo` · a heredoc → a file; `\//` → `startsWith` (REJECTED 10-22 ×5)
+- **guards read the whole command** — VCS words in `echo` · a heredoc → a file; `\//` → `startsWith` (REJECTED 10-22 ×5 · 11-09 ×2 · 11-10: prose in a heredoc → a `Write` script)
 
 REJECTED: every check at once over a package.
 
@@ -38,9 +38,9 @@ Skip a one-caller leaf · a doc · a test helper.
    ```bash
    grep -rnI "<symbol>" systems/ subsystems/ commons/ testament/ documentation/ ~/.viva/instances ~/.viva/registry --exclude-dir=node_modules --exclude-dir=bak
    ```
-   No `--include`, no `| head` (/"did you cover bruno?"/). Rename → also `grep -rn '\.\./.*<old>/'`. Every hit READ before it counts; a repository hides under its holders' names — grep the class too (`ctx.lighthouse.users` is `entities.user`), and the call SHAPE: `["key"]` · string · `accio(` · URL. NEW field: blast its SIBLING (`dock.lens`): every surface showing it, both clients, shows it (REJECTED 10-27 `DOCKED.markdown` ghost-only).
+   No `--include`, no `| head`. Rename → also `grep -rn '\.\./.*<old>/'`. Every hit READ; a repository hides under its holders' names (`ctx.lighthouse.users` · a cut stamp `struck[kind].daemon` 11-10); the call SHAPE: `["key"]` · string · `accio(` · URL. NEW field: blast its SIBLING (`dock.lens`): every surface showing it, both clients, shows it (REJECTED 10-27 `DOCKED.markdown` ghost-only).
 2. **test** — every touched dir's suite RUN first; after, reds identical BY NAME.
-3. **change** — nothing else in the pass; a file list rides a python script, each anchor EXACTLY once (zsh never word-splits `$FILES`).
+3. **change** — nothing else in the pass; a file list rides a python script, each anchor EXACTLY once.
 4. **test** — green again; a new red is yours. `*.snapshot.test.js` in compare mode + `SNAPSHOT_HOT=1` for wire ones; a rename's residue → skill `name`.
 5. **blast** — re-grep; radius = beat 1.
 
@@ -62,7 +62,7 @@ Escalate before beat 3: suspected bug → test `current → broken`, patch, `→
 /"argue against it, find the weak spots"/.
 
 1. base facts — `git merge-base`, `git diff --stat <claimed> HEAD -- <touched>`; `patch -p1 --dry-run -N`, never `git apply`.
-2. sandbox — pre-edit copy minus `.git .jj`; `VIVA_REPOSITORY_MOUNT=<copy>` outranks `~/.viva/.env` (the REAL checkout); the copy's ledger names ITS commons; no root `.env`; a package copy under the ROOT config tests the REAL one → its own `deno.jsonc` (REJECTED 10-23).
+2. sandbox — pre-edit copy minus `.git .jj`; `VIVA_REPOSITORY_MOUNT=<copy>` outranks `~/.viva/.env` (the REAL checkout); the copy's ledger names ITS commons; no root `.env`; a package copy under the ROOT config tests the REAL one → its own `deno.jsonc`.
 3. baseline unpatched, then patched, side by side.
 4. grep every absence claim.
 5. read the CONSUMER side of every new seam.
@@ -71,4 +71,4 @@ Escalate before beat 3: suspected bug → test `current → broken`, patch, `→
 8. fix in sandbox → `git diff --no-index --src-prefix=a/ --dst-prefix=b/ base sandbox` → whitelist → dry-apply. Never hand-edit it.
 9. the quest carries the delta: a `* critical pass` section; stale sentences annotated `/(pass: …)/`.
 
-REJECTED: applying it — /"nooooooooot apply. just work them into the quest format"/.
+REJECTED: applying it (/"nooooooooot apply"/).

@@ -2,7 +2,7 @@ import { fromm } from "@vivalence/typology";
 
 export const resolve = async (context, factory, traits) => {
   for (const mode of fromm.modes(context.modes).flat) {
-    await factory(mode)({ context, traits });
+    await factory(mode, traits)(context);
   }
   await context.datamap.shard.scope(() => Promise.all(fromm.modes(context.modes).flat.flatMap((mode) => mode.finalizers).map((finalize) => finalize())));
   for (const mode of fromm.modes(context.modes).flat) {
@@ -27,11 +27,11 @@ const orphans = (em, rows, keep, keyOf, label) => {
   }
 };
 
-export const prune = async (context) => {
+export const prune = async (context, daemon) => {
   await context.datamap.shard.scope(async () => {
     const modes = fromm.modes(context.modes).flat;
     const installed = new Set(modes.map((mode) => typeSlug(mode.manifest)));
-    orphans(context.entities.em, await context.entities.mode.find({}), installed, typeSlug, "mode");
+    orphans(context.entities.em, await context.entities.mode.find({ daemon }), installed, typeSlug, "mode");
     await context.entities.em.flush();
     for (const mode of modes) {
       const slugs = new Set((mode.module.dataset?.intent ?? []).map((intent) => intent.slug));

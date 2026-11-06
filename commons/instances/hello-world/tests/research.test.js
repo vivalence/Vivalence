@@ -4,7 +4,7 @@ import { DRAW, PAGE, PEEK, rig, saying } from "./rig.js";
 
 const invoke = (rigged, input) => {
   const outer = new Vector().graft(research);
-  outer.use(shard.context.spread(contexts.host, rigged.daemon));
+  outer.use(shard.context.spread(contexts.daemonDie, rigged.daemon));
   outer.use(shard.context.bind("mode", rigged.mode));
   outer.use(shard.context.bind("thread", "thread-1"));
   return steer.dispatch.invoke(
@@ -157,7 +157,7 @@ specimen.describe(
         };
 
         const outer = new Vector().graft(research);
-        outer.use(shard.context.spread(contexts.host, rigged.daemon));
+        outer.use(shard.context.spread(contexts.daemonDie, rigged.daemon));
         outer.use(shard.context.bind("mode", rigged.mode));
         outer.use(shard.context.bind("thread", "thread-1"));
         outer.use(shard.context.bind("controller", tool));

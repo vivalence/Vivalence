@@ -24,34 +24,19 @@ export const mint = ({ slug, kinds, traits }) =>
       const Repository = named(
         `${capitalize(slug)}${capitalize(kind)}Repository`,
         class extends descriptor.repository {
-          scope(options = {}) {
-            return { ...options, filters: { ...(options.filters ?? {}), daemon: { daemon: slug } } };
-          }
-          find(where, options) { return super.find(where, this.scope(options)); }
-          findOne(where, options) { return super.findOne(where, this.scope(options)); }
-          findOneOrFail(where, options) { return super.findOneOrFail(where, this.scope(options)); }
-          findAll(options) { return super.findAll(this.scope(options)); }
-          findAndCount(where, options) { return super.findAndCount(where, this.scope(options)); }
-          findByCursor(where, options) { return super.findByCursor(where, this.scope(options)); }
-          count(where, options) { return super.count(where, this.scope(options)); }
-          nativeUpdate(where, data, options) { return super.nativeUpdate(where, data, this.scope(options)); }
-          nativeDelete(where, options) { return super.nativeDelete(where, this.scope(options)); }
-          create(data, options) { return super.create({ ...data, daemon: slug }, options); }
-          upsert(data, options) { return super.upsert({ ...data, daemon: slug }, options); }
-          unique(query) { return { ...super.unique(query), daemon: slug }; }
           claim(row, name) { return trait.claim(row, name, schematics); }
         },
       );
       trait.repository(Repository, held);
-      Object.defineProperties(Repository.prototype, { daemon: { value: slug }, schematics: { value: schematics } });
-      return [kind, { repository: Repository, traits: held, schematics }];
+      Object.defineProperties(Repository.prototype, { schematics: { value: schematics } });
+      return [kind, { repository: Repository, traits: held, schematics, daemon: slug }];
     }),
   );
 
 export const strike = (minted, em, kinds) => {
   const struck = Object.fromEntries(Object.entries(minted).map(([kind, held]) => [kind, new held.repository(em, kinds[kind].entity.name)]));
   for (const [kind, held] of Object.entries(minted)) {
-    trait.entity(kinds[kind].entity, held.traits, struck[kind].daemon);
+    trait.entity(kinds[kind].entity, held.traits, held.daemon);
     Object.defineProperty(struck[kind], "entities", { value: struck });
   }
   return struck;

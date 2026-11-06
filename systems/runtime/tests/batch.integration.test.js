@@ -22,7 +22,6 @@ specimen.beforeAll(async () => {
   aperture
     .branch("/thread")
     .use(shard.context.attach("user", fixtures.user))
-    .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
     .graft(shard.datamap.repository(repos.thread))
 
   aperture.open("/manifest", () => ({ slug: "test", version: "0.0.1" }))
@@ -79,7 +78,12 @@ specimen.describe("batch over HTTP", () => {
 
   specimen.it("middleware branches work through batch", async () => {
     await conn.call("/thread/create", {
-      data: { mode: scenario.fixtures.mode.id, trait: {}, cursor: 0, counter: 0 },
+      data: {
+        user: scenario.fixtures.user.id,
+        mode: scenario.fixtures.mode.id,
+        trait: {},
+        counter: 0,
+      },
     })
 
     const results = await conn.call("/batch", [

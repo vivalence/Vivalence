@@ -1,0 +1,789 @@
+#+title: reader mode — one article per buffer: a url goes in, a sandboxed original and marked html come out; done-by-block, a sentence cursor, speech; three layers ruled in his order
+#+filetags: :mode:buffer:reader:speech:design:
+#+status: 11-11 LANDED /"ladn reader mode. build. implement"/ — =commons/reader/reader= mounted in localhost (=runtime.modes=), walked in his anima: empty · /add stream · reader · swipe-done · undo · settings · original · currently-reading; speech DEFERRED, repl =/refine= waits on =thread.cursor=
+#+phase: landed
+#+progress: 3/3
+#+next: his walk; then speech (Q11–Q12) · =terminal.buffer= (landed 11-11, ex =thread.cursor=) → repl =/refine= + REPLING
+# limit: 30000 chars
+
+* intent
+
+11-10, beef verbatim:
+
+#+BEGIN_QUOTE
+new reader mode wanted.
+is there one already?
+
+https://claude.ai/code/artifact/abfa428b-e674-440b-b405-78a11bdfc7b1
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+write quest. mode architecture.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+first buffer state architecture.
+2: tools, aperture, harness, repl.
+3: ux and ui architecture
+#+END_QUOTE
+
+* the spec — his comp, verbatim (artifact abfa428b, five boards)
+
+| board               | what it pins                                                      |
+|---------------------+-------------------------------------------------------------------|
+| =Main.dc.html=      | empty · parsing · loaded; the whole interaction script            |
+| =Article.dc.html=   | =Main= at =start="midway"= (b1–b4 done, cursor b6 · 2)            |
+| =Phone.dc.html=     | 390 × 844                                                         |
+| =Model.dc.html=     | pipeline · representation · repl                                  |
+| =Cell.dc.html=      | the buffer cell: empty · reading · speaking · read                |
+
+The representation board, verbatim (=Model.dc.html=):
+
+#+BEGIN_SRC text
+article
+  source    url · fetched-at · sha
+  original  html snapshot · sandboxed
+  parse     deterministic | agentic
+  blocks    [block]
+  done      [id]            commit log · /undo pops
+  cursor    { block, sentence }
+  face      original | reader
+
+block
+  id        b1 … bn
+  kind      heading · paragraph · list · quote · code · table
+            image · movie · sound · embed
+  text      plain · sentence-split for speech
+  span      → node in the snapshot
+  asset     { src, mime, w, h, poster, duration }
+#+END_SRC
+
+The pipeline board, verbatim:
+
+#+BEGIN_SRC text
+/add <url>             into the one buffer; a second /add asks before replacing
+fetch · snapshot       original html kept whole, rendered sandboxed: the original face
+parse · deterministic  extraction to blocks with stable ids; each block keeps a span back
+                       into the snapshot
+refine · agentic       dialogue faculty: fixes boundaries, writes missing alt text,
+                       drops leftovers; ids survive
+◆ buffer               two faces over one block list; done and the cursor apply to both
+speech                 speech faculty, local synth as fallback. Cursor is { block, sentence };
+                       seek from any block, step by sentence, done blocks are skipped.
+#+END_SRC
+
+The repl board, verbatim:
+
+| key | entry         | effect               |
+|-----+---------------+----------------------|
+| d   | =/done=       | block gone           |
+| u   | =/undo=       | last done back       |
+| f   | =/face=       | original · reader    |
+| ␣   | =/speak=      | play · pause         |
+| s   | =/speak from= | this block           |
+| j   | =/next=       | sentence             |
+| k   | =/prev=       | sentence             |
+| r   | =/rate=       | 0.8 · 1 · 1.25 · 1.5 |
+|     | =/refine=     | agentic pass         |
+|     | =/add=        | url → buffer         |
+
+=Main.dc.html= also speaks =/set type|size|lines|width|audio=, =/open <title>=, =/pause=.
+Settings: type =dyslexic · sans · serif=, size =14–28=, lines =tight 1.5 · normal 1.7 ·
+loose 1.95=, width =narrow 28em · normal 34em · wide 42em=, audio =off · on=.
+
+* terrain — measured
+
+| surface                                    | state  | reads as                           |
+|--------------------------------------------+--------+------------------------------------|
+| =commons/services/reader/=                 | LIVE   | fetch · skeleton · extract → md    |
+| =commons/playground/chaosmonkey/reader/=   | LIVE   | slug =reader=, a UI generator      |
+| =commons/editors/darkroom/=                | LIVE   | newest mode: buffer.data + Files   |
+| =commons/hallucinators/elevenlabs/=        | LIVE   | speech: =render= · =stream=        |
+| vdex =buffer/parts/Reader.svelte=          | LIVE   | jdex docs, not articles — no reuse |
+
+The service opens one url; the caller picks the node. Output is MARKDOWN, not blocks:
+
+#+BEGIN_SRC js
+// commons/services/reader/service.viva.js:21
+    open: async (url, options) => {
+// commons/services/reader/extract.js:91
+  return {
+    markdown,
+    chars: markdown.length,
+    truncated,
+    links,
+    images,
+    selector,
+    matched,
+  };
+#+END_SRC
+
+A mode reaches it as a provider the daemon consumes:
+
+#+BEGIN_SRC js
+// commons/instances/hello-world/tools/web.js:72
+      const reader = ctx.providers?.reader;
+// commons/instances/hello-world/tools/web.js:87
+        const page = await reader.open(ctx.input.url);
+#+END_SRC
+
+A buffer is one per thread, born with empty data; Files ride it m:n:
+
+#+BEGIN_SRC ts
+// subsystems/typology/entities/Buffer.ts:42
+  data: any & Opt = {};
+// subsystems/typology/entities/Buffer.ts:82
+    files: { kind: "m:n", eager: true, entity: () => FileEntity, owner: true, …
+// subsystems/typology/entities/Buffer.ts:136
+  await ctx.input.em.getRepository(BufferEntity).ensure({ thread: …, mode: mode.id, data: {} });
+#+END_SRC
+
+Darkroom files bytes under the mode's mountpoint and settles data whole:
+
+#+BEGIN_SRC js
+// commons/editors/darkroom/aperture/index.js:17
+const filed = async (ctx, buffer, folder, type, bytes) => {
+// commons/editors/darkroom/aperture/index.js:27
+  .open({ nature: "/picture/settle", input: v.object({ buffer: …, data: Settings }), …
+// commons/editors/darkroom/buffer/Darkroom.jsx:28
+  const settle = async (data) => hold(await props.buffer.mode.call.picture.settle({ … }));
+#+END_SRC
+
+Speech is a faculty shape already:
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/primitives/hallucination.js:458
+Hallucination.speech = v.object({
+  ...controlled(Policy.speech),
+  source: v.unknown().desc('Text, or an async iterable of text. Example: "buongiorno"'),
+#+END_SRC
+
+The slug =reader= is taken by the playground mode (type =chaosmonkey=):
+
+#+BEGIN_SRC js
+// commons/playground/chaosmonkey/reader/reader.viva.js:9
+  slug: "reader",
+// systems/runtime/tests/bundle.spawn.test.js:6
+import * as reader from "../../../commons/playground/chaosmonkey/reader/reader.viva.js";
+// commons/playground/tests/primer.coverage.test.js:4
+import { harness as reader } from "../chaosmonkey/reader/harness.js";
+#+END_SRC
+
+* as code
+
+** Q0 LOCKED 11-10 — /"commons/reader/reader"/
+
+Type =reader=, slug =reader=, module =@commons/reader/reader=. No clash with the playground's
+=reader= (type =chaosmonkey=): a mode is unique on daemon · type · slug.
+
+#+BEGIN_SRC ts
+// subsystems/typology/entities/Mode.ts:47
+  uniques: [{ properties: ["daemon", "slug", "type"] }],
+#+END_SRC
+
+#+BEGIN_SRC js
+// commons/reader/reader/reader.viva.js
+import { mime, v } from "@vivalence/typology";
+import { Reading } from "./schematics.js";
+
+export const manifest = {
+  type: "reader",
+  slug: "reader",
+  name: "Reader",
+  description: "One article per buffer: a url in, a sandboxed original and a block list out.",
+  version: "0.1.0",
+  traits: ["VIEWABLE", "HARNESSED", "EXPOSED"],
+};
+
+export const buffer = v.buffer({ data: Reading }).desc("One article being read. Example: { article: null }");
+
+export const views = [{ slug: "reader", mount: "buffer/Reader.jsx", mime: mime.dom.solid }];
+
+export { aperture } from "./aperture/index.js";
+#+END_SRC
+
+** Q1 LOCKED 11-10 — /"we don't need like a dedicated aperture for this … update the buffer data inline inside of the view"/
+
+No route for =done= · =undo= · =face= · =set=: the view writes =buffer.data= through the client's
+repository, the assembly editors' shape.
+
+#+BEGIN_SRC js
+// ~/.viva/registry/assembly/modes/editor/guide/buffer/Guide.svelte:50
+    terminal.client.runtime.entities.buffer.updateOne({ id: buffer.id }, { data: buffer.data })
+#+END_SRC
+
+#+BEGIN_SRC js
+// commons/reader/reader/buffer/Reader.jsx — the view's one writer
+const settle = (data) =>
+  props.terminal.client.runtime.entities.buffer.updateOne(
+    { id: props.buffer.id },
+    { data: Reading.cast({ ...props.buffer.data, ...data }) },
+  );
+#+END_SRC
+
+** Q2 LOCKED 11-10 — /"b"/: the done mark is a time on the block — under Q2A, a =data-done= attribute
+
+** Q2A LOCKED 11-10 — /"b"/: the reader surface is the cleaned article HTML; =data-block= ids, =data-done= times
+
+Block JSON + its view hunks MOVED whole to =reference/reader-mode/block-json-draft.org=.
+Walk: =reference/reader-mode/surface.probe.js= (b10's three links: lost in JSON, kept in HTML).
+
+#+BEGIN_SRC js
+// commons/reader/reader/buffer/Reader.jsx — swipe and /done; the undo button and /undo
+const surface = () => new DOMParser().parseFromString(props.buffer.data.article.html, "text/html").body;
+const marked = (edit) => {
+  const body = surface();
+  edit(body);
+  return settle({ article: { ...props.buffer.data.article, html: body.innerHTML } });
+};
+const done = (id) =>
+  marked((body) => body.querySelector(`[data-block="${id}"]`).setAttribute("data-done", new Date().toISOString()));
+const newest = (body) =>
+  [...body.querySelectorAll("[data-done]")].sort((a, b) => b.dataset.done.localeCompare(a.dataset.done))[0];
+const undo = () => marked((body) => newest(body).removeAttribute("data-done"));
+#+END_SRC
+
+#+BEGIN_SRC css
+/* commons/reader/reader/buffer/reader.css */
+[data-done] { display: none; }
+#+END_SRC
+
+** Q3 LOCKED 11-10 — /"b for now."/ /"in the aperture"/: the mode fetches the page itself, in its aperture
+
+No =consume=, no reader service. Mine, reported: B runs NO guard — a url like =http://127.0.0.1:2501/…=
+reaches the daemon's own network; the guard is owed before any non-localhost recipe mounts the mode
+(=* deferred=). Q4 (where parse lives) follows as a LOOKUP: the same route, the same aperture.
+
+#+BEGIN_SRC js
+// commons/reader/reader/aperture/index.js — called by /add from the view's empty face
+const fetched = async (ctx) => {
+  const response = await fetch(ctx.input.url, { redirect: "follow" });
+  const body = await response.text();
+  const bytes = new TextEncoder().encode(body);
+  return {
+    page: { url: response.url, body, document: parseHTML(body).document },
+    bytes,
+    sha: await crypto.digestBytes(bytes),
+  };
+};
+#+END_SRC
+
+** Q4 · Q5 LOOKUPS 11-10 — parse lives in the =/add= route (Q3); sentences split at read (Q2A)
+
+** Q6 LOCKED 11-10 — /"a"/: the original is a File on =buffer.files=, =snapshots/<sha>.html= under the mountpoint
+
+#+BEGIN_SRC js
+// commons/reader/reader/aperture/index.js — inside /add, after fetched(ctx)
+const snapshot = async (ctx, buffer, bytes, sha) => {
+  const path = `snapshots/${sha}.html`;
+  const mount = join(ctx.mode.mountpoint.absolute, path);
+  await paladin.state.store(mount, bytes);
+  const file = await ctx.entities.file.record({ mode: ctx.mode.id, path, mount, mime: "text/html", bytes });
+  buffer.files.add(file);
+  return file.id;
+};
+#+END_SRC
+
+#+BEGIN_SRC jsx
+// commons/reader/reader/buffer/Reader.jsx — the original face; a client File row carries its url
+const files = from(props.buffer.$files);
+const original = () => files().find((row) => row.id === props.buffer.data.article.original);
+
+<Show when={original()}>{(row) => <iframe sandbox="" src={row().url} />}</Show>
+#+END_SRC
+
+** Q7 LOCKED 11-10 — his reframe: /refine takes instructions; the same capability is a harness tool; an LLM rewrites the surface
+
+His words: /"no r keyboard shortcut. thats stupid. we can have a repl command /refine :where i provide addtional instructions and bla. same capability should be available as a tool to the harenss. that should call an llm to edit the buffer data and rewrite it according to my spec."/
+
+KILLED: the =r= key for refine (the comp's =⌃v= hint row =r refine=). The edit-list option (=Edit= · =apply=) dies with it.
+One effect, two entries: the mode's =tools= (TOOLING, the harness calls it) and its =repl= (REPLING, his
+=/refine <instructions>=). =harness.object.render= shape from =commons/playground/dealer/dealer.viva.js:75=.
+
+#+BEGIN_SRC js
+// commons/reader/reader/tools/refine.js — called by the harness as a tool, and by the repl's /refine
+import { v, Vector } from "@vivalence/typology";
+
+const REFINE = [
+  "You rewrite the html of an article in a reader, by the user's instructions.",
+  "Keep every data-block and data-done attribute on the elements you keep.",
+  "Return the whole html.",
+].join("\n");
+
+export const rewrite = async (ctx, id, instructions) => {
+  const buffer = await ctx.entities.buffer.findOneOrFail({ id });
+  const { output } = await ctx.mode.harness.object.render({
+    thread: buffer.thread.id,
+    turns: [
+      { role: "system", parts: [{ type: "text", text: REFINE }] },
+      { role: "user", parts: [{ type: "text", text: instructions }] },
+      { role: "user", parts: [{ type: "text", text: buffer.data.article.html }] },
+    ],
+    output: v.object({ html: v.string() }),
+  });
+  buffer.data = { ...buffer.data, article: { ...buffer.data.article, parse: "agentic", html: output.object.html } };
+  await ctx.entities.em.flush();
+  return buffer;
+};
+
+export const refine = new Vector().open(
+  {
+    nature: "/reader/refine",
+    valence: "Rewrite the article in a reader buffer by instructions. Example: { instructions: 'drop the cookie banner' }",
+    input: v.object({
+      buffer: v.string().desc('The reader buffer. Example: "01a1bd04-54c5-74ca-bc57-45381377cd82"'),
+      instructions: v.string().desc("What to change. Example: drop the cookie banner, write alt text"),
+    }),
+  },
+  async (ctx) => ({ output: { buffer: (await rewrite(ctx, ctx.input.buffer, ctx.input.instructions)).id } }),
+);
+#+END_SRC
+
+Owed (layer 2): how the repl's =/refine= learns the terminal's buffer id — REPLING posts =/repl= with the
+mode's die (=systems/runtime/subjects/mode/traits/repling.js:9=); what the ghost sends with it is unread.
+Mine, reported: =/reader/refine= for the tool's nature; =:where= in his words read as the instructions argument.
+
+** Q8 LOCKED 11-10 — /"dont overdo the logic. every logic is room for failure and issues. leess is more"/
+
+No check on the model's answer; his instructions win. No re-mint in refine: the prompt asks for ids on new
+elements, code adds nothing. Parse mints once, on a fresh body.
+
+#+BEGIN_SRC js
+// commons/reader/reader/tools/refine.js
+const REFINE = [
+  "You rewrite the html of an article in a reader, by the user's instructions.",
+  "Keep every data-block and data-done attribute on the elements you keep.",
+  "Give each new top-level element a data-block id not yet used.",
+  "Return the whole html.",
+].join("\n");
+#+END_SRC
+
+#+BEGIN_SRC js
+// commons/reader/reader/aperture/index.js — parse, inside /add
+const mint = (body) => {
+  [...body.children].forEach((node, index) => node.setAttribute("data-block", `b${index + 1}`));
+  return body;
+};
+#+END_SRC
+
+** Q9 LOCKED 11-10 — /"use nanostore persisted for these settings with defaults on schematics"/
+
+Settings leave =buffer.data=: one device-local store for every article, defaults from =Settings=.
+Precedent: =systems/ghost/subjects/app/prototypes/bridge.js:5= (raw =persistentAtom=);
+=subsystems/drapes/context/preferences.js:4= wraps the same with =\{\}= defaults — not used, it casts nothing.
+
+#+BEGIN_SRC js
+// commons/reader/reader/buffer/Reader.jsx — module scope, read by the settings strip and the article
+import { persistentAtom } from "@nanostores/persistent";
+import { Settings } from "../schematics.js";
+
+const $settings = persistentAtom("viva.mode.reader.settings", Settings.cast({}), {
+  encode: JSON.stringify,
+  decode: (text) => Settings.cast(JSON.parse(text)),
+});
+const set = (patch) => $settings.set({ ...$settings.get(), ...patch });
+#+END_SRC
+
+#+BEGIN_SRC js
+// commons/reader/reader/schematics.js — Reading without settings
+export const Reading = v.object({
+  article: v.union([Article, v.null()]).default(null).desc("Null = the empty face. Example: null"),
+  cursor: v.union([Cursor, v.null()]).default(null).desc("Example: { block: 'b6', sentence: 1 }"),
+  face: v.enum(["original", "reader"]).default("reader").desc("Example: reader"),
+});
+#+END_SRC
+
+** Q10 OUT OF SCOPE 11-10 — /"ill solve this otherwise. thread.cursor will point at buffer. (separate. ignore)"/
+
+The repl's buffer comes from =thread.cursor=, his separate work; this quest designs no buffer lookup for =/refine=.
+
+** Q11 LOCKED 11-10 · DEFERRED 11-11 — /"speech faculty. cortex. not only daemon. that mode is most likely runtime level most cases. not daemon embeddded. we need the ui to check for faculty before rendering the option. and that speech is streamed for sure."/
+
+Speech = the =speech= faculty, streamed, from the HOST's cortex: a runtime-level mode (recipe =runtime.modes=,
+=~/.viva/instances/localhost/instance.viva.jsonc:10=) gets the runtime's. The audio option renders only when
+that cortex holds a streaming speech faculty.
+
+Gate hunk UNLOCKED 11-10 — /"mode.host does not exist"/: the cortex's reach is Q11B.
+
+** Q11A LOCKED 11-10 · DEFERRED 11-11 — /"a"/: the view streams speech straight from the cortex; no mode route
+
+#+BEGIN_SRC js
+// commons/reader/reader/buffer/Reader.jsx — play key, per sentence at the cursor; =cortex= = Q11B
+const speak = async (cursor) => {
+  const audio = cortex().hallucinate.speech.stream({ source: sentence(cursor) });
+  for await (const packet of audio) if (packet.event === "/audio/packet") play(packet);
+};
+#+END_SRC
+
+
+** Q11B LOCKED 11-10 · DEFERRED 11-11 — /"b"/: the mode's daemon's cortex, else the runtime's
+
+#+BEGIN_SRC js
+// commons/reader/reader/buffer/Reader.jsx — the gate and the stream read it
+const cortex = () => props.buffer.mode.daemon === null
+  ? props.terminal.client.runtime.cortex
+  : props.buffer.mode.daemon.cortex;
+
+const voiced = () => cortex()
+  .find({ type: "speech", via: "stream" })
+  .length > 0;
+#+END_SRC
+
+** Q12 LOCKED 11-10 · DEFERRED 11-11 — /"a"/: playback through ghost's speaker (=client.app.box.device.speaker=), its first feeder
+
+#+BEGIN_SRC js
+// commons/reader/reader/buffer/Reader.jsx — speak() calls play per packet
+const speaker = () => props.terminal.client.app.box.device.speaker;
+
+const play = async (packet) => {
+  await speaker().claim();
+  const bytes = Uint8Array.from(atob(packet.audio), (char) => char.charCodeAt(0));
+  const samples = Float32Array.from(new Int16Array(bytes.buffer), (sample) => sample / 32768);
+  speaker().out.enqueue(samples);
+};
+#+END_SRC
+
+Mine, reported: the speaker is fixed at 16 kHz (=drivers/audio.js:13=); =packet.rate= is not read.
+
+** traits LOOKUP 11-10 — every export Q0–Q12 declares one; a trait without its export faults at boot
+
+#+BEGIN_SRC js
+// commons/reader/reader/reader.viva.js — /add · /refine tool · /refine repl · refine's object render · fonts (Q20)
+  traits: ["VIEWABLE", "EXPOSED", "HARNESSED", "TOOLING", "REPLING", "FILESET"],
+#+END_SRC
+
+** Q13 LOCKED 11-10 — /"a"/: =/add= picks the article by tag; probe =reference/reader-mode/add.probe.js=
+
+#+BEGIN_SRC js
+// commons/reader/reader/aperture/index.js — /add, after fetched()
+const picked = (document) =>
+  document.querySelector("article") ?? document.querySelector("main") ?? document.body;
+#+END_SRC
+
+** Q14 LOCKED 11-10 — /"a."/ (read as the cleaning pick): a hand allowlist; probe =reference/reader-mode/clean.probe.js=
+
+DOMPurify (B) kept =class= and left =/runtime/…= · =../testing/= relative; A resolves both against the page url.
+
+#+BEGIN_SRC js
+// commons/reader/reader/aperture/index.js — /add, after picked()
+const KEPT = { A: ["href"], IMG: ["src", "alt"] };
+
+const clean = (node, url) => {
+  for (const furniture of node.querySelectorAll("script, style, noscript, iframe, form, button")) {
+    furniture.remove();
+  }
+  for (const element of node.querySelectorAll("*")) {
+    for (const attribute of [...element.attributes]) {
+      if (!(KEPT[element.tagName] ?? []).includes(attribute.name)) element.removeAttribute(attribute.name);
+    }
+    if (element.tagName === "A") element.setAttribute("href", new URL(element.getAttribute("href"), url).href);
+    if (element.tagName === "IMG") element.setAttribute("src", new URL(element.getAttribute("src"), url).href);
+  }
+  return node;
+};
+#+END_SRC
+
+** Q16 LOCKED 11-10 — /"validate b"/ · /"cool. b"/: =/add= streams one packet per step; the loading pane fills fetch · snapshot · parse
+
+Probe =reference/reader-mode/add-stream.probe.js= (11-10): three packets in order over =shape.http= + =shape.connection.wire=.
+A throw mid-stream reaches the client as /"error reading a body from connection"/, the reason lost
+(known issue =yields-route-fault-loses-its-reason=): the row after the last packet shows =failed=, no reason.
+The comp's =assets= · =layout= rows have no source: =* dropped=. Supersedes the =/add= lookup (one call).
+
+#+BEGIN_SRC js
+// commons/reader/reader/aperture/index.js — the empty face's add button streams this
+const Step = v.object({
+  step: v.enum(["fetch", "snapshot", "parse"]).desc("Example: parse"),
+  value: v.string().desc('Example: "10 blocks"'),
+});
+
+const Add = v.object({
+  buffer: v.string().desc('The reader buffer. Example: "01a1bd04-54c5-74ca-bc57-45381377cd82"'),
+  url: v.string().desc('The page. Example: "https://docs.deno.com/runtime/fundamentals/security/"'),
+});
+
+const fetched = async (ctx) => {
+  const response = await fetch(ctx.input.url, { redirect: "follow" });
+  const body = await response.text();
+  const bytes = new TextEncoder().encode(body);
+  return {
+    page: {
+      url: response.url,
+      status: response.status,
+      type: response.headers.get("content-type"),
+      document: parseHTML(body).document,
+    },
+    bytes,
+    sha: await crypto.digestBytes(bytes),
+  };
+};
+
+export const aperture = new Vector().open(
+  { nature: "/add", input: Add, yields: Step },
+  async function* (ctx) {
+    const { page, bytes, sha } = await fetched(ctx);
+    yield { step: "fetch", value: `${page.status} · ${page.type} · ${Math.round(bytes.length / 1024)} kB` };
+    const buffer = await ctx.entities.buffer.findOneOrFail({ id: ctx.input.buffer }, { populate: ["files"] });
+    const original = await snapshot(ctx, buffer, bytes, sha);
+    yield { step: "snapshot", value: "original · sandboxed" };
+    const body = mint(clean(picked(page.document), page.url));
+    buffer.data = Reading.cast({
+      ...buffer.data,
+      article: {
+        url: page.url,
+        fetched: new Date().toISOString(),
+        sha,
+        title: page.document.title,
+        original,
+        parse: "deterministic",
+        html: body.innerHTML,
+      },
+    });
+    await ctx.entities.em.flush();
+    yield { step: "parse", value: `${body.children.length} blocks` };
+  },
+);
+#+END_SRC
+
+
+** Q17 LOCKED 11-11 — /"a"/: the original face is the page as published; done and the cursor live in the reader face only
+
+The comp's "done and the cursor apply to both" (=* the spec=) goes to =* dropped=. The rail stays beside both faces.
+
+#+BEGIN_SRC jsx
+// commons/reader/reader/buffer/Reader.jsx — the sheet, per face
+<Show when={props.buffer.data.face === "original"} fallback={<Article />}>
+  <Show when={original()}>{(row) => <iframe sandbox="" src={row().url} />}</Show>
+</Show>
+#+END_SRC
+
+** Q18A LOCKED 11-11 — /"aa"/: the currently-reading list is the mode entity's buffers that hold an article; no done filter yet
+
+His reframe of Q18 (/"if we can go by the mode entity buffers … filter by done or something like 90% done, maybe not at all yet"/):
+=mode.entities.buffer= (=systems/ghost/entities/mode/hydration.js:9=), narrowed server-side to the mode
+(=systems/runtime/subjects/mode/lifecycle/1-population.js:24=). The own buffer drops out: the list renders on the empty face.
+
+#+BEGIN_SRC jsx
+// commons/reader/reader/buffer/Reader.jsx — the empty face, under the add field, on mount
+const [buffers] = createResource(() => props.buffer.mode.entities.buffer.find({}));
+
+const reading = () => buffers()
+  .filter((buffer) => buffer.data.article !== null);
+#+END_SRC
+
+** Q19 LOCKED 11-11 — /"a"/: the client's buffer cell shows the article's title; =/add= renames the buffer
+
+The sidebar label is =buffer.trait.LABELED.name= (=systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:186=),
+born =reader #<index>= (=subsystems/typology/entities/Buffer.ts:131=). The Cell's meter · =N left= · speaking · =done · 13/13=: =* dropped=.
+
+#+BEGIN_SRC js
+// commons/reader/reader/aperture/index.js — /add, beside buffer.data, before em.flush()
+buffer.trait = {
+  ...buffer.trait,
+  LABELED: { name: page.document.title },
+};
+#+END_SRC
+
+** Q20 LOCKED 11-11 — /"b"/: the mode ships OpenDyslexic as its own Files; the view registers the face on mount
+
+FILESET (=systems/runtime/subjects/mode/traits/fileset.js:5=) records =fonts/= as File entities at install.
+A shadow root's =@font-face= is not honoured: the face joins =document.fonts=.
+
+#+BEGIN_SRC js
+// commons/reader/reader/reader.viva.js
+export const fileset = { path: "fonts" };
+#+END_SRC
+
+#+BEGIN_SRC jsx
+// commons/reader/reader/buffer/Reader.jsx — on mount, before the first paint
+const typeface = async () => {
+  const [file] = await props.buffer.mode.entities.file.find({ path: "OpenDyslexic-Regular.woff2" });
+  const face = new FontFace("OpenDyslexic", `url(${file.url})`);
+  document.fonts.add(await face.load());
+};
+#+END_SRC
+
+** Q21 DEFERRED 11-11 — /"As I said before, we for now bypass the speech, no reading."/
+
+Speech is bypassed for now: Q11 · Q11A · Q11B · Q12 stay as designed, nothing of them lands; the cursor-save
+fork (every sentence vs on pause) waits with them. =* deferred=.
+
+** layer 3 LOOKUPS 11-11 — forks a lock, the tree's style or the comp already answers (skill =design=: every comp state ships)
+
+- the sheet: one =buffer/reader.css= = the comp's =reader.css= + its =kit-*= rules, a shadow =<style>= (darkroom =desk.css=; =buffer/kit/= only across sibling modes)
+- palette: the comp's =northsea= verbatim till he orders the theme (skill =design= 4)
+- done: swipe past =RD_SWIPE= 110px or the block's done act → =settle= a =data-done= time (Q1 · Q2A)
+- undo: drop the newest =data-done=; repeated undo walks back (Q2A times)
+- rail: a cell per =[data-block]=; a click scrolls to it; =N left · M min= off the html
+- faces · settings: =face= in =buffer.data=, settings in =$settings= (Q9)
+- empty · parsing · loaded: =article === null= · =/add= in flight (Q16) · =article= set
+
+** LANDED 11-11 — departures from the locks above; mine, reported
+
+- REPLING · =repl= NOT shipped: =/refine= has no buffer without =thread.cursor= (Q10); the tool =reader_refine= ships. /(fold 11-11: =Terminal.buffer= landed, =Thread.cursor= cut — the repl reads =ctx.terminal.buffer=)/
+- =Settings.audio= · =rate= not in the schema: no reader till speech.
+- =harness.js= (Q15, commented out) not written: a comment-only product file.
+- =based=: the stored snapshot gains =<base href=url>= after =<head>= — else the sandboxed original loads no sheet.
+- =dense=: parse descends a wrapper holding >80% of the text (docs.deno.com: 3 blocks → 51).
+- =clean=: =svg= joins the furniture (attribute-less svg paints 300×150 holes); =href= · =src= kept only as http(s) (a =javascript:= href ran in his client).
+- Q18A filter reads =Reading.cast(buffer.data).article=: a never-viewed buffer holds ={}=.
+- the view casts =held= off =$data=, never primes the buffer (darkroom's =settle({})=).
+- links in the article open a new tab; the done filter is a JS filter, no =[data-done]= rule.
+- =subsystems/paladin/gestalten/belt/bundler.js=: the =dom.solid= row aliases =@vivalence/typology= → =mod.client.js= (the svelte row's map); the view bundle is 668 kB for it.
+- sheet = =reference/reader-mode/sheet.py= over the comp; dropped selectors: speech · mock original · mock media · hint · dock.
+
+** Q15 DEFERRED 11-10 — /"ok. fuck the reader capabilty. fuck it. comment out. skip"/: no harness export; the primer sits commented out
+
+HARNESSED stays: refine renders through =ctx.mode.harness.object= (Q7).
+
+#+BEGIN_SRC js
+// commons/reader/reader/harness.js — DEFERRED, commented out
+// export const harness = new Vector().use(async (ctx, next) => {
+//   ctx.hallucination.primer.open("reader", [
+//     "You sit beside the user while they read one article in the reader.",
+//     "Answer about the article plainly, two or three sentences.",
+//     "To change the article itself, call /reader/refine with the user's instructions.",
+//   ].join("\n"));
+//   await next();
+// });
+#+END_SRC
+
+* open
+
+- // -- Q2A LOCKED /"b"/. 11-10, his reframe, verbatim: /"Does it maybe make sense to use straight HTML and just add a .hidden class? so that we keep HTML inside of our buffer whatever the parsed buffer data parsed thing is. Or do we want some custom block logic? I don't actually know, I'm just asking"/ — SKETCH; the walk ran =reference/reader-mode/surface.probe.js= (one fixture, both surfaces). Q3 (who fetches) waits on it.
+
+* layer 1 — buffer state
+
+** law
+
+- one article = one buffer. "currently reading" = this mode's other buffers, never a list in data.
+- the snapshot html is a File on =buffer.files= (darkroom =filed=), never bytes in data.
+- a =data-block= id is minted ONCE by parse; refine rewrites markup, never ids (/"ids survive"/).
+- =done= is a =data-done= time on the element (Q2 · Q2A): it stays in the html; =/undo= clears the newest.
+- Q8: refine runs no check · no guard · no re-mint where the prompt or the user carries it.
+- derived numbers are never stored: =left · mins · pct= are read off the html's unmarked blocks.
+- =speaking= is the device's, never the buffer's — a reload never resumes sound by itself.
+  Mine, reported: the cursor persists, the playback does not.
+
+** draft — =commons/reader/reader/schematics.js= (after Q2A)
+
+#+BEGIN_SRC js
+import { v } from "@vivalence/typology";
+
+export const Cursor = v.object({
+  block: v.string().desc('A data-block id in the surface. Example: "b6"'),
+  sentence: v.integer().desc("Index into the block's text, split at read. Example: 1"),
+});
+
+export const Article = v.object({
+  url: v.string().desc('Where it was fetched. Example: "https://example.org/tides"'),
+  fetched: v.string().desc('ISO time. Example: "2026-11-10T16:20:00Z"'),
+  sha: v.string().desc("The snapshot's digest. Example: 9f2c…"),
+  title: v.string().desc("The document's own. Example: How a Tide Table Is Made"),
+  original: v.string().desc('The snapshot File id. Example: "01a1bd04-54c5-74ca-bc57-45381377cd82"'),
+  parse: v.enum(["deterministic", "refining", "agentic"]).desc("Example: deterministic"),
+  html: v.string().desc('The cleaned surface. Example: "<h1 data-block=\\"b1\\">Permissions</h1>"'),
+});
+
+export const Settings = v.object({
+  type: v.enum(["dyslexic", "sans", "serif"]).default("dyslexic").desc("Example: dyslexic"),
+  size: v.integer().default(18).desc("Pixels, 14–28. Example: 18"),
+  leading: v.enum(["tight", "normal", "loose"]).default("normal").desc("Example: normal"),
+  width: v.enum(["narrow", "normal", "wide"]).default("normal").desc("Example: normal"),
+  audio: v.boolean().default(false).desc("The speech bar shown. Example: false"),
+  rate: v.enum([0.8, 1, 1.25, 1.5]).default(1).desc("Speech rate. Example: 1"),
+});
+
+export const Reading = v.object({
+  article: v.union([Article, v.null()]).default(null).desc("Null = the empty face. Example: null"),
+  cursor: v.union([Cursor, v.null()]).default(null).desc("Example: { block: 'b6', sentence: 1 }"),
+  face: v.enum(["original", "reader"]).default("reader").desc("Example: reader"),
+});
+#+END_SRC
+
+Mine, reported: =leading= is the comp's =lines= setting (=RD_LEAD=); the comp's label stays "lines".
+Owed by Q2A: a sanitizer at parse (tag · attribute allowlist; no script · style · =on*=), sentences
+via =CSS.highlights=, refine returns every =data-block= · =data-done= it was handed.
+
+* layer 2 — tools · aperture · harness · repl (CLOSED 11-10)
+
+| entry                          | lands as                                | ruled |
+|--------------------------------+-----------------------------------------+-------|
+| =/add <url>=                   | aperture route: fetch · snapshot · parse | Q3 · Q4 · Q6 |
+| =/refine <instructions>=       | =repl= + =tools= over =rewrite=         | Q7 · Q8 |
+| =/done= · =/undo= · =/face=    | the view settles =buffer.data=          | Q1 |
+| =/set …=                       | the view sets =$settings=               | Q9 |
+| =/speak= · =/next= · =/prev= · =/rate= | client, the cursor              | unruled |
+
+Q10 OUT OF SCOPE — the repl learns its buffer from =thread.cursor= (his, separate; =* as code=).
+
+Q11 LOCKED: speech faculty, streamed, gated on the host cortex. Q11A LOCKED: the view streams. Q11B LOCKED: daemon's cortex, else runtime's. Q12 LOCKED: ghost's speaker. Traits: a lookup. Q13 · Q14 LOCKED, =/add= composed (=* as code=). Q15 DEFERRED (=* as code=). Layer 2 closed.
+(sanitizer allowlist · =mint= · =Reading.cast=), the manifest traits (+ TOOLING · REPLING).
+
+* layer 3 — ux · ui (CLOSED 11-11; panes =reference/reader-mode/panes.md=)
+
+- the view is Solid =.jsx= into a shadow root, sheet inside (mode skill; REJECTED 11-09 =.svelte=).
+- the comp's =reader.css= (19 996 chars) + DS =bundle.css= are the spec; port via skill =design=.
+- the original face: =iframe sandbox="" src= of the snapshot File (Q6 · Q17); no done · cursor there.
+- OpenDyslexic: the mode's =fonts/= as FILESET Files, =document.fonts= on mount (Q20); the woff2 bytes owed.
+- swipe-to-done · rail · speech bar · settings strip · empty · parsing · phone: one row each in the
+  port table when layer 3 opens.
+- the buffer cell (=Cell.dc.html=): the article title as =LABELED.name= (Q19).
+
+* dropped
+
+- =rd-hint= ⌃v → =r refine=: killed Q7 (/"no r keyboard shortcut"/); refine is =/refine= only.
+- =rd-load= rows =assets= · =layout=: no source in our pipeline (Q16); the pane ships fetch · snapshot · parse.
+- =Cell.dc.html= meter · =N left= · =b6 · 2/4= · =done · 13/13=: Q19 /"a"/ — the sidebar shows the title only.
+- the comp's /"done and the cursor apply to both"/ faces: Q17 /"a"/ — the original is the page as published; done · cursor in the reader face only.
+
+* deferred
+
+- the fetch guard (private addresses · every redirect hop): Q3 ruled B /"for now"/; owed before a non-localhost recipe mounts the mode. =commons/services/reader/guard.js= is the shape.
+- assets fetched into Files (offline reading); for now =asset.src= stays remote https.
+- a done filter on the currently-reading list (fully read · 90%), off the meter's pct (Q18A).
+- movie · sound · embed playback beyond the comp's still.
+- speech (Q11 · Q11A · Q11B · Q12 · Q21): /"for now bypass the speech, no reading"/ — the =rd-speech= bar, the audio settings row, the speak-from act, the cursor save while speaking. =Settings.audio= · =rate= have no reader till then.
+- the reader harness primer (Q15): commented out in =* as code=; the article it would name needs =thread.cursor= (Q10).
+
+* changelog
+
+- 11-11 /"make this clickable new tab open original"/: the top bar's source is an =<a target="_blank" rel="noopener noreferrer">= to =article.url=; hover = link ink + underline. Walked: opens the live page in a new tab.
+- 11-11 /"try chrome again"/ · /"full width now"/: wide walk at 1456px — top-bar undo · face choice, hover done, settings popover, original face; fixed: the rail label wrapped into two columns under 51 cells (=sheet.py=: cells shrink, label nowrap, wide only).
+- 11-11 LANDED on /"ladn reader mode. build. implement"/: =commons/reader/reader= (9 files) + the bundler alias; recipe =~/.viva/instances/localhost/instance.viva.jsonc= gains =@commons/reader/reader= (bak =~/.viva/bak/instances/localhost-20261111/=), =instance/doctor= clean. Suites: reader =ok | 1 passed (10 steps) | 0 failed= · paladin bundler =ok | 1 passed (7 steps)= · darkroom =ok | 1 passed (11 steps)= · runtime view =ok | 1 passed (8 steps)=. Walk in his anima at 389px: every pane; a throwaway boot on a free port first. Departures: =* as code= LANDED. Found, filed: =buffer-view-lost-on-reload= (darkroom too).
+- 11-11 /"layer 3 close"/: drill complete; status DESIGNED, progress 3/3.
+- 11-11 Q21 DEFERRED /"As I said before, we for now bypass the speech, no reading."/: Q11–Q12 relabeled DEFERRED; Q15's /"reader capabilty"/ read as the primer — it may have meant this.
+- 11-11 Q20 LOCKED /"b"/: =fileset = { path: "fonts" }=, FILESET joins the traits; FontFace on mount.
+- 11-11 Q19 LOCKED /"a"/: =/add= sets =LABELED.name= to the title; the Cell's meter · left · speaking dropped.
+- 11-11 Q18 reframed /"go by the mode entity buffers"/ → Q18A LOCKED /"aa"/: =mode.entities.buffer.find({})=, article present, no done filter.
+- 11-11 Q17 LOCKED /"a"/: the original face is the snapshot as fetched; the comp's "apply to both" dropped.
+- 11-10 layer 3 OPENS: panes =reference/reader-mode/panes.md=; Q16 LOCKED /"cool. b"/ (validated): =/add= streams its steps.
+- 11-10 Q15 DEFERRED /"fuck the reader capabilty … comment out. skip"/: harness primer commented out; layer 2 CLOSED.
+- 11-10 Q13 /"a"/ tag pick · Q14 /"a."/ hand allowlist (his answer arrived on the probe, read as the cleaning pick); =/add= composed as a lookup.
+- 11-10 correction /"stop that fucking less logic heuristic. its not our own only law."/: drill-me lean line rewritten; the Q8 law scoped to refine.
+- 11-10 Q12 LOCKED /"a"/: ghost's speaker; traits looked up (+ TOOLING · REPLING); probe =reference/reader-mode/add.probe.js= for Q13.
+- 11-10 =mode.host= CUT (prototype · hydration · frame · sidebar · dataspace): Q11B's =mode.daemon === null= is the only read.
+- 11-10 Q11B LOCKED /"b"/: the mode's daemon's cortex, else the runtime's.
+- 11-10 Q11A LOCKED /"a"/; gate hunk unlocked on /"mode.host does not exist"/ → Q11B.
+- 11-10 Q11 LOCKED: speech faculty from the host cortex, streamed; the option gated on the faculty.
+- 11-10 Q10 OUT OF SCOPE: /"thread.cursor will point at buffer. (separate. ignore)"/; Q11 = speech.
+- 11-10 FOLD: Q4 · Q5 lookups + Q6 hunks into =* as code=; layer 2 rewritten at Q10; drill-me gains /"leess is more"/.
+- 11-10 Q9 LOCKED: settings = a =persistentAtom=, defaults =Settings.cast({})=; =Reading.settings= cut; the fork MOVED to =reference/reader-mode/q9-settings-forks.org=.
+- 11-10 Q8 LOCKED on /"leess is more"/: no check, no re-mint in refine; the prompt asks for ids. Settings fork renumbered Q9.
+- 11-10 Q6 LOCKED /"a"/: original = a File =snapshots/<sha>.html=, the frame loads the client row's =url= (=systems/ghost/entities/file/hydration.js:5=).
+- 11-10 Q7 LOCKED on his reframe: the =r= key KILLED; =/refine <instructions>= + a harness tool share =rewrite=; the edit-list option dies.
+- 11-10 Q3 LOCKED on /"b for now."/ /"in the aperture"/: the mode fetches; no guard, reported, deferred. Q4 parse home = LOOKUP (the aperture). Q5 sentences = LOOKUP (Q2A: split at read).
+- 11-10 Q2A LOCKED on /"b"/: =Article.html= replaces =blocks=; Block · Asset · the JSON view hunks MOVED whole to =reference/reader-mode/block-json-draft.org=.
+- 11-10 Q2 LOCKED on /"b"/: =Block.done= ISO | null; =Reading.done= cut. Refine must carry =done= across (Q6).
+- 11-10 Q1 LOCKED: no aperture for reading state, the view settles =buffer.data=; the A/B MOVED whole to =reference/reader-mode/q1-truth-forks.org=. His open: /"do we maybe need a service? … maybe we do, maybe we don't"/ (fetch home) · /"we don't actually want to drop the data that we have marked as done, we just want to have it marked as done"/.
+- 11-10 Q0 LOCKED on /"commons/reader/reader"/ — the Q3 home fork it answered cut.
+- 11-10 authored on /"write quest. mode architecture."/ + /"first buffer state architecture.
+  2: tools, aperture, harness, repl. 3: ux and ui architecture"/. Nothing landed.
+
+* handoff
+
+- goal: a reader mode from his comp — url in, sandboxed original + marked html out, done-by-block; speech later.
+- done: LANDED 11-11 — =commons/reader/reader= (aperture =/add= · tool =reader_refine= · view · sheet · fonts · test), mounted in localhost, walked in his anima at 389px and 1456px; the source in the top bar opens =article.url= in a new tab; comp parts =reference/reader-mode/comp/=, sheet built by =reference/reader-mode/sheet.py=.
+- next: his walk. Then speech (Q11–Q12, designed) · REPLING =/refine= on =ctx.terminal.buffer= (landed 11-11) .
+- never: an =r= key for refine; a check · guard · re-mint the user did not ask for (Q8); settings in =buffer.data=; a buffer lookup in =/refine= (Q10); =mode.host=; done · cursor on the original face (Q17); a reader font in dapper (Q20).
+- owed: the fetch guard (Q3: =/add= reaches any address the runtime can); refine's html lands unchecked (Q8) — an =onerror= the model writes runs in his client; a second =/add= on a loaded buffer has no entry; =rd-load= shows no reason on a fault (known issue); non-UTF-8 pages garble; his instance holds the deno-article thread + 2 empty reader threads from walks (a reload paints JSON: =buffer-view-lost-on-reload=).

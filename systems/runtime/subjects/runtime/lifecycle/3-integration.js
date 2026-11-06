@@ -4,7 +4,14 @@ import * as belt from "../../../gestalten/belt/index.js";
 import { host } from "../../../gestalten/shard/index.js";
 
 export const prune = async (die, next) => {
-  await belt.modes.prune(die.runtime);
+  await belt.modes.prune(die.runtime, null);
+  await next();
+};
+
+export const twitch = async (die, next) => {
+  for (const mode of fromm.modes(die.runtime.modes).flat) {
+    die.runtime.twitch.graft(mode.twitch);
+  }
   await next();
 };
 
@@ -46,7 +53,6 @@ export const serve = async (die, next) => {
 };
 
 const own = (ctx) => ({ user: ctx.user.id });
-const viaThread = (ctx) => ({ thread: { user: ctx.user.id } });
 
 export const userspace = async (die, next) => {
   const { entities, twitch, lighthouse } = die.runtime;
@@ -54,19 +60,20 @@ export const userspace = async (die, next) => {
   const owned = die.aperture.branch("/userspace").use(lighthouse.authenticate).use(lighthouse.bind).branch("/entities");
 
   const routes = [
-    ["terminal", entities.terminal, own, { scope: own, filter: "user" }],
-    ["intent", entities.intent, null, {}],
-    ["thread", entities.thread, own, {}],
-    ["buffer", entities.buffer, viaThread, { scope: own }],
-    ["turn", entities.turn, viaThread, { scope: own }],
-    ["note", kernel.note, null, { scope: own }],
-    ["view", entities.view, null, {}],
-    ["file", entities.file, null, {}],
+    ["terminal", entities.terminal, { scope: own, filter: "user" }],
+    ["intent", entities.intent, {}],
+    ["thread", entities.thread, { scope: own }],
+    ["buffer", entities.buffer, { scope: own }],
+    ["turn", entities.turn, { scope: own }],
+    ["note", kernel.note, { scope: own }],
+    ["view", entities.view, {}],
+    ["file", entities.file, {}],
   ];
-  for (const [kind, repository, scope, reactive] of routes) {
-    const branch = owned.branch(`/${kind}`);
-    if (scope) branch.use(shard.datamap.scope(scope));
-    branch.graft(shard.datamap.repository(repository)).graft(shard.datamap.reactive(repository, twitch, reactive));
+  for (const [kind, repository, reactive] of routes) {
+    owned
+      .branch(`/${kind}`)
+      .graft(shard.datamap.repository(repository))
+      .graft(shard.datamap.reactive(repository, twitch, reactive));
   }
   owned.branch("/view").open("/bundle", async (ctx) => {
     const seated = await seat(die, ctx.input.data.mode);
@@ -75,9 +82,8 @@ export const userspace = async (die, next) => {
 
   const activity = owned
     .branch("/activity")
-    .use(shard.datamap.scope(own))
     .graft(shard.datamap.repository(entities.activity, { only: ["find", "findOne", "findOneOrFail", "findAndCount", "count"] }))
-    .graft(shard.datamap.reactive(entities.activity, twitch));
+    .graft(shard.datamap.reactive(entities.activity, twitch, { scope: own }));
 
   const one = activity.branch("/:id").use(async (ctx, next) => {
     ctx.activity = await entities.activity.findOneOrFail({ id: ctx.params.id, user: ctx.user.id });

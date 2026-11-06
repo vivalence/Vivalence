@@ -1,0 +1,140 @@
+#+title: harness disarming — the armory switch: a tool off per thread (`ARMED { off }`, pruned)
+#+filetags: :benched:harness:armed:thread:
+#+status: BENCHED 11-08 /"not now. move to doen and disarmament to benched"/ — designed whole (Q8 · Q9 of `done/harness-metadata.org`), nothing on the tree; reopen trigger: his word for a tool switch per thread, or the widget's tool leaf asked to act (today it peeks).
+#+phase: benched
+#+progress: 0/1
+#+next: beef — reopen
+
+* ruled
+Q8 `ARMED { off }` is its own thread trait, one consumer (`arming`). Q9 designed, not implemented. The silent-leaf-miss miswire is fixed below (traverse → `NotFound`). Probe: `scratchpad/probe-disarming.js` (before: 16 names; off [fs_delete, entity_find]: 14; unknown → `NotFound`).
+
+* the hunks — the tangle's `***` tree, as cut
+*** subsystems/typology
+***** schematics/traits/armed.js — NEW
+#+BEGIN_SRC js
+// subsystems/typology/schematics/traits/armed.js
+import { v } from "../v.js";
+
+export const Armed = v.object({
+  off: v.array(v.string()).default([]).desc('Tool names pruned from the thread\'s armory. Example: ["fs_delete", "shell_run"]'),
+});
+#+END_SRC
+***** schematics/traits/index.js
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/traits/index.js:7
+ import { Vocal } from "./vocal.js";
++import { Armed } from "./armed.js";
+…
+// subsystems/typology/schematics/traits/index.js:37
+   INTELLIGENT: Intelligent.default({}).optional(),
+   VOCAL: Vocal.default({}).optional(),
++  ARMED: Armed.default({}).optional(),
+#+END_SRC
+*** systems/runtime
+***** subjects/mode/traits/harnessed.js
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/harnessed.js:1
+-import { contexts, fromm, shape, shard, soma, steer, ToolCall, v, Vector } from "@vivalence/typology";
++import { contexts, fromm, NotFound, shape, shard, soma, steer, ToolCall, v, Vector } from "@vivalence/typology";
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:31
+   ctx.vocal = ctx.thread.traits.includes("VOCAL") ? ctx.thread.trait.VOCAL : null;
++  ctx.armed = ctx.thread.traits.includes("ARMED") ? ctx.thread.trait.ARMED : null;
+   await next();
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:90 — between armory and arming
++const disarming = (armed, off) => {
++  for (const name of off) {
++    const call = new ToolCall(name);
++    if (!steer.dispatch.traverse(armed, call.signal)[0]) throw new NotFound(call.signal);
++    call.absolute.slice(0, -1).reduce((vector, nature) => vector.trie.get(nature).trajectory, armed).trie.delete(call.absolute.at(-1));
++  }
++  return armed;
++};
++
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:98
+   armed.use(shard.context.bind("thread", ctx.input.thread));
+-  return armed;
++  return ctx.armed === null ? armed : disarming(armed, ctx.armed.off);
+ };
+#+END_SRC
+*** systems/ghost
+***** subjects/terminal/commands/armed.js — NEW
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/commands/armed.js
+import { Vector, traits, v } from "@vivalence/typology";
+import * as belt from "../../../gestalten/belt/index.js";
+
+const Named = v.object({ tool: v.string().desc('A tool name as armed. Example: "fs_delete"') });
+
+const off = (thread) => (thread.traits.includes("ARMED") ? thread.trait.ARMED.off : []);
+
+const setting = (on) => async (ctx) => {
+  const { tool } = belt.input.cast(Named, ctx.signal);
+  const held = off(ctx.terminal.thread).filter((name) => name !== tool);
+  const ARMED = { off: on ? held : [...held, tool] };
+  await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { ARMED }));
+  return { ARMED };
+};
+
+export const armed = new Vector()
+  .open({ nature: "/arm", valence: "arm a tool on the seated thread — ARMED.off loses it. Example: /arm fs_delete", input: Named }, setting(true))
+  .open({ nature: "/disarm", valence: "disarm a tool on the seated thread — ARMED.off gains it. Example: /disarm fs_delete", input: Named }, setting(false));
+#+END_SRC
+***** subjects/terminal/commands/index.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/commands/index.js:12
+ export * from "./intelligent.js";
++export * from "./armed.js";
+#+END_SRC
+The barrel's graft site grafts the whole export set (grep `commands.intelligent` at land; its row gains `commands.armed` if it names each).
+*** systems/anima — sections.js rows that switch
+#+BEGIN_SRC diff
+// systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:33
++  off: [],
++  ...(thread !== null && thread.traits.includes("ARMED") ? thread.trait.ARMED : {}),
+…
+// systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:195
++    sub("tools", `${names.length - held.off.length} of ${names.length}`),
++    ...names.map((name) => check(name, !held.off.includes(name), held.off.includes(name) ? `/arm ${name}` : `/disarm ${name}`, "")),
+#+END_SRC
+*** systems/runtime/tests/harness.armed.test.js — NEW (S6 reply 11-08, unreplayed)
+#+BEGIN_SRC js
+import { shape, specimen, Vector } from "@vivalence/typology";
+import { create } from "./scenarios/cortex.js";
+
+let scenario;
+let captured;
+
+specimen.describe("harness — ARMED.off prunes the armory per thread", () => {
+  specimen.beforeAll(async () => {
+    const harness = new Vector().use(async (ctx, next) => { await next(); captured = ctx; });
+    scenario = await create({ harness });
+  });
+  specimen.afterAll(async () => { await scenario.orm.close(); });
+
+  specimen.it("a thread without ARMED arms everything; off: [fs_delete] loses fs/delete from catalog and dispatch", async () => {
+    const { dewey, createThread } = scenario;
+    const bare = await createThread();
+    await dewey.harness.dialogue.render({ thread: bare.id, parts: [{ type: "text", text: "hi" }] });
+    specimen.expect(Object.keys(shape.strip(captured.hallucination.tools).branches.fs.branches)).toContain("delete");
+    const armed = await createThread({ traits: ["ARMED"], trait: { ARMED: { off: ["fs_delete"] } } });
+    await dewey.harness.dialogue.render({ thread: armed.id, parts: [{ type: "text", text: "hi" }] });
+    specimen.expect(Object.keys(shape.strip(captured.hallucination.tools).branches.fs.branches)).not.toContain("delete");
+  });
+
+  specimen.it("an unknown name in off is loud: NotFound names the signal", async () => {
+    const { dewey, createThread } = scenario;
+    const thread = await createThread({ traits: ["ARMED"], trait: { ARMED: { off: ["fs_nope"] } } });
+    await specimen.expect(dewey.harness.dialogue.render({ thread: thread.id, parts: [{ type: "text", text: "hi" }] })).rejects.toThrow("Not found");
+  });
+});
+#+END_SRC
+
+* QA
+- `#+marker_qa: harness-metadata/T-attach · pending · viva, /attach runtime, /arm nothing → VALIDATION; /disarm fs_delete → { ARMED: { off: ["fs_delete"] } }`
+
+* blast · gaps
+| `systems/ghost/tests/subjects/terminal/commands.test.js:494` | the `leader/h/*` chord table | no — `/arm` · `/disarm` carry none |
+COVERAGE GAP: `disarming` on a nested name (`service_nlp_classify`).

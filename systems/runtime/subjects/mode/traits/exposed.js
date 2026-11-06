@@ -7,5 +7,6 @@ export const EXPOSED = (mode) => {
   }
   return () => {
     mode.call = shape.proxy(mode.aperture);
+    mode.aperture.open("/metadata/aperture", () => shape.strip(mode.aperture));
   };
 };

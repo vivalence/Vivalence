@@ -28,14 +28,17 @@ const Key = (props) => {
 
 export const ROWS = {
   sub: (props) => (
-    <div class="srow sub">
+    <Dynamic component={props.row.fn ? "button" : "div"} class="srow sub" onClick={props.row.fn ? () => props.onAct(props.row) : undefined}>
       <span>{props.row.label}</span>
       <span class="c">{props.row.count}</span>
-    </div>
+      <Show when={props.row.fn}>
+        <span class="chev">{props.row.open ? "▾" : "▸"}</span>
+      </Show>
+    </Dynamic>
   ),
   item: (props) => (
     <button class={words("srow item", props.row.cur && "cur")} data-signal={props.row.signal} title={props.row.title} onClick={() => props.onAct(props.row)}>
-      <span class="mk">{props.row.mark}</span>
+      <span class={words("mk", props.row.mk)}>{props.row.mark}</span>
       <span class="lab">{props.row.label}</span>
       <span class="sub">{props.row.sub}</span>
       <Show when={props.row.dot !== ""}>
@@ -132,6 +135,7 @@ export const ROWS = {
       {props.row.label}
     </button>
   ),
+  note: (props) => <div class="srow note">{props.row.text}</div>,
 };
 
 export const shaped = (type) => {

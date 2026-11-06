@@ -8,7 +8,7 @@ specimen.describe("deepgram provider", () => {
     "returns verbatim faculties without performing network calls",
     async () => {
       const faculties = await provider({ secrets: { key: "fake-key" } });
-      specimen.expect(faculties.map((faculty) => faculty.config.model)).toEqual(
+      specimen.expect(faculties.map((faculty) => faculty.id)).toEqual(
         ["nova-3", "flux-general-multi"],
       );
       for (const faculty of faculties) {

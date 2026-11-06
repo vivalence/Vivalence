@@ -1,15 +1,40 @@
-import { For } from "solid-js";
+import { createSignal, For } from "solid-js";
 import { Glyph } from "./Bar.jsx";
+
+export const SHARE = { floor: 20, ceiling: 80 };
 
 export const Dset = (props) => {
   const act = (entry) => props.onAct(entry);
+  const [sliding, setSliding] = createSignal(null);
+  const share = () => (sliding() === null ? props.dset.share : sliding());
+  let track;
+  const measure = (event) => {
+    const rect = track.getBoundingClientRect();
+    return Math.round(Math.min(SHARE.ceiling, Math.max(SHARE.floor, ((event.clientX - rect.left) / rect.width) * 100)));
+  };
+  const down = (event) => {
+    event.preventDefault();
+    const view = track.ownerDocument.defaultView;
+    const move = (moved) => setSliding(measure(moved));
+    const up = (released) => {
+      view.removeEventListener("pointermove", move);
+      view.removeEventListener("pointerup", up);
+      view.removeEventListener("pointercancel", up);
+      setSliding(null);
+      act({ signal: `${props.dset.slide} ${(measure(released) / 100).toFixed(2)}` });
+    };
+    setSliding(measure(event));
+    view.addEventListener("pointermove", move);
+    view.addEventListener("pointerup", up);
+    view.addEventListener("pointercancel", up);
+  };
   return (
     <div class="dset">
       <div class="views">
         <For each={props.dset.views}>
           {(entry) => (
             <button class={entry.cur ? "cur" : ""} data-signal={entry.signal} aria-label={entry.label} title={entry.signal} onClick={() => act(entry)}>
-              <Glyph view={entry.label} align={props.dset.align} framed={true} />
+              <Glyph view={entry.label} align={props.dset.align} />
             </button>
           )}
         </For>
@@ -27,9 +52,9 @@ export const Dset = (props) => {
         <button data-signal={props.dset.less.signal} aria-label="less" onClick={() => act(props.dset.less)}>
           −
         </button>
-        <span class="track slider" data-slider="share" role="slider" tabindex="0" aria-label="dock share" aria-valuemin="20" aria-valuemax="80" aria-valuenow={props.dset.share}>
-          <span class="fill" style={`width:${props.dset.share}%`} />
-          <span class="sv" data-slider-v="1">{`${props.dset.share} %`}</span>
+        <span ref={track} class="track slider" data-slider="share" role="slider" tabindex="0" aria-label="dock share" aria-valuemin="20" aria-valuemax="80" aria-valuenow={share()} onPointerDown={down}>
+          <span class="fill" style={`width:${share()}%`} />
+          <span class="sv" data-slider-v="1">{`${share()} %`}</span>
         </span>
         <button data-signal={props.dset.more.signal} aria-label="more" onClick={() => act(props.dset.more)}>
           +

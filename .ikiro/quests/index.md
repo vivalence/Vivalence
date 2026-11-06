@@ -3,9 +3,13 @@
 > Derived — regenerate at every sunset/revival (`skills/quest/`). Root = live only; `done/` = landed + verified; `discarded/` = sunset without landing; `benched/` = beef's bench; `bak/` = beef's recovery surface, untouched. ⚑ = classification is the 09-01 revival's judgment call (header status and landed reality disagreed, or the lean was mine) — beef curates. Bucket names follow DISK, never a rename that was only ever made in this file.
 > Rebuilt WHOLE from disk 10-22 (`ls` of the root and the four buckets); `reference/<quest>/` holds each quest's drained sections.
 
-## live (7 quests · 7 files: m103 · m108 · m110 · m113 · m115 · m116 · prod-deploy) — the only quests at the root
+## live (9 quests · 9 files: m103 · m108 · m110 · m113 · m115 · m116 · prod-deploy · m119 · reader-mode) — the only quests at the root
 
-- `prod-deploy.org` — prod deploy (UNNUMBERED) — HEAD onto R000 · S000: one runtime with the lighthouse embedded, `instance.viva.jsonc`, the volume wiped, a user minted by `viva instance/lighthouse/create` (operator JWT), `traits: []`; CI red at `Dockerfile:53` `patch: not found` (SCOUTED 11-06; hunks wait for go)
+- `reader-mode.org` — reader mode (UNNUMBERED) — `commons/reader/reader`: url → snapshot File + cleaned html (`data-block` · `data-done`), view settles `buffer.data`, settings a persisted nanostore, `/refine <instructions>` + tool (DRILLING 11-11: layer 1 LOCKED Q0–Q9; layer 2 CLOSED; LANDED 11-11: mounted in localhost, walked; speech DEFERRED, repl `/refine` waits on `thread.cursor`)
+
+- `m119-scope-params.org` — m119 scope params — daemon AND mode scoping ride the request context: a `mode` filter on nine kinds (literal · symbol · view · intent · file · note · thread · turn · buffer), `shard.bind` on the host's aperture enables + parameterizes it, one stamp twitch on create; the `mint` options-fence dies; client = `runtime.entities.branch(mode.connection, …)` (DESIGNED 11-09 on "amen"; 26 probes green on `:memory:`; Q1 RULED b `default: false` + `bind` enables; code waits for `go 1`)
+
+- `prod-deploy.org` — prod deploy (UNNUMBERED) — HEAD onto R000 · S000: one runtime, lighthouse embedded, `instance.viva.jsonc`, volume wiped, `traits: []`, the user by hand; CI #260 GREEN; DEPLOYED 11-06 19:52, his login owed (`* as code`)
 - `m103-command-pass.org` — m103 command pass — every shell and repl command run once: `* the map` (93) = command · widget callers · source; `viva help` pretty LANDED (WALKING 10-27; the chrome-panels quest MOVED whole to `reference/m103/chrome-panels-10-27.org`, its handoff carried)
 - `m108-anima-app.org` — m108 anima on the App — anima moved onto m107's style (LANDING 10-26, milestones 1–3 in; next: milestone 4)
 - `m110-paladin-commands.org` — m110 paladin commands — the 19 machine commands (`ledger/` · `registry/` · `instance/` · `/doctor`) the m86 ghost rebuild parked in `bak.3`, back on the shell; `instance/user` dead
@@ -27,7 +31,8 @@
 - `roadmap/runtime-independence.org` — runtime independence — vivalence off Deno: one source on Deno · Node · Bun, one resolution through a ledger-level node_modules, two seams per host, and at the end a viva binary that needs no runtime i
 - `roadmap/threlte-rapier-drapes.org` — threlte + rapier through drapes — the three.js phase of the stage (PREP, unnumbered: beef's Oct-2024 force-graph prototype recovered — alive at `vintagecollection/…/archive/dev/`, deleted from vivalence 2025-03-27, nested-`<Attractor>` layout + oriented-cylinder links are the reusable code; the 2024 submodule hack is dead because the import map + bundler `nodePaths` compile three/threlte out-of-tree, measured on @droneaid; laws: Deno cannot prefix-map npm:, the `three/addons` barrel pulls https; one fork — `stage/scene.js` · new family · threlte-first)
 
-## benched/ (14) — beef's bench: parked live quests
+## benched/ (15) — beef's bench: parked live quests
+- `benched/harness-disarming.org` — the armory switch: `ARMED { off }` a thread trait, off PRUNED from the armory, `/arm` · `/disarm`, the widget's `check` rows — designed whole, nothing landed (benched 11-08 /\"not now\"/; reopen: his word)
 
 - `benched/m25-user-and-thread-handling.org` — m25 — user and thread handling
 - `benched/m27-memory-and-notes.org` — m27 — mind: memory + note
@@ -44,7 +49,11 @@
 - `benched/runtime-testing-recast.org` — runtime + paladin testing recast — BENCHED 10-10: ruled 10-06, nothing built; reopens after m84 lands, M0 re-measured first.
 - `benched/skibidi.org` — skibidi — a Skype on vivalence: a `commons/services/skibidi` citizen carrying DOCKER (LiveKit SFU outside) and ATTACHED (webhooks inside), the daemon mints grant tokens, media never touches it (BENCHED unnumbered on "compact benched": designed, spike green on loopback — token · rooms · browser join · roster; two forks open — the orphan `control` vector, lecture · conference · both; compact #244)
 
-## done/ (131) — landed AND verified
+## done/ (135) — landed AND verified
+- `done/mode-consume.md` — mode consume (unnumbered) — a mode entry of the recipe consumes services as its daemon does: `ModeMask` · `Mode` `consume`, `registry.wire` resolves it per mode (`object.traverse`), a `providers` beat before `core` lands them over a copy of the host's (DONE 11-11 on "land mode-consume": 135 files 127|8 before = after, reds identical; a booted runtime read; tails → `reference/services/formalization.md`; `SERVICE` trait cut after; `IMPLIED` UNLANDED)
+- `done/m118-darkroom.org` — m118 darkroom — a `picture` faculty on the cortex; the desk's aperture paints onto the BUFFER (`buffer.data` Settings + `buffer.files`), binary multiplex frames, `Mode.files`; DONE 11-09 on /"move to done"/ after his first aperture paint; tails `m118-darkroom-tails`
+- `done/m117-root-harness.org` — m117 root harness — the root arms fs · shell only; a harness = `identity.md` · `world.md` + sections runtime · daemons (CSV) · modes (CSV) · threads + 14 entity primers rendered from the annotated typology (`*Schematic`, `is` · `examples`); one name per tool (LANDED 11-09 on "land."; infra proposal parked `reference/m117/infra-proposal.md`; open: Q1 · Q2 web's home)
+- `done/harness-metadata.org` — harness metadata (unnumbered) — every mode fact rides its trait (`host.js` loop gone; `status · manifest` under `/metadata`); `/metadata/harness` = routes · primer · tools, pinned; `/metadata/harness/primer/(.*)` peeks a section; the harness widget folds primer · tools, closed (DONE 11-08; the switch → `benched/harness-disarming.org`)
 - `done/daemon-entities-both-sides.org` — daemon entities on both sides — the client daemon mirrors the runtime daemon: a static set `literal · symbol · note · mode` on both sides, `Dataspace.branch(connection, kinds)` into `daemon.entities`, no `runtime` on an entity; the dataspace dashboard clicks (LANDED 11-06 on "go. apply. land. test."; `note` joined the catalog's traits set on "add note"; owed: dashboard dead words `doors · doorOf · verbs`)
 
 - `done/m114-startup-clock.org` — m114 startup clock — the runtime binds at beat 4, `/status` IDLE → RUNNING, the ghost waits then narrates `start · stop · fault`; `paladin.stamp` content stamps, fileset in `installed` (localhost 16.3 s → 4.7 s) (DONE 10-28 on "go. and move to done"; left: 4 bundle graph key · 6 parallel supply, hunks in `* as code`; P-fileset on his next restart)

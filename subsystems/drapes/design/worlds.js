@@ -18,8 +18,8 @@ const looped = turn("agent", "", { who: "chess · board/play", meta: "r4/10", to
 const base = (name, held) => ({
   name,
   entity: { label: "e4 openings", mode: "board/play" },
-  harness: { tune: "capable", effort: "low", pct: 34 },
-  display: { view: "docked", align: "right", lens: "chat", framed: true },
+  harness: { tier: "capable", effort: "low", pct: 34 },
+  display: { view: "docked", align: "right", lens: "chat" },
   box: { mic: "off", voice: false },
   system: { standing: "VERIFIED", health: "HEALTHY" },
   fault: false,
@@ -34,7 +34,7 @@ const base = (name, held) => ({
     crumbs: "ctrl-v h",
     hint: "esc steps back",
     rows: [
-      { key: "t", name: "tune", choices: { options: ["frugal", "fast", "capable"], value: "capable" } },
+      { key: "t", name: "tier", choices: { options: ["frugal", "fast", "capable"], value: "capable" } },
       { key: "e", name: "effort", choices: { options: ["none", "low", "medium", "high"], value: "low" } },
       { key: "r", name: "rounds", value: "10", selected: true },
       { key: "c", name: "context", value: "34 %", icon: "◔" },

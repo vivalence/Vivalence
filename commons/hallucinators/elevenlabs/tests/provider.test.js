@@ -23,7 +23,7 @@ specimen.describe("elevenlabs provider", () => {
 
   specimen.it("each faculty has unique voice config", async () => {
     const faculties = await provider({ secrets: { key: "fake-key" } });
-    const voiceIds = faculties.map((f) => f.config.voice);
+    const voiceIds = faculties.map((f) => f.id);
     specimen.expect(new Set(voiceIds).size).toBe(faculties.length);
   });
 });

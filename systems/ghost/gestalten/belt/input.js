@@ -9,3 +9,5 @@ export const cast = (schema, signal) => {
   if (errors.length) throw new ValidationError(errors, signal);
   return input;
 };
+
+export const lined = (signal) => ({ ...signal, body: signal.body.length === 0 ? [] : [signal.body.join(" ")] });

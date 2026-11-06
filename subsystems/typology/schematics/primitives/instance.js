@@ -31,6 +31,7 @@ export const Mode = v.object(
     mountpoint: v.union([Mountpoint, v.null()]).optional(),
     statics: Statics().optional(),
     secrets: Secrets.optional(),
+    consume: v.record(v.string(), Mask).default({}),
     reference: Path().desc('The mode\'s path under its daemon. Declared wins; otherwise /mode/<type>/<slug>. Example: "/mode/game/board"').optional(),
     url: Url().desc("Where a consumer reaches the mode: the daemon's url + reference. Example: https://runtime.vivalence.com/daemon/chess/mode/game/board").optional(),
     bundles: Mountpoint.desc('Where its compiled views live. Declared wins; otherwise <daemon mountpoint>/bundles/<type>/<slug>. Example: "/viva/instances/chess/mountpoint/daemon_chess/bundles/game/board"').optional(),
@@ -147,6 +148,7 @@ const ModeMask = v.object(
     mountpoint: v.union([v.string(), v.null()]).optional(),
     statics: MaskStatics.optional(),
     secrets: MaskSecrets.optional(),
+    consume: v.record(v.string(), MaskOf).optional(),
   },
   { additionalProperties: false },
 );

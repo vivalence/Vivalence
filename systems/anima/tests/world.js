@@ -53,12 +53,12 @@ export const world = () => {
   });
   client.surface.$sidebar.set(true);
   const lighthouse = Object.assign(new ghost.entities.lighthouse.Lighthouse(), { stdout: controller.stdout.branch("lighthouse"), manifest: { type: "lighthouse", slug: "lighthouse", traits: ["AUTOLOGIN"] } });
-  const chat = { type: "chat", slug: "chat", traits: ["HARNESSED"], repl: new Vector(), keymap: new Vector(), host: { reference: { absolute: "/runtime/stub" } }, reference: { absolute: "/runtime/stub/mode/chat/chat" }, implements: (trait) => trait === "HARNESSED" };
+  const chat = { type: "chat", slug: "chat", traits: ["HARNESSED"], repl: new Vector(), keymap: new Vector(), daemon: null, reference: { absolute: "/runtime/stub/mode/chat/chat" }, implements: (trait) => trait === "HARNESSED", metadata: { harness: { routes: { branches: {} }, primer: { branches: { identity: { effect: {} }, hello: { meta: { load: "lazy" }, branches: { greet: { effect: {} } } } } }, tools: { branches: { fs: { branches: { tree: { effect: {} } } }, shell: { branches: { run: { effect: {} } } } } } } } };
   const thread = Object.assign(new ghost.entities.thread.Thread(), {
     id: "thread-1",
     mode: chat,
     traits: ["LABELED", "INTELLIGENT"],
-    trait: { LABELED: { name: "first words" }, INTELLIGENT: { tune: "fast", effort: "low", rounds: 6 } },
+    trait: { LABELED: { name: "first words" }, INTELLIGENT: { tier: "fast", effort: "low", rounds: 6 } },
     $buffers: atom([]),
     $turns: atom([
       turned("user", "2026-10-21T10:00:00.000Z", [{ type: "text", text: "ciao, come stai?" }]),

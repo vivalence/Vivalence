@@ -1,4 +1,4 @@
-import { specimen, belt, Controller, Cortex, Span, Vector, nearest, shard, v } from "@vivalence/typology";
+import { specimen, belt, Controller, Cortex, Span, Vector, nearest, shard, tiers, v } from "@vivalence/typology";
 import { metronome } from "./scenarios/metronome.js";
 
 function mockFaculties() {
@@ -10,7 +10,7 @@ function mockFaculties() {
 
   return [
     {
-      type: "dialogue", tune: [0.9, 1.0, 0.3, 0.5],
+      type: "dialogue", id: "dialogue-2", tune: [0.9, 1.0, 0.3, 0.5],
       channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
       via: {
         render: async () => text("[opus]"),
@@ -18,7 +18,7 @@ function mockFaculties() {
       },
     },
     {
-      type: "dialogue", tune: [0.4, 0.6, 0.6, 0.5],
+      type: "dialogue", id: "dialogue-3", tune: [0.4, 0.6, 0.6, 0.5],
       channels: { in: ["text"], out: ["text"] },
       via: {
         render: async () => text("[sonnet]"),
@@ -26,12 +26,12 @@ function mockFaculties() {
       },
     },
     {
-      type: "dialogue", tune: [0.1, 0.3, 1.0, 0.5],
+      type: "dialogue", id: "dialogue-4", tune: [0.1, 0.3, 1.0, 0.5],
       channels: { in: ["text"], out: ["text"] },
       via: { render: async () => text("[haiku]") },
     },
     {
-      type: "speech", tune: [0.3, 0.8, 0.7, 0.2],
+      type: "speech", id: "speech-5", tune: [0.3, 0.8, 0.7, 0.2],
       channels: { in: ["text"], out: ["audio"] },
       via: {
         render: async () => ({ role: "assistant", parts: [{ type: "audio", data: "abc", media: "audio/mp3" }], meta: {} }),
@@ -39,7 +39,7 @@ function mockFaculties() {
       },
     },
     {
-      type: "object", tune: [0.3, 0.7, 0.8, 0.5],
+      type: "object", id: "object-6", tune: [0.3, 0.7, 0.8, 0.5],
       channels: { in: ["text"], out: ["object"] },
       via: { render: async () => ({ role: "assistant", parts: [{ type: "object", data: {} }], meta: {} }) },
     },
@@ -56,7 +56,9 @@ specimen.describe("Cortex", () => {
     specimen.expect(populated.find({ type: "dialogue" })).toHaveLength(3);
     specimen.expect(populated.find({ type: "speech" })).toHaveLength(1);
     specimen.expect(populated.find({ type: "object" })).toHaveLength(1);
-    specimen.expect(populated.find({ type: "nonexistent" })).toHaveLength(0);
+    let unknown = null;
+    try { populated.find({ type: "nonexistent" }); } catch (thrown) { unknown = thrown; }
+    specimen.expect(unknown.message).toContain("invalid query /type");
     specimen.expect(populated.find()).toHaveLength(5);
     specimen.expect(populated.find({ type: "dialogue", via: "stream" })).toHaveLength(2);
 
@@ -68,7 +70,7 @@ specimen.describe("Cortex", () => {
     specimen.expect(new Cortex().register(mockFaculties()[0]).find({ type: "dialogue" })).toHaveLength(1);
 
     const supplied = {
-      type: "dialogue", tune: [0.2, 0.4, 0.8],
+      type: "dialogue", id: "padded", tune: [0.2, 0.4, 0.8],
       channels: { in: ["text"], out: ["text"] },
       via: { render: async () => ({}) },
     };
@@ -77,18 +79,21 @@ specimen.describe("Cortex", () => {
     specimen.expect(padded.find({ type: "dialogue" })[0].tune).toEqual([0.2, 0.4, 0.8, 0.5]);
 
     let error = null;
-    try { new Cortex().register([{ type: "dialogue", tune: [0.5, 0.5, 0.5] }]); } catch (thrown) { error = thrown; }
+    try { new Cortex().register([{ type: "dialogue", id: "dialogue-7", tune: [0.5, 0.5, 0.5] }]); } catch (thrown) { error = thrown; }
     specimen.expect(error.message).toContain("invalid faculty");
   });
 
   specimen.it("a query tunes to the nearest faculty", () => {
     const cortex = populatedCortex();
 
-    specimen.expect(cortex.findOne({ type: "dialogue", tune: "unleashed" }).tune).toEqual([0.9, 1.0, 0.3, 0.5]);
-    specimen.expect(cortex.findOne({ type: "dialogue", tune: "frugal" }).tune).toEqual([0.1, 0.3, 1.0, 0.5]);
-    specimen.expect(cortex.findOne({ type: "dialogue" }).tune).toEqual([0.4, 0.6, 0.6, 0.5]);
+    specimen.expect(cortex.findOne({ type: "dialogue", tier: "unleashed" }).tune).toEqual([0.9, 1.0, 0.3, 0.5]);
+    specimen.expect(cortex.findOne({ type: "dialogue", tier: "frugal" }).tune).toEqual([0.1, 0.3, 1.0, 0.5]);
+    let crowded = null;
+    try { cortex.findOne({ type: "dialogue" }); } catch (thrown) { crowded = thrown; }
+    specimen.expect(crowded.message).toContain("3 'dialogue' faculties match");
+    specimen.expect(cortex.findOne({ type: "dialogue", id: "dialogue-3" }).tune).toEqual([0.4, 0.6, 0.6, 0.5]);
 
-    const streamable = cortex.findOne({ type: "dialogue", tune: "frugal", via: "stream" });
+    const streamable = cortex.findOne({ type: "dialogue", tier: "frugal", via: "stream" });
     specimen.expect(streamable.via.stream).toBeDefined();
     specimen.expect(streamable.tune).not.toEqual([0.1, 0.3, 1.0, 0.5]);
 
@@ -96,25 +101,24 @@ specimen.describe("Cortex", () => {
     try { cortex.findOne({ type: "dialogue", via: "teleport" }); } catch (thrown) { error = thrown; }
     specimen.expect(error.message).toContain("invalid query");
 
-    const supplied = { type: "dialogue" };
+    const supplied = { type: "dialogue", tier: "frugal" };
     cortex.findOne(supplied);
     cortex.find(supplied);
-    specimen.expect(supplied).toEqual({ type: "dialogue" });
+    specimen.expect(supplied).toEqual({ type: "dialogue", tier: "frugal" });
 
     specimen.expect(cortex.findOne({ type: "verbatim" })).toBe(undefined);
-    specimen.expect(cortex.findOne({ type: "nonexistent" })).toBe(undefined);
 
     const dialogues = mockFaculties().filter((faculty) => faculty.type === "dialogue");
-    specimen.expect(nearest(dialogues, "unleashed").tune).toEqual([0.9, 1.0, 0.3, 0.5]);
-    specimen.expect(nearest(dialogues, "frugal").tune).toEqual([0.1, 0.3, 1.0, 0.5]);
-    specimen.expect(nearest(dialogues, "balanced").tune).toEqual([0.4, 0.6, 0.6, 0.5]);
+    specimen.expect(nearest(dialogues, tiers.unleashed).tune).toEqual([0.9, 1.0, 0.3, 0.5]);
+    specimen.expect(nearest(dialogues, tiers.frugal).tune).toEqual([0.1, 0.3, 1.0, 0.5]);
+    specimen.expect(nearest(dialogues, tiers.balanced).tune).toEqual([0.4, 0.6, 0.6, 0.5]);
 
     const spread = [
       { tune: [0.1, 0.1, 0.1, 0.1] },
       { tune: [0.5, 0.5, 0.5, 0.5] },
       { tune: [0.9, 0.9, 0.9, 0.9] },
     ];
-    specimen.expect(nearest(spread, "nonexistent").tune).toEqual([0.5, 0.5, 0.5, 0.5]);
+    specimen.expect(nearest(spread, [0.5, 0.5, 0.5, 0.5]).tune).toEqual([0.5, 0.5, 0.5, 0.5]);
   });
 
   specimen.it("the object avenue derives from a dialogue donor; the provider owns structured output", async () => {
@@ -173,9 +177,8 @@ specimen.describe("Cortex", () => {
         ? question.levels.map((_, index) => (index === 1 ? 0.9 : 0.1 / (question.levels.length - 1)))
         : 0.9;
     const chooser = {
-      type: "choice", tune: [0.4, 0.3, 1.0, 0.9], context: 32000, options: 3, choices: 3,
+      type: "choice", id: "bench/chooser", tune: [0.4, 0.3, 1.0, 0.9], context: 32000, options: 3, choices: 3,
       channels: { in: ["text", "object"], out: ["object"] },
-      config: { model: "bench/chooser" },
       via: { render: async (round) => { seen.push(round); return Object.fromEntries(Object.entries(round.questions).map(([key, question]) => [key, answered(question)])); } },
     };
     const cortex = new Cortex().register([chooser]);
@@ -203,7 +206,7 @@ specimen.describe("Cortex", () => {
     specimen.expect([...v.primitives.hallucination.Choice.Verdict.errors(verdict)]).toEqual([]);
     const tracks = heard.stdout.history.filter((record) => record.track !== "status");
     specimen.expect(tracks.map((record) => record.track)).toEqual(["start", "log", "log", "stop"]);
-    specimen.expect(tracks[1].data).toEqual({ faculty: "choice", model: "bench/chooser", questions: { same: "choice", grade: "score", ok: "noul" } });
+    specimen.expect(tracks[1].data).toEqual({ faculty: "choice", id: "bench/chooser", questions: { same: "choice", grade: "score", ok: "noul" } });
     specimen.expect(tracks[2].data.verdict).toEqual(verdict);
     specimen.expect(heard.stdout.history.filter((record) => record.track === "status").map((record) => record.data.code)).toEqual(["RUNNING", "DONE"]);
 

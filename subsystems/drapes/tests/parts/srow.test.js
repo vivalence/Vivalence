@@ -22,6 +22,7 @@ const CASES = [
       <div class="aligns"><button class="">←</button><button class="cur">→</button><button class="">↑</button><button class="">↓</button></div>
       <div class="shrow"><button aria-label="less">−</button><span class="track slider"><span class="fill" style="width:42%"></span><span class="sv" data-slider-v="1">42 %</span></span><button aria-label="more">+</button></div></div></div>`],
   ["more", { type: "more", label: "3 more", fn: "expand", arg: "thread" }, `<button class="srow more">3 more</button>`],
+  ["note", { type: "note", text: "The directory tree under an absolute path." }, `<div class="srow note">The directory tree under an absolute path.</div>`],
 ];
 
 specimen.describe("Srow — dom.js:63 srow(r, pre): one row per type, the design's markup", () => {

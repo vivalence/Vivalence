@@ -12,7 +12,7 @@ export const signal = { signal: v.unknown().desc("The Signal that fired. Example
 
 export const entities = { entities: v.record(v.string(), v.unknown()).desc("The host's repositories by entity name. Example: { note, mode } on the runtime; { literal, em, buffer } on a daemon") };
 export const call = { call: v.unknown().optional().desc("The host's aperture as a callable object, shape.object(aperture). Example: ctx.call.rules.position({ fen })") };
-export const cortex = { cortex: v.unknown().optional().desc("The host's Cortex, a Pool of faculties. Example: ctx.cortex.findOne({ type: 'dialogue', tune: 'fast', via: 'stream' })") };
+export const cortex = { cortex: v.unknown().optional().desc("The host's Cortex, a Pool of faculties. Example: ctx.cortex.findOne({ type: 'dialogue', tier: 'fast', via: 'stream' })") };
 export const modes = { modes: v.record(v.string(), v.record(v.string(), v.unknown())).desc("Sibling modes on the host, modes.<type>.<slug>. Example: ctx.modes.game.dojo") };
 export const providers = { providers: v.record(v.string(), v.unknown()).desc("Live providers on the host by slug — a service's interface. Example: ctx.providers.nlp") };
 export const statics = { statics: v.unknown().optional().desc("The host's declared statics. Example: { language: 'it' }") };
@@ -30,8 +30,8 @@ export const mask = { mask: v.unknown().desc("The service's record mask, { modul
 
 export const thread = { thread: v.unknown().desc("The Thread this exchange belongs to. Example: { id: 't9', mode: 7 }") };
 export const turn = { turn: Turn.desc("The user Turn chained for this request") };
-export const hallucination = { hallucination: v.union([Hallucination.dialogue, Hallucination.verbatim, Hallucination.speech, Hallucination.choice]).desc("The request under construction, cortex.hallucinate.<type>.<via>(ctx.hallucination)") };
-export const policy = { policy: v.union([Policy.dialogue, Policy.verbatim, Policy.speech, Policy.choice]).desc("The record's policy, lifted off the hallucination") };
+export const hallucination = { hallucination: v.union([Hallucination.dialogue, Hallucination.verbatim, Hallucination.speech, Hallucination.choice, Hallucination.picture]).desc("The request under construction, cortex.hallucinate.<type>.<via>(ctx.hallucination)") };
+export const policy = { policy: v.union([Policy.dialogue, Policy.verbatim, Policy.speech, Policy.choice, Policy.picture]).desc("The record's policy, lifted off the hallucination") };
 export const tools = { tools: v.unknown().desc("The armed Vector the model may call, never domain.tools") };
 export const intelligent = { intelligent: v.boolean().desc("The mode's harness.intelligent flag, lifted") };
 export const vocal = { vocal: v.boolean().desc("The mode's harness.vocal flag, lifted") };
@@ -39,7 +39,12 @@ export const activity = { activity: v.unknown().desc("The Activity row this exch
 export const screen = { screen: v.unknown().desc("A guide harness's current screen. Example: { id: 'intro', fields: [] }") };
 
 export const pool = { pool: v.unknown().desc("The emitter's Pool; yield into it. Example: ctx.pool.add(literal)") };
-export const scope = { scope: v.record(v.string(), v.unknown()).desc("The datamap scope narrowing reads and stamping writes. Example: { user: 'u1' }") };
+export const datamap = {
+  datamap: v.unknown().desc(
+    "is.Datamap — the host's ORM handle: shard.scope · shard.bind · shard.carry. " +
+      "Example: await ctx.datamap.shard.scope(() => ctx.entities.literal.count())",
+  ),
+};
 
 export const shell = { shell: v.unknown().desc("The shell Vector this line was invoked on — how the system (unix, macos) reaches viva; ctx.call and the flag check walk it. Example: steer.dispatch.traverse(ctx.shell, new Signal(['instance', 'doctor']))") };
 export const upgrade = { upgrade: v.unknown().desc("The shell's escalations, each boots the client on a child controller and returns nothing: repl · chrome. Example: ctx.upgrade.chrome()") };
@@ -58,13 +63,52 @@ export const optional = (set) => Object.fromEntries(Object.entries(set).map(([ke
 export const of = (...sets) => v.object(Object.assign({}, ...sets));
 
 export const vector = { ...input, ...output, ...request, ...response, ...params, ...steps, ...signal };
-export const host = { ...entities, ...call, ...cortex, ...modes, ...providers, ...statics, ...domain, ...mountpoint, ...reference, ...attach };
 
-export const Aperture = { ...vector, ...host, ...mode, ...optional(user) };
-export const Tool = { ...vector, ...host, ...mode, ...user, ...optional(thread), ...optional(service) };
-export const Harness = { ...vector, ...host, ...mode, ...user, ...thread, ...optional(turn), ...hallucination, ...tools, ...controller, ...intelligent, ...vocal, ...optional(activity), ...optional(screen) };
-export const Emitter = { ...vector, ...host, ...mode, ...pool, ...thread, ...optional(user) };
-export const Twitch = { ...vector, ...entities, ...call, ...cortex, ...providers, ...statics, ...domain, ...mountpoint, ...reference, ...optional(scope), ...optional(mode) };
+export const runtimeDie = {
+  ...entities,
+  ...call,
+  ...cortex,
+  ...modes,
+  ...statics,
+  ...domain,
+  ...mountpoint,
+  ...reference,
+  ...attach,
+};
+
+export const daemonDie = {
+  ...entities,
+  ...call,
+  ...cortex,
+  ...modes,
+  ...providers,
+  ...statics,
+  ...domain,
+  ...mountpoint,
+  ...reference,
+  ...attach,
+};
+
+export const modeDie = {
+  ...entities,
+  ...datamap,
+  ...call,
+  ...cortex,
+  ...modes,
+  ...providers,
+  ...statics,
+  ...domain,
+  ...mountpoint,
+  ...reference,
+  ...attach,
+  ...mode,
+};
+
+export const Aperture = { ...vector, ...modeDie, ...optional(user) };
+export const Tool = { ...vector, ...modeDie, ...user, ...optional(thread), ...optional(service) };
+export const Harness = { ...vector, ...modeDie, ...user, ...thread, ...optional(turn), ...hallucination, ...tools, ...controller, ...intelligent, ...vocal, ...optional(activity), ...optional(screen) };
+export const Emitter = { ...vector, ...modeDie, ...pool, ...thread, ...optional(user) };
+export const Twitch = { ...vector, ...entities, ...call, ...cortex, ...providers, ...statics, ...domain, ...mountpoint, ...reference, ...optional(mode) };
 export const Service = { ...vector, ...service, ...mask, ...tools };
 
 export const Command = { ...vector, ...view, ...flags };

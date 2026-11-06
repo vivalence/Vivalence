@@ -1,7 +1,7 @@
-import { from, Show } from "solid-js";
+import { createEffect, from, on, onCleanup, onMount, Show } from "solid-js";
 import * as parts from "@vivalence/drapes/parts";
 import * as ambient from "../../ambient/index.js";
-import { LENSES, lookup, named, reference } from "../sidebar/sections.js";
+import { LENSES, lookup } from "../sidebar/sections.js";
 import { Journal } from "./journal.jsx";
 import { Composer } from "./composer.jsx";
 
@@ -10,6 +10,46 @@ export const HOLD = 420;
 export const CLOSERS = { right: "dock", left: "dockl", top: "dock", bottom: "dock" };
 
 export const LIVE = ["RUNNING", "PAUSED"];
+
+export const SLACK = 24;
+
+export const bottomed = (journal) => journal.scrollTop + journal.clientHeight >= journal.scrollHeight - SLACK;
+
+export const following = (journal) => {
+  let pinned = true;
+  let last = journal.scrollTop;
+  let queued = false;
+  const pin = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      if (pinned) journal.scrollTop = journal.scrollHeight;
+    });
+  };
+  const scrolled = () => {
+    if (bottomed(journal)) pinned = true;
+    else if (journal.scrollTop < last) pinned = false;
+    last = journal.scrollTop;
+  };
+  const resized = new ResizeObserver(pin);
+  const mutated = new MutationObserver(pin);
+  resized.observe(journal);
+  mutated.observe(journal, { childList: true, subtree: true, characterData: true });
+  journal.addEventListener("scroll", scrolled, { passive: true });
+  pin();
+  return {
+    repin: () => {
+      pinned = true;
+      pin();
+    },
+    release: () => {
+      resized.disconnect();
+      mutated.disconnect();
+      journal.removeEventListener("scroll", scrolled);
+    },
+  };
+};
 
 export const live = (thread, activities) => thread !== null && activities.some((activity) => activity.thread === thread && LIVE.includes(activity.status));
 
@@ -43,7 +83,7 @@ const Head = (props) => {
   const terminal = ambient.terminal.consume();
   return (
     <>
-      <Show when={!props.phone}>
+      <Show when={props.dock.view !== "messenger"}>
         <button
           type="button"
           class="iconbtn"
@@ -63,7 +103,7 @@ const Head = (props) => {
       <button type="button" class="lens" title={`lens · /dock/lens ${lookup(LENSES, props.dock.lens, "lens")}`} onClick={() => terminal.repl.dispatch(`/dock/lens ${lookup(LENSES, props.dock.lens, "lens")}`).catch((error) => terminal.controller.stdout.fault(error))}>
         {props.dock.lens}
       </button>
-      <Show when={props.dock.view === "messenger" && !props.phone}>
+      <Show when={props.dock.view === "messenger"}>
         <button
           type="button"
           class="iconbtn"
@@ -80,27 +120,20 @@ const Head = (props) => {
   );
 };
 
-export const Strip = (props) => {
-  const app = ambient.app.consume();
-  return (
-    <button type="button" class="strip" title="open the frame" onClick={() => app.bridge.$phonePane.set("frame")}>
-      <span class="l">{`◆ ${named(props.buffer)}`}</span>
-      <span class="muted">{reference(props.buffer.mode)}</span>
-      <span class="o">⤢</span>
-    </button>
-  );
-};
-
 export function Dock(props) {
   const app = ambient.app.consume();
   const terminal = ambient.terminal.consume();
   const thread = from(terminal.$thread);
-  const buffer = from(terminal.$buffer);
   const activities = from(app.client.runtime.entities.activity.$entities);
   const focus = from(app.bridge.$focus);
-  const pane = from(app.bridge.$phonePane);
   const float = from(app.bridge.$float);
   let section;
+  let journal;
+  onMount(() => {
+    const follow = following(journal);
+    createEffect(on(thread, follow.repin, { defer: true }));
+    onCleanup(follow.release);
+  });
   const placed = () => {
     float();
     return floated(app.bridge, terminal);
@@ -128,14 +161,9 @@ export function Dock(props) {
         data-r="dhead"
         onPointerDown={(event) => carried(event, "drag")}
         onDblClick={(event) => props.floating && event.target.closest("button") === null && refloat(app.bridge, terminal, { min: !placed().min })}>
-        <Head dock={props.dock} thread={thread()} phone={props.phone} min={min()} live={lively()} />
+        <Head dock={props.dock} thread={thread()} min={min()} live={lively()} />
       </div>
-      <div data-r="strip" style={{ display: "contents" }}>
-        <Show when={props.phone && pane() === "dock" && buffer()} keyed>
-          {(held) => <Strip buffer={held} />}
-        </Show>
-      </div>
-      <div class="journal" data-r="journal" role="log" onClick={() => app.bridge.$focus.set("journal")}>
+      <div ref={journal} class="journal" data-r="journal" role="log" onClick={() => app.bridge.$focus.set("journal")}>
         <Journal />
       </div>
       <div class="composer" data-r="composer">

@@ -54,7 +54,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
       const { dewey, createThread, em } = scenario;
       const thread = await createThread();
 
-      const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "hello dewey" }], thread, tune: "balanced" });
+      const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "hello dewey" }], thread, tier: "balanced" });
       const { turn } = await collectStream(stream);
 
       specimen.expect(turn.role).toBe("assistant");
@@ -197,7 +197,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
       const { dewey, createThread } = scenario;
       const thread = await createThread();
 
-      const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "test tune" }], thread, tune: "unleashed" });
+      const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "test tune" }], thread, tier: "unleashed" });
       const { turn } = await collectStream(stream);
 
       specimen.expect(turn.parts[0].text).toMatch(/\[opus\]/);
@@ -207,7 +207,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
       const { dewey, createThread } = scenario;
       const thread = await createThread();
 
-      const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "test tune" }], thread, tune: "balanced" });
+      const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "test tune" }], thread, tier: "balanced" });
       const { turn } = await collectStream(stream);
 
       specimen.expect(turn.parts[0].text).toMatch(/\[sonnet\]/);
@@ -217,10 +217,10 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
       const { dewey, createThread } = scenario;
       const thread = await createThread();
 
-      const stream1 = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "fast" }], thread, tune: "frugal" });
+      const stream1 = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "fast" }], thread, tier: "frugal" });
       const { turn: turn1 } = await collectStream(stream1);
 
-      const stream2 = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "powerful" }], thread, tune: "unleashed" });
+      const stream2 = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "powerful" }], thread, tier: "unleashed" });
       const { turn: turn2 } = await collectStream(stream2);
 
       specimen.expect(turn1.parts[0].text).toMatch(/\[sonnet\]/);
@@ -241,7 +241,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
       const stream = await dewey.harness.dialogue.stream({
         parts:   [{ type: "text", text: "what is casa" }],
         thread,
-        tune:    "unleashed",
+        tier:    "unleashed",
         tools:   { lookup: { execute: async (ctx) => ({ definition: `${ctx.input.query} means house` }) } },
       });
       const { packets } = await collectStream(stream);
@@ -262,7 +262,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
       const stream = await dewey.harness.dialogue.stream({
         parts:   [{ type: "text", text: "what is casa" }],
         thread,
-        tune:    "unleashed",
+        tier:    "unleashed",
         tools:   { lookup: { execute: async (ctx) => ({ definition: `${ctx.input.query} means house` }) } },
       });
       let turn = null;
@@ -282,7 +282,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
       const stream = await dewey.harness.dialogue.stream({
         parts:   [{ type: "text", text: "what is casa" }],
         thread,
-        tune:    "unleashed",
+        tier:    "unleashed",
         tools:   { lookup: { execute: async (ctx) => ({ definition: `${ctx.input.query} means house` }) } },
       });
       await collectStream(stream);
@@ -299,7 +299,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
       const stream = await dewey.harness.dialogue.stream({
         parts:   [{ type: "text", text: "what is casa" }],
         thread,
-        tune:    "unleashed",
+        tier:    "unleashed",
         tools:   { lookup: { execute: async (ctx) => ({ definition: `${ctx.input.query} means house` }) } },
       });
       const { packets } = await collectStream(stream);

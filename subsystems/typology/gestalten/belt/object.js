@@ -57,6 +57,13 @@ export function filter(obj, predicate) {
   return Object.fromEntries(Object.entries(obj).filter(([key, value]) => predicate(key, value)));
 }
 
+export const traverse = async (obj, arrow) =>
+  Object.fromEntries(
+    await Promise.all(
+      Object.entries(obj).map(async ([key, value]) => [key, await arrow(key, value)]),
+    ),
+  );
+
 export const match = (obj, pattern) => where(pattern)?.(obj) ?? false;
 
 export function strip(obj) {

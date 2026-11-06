@@ -49,6 +49,7 @@ export function metronome(script, type = "dialogue") {
     },
     faculty: {
       type,
+      id: `metronome-${type}`,
       tune: [0.5, 0.5, 0.5, 0.5],
       channels: { in: ["text"], out: ["text"] },
       via: { stream, render: (request, options) => collect(stream(request, options)) },

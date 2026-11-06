@@ -102,6 +102,7 @@ export default async function provider(service) {
 
     return {
       type: "speech",
+      id: voice.id,
       tune: voice.tune,
       context: 0,
       channels: {
@@ -111,7 +112,6 @@ export default async function provider(service) {
           codec: "mp3_44100_128",
         }],
       },
-      config: { voice: voice.id },
       via: { stream, render },
     };
   }

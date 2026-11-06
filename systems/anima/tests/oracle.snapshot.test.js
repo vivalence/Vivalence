@@ -18,6 +18,7 @@ const answered = (turns) => turns.at(-1)?.parts?.some((part) => part.type === "t
 
 const seer = () => ({
   type: "dialogue",
+  id: "dialogue-1",
   tune: [0.9, 1.0, 0.3],
   context: 200000,
   channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },

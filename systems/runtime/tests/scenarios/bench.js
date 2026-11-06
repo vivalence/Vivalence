@@ -34,8 +34,10 @@ async function resolve(items, mountpoint) {
     return {
       ...citizen,
       reference: citizen.reference ?? new Path(`/mode/${type}/${slug}`),
+      daemon: citizen.daemon ?? "bench",
       url: citizen.url ?? new Url(`http://bench/daemon/bench/mode/${type}/${slug}`),
       mountpoint: citizen.mountpoint ?? mountpoint.branch(`/mode_${slug}`).absolute,
+      consume: citizen.consume ?? {},
     };
   });
 }
@@ -65,11 +67,19 @@ export async function bench(spec = {}) {
       attach: new Url("http://bench/attached"),
     },
   });
-  const traits = Object.fromEntries(Object.keys(sets.traits).map((kind) => [kind, gather(domain, modules, kind)]));
-  daemon.minted = mint({ slug: "bench", kinds: sets.traits, traits });
+  daemon.minted = mint({
+    slug: "bench",
+    kinds: sets.traits,
+    traits: {
+      literal: gather(domain, modules, "literal"),
+      symbol: gather(domain, modules, "symbol"),
+      note: gather(domain, modules, "note"),
+      mode: gather(domain, modules, "mode"),
+    },
+  });
   daemon.entities = { ...datamapInstance.entities, ...strike(daemon.minted, em, sets.traits), activity: new ActivityRepository(em, ActivityEntity) };
   daemon.datamap = datamapInstance;
-  daemon.twitch = new Twitch().use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
+  daemon.twitch = new Twitch().use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.datamap.owned());
   daemon.twitch.branch("/after").use(shard.datamap.detached(datamapInstance));
   if (domain?.twitch) daemon.twitch.graft(domain.twitch);
   datamapInstance.registerSubscriber(daemon.twitch);
@@ -100,7 +110,7 @@ export async function bench(spec = {}) {
   daemon.aperture.use(shard.datamap.inject(datamapInstance)).use(lighthouse.authenticate).use(lighthouse.bind);
 
   if (domain?.aperture) {
-    domain.aperture.use(shard.context.spread(contexts.host, daemon));
+    domain.aperture.use(shard.context.spread(contexts.daemonDie, daemon));
     daemon.aperture.graft(domain.aperture);
   }
 

@@ -15,8 +15,12 @@ COPY <<'NGINX' /etc/nginx/http.d/default.conf
 server {
     listen 1794;
     root /viva/repository/systems/anima/build;
+    location /assets/ {
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
     location / {
         try_files $uri /index.html;
+        add_header Cache-Control "no-cache";
     }
 }
 NGINX

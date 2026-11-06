@@ -1,15 +1,19 @@
 import { mime } from "@vivalence/typology";
+import { computed } from "nanostores";
 import { belt } from "@vivalence/ghost";
 
 export const RUNS = [mime.dom.svelte, mime.dom.solid];
 
 export const runs = (view) => RUNS.includes(view.mime);
 
-export const candidates = async (buffer, attach) => (await belt.view.candidates(buffer, attach)).filter(runs);
+export const candidates = (buffer, files) =>
+  computed([belt.view.candidates(buffer.$views, buffer.mode.$views), files], (views) =>
+    views.filter(belt.view.held),
+  );
 
-export const framed = async (buffer, attach) => (await candidates(buffer, attach)).filter((view) => view.traits.includes("FRAME"));
+export const framed = (views) => views.filter(runs).filter((view) => view.traits.includes("FRAME"));
 
-export const cells = async (buffer, attach) => (await candidates(buffer, attach)).filter((view) => view.traits.includes("CELL"));
+export const cells = (views) => views.filter(runs).filter((view) => view.traits.includes("CELL"));
 
 const compiled = (view) => belt.view.entry(view).mime === mime.javascript;
 

@@ -35,6 +35,7 @@ specimen.describe("Verbatim + Audio packet families", () => {
 function scriptedFaculty(hypotheses, final) {
   return {
     type: "verbatim",
+    id: "verbatim-1",
     tune: [0.4, 0.6, 0.5, 0.1],
     context: 0,
     channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
@@ -56,6 +57,7 @@ function scriptedFaculty(hypotheses, final) {
 function fastDialogue(correct, delay = 0) {
   return {
     type: "dialogue",
+    id: "dialogue-2",
     tune: [0.4, 0.3, 1.0, 0.8],
     context: 1000,
     channels: { in: ["text"], out: ["text"] },

@@ -43,7 +43,7 @@ const daemon = {
   twitch: new Twitch(),
 };
 daemon.entities.em = scenario.em;
-daemon.twitch.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
+daemon.twitch.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.datamap.owned());
 daemon.twitch.branch("/after").use(shard.datamap.detached(scenario.datamap));
 scenario.datamap.registerSubscriber(daemon.twitch);
 console.log(`seeded: ${await scenario.repos.literal.count({})} literals, ${await scenario.repos.symbol.count({})} symbols (fixtures)`);
@@ -52,6 +52,7 @@ const mode = {
   type: "topography",
   slug: "playground",
   stdout: new Span("mode/topography/playground"),
+  twitch: new Twitch(),
   entity: { installed: "" },
   module: { mount: authored, dataset: topography.dataset(), datasink: topography.datasink() },
 };
@@ -64,6 +65,7 @@ console.log(`minted by reference, declared in NO file: ${minted.map((row) => row
 
 say("3 · DATASINK applied — twitch opened, armed = FALSE");
 const { finalize: arm, terminate } = DATASINK(mode, daemon);
+daemon.twitch.graft(mode.twitch);
 console.log(`sinks declared: ${mode.datasink.sinks.length}`);
 for (const sink of mode.datasink.sinks)
   console.log(`  ${sink.type.padEnd(8)} where=${JSON.stringify(sink.where).slice(0, 58).padEnd(60)} → ${sink.target.split ? `split(${sink.target.split}) ${sink.target.write}` : sink.target.write}`);
@@ -85,7 +87,7 @@ console.log(`written: ${second.written}   ← 0 means file = fn(DB)`);
 
 say("8 · arm, then write ONE literal and watch the twitch mark ONLY literal dirty");
 arm();
-const nuovo = scenario.repos.literal.create({ mode: scenario.fixtures.mode,
+const nuovo = scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon,
   slug: "nuovo.adjective",
   traits: ["TRANSLATED"],
   trait: { TRANSLATED: { known: "new", learning: "nuovo" } },

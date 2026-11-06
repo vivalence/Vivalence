@@ -1,0 +1,67 @@
+#+title: m118 Q13 · Q13A — the rejected hunks, drained 11-09 from m118-darkroom.org (over cap)
+# limit: 12000 chars
+
+*** Q13 · how the desk's model pick reaches the cortex — a name in =settings=, or the faculty's tune
+
+Context (11-09 /"settings.model not sure about thsi one. how does this work on other faculties? how is model set?"/): no caller names a model anywhere in the tree. A faculty IS one model — the provider closes over it (=config.model=, =anthropic/provider/index.js:103=); the caller sets a TUNE (=policy.tune=: a Tier or a 4-vector, from the thread's INTELLIGENT trait or the request's =tune=, =harnessed.js:63-65=) and =findOne= picks the nearest (=cortex.js:99=, =recipe.nearest=). Probe: an exact tune resolves its own faculty 4/4; tiers: frugal · fast → mini, balanced · capable → flux-3, unleashed → sunburst.
+
+#+BEGIN_SRC js
+// A — a second pick mechanism: settings.model, the shard matches by name (as sketched)
+const picked = named ? cortex.find({ type: "picture", via: "render" }).find((held) => held.config.model === named) : faculty(cortex, "picture", "render", ctx.policy.tune);
+// B — the existing mechanism: the desk's name → that faculty's tune → the harness's own `tune` input → findOne; depicting is the standard four lines
+// tools/picture.js
+const knobs = (ctx, held) => {
+  const picked = ctx.cortex.find({ type: "picture", via: "render" }).find((faculty) => faculty.config.model === held.data.model);
+  if (!picked) throw new Error(`[darkroom] no model on the desk — picture_desk { model } first; picture_faculties lists them`);
+  return { tune: picked.tune, settings: { aspect: held.data.aspect, count: held.data.count } };
+};
+const rendered = await ctx.mode.harness.picture.render({ thread: ctx.thread, prompt: ctx.input.prompt, images: await parts(ctx, held.data.references), ...knobs(ctx, held), controller: ctx.controller.branch("picture") });
+// shard/hallucinate.js
+export const depicting = (cortex) => async (ctx) => {
+  ctx.output = await hallucinate.depict(faculty(cortex, "picture", "render", ctx.policy.tune), ctx.input, policyOf(ctx));
+};
+#+END_SRC
+
+REJECTED both 11-09 — A: /"this is ugly."/ · B: /"looks better but still wrong. tune isnt the only way really. stupid. tune is a heuristic."/ → Q13A.
+
+*** Q13A · a faculty is picked EXACTLY or ranked by tune — where the exact pick lives in the cortex query
+
+Context: =cortex.find= filters =type · via= by hand and =WHERE= is CLOSED (=cortex.js:25-29=, a =provider= key faults); =findOne= ranks the survivors by =tune= (=cortex.js:99=). The repositories already own a where grammar — =belt.object.match(entity, where)= (=belt/query.js=: nested keys · =$in · $like · $exists=), 5 readers (=local-repository.js:20,24= · =remote-repository.js:83,91= · =broadcaster.js:60=). The runtime stamps =provider= on every faculty (=runtime/lifecycle/1-population.js:91=); the model id sits in =config.model=. Law 6 already says /"the cortex resolves by name, by tune only when no name is set"/.
+
+#+BEGIN_SRC js
+// A — WHERE gains two exact keys; find grows two more === arms
+// subsystems/typology/prototypes/cortex.js:25
+const WHERE = v.object({
+  type: v.string().optional(),
+  via: v.enum(["render", "stream"]).optional(),
+  provider: v.string().optional(),
+  model: v.string().optional(),
+  tune: v.union([Tier, Tune], { default: [0.5, 0.5, 0.5, 0.5] }),
+});
+// :91
+  find(supplied) {
+    const query = where(supplied);
+    const stored = query.type ? (this.faculties.get(query.type) ?? []) : [...this.faculties.values()].flat();
+    return stored.filter((faculty) => (!query.via || faculty.via[query.via]) && (!query.provider || faculty.provider === query.provider) && (!query.model || faculty.config.model === query.model));
+  }
+cortex.findOne({ type: "picture", via: "render", provider: "openai", model: "gpt-image-1-mini" });
+
+// B — a faculty is queried like an entity: every key but type · via · tune is the repository's where; tune ranks what survives
+// subsystems/typology/prototypes/cortex.js:25
+const WHERE = v.object({
+  type: v.string().optional(),
+  via: v.enum(["render", "stream"]).optional(),
+  tune: v.union([Tier, Tune], { default: [0.5, 0.5, 0.5, 0.5] }),
+}, { additionalProperties: true });
+// :91
+  find(supplied) {
+    const { type, via, tune, ...pattern } = where(supplied);
+    const stored = type ? (this.faculties.get(type) ?? []) : [...this.faculties.values()].flat();
+    return stored.filter((faculty) => (!via || faculty.via[via]) && object.match(faculty, pattern));
+  }
+cortex.findOne({ type: "picture", via: "render", provider: "openai", config: { model: "gpt-image-1-mini" } });
+cortex.find({ type: "picture", via: "render", provider: "bfl" });
+#+END_SRC
+
+Probe (=scratchpad/q13a-probe.js=, B over four picture rows): =config.model= exact → 1 · =provider: "bfl"= → 2 · =config.model: {$like: "flux-3%"}= → 2 · no pattern → 4 · =model: "nope"= → 0. LOCKED A 11-09 — /"this looks beetter."/ (his paste of the A =WHERE=). Two exact keys =provider · model=; the grammar REJECTED. The =tune= key itself → Q13B.
+

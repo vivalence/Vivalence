@@ -46,6 +46,25 @@ describe("ledger parts — a top-level slot is its content, or a path to it, or 
     expect(declaration.datamap).toEqual(DATAMAP);
   });
 
+  it("a registry identifier is no path — the slot is { module }, on the ledger and on the instance", async () => {
+    const ledger = await world({ "ledger/ledger.viva.json": { datamap: "@commons/datamap/libsql" } });
+    expect((await ledger.paladin.ledger.recipe()).datamap).toEqual(DATAMAP);
+
+    const manifest = { type: "instance", slug: "probe", version: "0.0.1" };
+    const settled = async (datamap) => {
+      const { paladin } = await world({
+        "ledger/ledger.viva.json": {},
+        "instance/instance.viva.json": { manifest, daemons: [daemon], datamap },
+      });
+      return await factories.instance(lifecycle.paladin.instance(paladin));
+    };
+    const string = await settled("@commons/datamap/libsql");
+    const object = await settled(DATAMAP);
+    expect(string.datamap).toEqual(object.datamap);
+    expect(string.daemons[0].datamap.module).toBe("@commons/datamap/libsql");
+    expect(string.inherited).toEqual([]);
+  });
+
   it("an unset ${KEY} throws naming the key; a missing file throws naming the path", async () => {
     const unset = await world({ "ledger/ledger.viva.json": { environment: "${VIVA_PROBE_NOWHERE}" } });
     await expect(unset.paladin.ledger.recipe()).rejects.toThrow(/environment: VIVA_PROBE_NOWHERE unset/);

@@ -9,6 +9,7 @@ import { SymbolEntity } from "./index.ts";
 import { DaemonEntity } from "./index.ts";
 import { NoteEntity } from "./index.ts";
 import { ViewEntity } from "./index.ts";
+import { FileEntity } from "./index.ts";
 
 
 export class ModeRepository extends DataRepository {
@@ -30,6 +31,7 @@ export class ModeEntity extends DataEntity {
   buffers = new Collection<BufferEntity>(this);
   turns = new Collection<TurnEntity>(this);
   views = new Collection<ViewEntity>(this);
+  files = new Collection<FileEntity>(this);
 
   literals = new Collection<LiteralEntity>(this);
   symbols = new Collection<SymbolEntity>(this);
@@ -43,7 +45,7 @@ export const ModeSchema = new EntitySchema({
   name: "Mode",
   tableName: "Mode",
   uniques: [{ properties: ["daemon", "slug", "type"] }],
-  filters: { daemon: { cond: (args: any) => ({ daemon: args.daemon }), default: false } },
+  filters: { daemon: { cond: (args: any) => (args?.daemon ? { daemon: args.daemon } : {}), default: true, args: false } },
   properties: {
     type: { type: types.string },
     slug: { type: types.string },
@@ -74,8 +76,6 @@ export const ModeSchema = new EntitySchema({
       kind: "1:m",
       entity: () => BufferEntity,
       mappedBy: (buffer) => buffer.mode,
-      cascade: [Cascade.REMOVE],
-      orphanRemoval: true,
     },
 
     turns: {
@@ -106,6 +106,7 @@ export const ModeSchema = new EntitySchema({
       hidden: true,
     },
     notes: { kind: "1:m", entity: () => NoteEntity, mappedBy: (note) => note.mode, hidden: true },
+    files: { kind: "1:m", entity: () => FileEntity, mappedBy: (file) => file.mode, hidden: true },
   },
 });
 

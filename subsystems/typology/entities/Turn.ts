@@ -69,6 +69,8 @@ export const TurnSchema = new EntitySchema<TurnEntity, DataEntity>({
       cond: (args: any) => ({ thread: { user: args.user } }),
       default: true,
     },
+    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
+    thread: { cond: (args: any) => (args?.thread ? { thread: args.thread } : {}), default: true, args: false },
   },
   properties: {
     role: { type: types.string },
@@ -102,7 +104,7 @@ export const TurnSchema = new EntitySchema<TurnEntity, DataEntity>({
       fieldName: "mode",
       nullable: true,
       updateRule: "cascade",
-      deleteRule: "cascade",
+      deleteRule: "set null",
     },
 
     buffers: { kind: "m:n", entity: () => BufferEntity, mappedBy: (buffer) => buffer.turns },

@@ -9,6 +9,7 @@
     "@std/path": "jsr:@std/path@1.0",
     "@std/encoding": "jsr:@std/encoding@1.0",
     "@std/hex": "jsr:@std/encoding@1.0/hex",
+    "@std/encoding/base64": "jsr:@std/encoding@1.0/base64",
     "@std/crypto": "jsr:@std/crypto@1.0",
     "@std/jsonc": "jsr:@std/jsonc@1.0",
     "@std/front-matter/yaml": "jsr:@std/front-matter@1.0/yaml",

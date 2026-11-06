@@ -20,6 +20,27 @@ const SOURCE = [
   "</style>",
 ].join("\n");
 
+const SOLID = [
+  'import { createSignal } from "solid-js";',
+  'import { render } from "solid-js/web";',
+  'import { Field } from "@vivalence/drapes/dom/Field.jsx";',
+  "",
+  "const App = (props) => {",
+  "  const [size, setSize] = createSignal(18);",
+  "  return (",
+  '    <div class="spawned" style={{ "font-size": `${size()}px` }}>',
+  "      <h1>{props.buffer.data.title}</h1>",
+  '      <Field label="size"><button onClick={() => setSize(size() + 2)}>A+</button></Field>',
+  "    </div>",
+  "  );",
+  "};",
+  "",
+  "export default (element, props) => {",
+  "  const dispose = render(() => <App {...props} />, element);",
+  "  return { destroy: dispose };",
+  "};",
+].join("\n");
+
 let directory;
 let bundler;
 
@@ -74,6 +95,44 @@ describe("paladin.bundler", { sanitizeResources: false, sanitizeOps: false }, ()
     const served = await bundler.serve(bundle.entries[0].mount);
     expect(served.integrity).toBe(bundle.entries[0].integrity);
     expect(served.text).toContain("as default");
+  });
+
+  it("a solid dom source bundles to a browser module", async () => {
+    const bundle = await bundler.bundle({ mime: mime.dom.solid, source: SOLID });
+    const hash = await crypto.digest(SOLID);
+    const stem = hash.slice(0, 16);
+
+    expect(await Deno.readTextFile(`${directory}/bundle/${stem}.dom.solid`)).toBe(SOLID);
+    const artifact = await Deno.readTextFile(`${directory}/bundle/${stem}.dom.solid.mjs`);
+    expect(bundle.json).toEqual({
+      entries: [
+        { mime: mime.dom.solid, hash, mount: `/${stem}.dom.solid.mjs`, integrity: await crypto.digest(artifact), bytes: artifact.length },
+      ],
+    });
+    expect(v.bundle.check(bundle.json)).toBe(true);
+
+    expect(artifact).not.toMatch(/^import .* from "(?!\.|\/)/m);
+    expect(artifact).toContain("document.createElement");
+    expect(artifact).toContain("kit-field");
+    expect(artifact).not.toContain("@opentui");
+    expect(artifact).toMatch(/as default/);
+
+    const served = await bundler.serve(bundle.entries[0].mount);
+    expect(served.text).toBe(artifact);
+    expect(await bundler.inspect(hash)).toEqual({ hash, source: SOLID });
+
+    const entry = `${directory}/Reader.jsx`;
+    await Deno.writeTextFile(entry, SOLID);
+    const again = await bundler.bundle({ mime: mime.dom.solid, entry });
+    expect(again.entries[0].mount).toMatch(/\.dom\.solid\.mjs$/);
+    expect((await bundler.serve(again.entries[0].mount)).text).toContain("document.createElement");
+  });
+
+  it("a solid dom source carries its sheet as text", async () => {
+    await Deno.writeTextFile(`${directory}/desk.css`, ".desk{display:flex}");
+    await Deno.writeTextFile(`${directory}/Desk.jsx`, 'import sheet from "./desk.css";\nexport default (element) => { element.textContent = sheet; return { destroy() {} }; };\n');
+    const bundle = await bundler.bundle({ mime: mime.dom.solid, entry: `${directory}/Desk.jsx` });
+    expect((await bundler.serve(bundle.entries[0].mount)).text).toContain(".desk{display:flex}");
   });
 
   it("an html source wraps into a module", async () => {

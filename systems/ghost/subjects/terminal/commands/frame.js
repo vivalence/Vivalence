@@ -8,7 +8,7 @@ export const frame = new Vector().open(
   async (ctx) => {
     const { slug } = belt.input.cast(Framing, ctx.signal);
     if (ctx.terminal.buffer === null) throw new Error("no frame open");
-    const slugs = (await belt.view.candidates(ctx.terminal.buffer, ctx.client.runtime.attach)).filter((view) => view.traits.includes("FRAME")).map((view) => view.slug);
+    const slugs = belt.view.candidates(ctx.terminal.buffer.$views, ctx.terminal.buffer.mode.$views).get().filter((view) => view.traits.includes("FRAME")).map((view) => view.slug);
     if (!slugs.includes(slug)) throw new Error(`${ctx.terminal.buffer.trait.LABELED.name} frames ${slugs.join(" · ") || "none"}`);
     await ctx.client.runtime.entities.buffer.updateOne({ id: ctx.terminal.buffer.id }, traits.patch(ctx.terminal.buffer, { RENDERED: { frame: slug } }));
     return `${ctx.terminal.buffer.trait.LABELED.name} · frame ${slug}`;

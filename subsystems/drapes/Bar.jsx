@@ -43,12 +43,10 @@ const SOLID = {
   docked: (align) => HALF[align],
   messenger: (align) => (align === "left" ? [4, 6.5, 9, 4.5] : [15, 6.5, 9, 4.5]),
 };
-const solid = (view, align, framed) => SOLID[view === "docked" && !framed ? "full" : view](align);
-
 export const Glyph = (props) => (
   <svg class="dispg" width="28" height="16" viewBox="0 0 28 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
     <rect x="1.5" y="2.5" width="25" height="11" />
-    <Show when={solid(props.view, props.align, props.framed)} keyed>
+    <Show when={SOLID[props.view](props.align)} keyed>
       {([x, y, width, height]) => <rect x={x} y={y} width={width} height={height} fill="currentColor" />}
     </Show>
   </svg>
@@ -64,17 +62,36 @@ export const Bar = (props) => {
     </Segment>
   );
   const spoken = () => held.activity.text !== "";
-  return (
-    <nav class="modebar" data-zone="0" aria-label="mode bar">
-      <Mark size={held.phone ? 24 : 20} live={held.live} fault={held.fault} open={held.keys} delay={held.delay} onPick={held.onMark} onHold={held.onSidebar} />
+  const glyphs = () => (
+    <>
       {segment(
         "entity",
         "ent",
         <>
-          <span class="lab">{`[${held.entity.label}${held.phone && spoken() ? "]" : ""}`}</span>
-          <Show when={!(held.phone && spoken())}>
-            <span class="q">{`‹${held.entity.mode}›]`}</span>
-          </Show>
+          <span class="lab">{`[${held.entity.label}`}</span>
+          <span class="q">{`‹${held.entity.mode}›]`}</span>
+        </>,
+      )}
+      <span class="seg sp" />
+      {segment("harness", "har", <Meter pct={held.harness.pct} rings={4} />)}
+      {segment("display", "disp", <Glyph view={held.display.view} align={held.display.align} />, { onHold: held.onHold, delay: held.delay })}
+      {segment(
+        "box",
+        "box",
+        <span class={MIC[held.box.mic]}>
+          <Icon name="cube" size={18} />
+        </span>,
+      )}
+    </>
+  );
+  const worded = () => (
+    <>
+      {segment(
+        "entity",
+        "ent",
+        <>
+          <span class="lab">{`[${held.entity.label}`}</span>
+          <span class="q">{`‹${held.entity.mode}›]`}</span>
         </>,
       )}
       <span class="seg sp" />
@@ -82,64 +99,60 @@ export const Bar = (props) => {
         "harness",
         "har",
         <>
-          <Show when={!held.phone}>
-            <span class="q">
-              <Icon name="brace" size={14} />
+          <span class="q">
+            <Icon name="brace" size={14} />
+          </span>
+          <span>{held.harness.tier}</span>
+          <span class="q">·</span>
+          <span class="v">{held.harness.effort}</span>
+          <Meter pct={held.harness.pct} rings={6} />
+          <span class="q">
+            <Icon name="bracer" size={14} />
+          </span>
+        </>,
+      )}
+      {segment(
+        "activity",
+        `proc ${activity().cls}`,
+        <>
+          <Dot tone={activity().dot} dim={activity().dot === ""} />
+          <span class="lab">{spoken() ? held.activity.text : "idle"}</span>
+        </>,
+      )}
+      {segment(
+        "display",
+        "disp",
+        <>
+          <Glyph view={held.display.view} align={held.display.align} />
+          <span class="q">{held.display.lens}</span>
+        </>,
+        { onHold: held.onHold, delay: held.delay },
+      )}
+      {segment(
+        "box",
+        "box",
+        <>
+          <span class={MIC[held.box.mic]}>
+            <Icon name="cube" size={18} />
+          </span>
+          <Show when={held.box.mic !== "off"}>
+            <span class={MIC[held.box.mic]}>
+              <Icon name="mic" size={13} />
             </span>
           </Show>
-          <span>{held.harness.tune}</span>
-          <Show when={!held.phone}>
-            <span class="q">·</span>
-            <span class="v">{held.harness.effort}</span>
-          </Show>
-          <Meter pct={held.harness.pct} rings={held.phone ? 4 : 6} />
-          <Show when={!held.phone}>
-            <span class="q">
-              <Icon name="bracer" size={14} />
+          <Show when={held.box.voice}>
+            <span class="pri">
+              <Icon name="speaker" size={13} />
             </span>
           </Show>
         </>,
       )}
-      <Show when={spoken() || !held.phone}>
-        {segment(
-          "activity",
-          `proc ${activity().cls}`,
-          <>
-            <Dot tone={activity().dot} dim={activity().dot === ""} />
-            <span class="lab">{spoken() ? held.activity.text : "idle"}</span>
-          </>,
-        )}
-      </Show>
-      <Show when={!held.phone}>
-        {segment(
-          "display",
-          "disp",
-          <>
-            <Glyph view={held.display.view} align={held.display.align} framed={held.display.framed} />
-            <span class="q">{held.display.lens}</span>
-          </>,
-          { onHold: held.onHold, delay: held.delay },
-        )}
-        {segment(
-          "box",
-          "box",
-          <>
-            <span class={MIC[held.box.mic]}>
-              <Icon name="cube" size={18} />
-            </span>
-            <Show when={held.box.mic !== "off"}>
-              <span class={MIC[held.box.mic]}>
-                <Icon name="mic" size={13} />
-              </span>
-            </Show>
-            <Show when={held.box.voice}>
-              <span class="pri">
-                <Icon name="speaker" size={13} />
-              </span>
-            </Show>
-          </>,
-        )}
-      </Show>
+    </>
+  );
+  return (
+    <nav class="modebar" data-zone="0" aria-label="mode bar">
+      <Mark size={held.phone ? 24 : 20} live={held.live} fault={held.fault} open={held.keys} delay={held.delay} onPick={held.onMark} onHold={held.onSidebar} />
+      {held.phone ? glyphs() : worded()}
       {segment(
         "system",
         "sys",

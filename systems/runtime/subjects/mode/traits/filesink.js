@@ -2,7 +2,7 @@ import { join } from "@std/path";
 import paladin from "@vivalence/paladin";
 import { mime, Path, v } from "@vivalence/typology";
 
-export const FILESINK = (mode, context) => {
+export const FILESINK = (mode, modeDie) => {
   mode.aperture.open(
     {
       nature: "/files/receive",
@@ -15,7 +15,7 @@ export const FILESINK = (mode, context) => {
     async (ctx) => {
       const mount = join(new Path(mode.mountpoint).absolute, ctx.input.path);
       await paladin.state.store(mount, ctx.input.bytes);
-      return context.entities.file.record({
+      return modeDie.entities.file.record({
         mode: mode.entity.id,
         path: ctx.input.path,
         mount,

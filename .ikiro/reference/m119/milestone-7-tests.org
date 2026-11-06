@@ -1,0 +1,493 @@
+#+title: m119 · milestone 7 · tests — moved whole from the quest 11-10 (cap), LANDED 11-09
+# limit: 32000 chars
+
+* 7 · tests
+
+Measured on the copy, 11-09: with milestones 1 · 4 · 3 · 6 landed and the tests untouched, 7 of 14 fence-adjacent suites went red, every one =Value for LiteralEntity.daemon is required, 'undefined' found= — the fence's =daemon= stamp is gone (Q5), a fixture that creates a literal · symbol · mode names =daemon= now. One rig feeds six of them (=scenarios/datamap.js:65-70=). The =mint= suite's fence assertions re-aim onto =em.setFilterParams("daemon", …)= on the rig's one fork (=as(em, slug)=): a read is fenced by its params, never by its class. =struck= (=datamap.js:47=) STANDS — =datamap.js:63= consumes it, traits only.
+
+| file | what changes |
+|---|---|
+| =tests/scenarios/datamap.js:65-70= | the rig names =daemon= on mode · symbol · 2 literals — feeds =datamap.scoped= · =turn.scope= · =subscriber= · =view= · =turn.coverage= · =symbols-query= · =datasink.drain= · =beats.coverage= |
+| =tests/scenarios/mode.js:37-42= · =scenarios/cortex.js:10= | the rig mode names =daemon= (=daemon.slug= · =held.slug=); the =findOne= names it too |
+| =tests/mint.test.js= | 3 modes · 10 literals · 3 symbols · 3 notes name =daemon=; 6 fence tests open with =as(stocked.em, slug)=; =ensure= names =daemon= in data; the null-daemon note is read back after =clear()= |
+| =tests/subscriber.test.js= ×6 · =datasink.drain.test.js= ×3 (+ 2 stub =entity.daemon=) · =drain.playground.js= ×1 · =daemon/symbols-query.test.js= ×3 | =daemon: scenario.fixtures.daemon= |
+| =tests/daemon/traits.test.js= · =daemon/twitch.test.js= | creates name =daemon: slug=; a per-daemon read sets =as(slug)= / names =daemon= in its where |
+| =tests/scenarios/bench.js:68= · =topography/harness.js:68= · =mint.test.js:49= | =Object.fromEntries(Object.keys(sets.traits).map(… gather …))= → four literal rows (ruling 12) — LANDED 11-09 with the land (=lighthouse.js:35= was a literal already) |
+| =~/.viva/registry/{assembly,chess,droneaid}/tests/rig.js= | mode · symbol creates name =daemon: DAEMON= (chess =mountMode= =daemon.slug=) — LANDED 11-09: assembly =kit= ok 1 passed (2 steps) · chess =kit= ok 1 passed (11 steps) |
+| new =systems/runtime/tests/scope.params.test.js= | Q4 (no params no fence · bind outside a request is a no-op · mode · daemon · thread params fence every verb · interleaved · carry) · Q5 (a create naming no daemon is refused at flush) · Q3 (=set null=) — LANDED 11-09: ok 1 passed (17 steps), failed once on a flipped count |
+| =tests/runtime/beats.coverage.test.js:191= · =dataset.install.test.js= · =datasink.roundtrip.test.js= · =datasink.drain.test.js= | the orphan row names =daemon: fixtures.daemon=; the hand-built mode stubs name =entity.daemon=; the rig daemon hands =datamap: scenario.datamap= (the installer opens its own request) — LANDED 11-09, mine |
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/scenarios/datamap.js:62
+
+   const repos = { ...datamap.entities, ...struck(em) }
+
+-  const mode = repos.mode.create({ slug: "test", type: "test", traits: ["APPLICATION"], installed: "installed" })
++  const mode = repos.mode.create({ slug: "test", type: "test", daemon, traits: ["APPLICATION"], installed: "installed" })
+   await em.flush()
+
+-  const symbol = repos.symbol.create({ slug: "greeting", mode, trait: {} })
+-  const hello = repos.literal.create({ slug: "hello", mode, trait: {}, symbol: {} })
+-  const goodbye = repos.literal.create({ slug: "goodbye", mode, trait: {}, symbol: {} })
++  const symbol = repos.symbol.create({ slug: "greeting", mode, daemon, trait: {} })
++  const hello = repos.literal.create({ slug: "hello", mode, daemon, trait: {}, symbol: {} })
++  const goodbye = repos.literal.create({ slug: "goodbye", mode, daemon, trait: {}, symbol: {} })
+   await em.flush()
+
+   hello.symbols.add(symbol)
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/scenarios/mode.js:34
+   mode.reference = new Path(`/mode/${viva.manifest.type}/${viva.manifest.slug}`);
+
+   mode.entity =
+-    (await daemon.entities.mode.findOne({ slug: viva.manifest.slug })) ??
++    (await daemon.entities.mode.findOne({ slug: viva.manifest.slug, daemon: daemon.slug })) ??
+     daemon.entities.mode.create({
+       slug: viva.manifest.slug,
+       type: viva.manifest.type,
++      daemon: daemon.slug,
+       traits: viva.manifest.traits,
+       installed: "installed",
+     });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/scenarios/cortex.js:10
+   const deweyEntity = entities.mode.create({
+     slug: "dewey",
+     type: "teacher",
++    daemon: held.slug,
+     traits: ["EXPOSED", "HARNESSED"],
+     installed: "installed",
+   });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/mint.test.js:51
+ const minted = Object.fromEntries(Object.entries(DOMAINS).map(([slug, domain]) => [slug, minting(slug === "runtime" ? null : slug, domain)]));
+
+ const instantiate = (em, slug) => strike(minted[slug], em, sets.traits);
++
++const as = (em, slug) => em.setFilterParams("daemon", { daemon: slug });
+
+ async function world(dbName, { twitched = true } = {}) {
+   const assembled = assemble([sets.identity, sets.composition, sets.traits, sets.userspace, sets.transient]);
+…
+   em.setFilterParams("user", { user: user.id });
+   const repositories = Object.fromEntries(Object.keys(DOMAINS).map((slug) => [slug, instantiate(em, slug)]));
+   const modes = {
+-    italian: repositories.italian.mode.create({ type: "game", slug: "dojo" }),
+-    spanish: repositories.spanish.mode.create({ type: "game", slug: "dojo" }),
+-    chess: repositories.chess.mode.create({ type: "board", slug: "play" }),
++    italian: repositories.italian.mode.create({ type: "game", slug: "dojo", daemon: "italian" }),
++    spanish: repositories.spanish.mode.create({ type: "game", slug: "dojo", daemon: "spanish" }),
++    chess: repositories.chess.mode.create({ type: "board", slug: "play", daemon: "chess" }),
+   };
+   await em.flush();
+   return { em, user, repositories, modes };
+…
+     rig = await world(file);
+     stocked = await stock(rig.orm);
+     repositories = stocked.repositories;
+-    repositories.italian.literal.create({ slug: "casa", mode: stocked.modes.italian, traits: ["RETAINED"], trait: { RETAINED: { due: "2026-10-01", strength: 0.7 } } });
+-    repositories.italian.literal.create({ slug: "cane", mode: stocked.modes.italian, traits: ["RETAINED"], trait: { RETAINED: { due: "2026-09-01", strength: 0.2 } } });
+-    repositories.spanish.literal.create({ slug: "casa", mode: stocked.modes.spanish, traits: ["RETAINED"], trait: { RETAINED: { due: "2026-11-01" } } });
+-    repositories.chess.literal.create({ slug: "e4", mode: stocked.modes.chess, traits: ["RATED"], trait: { RATED: { elo: 1800 } } });
+-    repositories.chess.literal.create({ slug: "d4", mode: stocked.modes.chess, traits: ["RATED"], trait: { RATED: { elo: 1900 } } });
++    repositories.italian.literal.create({ slug: "casa", mode: stocked.modes.italian, daemon: "italian", traits: ["RETAINED"], trait: { RETAINED: { due: "2026-10-01", strength: 0.7 } } });
++    repositories.italian.literal.create({ slug: "cane", mode: stocked.modes.italian, daemon: "italian", traits: ["RETAINED"], trait: { RETAINED: { due: "2026-09-01", strength: 0.2 } } });
++    repositories.spanish.literal.create({ slug: "casa", mode: stocked.modes.spanish, daemon: "spanish", traits: ["RETAINED"], trait: { RETAINED: { due: "2026-11-01" } } });
++    repositories.chess.literal.create({ slug: "e4", mode: stocked.modes.chess, daemon: "chess", traits: ["RATED"], trait: { RATED: { elo: 1800 } } });
++    repositories.chess.literal.create({ slug: "d4", mode: stocked.modes.chess, daemon: "chess", traits: ["RATED"], trait: { RATED: { elo: 1900 } } });
+     await stocked.em.flush();
+     stocked.em.clear();
+     rig.queries.length = 0;
+…
+     specimen.expect(minted.runtime.note.repository.name).toBe("RuntimeNoteRepository");
+   });
+
+-  specimen.it("casa twice — one per daemon; each daemon's find sees its own rows only", async () => {
++  specimen.it("casa twice — one per daemon; under its params each daemon's find sees its own rows only", async () => {
++    as(stocked.em, "italian");
+     const italian = await repositories.italian.literal.find({}, { orderBy: { slug: "asc" } });
++    as(stocked.em, "spanish");
+     const spanish = await repositories.spanish.literal.find({});
+     specimen.expect(italian.map((row) => `${row.slug}:${row.daemon.slug}`)).toEqual(["cane:italian", "casa:italian"]);
+     specimen.expect(spanish.map((row) => `${row.slug}:${row.daemon.slug}`)).toEqual(["casa:spanish"]);
++    as(stocked.em, "chess");
+     specimen.expect(await repositories.chess.literal.count()).toBe(2);
++    as(stocked.em, "spanish");
+     specimen.expect((await repositories.spanish.literal.findOne({ slug: "casa" })).trait.RETAINED.due).toBe("2026-11-01");
+   });
+
+   specimen.it("a where naming another daemon ANDs with the filter — [] , the scope wins silently", async () => {
++    as(stocked.em, "italian");
+     const rows = await repositories.italian.literal.find({ daemon: "spanish" });
+     specimen.expect(rows).toEqual([]);
+     specimen.expect(await repositories.italian.literal.count({ daemon: "spanish" })).toBe(0);
+   });
+
+   specimen.it("the scope rides every verb — findOneOrFail · findAll · updateOne · nativeUpdate · removeOne · populate", async () => {
++    as(stocked.em, "italian");
+     specimen.expect((await repositories.italian.literal.findOneOrFail({ slug: "casa" })).daemon.slug).toBe("italian");
++    as(stocked.em, "spanish");
+     specimen.expect((await repositories.spanish.literal.findAll()).map((row) => row.slug)).toEqual(["casa"]);
++    as(stocked.em, "italian");
+     await repositories.italian.literal.updateOne({ slug: "casa" }, { ontology: "touched" });
+     specimen.expect(await repositories.italian.literal.nativeUpdate({ slug: "casa" }, { ontology: "native" })).toBe(1);
+     stocked.em.clear();
++    as(stocked.em, null);
+     const both = await stocked.em.find(LiteralEntity, { slug: "casa" }, { orderBy: { ontology: "asc" } });
+     specimen.expect(both.map((row) => `${row.daemon.slug}:${row.ontology}`)).toEqual(["spanish:", "italian:native"]);
+-    repositories.italian.note.create({ slug: "memo", literal: await repositories.italian.literal.findOne({ slug: "casa" }) });
++    as(stocked.em, "italian");
++    repositories.italian.note.create({ slug: "memo", daemon: "italian", literal: await repositories.italian.literal.findOne({ slug: "casa" }) });
+     await stocked.em.flush();
+     stocked.em.clear();
+     const [row] = await repositories.italian.literal.find({ slug: "casa" }, { populate: ["notes"] });
+…
+     specimen.expect(repositories.italian.literal.daemon).toBe("italian");
+     specimen.expect(Object.keys(repositories.italian.literal.entities).sort()).toEqual(KINDS.slice().sort());
+     specimen.expect(repositories.italian.literal.entities.mode).toBe(repositories.italian.mode);
++    as(stocked.em, "chess");
+     specimen.expect((await repositories.chess.literal.entities.mode.findOne({ slug: "play" })).daemon.slug).toBe("chess");
++    as(stocked.em, "italian");
+     specimen.expect(await repositories.italian.literal.entities.mode.findOne({ slug: "play" })).toBeNull();
+   });
+
+   specimen.it("due() orders by json_extract over the payload", async () => {
+     rig.queries.length = 0;
++    as(stocked.em, "italian");
+     const rows = await repositories.italian.literal.due();
+     specimen.expect(rows.map((row) => `${row.slug} ${row.trait.RETAINED.due}`)).toEqual(["cane 2026-09-01", "casa 2026-10-01"]);
+     const select = rig.queries.find((line) => line.includes("from `Literal`"));
+…
+   });
+
+   specimen.it("a trait verb lives on its daemon's repository only", async () => {
++    as(stocked.em, "chess");
+     specimen.expect((await repositories.chess.literal.strongest()).map((row) => row.slug)).toEqual(["d4", "e4"]);
+     specimen.expect(repositories.italian.literal.strongest).toBeUndefined();
+     specimen.expect(repositories.chess.literal.due).toBeUndefined();
+   });
+
+-  specimen.it("ensure is scoped: two daemons sharing a mode slug keep two rows", async () => {
+-    const italian = await repositories.italian.mode.ensure({ type: "game", slug: "dojo", name: "the italian dojo" });
+-    const spanish = await repositories.spanish.mode.ensure({ type: "game", slug: "dojo", name: "the spanish dojo" });
++  specimen.it("ensure names its daemon: two daemons sharing a mode slug keep two rows", async () => {
++    as(stocked.em, "italian");
++    const italian = await repositories.italian.mode.ensure({ type: "game", slug: "dojo", daemon: "italian", name: "the italian dojo" });
++    as(stocked.em, "spanish");
++    const spanish = await repositories.spanish.mode.ensure({ type: "game", slug: "dojo", daemon: "spanish", name: "the spanish dojo" });
+     await stocked.em.flush();
+     specimen.expect([italian.daemon.slug, spanish.daemon.slug]).toEqual(["italian", "spanish"]);
+     specimen.expect(italian.id).not.toBe(spanish.id);
++    as(stocked.em, "italian");
+     specimen.expect(await repositories.italian.mode.count({ slug: "dojo" })).toBe(1);
+   });
+
+…
+   });
+
+   specimen.it("the claim gate reads the daemon's vocabulary", async () => {
++    as(stocked.em, "italian");
+     const casa = await repositories.italian.literal.findOne({ slug: "casa" });
+     specimen.expect(traits.claim(casa, "RETAINED", minted.italian.literal.schematics)).toEqual({ due: "2026-10-01", strength: 0.7 });
+     specimen.expect(traits.claim(casa, "LABELED", minted.italian.literal.schematics)).toEqual({});
+…
+   specimen.it("a row whose daemon speaks the trait answers; a row of a daemon that does not throws; the method is the class's, not a daemon's", async () => {
+     const rig = await world(":memory:");
+     const stocked = await stock(rig.orm);
+-    const casa = stocked.repositories.italian.literal.create({ slug: "casa", mode: stocked.modes.italian, traits: ["RETAINED"], trait: { RETAINED: { due: "2026-10-01", strength: 0.7 } } });
+-    const e4 = stocked.repositories.chess.literal.create({ slug: "e4", mode: stocked.modes.chess, traits: ["RATED"], trait: { RATED: { elo: 1900 } } });
++    const casa = stocked.repositories.italian.literal.create({ slug: "casa", mode: stocked.modes.italian, daemon: "italian", traits: ["RETAINED"], trait: { RETAINED: { due: "2026-10-01", strength: 0.7 } } });
++    const e4 = stocked.repositories.chess.literal.create({ slug: "e4", mode: stocked.modes.chess, daemon: "chess", traits: ["RATED"], trait: { RATED: { elo: 1900 } } });
+     await stocked.em.flush();
+     specimen.expect(casa.assess()).toEqual({ overdue: true, strength: 0.7 });
+     specimen.expect(e4.band()).toBe("strong");
+…
+   specimen.afterAll(() => rig.orm.close());
+
+   specimen.it("a null-daemon note goes through the runtime's repository and no daemon's", async () => {
+-    const note = stocked.repositories.runtime.note.create({ slug: "memo", traits: ["LABELED"], trait: { LABELED: { name: "memo" } } });
+-    await stocked.em.flush();
+-    specimen.expect(note.daemon).toBeNull();
++    stocked.repositories.runtime.note.create({ slug: "memo", traits: ["LABELED"], trait: { LABELED: { name: "memo" } } });
++    await stocked.em.flush();
++    stocked.em.clear();
++    as(stocked.em, null);
++    specimen.expect((await stocked.repositories.runtime.note.findOne({ slug: "memo" })).daemon).toBeNull();
+     specimen.expect((await stocked.repositories.runtime.note.find({})).map((row) => row.slug)).toEqual(["memo"]);
++    as(stocked.em, "italian");
+     specimen.expect(await stocked.repositories.italian.note.find({})).toEqual([]);
+   });
+
+   specimen.it("round-trips: payload, owner, symbols, daemon", async () => {
+-    const greeting = stocked.repositories.italian.symbol.create({ slug: "greeting", mode: stocked.modes.italian });
++    as(stocked.em, "italian");
++    const greeting = stocked.repositories.italian.symbol.create({ slug: "greeting", mode: stocked.modes.italian, daemon: "italian" });
+     stocked.repositories.italian.note.create({
+       slug: "preset.meet",
+       mode: stocked.modes.italian,
++      daemon: "italian",
+       user: stocked.user,
+       traits: ["LABELED"],
+       trait: { LABELED: { name: "meet", description: "the dojo's meet preset" } },
+…
+     const em = rig.orm.em.fork();
+     em.setFilterParams("user", { user: stocked.user.id });
+     new minted.runtime.note.repository(em, NoteEntity).create({ slug: "shared" });
+-    new minted.italian.note.repository(em, NoteEntity).create({ slug: "shared", mode: stocked.modes.italian.id });
++    new minted.italian.note.repository(em, NoteEntity).create({ slug: "shared", mode: stocked.modes.italian.id, daemon: "italian" });
+     await em.flush();
+     specimen.expect(await em.count(NoteEntity, { slug: "shared" })).toBe(2);
+   });
+…
+   const create = async (twitched) => {
+     const rig = await world(":memory:", { twitched });
+     const stocked = await stock(rig.orm);
+-    const word = stocked.repositories.italian.symbol.create({ slug: "word", mode: stocked.modes.italian, traits: ["TOPOGRAPHICAL"] });
+-    const noun = stocked.repositories.italian.symbol.create({ slug: "word.noun", mode: stocked.modes.italian });
+-    stocked.repositories.italian.literal.create({ slug: "casa", mode: stocked.modes.italian });
++    const word = stocked.repositories.italian.symbol.create({ slug: "word", mode: stocked.modes.italian, daemon: "italian", traits: ["TOPOGRAPHICAL"] });
++    const noun = stocked.repositories.italian.symbol.create({ slug: "word.noun", mode: stocked.modes.italian, daemon: "italian" });
++    stocked.repositories.italian.literal.create({ slug: "casa", mode: stocked.modes.italian, daemon: "italian" });
+     await stocked.em.flush();
+     // the link phase's own touch (traits/dataset.js): a fresh row folds on its first update, never on create
+     const literal = await stocked.repositories.italian.literal.findOne({ slug: "casa" }, { populate: ["symbols"] });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/subscriber.test.js:22
+       if (ctx.input.entity.slug === "before-lane") ctx.input.entity.trait = { STAMPED: true };
+     });
+
+-    const literal = scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "before-lane", trait: {}, symbol: {} });
++    const literal = scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug: "before-lane", trait: {}, symbol: {} });
+     await scenario.em.flush();
+
+     specimen.expect(stamped).toEqual(["before-lane"]);
+…
+       seen.push(ctx.input.entity.slug);
+     });
+
+-    const literal = scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "after-lane", trait: {}, symbol: {} });
++    const literal = scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug: "after-lane", trait: {}, symbol: {} });
+     await scenario.em.flush();
+
+     literal.trait = { TOUCHED: true };
+…
+     const captured = [];
+     twitch.open("/after/literal/create", (ctx) => captured.push(ctx.input));
+
+-    scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "live-args", trait: { A: 1 }, symbol: {} });
++    scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug: "live-args", trait: { A: 1 }, symbol: {} });
+     await scenario.em.flush();
+     await sleep.ms(10);
+
+…
+       owners.push(scenario.repos.literal.getEntityManager().getFilterParams("user")?.user ?? null);
+     });
+
+-    scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "owned", trait: {}, symbol: {} });
++    scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug: "owned", trait: {}, symbol: {} });
+     await scenario.em.flush();
+     await sleep.ms(10);
+
+…
+       counted.push(await scenario.repos.literal.count({}));
+     });
+
+-    scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "reentrant-read", trait: {}, symbol: {} });
++    scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug: "reentrant-read", trait: {}, symbol: {} });
+     await scenario.em.flush();
+     await sleep.ms(20);
+
+…
+     });
+
+     for (const slug of ["one", "boom", "two"])
+-      scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug, trait: {}, symbol: {} });
++      scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug, trait: {}, symbol: {} });
+     await scenario.em.flush();
+     await sleep.ms(20);
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/datasink.drain.test.js:29
+     manifest: { type: "topography", slug: "fixture", traits: [] },
+     id: scenario.fixtures.mode.id,
+     stdout: new Span("mode/topography/fixture"),
+-    entity: { installed: "" },
++    entity: { installed: "", daemon: scenario.fixtures.daemon },
+     module: { source: corpus, dataset: topography.dataset(), datasink: topography.datasink() },
+   };
+
+…
+   specimen.it("marks nothing dirty until the finalizer arms it, then goes incremental", async () => {
+     scenario.datamap.registerSubscriber(daemon.twitch);
+
+-    scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "pre-arm", trait: {}, symbol: {} });
++    scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug: "pre-arm", trait: {}, symbol: {} });
+     await scenario.em.flush();
+     await sleep.ms(5);
+
+…
+
+     arm();
+
+-    scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "post-arm", trait: {}, symbol: {} });
++    scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug: "post-arm", trait: {}, symbol: {} });
+     await scenario.em.flush();
+     await sleep.ms(5);
+
+…
+       ...mode,
+       manifest: { type: "topography", slug: "terminable", traits: ["DATASINK"] },
+       terminators: collected,
+-      entity: { installed: "" },
++      entity: { installed: "", daemon: scenario.fixtures.daemon },
+     };
+     const finalizers = await stagger(staggered, daemon, { DATASINK });
+
+…
+     staggered.datasink.drain = (input) => (drained++, guarded(input));
+
+     finalizers[0]();
+-    scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "terminated", trait: {}, symbol: {} });
++    scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug: "terminated", trait: {}, symbol: {} });
+     await scenario.em.flush();
+     await sleep.ms(5);
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/drain.playground.js:85
+
+ say("8 · arm, then write ONE literal and watch the twitch mark ONLY literal dirty");
+ arm();
+-const nuovo = scenario.repos.literal.create({ mode: scenario.fixtures.mode,
++const nuovo = scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon,
+   slug: "nuovo.adjective",
+   traits: ["TRANSLATED"],
+   trait: { TRANSLATED: { known: "new", learning: "nuovo" } },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/daemon/symbols-query.test.js:14
+     const { mode } = scenario.fixtures;
+
+     greetingSym = scenario.fixtures.symbol;
+-    farewellSym = scenario.repos.symbol.create({ slug: "farewell", mode, traits: [], trait: {} });
++    farewellSym = scenario.repos.symbol.create({ slug: "farewell", mode, daemon: scenario.fixtures.daemon, traits: [], trait: {} });
+     await em.flush();
+
+     hello = scenario.fixtures.hello;
+     goodbye = scenario.fixtures.goodbye;
+-    const wordSym = scenario.repos.symbol.create({ slug: "word", mode, traits: ["TOPOGRAPHICAL"], trait: {} });
++    const wordSym = scenario.repos.symbol.create({ slug: "word", mode, daemon: scenario.fixtures.daemon, traits: ["TOPOGRAPHICAL"], trait: {} });
+     hello.symbols.add(wordSym);
+     goodbye.symbols.add(wordSym);
+     hello.assign({ updatedAt: new Date() });
+…
+     orphan = scenario.repos.literal.create({
+       slug: "orphan",
+       mode,
++      daemon: scenario.fixtures.daemon,
+       traits: ["TRANSLATED"],
+       trait: { TRANSLATED: { known: "orphan", learning: "órfão" } },
+       symbol: { word: true },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/daemon/traits.test.js:28
+ specimen.describe("a domain's traits on two daemons — claims, the schematics a verb reads, a note on its literal", { sanitizeResources: false, sanitizeOps: false }, () => {
+   let scenario;
+   let within;
++  const as = (slug) => scenario.datamap.entities.em.setFilterParams("daemon", { daemon: slug });
+   const daemons = {};
+
+   specimen.beforeAll(async () => {
+…
+       em.setFilterParams("user", { user: user.id });
+       for (const slug of SLUGS) {
+         const { entities } = daemons[slug];
+-        const mode = entities.mode.create({ type: "game", slug: "dojo" });
+-        const casa = entities.literal.create({ slug: "casa", mode });
+-        entities.literal.create({ slug: "cane", mode });
+-        entities.note.create({ user, literal: casa, slug: "retention.casa", traits: ["RETAINED"], trait: { RETAINED: { due: `${slug}-due` } } });
+-        entities.note.create({ user, slug: "memo", traits: ["LABELED"], trait: { LABELED: { name: "memo" } } });
++        const mode = entities.mode.create({ type: "game", slug: "dojo", daemon: slug });
++        const casa = entities.literal.create({ slug: "casa", mode, daemon: slug });
++        entities.literal.create({ slug: "cane", mode, daemon: slug });
++        entities.note.create({ user, literal: casa, slug: "retention.casa", daemon: slug, traits: ["RETAINED"], trait: { RETAINED: { due: `${slug}-due` } } });
++        entities.note.create({ user, slug: "memo", daemon: slug, traits: ["LABELED"], trait: { LABELED: { name: "memo" } } });
+       }
+       await em.flush();
+       await sleep.ms(20);
+…
+   specimen.it("a traits claim resolves through a daemon's minted repository and stays inside its daemon", () =>
+     within(async () => {
+       for (const slug of SLUGS) {
++        as(slug);
+         const rows = await daemons[slug].entities.note.find({ traits: "RETAINED" });
+         specimen.expect(rows.map((row) => `${row.daemon.slug}:${row.slug}`)).toEqual([`${slug}:retention.casa`]);
+       }
+…
+
+   specimen.it("a trait verb reads its daemon's vocabulary through this.schematics", () =>
+     within(async () => {
++      as("italian");
+       const [note] = await daemons.italian.entities.note.find({ traits: "RETAINED" });
+       specimen.expect(daemons.italian.entities.note.schematics.RETAINED).toBe(RETAINED.schematic);
+       specimen.expect(daemons.italian.entities.note.held(note)).toEqual({ due: "italian-due" });
+…
+
+   specimen.it("a note rides its literal: Note.literal m:1 · Literal.notes 1:m, joined from the literal's repository", () =>
+     within(async () => {
++      as("spanish");
+       const picked = await daemons.spanish.entities.literal.retained();
+       specimen.expect(picked.map((row) => row.slug)).toEqual(["casa"]);
+       specimen.expect(picked[0].notes.getItems().map((note) => note.trait.RETAINED.due)).toEqual(["spanish-due"]);
++      as(null);
+       specimen.expect(await scenario.datamap.entities.em.count(NoteEntity, { literal: { slug: "casa" } })).toBe(2);
+       specimen.expect(await scenario.datamap.entities.em.count(LiteralEntity, { slug: "casa" })).toBe(2);
+     }));
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/daemon/twitch.test.js:21
+       daemons[slug] = die.daemon;
+     }
+     await scenario.datamap.shard.scope(async () => {
+-      for (const slug of SLUGS) daemons[slug].entities.mode.create({ type: "game", slug: "flashcard" });
++      for (const slug of SLUGS) daemons[slug].entities.mode.create({ type: "game", slug: "flashcard", daemon: slug });
+       await scenario.datamap.entities.em.flush();
+     });
+   });
+…
+
+   specimen.it("italian hears /after/literal/create for its own row and nothing for spanish's", async () => {
+     await scenario.datamap.shard.scope(async () => {
+-      const mode = await daemons.italian.entities.mode.findOneOrFail({ slug: "flashcard" });
+-      daemons.italian.entities.literal.create({ slug: "casa", mode });
++      const mode = await daemons.italian.entities.mode.findOneOrFail({ slug: "flashcard", daemon: "italian" });
++      daemons.italian.entities.literal.create({ slug: "casa", mode, daemon: "italian" });
+       await scenario.datamap.entities.em.flush();
+     });
+     await sleep.ms(20);
+…
+
+   specimen.it("spanish hears its own casa, italian hears nothing more — the kind's name, never a daemon's", async () => {
+     await scenario.datamap.shard.scope(async () => {
+-      const mode = await daemons.spanish.entities.mode.findOneOrFail({ slug: "flashcard" });
+-      daemons.spanish.entities.literal.create({ slug: "casa", mode });
++      const mode = await daemons.spanish.entities.mode.findOneOrFail({ slug: "flashcard", daemon: "spanish" });
++      daemons.spanish.entities.literal.create({ slug: "casa", mode, daemon: "spanish" });
+       await scenario.datamap.entities.em.flush();
+     });
+     await sleep.ms(20);
+#+END_SRC

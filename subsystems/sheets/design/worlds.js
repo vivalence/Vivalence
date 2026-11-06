@@ -2,7 +2,7 @@ const sample = (fn) => {
   const world = {
     name: "idle",
     entity: { label: "e4 openings", mode: "board/play" },
-    harness: { tune: "capable", context: 0.34, effort: "low", rounds: 10 },
+    harness: { tier: "capable", context: 0.34, effort: "low", rounds: 10 },
     activity: { signal: "off", text: "idle", tool: null },
     display: { view: "docked", align: "right" },
     system: { standing: "VERIFIED", host: "ghost" },
@@ -19,7 +19,7 @@ const sample = (fn) => {
       crumbs: "ctrl-v h",
       hint: "esc drops",
       rows: [
-        { key: "t", label: "tune", choices: { options: ["frugal", "fast", "capable"], value: "capable" } },
+        { key: "t", label: "tier", choices: { options: ["frugal", "fast", "capable"], value: "capable" } },
         { key: "e", label: "effort", choices: { options: ["none", "low", "medium", "high"], value: "low" } },
         { key: "r", label: "rounds", value: "10", selected: true },
         { key: "u", label: "close frame", value: "—", off: true },
@@ -36,7 +36,7 @@ const sample = (fn) => {
           { name: "repl_whoami", arg: '{ "body": [], "flags": {} }', status: "ok", duration: "0.3s", loop: true },
         ],
       },
-      { register: "cmd", text: "/tune fast", answer: "tune fast" },
+      { register: "cmd", text: "/tier fast", answer: "tier fast" },
       { register: "trace", text: "09:14:02  activity · board/play · capable · low" },
     ],
     composer: { kind: "field", prompt: "turn", value: "", placeholder: "say it, or / for a command", keys: "+ attach  ◉ dictate  ⏎" },
@@ -82,7 +82,7 @@ const paused = (world) => {
   running(world);
   world.name = "paused";
   world.activity = { signal: "paused", text: "paused · r3/10", tool: null };
-  world.composer = { kind: "field", prompt: "line", value: "/tune fa", placeholder: "", keys: "tab completes · enter runs" };
+  world.composer = { kind: "field", prompt: "line", value: "/tier fa", placeholder: "", keys: "tab completes · enter runs" };
   world.chord = true;
   world.hint = "ctrl-v h …";
   world.open = "harness";

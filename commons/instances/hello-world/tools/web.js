@@ -87,7 +87,7 @@ export const web = new Vector()
         const page = await reader.open(ctx.input.url);
         const folded = await ctx.cortex.hallucinate.object.render({
           controller: ctx.controller.branch("object"),
-          policy: { tune: "frugal" },
+          policy: { tier: "frugal" },
           system: { choose: CHOOSE },
           turns: [{
             role: "user",

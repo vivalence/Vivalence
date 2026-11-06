@@ -65,11 +65,20 @@ export async function topography() {
     allowGlobalContext: true,
   });
   const datamap = new Datamap(orm);
-  const traits = Object.fromEntries(Object.keys(sets.traits).map((kind) => [kind, gather(domain, [], kind)]));
-  const entities = { ...datamap.entities, ...strike(mint({ slug: DAEMON, kinds: sets.traits, traits }), orm.em, sets.traits) };
+  const minted = mint({
+    slug: DAEMON,
+    kinds: sets.traits,
+    traits: {
+      literal: gather(domain, [], "literal"),
+      symbol: gather(domain, [], "symbol"),
+      note: gather(domain, [], "note"),
+      mode: gather(domain, [], "mode"),
+    },
+  });
+  const entities = { ...datamap.entities, ...strike(minted, orm.em, sets.traits) };
 
   const daemon = { slug: DAEMON, aperture: new Aperture(), entities, twitch: new Twitch(), datamap };
-  daemon.twitch.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
+  daemon.twitch.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.datamap.owned());
   daemon.twitch.branch("/after").use(shard.datamap.detached(datamap));
   datamap.registerSubscriber(daemon.twitch);
   await middleware.compose([lifecycle.daemon.integration.datamap])({ daemon });

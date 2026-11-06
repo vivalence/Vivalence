@@ -62,12 +62,12 @@ export async function seed() {
 
   const repos = { ...datamap.entities, ...struck(em) }
 
-  const mode = repos.mode.create({ slug: "test", type: "test", traits: ["APPLICATION"], installed: "installed" })
+  const mode = repos.mode.create({ slug: "test", type: "test", daemon, traits: ["APPLICATION"], installed: "installed" })
   await em.flush()
 
-  const symbol = repos.symbol.create({ slug: "greeting", mode, trait: {} })
-  const hello = repos.literal.create({ slug: "hello", mode, trait: {}, symbol: {} })
-  const goodbye = repos.literal.create({ slug: "goodbye", mode, trait: {}, symbol: {} })
+  const symbol = repos.symbol.create({ slug: "greeting", mode, daemon, trait: {} })
+  const hello = repos.literal.create({ slug: "hello", mode, daemon, trait: {}, symbol: {} })
+  const goodbye = repos.literal.create({ slug: "goodbye", mode, daemon, trait: {}, symbol: {} })
   await em.flush()
 
   hello.symbols.add(symbol)

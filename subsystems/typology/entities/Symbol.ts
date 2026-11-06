@@ -34,7 +34,10 @@ export const SymbolSchema = new EntitySchema({
   tableName: "Symbol",
   uniques: [{ properties: ["daemon", "slug"] }],
   repository: () => SymbolRepository,
-  filters: { daemon: { cond: (args: any) => ({ daemon: args.daemon }), default: false } },
+  filters: {
+    daemon: { cond: (args: any) => (args?.daemon ? { daemon: args.daemon } : {}), default: true, args: false },
+    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
+  },
   properties: {
     slug: { type: types.string },
     // name: { type: types.string, nullable: true },

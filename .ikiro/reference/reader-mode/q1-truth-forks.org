@@ -1,0 +1,42 @@
+# limit: 4000 chars
+# moved whole from quests/reader-mode.org 11-10 — Q1 ruled: the view writes buffer.data inline
+
+** Q1 — who holds the truth: the data, or the repl entries that changed it
+
+Context: /"every line echoes in the journal"/ (=Model.dc.html=); codestyle trigger 2 is
+=state = reduce(events)=. Darkroom settles data whole (=aperture/index.js:27=).
+
+A — data IS the state; each entry is a route that mutates it (darkroom's shape):
+
+#+BEGIN_SRC js
+// commons/reader/reader/aperture/index.js
+  .open({ nature: "/reading/done", input: Done, output: v.buffer() }, async (ctx) => {
+    const buffer = await held(ctx, ctx.input.buffer);
+    buffer.data = { ...buffer.data, done: [...buffer.data.done, ctx.input.block] };
+    await ctx.entities.em.flush();
+    return buffer;
+  })
+#+END_SRC
+
+B — the entries ARE the state; data is their fold, replayed on hydrate:
+
+#+BEGIN_SRC js
+// commons/reader/reader/reading.js
+export const pour = (reading, signal) => {
+  switch (signal.nature) {
+    case "/done":
+      return { ...reading, done: [...reading.done, signal.input.block] };
+    case "/undo":
+      return { ...reading, done: reading.done.slice(0, -1) };
+    case "/face":
+      return { ...reading, face: signal.input.face };
+    case "/set":
+      return { ...reading, settings: { ...reading.settings, ...signal.input } };
+  }
+};
+#+END_SRC
+
+B costs: a row per entry (a Turn? a new entity?), a replay on hydrate.
+A costs: undo exists only for =done= (the stack); =/set= · =/face= have none — the comp draws none.
+Lean: A.
+

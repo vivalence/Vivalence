@@ -12,19 +12,19 @@ specimen.describe("Cortex hallucinators", () => {
     const services = [
       {
         service: makeService("anthropic", [
-          { type: "dialogue", tune: [0.4, 0.6, 0.6, 0.6], via: { stream: async function* () {} } },
+          { type: "dialogue", id: "dialogue-1", tune: [0.4, 0.6, 0.6, 0.6], via: { stream: async function* () {} } },
         ]),
         mask: { module: "@vivalence/hallucinator/anthropic", secrets: { anthropic: "key-a" } },
       },
       {
         service: makeService("elevenlabs", [
-          { type: "speech", tune: [0.3, 0.5, 0.5, 0.1], via: { stream: async function* () {} } },
+          { type: "speech", id: "speech-2", tune: [0.3, 0.5, 0.5, 0.1], via: { stream: async function* () {} } },
         ]),
         mask: { module: "@vivalence/hallucinator/elevenlabs", secrets: { elevenlabs: "key-e" } },
       },
       {
         service: makeService("deepgram", [
-          { type: "verbatim", tune: [0.4, 0.6, 0.5, 0.1], via: { stream: async function* () {} } },
+          { type: "verbatim", id: "verbatim-3", tune: [0.4, 0.6, 0.5, 0.1], via: { stream: async function* () {} } },
         ]),
         mask: { module: "@vivalence/hallucinator/deepgram", secrets: { deepgram: "key-d" } },
       },
@@ -39,11 +39,11 @@ specimen.describe("Cortex hallucinators", () => {
     specimen.expect(cortex.find({ type: "speech" }).length).toBeGreaterThan(0);
     specimen.expect(cortex.find({ type: "verbatim" }).length).toBeGreaterThan(0);
 
-    const speech = cortex.findOne({ type: "speech", tune: "eager" });
+    const speech = cortex.findOne({ type: "speech", tier: "eager" });
     specimen.expect(speech.type).toBe("speech");
     specimen.expect(speech.secret).toBe("key-e");
 
-    const verbatim = cortex.findOne({ type: "verbatim", tune: "eager" });
+    const verbatim = cortex.findOne({ type: "verbatim", tier: "eager" });
     specimen.expect(verbatim.type).toBe("verbatim");
     specimen.expect(verbatim.secret).toBe("key-d");
   });
@@ -61,13 +61,13 @@ specimen.describe("Cortex hallucinators", () => {
     const services = [
       {
         service: makeService("anthropic", [
-          { type: "dialogue", tune: [0.6, 0.6, 0.6, 0.6], via: { stream: async function* () {} } },
+          { type: "dialogue", id: "dialogue-4", tune: [0.6, 0.6, 0.6, 0.6], via: { stream: async function* () {} } },
         ]),
         mask: { module: "anthropic", secrets: { anthropic: "k1" } },
       },
       {
         service: makeService("openai", [
-          { type: "dialogue", tune: [0.3, 0.5, 0.5, 0.1], via: { stream: async function* () {} } },
+          { type: "dialogue", id: "dialogue-5", tune: [0.3, 0.5, 0.5, 0.1], via: { stream: async function* () {} } },
         ]),
         mask: { module: "openai", secrets: { openai: "k2" } },
       },
@@ -78,10 +78,10 @@ specimen.describe("Cortex hallucinators", () => {
       cortex.register(await service.provider(mask));
     }
 
-    const eager = cortex.findOne({ type: "dialogue", tune: "eager" });
+    const eager = cortex.findOne({ type: "dialogue", tier: "eager" });
     specimen.expect(eager.secret).toBe("k2");
 
-    const academic = cortex.findOne({ type: "dialogue", tune: "capable" });
+    const academic = cortex.findOne({ type: "dialogue", tier: "capable" });
     specimen.expect(academic.secret).toBe("k1");
   });
 });

@@ -1,4 +1,4 @@
-import { contexts, fromm, shape, shard, soma, steer, ToolCall, v, Vector } from "@vivalence/typology";
+import { belt, contexts, fromm, shape, shard, soma, steer, ToolCall, v, Vector } from "@vivalence/typology";
 import paladin from "@vivalence/paladin";
 import { v7 } from "uuid";
 import { TurnEntity } from "@vivalence/runtime";
@@ -54,14 +54,17 @@ const priming = (ctx) => {
 };
 
 const requesting = async (ctx, next) => {
-  const { prompt, turns, output, tune, config } = ctx.input;
+  const { prompt, turns, output, provider, id, tier, tune, config } = ctx.input;
   const primer = priming(ctx);
   ctx.hallucination = {
     controller: ctx.controller,
     policy: {
       ...config,
-      ...(ctx.intelligent !== null && ctx.intelligent.tune && { tune: ctx.intelligent.tune }),
+      ...(ctx.intelligent !== null && belt.object.pick(ctx.intelligent, ["provider", "id", "tier", "tune"])),
       ...(ctx.intelligent !== null && ctx.intelligent.rounds && { rounds: ctx.intelligent.rounds }),
+      ...(provider && { provider }),
+      ...(id && { id }),
+      ...(tier && { tier }),
       ...(tune && { tune }),
     },
     ...(ctx.intelligent !== null && ctx.intelligent.effort && { settings: { effort: ctx.intelligent.effort } }),
@@ -73,14 +76,10 @@ const requesting = async (ctx, next) => {
   await next();
 };
 
-const arming = async (ctx, primer) => {
+const armory = (ctx, primer) => {
   const armed = new Vector()
-    .graft(tools.entity.entity)
-    .graft(tools.buffer.buffer)
-    .graft(tools.thread.thread)
-    .graft(tools.mode.mode)
-    .graft(paladin.tools.fs.fs)
-    .graft(paladin.tools.shell.shell);
+    .graft(paladin.tools.fs)
+    .graft(paladin.tools.shell);
   for (const [slug, provider] of Object.entries(ctx.providers ?? {})) {
     if (provider.tools) {
       armed.branch(`/service/${slug}`).use(shard.context.bind("service", provider)).graft(provider.tools);
@@ -89,13 +88,18 @@ const arming = async (ctx, primer) => {
   if (ctx.domain?.tools) armed.branch(ctx.domain.manifest.slug, ctx.domain.tools);
   if (ctx.mode.tools) armed.graft(ctx.mode.tools);
   if (ctx.mode.generator?.tools) armed.graft(ctx.mode.generator.tools);
+  if (shape.primer.lazy(primer).length) armed.graft(tools.primer);
+  return armed;
+};
+
+const arming = async (ctx, primer) => {
+  const armed = armory(ctx, primer);
   if (ctx.mode.looping) armed.branch("/repl").graft(await ctx.mode.looping(ctx));
-  if (shape.primer.lazy(primer).length) armed.graft(tools.primer.primer);
   for (const [name, supplied] of Object.entries(ctx.input.tools ?? {})) {
     const { execute, ...edge } = typeof supplied === "function" ? { execute: supplied } : supplied;
     armed.open({ nature: new ToolCall(name).signal.pathname, ...edge }, execute);
   }
-  armed.use(shard.context.spread(contexts.host, ctx));
+  armed.use(shard.context.spread(contexts.modeDie, ctx));
   armed.use(shard.context.bind("mode", ctx.mode));
   armed.use(shard.context.bind("primer", primer));
   if (ctx.user) armed.use(shard.context.bind("user", ctx.user)); //@beef both nonoptional in near future
@@ -196,14 +200,10 @@ const appending = async (ctx, turns) => {
   }
 };
 
-const summarizing = async (ctx, next) => {
-  ctx.hallucination.primer.open("thread", await tools.thread.summary(ctx));
-  await next();
-};
-
 const marking = (system) => {
   const keys = Object.keys(system);
-  return [...keys.slice(0, keys.indexOf("thread")).slice(-1), "tools"];
+  const volatile = keys.indexOf("thread");
+  return [...(volatile < 0 ? keys : keys.slice(0, volatile)).slice(-1), "tools"];
 };
 
 const primed = async (ctx) => {
@@ -213,15 +213,16 @@ const primed = async (ctx) => {
   return { ...hallucination, system };
 };
 
-export const HARNESSED = (mode, context) => {
-  if (!context.cortex) throw new Error(`HARNESSED: ${context.reference.absolute} has no cortex`);
+export const HARNESSED = (mode, modeDie) => {
+  if (!modeDie.cortex) throw new Error(`HARNESSED: ${modeDie.reference.absolute} has no cortex`);
 
   //@beef thread and user soon required.
   const harness = new Vector()
-    .use(shard.context.spread(contexts.host, context))
+    .use(shard.context.spread(contexts.modeDie, modeDie))
     .use(shard.context.bind("mode", mode))
     .use(normalizing)
     .use(claiming)
+    .use(shard.datamap.bind(modeDie.entities.em, "thread", (ctx) => ({ thread: ctx.thread.id })))
     .use(activating)
     .use(requesting);
 
@@ -229,7 +230,7 @@ export const HARNESSED = (mode, context) => {
     .branch("/verbatim")
     .open(
       { nature: "stream", feeds: Audio.Packet, yields: Verbatim.Any },
-      shard.hal.verbatim({ polish: POLISH, tune: "fast" }),
+      shard.hal.verbatim({ polish: POLISH, tier: "fast" }),
     );
 
   harness.branch("/dialogue").use(chaining).use(persisting);
@@ -238,12 +239,8 @@ export const HARNESSED = (mode, context) => {
   harness.branch("/object").open({ nature: "render", input: v.primitives.harness.Request }, async (ctx) => ctx.cortex.hallucinate.object.render(await primed(ctx)));
   harness.branch("/object").open({ nature: "stream", input: v.primitives.harness.Request, yields: Packet.Response }, async (ctx) => ctx.cortex.hallucinate.object.stream(await primed(ctx)));
 
-  if (context.domain?.harness) harness.graft(context.domain.harness);
+  if (modeDie.domain?.harness) harness.graft(modeDie.domain.harness);
   if (mode.module.harness) harness.graft(mode.module.harness);
-
-  harness.use(summarizing);
-
-
 
   harness
     .branch("choice")
@@ -256,8 +253,27 @@ export const HARNESSED = (mode, context) => {
       }),
     );
 
+  harness.open({ nature: "/picture/render", input: v.primitives.hallucination.Picture.Request, output: v.primitives.hallucination.Picture.Response }, (ctx) =>
+    ctx.cortex.hallucinate.picture.render({
+      controller: ctx.controller,
+      policy: ctx.hallucination.policy,
+      prompt: ctx.input.prompt,
+      images: ctx.input.images,
+      mask: ctx.input.mask,
+      settings: ctx.input.settings,
+    }),
+  );
+
   return () => {
     mode.harness = shape.object(harness, steer.strategy.echo);
     mode.aperture.branch("/harness", harness);
+    mode.aperture.open("/metadata/harness", (ctx) => {
+      const primer = priming({ ...ctx, input: {} });
+      return { routes: shape.strip(harness), primer: shape.strip(primer), tools: shape.strip(armory(ctx, primer)) };
+    });
+    mode.aperture.open({ nature: "/metadata/harness/primer/(.*)", input: v.object({ thread: v.string().desc('The thread whose harness is read. Example: "01a09010-13aa-778b-bce7-19c38f835337"') }) }, async (input, ctx) => {
+      const thread = await ctx.entities.thread.findOneOrFail({ id: input.thread });
+      return shape.primer.read(priming({ ...ctx, input: {} }), fromm.params(ctx.params).path.absolute, { ...ctx, thread });
+    });
   };
 };

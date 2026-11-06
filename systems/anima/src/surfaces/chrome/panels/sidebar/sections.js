@@ -30,13 +30,52 @@ export const tool = (activities) => {
 
 export const UNCLAIMED = "—";
 
-export const harness = (thread) => ({ tune: UNCLAIMED, effort: UNCLAIMED, rounds: v.primitives.hallucination.Policy.dialogue.properties.rounds.default, context: 0, ...(thread !== null && thread.traits.includes("INTELLIGENT") ? thread.trait.INTELLIGENT : {}) });
+export const harness = (thread) => ({
+  tier: UNCLAIMED,
+  effort: UNCLAIMED,
+  rounds: v.primitives.hallucination.Policy.dialogue.properties.rounds.default,
+  context: 0,
+  ...(thread !== null && thread.traits.includes("INTELLIGENT") ? thread.trait.INTELLIGENT : {}),
+});
+
+const NOTHING = { routes: { branches: {} }, primer: { branches: {} }, tools: { branches: {} } };
+export const given = (thread) => (thread !== null && thread.mode.implements("HARNESSED") ? thread.mode.metadata.harness : NOTHING);
+
+const leaves = (node, steps = [], inherited = "eager") =>
+  Object.entries(node.branches).flatMap(([nature, child]) => {
+    const load = child.meta?.load ?? child.effect?.load ?? inherited;
+    return "effect" in child ? [{ steps: [...steps, nature], load }] : leaves(child, [...steps, nature], load);
+  });
+
+const peeked = (world, nature, load) => {
+  const key = `primer/${nature}`;
+  const open = key in world.sections.expand;
+  return [
+    item({ label: nature, sub: load, mark: open ? "◉" : load === "lazy" ? "◇" : "●", mk: "glyph", fn: "peek", arg: key }),
+    ...(open ? [note(world.sections.peeks[key] ?? "…")] : []),
+  ];
+};
+const section = (world, key, count) => ({ type: "sub", label: key, count: String(count), fn: "expand", arg: key, open: key in world.sections.expand });
+const folder = (world, key, label, count) => item({ label, sub: String(count), mark: key in world.sections.expand ? "▾" : "▸", mk: "chev", fn: "expand", arg: key });
+const tooled = (world, node, path = []) =>
+  Object.entries(node.branches).flatMap(([nature, child]) => {
+    const steps = [...path, nature];
+    const key = `tools/${steps.join("/")}`;
+    if (Object.keys(child.branches).length === 0) {
+      const open = key in world.sections.expand;
+      return [
+        item({ label: steps.join("/"), mark: open ? "◉" : "●", mk: "glyph", fn: "expand", arg: key }),
+        ...(open ? [note(child.effect.valence ?? ""), value("input", Object.keys(child.effect.input?.properties ?? {}).join(" · "), "")] : []),
+      ];
+    }
+    return [folder(world, key, steps.join("/"), leaves(child).length), ...(key in world.sections.expand ? tooled(world, child, steps) : [])];
+  });
 
 export const standing = (lighthouse) => (lighthouse.isAuthorized ? "VERIFIED" : lighthouse.status.code);
 
 export const LENSES = { chat: "repl", repl: "trace", trace: "chat" };
 
-export const TUNES = ["frugal", "fast", "balanced", "capable", "unleashed", "eager"];
+export const TIERS = ["frugal", "fast", "balanced", "capable", "unleashed", "eager"];
 export const EFFORTS = ["none", "low", "medium", "high"];
 export const VIEWS = ["docked", "full", "closed", "messenger"];
 export const ALIGNS = [
@@ -61,7 +100,8 @@ const value = (text, held, dot) => ({ type: "value", label: text, value: held, d
 const meter = (text, pct, said, tone) => ({ type: "meter", label: text, pct: Math.max(0, Math.min(100, pct)), text: said, tone });
 const stepper = (text, held, dec, inc) => ({ type: "stepper", label: text, value: String(held), dec, inc });
 const check = (text, on, signal, held) => ({ type: "check", label: text, on, signal, value: held });
-const item = (fields) => ({ type: "item", mark: "", sub: "", dot: "", cur: false, title: fields.signal, ...fields });
+const note = (text) => ({ type: "note", text });
+const item = (fields) => ({ type: "item", mark: "", mk: "", sub: "", dot: "", cur: false, title: fields.signal, ...fields });
 
 const status = (activity) => activity.status;
 const owned = (activities, thread) => activities.filter((activity) => thread !== null && activity.thread === thread);
@@ -75,7 +115,9 @@ const listed = (world, kind, all, make, moded) => {
   const traited = world.sections.traits[kind];
   const made = all.map((held) => ({ held, row: make(held) }));
   const hosted = made
-    .filter(({ held }) => !hostsOff.includes(moded(held).host.reference.absolute))
+    .filter(({ held }) => !hostsOff.includes(
+      (moded(held).daemon === null ? world.runtime : moded(held).daemon).reference.absolute,
+    ))
     .filter(({ held }) => traited.every((trait) => moded(held).implements(trait)));
   const kept = hosted.filter(({ row }) => typed === "" || row.label.toLowerCase().includes(typed) || row.sub.toLowerCase().includes(typed));
   const big = all.length > CAP;
@@ -129,7 +171,7 @@ const entity = (world) =>
     sub("modes", world.modes.length),
     ...listed(world, "mode", world.modes, (held) => ({
       label: reference(held),
-      sub: held.host.reference.absolute,
+      sub: (held.daemon === null ? world.runtime : held.daemon).reference.absolute,
       signal: `/mode ${held.reference.absolute}`,
       cur: world.thread !== null && held === world.thread.mode,
       mark: world.thread !== null && held === world.thread.mode ? "‹›" : "◇",
@@ -150,7 +192,10 @@ const entity = (world) =>
             });
           }),
         ]),
-    keys([{ label: "delete", signal: "/buffer/delete", tone: "neg", off: world.terminal.buffer === null }]),
+    keys([
+      { label: "new", signal: "/buffer/new", off: world.thread === null },
+      { label: "delete", signal: "/buffer/delete", tone: "neg", off: world.terminal.buffer === null },
+    ]),
   ]);
 
 const STATES = [
@@ -185,19 +230,24 @@ const activity = (world) => {
       ? []
       : [
           sub("elsewhere", elsewhere.length),
-          ...elsewhere.map((held) => item({ label: held.word, sub: `${held.mode.host.reference.absolute} · ${loudness(owned(world.activities, held)).text}`, signal: `/thread ${held.id}`, dot: dotOf(owned(world.activities, held)), mark: "▸" })),
+          ...elsewhere.map((held) => item({ label: held.word, sub: `${(held.mode.daemon === null ? world.runtime : held.mode.daemon).reference.absolute} ·${loudness(owned(world.activities, held)).text}`, signal: `/thread ${held.id}`, dot: dotOf(owned(world.activities, held)), mark: "▸" })),
         ]),
   ];
 };
 
 const intelligent = (world) => {
   const held = harness(world.thread);
+  const primer = leaves(given(world.thread).primer);
+  const tools = given(world.thread).tools;
   return [
-    choice("tune", TUNES, held.tune, "/tune"),
+    choice("tier", TIERS, held.tier, "/tier"),
     choice("effort", EFFORTS, held.effort, "/effort"),
     stepper("rounds", held.rounds, `/rounds ${held.rounds - 1}`, `/rounds ${held.rounds + 1}`),
     meter("context", held.context, `${held.context} %`, held.context >= 85 ? "cau" : ""),
-    value("tools", UNCLAIMED, ""),
+    section(world, "primer", primer.length),
+    ...("primer" in world.sections.expand ? primer.flatMap(({ steps, load }) => peeked(world, steps.join("/"), load)) : []),
+    section(world, "tools", leaves(tools).length),
+    ...("tools" in world.sections.expand ? tooled(world, tools) : []),
   ];
 };
 
@@ -210,6 +260,7 @@ export const dset = (dock) => ({
   aligns: ALIGNS.map(([align, glyph]) => ({ label: align, glyph, signal: `/dock ${align}`, cur: dock.align === align })),
   less: { signal: `/split ${shared(dock.share - SHARE.step)}` },
   more: { signal: `/split ${shared(dock.share + SHARE.step)}` },
+  slide: "/split",
 });
 
 const display = (world) => [
@@ -270,7 +321,7 @@ const meta = (world) => {
   return {
     entity: [world.thread === null ? UNCLAIMED : `${world.thread.word} ‹${reference(world.thread.mode)}›`, ""],
     activity: [loudness(seated).text, lookup(TONES, loudness(seated).tone, "tone")],
-    harness: [`${held.tune} · ${held.effort}`, ""],
+    harness: [`${held.tier} · ${held.effort}`, ""],
     display: [`${dock.view}${dock.view === "docked" ? ` · ${dock.align} · ${percent(dock.share)} %` : dock.view === "messenger" ? ` · ${dock.align}` : ""}`, ""],
     box: ["mic off", ""],
     system: [world.runtime.reference.absolute.split("/")[2], ""],

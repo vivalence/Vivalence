@@ -1,0 +1,1269 @@
+#+title: m119 scope params — daemon · mode · thread scoping ride the request context (a filter row on the entity that fences only with params, =shard.bind= on the host's aperture sets them); the =mint= options-fence dies; a write names its columns; =mode.entities= on the client is one =runtime.entities.branch(mode.connection, …)=
+#+filetags: :datamap:mikro:entities:daemon:mode:scope:filters:runtime:ghost:typology:
+#+dead: strike\(.*scope|\.scope\(options|\.\.\.data, daemon: slug \}|stamped\(
+#+status: 11-10 Q9 + Q9E + the ctx.scope cut LANDED (rulings 16–22); census repo 230/232 · commons 35/38, all reds known; open: the chess walk, the =viva= QA walk
+#+phase: designed
+#+progress: 0/7
+#+next: beef — walk a chess tab; the =viva= QA walk; =done/=
+# limit: 90000 chars
+
+* intent
+
+11-09, beef verbatim:
+
+/"question. we have runtime.entities for all entties, we have daemon.entities scoped by daemon. could we have mode.entities scoped by mode??? on a subset of all entities where that makes sense of course"/
+
+/"literal, symbol, view, intent, file, note . all of those. ok lets run thread turn adn buffer there too. why not. so. how does that work on the client?"/
+
+/"ok i want both mode and daemon to follow this pattern. die.mode.aperture.use(die.context.datamap.shard.bind("mode", (ctx) => ({ mode: ctx.mode.id }))); this si sthe way. but this is quite the big change. maybe lots of issues and gravity. test."/
+
+* rulings
+
+| # | his words | lands at |
+|---|---|---|
+| 1 | /"literal, symbol, view, intent, file, note . all of those. ok lets run thread turn adn buffer there too."/ | nine kinds, =* the law= 1 |
+| 2 | /"die.mode.aperture.use(die.context.datamap.shard.bind("mode", (ctx) => ({ mode: ctx.mode.id }))); this si sthe way."/ | milestone 4 |
+| 3 | /"i want both mode and daemon to follow this pattern"/ | milestone 3 |
+| 4 | /"not a fan of object.fromENtires. still not. whatever. is fine."/ | none in the tangle |
+| 5 | =filters: { mode: { cond: (args: any) => ({ mode: args.mode }), default: true } }= pasted — one row per entity file, the =user= shape | milestone 1 · Q1 |
+| 6 | /"m119-scope-params amen"/ | this file |
+| 7 | =filters: { mode: { cond: (args: any) => ({ mode: args.mode }), default: false } },= · /"b"/ | Q1 RULED b · milestone 1 · 2 |
+| 8 | /"could we also add thread default false?"/ · /"b. is optional right?"/ | Q2 RULED B · milestone 1 · 2 · 4 |
+| 9 | /"nope. turn mode optional. dont want to lose my chat when i shuffle modes."/ · /"b]"/ | Q3 RULED B · milestone 1 |
+| 10 | /"what? no. stupid. why would we? is that needed?"/ · /"b."/ | Q4 RULED B · milestone 1 · 2 · 3 · 4 |
+| 11 | /"looks fucking weird. super fucking wierd."/ · /"no stamp function"/ · /"b"/ | Q5 RULED B · milestone 2 · 3 · 4 |
+| 12 | /"amen but make this function less UUUGLLYYYYY"/ · /"bit more empty lines but yes. better. much bttter"/ | the daemon =datamap= beat whole · milestone 3 · 7 |
+| 13 | /"why is die.context.entities.mode.daemon a fucking slug???"/ · /"parentDie.context IS RETARDED! thats like saying context.context"/ · /"amn"/ | Q6 RULED · milestone 8 |
+| 22 | /"actually, maybe lets add the datamap to mode. why not?"/ · /"a"/ | Q9E RULED A, reverses Q9B · landed 11-10 |
+| 21 | /"there shouldnt be threads without users. like - cant exists. whast the case???"/ · /"fix."/ | five chess =open.js= name =user= · landed 11-10 |
+| 20 | /"activity has user: { kind: "m:1", entity: () => UserEntity }, so??"/ | the stream reads the entity's own column · landed 11-10 |
+| 19 | /"ctx.scope = resolve(ctx); no. stupid and ugly. what are we fucking attaching here? why does this exists? looks retarded from the premise. never agreed to that."/ · /"cut ctx.scope"/ | =ctx.scope= cut · landed 11-10 |
+| 18 | /"b"/ (Q9C) | Q9C RULED B |
+| 17 | /"b"/ (Q9B) | Q9B RULED B |
+| 16 | /"why does the mode have a datamap??"/ · /"i want to cut the word host. it sucks. i'd rather have duplication in this … we should define each of our contexts specifically. runtime|daemon|mode"/ · /"a"/ | Q9A RULED A · sets SKETCH |
+| 15 | /"ok. so. when we go through mode.entities.[any] then filter by mode and daemon. when daemon.entities.[any]  filter daemon. when runtime.entities.[any] dont fucking filter. whats the holdup???"/ | Q8 RULED · landed 11-10 |
+| 14 | /"ok so on the mask it makes sense that the mode carries daemon slug. but on hte mode instance why not the daemon instnace?"/ · /"a"/ | Q7 RULED A |
+
+* the dialogue · terrain — measured
+
+Moved whole 11-09 (cap): =reference/m119/dialogue.org= · =reference/m119/terrain.org= (§4 · §5 probes: =reference/m119/terrain-probes.org=).
+
+* questions
+
+** Q1 — the entity row's =default= — RULED b (ruling 7)
+
+His paste (ruling 5) said =default: true=. Probe §5 says a =default: true= mode filter throws on every daemon-wide read of literal · symbol · note unless each writes =filters: { mode: false }=. Two shapes, same entity row otherwise:
+
+#+BEGIN_SRC ts
+// a — as pasted: on by default; every daemon-wide read names its escape
+  filters: { mode: { cond: (args: any) => ({ mode: args.mode }), default: true } },
+// systems/runtime/subjects/mode/traits/dataset.js:82 and 15 siblings, stucatch ×8, dojo ×1
+    const rows = await context.entities.literal.find(where, { filters: { mode: false } });
+#+END_SRC
+
+#+BEGIN_SRC ts
+// b — declared dormant on the entity (the daemon row's shape today); bind ENABLES it in the context
+  filters: { mode: { cond: (args: any) => ({ mode: args.mode }), default: false } },
+// subsystems/typology/prototypes/datamap.js:14 — bind reads the entity's own declaration, enables + parameterizes
+      bind: (name, resolve) => async (ctx, next) => {
+        const em = RequestContext.getEntityManager(orm.em.name);
+        if (!em) throw new Error(`[datamap] bind(${name}) outside a request context`);
+        for (const meta of orm.getMetadata().getAll().values()) {
+          if (meta.filters?.[name]) em.addFilter({ ...meta.filters[name], name, entity: meta.className, default: true });
+        }
+        em.setFilterParams(name, resolve(ctx));
+        await next();
+      },
+#+END_SRC
+
+| | a =default: true= | b =default: false= + bind |
+|---|---|---|
+| daemon-wide literal reads | 25 rows write =filters: { mode: false }= | 0 |
+| daemon entity rows | 4 flip to =true= | 0 |
+| registry BREAKS at land | stucatch · dojo · 3 rigs | 3 rigs |
+| a mode read outside a mode context | throws | reads the host's scope |
+| a mode read inside a mode context, params forgotten | throws | throws (P6) |
+| the =user= filter | unchanged | unchanged |
+
+RULED b 11-09: an entity declares its scope column, the aperture that IS the scope turns it on; no escape literals anywhere. /(Q4: the switch is =args: false=, not =default: false=; the =bind= hunk above is superseded — =reference/m119/q4-superseded.org=.)/
+
+** Q2 — a =thread= scope row — RULED B (ruling 8)
+
+Four kinds hold =thread=: Turn · Buffer (required) · Terminal (nullable, lighthouse's) · Activity (unscoped). The harness claims the thread once (=harnessed.js:24=) then stamps it by hand 5× and narrows by hand 3×. B: the third scope under the one law.
+
+*** as code
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/Turn.ts:67
+   filters: {
+     user: {
+       cond: (args: any) => ({ thread: { user: args.user } }),
+       default: true,
+     },
++    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
++    thread: { cond: (args: any) => (args?.thread ? { thread: args.thread } : {}), default: true, args: false },
+   },
+#+END_SRC
+
+Same two rows at =Buffer.ts:62= (row shape: Q4).
+
+/(pass 11-09: the =:111= sub-hunk below is OUT of milestone 4 — see the MISWIRE note under =Turn.ts:19=.)/
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/harnessed.js:221
+     .use(shard.context.spread(contexts.host, context))
+     .use(shard.context.bind("mode", mode))
+     .use(normalizing)
+     .use(claiming)
++    .use(context.datamap.shard.bind("thread", (ctx) => ({ thread: ctx.thread.id })))
+     .use(activating)
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:111
+-  ctx.hallucination.turns = await ctx.entities.turn.history({ thread: ctx.input.thread });
++  ctx.hallucination.turns = await ctx.entities.turn.history({});
+   ctx.turn = await ctx.entities.turn.chain({
+     id: ctx.input.turn,
+     role: "user",
+     parts: ctx.input.parts,
+     parent: ctx.hallucination.turns.at(-1) ?? null,
+     thread: ctx.input.thread,
+     mode: ctx.mode.id,
+   });
+#+END_SRC
+
+The writes keep naming =thread= (Q5). =generative.js:130= ={ thread: ctx.thread ?? null }= — =Buffer.thread= is NOT NULL, the =null= is a lie: a known issue, not this quest. =emitter.js:27= claims a thread the same way → the same bind row after it.
+
+/(pass 11-09, compile: MISWIRE ×2 — RULED 11-09 show-me II S1 /"amen"/: both narrows STAND. (1) =harnessed.js:111= =history({})= — the bind sets params only INSIDE a request (=datamap.js:14= =RequestContext.getEntityManager(…)?.setFilterParams=); =mode.harness.dialogue.stream= is called outside one by ten rigs (=scenarios/cortex.js= …) and =history({})= there reads the user's EVERY thread: =cortex.integration.test.js= → =Maximum call stack size exceeded=; narrow kept → =ok | 1 passed (24 steps)=. The read names its thread (=ctx.input.thread=), the bind fences the reads that cannot. (2) =chain= is a REPOSITORY method; eight callers name =data.thread= OUTSIDE any thread bind — =harnessed.js:192= =appending=, =chaosmonkey/oracle/aperture.js:23 · :30=, =turn.coverage.test.js:34=, =turn.scope.test.js:14=, =view.test.js:83=. There =history({})= reads the user's EVERY thread: the parent is a foreign thread's last turn. Under Q5 a create names =thread= in data, so the narrow is the data's own column, not a hand narrow: it STANDS; the hunk below is OUT of milestone 4. The measured case — =chain({ role, parts })= with no =thread= — is a caller that forgot its column, mikro refuses the NOT NULL =thread= on flush (law 4).)/
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/Turn.ts:19 — NOT landed (pass)
+-    const parent = data.parent ?? (await this.history({ thread: data.thread }, opts)).at(-1) ?? null;
++    const parent = data.parent ?? (await this.history({}, opts)).at(-1) ?? null;
+#+END_SRC
+
+Measured: under the bound probe =chain({ role, parts })= landed ="parent": null= beside two live turns — ={ thread: undefined }= finds nothing. /(pass: the probe's caller named no thread; see above.)/
+
+*** probe — =.ikiro/reference/m119/thread-scope.probe.js=, 11-09
+
+#+BEGIN_EXAMPLE
+dormant: user bound, no thread, history({})             ["ciao","grazie","e4"]
+enabled thread a: history({})                            ["ciao","grazie"]
+enabled thread a: chain({ role, parts }) — no thread named ["ciao:a","grazie:a","prego:a"]
+enabled, params FORGOTTEN: history({})                   THREW "No arguments provided for filter 'thread'"
+enabled thread b: buffer.create({ mime }) — no thread    {"thread":"b"}
+#+END_EXAMPLE
+
+| | A | B |
+|---|---|---|
+| scope rows | 2 | 3 |
+| hand =thread= narrows | 3 | 3 stand (pass: a read names its thread; the bind fences the reads that name none) |
+| hand =thread= writes | 5 | 5 (Q5) |
+| bind sites | 0 | 2 |
+| userspace =/entities/turn= (=3-integration.js:61=, no thread bound) | all the user's turns | unchanged |
+| a buffer created with no thread in context | =null= into NOT NULL | throws at create |
+
+RULED B 11-09 on /"b. is optional right?"/ — yes: dormant until bound; a create names its thread or sits in a bound context, today every caller names it. /(Q5: a create names it — no stamp)/
+
+** Q3 — =Turn.mode= stays optional; a mode shuffle keeps the chat — RULED B (ruling 9)
+
+His ruling has two halves. The first kills milestone 1's =nullable= cut. The second is contradicted by the tree today: =prune= removes the row of a mode no longer installed, and three =mode= columns cascade.
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/belt/modes.js:34
+    orphans(context.entities.em, await context.entities.mode.find({}), installed, typeSlug, "mode");
+// subsystems/typology/entities/Turn.ts:99 — Thread.ts:98 · Buffer.ts:84 the same
+    mode: {
+      kind: "m:1",
+      entity: () => ModeEntity,
+      fieldName: "mode",
+      nullable: true,
+      updateRule: "cascade",
+      deleteRule: "cascade",
+    },
+#+END_SRC
+
+*** probe — =.ikiro/reference/m119/mode-shuffle.probe.js=, 11-09
+
+One mode, one thread, one turn, one buffer; the mode removed as =prune= does.
+
+#+BEGIN_EXAMPLE
+== A · the tree today · deleteRule thread=cascade turn=cascade buffer=cascade
+before prune   {"threads":1,"turns":1,"buffers":1}
+mode pruned    {"threads":0,"turns":0,"buffers":0}
+== B · deleteRule: set null · Mode.buffers no Cascade.REMOVE · deleteRule thread=set null turn=set null buffer=set null
+before prune   {"threads":1,"turns":1,"buffers":1}
+mode pruned    {"threads":1,"turns":1,"buffers":1}
+#+END_EXAMPLE
+
+Two paths take a buffer: the column's =deleteRule= (db) and =Mode.buffers= =Cascade.REMOVE= + =orphanRemoval= (orm, =Mode.ts:77=); B cuts both. =Mode.intents= · =Mode.views= keep theirs: a mode's own content dies with it, the chat does not.
+
+*** as code — RULED B 11-09 on /"b]"/
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/Turn.ts:99
+     mode: {
+       kind: "m:1",
+       entity: () => ModeEntity,
+       fieldName: "mode",
+       nullable: true,
+       updateRule: "cascade",
+-      deleteRule: "cascade",
++      deleteRule: "set null",
+     },
+#+END_SRC
+
+Same row at =Thread.ts:104= · =Buffer.ts:90=.
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/Mode.ts:73
+     buffers: {
+       kind: "1:m",
+       entity: () => BufferEntity,
+       mappedBy: (buffer) => buffer.mode,
+-      cascade: [Cascade.REMOVE],
+-      orphanRemoval: true,
+     },
+#+END_SRC
+
+Migration off the snapshot (a table rebuild, values copied). A turn create names its mode (Q5); =null= only by a prune.
+
+** Q4 — the switch — RULED B (ruling 10)
+
+S3 built =enable= to wake a =default: false= row. Mikro's own switch is in the tree: a =default: true= filter whose cond fences only when params exist, =args: false= so no params is no throw.
+
+#+BEGIN_SRC ts
+// subsystems/typology/entities/User.ts:51
+  filters: {
+    user: {
+      cond: (args: any) => (args?.user ? { id: args.user } : {}),
+      default: true,
+      args: false,
+    },
+  },
+#+END_SRC
+
+*** as code — RULED B 11-09 on /"b."/
+
+The row, every scope the same shape (=mode= · =thread= · =daemon=); =datamap.js= untouched; a beat sets its params with one standing mikro row.
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/Turn.ts:67
+   filters: {
+     user: {
+       cond: (args: any) => ({ thread: { user: args.user } }),
+       default: true,
+     },
++    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
++    thread: { cond: (args: any) => (args?.thread ? { thread: args.thread } : {}), default: true, args: false },
+   },
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/datamap.js:12 — untouched
+      scope: (task) => RequestContext.create(orm.em, task),
+      bind: (name, resolve) => async (ctx, next) => {
+        RequestContext.getEntityManager(orm.em.name)?.setFilterParams(name, resolve(ctx));
+        await next();
+      },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/lifecycle/1-population.js:25 — a beat touching ONE row names the column
+-    const entity = await die.context.entities.mode.ensure({ ...die.mode.manifest });
++    const entity = await die.context.entities.mode.ensure({ ...die.mode.manifest, daemon: die.context.entities.mode.daemon });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/lifecycle/2-resolution.js:5 — sixteen creates under one scope: params once
+   await die.context.datamap.shard.scope(async () => {
++    die.context.entities.em.setFilterParams("daemon", { daemon: die.context.entities.mode.daemon });
++    die.context.entities.em.setFilterParams("mode", { mode: die.mode.id });
+#+END_SRC
+
+*** probe — =.ikiro/reference/m119/args-false.probe.js=, 11-09
+
+#+BEGIN_EXAMPLE
+scope, no params → reads all              ["ciao","grazie","e4"]
+scope, shard.bind("mode") AS IS → fenced  ["e4"]
+scope, setFilterParams inside a beat       ["ciao","grazie"]
+fork taken inside carries the params      ["ciao","grazie"]
+a fresh scope after → reads all           3
+#+END_EXAMPLE
+
+| | A (S3 as shown) | B |
+|---|---|---|
+| =datamap.js= rows | +14 | 0 |
+| new names | =enable= | 0 |
+| entity row | =default: false= | =default: true, args: false=, tolerant cond |
+| no params | dormant | dormant |
+| bind outside a context | throws | =?.= swallows, as today |
+| params forgotten under a bind | throws | reads all |
+
+Replayed on every block: milestone 1 rows (nine =mode= · two =thread= · four =daemon= re-shaped), milestone 2 (the stamp twitch only /(pass: Q5 cut it, milestone 2 is nothing)/), milestone 3 · 4 beats (=setFilterParams= inside =scope=), milestone 5 (nothing: a runtime beat has no params, reads all, as today), law 2 · 4.
+
+** Q5 — no stamp function — RULED B (ruling 11)
+
+S4 was a generic =beforeCreate= hook + an ear on the runtime twitch, so no write would name its scope column. His read: /"looks fucking weird. super fucking wierd. … needed?"/ Measured: every =mode= write names its column today (16 sites); the only stamp in the tree is the fence's =daemon= on =create= · =upsert= · =unique=, with five live creators.
+
+*** as code — RULED B 11-09 on /"no stamp function"/ · /"b"/
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/dataset.js:58
+   const installing = mode.stdout.branch("install").start();
+   try {
+-    await install(mode, context, installing);
++    await context.datamap.shard.scope(async () => {
++      context.entities.em.setFilterParams("daemon", { daemon: context.entities.mode.daemon });
++      context.entities.em.setFilterParams("mode", { mode: null });
++      await install(mode, context, installing);
++    });
+   } catch (error) {
+…
+// systems/runtime/subjects/mode/traits/dataset.js:109
+-          else store.create({ ...data, mode: owner });
++          else store.create({ ...data, mode: owner, daemon: mode.entity.daemon });
+…
+// systems/runtime/subjects/mode/traits/dataset.js:189
+-              to = repo(toType).create({ ...ref, mode: holder }),
++              to = repo(toType).create({ ...ref, mode: holder, daemon: mode.entity.daemon }),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// commons/fixtures/memo/mode/tools/index.js:55
+     const literal = ctx.entities.literal.create({
+       slug: held,
+       mode: ctx.mode.id,
++      daemon: ctx.mode.entity.daemon,
+#+END_SRC
+
+Same key at =~/.viva/registry/chess/domain/aperture/index.js:444= (=daemon: ctx.mode.entity.daemon=), =~/.viva/registry/vcompany/modes/dummy/link.js:11= (its caller's row), =commons/fixtures/testing/data/seed.js:46 · :54 · :73 · :127 · :149 · :163=. =dataset.js:189= names the =mode= variable of its scope; read it at land.
+
+| | A (S4) | B |
+|---|---|---|
+| new mechanism | =stamped= + an ear | 0 |
+| hand =mode= · =thread= writes | die (21) | stay |
+| hand =daemon= keys | 0 | +5 (+ seed ×6) |
+| a create outside a scope | throws | mikro: =daemon is required= where NOT NULL, as today |
+| law 3 | no hand stamp | a write names its columns; a filter narrows reads |
+
+** Q6 — the mode's daemon column · the mode die — RULED 11-09 on /"amn"/ (ruling 13)
+
+The land read the daemon id off a repository class (=entities.mode.daemon=, a slug =mint= hangs on the prototype) through a nested host bag (=die.context=). REJECTED, his words in ruling 13. A mode's daemon is a word on the MODE, written by paladin where the mode is grounded under its declaration (=reference= · =mountpoint= already are); the mode die is FLAT (codestyle: ctx is flat, =contexts.host= words). A Mode is born from its mask (=new Mode(mask)= spreads it), so no birth changes. Unruled: =datamap= and =twitch= are not =contexts.host= words (=contexts.js:61=) — the beats read =datamap= 3×, the traits =datamap= 6× · =twitch= 2× (review III S6 probe =reference/m119/flat-die.probe.js=: both ABSENT on the lifted die) — his call: host words, or reached another way.
+
+*** as code — RULED 11-09 on /"amn"/
+
+#+BEGIN_SRC diff
+// subsystems/paladin/instance/lifecycle/2-resolution.js:56
+-    client.modes = (client.modes ?? []).map(place(client));
++    client.modes = (client.modes ?? []).map(referencing(client, null));
+…
+// subsystems/paladin/instance/lifecycle/2-resolution.js:58
+   instance.daemons.forEach(address);
+-  instance.daemons.forEach(ground);
++  instance.daemons.forEach((daemon) => ground(daemon, daemon.manifest.slug));
+   instance.clients.forEach(referenced);
+   if (instance.runtime) {
+     root(instance.runtime);
+-    ground(instance.runtime);
++    ground(instance.runtime, null);
+   }
+…
+// subsystems/paladin/instance/lifecycle/2-resolution.js:91
+-const place = (declaration) => (entry) => {
+-  const id = identity(entry);
+-  if (!id) return entry;
++const referencing = (declaration, daemon) => (entry) => {
++  const held = { ...(is.string(entry) ? { module: entry } : entry), daemon };
++  const id = identity(held);
++  if (!id) return held;
+   const [type, slug] = id;
+-  const held = is.string(entry) ? { module: entry } : entry;
+   if (!type) return held;
+…
+-function ground(declaration) {
+-  declaration.modes = (declaration.modes ?? []).map(place(declaration)).map(mount(declaration));
++function ground(declaration, daemon) {
++  declaration.modes = (declaration.modes ?? []).map(referencing(declaration, daemon)).map(mount(declaration));
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/mode.js:10
+   aperture = null;
+   stdout = null;
++  daemon = null;
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/lifecycle/1-population.js:29
+-    const entity = await die.context.entities.mode.ensure({ ...die.mode.manifest, daemon: die.context.entities.mode.daemon });
++    const entity = await die.context.entities.mode.ensure({ ...die.mode.manifest, daemon: die.mode.daemon });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/lifecycle/2-resolution.js:6
+-    die.context.entities.em.setFilterParams("daemon", { daemon: die.context.entities.mode.daemon });
++    die.context.entities.em.setFilterParams("daemon", { daemon: die.mode.daemon });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/dataset.js:61
+-      context.entities.em.setFilterParams("daemon", { daemon: context.entities.mode.daemon });
++      context.entities.em.setFilterParams("daemon", { daemon: mode.daemon });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/belt/modes.js:30
+-export const prune = async (context) => {
++export const prune = async (context, daemon) => {
+…
+-    orphans(context.entities.em, await context.entities.mode.find({ daemon: context.entities.mode.daemon }), installed, typeSlug, "mode");
++    orphans(context.entities.em, await context.entities.mode.find({ daemon }), installed, typeSlug, "mode");
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/daemon/lifecycle/3-integration.js:11
+-  await belt.modes.prune(die.daemon);
++  await belt.modes.prune(die.daemon, die.daemon.slug);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/3-integration.js:7
+-  await belt.modes.prune(die.runtime);
++  await belt.modes.prune(die.runtime, null);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/belt/traits.js:31
+-      Object.defineProperties(Repository.prototype, { daemon: { value: slug }, schematics: { value: schematics } });
+-      return [kind, { repository: Repository, traits: held, schematics }];
++      Object.defineProperties(Repository.prototype, { schematics: { value: schematics } });
++      return [kind, { repository: Repository, traits: held, schematics, daemon: slug }];
+…
+// systems/runtime/gestalten/belt/traits.js:39
+-    trait.entity(kinds[kind].entity, held.traits, struck[kind].daemon);
++    trait.entity(kinds[kind].entity, held.traits, held.daemon);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/mint.test.js:177
+-  specimen.it("siblings — a trait verb reaches this.entities.<kind> and this.daemon through the same scope", async () => {
+-    specimen.expect(repositories.italian.literal.daemon).toBe("italian");
++  specimen.it("siblings — a trait method reaches this.entities.<kind>; the daemon rides the minted kind, never the repository", async () => {
++    specimen.expect(minted.italian.literal.daemon).toBe("italian");
++    specimen.expect(repositories.italian.literal.daemon).toBeUndefined();
+#+END_SRC
+
+*** flat die — the second half of ruling 13, LANDED 11-10 (the lift under =contexts.modeDie=, first: =reference/m119/q9-land.org=)
+
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/belt/modes.js:5
+-    await factory(mode)({ context, traits });
++    await factory(mode, traits)(host);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/factory.js:4
+-export function factory(mode) {
++export function factory(mode, traits) {
+   return monad.kleisli([
+-    (parentDie) => ({ mask: mode.module, mode, context: parentDie.context, traits: parentDie.traits }),
++    (host) => ({ mode, traits, ...shard.context.lift(contexts.host, host) }),
+#+END_SRC
+
+*** as code — the land's test fixes, 11-10 (/"land m119"/ · /"whole"/)
+
+The census after milestone 8 named three new reds and six unfiled baseline reds; all nine went green on these hunks. The bench rig grounds its modes as paladin does (=reference= · =url= · =mountpoint=), so it writes =daemon= too (=SymbolEntity.daemon is required, 'null' found=, =bench/smoke= · =emitters=). The runtime prunes ITS rows only (=find({ daemon: null })=); the fixture's orphan was a daemon's row (=beats.coverage= =1= ≠ =0=). Law 3 (Q5, a write names its columns): six suites' creates never named =daemon= (=LiteralEntity.daemon is required, 'undefined' found=).
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/scenarios/bench.js:36
+       reference: citizen.reference ?? new Path(`/mode/${type}/${slug}`),
++      daemon: citizen.daemon ?? "bench",
+       url: citizen.url ?? new Url(`http://bench/daemon/bench/mode/${type}/${slug}`),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/runtime/beats.coverage.test.js:188
+-  specimen.it("integration.prune: a mode row no live mode claims is removed; the live one stays", async () => {
++  specimen.it("integration.prune: a runtime mode row no live mode claims is removed; the live one and a daemon's row stay", async () => {
+     const die = buildDie();
+     const { repos, em, fixtures } = scenario;
+-    repos.mode.create({ slug: "orphan", type: "test", daemon: fixtures.daemon, traits: [], installed: "installed" });
++    repos.mode.create({ slug: "orphan", type: "test", daemon: null, traits: [], installed: "installed" });
++    repos.mode.create({ slug: "held", type: "test", daemon: fixtures.daemon, traits: [], installed: "installed" });
+     await em.flush();
+…
+     specimen.expect(await em.fork().count(fixtures.mode.constructor, { slug: "test" })).toBe(1);
++    specimen.expect(await em.fork().count(fixtures.mode.constructor, { slug: "held" })).toBe(1);
+   });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/qa/reconcile.test.js:65
+-    const created = await runtime.call("/daemon/playground/entities/literal/create", { data: { slug: "casa", mode: mode.id, traits: [], trait: {} } }, finn.access);
++    const created = await runtime.call("/daemon/playground/entities/literal/create", { data: { slug: "casa", mode: mode.id, daemon: "playground", traits: [], trait: {} } }, finn.access);
+#+END_SRC
+
+Every create in four rig-fed suites, the same row (=datamap.test.js= ×10 · =datamap.integration.test.js= ×7 · =repository.test.js= ×4 · =repository.persist.test.js= ×1):
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/datamap.test.js:47
+-    const created = await conn.call("/literal/create", { data: { slug: "created", mode: scenario.fixtures.mode.id, trait: {} } })
++    const created = await conn.call("/literal/create", { data: { slug: "created", mode: scenario.fixtures.mode.id, daemon: scenario.fixtures.daemon.slug, trait: {} } })
+#+END_SRC
+
+*** as code — the Q9 land, 11-10 — moved whole (cap): =reference/m119/q9-land.org=
+
+** Q9E — the mode carries =datamap=; one way opens a request context — RULED A 11-10 (ruling 22, reverses Q9B)
+
+Q9D (a =scope(em, task)= helper vs mikro inline) asked, never ruled; Q9E replaced it. Before: daemon · runtime opened via =datamap.shard.scope= (7), the mode via =RequestContext.create(modeDie.entities.em, …)= (3). =~/.viva/registry/education/modes/teacher/francesca/harness.js:15= reads =ctx.datamap.shard.carry()= — Q9B broke it silently.
+
+*** as code — RULED A 11-10, LANDED
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/primitives/contexts.js:42
+export const datamap = {
+  datamap: v.unknown().desc(
+    "is.Datamap — the host's ORM handle: shard.scope · shard.bind · shard.carry. " +
+      "Example: await ctx.datamap.shard.scope(() => ctx.entities.literal.count())",
+  ),
+};
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/contexts.js:91
+ export const modeDie = {
+   ...entities,
++  ...datamap,
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/lifecycle/2-resolution.js:5
+-  await RequestContext.create(modeDie.entities.em, async () => {
++  await modeDie.datamap.shard.scope(async () => {
+#+END_SRC
+
+Same swap at =mode/lifecycle/1-population.js:32= · =mode/traits/dataset.js:60=; their =RequestContext= imports cut. The =scope= context word (=ctx.scope='s, =contexts.js:42= + =Twitch=) cut with it.
+
+** ctx.scope cut — rulings 19 · 20 — LANDED 11-10
+
+=narrow= · =stamp= · =scoped= · =scope(resolve)= gone from =shard/datamap.js=; =/userspace= routes lose the scope column; the =user= filter param (=lighthouse.bind=) is the one read fence. Probe =reference/m119/user-fence.probe.js=: no update · delete path escapes it. Ghost's 4 creates + 5 chess =open.js= name =user=.
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shard/datamap.js:182
+-          const owner = hook.input.em.getFilterParams(filter)?.[filter] ?? null;
+-          if (owner == null)
++          const owner = filter in serialized
++            ? serialized[filter]
++            : hook.input.em.getFilterParams(filter)?.[filter];
++          if (owner === undefined)
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/3-integration.js:86
+-    .graft(shard.datamap.reactive(entities.activity, twitch));
++    .graft(shard.datamap.reactive(entities.activity, twitch, { scope: own }));
+#+END_SRC
+
+#+BEGIN_SRC js
+// ~/.viva/registry/chess/modes/board/play/buffer/kit/open.js:33
+    thread = await daemon.entities.thread.create({
+      user: terminal.client.runtime.lighthouse.user.id,
+      mode: mode.id,
+    });
+#+END_SRC
+
+Thread's stream got ={ scope: own }= too (subagent, reported). A forged owner on thread · intent create → known issue (user/thread isolation, 11-10).
+
+** Q9C — the mode owns =mode.twitch=; the daemon and the runtime graft it — RULED B 11-10 (ruling 18)
+
+Probe =reference/m119/twitch-graft.probe.js=: a mode twitch grafted after =registerSubscriber= fires (=["after-register"]=). The domain's precedent: =daemon/lifecycle/1-population.js:47=.
+
+*** as code — RULED B 11-10, LANDED 11-10
+
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/mode.js
+  twitch = new Twitch();
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/intented.js:16
+export const INTENTED = async (mode, modeDie) => {
+  if (!is.array(mode.module.dataset?.intent)) return;
+
+  mode.twitch.open("/after/user/create", async (ctx) => {
+    …
+  });
+};
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/daemon/lifecycle/3-integration.js
+export const twitch = async (die, next) => {
+  for (const mode of fromm.modes(die.daemon.modes).flat) {
+    die.daemon.twitch.graft(mode.twitch);
+  }
+  await next();
+};
+#+END_SRC
+
+The runtime's integration grafts its modes' the same way; =datasink.js:102= opens on =mode.twitch=.
+
+** Q9B — =modeDie= carries no =datamap=; the mode reaches the ORM through =ctx.entities.em= — RULED B 11-10 (ruling 17)
+
+Probe =reference/m119/em-reach.probe.js= (sqlite =:memory:=): =entities.em is orm.em= true · =em.getMetadata() is datamap.getMetadata()= true · params via =datamap.shard.scope= and via =RequestContext.create(entities.em)= both ={ daemon: "memo" }=. The mode's 11 reads: scope ×3 · bind ×3 · metadata ×3 · twitch ×2 (Q9C).
+
+*** as code — RULED B 11-10, LANDED 11-10
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shard/datamap.js
+export const scope = (em, task) =>
+  RequestContext.create(em, task);
+
+export const bind = (em, name, resolve) => async (ctx, next) => {
+  RequestContext
+    .getEntityManager(em.name)
+    ?.setFilterParams(name, resolve(ctx));
+  await next();
+};
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/lifecycle/2-resolution.js:4
+export const traits = async (modeDie) => {
+  await shard.datamap.scope(modeDie.entities.em, async () => {
+    …
+  });
+};
+#+END_SRC
+
+Metadata: =ctx.entities.em.getMetadata()=. =Datamap.shard.scope= · =.bind= delegate to these (one copy).
+
+** Q9A — =contexts.host= dies; a set per die: =runtimeDie= · =daemonDie= · =modeDie= — RULED A 11-10 (ruling 16)
+
+=contexts.mode= · =contexts.runtime= are single words already (=contexts.js:25 · :52=); the sets take codestyle's =<vector>Die= names. Readers of =contexts.host=: 30 in the repo, ~40 in =~/.viva/registry=. Each set's words: SKETCH until Q9B (=datamap= · =twitch=, and what the mode reaches through =ctx.entities.em=).
+
+*** as code — RULED A 11-10, LANDED 11-10 (sets as measured: =reference/m119/q9-land.org=)
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/primitives/contexts.js:61
+export const runtimeDie = {
+  ...entities,
+  ...call,
+  ...cortex,
+  ...modes,
+  ...statics,
+  ...mountpoint,
+  ...reference,
+  ...attach,
+};
+
+export const daemonDie = {
+  ...entities,
+  ...call,
+  ...cortex,
+  ...modes,
+  ...providers,
+  ...statics,
+  ...domain,
+  ...mountpoint,
+  ...reference,
+  ...attach,
+};
+
+export const modeDie = {
+  ...entities,
+  ...call,
+  ...cortex,
+  ...modes,
+  ...providers,
+  ...statics,
+  ...domain,
+  ...mountpoint,
+  ...reference,
+  ...attach,
+  ...mode,
+};
+#+END_SRC
+
+** Q8 — the filter follows whose entities you go through — RULED 11-10 (ruling 15)
+
+The memo deck dealt =[]= (=qa/memo= red before and after milestone 8): ruling 2's =mode= bind sat on the mode aperture's ROOT, so =/deck= reading =ctx.entities.literal= (the daemon's repositories) was fenced to =srs/memo='s own rows, and the words are =topography/latin='s. Second cause, law 3: memo's three note writes named no =daemon= (=Note.daemon= nullable), so the daemon fence hid every grade.
+
+*** as code — RULED 11-10, LANDED 11-10
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/lifecycle/1-population.js:17
+     .use(shard.context.bind("mode", die.mode))
+-    .use(die.context.datamap.shard.bind("mode", (ctx) => ({ mode: ctx.mode.id })))
+     .open("/metadata/status", (ctx) => ctx.mode.status.reflection)
+…
+   for (const kind of ["literal", "symbol", "view", "intent", "file", "note", "thread", "turn", "buffer"]) {
+-    die.mode.aperture.branch(`/entities/${kind}`).graft(shard.datamap.repository(die.context.entities[kind]));
++    die.mode.aperture
++      .branch(`/entities/${kind}`)
++      .use(die.context.datamap.shard.bind("mode", (ctx) => ({ mode: ctx.mode.id })))
++      .graft(shard.datamap.repository(die.context.entities[kind]));
+   }
+#+END_SRC
+
+#+BEGIN_SRC diff
+// commons/fixtures/memo/domain/traits/literal/retained.js:66
+-        ? notes.create({ ...this.owner(), literal, slug: `retention.${literal.slug}`, traits: ["RETAINED"], trait: { RETAINED: {} } })
++        ? notes.create({ ...this.owner(), daemon: literal.daemon, literal, slug: `retention.${literal.slug}`, traits: ["RETAINED"], trait: { RETAINED: {} } })
+…
+         ...this.owner(),
++        daemon: literal.daemon,
+         literal,
+         parent: retention,
+#+END_SRC
+
+#+BEGIN_SRC diff
+// commons/fixtures/memo/domain/traits/note/suspended.js:12
+-      const note = this.create({ ...this.owner(), literal, slug: `suspension.${literal.slug}`, …
++      const note = this.create({ ...this.owner(), daemon: literal.daemon, literal, slug: `suspension.${literal.slug}`, …
+#+END_SRC
+
+** Q7 — =Mode.daemon= on the live mode: the slug, never the Daemon instance — RULED A 11-10 (ruling 14)
+
+The mask carries the slug (Q6); the live =Mode= keeps it — =mode.module.daemon= and =mode.daemon= one value, one kind. A runtime-host mode has no Daemon, so an instance would put =?.slug ?? null= on every column read. Q6's hunks stand unchanged.
+
+* the law
+
+1. nine kinds carry a =mode= filter: literal · symbol · view · intent · file · note · thread · turn · buffer; four carry =daemon=: literal · symbol · note · mode; two carry =thread=: turn · buffer (Q2); =activity= · =user= · =terminal= · =daemon= carry none.
+2. a scope is bound ONCE, on the host's aperture, by =datamap.shard.bind(name, resolve)=; every route under it and every fork taken inside it is scoped. A lifecycle beat touching ONE row names the column in its where · data; a beat creating MANY rows under one scope (=mode/2-resolution.js:5=) sets params once with =em.setFilterParams(name, value)= inside =shard.scope(task)=.
+3. a write names its scope columns in data, as every =mode= write does today; a filter narrows READS only; no stamp mechanism (Q5).
+4. a scope row is =default: true, args: false= with a cond that fences only when params exist (=User.ts:52=, Q4): no params = no fence, no throw; a create names its columns, mikro refuses a missing NOT NULL one (Q5).
+5. the client store is one per kind; a scope is in the WIRE; narrowing on the client is a =computed= over the shared store, as =ghost/entities/thread/hydration.js:9= does today.
+6. a populate rides the scope: inside mode A, a sibling mode's collection reads =[]= (probe L); a read of a sibling's rows is a daemon-level read, never a mode-level one.
+7. a fenced repository class exists for trait methods only (=claim= · =due= · =strongest=); scoping is not a class concern.
+
+* deliverables
+
+| # | noun | where |
+|---|---|---|
+| 1 | nine =mode= rows · two =thread= rows (Q2) · four =daemon= rows re-shaped (Q4) · =mode= columns =set null= on thread · turn · buffer · =Mode.buffers= no =Cascade.REMOVE= (Q3) | =subsystems/typology/entities/{Literal,Symbol,View,Intent,File,Note,Thread,Turn,Buffer}.ts= |
+| 2 | — (Q5: no stamp function) | — |
+| 3 | =mint= minus the fence · daemon aperture =bind("daemon")= · five daemon creators name =daemon= (Q5) | =systems/runtime/gestalten/belt/traits.js= · =systems/runtime/subjects/daemon/lifecycle/1-population.js= |
+| 4 | mode aperture =bind("mode")= · nine =/entities/<kind>= mounts · mode beats parameterized · =bind("thread")= ×2 (Q2; the narrows stand — pass) | =systems/runtime/subjects/mode/lifecycle/{1-population,2-resolution}.js= · =systems/runtime/subjects/mode/traits/harnessed.js= |
+| 5 | — (Q4: a runtime beat has no params, reads all, as today) | — |
+| 6 | =mode.entities= on the client | =systems/ghost/entities/mode/hydration.js= |
+| 7 | tests: the mint suite re-aimed, scenarios · rigs · seed | =systems/runtime/tests/mint.test.js= · =tests/scenarios/{datamap,bench,lighthouse}.js= · =tests/topography/harness.js= · =commons/fixtures/testing/data/seed.js= · 3 registry =tests/rig.js= |
+
+* milestones
+
+** 1 · the entity rows
+
+One block a file, =ls= order. Every scope row is the Q4 shape: =default: true, args: false=, a cond that fences only when params exist. =set null= on the three =mode= columns + =Mode.buffers= without =Cascade.REMOVE= (Q3); =nullable= STAYS (ruling 9). Migration off the snapshot (map.md: never by hand); a rebuild copies the columns as they stand.
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/Buffer.ts:62
+   filters: {
+     user: {
+       cond: (args: any) => ({ thread: { user: args.user } }),
+       default: true,
+     },
++    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
++    thread: { cond: (args: any) => (args?.thread ? { thread: args.thread } : {}), default: true, args: false },
+   },
+…
+// subsystems/typology/entities/Buffer.ts:84
+     mode: {
+       kind: "m:1",
+       entity: () => ModeEntity,
+       fieldName: "mode",
+       nullable: true,
+       updateRule: "cascade",
+-      deleteRule: "cascade",
++      deleteRule: "set null",
+     },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/File.ts:81
+   repository: () => FileRepository,
++  filters: { mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false } },
+   properties: {
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/Intent.ts:32
+   filters: {
+     user: {
+       cond: (args: any) => ({ user: args.user }),
+       default: true,
+     },
++    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
+   },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/Literal.ts:86
+-  filters: { daemon: { cond: (args: any) => ({ daemon: args.daemon }), default: false } },
++  filters: {
++    daemon: { cond: (args: any) => (args?.daemon ? { daemon: args.daemon } : {}), default: true, args: false },
++    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
++  },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/Mode.ts:48
+-  filters: { daemon: { cond: (args: any) => ({ daemon: args.daemon }), default: false } },
++  filters: { daemon: { cond: (args: any) => (args?.daemon ? { daemon: args.daemon } : {}), default: true, args: false } },
+…
+// subsystems/typology/entities/Mode.ts:75
+     buffers: {
+       kind: "1:m",
+       entity: () => BufferEntity,
+       mappedBy: (buffer) => buffer.mode,
+-      cascade: [Cascade.REMOVE],
+-      orphanRemoval: true,
+     },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/Note.ts:44
+   filters: {
+     user: { cond: (args: any) => ({ $or: [{ user: args.user }, { user: null }] }), default: true },
+-    daemon: { cond: (args: any) => ({ daemon: args.daemon }), default: false },
++    daemon: { cond: (args: any) => (args?.daemon ? { daemon: args.daemon } : {}), default: true, args: false },
++    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
+   },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/Symbol.ts:37
+-  filters: { daemon: { cond: (args: any) => ({ daemon: args.daemon }), default: false } },
++  filters: {
++    daemon: { cond: (args: any) => (args?.daemon ? { daemon: args.daemon } : {}), default: true, args: false },
++    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
++  },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/Thread.ts:57
+   filters: {
+     user: {
+       cond: (args: any) => ({ user: args.user }),
+       default: true,
+     },
++    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
+   },
+…
+// subsystems/typology/entities/Thread.ts:98
+     mode: {
+       kind: "m:1",
+       entity: () => ModeEntity,
+       fieldName: "mode",
+       nullable: true,
+       updateRule: "cascade",
+-      deleteRule: "cascade",
++      deleteRule: "set null",
+     },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/Turn.ts:67
+   filters: {
+     user: {
+       cond: (args: any) => ({ thread: { user: args.user } }),
+       default: true,
+     },
++    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
++    thread: { cond: (args: any) => (args?.thread ? { thread: args.thread } : {}), default: true, args: false },
+   },
+…
+// subsystems/typology/entities/Turn.ts:99
+     mode: {
+       kind: "m:1",
+       entity: () => ModeEntity,
+       fieldName: "mode",
+       nullable: true,
+       updateRule: "cascade",
+-      deleteRule: "cascade",
++      deleteRule: "set null",
+     },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/View.ts:63
+   uniques: [{ properties: ["mode", "slug", "mime"] }],
++  filters: { mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false } },
+   properties: {
+#+END_SRC
+
+** 2 · the datamap — nothing (Q4 · Q5)
+
+=datamap.js= stands; no stamp hook. Moved: =reference/m119/q4-superseded.org= · =q5-superseded.org=.
+
+** 3 · the daemon — =mint= keeps traits, the aperture binds, five creators name =daemon=
+
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/belt/traits.js:26
+         class extends descriptor.repository {
+-          scope(options = {}) {
+-            return { ...options, filters: { ...(options.filters ?? {}), daemon: { daemon: slug } } };
+-          }
+-          find(where, options) { return super.find(where, this.scope(options)); }
+-          findOne(where, options) { return super.findOne(where, this.scope(options)); }
+-          findOneOrFail(where, options) { return super.findOneOrFail(where, this.scope(options)); }
+-          findAll(options) { return super.findAll(this.scope(options)); }
+-          findAndCount(where, options) { return super.findAndCount(where, this.scope(options)); }
+-          findByCursor(where, options) { return super.findByCursor(where, this.scope(options)); }
+-          count(where, options) { return super.count(where, this.scope(options)); }
+-          nativeUpdate(where, data, options) { return super.nativeUpdate(where, data, this.scope(options)); }
+-          nativeDelete(where, options) { return super.nativeDelete(where, this.scope(options)); }
+-          create(data, options) { return super.create({ ...data, daemon: slug }, options); }
+-          upsert(data, options) { return super.upsert({ ...data, daemon: slug }, options); }
+-          unique(query) { return { ...super.unique(query), daemon: slug }; }
+           claim(row, name) { return trait.claim(row, name, schematics); }
+         },
+#+END_SRC
+
+=unique= · =create= · =upsert= stamped =daemon= — under Q5 the five live creators name it: =dataset.js:109 · :189=, memo =tools/index.js:55=, chess =aperture/index.js:444=, vcompany =link.js:11=, =seed.js= ×6 (hunks below, Q5 =*** as code= holds the ruling). =ensure= finds its own row by the filter on reads (probe B2) and by =daemon= in data on create.
+
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/belt/modes.js:34
+-    orphans(context.entities.em, await context.entities.mode.find({}), installed, typeSlug, "mode");
++    orphans(context.entities.em, await context.entities.mode.find({ daemon: context.entities.mode.daemon }), installed, typeSlug, "mode");
+#+END_SRC
+
+The prune runs in a beat's own =scope=, no params: unfenced it would prune every other host's modes. =context.slug= is the daemon's; the runtime's is =null= (=runtime/1-population.js:55=), as =Mode.daemon= is for its rows.
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/dataset.js:58
+   const installing = mode.stdout.branch("install").start();
+   try {
+-    await install(mode, context, installing);
++    await context.datamap.shard.scope(async () => {
++      context.entities.em.setFilterParams("daemon", { daemon: context.entities.mode.daemon });
++      context.entities.em.setFilterParams("mode", { mode: null });
++      await install(mode, context, installing);
++    });
+   } catch (error) {
+…
+// systems/runtime/subjects/mode/traits/dataset.js:109
+-          else store.create({ ...data, mode: owner });
++          else store.create({ ...data, mode: owner, daemon: mode.entity.daemon });
+…
+// systems/runtime/subjects/mode/traits/dataset.js:189
+-              to = repo(toType).create({ ...ref, mode: holder }),
++              to = repo(toType).create({ ...ref, mode: holder, daemon: mode.entity.daemon }),
+#+END_SRC
+
+Both rows sit inside =DATASET(mode, context)= (=dataset.js:55=): =mode= is its parameter.
+
+#+BEGIN_SRC diff
+// commons/fixtures/memo/mode/tools/index.js:55
+     const literal = ctx.entities.literal.create({
+       slug: held,
+       mode: ctx.mode.id,
++      daemon: ctx.mode.entity.daemon,
+#+END_SRC
+
+#+BEGIN_SRC diff
+// commons/fixtures/testing/data/seed.js:46
+   const mode = entities.mode.create({
+     slug: "dojo",
+     type: "game",
++    daemon,
+…
+// commons/fixtures/testing/data/seed.js:54
+-  const symbol = (slug, trait = {}) => entities.symbol.create({ slug, mode, traits: ["ONTOLOGICAL"], trait });
++  const symbol = (slug, trait = {}) => entities.symbol.create({ slug, mode, daemon, traits: ["ONTOLOGICAL"], trait });
+…
+// commons/fixtures/testing/data/seed.js:73
+     const entity = entities.literal.create({
+       slug,
+       mode,
++      daemon,
+…
+// commons/fixtures/testing/data/seed.js:127
+   const paradigm = entities.literal.create({
+     slug: "chamar.presente.indicativo",
+     mode,
++    daemon,
+…
+// commons/fixtures/testing/data/seed.js:149
+     entities.note.create({
+       user,
+       literal: row,
+       slug: `retention.${row.slug}`,
++      daemon,
+…
+// commons/fixtures/testing/data/seed.js:163
+     entities.note.create({
+       user,
+       literal: row,
+       parent,
++      daemon,
+#+END_SRC
+
+Off the repo root, same key, fixed with the land: =~/.viva/registry/chess/domain/aperture/index.js:444= (=daemon: ctx.mode.entity.daemon=) · =~/.viva/registry/vcompany/modes/dummy/link.js:11= (its caller's row).
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/daemon/lifecycle/1-population.js:23
+ export const datamap = async (die, next) => {
+-  const { datamap } = die.runtime;
+-  die.daemon.datamap = datamap;
+-  const traits = Object.fromEntries(Object.keys(sets.traits).map((kind) => [kind, gather(die.daemon.domain, die.register.modes, kind)]));
+-  die.daemon.minted = mint({ slug: die.daemon.slug, kinds: sets.traits, traits });
+-  die.daemon.entities = { ...datamap.entities, ...strike(die.daemon.minted, datamap.entities.em, sets.traits), activity: die.runtime.entities.activity };
+-  die.daemon.twitch = new Twitch().use(shard.context.spread(contexts.host, die.daemon)).use(shard.datamap.owned());
+-  die.daemon.twitch.branch("/after").use(shard.datamap.detached(datamap));
+-  if (die.daemon.domain.twitch) die.daemon.twitch.graft(die.daemon.domain.twitch);
+-  datamap.registerSubscriber(die.daemon.twitch);
+-  die.daemon.aperture.use(shard.datamap.inject(datamap));
++  die.daemon.datamap = die.runtime.datamap;
++
++  die.daemon.minted = mint({
++    slug: die.daemon.slug,
++    kinds: sets.traits,
++    traits: {
++      literal: gather(die.daemon.domain, die.register.modes, "literal"),
++      symbol: gather(die.daemon.domain, die.register.modes, "symbol"),
++      note: gather(die.daemon.domain, die.register.modes, "note"),
++      mode: gather(die.daemon.domain, die.register.modes, "mode"),
++    },
++  });
++
++  die.daemon.entities = {
++    ...die.daemon.datamap.entities,
++    ...strike(die.daemon.minted, die.daemon.datamap.entities.em, sets.traits),
++    activity: die.runtime.entities.activity,
++  };
++
++  die.daemon.twitch = new Twitch()
++    .use(shard.context.spread(contexts.host, die.daemon))
++    .use(shard.datamap.owned());
++  die.daemon.twitch.branch("/after").use(shard.datamap.detached(die.daemon.datamap));
++  if (die.daemon.domain.twitch) die.daemon.twitch.graft(die.daemon.domain.twitch);
++  die.daemon.datamap.registerSubscriber(die.daemon.twitch);
++
++  die.daemon.aperture
++    .use(shard.datamap.inject(die.daemon.datamap))
++    .use(die.daemon.datamap.shard.bind("daemon", () => ({ daemon: die.daemon.slug })));
++
+   await next();
+ };
+#+END_SRC
+
+The same beat, whole, as he affirmed it (ruling 12):
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/daemon/lifecycle/1-population.js:23 — whole, ruling 12 (/"bit more empty lines but yes. better. much bttter"/)
+export const datamap = async (die, next) => {
+  die.daemon.datamap = die.runtime.datamap;
+
+  die.daemon.minted = mint({
+    slug: die.daemon.slug,
+    kinds: sets.traits,
+    traits: {
+      literal: gather(die.daemon.domain, die.register.modes, "literal"),
+      symbol: gather(die.daemon.domain, die.register.modes, "symbol"),
+      note: gather(die.daemon.domain, die.register.modes, "note"),
+      mode: gather(die.daemon.domain, die.register.modes, "mode"),
+    },
+  });
+
+  die.daemon.entities = {
+    ...die.daemon.datamap.entities,
+    ...strike(die.daemon.minted, die.daemon.datamap.entities.em, sets.traits),
+    activity: die.runtime.entities.activity,
+  };
+
+  die.daemon.twitch = new Twitch()
+    .use(shard.context.spread(contexts.host, die.daemon))
+    .use(shard.datamap.owned());
+  die.daemon.twitch.branch("/after").use(shard.datamap.detached(die.daemon.datamap));
+  if (die.daemon.domain.twitch) die.daemon.twitch.graft(die.daemon.domain.twitch);
+  die.daemon.datamap.registerSubscriber(die.daemon.twitch);
+
+  die.daemon.aperture
+    .use(shard.datamap.inject(die.daemon.datamap))
+    .use(die.daemon.datamap.shard.bind("daemon", () => ({ daemon: die.daemon.slug })));
+
+  await next();
+};
+#+END_SRC
+
+The beat lands WHOLE (a =diff= of one row was /"UUUGLLYYYYY"/): the =Object.fromEntries= over =sets.traits= is four literal rows (ruling 4; REJECTED 11-06 /"just hardcode the set inline"/), the =const { datamap }= alias dies, one thing per row, a blank row between the four acts. The runtime's own beat is the oracle (=runtime/1-population.js:54=).
+
+The four =daemon= rows take the Q4 shape (milestone 1); =bind= as it stands sets the params. =1-population.js:11= is UNCHANGED (the Daemon kind carries no scope row, /"seems complicated."/). =belt/modes.js:34= prune names its host: =context.entities.mode.find({ daemon: context.entities.mode.daemon })= — today the struck repo fenced it; unfenced it would prune every other host's modes.
+
+** 4 · the mode — ruling 2 verbatim, nine mounts, two thread binds
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/lifecycle/1-population.js:15
+   die.mode.aperture = new Aperture()
+     .use(shard.context.spread(contexts.host, die.context))
+     .use(shard.context.bind("mode", die.mode))
++    .use(die.context.datamap.shard.bind("mode", (ctx) => ({ mode: ctx.mode.id })))
+     .open("/metadata/status", (ctx) => ctx.mode.status.reflection)
+     .open("/metadata/manifest", (ctx) => ctx.mode.manifest);
+   if (die.mode.module.aperture) die.mode.aperture.graft(die.mode.module.aperture);
++  for (const kind of ["literal", "symbol", "view", "intent", "file", "note", "thread", "turn", "buffer"]) {
++    die.mode.aperture.branch(`/entities/${kind}`).graft(shard.datamap.repository(die.context.entities[kind]));
++  }
+…
+// systems/runtime/subjects/mode/lifecycle/1-population.js:24
+   await die.context.datamap.shard.scope(async () => {
+-    const entity = await die.context.entities.mode.ensure({ ...die.mode.manifest });
++    const entity = await die.context.entities.mode.ensure({ ...die.mode.manifest, daemon: die.context.entities.mode.daemon });
+#+END_SRC
+
+The =mode= row is DAEMON-scoped, not mode-scoped: its identity is =[daemon, slug, type]= (=Mode.ts:47=), =ensure= names it in data. =mode/2-resolution.js:5= opens its =scope= with =setFilterParams("daemon", …)= and =setFilterParams("mode", { mode: die.mode.id })= — the traits' =stagger= READS under it (=dataset.js= ×16 were fenced by the struck repo); its writes name their columns as today (Q5).
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/lifecycle/2-resolution.js:5
+   await die.context.datamap.shard.scope(async () => {
++    die.context.entities.em.setFilterParams("daemon", { daemon: die.context.entities.mode.daemon });
++    die.context.entities.em.setFilterParams("mode", { mode: die.mode.id });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/harnessed.js:221
+     .use(shard.context.spread(contexts.host, context))
+     .use(shard.context.bind("mode", mode))
+     .use(normalizing)
+     .use(claiming)
++    .use(context.datamap.shard.bind("thread", (ctx) => ({ thread: ctx.thread.id })))
+     .use(activating)
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/emitter.js:29
+     ctx.input.blacklist = new Blacklist(ctx.input.blacklist);
+     // ctx.hallucination
+
+     await next();
+   });
++
++  emitter.use(context.datamap.shard.bind("thread", (ctx) => ({ thread: ctx.thread.id })));
+#+END_SRC
+
+The =thread= bind rides each claim (=harnessed.js:224= after =claiming=, =emitter.js:29= after its =findOneOrFail=): every read under the harness that names no thread — a tool's, a module harness middleware's — is fenced to the claimed thread. The two hand narrows STAND (Q2 pass, his word owed): =harnessed.js:111= =history({ thread: ctx.input.thread })= and =Turn.ts:19= =chain=. Measured: with =history({})= the cortex rig (=scenarios/cortex.js=, =mode.harness.dialogue.stream= outside any request — ten rigs call it so) read every thread of the user, a parent crossed threads, =cortex.integration.test.js= died in =Maximum call stack size exceeded=; with the narrow kept: =ok | 1 passed (24 steps)=. Every hand =mode= · =thread= write STAYS (Q5): =harnessed.js:37 · :117 · :146 · :184 · :197=, =viewable.js=, =generative.js=, =fileset.js=, =filesink.js=, =intented.js=. The fork at =harnessed.js:135= is taken inside the request (probe C · P5): it carries filter + params for its reads.
+
+** 5 · the runtime — nothing (Q4)
+
+A runtime beat sets no params: every scope row reads all without them, as today. The userspace mounts (=3-integration.js:56-64=) and =/attached= reads (=2-resolution.js:45 · 56=) are unchanged.
+
+** 6 · the client — one row, the daemon's shape
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/mode/hydration.js:7
+   ctx.entity.connection = daemon.aperture.branch(`/mode/${ctx.entity.type}/${ctx.entity.slug}`);
++  ctx.entity.entities = ctx.runtime.entities.branch(ctx.entity.connection, ["literal", "symbol", "view", "intent", "file", "note", "thread", "turn", "buffer"]);
+#+END_SRC
+
+=runtime.entities.branch= (=dataspace.js:43=) hands each kind a =RemoteRepository= on =<mode>/entities/<kind>= sharing the kind's store (law 5). The mode routes sit under the host aperture, which carries =lighthouse.authenticate= + =lighthouse.bind= already (=user= params): thread · turn · buffer stay user-walled.
+
+** 7 · tests
+
+LANDED 11-09; the blocks moved whole to =reference/m119/milestone-7-tests.org= (11-10, cap).
+
+** 8 · the mode's daemon — ruling 13, the first half (paladin writes it, the mode carries it, the beats read it)
+
+Lands by =apply-diffs= on =go 13= with the section =*** as code — RULED 11-09 on /"amn"/= (nine blocks, the flat die excluded under its own =***=). The flat die follows once =datamap= is ruled a host word or not.
+
+* blast table
+
+| consumer | rows | BREAKS |
+|---|---|---|
+| =belt/traits.js= =mint= | −13 | at land: =traits.js:54= =struck[kind].daemon= stays, the property stays |
+| =daemon/1-population.js= =datamap= beat whole | 1 fn | at land |
+| =mode/1-population.js= · =2-resolution.js= | 6 | at land |
+| =mode/traits/harnessed.js= narrows | −3 | at land |
+| =dataset.js= ×2 · memo tools · chess · vcompany · =seed.js= ×6 =daemon= key | +11 | at land |
+| =Turn.ts:19= =chain= · =emitter.js:27= | 2 | at land |
+| =belt/modes.js:34= prune =find({ daemon })= | 1 | at land: unfenced it prunes every other host's modes |
+| =prototypes/datamap.js= | 0 | — (Q4) |
+| entities ×9 + 4 =daemon= rows (+ the =set null= migration) | 13 + 4 | migration: =mode= =set null= on Thread · Turn · Buffer; =Mode.ts:77= orm-only, no migration |
+| =ghost/entities/mode/hydration.js= | +1 | — |
+| =~/.viva/registry= server reads (=stucatch ingress.js= ×8 · =dojo aperture/index.js:32=) | 0 | — |
+| =~/.viva/registry= client reads (chess =kit/open.js= ×5 · vcompany · media · playground) | 0 | the client mirror is unchanged |
+| registry rigs ×3 | 3 | at land |
+| =documentation/= | 0 hits on =mint= · =strike= | — |
+
+* testing assessment
+
+COVERAGE GAP: no test today reads a fenced kind across two daemons through the APERTURE (the mint suite reads repositories directly); =scope.params.test.js= adds the aperture row (=/daemon/<slug>/entities/literal= × 2 daemons). COVERAGE GAP: the =set null= migration has no suite — =mint.test.js:204= "a second boot through the libsql migrator writes no migration" is the oracle, it must stay green after the snapshot regenerates.
+
+* QA
+
+- I open =/daemon/education/mode/language/italian/entities/literal/find= with ={}= → I see italian's literals only; the same body on =/daemon/education/entities/literal/find= → every education literal. =#+marker_qa: m119/T-mode-literal-find · pending · the two counts differ, the second contains the first=
+- I type in an italian thread → the turn row lands with =mode = italian= and =thread= set, the harness naming both as today. =#+marker_qa: m119/P-turn-stamped · revised 11-09 Q5 · sqlite: select mode, thread from turn order by created_at desc limit 1=
+- =viva --help= → rc 0. =#+marker_qa: m119/T-cli-alive · pending=
+
+* deferred
+
+- /"L is the gravity"/ — a daemon-level tool that walks a mode's collections from inside another mode's request: none found today; the law (6) names the rule, no mechanism guards it.
+- =Note.mode= nullable: notes live at runtime · daemon · mode level; stays.
+
+* changelog
+- 11-10 ctx.scope cut (/"cut ctx.scope"/) via subagent: census before 230 ok · 2 FAILED, after 229 · 3 (=virtual.integration=, the activity leak). Activity fix (/"so??"/): 230 ok · 2 FAILED, the baseline's. Chess kits (/"fix."/) saved under the :2501 watcher, not walked. Known issue filed: forged owner on create (/"mark as known issue"/). Q9E A (/"a"/): repo 230 ok · 2 FAILED (=corpus.snapshot= · =filetraits.coverage=, the baseline's); commons 35 ok · 3 FAILED (hello =research= ×2 known-issues:2563 · nlp =service= needs :5555, known-issues:1660).
+- 11-10 Q9 land (/"ok. go land via subagent."/): Q9A · Q9B · Q9C + ruling 13's flat die, sandbox =land9= first, then the repo + =~/.viva/registry=; 73 files (49 repo · 24 registry), each =cmp= same as a replay of the four land scripts on the proven pre-land text. Repo census before: ok | 314 passed (1572 steps) | 2 failed — 230 ok · 2 FAILED (=filetraits.coverage= filed · =fixtures/corpus.snapshot= a sibling's =Buffer.ts= twitch). After: ok | 314 passed (1572 steps) | 2 failed — the same 230 ok · the same 2 files. Registry (assembly · chess · droneaid · education · media · vcompany, 75 files) before: ok | 103 passed (431 steps) | 40 failed — 42 ok · 33 red; after: the same, file by file. The 33 reds are the baseline's: 27 a registry create naming no =daemon= (=LiteralEntity.daemon is required= · =SymbolEntity…=, law 3 / Q5 in the registry, unfixed off-root) · dojo =emitter= · =tools= (=ThreadEntity not found ({ id: null })=) · vdex =tools= · =vdex.snapshot= (=not existing property LiteralEntity.search=) · chess =play/tools= (an assertion on the board text) · chess =boot= (the chess boot rig's known issue, filed 11-09) · stockfish =provider= (no verdict in 300 s). Commons (38 files) before: ok | 49 passed (274 steps) | 5 failed; after: ok | 51 passed (281 steps) | 3 failed — =hello-world/draw.snapshot= · =emitter= go green (their rig's daemon has no =datamap=; Q9B reads =entities.em=); =hello-world/research= · =research.snapshot= still red, now later: =harnessed.js:149= =parent= null in =recording=, masked before by the =datamap= read (unattributed, not Q9's code); =services/nlp= the baseline's (=ConnectionError … /tokenize=). Two MISWIREs fixed under the rulings (the lift order · stubbed modes with no =twitch=); one UNRULED fork: Q9B's =scope(em, task)= name collides with =shard.datamap.scope(resolve)=, the three mode scopes call =RequestContext.create(modeDie.entities.em, …)=. =contexts.host= readers: 0. His runtime (=:2501=, =--watch=) restarted on the land: RUNNING, daemons chess · droneaid · spanish. The record, every landed file as a diff: =reference/m119/q9-land.org= (cap).
+- 11-10 Q8 (/"ok. so. when we go through mode.entities.[any] then filter by mode and daemon. when daemon.entities.[any]  filter daemon. when runtime.entities.[any] dont fucking filter. whats the holdup???"/): ruled fork = go. Sandbox =r13=: qa/memo ok 1 passed (8 steps) · scope.params ok 1 passed (17 steps) · mint ok 6 passed (29 steps) · beats.coverage ok 1 passed (10 steps) · emitters ok 1 passed (2 steps). Landed on the repo, 3 files =cmp= same. Whole census 230 ok · 2 FAILED: =filetraits.coverage= (filed) · =fixtures/corpus.snapshot= NEW, a sibling's: =Buffer.ts= gained an =/after/thread/create= twitch since the last census (thread =counter= 0 → 1); green on the sandbox with Q8 and without that edit. memo package suites 7/7 ok. His =i dont get the question. unclear= on Q8 → drill-me line 44 (sentence one is what he SEES).
+- 11-10 land (/"land m119"/ · /"whole"/): milestone 8 =apply-diffs --write= 10 files · 15 hunks · 0 missed, all 10 =cmp= same as the sandbox =r13=. Whole census before: 225 ok · 7 FAILED. After the land: 222 ok · 10 FAILED — new =bench/smoke= · =mode/emitters= (=SymbolEntity.daemon is required, 'null' found=: the bench rig wrote no =daemon=) · =runtime/beats.coverage= (=1= ≠ =0=: the orphan was a daemon's row) · =datamap.integration= 1 → 2 failed. Mine: the review III census ran 4 suites, not the whole. Six baseline reds were Q5's (=LiteralEntity.daemon is required, 'undefined' found=; the 11-09 census never listed them): =datamap= · =datamap.integration= · =repository= · =repository.persist= · =qa/reconcile=. Fixed with the land (=*** as code — the land's test fixes=), each rerun: bench/smoke ok 2 passed (7 steps) · emitters ok 1 passed (2 steps) · beats.coverage ok 1 passed (10 steps) · datamap ok 1 passed (19 steps) · datamap.integration ok 1 passed (10 steps) · repository ok 1 passed (5 steps) · repository.persist ok 1 passed (5 steps) · reconcile ok 1 passed (4 steps). Whole census after: 230 ok · 2 FAILED — =filetraits.coverage= (known issue, filed) · =qa/memo= (=deck= =[]=, unattributed: red before the land too; a sandbox probe without the =mode= bind passes 6 steps, still fails 2). His runtime (=:2501=, =--watch=) watched the land. Milestone 7 moved whole to =reference/m119/milestone-7-tests.org= (cap).
+
+- 11-10 review III (/"m119-scope-params /show-me"/): 6 stops · 6 amen · Q7 ruled A (ruling 14, the live Mode keeps the slug). MISWIREs fixed in Q6's hunks: S1 an untyped entry lost =daemon= (=held= carries it first) · S5 =strike= read the cut stamp (=mint.test.js= 2 failed; the minted kind carries =daemon=). Sandbox after: mint ok 6 passed (29 steps) · hello ok 2 passed (24 steps) · scope.params ok 1 passed (17 steps) · dataset.install ok 1 passed (14 steps). Dry on the repo: files 10 · hunks 15 · missed 0. Reviews I · II and the land record moved whole to =reference/m119/= (cap).
+- 11-09 ruling 13 (/"amn"/): the land's host-daemon fix REJECTED (/"why is die.context.entities.mode.daemon a fucking slug???"/ · /"parentDie.context IS RETARDED!"/) → Q6: paladin writes =daemon= on the mode's mask where it grounds it, =Mode.daemon=, the beats read =die.mode.daemon=, prune's callers name the column, the mode die flat; =place= → =referencing= (word-guard on my fence). Code waits for =go 13=.
+- 11-09 land (/"land"/ · /"go"/): =apply-diffs= 1 · 4 · 3 · 6 · 7 WRITTEN on the repo, 0 missed, every landed file =cmp= same as =m119-fresh=. His runtime (watcher on =commons=) restarted on the land and died: =FOREIGN KEY constraint failed= (MISWIRE 1, =* review II= → =** land=); fixed → restarted on the registry rigs' save and died: =UNIQUE constraint failed: Symbol.daemon_slug, Symbol.slug= (MISWIRE 2); fixed, unwatched → his restart. Test fixes, mine: =beats.coverage= orphan row · =dataset.install= · =datasink.roundtrip= · =datasink.drain= stubs + real datamap; new =scope.params.test.js= (17 steps, failed once). Registry: assembly · chess · droneaid rigs name =daemon=; assembly kit ok 1 passed (2 steps), chess kit ok 1 passed (11 steps). Census (serial, HOME empty): 51 rows ok · 0 failed — the compile's 35 + =dataset.install= · =datasink.roundtrip= · =scope.params= · =bench/smoke= · =mode/emitters= · =topography= ×2 · =thread= · =hello= · =primer.entity= · =tools.coverage= + 4 commons suites + =subsystems/typology/tests/= ok | 159 passed (689 steps); the rows: =reference/m119/land-11-09.org=. Registry chess =boot.test.js=: the runtime boots on the fixed installer (opening 506 · puzzle 67 symbols installed, =board/play= seats), the rig's =Status:RUNNING= wait is stale → known issue. =harness.thread.test.js= is gone from the repo (a sibling's delete, not m119's).
+- 11-09 show-me II (the compile's delta): S1 the two =thread= narrows STAND + the bind lands /"amen"/ · S2 emitter bind /"amen"/ · S3 prune names its host /"amn"/ · S4 rigs shown, folded before his word · S5 unshown; probes =narrow= · =emitter-bind= · =prune= · =rig=.
+- 11-09 compile II: milestone 7 is ten test blocks generated from the copy's diff (one rig fed six reds); milestone 4's harness hunk is the bind only — =history({})= crossed threads outside a request (=cortex.integration= stack overflow), the narrow STANDS beside =Turn.ts:19= as one MISWIRE pass, his word owed.
+- 11-09 compile on a copy (=scratchpad/m119-copy=): milestone 1 → ten file blocks (was 2 + prose); milestone 3 gains the beat as a diff, =belt/modes.js:34= prune, =seed.js= ×6 + dataset ×2 + memo; milestone 4 gains =2-resolution.js:5=, the harness bind + narrow, an =emitter.js:29= bind; every milestone hunk dry-lands 0 missed. Two incoherences fixed: =struck= is consumed (=datamap.js:63=), stands; =Turn.ts:19= chain narrow is a MISWIRE (eight callers outside a bind), out of milestone 4, his word owed.
+- 11-09 fold: =#+title= · =#+status= rewritten; law 4 · milestone 1 note · deferred =stamp()= row replayed on Q5; =generative.js:130= null thread filed to known-issues (=buffer-create-null-thread-on-not-null-column=).
+- 11-09 show-me S5 amen + ruling 12: the daemon =datamap= beat lands whole, stacked (four literal =gather= rows, no alias, blank rows between acts); the same =fromEntries= cut rides milestone 7 into four rigs.
+- 11-09 show-me S4 drilled → Q5 RULED B on /"no stamp function"/ · /"b"/: =stamped= + its ear cut, every hand =mode= · =thread= write stays, five daemon creators name =daemon=; milestone 2 + the harnessed stamp-cut block moved to =reference/m119/q5-superseded.org=; stops 9 → 7.
+- 11-09 show-me S4 MISWIRE traced before the stop: the quest's mount (=.branch("/before").use(stamped)= on the daemon twitch) never fires — a carry wraps an opened ear only, and =owned()= gates a daemon-column create out before the stamp runs. Fix: =die.runtime.twitch.open("/before/*/create", stamped(…))= once; =stamped= is an effect =(ctx)=. Probe =reference/m119/stamped.probe.js= (3 arms × 6 rows).
+- 11-09 show-me S3 drilled → Q4 RULED B on /"b."/: =datamap.js= untouched, the =User.ts:52= switch on every scope row; S3's 14 rows + milestone 5 moved to =reference/m119/q4-superseded.org=; stops 10 → 9. Departure, mine, reported: S3 was built before the surface was grepped (=args: false= stood in =User.ts= since before this quest) → /"what? no. stupid. why would we? is that needed?"/.
+- 11-09 show-me S2 → Q3 RULED on /"nope. turn mode optional. dont want to lose my chat when i shuffle modes."/: =nullable= stays; the =cascade= on three =mode= columns traced as the chat-killer (=prune= + =deleteRule=), =set null= hunk staged for his amen; probe =reference/m119/mode-shuffle.probe.js=.
+- 11-09 show-me S1 drilled → Q2 RULED B on /"b. is optional right?"/: a =thread= scope row on turn · buffer; probe =reference/m119/thread-scope.probe.js=. Departure, mine, reported: first drill read "thread" as the =user= row on Thread → /"what? i asked about thread"/; hook owed (a Q0 row without his quote).
+- 11-09 Q1 RULED b on his paste of the =default: false= row + /"b"/.
+- 11-09 DESIGNED. Probe 26 rows (§4 · §5), baseline 11 files green (§6), blast grepped (no =--include=, no =head=). Departure, mine, reported: Q1 b proposed against his pasted =default: true= — the probe found the cost after the paste. Guard fix on the way: =word-guard.sh= known-method list gained =fork= (mikro =em.fork=, a true method, like =flush= · =persist= there).
+
+* release
+
+### api
+- added `Mode.daemon` — the slug of the daemon the mode is grounded under, `null` under the runtime; paladin writes it on the mask · migrate: none ⟨m119⟩
+### entity
+- changed `Thread.mode` · `Turn.mode` · `Buffer.mode` — on mode delete: cascade → set null, a pruned mode leaves the chat · migrate: snapshot migration ⟨m119⟩
+- added `filters.mode` on literal · symbol · view · intent · file · note · thread · turn · buffer — fences only with params (`args: false`) · migrate: none ⟨m119⟩
+- changed `filters.daemon` on literal · symbol · note · mode — `default: false` → `default: true, args: false`, fences only with params · migrate: a reader passing `filters: { daemon: {…} }` per query drops it, `setFilterParams` instead ⟨m119⟩
+- added `filters.thread` on turn · buffer — dormant until the harness binds it · migrate: none ⟨m119⟩
+### route
+- changed `/daemon/<slug>/mode/<type>/<slug>/*` — the mode filter binds only on the mode's `/entities/<kind>`; a mode route reading `ctx.entities` sees the daemon's rows · migrate: none ⟨m119 Q8⟩
+- changed `/daemon/<slug>/entities/<kind>/create` — the server no longer writes `daemon`; a create names it in `data` or 400s `Value for LiteralEntity.daemon is required` · migrate: a client create adds `daemon: <slug>` ⟨m119⟩
+- added `/daemon/<slug>/mode/<type>/<slug>/entities/<kind>` × 9 — the mode's rows, the daemon's `/entities/<kind>` shape · migrate: none ⟨m119⟩
+### api
+- removed the `mint` repository fence (`scope` · 12 methods · `daemon: slug` stamps) — a daemon repository scopes by context · migrate: `em.setFilterParams("daemon", { daemon: slug })` inside a rig's `shard.scope` ⟨m119⟩
+
+* review — 11-09 · 7 stops · 7 amen · 4 drilled — moved whole 11-10 (cap): =reference/m119/review-I.org=
+
+* review II — 11-09 · 5 stops · 4 amen · S4 mine — moved whole 11-10 (cap): =reference/m119/review-II.org=
+
+** land — 11-09 · two MISWIREs (the host's daemon column · the installer's own request) — moved whole 11-10 (cap): =reference/m119/land-11-09.org=
+
+* review III — 11-10 · ruling 13 before =go 13= · 6 stops · 6 amen · 1 drilled (Q7) · 0 skipped · 2 MISWIREs fixed in the hunks (S1 · S5) — REVIEWED
+
+| S | stop | rides | tree | verdict | his words |
+|---|---|---|---|---|---|
+| 1 | paladin writes =daemon= on the mask | ruling 13 · Q6 | QUEST | amen | /"amn"/ |
+| 2 | =Mode.daemon= | Q6 | QUEST | amen | /"amn"/ |
+| 3 | beats read =die.mode.daemon= | Q6 · law 2 | QUEST | drilled → Q7 · amen | /"…why not the daemon instnace?"/ · /"a"/ · /"amn"/ |
+| 4 | installer's own request | land miswire 2 · Q6 | LANDED + QUEST | amen | /"amen"/ |
+| 5 | prune names its column; the stamp dies | Q6 · Q5 | QUEST | amen | /"kk"/ |
+| 6 | flat mode die | ruling 13, second half | QUEST | amen | /"amn"/ |
+
+S5 MISWIRE (=mint.test.js= 2 failed on the sandbox: /"RETAINED.assess: LiteralEntity casa claims no RETAINED — daemon italian speaks nothing"/): =strike= read the stamp Q6 cuts (=belt/traits.js:39=); the minted kind carries =daemon=, =strike= reads =held.daemon=. Sandbox after: =mint= ok 6 passed (29 steps) · =hello= ok 2 passed (24 steps) · =scope.params= ok 1 passed (17 steps) · =dataset.install= ok 1 passed (14 steps).
+
+S1 MISWIRE (probe =reference/m119/s1-untyped.probe.js=): the amn'd hunk wrote =daemon= on the last return only; an entry naming no type left without it. Fixed in Q6's hunk: =held= carries =daemon= from its first row.
+
+* handoff
+
+- goal: daemon AND mode scoping ride the request context; the =mint= options-fence dies; =mode.entities= on the client is one =runtime.entities.branch=.
+- done: design, 26 probes (§4 · §5), baseline 11 files (§6), blast table, rulings 1–12 (Q1 b · Q2–Q5 B · ruling 12 the daemon beat whole); show-me 7/7 amen (=* review=) · review II 5 · review III 6/6 amen + Q7 (ruling 14); probes =reference/m119/{thread-scope,mode-shuffle,args-false,stamped,daemon-bind,mode-bind,client-branch,narrow,emitter-bind,prune,rig,mode-daemon,installer-scope,prune-column,flat-die,s1-mask,s1-untyped}.probe.js= (s1 · the MISWIRE fixes run on a ruling-13 copy); superseded code in =q4-superseded.org= · =q5-superseded.org=.
+- next: walk a chess tab (5 =open.js= unproven live) · the QA walk · =done/=
+- RULED (show-me II S1 /"amen"/): the two Q2 hand narrows STAND — =harnessed.js:111= =history({ thread: ctx.input.thread })= (the harness is dispatched outside a request by ten rigs; =history({})= there crossed threads, =cortex.integration= overflowed the stack) and =Turn.ts:19= =chain= (eight callers outside a bind). The bind rows land (they fence reads that name no thread); the two narrow-cut hunks stay out of milestone 4 till he rules.
+- compile: =scratchpad/compile-m119.py= · =m7-tests.py= · =m7-quest.py=; a fresh copy, the five sections applied, 35 suites + =subsystems/typology/tests/= green — =reference/m119/compile-11-09.org=.
+- never: =default: false= on a scope row (Q4: =args: false= + a tolerant cond is the switch) · a stamp mechanism — a write names its columns (Q5) · =filters: { mode: false }= anywhere (Q1 b) · =Object.fromEntries= over a config (ruling 4) · a new datamap name for what mikro already does (Q4).
+- owed: nothing of m119's on the repo. Off-root: chess =boot.test.js= waits for a stale ready line → known issue =chess-boot-rig-waits-for-stale-ready-line= (the runtime boots, the seat step passes); =landed.py= has no m119 section row (TOTAL 0 is unconfigured, not evidence).

@@ -47,7 +47,7 @@ export const datamap = async (die, next) => {
     die.runtime.datamap.entities.em,
     ActivityEntity,
   );
-  die.runtime.twitch.use(shard.context.spread(contexts.host, die.runtime));
+  die.runtime.twitch.use(shard.context.spread(contexts.runtimeDie, die.runtime));
   for (const held of twitch) die.runtime.twitch.graft(held);
   die.runtime.twitch.branch("/after").use(shard.datamap.detached(die.runtime.datamap));
   die.runtime.datamap.registerSubscriber(die.runtime.twitch);

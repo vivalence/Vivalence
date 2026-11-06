@@ -1,0 +1,1428 @@
+#+title: m117 · the Q8 tangle — one name per tool · the entity primers · the map
+# limit: 100000 chars
+# generated 11-09 from the sandbox diff (=scratchpad/q8/tangle.py=): pre = the repo + =* as code — 11-09=; apply: =python3 .ikiro/methods/apply-diffs.py .ikiro/reference/m117/q8-tangle.org "* tangle" --write=; new files land whole; then =rm= under =** deleted=
+
+* tangle
+
+#+BEGIN_SRC diff
+// commons/harnesses/runtime/runtime-harness.viva.js:13
+
+ const read = (file) => () => paladin.read.text(new URL(file, import.meta.url));
++const cell = (value) => (/[",\n]/.test(String(value ?? "")) ? `"${String(value ?? "").replaceAll('"', '""')}"` : String(value ?? ""));
++const csv = (rows) => rows.map((row) => row.map(cell).join(",")).join("\n");
++const runtimeHost = (ctx) => (ctx.reference.absolute.startsWith("/runtime/") ? ctx.reference.absolute : "/runtime");
+
+ export const harness = new Vector();
+…
+// commons/harnesses/runtime/runtime-harness.viva.js:31
+       `machine os ${Deno.build.os} · cwd ${ctx.mountpoint.absolute} · date ${new Date().toLocaleDateString("sv")} ${Intl.DateTimeFormat().resolvedOptions().timeZone}`,
+     ].join("\n"))
++  .open("daemons", async (ctx) => {
++    const daemons = await ctx.entities.daemon.find({}, { orderBy: { slug: "asc" } });
++    const [terminals, threads] = await Promise.all([ctx.entities.terminal.count({}), ctx.entities.thread.count({})]);
++    return csv([
++      ["host", "slug", "name", "version", "icon", "description", "consumes", "statics"],
++      [runtimeHost(ctx), "", "", "", "", `user ${ctx.user.slug} · terminals ${terminals} · threads ${threads}`, "", ""],
++      ...daemons.map((daemon) => [
++        `/daemon/${daemon.slug}`,
++        daemon.slug,
++        daemon.mask.manifest?.name,
++        daemon.mask.manifest?.version,
++        daemon.mask.manifest?.icon?.emoji,
++        daemon.mask.manifest?.description,
++        Object.entries(daemon.mask.consume ?? {}).map(([name, service]) => `${name}→${service.module}`).join(" "),
++        daemon.mask.statics ? JSON.stringify(daemon.mask.statics) : "",
++      ]),
++    ]);
++  })
+   .open("modes", async (ctx) => {
+-    const modes = await ctx.entities.mode.find({}, { populate: ["daemon"], orderBy: { daemon: "asc", type: "asc", slug: "asc" } });
+-    return [
+-      "Modes — every daemon's and the runtime's own (daemon · type/slug · name · description · traits):",
+-      ...modes.map((mode) => `${mode.daemon?.slug ?? "runtime"} · ${mode.type}/${mode.slug} · ${mode.name ?? mode.slug} · ${mode.description ?? ""} · traits ${mode.traits.join(" ") || "none"}`),
+-    ].join("\n");
++    const [daemons, modes] = await Promise.all([
++      ctx.entities.daemon.find({}),
++      ctx.entities.mode.find({}, { populate: ["daemon"], orderBy: { daemon: "asc", type: "asc", slug: "asc" } }),
++    ]);
++    const modules = new Map(daemons.map((daemon) => [daemon.slug, daemon.mask.modes ?? []]));
++    return csv([
++      ["host", "path", "module", "name", "traits"],
++      ...modes.map((mode) => [
++        mode.daemon ? `/daemon/${mode.daemon.slug}` : runtimeHost(ctx),
++        `/mode/${mode.type}/${mode.slug}`,
++        (modules.get(mode.daemon?.slug) ?? []).find((id) => id.endsWith(`/${mode.type}/${mode.slug}`)) ?? "",
++        mode.name ?? mode.slug,
++        mode.traits.join(" "),
++      ]),
++    ]);
+   })
+   .open("threads", async (ctx) => {
+…
+// commons/harnesses/runtime/runtime-harness.viva.js:46
+       ...counted.map(([thread, turns, buffers]) => `${thread.id} · ${thread.createdAt.toISOString()} · ${thread.updatedAt.toISOString()} · turns ${turns} · buffers ${buffers}`),
+     ].join("\n");
+-  });
++  })
++  .graft(gestalten.primer.entities);
+
+ export const tools = new Vector().graft(
+-  gestalten.tools.entity.entity, // @beeef why the double name everywhere.
+-  gestalten.tools.buffer.buffer,
+-  gestalten.tools.thread.thread,
+-  gestalten.tools.mode.mode,
++  gestalten.tools.entity,
++  gestalten.tools.buffer,
++  gestalten.tools.thread,
++  gestalten.tools.mode,
+ );
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// commons/harnesses/runtime/world.md:1
+ You are inside a mode: a program with a buffer the operator sees, a mountpoint on disk and tools.
+-The runtime section states facts to orient by, never part of the operator's request: this mode — its address, name, traits; this thread — its id, label, phase, traits, how many buffers it minted and its user; the machine — os, cwd, date. The modes section lists every daemon's modes and the runtime's own: type/slug, name, description, traits. The threads section lists this user's threads of the last two days: id, created, updated, turns, buffers.
++The runtime section states facts to orient by, never part of the operator's request: this mode — its address, name, traits; this thread — its id, label, phase, traits, how many buffers it minted and its user; the machine — os, cwd, date. The daemons and modes sections are the map of this runtime, as CSV: daemons — host, slug, name, version, icon, description, the services consumed, statics, the first row the runtime itself; modes — host, path, module, name, traits, the runtime's own under its host. The threads section lists this user's threads of the last two days: id, created, updated, turns, buffers.
+ You are one mode among many on one machine: mode_find lists them with their paths. A thread holds the conversation as turns, holds buffers, holds its configuration in traits; the buffer is the operator's screen.
+-What can be done, inside vivalence first: the entities of this daemon — identity: user, authenticator, terminal; composition: daemon, mode; traits: literal, symbol, note; userspace: thread, turn, buffer, note, view, file; transient: activity — every one read with entity_schema, entity_count, entity_find; a buffer written with buffer_update, named with buffer_label; a thread configured with thread_update; the modes with mode_find. Then the machine: the filesystem under the mountpoint (fs_tree, fs_find, fs_read, fs_stat, fs_write, fs_move, fs_delete) and the shell (shell_run). What each tool takes, returns and cuts is in the tool itself.
++What can be done, inside vivalence first: the entities of this daemon — identity: user, authenticator, terminal; composition: daemon, mode; traits: literal, symbol, note; userspace: thread, turn, buffer, note, view, file; transient: activity — every one read with entity_schema, entity_count, entity_find; a buffer written with buffer_update, named with buffer_label; a thread configured with thread_update; the modes with mode_find. Then the machine: the filesystem under the mountpoint (fs_tree, fs_find, fs_read, fs_stat, fs_write, fs_move, fs_delete) and the shell (shell_run). What each tool takes, returns and cuts is in the tool itself; each entity in depth — fields, traits with their data, an example — is a primer section, entity/<name>, read with primer_read.
+ Without asking: every read; a write or a move under the mountpoint; buffer_update, buffer_label, thread_update.
+ Ask first, in one sentence naming the absolute path and what changes, unless the request names that exact file: fs_delete, a shell command that deletes or overwrites, anything outside the mountpoint.
+#+END_SRC
+
+#+BEGIN_SRC diff
+// commons/instances/hello-world/harness.js:29
+   .open("hello", HELLO)
+   .open("machine", (ctx) => machine(standing(ctx)))
+-  .graft(gestalten.tools.thread.primer)
++  .graft(gestalten.primer.thread, gestalten.primer.buffer)
+   .open({ nature: "guides/render", valence: "How to draw a page — component rules, buffer.data, styling. Read before view_create.", load: "lazy" }, RENDER);
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// commons/instances/hello-world/mode.viva.js:26
+   .graft(web)
+   .graft(research)
+-  .graft(gestalten.tools.entity.entity, gestalten.tools.buffer.buffer, gestalten.tools.thread.thread, gestalten.tools.mode.mode);
++  .graft(gestalten.tools.entity, gestalten.tools.buffer, gestalten.tools.thread, gestalten.tools.mode);
+
+ export const views = [{ slug: "hello-world", mount: "app/App.svelte", mime: mime.dom.svelte }];
+#+END_SRC
+
+#+BEGIN_SRC diff
+// commons/instances/hello-world/tests/catalog.snapshot.test.js:52
+   declarations(
+     new Vector()
+-      .graft(paladin.tools.fs.fs)
+-      .graft(paladin.tools.shell.shell)
++      .graft(paladin.tools.fs)
++      .graft(paladin.tools.shell)
+       .graft(catalog()),
+   ).map(({ name }) => name);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// commons/instances/hello-world/tests/draw.snapshot.test.js:28
+ };
+
+-// the thread section hello imports (gestalten.tools.thread.primer) reads the thread, the mode and the
+-// buffers on the thread — fixed here so the pinned size never carries this machine.
++// the thread and buffer primers hello imports are lazy: the eager strip carries their listing only.
+ const MODE = { manifest: { type: "demo", slug: "hello-world", name: "hello-world", traits: ["HARNESSED", "TOOLING"] } };
+ const THREAD = { id: "thread-1", phase: "manual", counter: 0, traits: [], user: { id: "user-1" } };
+…
+// commons/instances/hello-world/tests/draw.snapshot.test.js:92
+           "machine",
+           "primer",
+-          "thread",
+         ]);
+         const dialogue = await assemble("/dialogue/render");
+…
+// commons/instances/hello-world/tests/draw.snapshot.test.js:100
+           "machine",
+           "primer",
+-          "thread",
+         ]);
+       },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/gestalten/tools/index.js:1
+-export * as fs from "./fs.js";
+-export * as shell from "./shell.js";
++export { fs } from "./fs.js";
++export { shell } from "./shell.js";
+
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/entities/activity.js — NEW
+import { v } from "../v.js";
+import { VirtualSchematic } from "./base.js";
+
+export const ActivitySchematic = {
+  ...VirtualSchematic,
+  $id: "Activity",
+  is: "one running act — a hallucination — on a thread: its controller's status, its steps; never stored, dies with the process",
+  own: {
+    type: v.enum(["HALLUCINATION"]).default("HALLUCINATION").desc("what kind of act").examples("HALLUCINATION"),
+    status: v.string().default("IDLE").desc("the controller's status code: IDLE · RUNNING · PAUSED · DONE · FAULTED").examples("RUNNING"),
+    error: v.unknown().default(null).desc("the fault, when FAULTED").examples(null),
+    steps: v.array(v.record(v.string(), v.unknown())).default([]).desc("what it did so far, in order").examples([{ track: "request", at: 1762704681476 }]),
+  },
+  relations: {
+    user: () => v.rel().optional().desc("who it acts for").examples("01a09010-0000-7000-8000-000000000001"),
+    mode: () => v.rel().optional().desc("the mode acting").examples("01a09010-13a9-7f1e-a2c4-6b0d1f2e3a44"),
+    thread: () => v.rel().optional().desc("the thread it acts on").examples("01a09010-13aa-778b-bce7-19c38f835337"),
+    buffer: () => v.rel().optional().desc("the buffer it writes"),
+    turn: () => v.rel().optional().desc("the turn it answers"),
+  },
+  examples: [{ id: "019d23f1-8c4e-7a2b-9f10-3e5a1c2d4b6f", user: "01a1b1c0-d3b4-724a-9452-32d250140280", mode: "01a1b1c0-f0c1-7559-a38c-d59d34854a75", thread: "01a1b609-5607-741b-98df-9899bdc62e02", buffer: null, turn: null, type: "HALLUCINATION", status: "RUNNING", error: null, steps: [{ track: "request", at: 1762704681476 }] }],
+};
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/base.js:3
+
+ export const DataEntitySchema = v.object({
+-  id: ID.optional(),
+-  createdAt: Timestamp.optional(),
+-  updatedAt: Timestamp.optional(),
++  id: ID.optional().examples("01a09010-13aa-778b-bce7-19c38f835337"),
++  createdAt: Timestamp.optional().examples("2026-11-09T16:11:21.476Z"),
++  updatedAt: Timestamp.optional().examples("2026-11-09T16:14:02.118Z"),
+ }, { $id: "DataEntity", additionalProperties: true });
+
+-// appended beside DataEntitySchema — an id and a birth, no updatedAt (nothing is ever re-read from a store)
+ export const VirtualEntitySchema = v.object({
+-  id: v.string().desc("Minted in the constructor, never a primary key — mikro forbids one on a virtual entity. Example: \"019d23f1-8c4e-7a2b-9f10-3e5a1c2d4b6f\""),
+-  createdAt: v.string().desc("ISO birth of the instance; dies with the process. Example: \"2026-09-14T10:00:00.000Z\""),
++  id: v.string().desc("Minted in the constructor, never a primary key — mikro forbids one on a virtual entity").examples("019d23f1-8c4e-7a2b-9f10-3e5a1c2d4b6f"),
++  createdAt: v.string().desc("ISO birth of the instance; dies with the process").examples("2026-09-14T10:00:00.000Z"),
+ }, { additionalProperties: true });
+
++export const DataSchematic = { base: DataEntitySchema };
++export const VirtualSchematic = { base: VirtualEntitySchema };
++
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/buffer.js:1
+ import { v } from "../v.js";
+ import * as mime from "../scalars/mime.js";
+-import { buffer } from "../traits/index.js";
++import * as traits from "../traits/index.js";
++import { DataSchematic } from "./base.js";
+
+-export const BufferDescriptor = {
++export const BufferSchematic = {
++  ...DataSchematic,
+   $id: "Buffer",
++  is: "one screen on a thread: data a view draws, in a mime the renderers key on",
+   own: {
+-    index: v.integer().default(0).optional(),
+-    mime: mime.type().optional().desc('The buffer\'s kind: the fallback renderers key on it; a mode mints its own. Example: "application/vnd.viva.daemon.chess.mode.board.play+json"'),
+-    data: v.record(v.string(), v.unknown()).optional(),
+-    traits: v.array(v.string()).optional(),
+-    trait: v.record(v.string(), v.unknown()).optional(),
++    index: v.integer().default(0).optional().desc("its position on the thread, from 0").examples(0),
++    status: v.enum(["PENDING", "ACTIVE", "DONE", "ERROR", "STALE"]).default("PENDING").optional().desc("PENDING: minted, not yet shown · ACTIVE: on screen · DONE: finished · ERROR: failed · STALE: superseded").examples("ACTIVE"),
++    mime: mime.type().optional().desc("its kind: the fallback renderers key on it; a mode mints its own").examples("application/vnd.viva.daemon.chess.mode.board.play+json"),
++    data: v.record(v.string(), v.unknown()).optional().desc("what the views draw, in the mode's shape").examples({ title: "Q3", summary: "final" }),
++    traits: traits.names.buffer.optional().desc("the trait names worn").examples(["LABELED"]),
++    trait: traits.buffer.default({}).optional().desc("trait data by name").examples({ LABELED: { name: "Annual accounts" } }),
+   },
+   relations: {
+-    mode: () => v.rel(v.mode()).optional(),
+-    thread: () => v.rel(v.thread()),
+-    turns: () => v.array(v.turn()).optional(),
+-    files: () => v.array(v.file()).optional(),
+-    views: () => v.array(v.view()).optional(),
+-    literals: () => v.array(v.literal()).optional(),
+-    symbols: () => v.array(v.symbol()).optional(),
++    mode: () => v.rel().optional().desc("the mode that minted it").examples("01a09010-13a9-7f1e-a2c4-6b0d1f2e3a44"),
++    thread: () => v.rel().desc("the thread it sits on").examples("01a09010-13aa-778b-bce7-19c38f835337"),
++    turns: () => v.array(v.turn()).optional().desc("the turns that touched it"),
++    files: () => v.array(v.file()).optional().desc("files it shows"),
++    views: () => v.array(v.view()).optional().desc("views pinned to it"),
++    literals: () => v.array(v.literal()).optional().desc("literals it carries"),
++    symbols: () => v.array(v.symbol()).optional().desc("symbols it carries"),
+   },
+-  traits: buffer,
++  traits: traits.buffer,
+   narrowable: ["data", "trait"],
+   spoken: ["id", "index", "mime", "mode", "thread", "traits", "trait"],
++  examples: [{ id: "01a1bd04-54c5-74ca-bc57-45381377cd82", status: "PENDING", data: { gameplay: "TYPE", prompt: "TEXT", streak: 2, set: [{ pick: "feed", limit: 10 }] }, mime: "application/json", index: 2, traits: ["LABELED"], trait: { LABELED: { name: "dojo #2" } }, mode: "01a1b1c0-f0c1-7559-a38c-d59d34854a75", thread: "01a1b609-5607-741b-98df-9899bdc62e02" }],
+ };
+
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/entities/daemon.js — NEW
+import { v } from "../v.js";
+import { DataSchematic } from "./base.js";
+
+export const DaemonSchematic = {
+  ...DataSchematic,
+  $id: "Daemon",
+  is: "one installed package running on the runtime: its slug is its id; it owns modes, a dataset of symbols and literals, notes, users",
+  own: {
+    slug: v.string().desc("its name, the id").examples("education"),
+    mask: v.record(v.string(), v.unknown()).optional().desc("the instance mask: module, statics, secrets").examples({ module: "@education/daemon" }),
+    traits: v.array(v.string()).optional().desc("the trait names worn").examples([]),
+    trait: v.record(v.string(), v.unknown()).optional().desc("trait data by name").examples({}),
+  },
+  relations: {
+    modes: () => v.array(v.mode()).optional().desc("its modes"),
+    literals: () => v.array(v.literal()).optional().desc("its literals"),
+    symbols: () => v.array(v.symbol()).optional().desc("its symbols"),
+    notes: () => v.array(v.note()).optional().desc("notes taken on it"),
+    users: () => v.array(v.user()).optional().desc("users who own it"),
+  },
+  examples: [{ id: "spanish", slug: "spanish", mask: { manifest: { type: "daemon", slug: "spanish", version: "0.0.1", name: "Español", description: "English → Spanish. Aprende is the homepage; dojo, nyan and riddler are live.", icon: { emoji: "🇪🇸" } }, statics: { language: { known: { slug: "english", name: "English" }, learning: { slug: "spanish", name: "Español" } } }, modes: ["@education/domain/language-learning", "@education/topology/word", "@education/topography/english-to-spanish", "@education/homepage/aprende", "@education/game/dojo"], consume: { nlp: { module: "@commons/service/nlp-stanza", secrets: { key: "${SECRET_VIVA_SERVICE_NLP_KEY}" }, statics: { remote: "${VIVA_SERVICE_NLP_REMOTE}", language: "es" } } } }, traits: [], trait: {} }],
+};
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/file.js:1
+ import { v } from "../v.js";
+ import * as mime from "../scalars/mime.js";
++import { DataSchematic } from "./base.js";
+
+ const MISSING = v.object({
+-  since: v.string().desc('When the patrol first found the mount gone, ISO 8601. Example: "2026-10-21T09:00:00Z"'),
++  since: v.string().desc("when the patrol first found the mount gone, ISO 8601").examples("2026-10-21T09:00:00Z"),
+ });
+
+-export const FileDescriptor = {
++export const FileSchematic = {
++  ...DataSchematic,
+   $id: "File",
++  is: "one file a mode serves: a path inside the mode, bytes on disk, their hash and integrity",
+   own: {
+-    path: v.string().desc('The file\'s path inside its mode, one row per (mode, path). Example: "board.js"'),
+-    mount: v.string().desc('Where the bytes sit on disk, absolute. Example: "/home/beef/.viva/instances/chess/mountpoint/board/play/board.js"'),
+-    mime: mime.type().desc('What the bytes are. Example: "text/javascript"'),
+-    hash: v.string().desc('The sha256 of the current bytes, hex. Example: "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"'),
+-    integrity: v.string().desc('The subresource integrity the client checks the fetch against. Example: "sha256-n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg="'),
+-    bytes: v.integer().default(0).optional().desc("The size of the bytes. Example: 4096"),
+-    traits: v.array(v.string()).optional(),
+-    trait: v.record(v.string(), v.unknown()).optional(),
++    path: v.string().desc("the file's path inside its mode, one row per (mode, path)").examples("board.js"),
++    mount: v.string().desc("where the bytes sit on disk, absolute").examples("/home/beef/.viva/instances/chess/mountpoint/board/play/board.js"),
++    mime: mime.type().desc("what the bytes are").examples("text/javascript"),
++    hash: v.string().desc("the sha256 of the current bytes, hex").examples("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"),
++    integrity: v.string().desc("the subresource integrity the client checks the fetch against").examples("sha256-n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg="),
++    bytes: v.integer().default(0).optional().desc("the size of the bytes").examples(4096),
++    traits: v.array(v.enum(["MISSING"])).optional().desc("the trait names worn").examples([]),
++    trait: v.record(v.string(), v.unknown()).optional().desc("trait data by name").examples({}),
+   },
+   relations: {
+-    mode: () => v.rel(v.mode()),
+-    view: () => v.rel(v.view()).optional(),
+-    buffers: () => v.array(v.buffer()).optional(),
++    mode: () => v.rel().desc("the mode that serves it").examples("01a09010-13a9-7f1e-a2c4-6b0d1f2e3a44"),
++    view: () => v.rel().optional().desc("the view it belongs to"),
++    buffers: () => v.array(v.buffer()).optional().desc("buffers that show it"),
+   },
+-  traits: v.object({ MISSING: MISSING.default({}).optional() }),
++  traits: v.object({ MISSING: MISSING.default({}).optional().desc("the patrol found its mount gone").examples({ since: "2026-10-21T09:00:00Z" }) }),
+   narrowable: ["trait"],
+   spoken: ["id", "path", "mime", "mode", "view", "bytes"],
++  examples: [{ id: "01a1b1c0-e5fa-776b-b1aa-1ec226521760", path: "sentences/abre-la-puerta.mp3", mount: "/Users/finn/.viva/registry/education/topographies/english-to-spanish/freight/audio/sentences/abre-la-puerta.mp3", mime: "audio/mpeg", hash: "1a060121d48a320340ae0f31239912def2611720643d136164750badd1c07c12", integrity: "sha256-1a060121d48a320340ae0f31239912def2611720643d136164750badd1c07c12", bytes: 17802, traits: [], trait: {}, mode: "01a1b1c0-d438-72ef-a942-832e1ebb5f29", view: null }],
+ };
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/index.js:1
+-export { DataEntitySchema } from "./base.js";
+-export { BufferDescriptor } from "./buffer.js";
+-export { LiteralDescriptor } from "./literal.js";
+-export { SymbolDescriptor } from "./symbol.js";
+-export { ModeDescriptor } from "./mode.js";
+-export { IntentDescriptor } from "./intent.js";
+-export { ThreadDescriptor } from "./thread.js";
+-export { TurnDescriptor } from "./turn.js";
+-export { ViewDescriptor } from "./view.js";
+-export { FileDescriptor } from "./file.js";
+-export { UserDescriptor } from "./user.js";
++export { DataEntitySchema, VirtualEntitySchema, DataSchematic, VirtualSchematic } from "./base.js";
++export { BufferSchematic } from "./buffer.js";
++export { LiteralSchematic } from "./literal.js";
++export { SymbolSchematic } from "./symbol.js";
++export { ModeSchematic } from "./mode.js";
++export { IntentSchematic } from "./intent.js";
++export { ThreadSchematic } from "./thread.js";
++export { TurnSchematic } from "./turn.js";
++export { ViewSchematic } from "./view.js";
++export { FileSchematic } from "./file.js";
++export { UserSchematic } from "./user.js";
++export { NoteSchematic } from "./note.js";
++export { DaemonSchematic } from "./daemon.js";
++export { TerminalSchematic } from "./terminal.js";
++export { ActivitySchematic } from "./activity.js";
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/intent.js:1
+ import { v } from "../v.js";
++import { DataSchematic } from "./base.js";
+
+-export const IntentDescriptor = {
++export const IntentSchematic = {
++  ...DataSchematic,
+   $id: "Intent",
++  is: "what a user wants from a mode: a named aim threads are opened for",
+   own: {
+-    slug: v.string().optional(),
+-    type: v.string().optional(),
+-    name: v.string().optional(),
+-    description: v.string().optional(),
+-    traits: v.array(v.string()).optional(),
+-    trait: v.record(v.string(), v.unknown()).optional(),
++    slug: v.string().optional().desc("its name inside the mode").examples("review"),
++    name: v.string().optional().desc("the display name").examples("Review the filings"),
++    description: v.string().optional().desc("one sentence on the aim").examples("Read the Q3 filings and flag anomalies"),
++    traits: v.array(v.string()).optional().desc("the trait names worn").examples([]),
++    trait: v.record(v.string(), v.unknown()).optional().desc("trait data by name").examples({}),
+   },
+   relations: {
+-    mode: () => v.rel(v.mode()).optional(),
++    user: () => v.rel().optional().desc("whose intent it is").examples("01a09010-0000-7000-8000-000000000001"),
++    mode: () => v.rel().optional().desc("the mode it aims at").examples("01a09010-13a9-7f1e-a2c4-6b0d1f2e3a44"),
+   },
+   narrowable: ["trait"],
++  examples: [{ id: "01a1b1c0-fdf0-71bf-acca-01399f00b7ec", slug: "conjugate", name: "Conjugate", description: null, user: "01a1b1c0-d3b4-724a-9452-32d250140280", traits: ["MASKED", "AIMED", "QUEUEING"], trait: { MASKED: { count: 2, gameplay: "CONJUGATE", recall: "LEARNING" }, AIMED: { mount: "/emit/conjugations" }, QUEUEING: { depth: 1 } }, mode: { id: "01a1b1c0-f0c1-7559-a38c-d59d34854a75", type: "game", slug: "dojo", daemon: "spanish", name: "Dojo", installed: "a4d2781b", version: "0.1.0", traits: ["VIEWABLE", "EMITTER", "INTENTED", "EXPOSED", "TOOLING", "HARNESSED"] } }],
+ };
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/literal.js:1
+ import { v } from "../v.js";
++import * as traits from "../traits/index.js";
++import { DataSchematic } from "./base.js";
+
+-export const LiteralDescriptor = {
++export const LiteralSchematic = {
++  ...DataSchematic,
+   $id: "Literal",
++  is: "one concrete thing of a daemon's dataset — a word, a card, a position — addressed by slug, described by its symbol",
+   own: {
+-    slug: v.string().optional(),
+-    daemon: v.string().optional(),
+-    traits: v.array(v.string()).optional(),
+-    trait: v.record(v.string(), v.unknown()).optional(),
+-    symbol: v.record(v.string(), v.unknown()).optional(),
++    slug: v.string().optional().desc("its address inside the daemon").examples("flamingo"),
++    daemon: v.string().optional().desc("the daemon slug it belongs to").examples("education"),
++    ontology: v.string().optional().desc("the topology it is a word of").examples("species"),
++    traits: traits.names.literal.optional().desc("the trait names worn").examples(["LABELED"]),
++    trait: traits.literal.default({}).optional().desc("trait data by name").examples({ LABELED: { name: "Flamingo — six species" } }),
++    symbol: v.record(v.string(), v.unknown()).optional().desc("its symbolic description, keys of the topology").examples({ family: "Phoenicopteridae", continents: 4 }),
+   },
+   relations: {
+-    symbols: () => v.array(v.symbol()).optional(),
+-    mode: () => v.mode().optional(),
++    symbols: () => v.array(v.symbol()).optional().desc("the symbols that describe it"),
++    mode: () => v.rel().optional().desc("the mode that ships it").examples("01a09010-13a9-7f1e-a2c4-6b0d1f2e3a44"),
++    uses: () => v.array(v.literal()).optional().desc("literals it is built from"),
++    in: () => v.array(v.literal()).optional().desc("literals built from it"),
++    notes: () => v.array(v.note()).optional().desc("notes taken on it"),
+   },
+   narrowable: ["trait", "symbol"],
++  examples: [{ id: "01a1b1c0-d500-778e-b1a8-70dbfcaea4e3", slug: "a00-amar-opening-8e08ab", traits: ["CATALOGUED"], trait: { CATALOGUED: { eco: "A00", name: "Amar Opening", pgn: "1. Nh3", moves: ["g1h3"], fen: "rnbqkbnr/pppppppp/8/8/8/7N/PPPPPPPP/RNBQKB1R b KQkq - 1 1", epd: "rnbqkbnr/pppppppp/8/8/8/7N/PPPPPPPP/RNBQKB1R b KQkq -", plies: 1 } }, symbol: { opening: { family: "A", eco: "A00" } }, ontology: "opening", daemon: "chess", mode: "01a1b1c0-d4bd-77de-95f4-e4b91bde31da" }],
+ };
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/mode.js:1
+ import { v } from "../v.js";
+-import { mode } from "../traits/index.js";
++import * as traits from "../traits/index.js";
++import { DataSchematic } from "./base.js";
+
+-export const ModeDescriptor = {
++export const ModeSchematic = {
++  ...DataSchematic,
+   $id: "Mode",
++  is: "one program on a daemon: a type and slug, a manifest of traits, the buffers it mints; the runtime's own carry no daemon",
+   own: {
+-    slug: v.string().optional(),
+-    type: v.string().optional(),
+-    name: v.string().optional(),
+-    description: v.string().optional(),
+-    version: v.string().optional(),
+-    installed: v.boolean().optional(),
+-    traits: v.array(v.string()).optional(),
++    slug: v.string().optional().desc("its name inside the type").examples("runtime"),
++    type: v.string().optional().desc("its kind").examples("harness"),
++    name: v.string().optional().desc("the display name").examples("Runtime Harness"),
++    description: v.string().optional().desc("one sentence on what it does").examples("default runtime harness"),
++    version: v.string().optional().desc("semver").examples("0.3.0"),
++    installed: v.string().optional().desc("the install stamp, empty until installed").examples("2026-11-09T16:11:21.476Z"),
++    traits: traits.names.mode.optional().desc("the trait names declared").examples(["HARNESSED", "AGENTIC", "TOOLING", "PRIMER"]),
+   },
+   relations: {
+-    intents: () => v.array(v.intent()).optional(),
+-    buffers: () => v.array(v.buffer()).optional(),
+-    literals: () => v.array(v.literal()).optional(),
+-    symbols: () => v.array(v.symbol()).optional(),
++    daemon: () => v.rel().optional().desc("the daemon it belongs to; null for the runtime's own").examples("test-daemon"),
++    intents: () => v.array(v.intent()).optional().desc("intents opened on it"),
++    buffers: () => v.array(v.buffer()).optional().desc("buffers it minted"),
++    turns: () => v.array(v.turn()).optional().desc("turns it answered"),
++    views: () => v.array(v.view()).optional().desc("views it ships"),
++    literals: () => v.array(v.literal()).optional().desc("literals it ships"),
++    symbols: () => v.array(v.symbol()).optional().desc("symbols it ships"),
++    notes: () => v.array(v.note()).optional().desc("notes taken on it"),
+   },
+-  traits: mode,
++  traits: traits.mode,
+   narrowable: ["traits"],
++  examples: [{ id: "01a1b1c0-f0c1-7559-a38c-d59d34854a75", type: "game", slug: "dojo", daemon: "spanish", name: "Dojo", description: "One rep machine over words, sentences and conjugation forms — prompt, gameplay, preview, streak, continuous and limit all free to combine.", installed: "a4d2781b", version: "0.1.0", traits: ["VIEWABLE", "EMITTER", "INTENTED", "EXPOSED", "TOOLING", "HARNESSED"] }],
+ };
+
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/entities/note.js — NEW
+import { v } from "../v.js";
+import * as traits from "../traits/index.js";
+import { DataSchematic } from "./base.js";
+
+export const NoteSchematic = {
+  ...DataSchematic,
+  $id: "Note",
+  is: "a remark hung on something — a literal, a buffer, a turn, a mode — by a user or a daemon; notes nest",
+  own: {
+    slug: v.string().optional().desc("its address").examples("flamingo-diet"),
+    traits: traits.names.note.optional().desc("the trait names worn").examples(["LABELED"]),
+    trait: traits.note.default({}).optional().desc("trait data by name").examples({ LABELED: { name: "On flamingos" } }),
+  },
+  relations: {
+    user: () => v.rel().optional().desc("who wrote it").examples("01a09010-0000-7000-8000-000000000001"),
+    daemon: () => v.rel().optional().desc("the daemon it belongs to").examples("education"),
+    mode: () => v.rel().optional().desc("the mode it was taken in").examples("01a09010-13a9-7f1e-a2c4-6b0d1f2e3a44"),
+    literal: () => v.rel().optional().desc("the literal it is about"),
+    buffer: () => v.rel().optional().desc("the buffer it is about"),
+    turn: () => v.rel().optional().desc("the turn it is about"),
+    symbols: () => v.array(v.symbol()).optional().desc("symbols it carries"),
+    parent: () => v.rel().optional().desc("the note it nests under"),
+    children: () => v.array(v.note()).optional().desc("notes nested under it"),
+  },
+  narrowable: ["trait"],
+  examples: [{ id: "01a1b6e6-58e3-706b-932f-c2c3f8a95b5d", slug: "retention.de.adposition", daemon: "spanish", mode: null, user: "01a1b1c0-d3b4-724a-9452-32d250140280", literal: "01a1b1c0-dd9c-713e-8bc0-35148cecad3f", buffer: null, turn: null, parent: null, traits: ["RETAINED"], trait: { RETAINED: { driver: "BAYESIAN", status: "UNKNOWN", type: "INDIVIDUAL", state: [4, 4, 3.4], nextIn: 3.4, nextAt: "2026-11-07T20:09:11.553Z", due: "2026-11-07T20:09:11.553Z", lastAt: 1794069911781, lastSignal: "SUCCESS" } } }],
+};
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/symbol.js:1
+ import { v } from "../v.js";
++import * as traits from "../traits/index.js";
++import { DataSchematic } from "./base.js";
+
+-export const SymbolDescriptor = {
++export const SymbolSchematic = {
++  ...DataSchematic,
+   $id: "Symbol",
++  is: "one word of a daemon's vocabulary: a slug the literals are described with",
+   own: {
+-    slug: v.string().optional(),
+-    traits: v.array(v.string()).optional(),
+-    trait: v.record(v.string(), v.unknown()).optional(),
++    slug: v.string().optional().desc("the word").examples("wading-bird"),
++    traits: traits.names.symbol.optional().desc("the trait names worn").examples(["LABELED", "ONTOLOGICAL"]),
++    trait: traits.symbol.default({}).optional().desc("trait data by name").examples({ LABELED: { name: "wading bird" }, ONTOLOGICAL: {} }),
+   },
+   relations: {
+-    literals: () => v.array(v.literal()).optional(),
+-    mode: () => v.mode().optional(),
++    literals: () => v.array(v.literal()).optional().desc("literals it describes"),
++    daemon: () => v.rel().optional().desc("the daemon it belongs to").examples("education"),
++    mode: () => v.rel().optional().desc("the mode that ships it").examples("01a09010-13a9-7f1e-a2c4-6b0d1f2e3a44"),
+   },
+   narrowable: ["trait"],
++  examples: [{ id: "01a1b1c0-d3ec-73bf-a784-adb115870224", slug: "material.carbon", traits: ["ONTOLOGICAL", "LABELED"], trait: { ONTOLOGICAL: {}, LABELED: { name: "Carbon", description: "Carbon frame geometry. The only parts where dimensional accuracy matters." } }, daemon: "droneaid", mode: "01a1b1c0-d3e0-75b5-9e06-c19220ab83df" }],
+ };
+
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/entities/terminal.js — NEW
+import { v } from "../v.js";
+import * as traits from "../traits/index.js";
+import { DataSchematic } from "./base.js";
+
+export const TerminalSchematic = {
+  ...DataSchematic,
+  $id: "Terminal",
+  is: "one seat of a user: where they sit (a daemon, a thread) and how the chrome is docked",
+  own: {
+    index: v.integer().default(0).optional().desc("its position among the user's terminals, from 0").examples(0),
+    traits: traits.names.terminal.optional().desc("the trait names worn").examples(["LABELED", "DOCKED"]),
+    trait: traits.terminal.default({}).optional().desc("trait data by name").examples({ LABELED: { name: "desk" }, DOCKED: { align: "right", share: 0.38, view: "docked", lens: "chat", markdown: "pretty" } }),
+  },
+  relations: {
+    user: () => v.rel().desc("whose seat it is").examples("01a09010-0000-7000-8000-000000000001"),
+    daemon: () => v.rel().optional().desc("the daemon it sits in; null on the runtime").examples("education"),
+    thread: () => v.rel().optional().desc("the thread it is on; null between threads").examples("01a09010-13aa-778b-bce7-19c38f835337"),
+  },
+  traits: traits.terminal,
+  narrowable: ["trait"],
+  examples: [{ id: "01a1b1c1-0a45-76b5-a801-b17625693895", user: "01a1b1c0-d3b4-724a-9452-32d250140280", daemon: "spanish", thread: "01a1b609-5607-741b-98df-9899bdc62e02", index: 1, traits: ["DOCKED"], trait: { DOCKED: { view: "docked", lens: "repl", share: 0.42, shown: "docked", align: "right" }, LABELED: {} } }],
+};
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/thread.js:1
+ import { v } from "../v.js";
+-import { thread } from "../traits/index.js";
++import * as traits from "../traits/index.js";
++import { DataSchematic } from "./base.js";
+
+-export const ThreadDescriptor = {
++export const ThreadSchematic = {
++  ...DataSchematic,
+   $id: "Thread",
++  is: "one conversation: a user, in a mode, as turns; it holds buffers and its configuration in traits",
+   own: {
+-    traits: v.array(v.enum(Object.keys(thread.properties))).optional(),
+-    trait: thread.default({}),
+-    cursor: v.integer().default(0).optional(),
+-    counter: v.integer().default(0).optional(),
++    phase: v.enum(["inert", "manual", "continuous", "escort"]).default("manual").optional().desc("inert: the app manages itself · manual: cursor discipline, the app pulls · continuous: manual plus a queue kept at depth · escort: continuous, back to the launch buffer when the queue drains").examples("manual"),
++    traits: traits.names.thread.optional().desc("the trait names worn").examples(["LABELED", "INTELLIGENT"]),
++    trait: traits.thread.default({}).desc("trait data by name, the whole vocabulary filled").examples({ LABELED: {}, INTELLIGENT: { effort: "low", rounds: 12, tier: "capable" }, VOCAL: {}, AIMED: {}, MASKED: {}, QUEUEING: { depth: 1 } }),
++    cursor: v.integer().default(0).optional().desc("the buffer in focus").examples(1),
++    counter: v.integer().default(0).optional().desc("buffers minted").examples(3),
+   },
+   relations: {
+-    user: () => v.rel(v.user()).optional(),
+-    mode: () => v.rel(v.mode()).optional(),
+-    intent: () => v.rel(v.intent()).optional(),
+-    parent: () => v.rel(v.thread()).optional(),
+-    children: () => v.array(v.thread()).optional(),
+-    buffers: () => v.array(v.buffer()).optional(),
++    user: () => v.rel().optional().desc("whose conversation it is").examples("01a09010-0000-7000-8000-000000000001"),
++    mode: () => v.rel().optional().desc("the mode it runs in").examples("01a09010-13a9-7f1e-a2c4-6b0d1f2e3a44"),
++    intent: () => v.rel().optional().desc("the intent it was opened for"),
++    parent: () => v.rel().optional().desc("the thread this one forked from"),
++    children: () => v.array(v.thread()).optional().desc("threads forked from this one"),
++    buffers: () => v.array(v.buffer()).optional().desc("its screens, indexed"),
++    turns: () => v.array(v.turn()).optional().desc("the conversation, by createdAt"),
+   },
+-  traits: thread,
++  traits: traits.thread,
+   narrowable: ["trait"],
++  examples: [{ id: "01a1b609-5607-741b-98df-9899bdc62e02", user: "01a1b1c0-d3b4-724a-9452-32d250140280", mode: "01a1b1c0-f0c1-7559-a38c-d59d34854a75", intent: null, phase: "manual", traits: ["INTELLIGENT", "VOCAL"], trait: { LABELED: {}, INTELLIGENT: { effort: "low", rounds: 12, tier: "capable" }, VOCAL: {}, AIMED: {}, MASKED: {}, QUEUEING: { depth: 1 } }, counter: 3, cursor: 0, parent: null }],
+ };
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/turn.js:1
+ import { v } from "../v.js";
++import { DataSchematic } from "./base.js";
+
+-export const TurnDescriptor = {
++export const TurnSchematic = {
++  ...DataSchematic,
+   $id: "Turn",
++  is: "one utterance of a thread: a role, its parts, provider metadata; the thread is the chain by createdAt",
+   own: {
+-    role: v.string(),
+-    parts: v.array(v.record(v.string(), v.unknown())).default([]).optional(),
+-    meta: v.record(v.string(), v.unknown()).optional(),
++    role: v.string().desc("who spoke: user · assistant · system").examples("assistant"),
++    parts: v.array(v.record(v.string(), v.unknown())).default([]).optional().desc("the content parts, soma's shape: text, tool calls, tool results").examples([{ type: "text", text: "Six species on four continents." }]),
++    meta: v.record(v.string(), v.unknown()).optional().desc("what the provider reported").examples({ model: "claude-fable-5-1", tokens: 412 }),
+   },
+   relations: {
+-    parent: () => v.rel(v.turn()).optional(),
+-    children: () => v.array(v.turn()).optional(),
+-    thread: () => v.rel(v.thread()),
+-    mode: () => v.rel(v.mode()).optional(),
+-    buffers: () => v.array(v.buffer()).optional(),
++    parent: () => v.rel().optional().desc("the turn before it"),
++    children: () => v.array(v.turn()).optional().desc("turns that followed"),
++    thread: () => v.rel().desc("the thread it belongs to").examples("01a09010-13aa-778b-bce7-19c38f835337"),
++    mode: () => v.rel().optional().desc("the mode that answered").examples("01a09010-13a9-7f1e-a2c4-6b0d1f2e3a44"),
++    buffers: () => v.array(v.buffer()).optional().desc("buffers it minted or touched"),
++    notes: () => v.array(v.note()).optional().desc("notes taken on it"),
+   },
++  examples: [{ id: "01a1b602-72dd-7350-a875-1dbc8aa490e4", role: "assistant", parts: [{ type: "tool_use", id: "call_Qr26DpMpmZgyI1o75tw2PkpT", name: "provision", input: { count: 3, set: [{ pick: "feed", limit: 10 }] } }], meta: { state: "tools", usage: { prompt_tokens: 6692, completion_tokens: 139, total_tokens: 6831, cost: 0.009755 }, provider: { finish_reason: "tool_calls", model: "openai/gpt-5.1" } }, parent: "1dd24f02-cb89-438e-96ac-45326f6ce48d", thread: "01a1b609-5607-741b-98df-9899bdc62e02", mode: "01a1b1c0-f0c1-7559-a38c-d59d34854a75" }],
+ };
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/user.js:1
+ import { v } from "../v.js";
+-import { user } from "../traits/index.js";
++import * as traits from "../traits/index.js";
++import { DataSchematic } from "./base.js";
+
+-export const UserDescriptor = {
++export const UserSchematic = {
++  ...DataSchematic,
+   $id: "User",
++  is: "one person on the lighthouse: a slug, how they authenticate, their home and dock in traits",
+   own: {
+-    slug: v.string().optional(),
+-    traits: v.array(v.string()).optional(),
+-    trait: v.record(v.string(), v.unknown()).optional(),
++    slug: v.string().optional().desc("the login name").examples("beef"),
++    traits: traits.names.user.optional().desc("the trait names worn").examples(["HOME", "THEMED"]),
++    trait: traits.user.default({}).optional().desc("trait data by name").examples({ HOME: { reference: "/runtime/runtime/mode/harness/runtime" }, THEMED: "northsea" }),
+   },
+   relations: {
+-    threads: () => v.array(v.thread()).optional(),
++    daemons: () => v.array(v.daemon()).optional().desc("daemons they own"),
++    terminals: () => v.array(v.terminal()).optional().desc("their open terminals"),
++    threads: () => v.array(v.thread()).optional().desc("their conversations"),
++    intents: () => v.array(v.intent()).optional().desc("their intents"),
++    notes: () => v.array(v.note()).optional().desc("their notes"),
+   },
+-  traits: user,
++  traits: traits.user,
+   narrowable: ["trait"],
++  examples: [{ id: "01a1b1c0-d3b4-724a-9452-32d250140280", slug: "localhost", traits: ["HOME", "THEMED"], trait: { HOME: { reference: "/runtime/runtime/mode/harness/runtime" }, THEMED: "porcelain" } }],
+ };
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/view.js:1
+ import { v } from "../v.js";
+ import * as mime from "../scalars/mime.js";
+-import { view } from "../traits/index.js";
++import * as traits from "../traits/index.js";
++import { DataSchematic } from "./base.js";
+
+-export const ViewDescriptor = {
++export const ViewSchematic = {
++  ...DataSchematic,
+   $id: "View",
++  is: "one compiled component of a mode: a slug, a mime, the file the client imports; a buffer pins views",
+   own: {
+-    slug: v.string().desc('The view\'s name inside its mode, one per (mode, slug, mime). Example: "play"'),
+-    mime: mime.type().desc('What the code is. Example: "application/vnd.viva.tty.solid+javascript"'),
+-    entry: v.string().desc('The path of the File the client imports, among the view\'s own. Example: "board.js"'),
+-    traits: v.array(v.enum(Object.keys(view.properties))).optional(),
+-    trait: v.record(v.string(), v.unknown()).optional(),
++    slug: v.string().desc("the view's name inside its mode, one per (mode, slug, mime)").examples("play"),
++    mime: mime.type().desc("what the code is").examples("application/vnd.viva.tty.solid+javascript"),
++    entry: v.string().desc("the path of the File the client imports, among the view's own").examples("board.js"),
++    traits: traits.names.view.optional().desc("the trait names worn").examples(["FRAME"]),
++    trait: traits.view.default({}).optional().desc("trait data by name").examples({ FRAME: {} }),
+   },
+   relations: {
+-    mode: () => v.rel(v.mode()),
+-    files: () => v.array(v.file()).optional(),
+-    buffers: () => v.array(v.buffer()).optional(),
++    mode: () => v.rel().desc("the mode that ships it").examples("01a09010-13a9-7f1e-a2c4-6b0d1f2e3a44"),
++    files: () => v.array(v.file()).optional().desc("its files"),
++    buffers: () => v.array(v.buffer()).optional().desc("buffers pinned to it"),
+   },
+-  traits: view,
++  traits: traits.view,
+   spoken: ["id", "slug", "mime", "mode", "entry"],
++  examples: [{ id: "01a1b1c0-e798-7653-bb99-98e58df76a66", slug: "play", mime: "application/vnd.viva.dom.svelte+javascript", entry: "bundle/c149bdf0162ff18a.dom.svelte.mjs", traits: ["FRAME"], trait: {}, mode: "01a1b1c0-dcc0-7117-be33-f73f77eb966b" }],
+ };
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/index.js:22
+   // MikroORM Collections (symbols/uses) are never mauled. `schema` documents intent.
+   rel: (schema) => v.union([scalars.ID, v.object({}, { additionalProperties: true })]),
+-  literal: entityFactory(entities.LiteralDescriptor, entities.DataEntitySchema),
+-  symbol: entityFactory(entities.SymbolDescriptor, entities.DataEntitySchema),
+-  buffer: entityFactory(entities.BufferDescriptor, entities.DataEntitySchema),
++  literal: entityFactory(entities.LiteralSchematic),
++  symbol: entityFactory(entities.SymbolSchematic),
++  buffer: entityFactory(entities.BufferSchematic),
+   bundle: prototypes.Bundle,
+-  mode: entityFactory(entities.ModeDescriptor, entities.DataEntitySchema),
+-  intent: entityFactory(entities.IntentDescriptor, entities.DataEntitySchema),
+-  thread: entityFactory(entities.ThreadDescriptor, entities.DataEntitySchema),
+-  turn: entityFactory(entities.TurnDescriptor, entities.DataEntitySchema),
+-  view: entityFactory(entities.ViewDescriptor, entities.DataEntitySchema),
+-  file: entityFactory(entities.FileDescriptor, entities.DataEntitySchema),
+-  user: entityFactory(entities.UserDescriptor, entities.DataEntitySchema),
++  mode: entityFactory(entities.ModeSchematic),
++  intent: entityFactory(entities.IntentSchematic),
++  thread: entityFactory(entities.ThreadSchematic),
++  turn: entityFactory(entities.TurnSchematic),
++  view: entityFactory(entities.ViewSchematic),
++  file: entityFactory(entities.FileSchematic),
++  user: entityFactory(entities.UserSchematic),
++  note: entityFactory(entities.NoteSchematic),
++  daemon: entityFactory(entities.DaemonSchematic),
++  terminal: entityFactory(entities.TerminalSchematic),
++  activity: entityFactory(entities.ActivitySchematic),
+ });
+ export { mime } from "./scalars/index.js";
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/traits/index.js:15
+ const opaque = v.object({}, { additionalProperties: true });
+ const open = { additionalProperties: true };
++const flag = (meaning) => opaque.default({}).optional().desc(meaning).examples({});
++const DOCK = { align: "right", share: 0.38, view: "docked", lens: "chat", markdown: "pretty" };
+
+ export const mode = v.object({
+-  EXPOSED: opaque.default({}).optional(),
+-  HARNESSED: opaque.default({}).optional(),
+-  TOOLING: opaque.default({}).optional(),
+-  EMITTER: opaque.default({}).optional(),
+-  DATASET: opaque.default({}).optional(),
+-  AGENTIC: opaque.default({}).optional(),
+-  GENERATIVE: opaque.default({}).optional(),
+-  REPLING: opaque.default({}).optional(),
+-  BOOTED: opaque.default({}).optional(),
+-  KEYMAPPED: opaque.default({}).optional(),
+-  PRIMER: opaque.default({}).optional(),
+-  LOOPING: opaque.default({}).optional(),
+-  VIEWABLE: opaque.default({}).optional(),
+-  FILESET: opaque.default({}).optional(),
+-  FILESINK: opaque.default({}).optional(),
++  EXPOSED: flag("serves http endpoints"),
++  HARNESSED: flag("runs under the daemon's harness: a model, a primer, tools"),
++  TOOLING: flag("brings tools the model can call"),
++  EMITTER: flag("mints buffers on demand"),
++  DATASET: flag("ships symbols and literals"),
++  AGENTIC: flag("loops: the model acts with tools until the turn is done"),
++  GENERATIVE: flag("its buffers are hallucinated at runtime"),
++  REPLING: flag("has a repl"),
++  BOOTED: flag("runs code once every mode is wired"),
++  KEYMAPPED: flag("brings a keymap"),
++  PRIMER: flag("brings primer prose"),
++  LOOPING: flag("brings repl tools the loop can call"),
++  VIEWABLE: flag("ships svelte views"),
++  FILESET: flag("ships files"),
++  FILESINK: flag("writes files into its mountpoint"),
+ }, open);
+ export const thread = v.object({
+-  LABELED: Label.default({}).optional(),
+-  INTELLIGENT: Intelligent.default({}).optional(),
+-  VOCAL: Vocal.default({}).optional(),
+-  AIMED: Aimed.default({}).optional(),
+-  MASKED: Masked.default({}).optional(),
+-  QUEUEING: Queueing.default({}).optional(),
++  LABELED: Label.default({}).optional().desc("its name, read in the chrome").examples({ name: "Q3 filings", description: "Third-quarter filings, due Friday" }),
++  INTELLIGENT: Intelligent.default({}).optional().desc("which model answers its turns, with what budget").examples({ provider: "anthropic", tier: "capable", effort: "low", rounds: 12, thinking: false }),
++  VOCAL: Vocal.default({}).optional().desc("audio: its turns are spoken — language, voice, harmonizing, polish").examples({ language: "it", provider: "openai", polish: true, harmonize: { window: 3, tolerance: 0.2, tail: 1 } }),
++  AIMED: Aimed.default({}).optional().desc("the emitter route it pulls buffers from").examples({ mount: "/emitter/drill" }),
++  MASKED: Masked.default({}).optional().desc("fields merged into every pull").examples({ level: "a1" }),
++  QUEUEING: Queueing.default({}).optional().desc("how many buffers it keeps queued ahead").examples({ depth: 2 }),
+ });
+-export const buffer = v.object({ LABELED: Label.default({}).optional(), RENDERED: Rendered.default({}).optional() });
+-export const view = v.object({ FRAME: opaque.default({}).optional(), CELL: opaque.default({}).optional() });
+-export const terminal = v.object({ LABELED: Label.default({}).optional(), DOCKED: Docked.default({}).optional() });
+-export const user = v.object({ HOME: Home.default({}).optional(), DOCKED: Docked.default({}).optional(), THEMED: Themed.default("porcelain").optional() });
+-export const client = v.object({ HOME: Home.default({}).optional(), DOCKED: Docked.default({}).optional(), THEMED: Themed.optional() });
+-export const lighthouse = v.object({ JOINABLE: opaque.default({}).optional(), INVITATIONAL: opaque.default({}).optional(), AUTOLOGIN: opaque.default({}).optional() });
+-export const service = v.object({ ATTACHED: opaque.default({}).optional(), SERVER: opaque.default({}).optional(), DOCKER: opaque.default({}).optional(), COMPOSE: opaque.default({}).optional() });
+-export const symbol = v.object({ LABELED: Label.default({}).optional(), ONTOLOGICAL: opaque.default({}).optional(), TOPOGRAPHICAL: opaque.default({}).optional(), STRUCTURAL: opaque.default({}).optional() }, open);
+-export const literal = v.object({ LABELED: Label.default({}).optional() }, open);
+-export const note = v.object({ LABELED: Label.default({}).optional() }, open);
++export const buffer = v.object({
++  LABELED: Label.default({}).optional().desc("its name, read on its tab").examples({ name: "Annual accounts", description: "The 2026 accounts as filed" }),
++  RENDERED: Rendered.default({}).optional().desc("which views draw it: one in the frame, one as its cell").examples({ frame: "play", cell: "board" }),
++});
++export const view = v.object({
++  FRAME: flag("drawn in the frame"),
++  CELL: flag("drawn as a cell in the journal"),
++});
++export const terminal = v.object({
++  LABELED: Label.default({}).optional().desc("its name, read in the chrome").examples({ name: "desk" }),
++  DOCKED: Docked.default({}).optional().desc("how its dock sits: side, share, view, lens, markdown").examples(DOCK),
++});
++export const user = v.object({
++  HOME: Home.default({}).optional().desc("the mode a terminal with no thread sits in").examples({ reference: "/runtime/runtime/mode/harness/runtime" }),
++  DOCKED: Docked.default({}).optional().desc("how the dock sits for this user").examples(DOCK),
++  THEMED: Themed.default("porcelain").optional().desc("the dapper theme").examples("northsea"),
++});
++export const client = v.object({
++  HOME: Home.default({}).optional().desc("the mode a terminal with no thread sits in").examples({ reference: "/client/ghost/mode/home/console" }),
++  DOCKED: Docked.default({}).optional().desc("how the dock sits for this client").examples(DOCK),
++  THEMED: Themed.optional().desc("the dapper theme").examples("northsea"),
++});
++export const lighthouse = v.object({
++  JOINABLE: flag("signup is open"),
++  INVITATIONAL: flag("signup by invitation"),
++  AUTOLOGIN: flag("a terminal logs in without a password"),
++});
++export const service = v.object({
++  ATTACHED: flag("hangs an attachment aperture (status · manifest) on its daemon"),
++  SERVER: flag("a server process the runtime starts"),
++  DOCKER: flag("runs as a docker container"),
++  COMPOSE: flag("runs as a docker compose stack"),
++});
++export const symbol = v.object({
++  LABELED: Label.default({}).optional().desc("its name, read in the chrome").examples({ name: "flamingo" }),
++  ONTOLOGICAL: flag("a word of a topology's vocabulary"),
++  TOPOGRAPHICAL: flag("a word of one body's vocabulary"),
++  STRUCTURAL: flag("a structural marker of its corpus"),
++}, open);
++export const literal = v.object({ LABELED: Label.default({}).optional().desc("its name, read in the chrome").examples({ name: "Flamingo — six species" }) }, open);
++export const note = v.object({ LABELED: Label.default({}).optional().desc("its name, read in the chrome").examples({ name: "On flamingos" }) }, open);
+
++const worn = (data) => v.array(v.enum(Object.keys(data.properties)));
++export const names = { mode: worn(mode), thread: worn(thread), buffer: worn(buffer), view: worn(view), terminal: worn(terminal), user: worn(user), symbol: worn(symbol), literal: worn(literal), note: worn(note) };
++
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/v.js:85
+ const resolving = new Set();
+
+-export function entityFactory(descriptor, base) {
++export function entityFactory(schematic) {
++  const { base } = schematic;
+   const factory = (spec) => {
+-    if (resolving.has(descriptor.$id)) {
++    if (resolving.has(schematic.$id)) {
+       return enhance(
+-        Type.Intersect([base, Type.Object(descriptor.own, { additionalProperties: true })], {
+-          $id: descriptor.$id,
++        Type.Intersect([base, Type.Object(schematic.own, { additionalProperties: true })], {
++          $id: schematic.$id,
+           additionalProperties: true,
+         }),
+…
+// subsystems/typology/schematics/v.js:96
+     }
+
+-    resolving.add(descriptor.$id);
++    resolving.add(schematic.$id);
+     const relations = {};
+-    for (const [k, thunk] of Object.entries(descriptor.relations ?? {})) {
++    for (const [k, thunk] of Object.entries(schematic.relations ?? {})) {
+       relations[k] = thunk();
+     }
+-    resolving.delete(descriptor.$id);
++    resolving.delete(schematic.$id);
+
+     const full = Type.Intersect(
+       [
+         base,
+-        Type.Object(descriptor.own, { additionalProperties: true }),
++        Type.Object(schematic.own, { additionalProperties: true }),
+         Type.Object(relations, { additionalProperties: true }),
+       ],
+-      { $id: descriptor.$id, additionalProperties: true },
++      { $id: schematic.$id, description: schematic.is, examples: schematic.examples, additionalProperties: true },
+     );
+
+…
+// subsystems/typology/schematics/v.js:116
+     const overrides = {};
+     for (const [k, v] of Object.entries(spec)) {
+-      if (descriptor.narrowable?.includes(k)) {
++      if (schematic.narrowable?.includes(k)) {
+         overrides[k] =
+           typeof v === "object" && v !== null && !v.type && !v.anyOf && !v.allOf && !v.oneOf
+…
+// subsystems/typology/schematics/v.js:129
+   };
+
+-  factory.$id = descriptor.$id;
+-  factory.descriptor = descriptor;
+-  factory.traits = descriptor.traits ?? {};
++  factory.$id = schematic.$id;
++  factory.schematic = schematic;
++  factory.traits = schematic.traits ?? {};
+   return factory;
+ }
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/index.js:2
+ export * as shard from "./shard/index.js";
+ export * as tools from "./tools/index.js";
++export * as primer from "./primer/index.js";
+
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/activity.js — NEW
+import { v } from "@vivalence/typology";
+import { entity } from "./render.js";
+
+export const activity = entity(v.activity);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/buffer.js — NEW
+import { v } from "@vivalence/typology";
+import { entity } from "./render.js";
+
+export const buffer = entity(v.buffer);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/daemon.js — NEW
+import { v } from "@vivalence/typology";
+import { entity } from "./render.js";
+
+export const daemon = entity(v.daemon);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/file.js — NEW
+import { v } from "@vivalence/typology";
+import { entity } from "./render.js";
+
+export const file = entity(v.file);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/index.js — NEW
+export { thread } from "./thread.js";
+export { buffer } from "./buffer.js";
+export { turn } from "./turn.js";
+export { mode } from "./mode.js";
+export { daemon } from "./daemon.js";
+export { user } from "./user.js";
+export { terminal } from "./terminal.js";
+export { note } from "./note.js";
+export { view } from "./view.js";
+export { file } from "./file.js";
+export { intent } from "./intent.js";
+export { literal } from "./literal.js";
+export { symbol } from "./symbol.js";
+export { activity } from "./activity.js";
+
+import { Vector } from "@vivalence/typology";
+import { thread } from "./thread.js";
+import { buffer } from "./buffer.js";
+import { turn } from "./turn.js";
+import { mode } from "./mode.js";
+import { daemon } from "./daemon.js";
+import { user } from "./user.js";
+import { terminal } from "./terminal.js";
+import { note } from "./note.js";
+import { view } from "./view.js";
+import { file } from "./file.js";
+import { intent } from "./intent.js";
+import { literal } from "./literal.js";
+import { symbol } from "./symbol.js";
+import { activity } from "./activity.js";
+
+export const entities = new Vector().graft(thread, buffer, turn, mode, daemon, user, terminal, note, view, file, intent, literal, symbol, activity);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/intent.js — NEW
+import { v } from "@vivalence/typology";
+import { entity } from "./render.js";
+
+export const intent = entity(v.intent);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/literal.js — NEW
+import { v } from "@vivalence/typology";
+import { entity } from "./render.js";
+
+export const literal = entity(v.literal);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/mode.js — NEW
+import { v } from "@vivalence/typology";
+import { entity } from "./render.js";
+
+export const mode = entity(v.mode);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/note.js — NEW
+import { v } from "@vivalence/typology";
+import { entity } from "./render.js";
+
+export const note = entity(v.note);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/render.js — NEW
+import { Vector } from "@vivalence/typology";
+
+const STAMPS = new Set(["createdAt", "updatedAt"]);
+const json = (value) => JSON.stringify(value);
+const property = ([key, schema]) => `${key} — ${schema.description ?? schema.$id ?? schema.type}${"examples" in schema ? ` · ${json(schema.examples[0])}` : ""}`;
+
+export const entity = (factory) => {
+  const schema = factory();
+  return new Vector().open(
+    { nature: `entity/${schema.$id.toLowerCase()}`, valence: schema.description, load: "lazy" },
+    () => [
+      `[${schema.$id}] ${schema.description}`,
+      ...schema.allOf.flatMap((part) => Object.entries(part.properties).filter(([key]) => !STAMPS.has(key)).map(property)),
+      ...Object.entries(factory.traits.properties ?? {}).map(property),
+      `entity example · ${json(schema.examples[0])}`,
+    ].join("\n"),
+  );
+};
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/symbol.js — NEW
+import { v } from "@vivalence/typology";
+import { entity } from "./render.js";
+
+export const symbol = entity(v.symbol);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/terminal.js — NEW
+import { v } from "@vivalence/typology";
+import { entity } from "./render.js";
+
+export const terminal = entity(v.terminal);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/thread.js — NEW
+import { v } from "@vivalence/typology";
+import { entity } from "./render.js";
+
+export const thread = entity(v.thread);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/turn.js — NEW
+import { v } from "@vivalence/typology";
+import { entity } from "./render.js";
+
+export const turn = entity(v.turn);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/user.js — NEW
+import { v } from "@vivalence/typology";
+import { entity } from "./render.js";
+
+export const user = entity(v.user);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/view.js — NEW
+import { v } from "@vivalence/typology";
+import { entity } from "./render.js";
+
+export const view = entity(v.view);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/tools/index.js:1
+-export * as entity from "./entity.js"; // canonical! new meta! @beef
+-export * as buffer from "./buffer.js";
+-export * as thread from "./thread.js";
+-export * as mode from "./mode.js";
+-export * as primer from "./primer.js";
++export { entity } from "./entity.js";
++export { buffer } from "./buffer.js";
++export { thread } from "./thread.js";
++export { mode } from "./mode.js";
++export { primer } from "./primer.js";
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/tools/thread.js:1
+-import { fromm, v, Vector } from "@vivalence/typology";
+-import { paths } from "./mode.js";
+-
+-const named = (row) => row.trait?.LABELED?.name ?? "unlabeled";
+-
+-const shown = (data, width = 320) => {
+-  const text = JSON.stringify(data ?? {});
+-  return text.length <= width ? text : `${text.slice(0, width)}… keys ${Object.keys(data).join(" ")}`;
+-};
+-
+-const address = (mode) => `${mode.manifest.type}/${mode.manifest.slug}`;
+-
+-const threadline = (thread) =>
+-  `[Thread ${thread.id}] · ${named(thread)} · phase ${thread.phase} · buffers minted ${thread.counter} · ` +
+-  `traits ${thread.traits.join(" ") || "none"} · user ${thread.user.id}`;
+-
+-const modeline = (mode) =>
+-  [
+-    `[Mode ${address(mode)}] ${mode.manifest.name ?? mode.manifest.slug}`,
+-    `traits ${(mode.manifest.traits ?? []).join(" ") || "none"}`,
+-    paths(mode),
+-  ].filter(Boolean).join(" · ");
+-
+-const bufferline = (buffer, addresses) =>
+-  `${buffer.index} · ${buffer.id} · ${named(buffer)} · ${addresses.get(buffer.mode.id)} · ${buffer.status} · ${buffer.mime} · ${shown(buffer.data)}`;
+-
+-export const summary = async ({ modes, entities, mode, thread }) => {
+-  const addresses = new Map(fromm.modes(modes).flat.map((peer) => [peer.id, address(peer)]));
+-  const buffers = await entities.buffer.find({ thread: thread.id }, { orderBy: { index: "asc" } });
+-  return [
+-    threadline(thread),
+-    modeline(mode),
+-    `[Buffers on this thread] · ${buffers.length} · rows: index · id · label · mode · status · mime · data — ` +
+-      `these ids are what buffer_update and buffer_label take, never a document slug; ` +
+-      `entity_find { entity: "buffer", where: { thread: "${thread.id}" }, fields: "full" } for whole rows`,
+-    ...buffers.map((buffer) => bufferline(buffer, addresses)),
+-  ].join("\n");
+-};
+-
+-export const primer = new Vector().open("thread", summary);
++import { v, Vector } from "@vivalence/typology";
+
+ export const thread = new Vector().open(
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/harnessed.js:79
+ const armory = (ctx, primer) => {
+   const armed = new Vector()
+-    .graft(paladin.tools.fs.fs)
+-    .graft(paladin.tools.shell.shell);
++    .graft(paladin.tools.fs)
++    .graft(paladin.tools.shell);
+   for (const [slug, provider] of Object.entries(ctx.providers ?? {})) {
+     if (provider.tools) {
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:89
+   if (ctx.mode.tools) armed.graft(ctx.mode.tools);
+   if (ctx.mode.generator?.tools) armed.graft(ctx.mode.generator.tools);
+-  if (shape.primer.lazy(primer).length) armed.graft(tools.primer.primer);
++  if (shape.primer.lazy(primer).length) armed.graft(tools.primer);
+   return armed;
+ };
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:253
+     );
+
+-  harness.open({ nature: "/picture/render", input: v.primitives.hallucination.Picture.Request, output: v.primitives.hallucination.Picture.Response }, (ctx) =>
++  harness.open({ nature: "/picture/render", input: v.primitives.hallucination.Picture.Request, yields: v.primitives.hallucination.Picture.Response }, (ctx) =>
+     ctx.cortex.hallucinate.picture.render({
+       controller: ctx.controller,
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/buffer.labeled.test.js:15
+   fromm.yield(
+     await steer.dispatch.invoke(
+-      new Vector().graft(gestalten.tools.buffer.buffer).use(shard.context.spread(contexts.host, daemon)),
++      new Vector().graft(gestalten.tools.buffer).use(shard.context.spread(contexts.host, daemon)),
+       new ToolCall(name).signal,
+       steer.strategy.guarded,
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/harness.metadata.snapshot.test.js:37
+   });
+
+-  specimen.it("the root harness strips five primer sections; identity reads whole; an unknown nature throws", async () => {
++  specimen.it("the root harness strips six primer sections and the entity primers; identity reads whole; runtime · daemons · modes · threads read the rig; an unknown nature throws", async () => {
+     const metadata = await held.authedConn.branch("/mode/harness/runtime").call("/metadata/harness");
+-    specimen.expect(Object.keys(metadata.primer.branches)).toEqual(["identity", "world", "runtime", "modes", "threads"]);
++    specimen.expect(Object.keys(metadata.primer.branches)).toEqual(["identity", "world", "runtime", "daemons", "modes", "threads", "entity"]);
+     const read = (nature) => held.authedConn.branch("/mode/harness/runtime").call(`/metadata/harness/primer/${nature}`, { thread: held.fixtures.thread.id });
+     specimen.expect((await read("identity")).startsWith("You are the operator's hands inside vivalence.")).toBe(true);
+     specimen.expect(await read("runtime")).toContain(held.fixtures.thread.id);
+     specimen.expect(await read("runtime")).toMatch(/^Runtime:\nmode harness\/runtime · /);
+-    specimen.expect(await read("modes")).toContain("harness/runtime");
++    specimen.expect((await read("daemons")).split("\n")[0]).toBe("host,slug,name,version,icon,description,consumes,statics");
++    specimen.expect(await read("daemons")).toContain("/daemon/test-daemon,test-daemon,");
++    specimen.expect((await read("modes")).split("\n")[0]).toBe("host,path,module,name,traits");
++    specimen.expect(await read("modes")).toContain("/daemon/test-daemon,/mode/harness/runtime,");
+     specimen.expect(await read("threads")).toContain(held.fixtures.thread.id);
++    specimen.expect(await read("entity/thread")).toMatch(/^\[Thread\] one conversation/);
+     await specimen.expect(read("nobody")).rejects.toThrow();
+   });
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/tests/primer.entity.test.js — NEW
+import { shape, specimen, v } from "@vivalence/typology";
+import * as runtime from "@vivalence/runtime";
+
+const { gestalten } = runtime;
+const ENTITIES = ["thread", "buffer", "turn", "mode", "daemon", "user", "terminal", "note", "view", "file", "intent", "literal", "symbol", "activity"];
+const BASE = ["id", "createdAt", "updatedAt"];
+
+specimen.describe("gestalten.primer — one primer per entity, true to the schematic and to the mikro row", () => {
+  for (const name of ENTITIES) {
+    specimen.it(`${name}: the example is a row, every field and trait example passes its schema, the primer renders`, async () => {
+      const factory = v[name];
+      const schema = factory();
+      const example = schema.examples[0];
+      const mikro = runtime[`${name[0].toUpperCase()}${name.slice(1)}Schema`];
+      const allowed = new Set([...Object.keys(mikro.meta.properties), ...BASE]);
+      for (const key of Object.keys(example)) specimen.expect(allowed.has(key), `${name}.${key} is not a column`).toBe(true);
+      for (const key of Object.keys(factory.schematic.own)) specimen.expect(key in example, `${name} example lacks ${key}`).toBe(true);
+      for (const [key, field] of Object.entries(factory.schematic.own)) {
+        if (key !== "trait" && "examples" in field) specimen.expect([...field.errors(field.examples[0])].map((error) => `${key}${error.instancePath} ${error.message}`)).toEqual([]);
+      }
+      for (const worn of example.traits ?? []) {
+        const held = factory.traits.properties?.[worn];
+        if (held && example.trait?.[worn] !== undefined) specimen.expect([...held.errors(example.trait[worn])].map((error) => `${worn}${error.instancePath} ${error.message}`)).toEqual([]);
+      }
+      for (const [trait, held] of Object.entries(factory.traits.properties ?? {})) {
+        specimen.expect(typeof held.description, `${name} trait ${trait} has no meaning`).toBe("string");
+        specimen.expect([...held.errors(held.examples[0])].map((error) => `${trait}${error.instancePath} ${error.message}`)).toEqual([]);
+      }
+      const text = await shape.primer.read(gestalten.primer[name], `entity/${name}`, {});
+      specimen.expect(text.startsWith(`[${factory.$id}] ${schema.description}`)).toBe(true);
+      specimen.expect(text.split("\n").at(-1).startsWith("entity example · {")).toBe(true);
+    });
+  }
+
+  specimen.it("gestalten.primer.entities grafts the fourteen under entity/", () => {
+    const strip = shape.strip(gestalten.primer.entities);
+    specimen.expect(Object.keys(strip.branches.entity.branches)).toEqual(ENTITIES);
+  });
+});
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/skill.entity.test.js:5
+
+ const harness = (entities) =>
+-  new Vector().use(shard.context.spread(contexts.host, { entities })).graft(gestalten.tools.entity.entity);
++  new Vector().use(shard.context.spread(contexts.host, { entities })).graft(gestalten.tools.entity);
+
+ const invoke = (armed, name, input) =>
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/skill.mode.test.js:2
+ import { contexts, Path, shard, steer, ToolCall, Vector } from "@vivalence/typology";
+ import { gestalten } from "@vivalence/runtime";
++import { paths } from "../gestalten/tools/mode.js";
+
+ const invoke = (armed, name, input) =>
+…
+// systems/runtime/tests/skill.mode.test.js:27
+ };
+
+-const armed = new Vector().use(shard.context.spread(contexts.host, daemon)).graft(gestalten.tools.mode.mode);
++const armed = new Vector().use(shard.context.spread(contexts.host, daemon)).graft(gestalten.tools.mode);
+
+-Deno.test("skill.mode — every mode's … on disk", async (t) => {
+-  await t.step("…: source, then what a mode serves, then what it reads when that differs", () => {
++Deno.test("skill.mode — every mode's paths on disk", async (t) => {
++  await t.step("paths: source, then what a mode serves, then what it reads when that differs", () => {
+     assertEquals(
+-      gestalten.tools.mode.…(vdex),
++      paths(vdex),
+       "source /registry/vcompany/modes/office/vdex · mountpoint /Users/finn/vivalence/coorporation",
+     );
+     assertEquals(
+-      gestalten.tools.mode.…(francesca),
++      paths(francesca),
+       "source /registry/education/modes/tutor/francesca · files /registry/education/modes/tutor/francesca/assets",
+     );
+-    assertEquals(gestalten.tools.mode.…(dewey), "");
++    assertEquals(paths(dewey), "");
+   });
+
+…
+// systems/runtime/tests/skill.mode.test.js:69
+     const bare = new Vector()
+       .use(shard.context.spread(contexts.host, { reference: new Path("/daemon/test-daemon"), modes: { teacher: { dewey } } }))
+-      .graft(gestalten.tools.mode.mode);
++      .graft(gestalten.tools.mode);
+     const spoken = await invoke(bare, "mode_find", {});
+     assertEquals(spoken.output.message.split("\n")[0], "[Host /daemon/test-daemon]");
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/tools.coverage.test.js:2
+ import { contexts, fromm, mime, Mode, Path, shard, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
+ import { gestalten, ThreadEntity } from "@vivalence/runtime";
++import { paths } from "../gestalten/tools/mode.js";
+ import { seed } from "./scenarios/datamap.js";
+
+…
+// systems/runtime/tests/tools.coverage.test.js:48
+   specimen.it("buffer_update with neither data nor source is refused; a data patch merges over the row's data", async () => {
+     const daemon = host();
+-    const vector = armed(tools.buffer.buffer, daemon);
++    const vector = armed(tools.buffer, daemon);
+     const buffer = await scenario.repos.buffer.create({ mode: scenario.fixtures.mode.id, thread: thread.id, data: { title: "Q3", summary: "draft" } });
+     await scenario.em.flush();
+…
+// systems/runtime/tests/tools.coverage.test.js:64
+   specimen.it("buffer_update with a source rewrites the file of the buffer's own kind in … — same row, same mount, new hash; a buffer without one refuses", async () => {
+     const daemon = host();
+-    const vector = armed(tools.buffer.buffer, daemon);
++    const vector = armed(tools.buffer, daemon);
+     const mount = join(directory, "memo", "q3.md");
+     await Deno.writeTextFile(mount, "# Q3");
+…
+// systems/runtime/tests/tools.coverage.test.js:86
+   });
+
+-  specimen.it("thread_update merges trait data by name; the summary lists the thread, the mode's … and every buffer row", async () => {
++  specimen.it("thread_update merges trait data by name", async () => {
+     const daemon = host();
+-    const vector = armed(tools.thread.thread, daemon);
++    const vector = armed(tools.thread, daemon);
+     const updated = await invoke(vector, "thread_update", { id: thread.id, trait: { LABELED: { name: "Q3 filings" }, MASKED: { where: {} } } });
+     specimen.expect(updated.condition).toBe("NOMINAL");
+     specimen.expect(updated.output.thread[0].trait).toMatchObject({ LABELED: { name: "Q3 filings" }, MASKED: { where: {} } });
+-
+-    const summary = await tools.thread.summary({ modes: daemon.modes, entities: daemon.entities, mode: daemon.modes.srs.memo, thread });
+-    const … = summary.split("\n");
+-    specimen.expect(…[0]).toBe(`[Thread ${thread.id}] · Q3 filings · phase ${thread.phase} · buffers minted ${thread.counter} · traits LABELED INTELLIGENT VOCAL · user ${scenario.fixtures.user.id}`);
+-    specimen.expect(…[1]).toBe(`[Mode srs/memo] Memo · traits TOOLING · source ${join(directory, "memo")} · mountpoint ${join(directory, "memo")}`);
+-    specimen.expect(…[2]).toMatch(/^\[Buffers on this thread\] · 3 · rows:/);
+-    specimen.expect(…[3]).toMatch(new RegExp(`^0 · [0-9a-f-]+ · test #0 · (srs/memo|home/probe) · PENDING · ${mime.json} · \\{"title":"Q3","summary":"final"\\}$`));
+-    specimen.expect(…[4]).toMatch(/^1 · [0-9a-f-]+ · Annual accounts · (srs\/memo|home\/probe) · PENDING · text\/markdown · \{\}$/);
+-    specimen.expect(…[5]).toMatch(/^2 · [0-9a-f-]+ · test #2 · (srs\/memo|home\/probe) · PENDING · text\/markdown · \{\}$/);
+-    specimen.expect(…).toHaveLength(6);
+-  });
+-
+-  specimen.it("the summary clips a wide data row to 320 characters and names its keys", async () => {
+-    const daemon = host();
+-    const buffer = await scenario.repos.buffer.create({ mode: scenario.fixtures.mode.id, thread: thread.id, data: { wide: "x".repeat(400), keys: 1 } });
+-    await scenario.em.flush();
+-    const summary = await tools.thread.summary({ modes: daemon.modes, entities: daemon.entities, mode: daemon.modes.home.probe, thread });
+-    const row = summary.split("\n").find((…) => ….includes(buffer.id));
+-    specimen.expect(row).toMatch(/… keys wide keys$/);
+-    specimen.expect(summary.split("\n")[1]).toBe(`[Mode home/probe] probe · traits TOOLING · source ${join(directory, "probe")}`);
+   });
+
+   specimen.it("mode_find lists the host and every mode with its …; type or slug narrows; …() is empty for a mode with none", async () => {
+     const daemon = host();
+-    const vector = armed(tools.mode.mode, daemon);
++    const vector = armed(tools.mode, daemon);
+     const all = await invoke(vector, "mode_find", {});
+     specimen.expect(all.condition).toBe("NOMINAL");
+…
+// systems/runtime/tests/tools.coverage.test.js:129
+
+     const bare = new Mode({ manifest: { type: "home", slug: "bare" } });
+-    specimen.expect(tools.mode.…(bare)).toBe("");
++    specimen.expect(paths(bare)).toBe("");
+     const read = new Mode({ manifest: { type: "home", slug: "read" }, source: { dirname: "/src" } });
+     read.mountpoint = new Path("/mnt");
+     read.files = { directory: "/elsewhere" };
+-    specimen.expect(tools.mode.…(read)).toBe("source /src · mountpoint /mnt · files /elsewhere");
++    specimen.expect(paths(read)).toBe("source /src · mountpoint /mnt · files /elsewhere");
+     read.files = { directory: "/mnt" };
+-    specimen.expect(tools.mode.…(read)).toBe("source /src · mountpoint /mnt");
++    specimen.expect(paths(read)).toBe("source /src · mountpoint /mnt");
+   });
+ });
+#+END_SRC
+
+** deleted
+
+- =rm systems/runtime/tests/harness.thread.test.js= — the thread section it tested is gone

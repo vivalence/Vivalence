@@ -55,9 +55,10 @@ specimen.describe("Bar — dom.js:153 bar(w): the mark · entity · sp · harnes
     rig.close();
   });
 
-  specimen.it("the phone bar drops display and box, the brace, the effort; the meter has four rings", () => {
+  specimen.it("the phone bar is glyphs: every subject but activity, the only text the entity's [word ‹mode›]; the meter has four rings", () => {
     const rig = screen(() => bar(WORLDS.idle, { phone: true }));
-    specimen.expect([...rig.target.querySelectorAll(".seg[data-arg]")].map((segment) => segment.getAttribute("data-arg"))).toEqual(["entity", "harness", "system"]);
+    specimen.expect([...rig.target.querySelectorAll(".seg[data-arg]")].map((segment) => segment.getAttribute("data-arg"))).toEqual(["entity", "harness", "display", "box", "system"]);
+    specimen.expect(rig.target.querySelector(".seg.ent").textContent).toBe(`[${WORLDS.idle.entity.label}‹${WORLDS.idle.entity.mode}›]`);
     specimen.expect(rig.target.querySelectorAll(".meter i").length).toBe(4);
     specimen.expect(rig.target.querySelector(".viket").getAttribute("style")).toBe("width:24px;height:24px");
     rig.close();

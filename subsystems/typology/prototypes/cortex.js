@@ -6,7 +6,7 @@ import * as hallucinate from "../gestalten/shard/hallucinate.js";
 import * as steer from "../gestalten/steer/index.js";
 import { Vector } from "./vector.js";
 import { v } from "../schematics/index.js";
-import { Tier, Tune } from "../schematics/primitives/hallucination.js";
+import { FacultyType, Selector } from "../schematics/primitives/hallucination.js";
 
 // [intelligence, reasoning, speed, thrift]  (each 0-1, 1 = max)
 export const tiers = {
@@ -19,20 +19,20 @@ export const tiers = {
 };
 
 export function nearest(faculties, target) {
-  return recipe.nearest(faculties, target, { tiers });
+  return recipe.nearest(faculties, target);
 }
 
 const WHERE = v.object({
-  type: v.string().optional(),
+  type: FacultyType.optional(),
   via: v.enum(["render", "stream"]).optional(),
-  tune: v.union([Tier, Tune], { default: [0.5, 0.5, 0.5, 0.5] }),
+  ...Selector,
 });
 
 const where = (supplied = {}) => {
   const query = v.cast(WHERE, { ...supplied });
   const [fault] = v.faults(WHERE, query);
   if (fault) throw new Error(`[cortex] invalid query ${fault.at}: ${fault.reason}`);
-  return query;
+  return query.tier ? { ...query, tune: tiers[query.tier] } : query;
 };
 
 export class Cortex {
@@ -68,6 +68,11 @@ export class Cortex {
       .use(hallucinate.bounding(this))
       .open("render", hallucinate.choosing(this));
 
+    this.#hallucinator
+      .branch("/picture")
+      .use(hallucinate.picturing())
+      .open({ nature: "render", output: v.primitives.hallucination.Picture.Response }, hallucinate.depicting(this));
+
     this.hallucinate = compile(this.#hallucinator);
   }
 
@@ -93,13 +98,20 @@ export class Cortex {
     const stored = query.type
       ? (this.faculties.get(query.type) ?? [])
       : [...this.faculties.values()].flat();
-    return query.via ? stored.filter((faculty) => faculty.via[query.via]) : stored;
+    return stored.filter(
+      (faculty) =>
+        (!query.via || faculty.via[query.via]) &&
+        (!query.provider || faculty.provider === query.provider) &&
+        (!query.id || faculty.id === query.id),
+    );
   }
 
   findOne(supplied) {
     const query = where(supplied);
-    const native = nearest(this.find(query), query.tune);
-    return native ?? DERIVATIONS[query.type]?.(this, query);
+    const found = this.find(query);
+    if (query.tune) return nearest(found, query.tune) ?? DERIVATIONS[query.type]?.(this, query);
+    if (found.length > 1) throw new Error(`[cortex] ${found.length} '${query.type}' faculties match — name a tier, a tune or an id`);
+    return found[0] ?? DERIVATIONS[query.type]?.(this, query);
   }
 }
 
@@ -124,10 +136,10 @@ function compile(hallucinator) {
 const DERIVATIONS = {
   object: (cortex, query) => {
     if (query.via && query.via !== "render") return undefined;
-    return cortex.findOne({ type: "dialogue", tune: query.tune, via: "render" });
+    return cortex.findOne({ ...query, type: "dialogue", via: "render" });
   },
   verbatim: (cortex, query) => {
     if (query.via !== "render") return undefined;
-    return cortex.findOne({ type: "verbatim", tune: query.tune, via: "stream" });
+    return cortex.findOne({ ...query, type: "verbatim", via: "stream" });
   },
 };

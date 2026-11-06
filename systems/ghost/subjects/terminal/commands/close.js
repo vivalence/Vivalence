@@ -14,7 +14,7 @@ export const close = new Vector().graft(buffer).open(
   async (ctx) => {
     if (ctx.terminal.buffer === null) throw new Error("no frame open");
     const view = ctx.terminal.dock.view;
-    ctx.terminal.$buffer.set(null);
+    await ctx.terminal.setBuffer(null);
     await REOPENED.find(([test]) => test(view))[1](ctx);
     return "frame closed";
   },
@@ -23,7 +23,7 @@ export const close = new Vector().graft(buffer).open(
   async (ctx) => {
     if (ctx.terminal.buffer === null) throw new Error("no frame open");
     const gone = ctx.terminal.buffer;
-    ctx.terminal.$buffer.set(null);
+    await ctx.terminal.setBuffer(null);
     await ctx.client.runtime.entities.buffer.removeOne({ id: gone.id });
     return `buffer "${gone.trait.LABELED.name}" removed`;
   },

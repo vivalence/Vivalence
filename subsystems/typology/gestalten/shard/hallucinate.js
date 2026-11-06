@@ -17,8 +17,8 @@ export const declarations = (tools) =>
 
 export const policyOf = (ctx) => ({ ...ctx.policy, tools: ctx.tools, controller: ctx.controller });
 
-const faculty = (cortex, type, via, tune) => {
-  const found = cortex.findOne({ type, tune, via });
+const faculty = (cortex, type, via, { provider, id, tier, tune }) => {
+  const found = cortex.findOne({ type, via, provider, id, tier, tune });
   if (!found) throw new Error(`[hallucination] no '${type}' faculty resolves a '${via}' avenue`);
   return found;
 };
@@ -51,24 +51,34 @@ export const sourcing = () => async (ctx, next) => {
 };
 
 export const rendering = (cortex, type) => async (ctx) => {
-  ctx.output = await hallucinate.render(faculty(cortex, type, "render", ctx.policy.tune), ctx.input, policyOf(ctx));
+  ctx.output = await hallucinate.render(faculty(cortex, type, "render", ctx.policy), ctx.input, policyOf(ctx));
 };
 
 export const streaming = (cortex, type) => (ctx) => {
-  ctx.output = hallucinate.respond(faculty(cortex, type, "stream", ctx.policy.tune), "stream", ctx.input, policyOf(ctx));
+  ctx.output = hallucinate.respond(faculty(cortex, type, "stream", ctx.policy), "stream", ctx.input, policyOf(ctx));
 };
 
 export const transcribing = (cortex, via = "stream") => (ctx) => {
   const verb = via === "render" ? "transcript" : "transcribe";
-  ctx.output = hallucinate[verb](faculty(cortex, "verbatim", via, ctx.policy.tune), ctx.input, policyOf(ctx));
+  ctx.output = hallucinate[verb](faculty(cortex, "verbatim", via, ctx.policy), ctx.input, policyOf(ctx));
 };
 
 export const synthesizing = (cortex) => (ctx) => {
-  ctx.output = hallucinate.synthesize(faculty(cortex, "speech", "stream", ctx.policy.tune), ctx.input, policyOf(ctx));
+  ctx.output = hallucinate.synthesize(faculty(cortex, "speech", "stream", ctx.policy), ctx.input, policyOf(ctx));
 };
 
 export const vocalizing = (cortex) => async (ctx) => {
-  ctx.output = await hallucinate.vocalize(faculty(cortex, "speech", "render", ctx.policy.tune), ctx.input, policyOf(ctx));
+  ctx.output = await hallucinate.vocalize(faculty(cortex, "speech", "render", ctx.policy), ctx.input, policyOf(ctx));
+};
+
+export const picturing = () => async (ctx, next) => {
+  const { controller, policy, ...request } = ctx.input;
+  ctx.input = request;
+  await next();
+};
+
+export const depicting = (cortex) => async (ctx) => {
+  ctx.output = await hallucinate.depict(faculty(cortex, "picture", "render", ctx.policy), ctx.input, policyOf(ctx));
 };
 
 const questionmap = [
@@ -87,9 +97,9 @@ export const tagging = () => async (ctx, next) => {
 };
 
 export const bounding = (cortex) => async (ctx, next) => {
-  const found = faculty(cortex, "choice", "render", ctx.policy.tune);
+  const found = faculty(cortex, "choice", "render", ctx.policy);
   const { options = 26, choices = 1 } = found;
-  const name = found.config?.model ?? "choice";
+  const name = found.id;
   const asked = Object.entries(ctx.input.questions);
   if (!asked.length) throw new Error("[hallucination] a choice asks at least one question");
   if (choices !== null && asked.length > choices) throw new Error(`[hallucination] '${name}' renders ${choices} question(s) at once; ${asked.length} asked`);
@@ -101,5 +111,5 @@ export const bounding = (cortex) => async (ctx, next) => {
 };
 
 export const choosing = (cortex) => async (ctx) => {
-  ctx.output = await hallucinate.choose(faculty(cortex, "choice", "render", ctx.policy.tune), ctx.input, policyOf(ctx));
+  ctx.output = await hallucinate.choose(faculty(cortex, "choice", "render", ctx.policy), ctx.input, policyOf(ctx));
 };

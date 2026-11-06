@@ -85,6 +85,7 @@
     "npm:@mikro-orm/migrations@7.2.3": "7.2.3_@mikro-orm+core@7.2.3",
     "npm:@mikro-orm/sqlite@7.2.3": "7.2.3_@mikro-orm+core@7.2.3",
     "npm:@modelcontextprotocol/sdk@^1.10.0": "1.25.2_zod@4.4.3",
+    "npm:@mozilla/readability@0.6.0": "0.6.0",
     "npm:@nanostores/logger@1.0": "1.0.0_nanostores@1.0.1",
     "npm:@nanostores/persistent@1.0": "1.0.0_nanostores@1.0.1",
     "npm:@opentui/core@0.5.17": "0.5.17_web-tree-sitter@0.25.10_typescript@5.9.3",
@@ -1689,6 +1690,9 @@
         "zod@4.4.3",
         "zod-to-json-schema"
       ]
+    },
+    "@mozilla/readability@0.6.0": {
+      "integrity": "sha512-juG5VWh4qAivzTAeMzvY9xs9HY5rAcr2E4I7tiSSCokRFi7XIZCAu92ZkSTsIj1OPceCifL3cpfteP3pDT9/QQ=="
     },
     "@nanostores/logger@1.0.0_nanostores@1.0.1": {
       "integrity": "sha512-QPqkNJWKO9Ya9ne8TeKq8Sv+yZDbgFos5IMCj+mmDxUeUGDqtC7o+YStibECI2B2TnVNF/iuz/Kt3Q64RGJbOQ==",

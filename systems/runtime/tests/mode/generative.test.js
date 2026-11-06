@@ -96,7 +96,7 @@ const stub = (mode, daemon) => {
 const armed = (mode, daemon, thread = "thread-1") => {
   const vector = new Vector();
   vector.graft(mode.generator.tools);
-  vector.use(shard.context.spread(contexts.host, daemon));
+  vector.use(shard.context.spread(contexts.daemonDie, daemon));
   vector.use(shard.context.bind("mode", mode));
   if (thread) vector.use(shard.context.bind("thread", thread));
   return vector;

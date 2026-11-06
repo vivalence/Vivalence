@@ -62,7 +62,7 @@ describe("P-reconcile — a daemon added to instance.viva.json installs at boot;
 
   it("its literals come through its own repository: casa under playground is invisible to hello", async () => {
     const [mode] = await runtime.call("/daemon/playground/entities/mode/find", { where: {}, options: { limit: 1 } }, finn.access);
-    const created = await runtime.call("/daemon/playground/entities/literal/create", { data: { slug: "casa", mode: mode.id, traits: [], trait: {} } }, finn.access);
+    const created = await runtime.call("/daemon/playground/entities/literal/create", { data: { slug: "casa", mode: mode.id, daemon: "playground", traits: [], trait: {} } }, finn.access);
     expect(created.slug).toBe("casa");
     expect((await runtime.call("/daemon/playground/entities/literal/find", { where: { slug: "casa" } }, finn.access)).map((row) => row.slug)).toEqual(["casa"]);
     expect(await runtime.call("/daemon/hello/entities/literal/find", { where: { slug: "casa" } }, finn.access)).toEqual([]);

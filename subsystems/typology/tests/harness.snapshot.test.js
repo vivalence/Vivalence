@@ -34,10 +34,10 @@ describe("snapshot: harness", () => {
 
   it("captures harness-request — thread · terminal · turn · parts, thread and parts required", () => {
     const pojo = pin("request", v.primitives.harness.Request);
-    expect(Object.keys(pojo.properties)).toEqual(["thread", "terminal", "turn", "parts", "tune", "config", "system", "output", "tools"]);
+    expect(Object.keys(pojo.properties)).toEqual(["thread", "terminal", "turn", "parts", "provider", "id", "tier", "tune", "config", "system", "output", "tools"]);
     expect(pojo.required).toEqual(["thread", "parts"]);
     expect(pojo.properties.parts.type).toBe("array");
-    expect(examples(pojo).filter(([key]) => key !== "tune").every(([, exampled]) => exampled)).toBe(true);
+    expect(examples(pojo).every(([, exampled]) => exampled)).toBe(true);
     expect(v.primitives.harness.Request.check({ parts: [{ type: "text", text: "ciao" }] })).toBe(false);
     expect(v.primitives.harness.Request.check({ thread: "th3", parts: [{ type: "text", text: "ciao" }] })).toBe(true);
     expect(v.primitives.harness.Request.check({ thread: "th3", terminal: "t1", turn: "6f1c0d2e", parts: [{ type: "text", text: "ciao" }] })).toBe(true);

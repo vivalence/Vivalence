@@ -7,10 +7,11 @@ export const CONSENT = { onApprove: "/resume", onSkip: "/stop", onEdit: "/abort"
 
 export const PLACEHOLDERS = [
   [(draft) => draft.startsWith("/"), "a verb · tab completes · enter runs"],
+  [(draft, mode) => mode === null || !mode.implements("HARNESSED"), "/commands only"],
   [() => true, "say it, or / for a command"],
 ];
 
-const placeholder = (draft) => PLACEHOLDERS.find(([test]) => test(draft))[1];
+const placeholder = (draft, mode) => PLACEHOLDERS.find(([test]) => test(draft, mode))[1];
 
 const Control = (props) => {
   const [open, setOpen] = createSignal(false);
@@ -83,7 +84,7 @@ export const Composer = () => {
             id="composer"
             kind="turn"
             value={draft()}
-            placeholder={placeholder(draft())}
+            placeholder={placeholder(draft(), thread() === null ? null : thread().mode)}
             focus={focus() === "composer"}
             lead={<Control repl={draft().startsWith("/")} onLine={sent} />}
             onInput={typed}

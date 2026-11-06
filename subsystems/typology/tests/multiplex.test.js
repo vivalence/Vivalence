@@ -63,7 +63,8 @@ class StubSocket extends EventTarget {
   }
 
   send(data) {
-    queueMicrotask(() => this.peer.dispatchEvent(new MessageEvent("message", { data })));
+    const delivered = typeof data === "string" ? data : data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+    queueMicrotask(() => this.peer.dispatchEvent(new MessageEvent("message", { data: delivered })));
   }
 
   close() {
@@ -167,6 +168,9 @@ specimen.describe("multiplex", () => {
     }
     specimen.expect(fallen?.type).toBe("TIMEOUT");
     await sleep.ms(250);
+
+    const patient = await guarded.call("/slow", {}, { method: "GET", timeout: 2000 });
+    specimen.expect(patient).toBeTruthy();
 
     transport.close();
     await sleep.ms(300);

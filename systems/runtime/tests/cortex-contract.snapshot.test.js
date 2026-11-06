@@ -18,6 +18,7 @@ const answered = (turns) => turns.at(-1)?.parts?.some((part) => part.type === "t
 function contractFaculty() {
   return {
     type: "dialogue",
+    id: "dialogue-1",
     tune: [0.9, 1.0, 0.3],
     context: 200000,
     channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
@@ -84,7 +85,7 @@ specimen.describe("cortex contract snapshot — what actually crosses the daemon
       );
     sealed = await remote.hallucinate.dialogue.render({
       controller: new Controller(),
-      policy: { tune: "unleashed" },
+      policy: { tier: "unleashed" },
       system: { pin: "You are the wire contract pin." },
       turns: [{ role: "user", parts: [{ type: "text", text: "casa" }] }],
       tools,

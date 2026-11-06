@@ -9,7 +9,7 @@ export const SUSPENDED = traits.define("SUSPENDED", {
     async suspend(literal, reason) {
       const held = await this.suspension(literal);
       if (held !== null) return held;
-      const note = this.create({ ...this.owner(), literal, slug: `suspension.${literal.slug}`, traits: ["SUSPENDED"], trait: { SUSPENDED: { at: Date.now(), reason } } });
+      const note = this.create({ ...this.owner(), daemon: literal.daemon, literal, slug: `suspension.${literal.slug}`, traits: ["SUSPENDED"], trait: { SUSPENDED: { at: Date.now(), reason } } });
       await this.em.flush();
       return note;
     },

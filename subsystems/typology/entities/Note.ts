@@ -43,7 +43,8 @@ export const NoteSchema = new EntitySchema<NoteEntity, DataEntity>({
   ],
   filters: {
     user: { cond: (args: any) => ({ $or: [{ user: args.user }, { user: null }] }), default: true },
-    daemon: { cond: (args: any) => ({ daemon: args.daemon }), default: false },
+    daemon: { cond: (args: any) => (args?.daemon ? { daemon: args.daemon } : {}), default: true, args: false },
+    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
   },
   properties: {
     slug: { type: types.string },

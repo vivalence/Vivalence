@@ -36,12 +36,12 @@
     stall()?.only(isSpawned);
     if (!terminal.thread.engage(key)) return;
     terminal.thread.daemon.entities.thread.updateOne({ id: terminal.thread.id }, { phase: key });
-    if (key === "manual") terminal.buffer = spawned()[0] ?? buffer;
+    if (key === "manual") terminal.setBuffer(spawned()[0] ?? buffer);
   }
 
   // click a row to render it. under `free` (inert) ✓complete still works, self-evicting.
   function openBuffer(b) {
-    terminal.buffer = terminal.buffer?.id === b.id ? null : b;
+    terminal.setBuffer(terminal.buffer?.id === b.id ? null : b);
   }
 </script>
 

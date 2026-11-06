@@ -2,12 +2,12 @@ import { join } from "@std/path";
 import paladin from "@vivalence/paladin";
 import { mime, Path, v, Vector } from "@vivalence/typology";
 
-export const GENERATIVE = (mode, context) => {
+export const GENERATIVE = (mode, modeDie) => {
   const bundler = paladin.bundler(new Path(mode.mountpoint).absolute);
 
   mode.generator = {
-    bundle: (data) => context.entities.view.bundle({ mode: mode.entity.id, ...data }, { bundler }),
-    tools: tools(mode, context),
+    bundle: (data) => modeDie.entities.view.bundle({ mode: mode.entity.id, ...data }, { bundler }),
+    tools: tools(mode, modeDie),
   };
 
   if (mode.module.generator) mode.generator.tools.graft(mode.module.generator);
@@ -71,7 +71,7 @@ const kept = async (view) => {
   );
 };
 
-const tools = (mode, context) => {
+const tools = (mode, modeDie) => {
   const root = new Vector();
 
   root.open(
@@ -116,13 +116,13 @@ const tools = (mode, context) => {
             ? {}
             : {
                 views: (
-                  await context.entities.view.find({
+                  await modeDie.entities.view.find({
                     mode: mode.entity.id,
                     slug: { $in: ctx.input.views },
                   })
                 ).map((view) => view.id),
               };
-        const buffer = await context.entities.buffer.create({
+        const buffer = await modeDie.entities.buffer.create({
           mode: mode.entity.id,
           mime: ctx.input.mime,
           ...(ctx.input.data !== undefined && { data: ctx.input.data }),
@@ -135,15 +135,23 @@ const tools = (mode, context) => {
           }),
           ...views,
         });
-        await context.entities.em.flush();
+        await modeDie.entities.em.flush();
         if (ctx.input.source !== undefined) {
           const path = `${buffer.id}.${mime.extension(ctx.input.mime)}`;
           const mount = join(new Path(mode.mountpoint).absolute, path);
           const bytes = new TextEncoder().encode(ctx.input.source);
           await paladin.state.store(mount, bytes);
-          buffer.files.add(await context.entities.file.record({ mode: mode.entity.id, path, mount, mime: ctx.input.mime, bytes }));
+          buffer.files.add(
+            await modeDie.entities.file.record({
+              mode: mode.entity.id,
+              path,
+              mount,
+              mime: ctx.input.mime,
+              bytes,
+            }),
+          );
         }
-        await context.entities.em.flush();
+        await modeDie.entities.em.flush();
         return { message: `opened ${named(buffer)}`, buffer: [buffer] };
       } catch (error) {
         return failed("buffer_create", error);
@@ -196,7 +204,7 @@ const tools = (mode, context) => {
     async (ctx) => {
       let held;
       try {
-        held = await context.entities.view.findOneOrFail({
+        held = await modeDie.entities.view.findOneOrFail({
           mode: mode.entity.id,
           slug: ctx.input.slug,
           ...(ctx.input.mime !== undefined && { mime: ctx.input.mime }),
@@ -233,7 +241,7 @@ const tools = (mode, context) => {
     },
     async (ctx) => {
       try {
-        const held = await context.entities.view.findOneOrFail(
+        const held = await modeDie.entities.view.findOneOrFail(
           {
             mode: mode.entity.id,
             slug: ctx.input.slug,
@@ -266,7 +274,7 @@ const tools = (mode, context) => {
       }),
     },
     async (ctx) => {
-      const rows = await context.entities.view.find(
+      const rows = await modeDie.entities.view.find(
         { mode: mode.entity.id, ...(ctx.input.mime !== undefined && { mime: ctx.input.mime }) },
         { orderBy: { updatedAt: "asc" } },
       );

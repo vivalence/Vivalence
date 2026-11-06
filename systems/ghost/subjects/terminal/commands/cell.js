@@ -16,7 +16,7 @@ export const cell = new Vector().open(
     const { slug, name } = belt.input.cast(Celled, labeled(ctx.signal));
     const found = ctx.terminal.thread.$buffers.get().find((candidate) => named(candidate) === name);
     if (found === undefined) throw new Error(`no buffer ${name} on thread #${ctx.terminal.thread.id} — its buffers: ${ctx.terminal.thread.$buffers.get().map(named).join(" · ") || "none"}`);
-    const slugs = (await belt.view.candidates(found, ctx.client.runtime.attach)).filter((view) => view.traits.includes("CELL")).map((view) => view.slug);
+    const slugs = belt.view.candidates(found.$views, found.mode.$views).get().filter((view) => view.traits.includes("CELL")).map((view) => view.slug);
     if (!slugs.includes(slug)) throw new Error(`${name} cells ${slugs.join(" · ") || "none"}`);
     await ctx.client.runtime.entities.buffer.updateOne({ id: found.id }, traits.patch(found, { RENDERED: { cell: slug } }));
     return `${name} · cell ${slug}`;

@@ -21,7 +21,7 @@ specimen.describe("a daemon's twitch — its own Twitch, the daemon bound, a for
       daemons[slug] = die.daemon;
     }
     await scenario.datamap.shard.scope(async () => {
-      for (const slug of SLUGS) daemons[slug].entities.mode.create({ type: "game", slug: "flashcard" });
+      for (const slug of SLUGS) daemons[slug].entities.mode.create({ type: "game", slug: "flashcard", daemon: slug });
       await scenario.datamap.entities.em.flush();
     });
   });
@@ -32,8 +32,8 @@ specimen.describe("a daemon's twitch — its own Twitch, the daemon bound, a for
 
   specimen.it("italian hears /after/literal/create for its own row and nothing for spanish's", async () => {
     await scenario.datamap.shard.scope(async () => {
-      const mode = await daemons.italian.entities.mode.findOneOrFail({ slug: "flashcard" });
-      daemons.italian.entities.literal.create({ slug: "casa", mode });
+      const mode = await daemons.italian.entities.mode.findOneOrFail({ slug: "flashcard", daemon: "italian" });
+      daemons.italian.entities.literal.create({ slug: "casa", mode, daemon: "italian" });
       await scenario.datamap.entities.em.flush();
     });
     await sleep.ms(20);
@@ -43,8 +43,8 @@ specimen.describe("a daemon's twitch — its own Twitch, the daemon bound, a for
 
   specimen.it("spanish hears its own casa, italian hears nothing more — the kind's name, never a daemon's", async () => {
     await scenario.datamap.shard.scope(async () => {
-      const mode = await daemons.spanish.entities.mode.findOneOrFail({ slug: "flashcard" });
-      daemons.spanish.entities.literal.create({ slug: "casa", mode });
+      const mode = await daemons.spanish.entities.mode.findOneOrFail({ slug: "flashcard", daemon: "spanish" });
+      daemons.spanish.entities.literal.create({ slug: "casa", mode, daemon: "spanish" });
       await scenario.datamap.entities.em.flush();
     });
     await sleep.ms(20);
@@ -60,7 +60,9 @@ specimen.describe("a daemon's twitch — its own Twitch, the daemon bound, a for
     const threads = Object.fromEntries(SLUGS.map((slug) => [slug, 0]));
     for (const slug of SLUGS) daemons[slug].twitch.open("/after/thread/create", () => threads[slug]++);
     const finn = await scenario.signup("finn");
-    await scenario.connect(finn.access).call("/userspace/entities/thread/create", { data: {} });
+    await scenario.connect(finn.access).call("/userspace/entities/thread/create", {
+      data: { user: finn.user.id },
+    });
     await sleep.ms(20);
     specimen.expect(threads).toEqual({ italian: 1, spanish: 1 });
   });

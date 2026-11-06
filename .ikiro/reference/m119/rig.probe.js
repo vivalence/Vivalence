@@ -1,0 +1,17 @@
+import { wrap } from "@mikro-orm/core";
+const root = Deno.args[0];
+const { seed } = await import(`${root}/systems/runtime/tests/scenarios/datamap.js`);
+const scenario = await seed();
+const { em, repos } = scenario;
+em.clear();
+const hello = await repos.literal.findOne({ slug: "hello" }, { populate: ["daemon", "symbols"] });
+console.log("repos.literal.findOne({ slug: 'hello' })");
+console.log(JSON.stringify(wrap(hello).toPOJO(), null, 2));
+const as = (slug) => em.setFilterParams("daemon", { daemon: slug });
+as("test-daemon");
+console.log(`as("test-daemon") literal.count() → ${await repos.literal.count()}`);
+as("other");
+console.log(`as("other")       literal.count() → ${await repos.literal.count()}`);
+as(null);
+console.log(`as(null)          literal.count() → ${await repos.literal.count()}`);
+await scenario.orm.close();

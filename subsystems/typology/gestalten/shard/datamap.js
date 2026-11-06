@@ -2,7 +2,7 @@ import { Vector } from "../../prototypes/vector.js";
 import { Aperture } from "../../prototypes/aperture.js";
 import { Broadcaster } from "../../prototypes/broadcaster.js";
 import * as object from "../belt/object.js";
-import { serialize } from "@mikro-orm/core";
+import { RequestContext, serialize } from "@mikro-orm/core";
 
 export function inject(datamap) {
   return (ctx, next) => {
@@ -50,32 +50,6 @@ export function sanitize(options = {}) {
   return safe;
 }
 
-const plain = (value) => value != null && typeof value === "object" && !Array.isArray(value);
-
-function narrow(given, scope) {
-  const base = typeof given === "string" ? { id: given } : plain(given) ? { ...given } : {};
-  for (const [key, wall] of Object.entries(scope)) {
-    const held = base[key];
-    if (plain(wall) && typeof held === "string") base[key] = { id: held, ...wall };
-    else if (plain(wall) && plain(held)) base[key] = narrow(held, wall);
-    else base[key] = wall;
-  }
-  return base;
-}
-
-function stamp(given, scope) {
-  const base = plain(given) ? { ...given } : {};
-  for (const [key, wall] of Object.entries(scope)) if (!plain(wall)) base[key] = wall;
-  return base;
-}
-
-function scoped(target, fn) {
-  return async (input, ctx) => {
-    if (ctx.scope) input[target] = target === "data" ? stamp(input[target], ctx.scope) : narrow(input[target], ctx.scope);
-    return fn(input, ctx);
-  };
-}
-
 export function errors() {
   return async (ctx, next) => {
     try {
@@ -109,81 +83,80 @@ export function repository(repo, { only } = {}) {
 
   aperture.post(
     "/find",
-    scoped("where", async (input, ctx) => of(ctx).find(input.where || {}, sanitize(input.options))),
+    async (input, ctx) => of(ctx).find(input.where || {}, sanitize(input.options)),
   );
 
   aperture.post(
     "/findOne",
-    scoped("where", async (input, ctx) => {
+    async (input, ctx) => {
       const result = await of(ctx).findOne(input.where || {}, sanitize(input.options));
       ctx.response.status = 200;
       return result;
-    }),
+    },
   );
 
   aperture.post(
     "/findOneOrFail",
-    scoped("where", async (input, ctx) =>
+    async (input, ctx) =>
       of(ctx).findOneOrFail(input.where || {}, sanitize(input.options)),
-    ),
   );
 
   aperture.post(
     "/findAndCount",
-    scoped("where", async (input, ctx) => of(ctx).findAndCount(input.where || {}, sanitize(input.options))),
+    async (input, ctx) => of(ctx).findAndCount(input.where || {}, sanitize(input.options)),
   );
 
   aperture.post(
     "/count",
-    scoped("where", async (input, ctx) => of(ctx).count(input.where || {}, sanitize(input.options))),
+    async (input, ctx) => of(ctx).count(input.where || {}, sanitize(input.options)),
   );
 
   aperture.post(
     "/create",
-    scoped("data", async (input, ctx) => {
+    async (input, ctx) => {
       const entity = await of(ctx).create(input.data || {});
       await em(ctx).flush();
       return entity;
-    }),
+    },
   );
 
   aperture.post(
     "/upsert",
-    scoped("data", async (input, ctx) => {
+    async (input, ctx) => {
       const entity = await of(ctx).upsert(input.data || {}, sanitize(input.options));
       await em(ctx).flush();
       return entity;
-    }),
+    },
   );
 
   if (typeof repo === "function" || typeof repo.ensure === "function") {
     aperture.post(
       "/ensure",
-      scoped("data", async (input, ctx) => {
+      async (input, ctx) => {
         const entity = await of(ctx).ensure(input.data || {});
         await em(ctx).flush();
         return entity;
-      }),
+      },
     );
   }
 
-  aperture.post("/updateOne", scoped("where", (input, ctx) => of(ctx).updateOne(input.where || {}, input.data || {})));
-  aperture.post("/update", scoped("where", (input, ctx) => of(ctx).update(input.where || {}, input.data || {})));
+  aperture.post("/updateOne", (input, ctx) => of(ctx).updateOne(input.where || {}, input.data || {}));
+  aperture.post("/update", (input, ctx) => of(ctx).update(input.where || {}, input.data || {}));
 
   aperture.post(
     "/removeOne",
-    scoped("where", async (input, ctx) => {
+    async (input, ctx) => {
       const entity = await of(ctx).removeOne(input.where || {});
       return { ok: true, id: entity.id };
-    }),
+    },
   );
 
   aperture.post(
     "/remove",
-    scoped("where", async (input, ctx) => {
+    async (input, ctx) => {
       const entities = await of(ctx).remove(input.where || {});
       return { count: entities.length, ids: entities.map((e) => e.id) };
-    }),
+    },
   );
 
   if (only) for (const nature of [...aperture.trie.keys()]) if (!only.includes(nature.replace(/^\//, ""))) aperture.trie.delete(nature);
@@ -206,8 +179,10 @@ export function reactive(repo, twitch, { scope, filter = "user" } = {}) {
       twitchOf(ctx).open(`/after/${name}/${op}`, (hook) => {
         const serialized = hook.input.entity ? serialize(hook.input.entity) : hook.input.entity;
         if (scope && serialized && typeof serialized === "object") {
-          const owner = hook.input.em.getFilterParams(filter)?.[filter] ?? null;
-          if (owner == null)
+          const owner = filter in serialized
+            ? serialized[filter]
+            : hook.input.em.getFilterParams(filter)?.[filter];
+          if (owner === undefined)
             throw new Error(
               `[reactive] ${name}/${op} is ${filter}-scoped but the ORM context carries no owner — the write escaped its request context (a lazy stream must \`carry\` it); a scoped write must never drop silently.`,
             );
@@ -222,7 +197,7 @@ export function reactive(repo, twitch, { scope, filter = "user" } = {}) {
 
   aperture.get("/subscribe", async (input, ctx) => {
     wire(ctx);
-    const resolved = scope ? scope(ctx) : ctx.scope || {};
+    const resolved = scope ? scope(ctx) : {};
     const filtered = { ...(input?.where || {}), ...resolved };
     const { iterable, unsubscribe } = broadcaster.subscribe(filtered);
     ctx.request.raw?.signal?.addEventListener("abort", unsubscribe);
@@ -263,12 +238,12 @@ export function ingest(repo) {
   return aperture;
 }
 
-export function scope(resolve) {
-  return async (ctx, next) => {
-    ctx.scope = resolve(ctx);
-    await next();
-  };
-}
+export const bind = (em, name, resolve) => async (ctx, next) => {
+  RequestContext
+    .getEntityManager(em.name)
+    ?.setFilterParams(name, resolve(ctx));
+  await next();
+};
 
 export function detached(datamap) {
   const queue = [];

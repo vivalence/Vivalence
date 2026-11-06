@@ -41,22 +41,21 @@ const { stagger } = gestalten.belt;
     gestalten.shard.host.cortex(daemon);
     daemon.aperture.branch("/metadata").open("/cortex", () => cortex.strip(daemon.cortex));
 ```
-**`gestalten/tools/` (was `skills/`) — `buffer · entity · mode (places, mode) · thread (summary, thread)`; ← `gestalten/index.js` + `mode/traits/harnessed.js` (arms all four + `paladin.tools.{fs,shell}`).**
+**`gestalten/tools/` — `buffer · entity · mode (paths) · thread`, one name each (Q8); `gestalten/primer/` — 14 primers + `entities`, `render.js` reads the schematic ← `gestalten/index.js`; a MODE imports them, the trait arms `paladin.tools.{fs,shell}` only.**
 ```js
-// systems/runtime/subjects/mode/traits/harnessed.js:62
-    .graft(tools.entity.entity)
-    .graft(tools.buffer.buffer)
-    .graft(tools.thread.thread)
-    .graft(tools.mode.mode)
-    .graft(paladin.tools.fs.fs)
-    .graft(paladin.tools.shell.shell);
+// systems/runtime/subjects/mode/traits/harnessed.js:80
+  const armed = new Vector()
+    .graft(paladin.tools.fs)
+    .graft(paladin.tools.shell);
+// commons/harnesses/runtime/runtime-harness.viva.js:82
+export const tools = new Vector().graft(gestalten.tools.entity, …, gestalten.tools.mode);
 ```
 **`lighthouse/` — `prototype.js` `Lighthouse` · `signer.js` (reach 2, 5 tests) · `apertures/users.js` (`respond · card · authority · aperture`, the one Vector, ← `lifecycle/1-population.js` · `traits/{autologin,joinable}.js`) · `lifecycle/` `population` `core` · `resolution` `traits` · `traits/` `joinable` (`signup · JOINABLE`) · `autologin` · `invitational`.**
 ```js
 // systems/runtime/tests/lighthouse/auth.test.js:3
 import { signer } from "../../lighthouse/signer.js";
 ```
-**`mode/` — `lifecycle/` (`population` `stdout · core` · `resolution` `traits`, `stamp` straight from `../traits/dataset.js`) ← the `daemon/` and `runtime/` lifecycles · `traits/` 16, one UPPERCASE export each, read `traits.mode.<NAME>` (was `runtime.traits.<NAME>`).**
+**`mode/` — `lifecycle/` (`population` `stdout · providers · core` · `resolution` `traits`, `stamp` straight from `../traits/dataset.js`) ← the `daemon/` and `runtime/` lifecycles · `traits/` 16, one UPPERCASE export each, read `traits.mode.<NAME>` (was `runtime.traits.<NAME>`).**
 ```js
 // systems/runtime/subjects/mode/lifecycle/2-resolution.js:1
 import { stagger } from "../../gestalten/belt/index.js";
@@ -74,13 +73,10 @@ import { stamp } from "../traits/dataset.js";
 // systems/runtime/tests/door.test.js:6
   const sentences = (held) => schematics.Instance.faults(held).map(({ at, reason }) => `${at} ${reason}`);
 ```
-**`service/` — `prototype.js` `Service` (plain, held in `die.runtime.services[slug]`, m109); `lifecycle/` `resolution` `traits`; `traits/index.js` = `SERVICE · PROVIDER` + `*attached` (`ATTACHED`); no test uses them.** Trait homes are THREE, each `<subject>/traits/index.js`.
+**`service/` — `Service` (`die.runtime.services[slug]`), `ATTACHED` masks only: 0 wearers.** RULED (`reference/services/`): runtime RUNS · OWNS services, paladin hands tools, never spawns; type = ADDRESS, trait = EXPORT. THREE trait homes: `<subject>/traits/index.js`.
 ```js
-// systems/runtime/subjects/service/traits/index.js:1
-export * from "./attached.js";
-
-export const SERVICE = () => {};
-export const PROVIDER = () => {};
+// subsystems/paladin/prototypes/integrity.js
+export const IMPLIED = { service: ["PROVIDER"], datamap: ["PROVIDER"], hallucinator: ["PROVIDER"] };
 ```
 **`typology.js` ← 6: `commons/fixtures/testing/data/{seed,tiers}.js` · 2 `testament/m76-probe` · `mode/traits/{harnessed,intented}.js` (by package name).**
 
@@ -90,7 +86,7 @@ export const PROVIDER = () => {};
 | Runtime | – | ✓ | ✓ | ✓ | – | – |
 | Lighthouse | – | ✓ | ✓ | ✓ | JOINABLE AUTOLOGIN INVITATIONAL | users |
 | Daemon | ✓ | ✓ | ✓ | ✓ | – | – |
-| Service | – | ✓ | ✓ | ✓ | ATTACHED SERVICE PROVIDER | – |
+| Service | – | ✓ | ✓ | ✓ | ATTACHED PROVIDER | – |
 | Mode | ✓ | – | `factory.js` | ✓ | 16 | – |
 | Thread Turn Buffer Intent | ✓ | – | – | – | `string[]`; INTELLIGENT VOCAL undeclared | – |
 | Literal Symbol Note | ✓ | – | – | – | schema only | – |

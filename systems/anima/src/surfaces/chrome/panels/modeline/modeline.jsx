@@ -11,7 +11,6 @@ export const ROOM = 16;
 
 export const marked = (app, terminal) => {
   let tap = null;
-  let held = false;
   const sided = () => (app.bridge.viewport.narrow ? app.bridge.phonePane === "sidebar" : app.bridge.sidebar.open);
   const opened = () => terminal.legend.chord !== null || terminal.repl.catalog !== null || app.bridge.widget !== null || app.bridge.popover !== null || sided();
   const drop = () => {
@@ -34,10 +33,6 @@ export const marked = (app, terminal) => {
   };
   return {
     pick: () => {
-      if (held) {
-        held = false;
-        return;
-      }
       if (tap !== null) {
         clearTimeout(tap);
         tap = null;
@@ -50,7 +45,6 @@ export const marked = (app, terminal) => {
       }, TAP);
     },
     hold: () => {
-      held = true;
       clearTimeout(tap);
       tap = null;
       drop();
@@ -68,9 +62,10 @@ export const spoken = (seated) => SEATED.find(([test]) => test(seated))[1](seate
 
 const owned = (world) => world.activities.filter((activity) => world.thread !== null && activity.thread === world.thread);
 
-export const placed = (event, viewport) => {
+export const placed = (event) => {
+  const room = event.currentTarget.closest(".client").getBoundingClientRect();
   const rect = event.currentTarget.getBoundingClientRect();
-  return { x: rect.left, bottom: viewport.height - rect.top + LIFT, room: rect.top - ROOM };
+  return { x: rect.left - room.left, bottom: room.bottom - rect.top + LIFT, room: rect.top - room.top - ROOM };
 };
 
 export function Modeline() {
@@ -93,21 +88,22 @@ export function Modeline() {
     if (widget() !== null && widget().id === subject) return app.bridge.$widget.set(null);
     app.bridge.$popover.set(null);
     if (chord() !== null) terminal.legend.dispatch("esc");
-    app.bridge.$widget.set({ id: subject, ...placed(event, app.bridge.viewport) });
+    app.bridge.$widget.set({ id: subject, ...placed(event) });
   };
   const hold = (subject, event) => {
     app.bridge.$widget.set(null);
     if (chord() !== null) terminal.legend.dispatch("esc");
-    app.bridge.$popover.set({ x: event.clientX, y: event.clientY });
+    const room = event.currentTarget.closest(".client").getBoundingClientRect();
+    app.bridge.$popover.set({ x: event.clientX - room.left, y: event.clientY - room.top });
   };
   const thread = () => world().thread;
   const held = () => harness(thread());
   return (
     <parts.Bar
       entity={{ label: thread() === null ? UNCLAIMED : thread().word, mode: thread() === null ? UNCLAIMED : reference(thread().mode) }}
-      harness={{ tune: String(held().tune), effort: String(held().effort), pct: held().context }}
+      harness={{ tier: String(held().tier), effort: String(held().effort), pct: held().context }}
       activity={spoken(owned(world()))}
-      display={{ view: world().terminal.dock.view, align: world().terminal.dock.align, lens: world().terminal.dock.lens, framed: world().terminal.buffer !== null }}
+      display={{ view: world().terminal.dock.view, align: world().terminal.dock.align, lens: world().terminal.dock.lens }}
       box={{ mic: "off", voice: false }}
       system={{ standing: standing(world().runtime.lighthouse), health: world().runtime.status.code }}
       fault={world().activities.some((activity) => activity.status === "FAILED")}

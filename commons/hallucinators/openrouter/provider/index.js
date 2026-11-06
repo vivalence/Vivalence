@@ -2,15 +2,18 @@ import { OpenAI } from "openai";
 import { v } from "@vivalence/typology";
 import {
   buildParams,
+  buildPicture,
   fault,
   readChoice,
   RESPOND,
   streamTranslator,
   translateChoice,
+  translatePicture,
   translateResponse,
 } from "./translate.js";
 
 const DECISIONS = "https://openrouter.ai/api/alpha/decisions";
+const IMAGES = "https://openrouter.ai/api/v1/images";
 
 function extractObject(turn, schema) {
   const done = turn.parts.find((part) =>
@@ -57,6 +60,24 @@ const choosers = {
   },
 };
 
+const painters = {
+  capable: {
+    id: "openai/gpt-image-2",
+    tune: [0.8, 0.6, 0.4, 0.4],
+    limits: { references: 16, mask: false, aspects: ["1:1", "3:2", "2:3"] },
+  },
+  balanced: {
+    id: "black-forest-labs/flux.2-pro",
+    tune: [0.6, 0.5, 0.6, 0.6],
+    limits: { references: 8, mask: false, aspects: ["1:1", "3:2", "2:3", "4:3", "3:4", "16:9", "9:16"] },
+  },
+  fast: {
+    id: "google/gemini-2.5-flash-image",
+    tune: [0.4, 0.3, 0.9, 0.9],
+    limits: { references: 3, mask: false, aspects: ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"] },
+  },
+};
+
 export default async function provider(service) {
   const client = new OpenAI({
     apiKey: service.secrets.key,
@@ -64,6 +85,7 @@ export default async function provider(service) {
   });
   const table = service.statics?.models ?? models;
   const choosing = service.statics?.choosers ?? choosers;
+  const pictures = service.statics?.pictures ?? painters;
 
   function makeDialogue(model) {
     const render = async (request, { signal } = {}) => {
@@ -116,12 +138,35 @@ export default async function provider(service) {
     return { render };
   }
 
+  function makePicture(model) {
+    const render = async (request, { signal } = {}) => {
+      if (request.mask) throw new Error(`[openrouter] ${model.id}: openrouter paints no mask`);
+      if (request.images.length > model.limits.references) {
+        throw new Error(`[openrouter] ${model.id} takes at most ${model.limits.references} references, ${request.images.length} given`);
+      }
+      if (request.settings?.aspect && !model.limits.aspects.includes(request.settings.aspect)) {
+        throw new Error(`[openrouter] ${model.id} paints ${model.limits.aspects.join(" · ")}, not ${request.settings.aspect}`);
+      }
+      const response = await fetch(IMAGES, {
+        method: "POST",
+        signal,
+        headers: { Authorization: `Bearer ${service.secrets.key}`, "Content-Type": "application/json" },
+        body: JSON.stringify(buildPicture(model, request)),
+      }).catch((error) => { throw fault(error); });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw fault(Object.assign(new Error(body.error?.message ?? response.statusText), { status: response.status }));
+      return translatePicture(body);
+    };
+    return { render };
+  }
+
   const faculties = [];
 
   for (const [, model] of Object.entries(table)) {
     const { render, stream } = makeDialogue(model);
     faculties.push({
       type: "dialogue",
+      id: model.id,
       tune: model.tune,
       context: model.context,
       channels: {
@@ -134,7 +179,6 @@ export default async function provider(service) {
         ],
         out: ["text", "tool_use", ...(model.thinking ? ["thinking"] : [])],
       },
-      config: { model: model.id },
       via: { render, stream },
     });
   }
@@ -142,13 +186,25 @@ export default async function provider(service) {
   for (const [, model] of Object.entries(choosing)) {
     faculties.push({
       type: "choice",
+      id: model.id,
       tune: model.tune,
       context: model.context,
       options: model.options,
       choices: model.choices,
       channels: { in: ["text", "object"], out: ["object"] },
-      config: { model: model.id },
       via: makeChoice(model),
+    });
+  }
+
+  for (const [, model] of Object.entries(pictures)) {
+    faculties.push({
+      type: "picture",
+      id: model.id,
+      tune: model.tune,
+      context: 0,
+      channels: { in: ["text", "image"], out: ["image"] },
+      limits: model.limits,
+      via: makePicture(model),
     });
   }
 

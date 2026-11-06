@@ -1,0 +1,661 @@
+#+title: m118 — the parked desk: tools · Files · DEVELOPED · desk routes · aperture · primer · thumbnail · drop · tty board, MOVED whole 11-09 on the straight path (/"i think we should be able to do even without an aperture?! for now. straight to harness."/)
+#+filetags: :darkroom:parked:
+# limit: 70000 chars
+
+Every block below left =quests/m118-darkroom.org= on 11-09 VERBATIM. Revived as its own milestone once the straight path walks. The rulings that shaped them stay in the quest (Q3–Q12, Q15, rulings 4 · 10 · 11).
+
+**** schematics/entities
+
+***** file.js
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/file.js:4
+ const MISSING = v.object({
+   since: v.string().desc('When the patrol first found the mount gone, ISO 8601. Example: "2026-10-21T09:00:00Z"'),
+ });
++
++const DEVELOPED = v.object({
++  prompt: v.string().desc('What was asked. Example: "a red fox in loose watercolor"'),
++  revised: v.string().optional().desc("What the provider painted from, when it rewrote the prompt."),
++  provider: v.string().desc('The hallucinator slug. Example: "openai"'),
++  model: v.string().desc('Example: "gpt-image-2.6-sunburst"'),
++  parent: v.string().optional().desc("The File this picture was edited or varied from. Example: \"01a0…\""),
++  references: v.array(v.object({ file: v.string(), role: v.string() }), { default: [] }).desc('Example: [{ file: "01a0…", role: "style" }]'),
++  mask: v.string().optional().desc("The mask File, when a region was repainted."),
++  settings: v.record(v.string(), v.unknown()).default({}).optional(),
++});
+…
+// :24
+-  traits: v.object({ MISSING: MISSING.default({}).optional() }),
++  traits: v.object({ MISSING: MISSING.default({}).optional(), DEVELOPED: DEVELOPED.optional() }),
+#+END_SRC
+
+*** systems/ghost
+
+**** entities/file
+
+***** hydration.js
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/file/hydration.js:1
+-import { Vector } from "@vivalence/typology";
++import { belt, v, Vector } from "@vivalence/typology";
+
+ export const hydration = new Vector().use(async (ctx, next) => {
+   await next();
++  ctx.entity.trait = belt.traits.cast(ctx.entity, v.file.traits);
+   ctx.entity.url = ctx.runtime.attach.url.branch(`/file/${ctx.entity.id}`).absolute;
+ });
+#+END_SRC
+
+***** types.js
+
+#+BEGIN_SRC js
+import { v } from "@vivalence/typology";
+
+export const ROLE = v.union([v.const("style"), v.const("subject"), v.const("structure")]).desc('What the next picture takes from this reference: paint like this · this thing · these edges and this composition. Example: "style"');
+
+export const NEXT = v.union([v.const("iterate"), v.const("fresh")]).desc('iterate = the next picture is an edit ON the shown one; fresh = a generation. Example: "iterate"');
+export const MODEL = v.string().desc('A picture faculty by name — one of /picture/faculties. Example: "gpt-image-1-mini"');
+export const ASPECT = v.union([v.const("1:1"), v.const("3:2"), v.const("2:3"), v.const("16:9")]).desc('W:H; the faculty\'s limits.aspects says which it paints. Example: "3:2"');
+export const COUNT = v.integer({ minimum: 1, maximum: 4 }).desc("Pictures a say makes. Example: 2");
+
+export const REFERENCE = v.object({
+  file: v.string().desc("A File id this mode holds. Example: \"01a0…\""),
+  role: ROLE,
+});
+
+export const SELECTION = v.object({
+  x: v.number({ minimum: 0, maximum: 1 }),
+  y: v.number({ minimum: 0, maximum: 1 }),
+  w: v.number({ minimum: 0, maximum: 1 }),
+  h: v.number({ minimum: 0, maximum: 1 }),
+  mask: v.string().optional().desc("The mask File the view rasterized from the rectangle."),
+}).desc("A rectangle on the shown picture, normalized. Example: { x: 0.1, y: 0.4, w: 0.3, h: 0.2 }");
+
+export const DESK = {
+  shown: v.string().optional().desc("The File on the frame. Example: \"01a0…\""),
+  compare: v.string().optional().desc("A second File under a slider, when comparing."),
+  batch: v.array(v.string(), { default: [] }).desc("The last proposal, Files in the order the provider returned them."),
+  selection: SELECTION.optional(),
+  references: v.array(REFERENCE, { default: [] }),
+  next: v.union([v.const("iterate"), v.const("fresh")], { default: "iterate" }),
+  model: MODEL.optional(),
+  aspect: ASPECT.optional(),
+  count: v.integer({ minimum: 1, maximum: 4 }, { default: 1 }),
+};
+#+END_SRC
+
+***** tools/index.js
+
+#+BEGIN_SRC js
+export { picture } from "./picture.js";
+#+END_SRC
+
+***** tools/picture.js
+
+#+BEGIN_SRC js
+import { v, Vector } from "@vivalence/typology";
+import { ASPECT, COUNT, MODEL, NEXT, ROLE } from "../types.js";
+import { develop, desk, part, parts, tree } from "../desk.js";
+
+const BUFFER = v.string().desc("The desk buffer's id — in the thread section of your context. Example: \"01a0…\"");
+const FILE = v.string().desc("A picture's File id — from picture_history or a tool result. Example: \"01a0…\"");
+const PROMPT = v.string({ minLength: 1 }).desc('What to make or change, concrete. Example: "a red fox in loose watercolor, white paper showing"');
+
+const knobs = (held, extra = {}) => {
+  if (!held.data.model) throw new Error("[darkroom] no model on the desk — picture_desk { model } first; picture_faculties lists them");
+  return { id: held.data.model, settings: { aspect: held.data.aspect, count: held.data.count, ...extra } };
+};
+
+export const picture = new Vector();
+
+picture.open(
+  {
+    nature: "/picture/generate",
+    valence:
+      "Make new pictures from a prompt and the desk's references. Each picture lands as a File under pictures/ with its prompt, " +
+      "model and references; the first is shown on the frame, all of them in the batch. Returns { message, file: [...] }.",
+    input: v.object({ buffer: BUFFER, prompt: PROMPT }),
+  },
+  async (ctx) => {
+    const held = await desk(ctx, ctx.input.buffer);
+    const rendered = await ctx.mode.harness.picture.render({
+      thread: ctx.thread,
+      prompt: ctx.input.prompt,
+      images: await parts(ctx, held.data.references),
+      ...knobs(held),
+      controller: ctx.controller.branch("picture"),
+    });
+    return develop(ctx, held, rendered, { prompt: ctx.input.prompt, references: held.data.references });
+  },
+);
+
+picture.open(
+  {
+    nature: "/picture/edit",
+    valence:
+      "Change ONE picture: a prompt over it, the desk's selection as a mask when there is one, the desk's references beside it. " +
+      "One change per call — say what to change and what to keep. The result is a new picture whose parent is the one you edited; " +
+      "the original stays. You SEE the result here; picture_look for the full picture.",
+    input: v.object({ buffer: BUFFER, picture: FILE, prompt: PROMPT }),
+  },
+  async (ctx) => {
+    const held = await desk(ctx, ctx.input.buffer);
+    const parent = await ctx.entities.file.findOneOrFail({ id: ctx.input.picture, mode: ctx.mode.entity.id });
+    const rendered = await ctx.mode.harness.picture.render({
+      thread: ctx.thread,
+      prompt: ctx.input.prompt,
+      images: [{ image: await part(parent), role: "init" }, ...(await parts(ctx, held.data.references))],
+      mask: held.data.selection?.mask ? await part(await ctx.entities.file.findOneOrFail({ id: held.data.selection.mask })) : undefined,
+      ...knobs(held, { size: "match_input" }),
+      controller: ctx.controller.branch("picture"),
+    });
+    return develop(ctx, held, rendered, { prompt: ctx.input.prompt, parent: parent.id, mask: held.data.selection?.mask, references: held.data.references });
+  },
+);
+
+picture.open(
+  {
+    nature: "/picture/vary",
+    valence: "Siblings of a picture: the same prompt again, subtle keeps the composition, strong reinvents it. Returns the batch; nothing is shown until you or the operator pick one.",
+    input: v.object({ buffer: BUFFER, picture: FILE, strength: v.union([v.const("subtle"), v.const("strong")]), count: v.integer({ minimum: 1, maximum: 4 }, { default: 2 }).desc("Siblings to make. Example: 2") }),
+  },
+  async (ctx) => {
+    const held = await desk(ctx, ctx.input.buffer);
+    const parent = await ctx.entities.file.findOneOrFail({ id: ctx.input.picture, mode: ctx.mode.entity.id });
+    const prompt = ctx.input.strength === "subtle"
+      ? `${parent.trait.DEVELOPED.prompt}. Keep the composition, vary the details.`
+      : `${parent.trait.DEVELOPED.prompt}. A fresh take on the same subject.`;
+    const rendered = await ctx.mode.harness.picture.render({
+      thread: ctx.thread,
+      prompt,
+      images: [{ image: await part(parent), role: ctx.input.strength === "subtle" ? "init" : "subject" }],
+      ...knobs(held, { count: ctx.input.count }),
+      controller: ctx.controller.branch("picture"),
+    });
+    return develop(ctx, held, rendered, { prompt, parent: parent.id, references: [] }, { show: false });
+  },
+);
+
+picture.open(
+  {
+    nature: "/picture/look",
+    valence: "See a picture at full size — the thumbnail in a result is a judgment aid, this is the picture. Costs context: look when you need detail (text, hands, edges), not for every picture.",
+    input: v.object({ picture: FILE }),
+  },
+  async (ctx) => {
+    const file = await ctx.entities.file.findOneOrFail({ id: ctx.input.picture, mode: ctx.mode.entity.id });
+    return { message: `${file.path} · ${file.trait.DEVELOPED?.prompt ?? "a reference"}`, file: [file] };
+  },
+);
+
+picture.open(
+  {
+    nature: "/picture/show",
+    valence: "Put a picture on the frame — the operator sees it; compare puts a second one under a slider. Clears the selection.",
+    input: v.object({ buffer: BUFFER, picture: FILE, compare: FILE.optional() }),
+  },
+  async (ctx) => {
+    const held = await desk(ctx, ctx.input.buffer);
+    held.data = { ...held.data, shown: ctx.input.picture, compare: ctx.input.compare, selection: undefined };
+    await ctx.entities.em.flush();
+    return { message: `showing ${ctx.input.picture}`, buffer: [held] };
+  },
+);
+
+picture.open(
+  {
+    nature: "/picture/reference",
+    valence: "Bind a File to the desk as a reference with a role, or drop it (role absent). References ride every generate and edit until dropped. A style says 'paint like this', a subject 'this thing', a structure 'these edges and this composition'.",
+    input: v.object({ buffer: BUFFER, file: FILE, role: ROLE.optional() }),
+  },
+  async (ctx) => {
+    const held = await desk(ctx, ctx.input.buffer);
+    const kept = held.data.references.filter((reference) => reference.file !== ctx.input.file);
+    held.data = { ...held.data, references: ctx.input.role ? [...kept, { file: ctx.input.file, role: ctx.input.role }] : kept };
+    await ctx.entities.em.flush();
+    return { message: ctx.input.role ? `${ctx.input.file} is a ${ctx.input.role} reference` : `${ctx.input.file} dropped`, buffer: [held] };
+  },
+);
+
+picture.open(
+  {
+    nature: "/picture/history",
+    valence: "The pictures this desk made, newest first, each with prompt · model · parent — the version tree. Use it to find the id to edit, vary, show or look at.",
+    input: v.object({ buffer: BUFFER, limit: v.integer({ minimum: 1, maximum: 50 }, { default: 10 }).desc("Example: 10") }),
+  },
+  async (ctx) => tree(ctx, await desk(ctx, ctx.input.buffer), ctx.input.limit),
+);
+
+picture.open(
+  {
+    nature: "/picture/desk",
+    valence: "Set the desk's knobs — next (iterate | fresh), model (a faculty by name), aspect, count. The operator's side panel hits this same route; a key left out stays as it is.",
+    input: v.object({ buffer: BUFFER, next: NEXT.optional(), model: MODEL.optional(), aspect: ASPECT.optional(), count: COUNT.optional() }),
+  },
+  async (ctx) => {
+    const held = await desk(ctx, ctx.input.buffer);
+    for (const knob of ["next", "model", "aspect", "count"]) if (ctx.input[knob] !== undefined) held.data = { ...held.data, [knob]: ctx.input[knob] };
+    await ctx.entities.em.flush();
+    return { message: `desk: ${held.data.next} · ${held.data.model} · ${held.data.aspect} · ${held.data.count}`, buffer: [held] };
+  },
+);
+
+picture.open(
+  {
+    nature: "/picture/faculties",
+    valence: "The picture faculties this daemon paints with — model, provider, limits (references · mask · aspects · size), cost. Pick one with picture_desk { model }.",
+    input: v.object({}),
+  },
+  (ctx) => ctx.cortex.find({ type: "picture", via: "render" }).map(({ id, provider, limits, cost }) => ({ id, provider, limits, cost })),
+);
+
+picture.open(
+  {
+    nature: "/picture/drop",
+    valence: "A dropped file becomes a reference: the request body is the bytes, x-viva-name the name, x-viva-buffer the desk; role style until the operator picks another.",
+  },
+  async (ctx) => {
+    const body = ctx.request.raw.body;
+    if (!body) throw new Error("[darkroom] no file in the request body");
+    const name = decodeURIComponent(ctx.request.headers["x-viva-name"]);
+    const held = await desk(ctx, ctx.request.headers["x-viva-buffer"]);
+    const file = await ctx.mode.call.files.receive({ path: `references/${name}`, bytes: new Uint8Array(await new Response(body).arrayBuffer()) });
+    held.data = { ...held.data, references: [...held.data.references.filter((reference) => reference.file !== file.id), { file: file.id, role: "style" }] };
+    await ctx.entities.em.flush();
+    return { message: `${name} is a style reference`, file: [file], buffer: [held] };
+  },
+);
+#+END_SRC
+
+=knobs= refuses a say without a model (law 6). The three painting tools render through =ctx.mode.harness.picture.render= with =thread: ctx.thread= (Q12 B; a tool's ctx carries the thread id, =harnessed.js:103=): the thread's INTELLIGENT tune is the policy, the leaf has its caller. =ctx.controller= is bound per call by =settle= (=belt/hallucinate.js:84=). =/picture/faculties= reads =ctx.cortex= — a =contexts.host= word (HARNESSED reads =context.cortex=). =/picture/drop= is media's =/media/ingest= shape (=ctx.request.raw.body= + =x-viva-name=, =aperture/index.js:114=); No =input= schema: a non-JSON body leaves =request.body= null (=shape/http.js:11=) and a guarded cast of ={ buffer }= on null throws before the handler — so the buffer rides a header beside the name. =ctx.request= DOES reach it (read 11-08): the mode's =aperture= export is grafted into =die.mode.aperture= (=mode/lifecycle/1-population.js:20=), the HTTP dispatch builds the ctx with =request= (=http.js:13=) and carries it down; =headers= is a plain object there (=Object.fromEntries=), =url= a string — media's =?name= arm (=url.searchParams?.=) is dead code, its header arm is what works. A tool reading a path on this machine (=picture_import=) stays in =* deferred=.
+
+***** desk.js
+
+#+BEGIN_SRC js
+import { encodeBase64 } from "@std/encoding/base64";
+import { thumbnail } from "./thumbnail.js";
+
+const EXTENSION = { "image/png": "png", "image/webp": "webp", "image/jpeg": "jpg" };
+
+export const desk = (ctx, id) => ctx.entities.buffer.findOneOrFail({ id, mode: ctx.mode.entity.id });
+
+export const part = async (file) => ({ type: "image", media: file.mime, data: encodeBase64(await Deno.readFile(file.mount)) });
+
+export const parts = async (ctx, references) =>
+  Promise.all(references.map(async (reference) => ({ image: await part(await ctx.entities.file.findOneOrFail({ id: reference.file, mode: ctx.mode.entity.id })), role: reference.role })));
+
+const digest = async (bytes) =>
+  Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))).map((byte) => byte.toString(16).padStart(2, "0")).join("").slice(0, 16);
+
+export async function settle(ctx, bytes, media, developed) {
+  const path = `pictures/${await digest(bytes)}.${EXTENSION[media]}`;
+  const file = await ctx.mode.call.files.receive({ path, bytes, mime: media });
+  file.traits = [...new Set([...file.traits, "DEVELOPED"])];
+  file.trait = { ...file.trait, DEVELOPED: developed };
+  await ctx.entities.em.flush();
+  return file;
+}
+
+export async function develop(ctx, held, rendered, provenance, { show = true } = {}) {
+  const pictures = [];
+  for (const image of rendered.images) {
+    const bytes = Uint8Array.from(atob(image.data), (char) => char.charCodeAt(0));
+    pictures.push(await settle(ctx, bytes, image.media, { ...provenance, revised: rendered.revised, provider: rendered.provider, model: rendered.model, settings: rendered.settings ?? {} }));
+  }
+  held.data = { ...held.data, batch: pictures.map((file) => file.id), ...(show && { shown: pictures[0].id, compare: undefined }) };
+  await ctx.entities.em.flush();
+  return {
+    message: `${pictures.length} picture${pictures.length === 1 ? "" : "s"}${show ? `, showing ${pictures[0].id}` : ""}${rendered.revised ? ` · painted from: ${rendered.revised}` : ""}`,
+    file: pictures,
+    buffer: [held],
+  };
+}
+
+export async function tree(ctx, held, limit) {
+  const pictures = await ctx.entities.file.find({ mode: ctx.mode.entity.id, traits: { $like: '%"DEVELOPED"%' } }, { orderBy: { createdAt: "desc" }, limit });
+  return {
+    message: pictures.length ? `${pictures.length} pictures, newest first` : "no pictures yet",
+    file: pictures,
+    tree: pictures.map((file) => ({ id: file.id, prompt: file.trait.DEVELOPED.prompt, model: file.trait.DEVELOPED.model, parent: file.trait.DEVELOPED.parent ?? null, shown: file.id === held.data.shown })),
+  };
+}
+#+END_SRC
+
+The mode runs on Files (11-09 /"whole mode runs on files"/): a reference on the desk is a File id + role, a parent is a File, a drop and a generation each land as a File through =files.receive=; bytes exist at ONE crossing, =part(file)= → =Part.Image=, right before the cortex wire — typology reads no disk (=Deno.*= only in =shard/=), a provider sees bytes. =parts= is =references → Part.Image[]=, scoped to this mode's Files.
+
+=rendered.provider · model= — stamped by =depict= (=belt/hallucinate.js= hunk above): =faculty.provider= is the runtime's stamp (=runtime/lifecycle/1-population.js:91= ={ ...faculty, provider: citizen.manifest.slug }=), =faculty.config.model= the provider's own (anthropic's shape). =traits: { $like }= over a json column — mikro probe on =:memory:= first (/"a library's limit is a probe"/).
+
+***** thumbnail.js
+
+#+BEGIN_SRC js
+import { encodeBase64 } from "@std/encoding/base64";
+import { Image } from "https://deno.land/x/imagescript@1.3.0/mod.ts";
+
+export const EDGE = 512;
+
+export async function thumbnail(bytes, edge = EDGE) {
+  const image = await Image.decode(bytes);
+  const scale = edge / Math.max(image.width, image.height);
+  if (scale < 1) image.resize(Math.round(image.width * scale), Math.round(image.height * scale));
+  return { type: "image", media: "image/webp", data: encodeBase64(await image.encodeWEBP(70)) };
+}
+#+END_SRC
+
+=imagescript@1.3.0= — the version is pinned on go against what =deno.land/x= serves; =@std/encoding= rides the root import map (a registry module imports by URL — =jsr:@std/encoding@<ver>/base64= on go).
+
+***** harness.js
+
+#+BEGIN_SRC js
+import { Vector } from "@vivalence/typology";
+
+export const IDENTITY = [
+  "You are the operator's hands at an image desk. You make and change pictures with the image tools; the operator looks and talks.",
+  "One change per call: say what changes and what stays. Keep the operator's words in the prompt; add craft (light, lens, medium, composition), never a different subject.",
+  "You SEE every picture you make as a thumbnail in the tool result. Judge it against what was asked before the next call; picture_look when a detail decides it.",
+  "The desk's next · model · aspect · count are the operator's: read them in the desk section, paint with them; move one with picture_desk only when the operator asks (a cheaper model for ideas, the strong one to finish).",
+  "next = on <id> means the operator wants the shown picture CHANGED (picture_edit on it); fresh means a new picture (picture_generate).",
+  "The desk's references ride every generate and edit: a style says paint like this, a subject this thing, a structure these edges and this composition. Bind what the operator dropped with picture_reference before painting with it.",
+  "A selection on the desk is a region to repaint: edit the shown picture while the selection stands; say what goes in the hole.",
+  "Never describe a picture you did not look at. Never repeat a call with the same input.",
+].join("\n");
+
+const named = (file) => `${file.id} · ${file.path} · ${file.trait.DEVELOPED?.prompt ?? "reference"}`;
+
+export const section = async ({ entities, mode, thread }) => {
+  const held = await entities.buffer.findOne({ thread: thread.id, mode: mode.entity.id });
+  if (!held) return "[Desk] none on this thread yet — picture_generate makes one on the buffer the thread section names.";
+  const shown = held.data.shown ? await entities.file.findOne({ id: held.data.shown }) : null;
+  const recent = await entities.file.find({ mode: mode.entity.id, traits: { $like: '%"DEVELOPED"%' } }, { orderBy: { createdAt: "desc" }, limit: 5 });
+  return [
+    `[Desk ${held.id}] shown: ${shown ? named(shown) : "nothing"}${held.data.compare ? ` · compare: ${held.data.compare}` : ""}`,
+    `selection: ${held.data.selection ? `x ${held.data.selection.x} y ${held.data.selection.y} w ${held.data.selection.w} h ${held.data.selection.h}${held.data.selection.mask ? " · mask ready" : ""}` : "none"}`,
+    `references: ${held.data.references.length ? held.data.references.map((reference) => `${reference.file} as ${reference.role}`).join(", ") : "none"}`,
+    `batch: ${held.data.batch.length ? held.data.batch.join(", ") : "none"}`,
+    `next: ${held.data.next} · model: ${held.data.model ?? "none — picture_desk { model }"} · aspect: ${held.data.aspect ?? "none"} · count: ${held.data.count}`,
+    `recent pictures: ${recent.length ? recent.map(named).join(" | ") : "none"}`,
+  ].join("\n");
+};
+
+export const primer = new Vector().open("identity", IDENTITY);
+
+export const harness = new Vector();
+
+harness.branch("/dialogue").use(async (ctx, next) => {
+  ctx.hallucination.primer.open("desk", section);
+  await next();
+});
+#+END_SRC
+
+The =desk= section is volatile: opened from the mode's =/dialogue= middleware (hello-world's =format= shape) it lands AFTER the runtime harness's =thread= row, so the cache mark (=harnessed.js marking=: the section before =thread=) keeps the stable prefix cached.
+
+***** buffer/drop.js
+
+media's =upload.js= =send= (read 11-08), one route, one header:
+
+#+BEGIN_SRC js
+import { Connection, Url, shard } from "@vivalence/typology";
+
+export function send(daemon, mode, buffer, browserFile) {
+  const connection = new Connection(new Url(daemon.remote), shard.transmitter.fetcher);
+  if (daemon.lighthouse?.$authority) connection.use(shard.connection.authorize(daemon.lighthouse.$authority));
+  const path = `/mode/${mode.manifest.type}/${mode.manifest.slug}/picture/drop`;
+  return connection.post(path, { raw: { body: browserFile }, headers: { "x-viva-name": encodeURIComponent(browserFile.name), "x-viva-buffer": buffer.id } });
+}
+#+END_SRC
+
+The =daemon= handle is =buffer.mode.daemon= (media's =Media.svelte:222= =<Bin daemon={buffer.mode.daemon} …>=, read 11-08). SKETCH: =connection.post= vs media's =.stream= (media yields Progress, ours returns once).
+
+***** buffer/Darkroom.svelte
+
+His comp's dom board, ported: the markup's classes verbatim, every datum re-sourced, no =›= field (Q10 A).
+
+#+BEGIN_SRC svelte
+<script>
+  import { onMount } from "svelte";
+  import "./desk.css";
+  import { send } from "./drop.js";
+
+  const { terminal, buffer } = $props();
+  const data = buffer.$data;
+  const thread = terminal.$thread;
+  const files = terminal.client.runtime.entities.file.$entities;
+  const turns = terminal.client.runtime.entities.turn.$entities;
+  const activities = terminal.client.runtime.entities.activity.$entities;
+
+  const ROLES = ["style", "subject", "structure"];
+  const ASPECTS = ["1:1", "3:2", "2:3", "16:9"];
+  const COUNTS = [1, 2, 4];
+
+  let faculties = $state([]);
+  let over = $state(false);
+  onMount(async () => {
+    faculties = await buffer.mode.call.picture.faculties({});
+  });
+
+  const mine = $derived($files.filter((file) => file.mode.id === buffer.mode.id));
+  const byId = $derived(new Map(mine.map((file) => [file.id, file])));
+  const pictures = $derived(mine.filter((file) => file.traits.includes("DEVELOPED")).sort((a, b) => a.createdAt.localeCompare(b.createdAt)));
+  const shown = $derived($data.shown ? byId.get($data.shown) : null);
+  const busy = $derived($activities.find((activity) => activity.thread === $thread.id && activity.status === "RUNNING"));
+
+  const call = (route, input) => buffer.mode.call.picture[route]({ buffer: buffer.id, ...input });
+  const knob = (patch) => call("desk", patch);
+  const show = (file) => call("show", { picture: file.id });
+  const bind = (file, role) => call("reference", { file: file.id, role });
+  const unbind = (file) => call("reference", { file: file.id });
+
+  const tag = (id) => id.slice(-4);
+  const name = (file) => file.path.split("/").at(-1);
+  const developed = (file) => (file.traits.includes("DEVELOPED") ? file.trait.DEVELOPED : null);
+  const withs = (file) => {
+    const made = developed(file);
+    if (!made) return `a reference · ${$data.references.find((reference) => reference.file === file.id).role}`;
+    return [made.parent ? `on ${tag(made.parent)}` : null, ...made.references.map((reference) => `${tag(reference.file)} as ${reference.role}`), `${made.model} · ${made.settings.aspect}`].filter(Boolean).join(" · ");
+  };
+  const meta = (file) => [tag(file.id), withs(file), developed(file) ? developed(file).prompt : ""].join(" · ");
+  const said = (activity) => $turns.filter((turn) => turn.id === activity.turn).flatMap((turn) => turn.parts).filter((part) => part.type === "text").map((part) => part.text).join(" ");
+  const hint = (faculty) => [faculty.provider, `${faculty.limits.references} references`, faculty.limits.mask ? "mask" : "no mask", faculty.limits.size, faculty.cost].join(" · ");
+
+  function dropped(event) {
+    event.preventDefault();
+    over = false;
+    const id = event.dataTransfer.getData("text/picture");
+    if (id) return bind(byId.get(id), "style");
+    for (const browserFile of [...event.dataTransfer.files].filter((file) => file.type.startsWith("image/"))) send(buffer.mode.daemon, buffer.mode, buffer, browserFile);
+  }
+  const dragging = (picture) => (event) => {
+    event.dataTransfer.setData("text/picture", picture.id);
+    event.dataTransfer.effectAllowed = "copy";
+  };
+</script>
+
+<div class="kit desk" ondragover={(event) => { event.preventDefault(); over = true; }} ondragleave={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) over = false; }} ondrop={dropped}>
+  <aside class="side">
+    <div class="set"><span class="kit-label">next</span>
+      <span class="kit-choice pad">
+        <button aria-pressed={$data.next === "iterate"} onclick={() => knob({ next: "iterate" })}>on {shown ? tag(shown.id) : "—"}</button>
+        <button aria-pressed={$data.next === "fresh"} onclick={() => knob({ next: "fresh" })}>fresh</button>
+      </span></div>
+    <div class="set"><span class="kit-label">model</span>
+      {#each faculties as faculty, index (faculty.model)}
+        <button class="kit-row" aria-current={$data.model === faculty.model} onclick={() => knob({ model: faculty.model })}>
+          <span class="k">{index + 1}</span><span class="n">{faculty.model}</span><span></span><span class="v hint" title={hint(faculty)}>?</span>
+        </button>
+      {/each}</div>
+    <div class="set"><span class="kit-label">aspect</span>
+      <span class="kit-choice pad">{#each ASPECTS as aspect}<button aria-pressed={$data.aspect === aspect} onclick={() => knob({ aspect })}>{aspect}</button>{/each}</span></div>
+    <div class="set"><span class="kit-label">count</span>
+      <span class="kit-choice pad">{#each COUNTS as count}<button aria-pressed={$data.count === count} onclick={() => knob({ count })}>{count}</button>{/each}</span></div>
+    <div class="set references"><span class="kit-label">references</span>
+      {#each $data.references as reference (reference.file)}
+        {@const file = byId.get(reference.file)}
+        <div class="ref">
+          <button class="pic thumb" class:is-shown={$data.shown === file.id} aria-label="show reference {name(file)}" onclick={() => show(file)}><img src={file.url} alt="" /></button>
+          <span class="n"><span class="name">{name(file)}</span><button class="x" aria-label="remove {name(file)}" onclick={() => unbind(file)}>×</button></span>
+          <span class="kit-choice">{#each ROLES as role}<button aria-pressed={reference.role === role} onclick={() => bind(file, role)}>{role}</button>{/each}</span>
+        </div>
+      {/each}
+      <button class="add" class:is-over={over} aria-label="add a reference" title="drop a file, or a picture from the strip">+ drop</button></div>
+  </aside>
+
+  <div class="main">
+    <div class="pic is-frame frame">
+      {#if shown && !busy}<img src={shown.url} alt={developed(shown) ? developed(shown).prompt : name(shown)} />{/if}
+      {#if over}<span class="empty over">drop · a reference</span>{/if}
+      {#if busy}<span class="empty"><span class="kit-dot is-running"></span>{said(busy)}</span>{/if}
+      {#if !shown && !busy}<span class="empty">no picture yet · say one</span>{/if}
+    </div>
+    <div class="status"><span class="grow"></span>{#if shown && !busy}<span class="hint" title={meta(shown)}>?</span>{/if}</div>
+    <div class="strip">
+      {#each pictures as picture (picture.id)}
+        <button class="pic thumb" class:is-shown={$data.shown === picture.id} class:is-root={developed(picture).parent === null} aria-label="show {tag(picture.id)}" title={meta(picture)} draggable="true" ondragstart={dragging(picture)} onclick={() => show(picture)}><img src={picture.url} alt="" /></button>
+      {/each}
+    </div>
+  </div>
+</div>
+#+END_SRC
+
+Re-sourced: the comp's =refs[].name= → the File's =path= tail; =pictures[].with= → =DEVELOPED= (=parent · references · model · settings.aspect=); =busy= → the thread's RUNNING activity, its turn's text; =models[]= → =/picture/faculties=. SKETCH: =import "./desk.css"= in a svelte view — chess's =Shell.svelte= read on go 6 for how a registry view carries a sheet; =terminal.$thread= as a svelte store (=atom.subscribe=, codestyle) — proven on go 6.
+
+***** buffer/darkroom.jsx
+
+His tty board (=desk-comp/tty.js=), Solid over opentui, chess's =play.jsx= + =scaled.js= shape; the picture IN the frame.
+
+#+BEGIN_SRC jsx
+import { createResource, For, from, Show } from "solid-js";
+import { extend } from "@opentui/solid";
+import { ScaledImage } from "./scaled.js";
+
+extend({ scaled_image: ScaledImage });
+
+const WIDTH = 96;
+const ROWS = 13;
+
+const tag = (id) => (id ? id.slice(-4) : "—");
+const latched = (on, text) => ({ c: on ? "inv" : "m", t: on ? ` ${text} ` : text });
+
+const rows = (desk, faculties, pictures) => [
+  [["m", "next"], latched(desk.next === "iterate", `on ${tag(desk.shown)}`), latched(desk.next === "fresh", "fresh")],
+  [],
+  [["m", "model"], ...faculties.flatMap((faculty, index) => (desk.model === faculty.model ? [["inv", ` ${index + 1} ${faculty.model} `]] : [["P b", String(index + 1)], ["i", ` ${faculty.model}`]]))],
+  [],
+  [["m", "aspect"], ...["1:1", "3:2", "2:3", "16:9"].map((aspect) => latched(desk.aspect === aspect, aspect))],
+  [],
+  [["m", "count"], ...[1, 2, 4].map((count) => latched(desk.count === count, String(count)))],
+  [],
+  [["m", "refs"], ...desk.references.flatMap((reference) => [["i", `▣ ${tag(reference.file)}`], ["inv", ` ${reference.role} `]]), ["P b", "+"]],
+  [],
+  [["bd", `┌${"─".repeat(WIDTH)}┐`]],
+  ...Array.from({ length: ROWS }, () => [["bd", "│"], ["sk", " ".repeat(WIDTH)], ["bd", "│"]]),
+  [["bd", `└${"─".repeat(WIDTH)}┘`]],
+  [],
+  pictures.map((picture) => (desk.shown === picture.id ? ["inv", ` ${tag(picture.id)} `] : ["sk", ` ${tag(picture.id)} `])),
+];
+
+export function Darkroom(props) {
+  const desk = from(props.buffer.$data);
+  const files = from(props.terminal.client.runtime.entities.file.$entities);
+  const [faculties] = createResource(() => props.buffer.mode.call.picture.faculties({}));
+  const pictures = () => files().filter((file) => file.mode.id === props.buffer.mode.id && file.traits.includes("DEVELOPED")).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  const shown = () => files().find((file) => file.id === desk().shown);
+  const pick = (key) => {
+    const faculty = (faculties() ?? [])[Number(key) - 1];
+    if (faculty) props.buffer.mode.call.picture.desk({ buffer: props.buffer.id, model: faculty.model });
+  };
+  return (
+    <box flexDirection="column" onKeyDown={(event) => /^[1-4]$/.test(event.name) && pick(event.name)}>
+      <For each={rows(desk(), faculties() ?? [], pictures())}>
+        {(spans) => (
+          <text>
+            <For each={spans}>{(span) => <span class={span.c}>{span.t}</span>}</For>
+          </text>
+        )}
+      </For>
+      <Show when={shown()}>{(file) => <scaled_image src={file().url} position="absolute" top={11} left={1} width={WIDTH} height={ROWS} />}</Show>
+    </box>
+  );
+}
+#+END_SRC
+
+SKETCH: the span classes → opentui =fg= · =bg= props from the ghost's theme (=tokens("northsea", …)=, =ghost/surfaces/chrome/index.js:24=) — the comp's =m · inv · P · sk · bd= are the FLAT palette; keys beyond =1–4= (next · aspect · count · refs) are not drawn as keys in the comp → the ghost keymap on go 6, or a repl =/desk= signal.
+
+***** darkroom.viva.js
+
+#+BEGIN_SRC js
+import { mime, v, Vector } from "@vivalence/typology";
+import { DESK } from "./types.js";
+import { picture } from "./tools/index.js";
+
+export { harness, primer } from "./harness.js";
+
+export const manifest = {
+  type: "editor",
+  slug: "darkroom",
+  name: "Darkroom",
+  description:
+    "An image desk: pictures are Files under pictures/, each with its prompt, model and parent; the buffer holds what is shown, " +
+    "the selection, the references and the last batch. The chat and the canvas move the same keys through the same routes.",
+  version: "0.1.0",
+  traits: ["VIEWABLE", "EXPOSED", "FILESINK", "HARNESSED", "CONVERSATIONAL", "TOOLING", "PRIMER"],
+};
+
+export const buffer = v
+  .buffer({ data: DESK })
+  .desc("One desk. data.shown is the picture on the frame; data.batch the last proposal; data.references what the next picture is to take from. Example: picture_generate { buffer, prompt: \"a red fox in watercolor\" }");
+
+export const views = [
+  { slug: "darkroom", mount: "buffer/Darkroom.svelte", mime: mime.dom.svelte },
+  { slug: "darkroom", mount: "buffer/darkroom.jsx", mime: mime.tty.solid },
+];
+
+export const tools = new Vector().graft(picture);
+
+export const aperture = new Vector().graft(picture);
+#+END_SRC
+
+***** rig.js · picture.test.js · provider fixtures
+
+=mountMode= from =@vivalence/runtime/scenarios= with a scripted cortex (=cortex-contract= pattern: a faculty whose =render= returns a 1×1 png); =picture_generate= → a File under a temp mountpoint, =DEVELOPED= cast, =desk.shown= set, =shown[0].media === "image/webp"=; the provider suites stub =globalThis.fetch= with recorded bodies (=models.md= §2 shapes), assert the request body and the translated response, no key.
+
+* the law — as it stood 11-08, before the straight path
+
+1. **a picture is a FACULTY the cortex picks EXACTLY (=provider · model=) and ranks by =tier= · =tune= only among what is left, like every avenue** (Q13A · Q13B) — =type: "image"=, =via.render= only (partials deferred); a provider translates ONE request (={prompt, images[], mask?, settings}= → ={images[], revised?}=); =belt.hallucinate= owns the controller and the span. The daemon wire lists it with the others.
+2. **a picture is a File under the mode's mountpoint, content-addressed**: =pictures/<sha256:16>.<ext>=, one row per (mode, path), served at =/attached/file/:id=, never rewritten; provenance rides =file.trait.DEVELOPED= with =parent= — the version tree IS the File rows.
+3. **the desk is =buffer.data=**: =shown · batch · compare · selection · references= + the operator's knobs =next · model · aspect · count= — the screen's state the law already names (/"state should include my current sleecteds!"/). A click and a tool call change the SAME keys through the SAME routes.
+4. **how the MODEL sees a picture it made — OPEN (Q15)**: a tool's yield carries the File row; no slot on the tool result is ruled (=shown= · =images= · =parts= all REJECTED).
+5. **a reference is a File with a ROLE bound at the desk** (=style · subject · structure=; the wire's =init= is the edit tool's), never a trait on the File — one File can be a style here and a subject there. A saved style (Recraft) is deferred.
+6. **the mode guesses nothing**: no default model · aspect; the operator picks =model= · =aspect= on the desk (his comp), the agent moves them through =picture_desk=, a say without a model is refused LOUD; the cortex resolves by name, by tune only when no name is set; =.desc= examples are concrete.
+7. **tool-first**: the capability is a =tools= route (=image_*=); the aperture grafts the SAME vector for the view; the domain takes it when a second mode wants it.
+8. **no import leaves the mode's directory**; a URL dep (the resizer) sits in the mode; providers in =commons/hallucinators/=, the gateway seat.
+
+* milestones — the parked ones, 11-08 numbering
+** 4 · the model's eyes + provenance — OPEN on Q15
+
+Green: the Q15 ruling landed (unwritten); =v.file.traits.DEVELOPED= cast at hydration (ghost =entities/file/hydration.js= gains =belt.traits.cast=, the thread's shape); =file-entity.snapshot= re-pinned.
+
+** 5 · the darkroom package — the tools and the harness
+
+Green: =viva registry/tap ~/.viva/registry/darkroom= (his); =mountMode= rig boots the mode with a scripted cortex; =picture_generate= writes =pictures/<hash>.png=, records the File with =DEVELOPED=, sets =desk.shown= + =desk.batch=, returns ={message, file:[…], shown:[thumb]}=; =picture_edit= with =mask= and =references=; =picture_vary · picture_look · picture_show · picture_reference · picture_history= each one test; the primer's =desk= section lists shown · selection · references · the last five pictures with prompts; =harness.snapshot= pins the assembled prompt (hello-world's habit).
+
+** 6 · the desk view — his comp on the buffer
+
+Green: =Darkroom.svelte= compiles under =npm:svelte/server=; mounted on =:1794= in each of dapper's four themes it shows the comp's panes: the side's =next · model · aspect · count= latched from =buffer.data=, the model rows from =/picture/faculties= with the =?= meta, the references with role chips and ×, =+ drop= taking a file (→ =/picture/drop=) and a strip picture (→ =/picture/reference=); the frame shows =desk.shown= (a picture or a reference) with the over · busy · empty states; the status =?= reads =DEVELOPED=; the strip ranks by =createdAt= with a gap before each root and a ring on the shown one; every click hits a =/picture/*= route a tool also hits. =darkroom.jsx= (=mime.tty.solid=) draws the tty board with the picture in the frame (chess's =ScaledImage=); keys =1–4= pick the model. =desk.css= head = =desk-comp/sheet.css= + =kit.css= byte for byte.
+
+blast row, parked: | =subsystems/typology/schematics/entities/file.js= | =DEVELOPED= | ghost =entities/file/hydration.js= (cast added) · =file-entity.snapshot= | at land: snapshot re-pin |
+
+blast row, parked: | =commons/hallucinators/anthropic/provider/translate.js= | tool_result content → array | =anthropic/tests= | at land: fixture bodies change shape |
+
+blast row, parked: | =commons/hallucinators/openrouter/provider/translate.js= | tool message + image user message | =openrouter/tests= | at land |
+
+blast row, parked: | =systems/ghost/entities/file/hydration.js= | =trait= cast | every client File row; m113 views read =file.url= only | none |
+
+* QA — markers parked 11-09 with the desk
+#+marker_qa: m118/T-edit-on · revised 11-08 (the comp has no rectangle) · with next = on <id> I type "make the tail bushier", I see a new picture with the tail changed and the rest kept, the strip shows it after its parent with no root gap
+#+marker_qa: m118/T-vary · revised 11-08 (no ▸ button in the comp) · I type "two more like this", I see =picture_vary= in the tool calls and two twins side by side in the strip, the frame unchanged until I click one
+#+marker_qa: m118/T-look · pending · I type "is the text on the sign legible?", I see =picture_look= in the tool calls and an answer that quotes what the sign says
+#+marker_qa: m118/T-next-fresh · pending · with a picture shown I click fresh and type "a heron", I see a new ROOT in the strip (a gap before it), the fox untouched; back on =on <id>= the next say edits the heron
+#+marker_qa: m118/T-strip-to-reference · pending · I drag the shown fox from the strip onto + drop, I see it in references as style; I click subject; "another one" → a picture with that fox as subject
+#+marker_qa: m118/T-no-model · pending · on a fresh desk I type "a fox" with no model picked, I see the reply name the refusal and =picture_desk= · =picture_faculties= in the calls, no picture painted
+#+marker_qa: m118/T-tty · pending · in ghost the desk shows the comp's 26 rows, the shown picture inside the frame, key 2 moves the inverse to mini and anima's side panel follows

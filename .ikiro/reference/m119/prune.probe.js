@@ -1,0 +1,32 @@
+import { MikroORM, wrap } from "@mikro-orm/core";
+import { Datamap } from "@vivalence/typology";
+import { sets, DaemonEntity, ModeEntity, UserEntity } from "@vivalence/runtime";
+const root = Deno.args[0];
+const { assemble } = await import(`${root}/systems/runtime/gestalten/belt/assemble.js`);
+const { config } = await import(`${root}/commons/datamaps/libsql/libsql.viva.js`);
+const { prune } = await import(`${root}/systems/runtime/gestalten/belt/modes.js`);
+const assembled = assemble([sets.identity, sets.composition, sets.traits, sets.userspace, sets.transient]);
+const orm = await MikroORM.init(config({}, { entities: assembled.entities.map((d) => d.schema), dbName: ":memory:" }));
+await orm.schema.create();
+const datamap = new Datamap(orm);
+const em = datamap.entities.em;
+await datamap.shard.scope(async () => {
+  em.setFilterParams("user", { user: null });
+  em.create(UserEntity, { slug: "beef" });
+  const italian = em.create(DaemonEntity, { slug: "italian" });
+  const spanish = em.create(DaemonEntity, { slug: "spanish" });
+  await em.flush();
+  em.create(ModeEntity, { slug: "casa", type: "language", daemon: italian, installed: "x" });
+  em.create(ModeEntity, { slug: "casa", type: "language", daemon: spanish, installed: "x" });
+  await em.flush();
+});
+const italian = { slug: "italian", datamap, entities: datamap.entities, modes: {} };
+await prune(italian);
+await datamap.shard.scope(async () => {
+  em.setFilterParams("user", { user: null });
+  em.clear();
+  const rows = await datamap.entities.mode.find({}, { populate: ["daemon"] });
+  console.log(`after italian's prune, mode.find({}) → ${rows.length} row(s)`);
+  console.log(JSON.stringify(rows.map((row) => wrap(row).toPOJO()), null, 2));
+});
+await orm.close();

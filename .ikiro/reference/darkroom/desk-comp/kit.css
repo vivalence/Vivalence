@@ -1,0 +1,46 @@
+.kit-label {font-family: var(--font-family-code); font-size: var(--size-type-2xs); color: var(--text-muted); text-transform: var(--shape-label-case); letter-spacing: var(--shape-label-track);}
+.kit :focus-visible, .kit-tty :focus-visible {outline: 2px solid var(--control-focus); outline-offset: -2px;}
+.kit-dot {display: inline-block; flex: none; width: 6px; height: 6px; border-radius: var(--shape-radius-disc); background: var(--text-muted);}
+.kit-dot.is-healthy {background: var(--signal-positive); box-shadow: 0 0 6px var(--signal-positive-tint);}
+.kit-dot.is-running {background: var(--signal-primary); box-shadow: 0 0 6px var(--signal-primary); animation: kit-breathe 1.2s ease-in-out infinite;}
+.kit-dot.is-needs {background: var(--signal-caution); box-shadow: 0 0 6px var(--signal-caution); animation: kit-breathe 2s ease-in-out infinite;}
+.kit-dot.is-fault {background: var(--signal-negative); box-shadow: 0 0 6px var(--signal-negative-tint);}
+.kit-tab .kit-dot {width: 5px; height: 5px;}
+.kit-row {appearance: none; border: 0; background: transparent; width: 100%; display: grid; grid-template-columns: 2ch minmax(0, auto) minmax(0, 1fr) auto; align-items: center; gap: var(--size-space-xs); height: 26px; padding: 0 var(--size-space-xs); border-radius: var(--shape-radius-key); font-family: var(--font-family-code); font-size: var(--size-type-xs); line-height: 1; color: var(--text-strong); text-align: left; cursor: pointer; min-width: 0;}
+.kit-row:hover {background: var(--control-selected);}
+.kit-row[aria-current="true"], .kit-row.is-current {background: var(--control-selected);}
+.kit-row.is-off {opacity: var(--text-disabled); cursor: default;}
+.kit-row .k {color: var(--signal-primary-ink); font-weight: 700; text-align: center; box-shadow: inset 0 0 0 var(--size-ring) var(--boundary); border-radius: var(--shape-radius-key); line-height: 16px;}
+.kit-row .n {white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.kit-row .ic {color: var(--text-light);}
+.kit-row .v {color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; justify-self: end;}
+.kit-choice {display: inline-flex; flex-wrap: wrap; gap: var(--size-space-2xs); font-family: var(--font-family-code); font-size: var(--size-type-xs);}
+.kit-choice > button {appearance: none; border: 0; background: transparent; color: var(--text-muted); font: inherit; line-height: 1; height: 22px; padding: 0 var(--size-space-xs); border-radius: var(--shape-radius-key); cursor: pointer;}
+.kit-choice > button:hover {color: var(--text-ink);}
+.kit-choice > button[aria-pressed="true"] {background: var(--control-contrast-pressed); color: var(--control-on-pressed);}
+.kit-choice > button.is-off, .kit-choice > button.is-off:hover {color: var(--text-muted); opacity: var(--text-disabled); cursor: default; pointer-events: none;}
+.kit-field {display: flex; align-items: center; gap: var(--size-space-xs); min-height: var(--size-field); padding: 0 var(--size-space-sm); background: var(--control-field); border-radius: var(--shape-radius-field); box-shadow: inset 0 0 0 var(--size-ring) var(--boundary); color: var(--text-strong); font-family: var(--font-family-sans-text); font-size: var(--size-type-sm);}
+.kit-field:focus-within {box-shadow: inset 0 0 0 2px var(--control-focus);}
+.kit-field.is-repl {font-family: var(--font-family-code); font-size: var(--size-type-xs);}
+.kit-field input, .kit-field textarea {flex: 1; min-width: 0; border: 0; outline: 0; padding: 0; margin: 0; background: transparent; color: inherit; font: inherit; caret-color: var(--control-field-caret); resize: none;}
+.kit-field input::placeholder, .kit-field textarea::placeholder {color: var(--control-field-placeholder); opacity: 1;}
+.kit-field .p {font-family: var(--font-family-code); color: var(--signal-primary-ink); flex: none;}
+.kit-field .ic {appearance: none; border: 0; background: transparent; color: var(--text-light); width: 24px; height: 24px; display: inline-grid; place-items: center; padding: 0; border-radius: var(--shape-radius-key); cursor: pointer; flex: none;}
+.kit-field .ic svg {width: 14px; height: 14px;}
+.kit-field .ic.is-live {color: var(--signal-negative);}
+.kit-field.is-live {box-shadow: inset 0 0 0 var(--size-ring) var(--signal-negative);}
+.kit-tty {font-family: var(--font-family-code); font-size: 13px; line-height: 18px; font-variant-ligatures: none; white-space: pre; background: var(--surface); color: var(--text-ink); tab-size: 2;}
+.kit-tty .s {color: var(--text-strong);}
+.kit-tty .i {color: var(--text-ink);}
+.kit-tty .m {color: var(--text-muted);}
+.kit-tty .l {color: var(--text-link);}
+.kit-tty .P {color: var(--signal-primary);}
+.kit-tty .G {color: var(--signal-positive);}
+.kit-tty .C {color: var(--signal-caution);}
+.kit-tty .N {color: var(--signal-negative);}
+.kit-tty .bd {color: var(--boundary);}
+.kit-tty .b {font-weight: 700;}
+.kit-tty .inv {background: var(--inverse); color: var(--inverse-on);}
+.kit-tty .sk {background: var(--surface-sunk);}
+.kit-tty .lf {background: var(--surface-lift);}
+@keyframes kit-breathe {0%, 100% {opacity: 1; transform: scale(1);} 50% {opacity: 0.35; transform: scale(0.7);}}

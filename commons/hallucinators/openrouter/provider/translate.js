@@ -280,3 +280,27 @@ export function readChoice(response, { questions }) {
     }),
   );
 }
+
+const dataUrl = (image) => `data:${image.media};base64,${image.data}`;
+
+export function buildPicture(model, request) {
+  const { size, aspect, count, format, background, ...rest } = request.settings ?? {};
+  return {
+    model: model.id,
+    prompt: request.prompt,
+    ...(request.images.length && { input_references: request.images.map((reference) => ({ type: "image_url", image_url: { url: dataUrl(reference.image) } })) }),
+    ...(aspect && { aspect_ratio: aspect }),
+    ...(size && { size }),
+    ...(count && { n: count }),
+    ...(format && { output_format: format }),
+    ...(background && { background }),
+    ...rest,
+  };
+}
+
+export function translatePicture(body) {
+  return {
+    images: body.data.map(({ b64_json, media_type }) => ({ type: "image", media: media_type, data: b64_json })),
+    ...(body.usage && { usage: body.usage }),
+  };
+}

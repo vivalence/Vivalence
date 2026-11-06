@@ -15,7 +15,7 @@ specimen.describe("Request", () => {
       method: "POST",
       headers: {},
       body: { name: "test" },
-      options: { timeout: 30000, retries: 0, credentials: "include" },
+      options: { timeout: undefined, retries: 0, credentials: "include" },
     });
 
     specimen.expect(new Request({ url: "http://test.io/endpoint" }).method).toBe("POST");

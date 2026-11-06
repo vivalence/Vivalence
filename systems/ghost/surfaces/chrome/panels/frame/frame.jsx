@@ -1,6 +1,6 @@
 import { createResource, createSignal, For, from, onCleanup, onMount, Show } from "solid-js";
 import { useRenderer } from "@opentui/solid";
-import { atom, is } from "@vivalence/typology";
+import { atom } from "@vivalence/typology";
 import * as ambient from "../../ambient/index.js";
 import { SETTLED } from "../../../../gestalten/shard/host.js";
 import * as widgets from "../../widgets/index.js";
@@ -124,17 +124,22 @@ function Framed(props) {
   const terminal = ambient.terminal.consume();
   const focus = from(app.bridge.$focus);
   const trait = from(props.buffer.$trait);
-  const [views] = createResource(
+  const [settled] = createResource(
     () => props.buffer,
     async (buffer) => {
-      if (is.object(buffer.mode)) {
-        const status = await atom.until(buffer.mode.host.$status, (held) => SETTLED.includes(held.code), terminal.controller.abort.signal);
-        if (status.code === "ERROR") throw status.error;
-      }
-      return widgets.buffer.framed(buffer, terminal.client.runtime.attach);
+      const status = await atom.until(
+        buffer.mode.daemon === null ? terminal.client.runtime.$status : buffer.mode.daemon.$status,
+        (held) => SETTLED.includes(held.code),
+        terminal.controller.abort.signal,
+      );
+      if (status.code === "ERROR") throw status.error;
+      return status;
     },
   );
-  const listed = () => (views.state === "ready" ? views() : []);
+  const pool = from(
+    widgets.buffer.candidates(props.buffer, terminal.client.runtime.entities.file.$entities),
+  );
+  const listed = () => widgets.buffer.framed(pool());
   const view = () => {
     trait();
     return widgets.buffer.frame(props.buffer, listed());
@@ -143,8 +148,8 @@ function Framed(props) {
     <>
       <Head palette={props.palette} buffer={props.buffer} views={listed()} view={view()} />
       <box style={{ height: 1, flexShrink: 0, border: ["top"], borderColor: props.palette.divider }} />
-      <Show when={views.state === "errored"}>
-        <text fg={props.palette.signalNegativeInk} style={{ paddingLeft: 1 }}>{`✕ ${views.error.message}`}</text>
+      <Show when={settled.state === "errored"}>
+        <text fg={props.palette.signalNegativeInk} style={{ paddingLeft: 1 }}>{`✕ ${settled.error.message}`}</text>
       </Show>
       <Show when={view()} keyed fallback={<Floor palette={props.palette} buffer={props.buffer} />}>
         {(held) => <Mounted palette={props.palette} buffer={props.buffer} view={held} focused={() => focus() === "frame"} />}

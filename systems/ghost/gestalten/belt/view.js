@@ -1,16 +1,16 @@
+import { computed } from "nanostores";
 import { crypto, is, mime } from "@vivalence/typology";
 
 const verified = new Map();
 
 export const identity = (reference) => (is.string(reference) ? reference : reference.id);
 
-export const row = (reference, attach) => attach.call(`/view/${identity(reference)}`);
+export const candidates = (...pools) =>
+  computed(pools, (...held) =>
+    held.flat().filter((view, index, merged) => merged.indexOf(view) === index),
+  );
 
-export const candidates = async (buffer, attach) => {
-  if (buffer.views.length > 0) return Promise.all(buffer.views.map((reference) => row(reference, attach)));
-  if (!is.object(buffer.mode)) return [];
-  return Promise.all(buffer.mode.views.map((view) => row(view, attach)));
-};
+export const held = (view) => view.files.some((file) => file.path === view.entry);
 
 export const entry = (view) => {
   const held = view.files.find((file) => file.path === view.entry);

@@ -4,7 +4,7 @@ import { Dynamic } from "solid-js/web";
 import * as parts from "@vivalence/drapes/parts";
 import { belt as typology, is, trace, v } from "@vivalence/typology";
 import * as ambient from "../../ambient/index.js";
-import { EFFORTS, GROUPS, harness, LENSES, lookup, named, reference, SHARE, TUNES, VIEWS } from "../sidebar/sections.js";
+import { EFFORTS, GROUPS, harness, LENSES, lookup, named, reference, SHARE, TIERS, VIEWS } from "../sidebar/sections.js";
 
 export const TRACKS = ["start", "stop", "fault", "log", "status", "entity", "request", "response"];
 export const NET = ["request", "response"];
@@ -206,7 +206,7 @@ export const inspect = ({ app, bridge, terminal, terminals, thread, turns, buffe
               writable("label", "thread.label", thread.word),
               ro("mode", reference(thread.mode)),
               ro("turns", turns.length),
-              writable("tune", "thread.tune", harness(thread).tune, TUNES),
+              writable("tier", "thread.tier", harness(thread).tier, TIERS),
               writable("effort", "thread.effort", harness(thread).effort, EFFORTS),
               writable("rounds", "thread.rounds", harness(thread).rounds, ROUNDS),
             ],

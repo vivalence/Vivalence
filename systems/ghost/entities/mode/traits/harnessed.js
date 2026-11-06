@@ -28,7 +28,7 @@ export const HARNESSED = async (mode, die) => {
   });
 
   mode.metadata.harness = await mode.connection.call("/metadata/harness");
-  mode.harness = shape.connection.wire(harness, mode.metadata.harness);
+  mode.harness = shape.connection.wire(harness, mode.metadata.harness.routes);
 
   mode.repl.open(
     { nature: "/harness", valence: "a turn to the attached mode's harness on the terminal's thread. Example: /harness ciao" },

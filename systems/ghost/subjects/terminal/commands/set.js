@@ -30,9 +30,9 @@ const WRITABLE = [
     await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { LABELED: { name } }));
     return { LABELED: { name } };
   }),
-  at("thread.tune", v.primitives.hallucination.Tier.desc('A tier. Example: "fast"'), async (ctx, tune) => {
-    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT: { tune } }));
-    return { INTELLIGENT: { tune } };
+  at("thread.tier", v.primitives.hallucination.Tier.desc('A tier. Example: "fast"'), async (ctx, tier) => {
+    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT: { tier } }));
+    return { INTELLIGENT: { tier } };
   }),
   at("thread.effort", v.enum(belt.intelligent.EFFORTS).desc('Reasoning effort. Example: "high"'), async (ctx, effort) => {
     await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT: { effort } }));

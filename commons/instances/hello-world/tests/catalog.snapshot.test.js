@@ -51,8 +51,8 @@ const catalog = () => {
 const armory = () =>
   declarations(
     new Vector()
-      .graft(paladin.tools.fs.fs)
-      .graft(paladin.tools.shell.shell)
+      .graft(paladin.tools.fs)
+      .graft(paladin.tools.shell)
       .graft(catalog()),
   ).map(({ name }) => name);
 
@@ -66,14 +66,21 @@ specimen.describe(
           declarations(catalog()),
           "hello-world-catalog.snapshot.json",
         );
-        // exactly five names, the trait's. SIX means the generator leaked a branch.
-        // `research` sits where the assembly put it — after web, before the trait's tools.
+        // four of its own, seven imported from the runtime (m117: the root arms no domain tool),
+        // five from the trait. `research` sits where the assembly put it — after web, before the imports.
         specimen.expect(pinned.map(({ name }) => name)).toEqual([
           "viva_doctor",
           "web_search",
           "web_read",
           "research",
+          "entity_schema",
+          "entity_find",
+          "entity_count",
+          "buffer_update",
+          "buffer_label",
           "buffer_create",
+          "thread_update",
+          "mode_find",
           "view_create",
           "view_update",
           "view_read",
