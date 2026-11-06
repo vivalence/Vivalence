@@ -183,7 +183,7 @@ specimen.describe("the shell under an empty HOME — help answers without an ins
   specimen.it("chrome exits 1 naming the missing instance", async () => {
     const ran = await viva(home, ["chrome"]);
     specimen.expect(ran.code).toBe(1);
-    specimen.expect(ran.stderr).toContain("viva /chrome: instance: nothing selected");
+    specimen.expect(ran.stderr).toContain("[ERROR] /chrome: instance: nothing selected");
   });
 
   specimen.it("chrome against an instance that masks no ghost client exits 1 naming the absent mask", async () => {
@@ -192,6 +192,6 @@ specimen.describe("the shell under an empty HOME — help answers without an ins
     await Deno.writeTextFile(join(mount, "instance.viva.json"), JSON.stringify({ manifest: { type: "instance", slug: "bare" } }));
     const ran = await viva(home, ["chrome"], { VIVA_INSTANCE_MOUNT: mount });
     specimen.expect(ran.code).toBe(1);
-    specimen.expect(ran.stderr).toContain(`viva /chrome: instance ${mount} masks no ghost client — no client at all`);
+    specimen.expect(ran.stderr).toContain(`[ERROR] /chrome: instance ${mount} masks no ghost client — no client at all`);
   });
 });

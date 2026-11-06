@@ -61,10 +61,10 @@ export async function create({ domain = {} } = {}) {
   const daemon = Object.assign(held, { type: "daemon", aperture: new Aperture(), modes: { game: { flashcard: mode } } });
 
   const lighthouse = lighthouseOf(datamap, runtime.user);
-  daemon.aperture.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.inject(datamap)).use(lighthouse.authenticate).use(lighthouse.bind);
+  daemon.aperture.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.datamap.inject(datamap)).use(lighthouse.authenticate).use(lighthouse.bind);
 
   if (domain.aperture) {
-    domain.aperture.use(shard.context.spread(contexts.host, daemon));
+    domain.aperture.use(shard.context.spread(contexts.daemonDie, daemon));
     daemon.aperture.graft(domain.aperture);
     daemon.call = shape.proxy(domain.aperture, steer.strategy.direct);
   }

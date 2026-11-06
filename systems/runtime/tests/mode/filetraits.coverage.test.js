@@ -14,7 +14,7 @@ let directory;
 
 const context = () => ({ entities: scenario.repos, reference: new Path("/daemon/test") });
 const threaded = async () => {
-  const thread = scenario.em.create(ThreadEntity, { user: scenario.fixtures.user, mode: scenario.fixtures.mode, trait: {}, cursor: 0, counter: 0 });
+  const thread = scenario.em.create(ThreadEntity, { user: scenario.fixtures.user, mode: scenario.fixtures.mode, trait: {}, counter: 0 });
   await scenario.em.flush();
   return thread;
 };
@@ -96,6 +96,8 @@ specimen.describe("the file traits — FILESINK · FILESET · VIEWABLE over a se
     await Deno.writeTextFile(join(files, "README.md"), "# fileset");
     await Deno.writeFile(join(files, "audio", "tempus-fugit.wav"), new Uint8Array([82, 73, 70, 70]));
 
+    const installed = mode.entity.installed;
+    mode.entity.installed = "";
     await FILESET(mode, context());
     specimen.expect(mode.files.directory).toBe(files);
     const rows = await scenario.em.fork().find(FileEntity, { mount: { $like: `${files}%` } }, { orderBy: { path: "asc" } });
@@ -105,6 +107,7 @@ specimen.describe("the file traits — FILESINK · FILESET · VIEWABLE over a se
     ]);
     specimen.expect(rows[1].integrity).toBe(`sha256-${await crypto.digestBytes(new Uint8Array([82, 73, 70, 70]))}`);
 
+    mode.entity.installed = installed;
     await FILESET(mode, context());
     specimen.expect(await scenario.em.fork().count(FileEntity, { mount: { $like: `${files}%` } })).toBe(2);
   });

@@ -36,11 +36,10 @@ specimen.beforeAll(async () => {
   const aperture = new Aperture()
 
   // no ambient — the reactive reads the owner off the ORM context (the `user` filter param).
-  // attach user -> scope (for repo find) -> repo + reactive(scope for subscribe).
+  // attach user -> repo (fenced by the `user` filter param) + reactive(scope for subscribe).
   aperture
     .branch("/buffer")
     .use(shard.context.attach("user", fixtures.user))
-    .use(shard.datamap.scope((ctx) => ({ thread: { user: ctx.user.id } })))
     .graft(shard.datamap.repository(repos.buffer))
     .graft(shard.datamap.reactive(repos.buffer, twitch, { scope: (ctx) => ({ user: ctx.user.id }) }))
     // emitter-style write: raw findOne + reassign data + flush (what /spawned/bump does)

@@ -88,6 +88,7 @@ export function faculties() {
   return [
     {
       type: "dialogue",
+      id: "opus",
       tune: [0.9, 1.0, 0.3],
       context: 200000,
       channels: {
@@ -125,6 +126,7 @@ export function faculties() {
     },
     {
       type: "dialogue",
+      id: "sonnet",
       tune: [0.4, 0.6, 0.6],
       context: 200000,
       channels: {
@@ -140,6 +142,7 @@ export function faculties() {
     },
     {
       type: "dialogue",
+      id: "haiku",
       tune: [0.1, 0.3, 1.0],
       context: 200000,
       channels: { in: ["text", "tool_result"], out: ["text"] },
@@ -149,6 +152,7 @@ export function faculties() {
     },
     {
       type: "choice",
+      id: "chooser",
       tune: [0.4, 0.3, 1.0, 0.9],
       context: 32000,
       options: 26,
@@ -164,6 +168,7 @@ export function faculties() {
 export function verbatimFaculty(overrides = {}) {
   return {
     type: "verbatim",
+    id: "scripted-verbatim",
     tune: [0.4, 0.6, 0.5, 0.1],
     context: 0,
     channels: {
@@ -192,6 +197,7 @@ export function verbatimFaculty(overrides = {}) {
 export function speechFaculty(overrides = {}) {
   return {
     type: "speech",
+    id: "scripted-speech",
     tune: [0.3, 0.5, 0.5, 0.1],
     context: 0,
     channels: {

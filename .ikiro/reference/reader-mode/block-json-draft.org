@@ -1,0 +1,95 @@
+# limit: 8000 chars
+# moved whole from quests/reader-mode.org 11-10 — Q2A ruled /"b"/: the surface is marked HTML, not block JSON
+
+** Q2 LOCKED 11-10 — /"b"/: the done mark lives on the block, a time
+
+#+BEGIN_SRC js
+// commons/reader/reader/schematics.js — Block gains
+  done: v.union([v.string(), v.null()]).desc('When marked done, ISO, else null. Example: "2026-11-10T16:20:00Z"'),
+#+END_SRC
+
+#+BEGIN_SRC js
+// commons/reader/reader/buffer/Reader.jsx — swipe and /done; the undo button and /undo
+const blocks = () => props.buffer.data.article.blocks;
+const mark = (id, done) => blocks().map((block) => (block.id === id ? { ...block, done } : block));
+const done = (block) =>
+  settle({ article: { ...props.buffer.data.article, blocks: mark(block.id, new Date().toISOString()) } });
+const newest = () => blocks().filter((block) => block.done).sort((a, b) => b.done.localeCompare(a.done))[0];
+const undo = () => settle({ article: { ...props.buffer.data.article, blocks: mark(newest().id, null) } });
+const shown = () => blocks().filter((block) => !block.done);
+#+END_SRC
+
+** draft — =commons/reader/reader/schematics.js= (home and name: Q3)
+
+#+BEGIN_SRC js
+import { v } from "@vivalence/typology";
+
+export const Asset = v.object({
+  src: v.string().desc('Absolute, https. Example: "https://example.org/tides/fig1.svg"'),
+  mime: v.string().desc('Example: "image/svg+xml"'),
+  width: v.union([v.integer(), v.null()]).desc("Example: 600"),
+  height: v.union([v.integer(), v.null()]).desc("Example: 160"),
+  poster: v.union([v.string(), v.null()]).desc("A movie's still, https. Example: null"),
+  duration: v.union([v.number(), v.null()]).desc("Seconds, movie · sound. Example: 228"),
+});
+
+export const Block = v.object({
+  id: v.string().desc('Minted by parse, kept by refine. Example: "b6"'),
+  kind: v.enum([
+    "heading",
+    "paragraph",
+    "list",
+    "quote",
+    "code",
+    "table",
+    "image",
+    "movie",
+    "sound",
+    "embed",
+  ]).desc("Example: paragraph"),
+  level: v.union([v.integer(), v.null()]).desc("A heading's depth 1–6, else null. Example: 2"),
+  sentences: v.array(v.string()).desc("The text, split for speech; a list's items. Example: []"),
+  caption: v.union([v.string(), v.null()]).desc("Media only. Example: Sea level at one gauge"),
+  asset: v.union([Asset, v.null()]).desc("Media only. Example: null"),
+  span: v.string().desc('Its node in the snapshot, a selector. Example: "main > p:nth-of-type(2)"'),
+  done: v.union([v.string(), v.null()]).desc('When marked done, ISO, else null. Example: "2026-11-10T16:20:00Z"'),
+});
+
+export const Cursor = v.object({
+  block: Block.properties.id,
+  sentence: v.integer().desc("Index into the block's sentences. Example: 1"),
+});
+
+export const Article = v.object({
+  url: v.string().desc('Where it was fetched. Example: "https://example.org/tides"'),
+  fetched: v.string().desc('ISO time. Example: "2026-11-10T16:20:00Z"'),
+  sha: v.string().desc("The snapshot's digest. Example: 9f2c…"),
+  title: v.string().desc("The document's own. Example: How a Tide Table Is Made"),
+  original: v.string().desc('The snapshot File id. Example: "01a1bd04-54c5-74ca-bc57-45381377cd82"'),
+  parse: v.enum(["deterministic", "refining", "agentic"]).desc("Example: deterministic"),
+  blocks: v.array(Block).desc("Document order. Example: []"),
+});
+
+export const Settings = v.object({
+  type: v.enum(["dyslexic", "sans", "serif"]).default("dyslexic").desc("Example: dyslexic"),
+  size: v.integer().default(18).desc("Pixels, 14–28. Example: 18"),
+  leading: v.enum(["tight", "normal", "loose"]).default("normal").desc("Example: normal"),
+  width: v.enum(["narrow", "normal", "wide"]).default("normal").desc("Example: normal"),
+  audio: v.boolean().default(false).desc("The speech bar shown. Example: false"),
+  rate: v.enum([0.8, 1, 1.25, 1.5]).default(1).desc("Speech rate. Example: 1"),
+});
+
+export const Reading = v.object({
+  article: v.union([Article, v.null()]).default(null).desc("Null = the empty face. Example: null"),
+  cursor: v.union([Cursor, v.null()]).default(null).desc("Example: { block: 'b6', sentence: 1 }"),
+  face: v.enum(["original", "reader"]).default("reader").desc("Example: reader"),
+  settings: Settings.default({}).desc("Example: {}"),
+});
+#+END_SRC
+
+Departures from the board, mine, reported:
+- =sentences= replaces =text=: the cursor indexes a sentence, so the split is stored where the
+  index points; refine re-splits and clamps the cursor.
+- =leading= is the comp's =lines= setting (=RD_LEAD=); the comp's label stays "lines".
+- =kind= is the Model board's enum; =Main.dc.html= says =h1 · h2 · p= → =heading= + =level=.
+

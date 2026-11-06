@@ -1,0 +1,33 @@
+<!-- limit: 6000 chars · moved whole from known-issues.org `registry-mode-suites-red-against-the-runtime` on 11-07 (cap) · reference, read-only -->
+
+Patch set, proven on the copies — education =ok | 39 passed (187 steps)=, vcompany =FAILED | 25 passed (113 steps) | 2 failed (4 steps)=, runtime with the rig change =ok | 76 passed (429 steps)=:
+#+BEGIN_SRC diff
+// systems/runtime/tests/scenarios/daemon.js
+-export async function create() {
+-  const { orm, em, datamap, entities, fixtures } = await seed();
++export async function create(options = {}) {
++  const { orm, em, datamap, entities, fixtures } = await seed(options.entities);
+// systems/runtime/tests/scenarios/index.js
++export * as fixtures from "./fixtures.js"
+// ~/.viva/registry/education/domain/tests/scenarios/domain.js
+-  const scenario = await scenarios.create();
++  const scenario = await scenarios.create({ entities: domain.entities });
+-    .use(shard.secure.authorize())
++    .use(good.lighthouse.shard.authorize)
+// ~/.viva/registry/education/modes/games/dojo/tests/{aperture,emitter,tools}.test.js
++import { entities } from "../../../../domain/entities/index.js";
+-    scenario = await mountMode(dojo);
++    scenario = await mountMode(dojo, { entities });
+// ~/.viva/registry/education/domain/tests/kernel/literal.test.js — userspace/scoping.test.js the same, its tiers. → fixtures.tiers.
+-import { seed } from "../../../../fixtures/data/seed.js";
++import { fixtures } from "@vivalence/runtime/scenarios";
++import { entities } from "../../entities/index.js";
+-  scenario = await seed();
++  scenario = await fixtures.seed(entities);
+// ~/.viva/registry/vcompany/tests/scenarios.js — NO VCS: capture to ~/.viva/bak/ first (skill readme)
+-  mode.module.mount = at(manifest);
++  mode.module.source = at(manifest);
+-  scenario.mode.module.mount = new Path(
++  scenario.mode.module.source = new Path(
+#+END_SRC
+=create(options)= mirrors =mountMode(viva, options)= (=systems/runtime/tests/scenarios/mode.js:120=); =fixtures= on the scenarios barrel keeps =commons/fixtures/testing/data/= at its one consumer, =systems/runtime/tests/scenarios/fixtures.js=.

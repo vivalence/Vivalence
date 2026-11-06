@@ -16,11 +16,11 @@ where you can diverge from it.
 curl -fsSL https://deno.land/install.sh | sh            # then open a fresh shell
 git clone https://github.com/vivalence/vivalence.git
 cd vivalence
-deno task install                                       # dependencies, then `viva` linked into ~/.deno/bin
+deno task embed                                         # dependencies, then `viva` linked into ~/.deno/bin
 ```
 
-Deno 2.7+ is the only prerequisite; the repo carries everything else. `deno task install`
-is two moves: `deno task dependencies` fetches the workspace, then `systems/ghost/install.sh`
+Deno 2.7+ is the only prerequisite; the repo carries everything else. `deno task embed`
+is two moves: `deno task install` fetches the workspace, then `systems/ghost/install.sh`
 links the CLI — `~/.deno/bin/viva` becomes a symlink to the repo's `ghost.sh`. The deno
 installer already put `~/.deno/bin` on your PATH.
 
@@ -31,8 +31,8 @@ anywhere and your shell rc stays untouched.
 **walkthrough**
 
 ```sh
-$ deno task install
-Task dependencies deno install --allow-scripts=npm:sqlite3,npm:better-sqlite3,npm:argon2,npm:svelte-preprocess
+$ deno task embed
+Task install deno install --allow-scripts=npm:sqlite3,npm:better-sqlite3,npm:argon2,npm:svelte-preprocess
 Download https://registry.npmjs.org/…
 Task ghost/install sh systems/ghost/install.sh "$(pwd)"
 viva → /home/you/vivalence  ·  config: /home/you/.config/viva/env
@@ -383,7 +383,7 @@ For `hello-world` that is two processes:
 The runtime hosts everything as one path tree under one origin: itself under
 `/runtime/<slug>` (`/runtime/runtime` by default), daemons under `/daemon/<slug>`, each
 host's modes under `<host>/mode/<type>/<slug>`, attached services like `nlp-stanza` under
-`/attached/process/…`, views and files by row under `/attached/view/:id` · `/attached/file/:id`, identity under `/lighthouse/…`.
+`/attached/process/…`, files by row under `/attached/file/:id`, identity under `/lighthouse/…`.
 
 Open **http://localhost:1794**, log in with the account from step 4, and you are inside:
 the client attaches to the daemons and renders their modes.

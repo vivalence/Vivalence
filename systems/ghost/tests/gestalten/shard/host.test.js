@@ -67,7 +67,7 @@ specimen.describe("host.mounted — a remote mode staggers the HOST catalog: LOO
     let passed = false;
     await ghost.shard.host.mounted("runtime")(die, async () => (passed = true));
     specimen.expect(passed).toBe(true);
-    specimen.expect([...die.client.aperture.trie.keys()]).toEqual([]);
+    specimen.expect(die.client.aperture.patterns).toEqual([]);
     specimen.expect(messages).toEqual([{ runtime: "/runtime/runtime", modes: ["/runtime/runtime/mode/home/remote"] }]);
     specimen.expect(die.runtime.$status.get()).toEqual({ code: "RELEASED" });
   });

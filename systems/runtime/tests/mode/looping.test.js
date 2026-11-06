@@ -17,7 +17,7 @@ const socketOf = (terminal, frames) => ({
   },
 });
 
-const names = (tools) => steer.trie.rollup(tools, () => null).map((entry) => entry.steps.map((step) => step.nature).join("_"));
+const names = (tools) => steer.trie.leaves(tools).map((entry) => entry.steps.map((step) => step.nature).join("_"));
 
 let scenario;
 let captured;
@@ -58,7 +58,7 @@ specimen.describe("LOOPING — the terminal's repl is the harness's tools under 
     specimen.expect(frames.map((frame) => frame.route)).toEqual(["/terminal/t1/metadata/repl"]);
     const tools = names(captured.hallucination.tools).filter((name) => name.startsWith("repl_"));
     specimen.expect(tools).toEqual(["repl_hello", "repl_mode_console_whoami"]);
-    const whoami = steer.trie.rollup(captured.hallucination.tools, () => null).find((entry) => entry.steps.at(-1).nature === "whoami");
+    const whoami = steer.trie.leaves(captured.hallucination.tools).find((entry) => entry.steps.at(-1).nature === "whoami");
     specimen.expect(Object.keys(whoami.pattern.input.properties)).toEqual(["body", "flags"]);
     specimen.expect(whoami.pattern.valence).toBe("the terminal's id. Example: /mode/console/whoami");
   });

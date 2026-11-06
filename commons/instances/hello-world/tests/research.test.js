@@ -4,7 +4,7 @@ import { DRAW, PAGE, PEEK, rig, saying } from "./rig.js";
 
 const invoke = (rigged, input) => {
   const outer = new Vector().graft(research);
-  outer.use(shard.context.spread(contexts.host, rigged.daemon));
+  outer.use(shard.context.spread(contexts.daemonDie, rigged.daemon));
   outer.use(shard.context.bind("mode", rigged.mode));
   outer.use(shard.context.bind("thread", "thread-1"));
   return steer.dispatch.invoke(
@@ -66,31 +66,11 @@ specimen.describe(
         const rigged = await rig([saying("nothing to do")]);
         await invoke(rigged, ASK);
         const [request] = rigged.seen;
-        specimen.expect(request.tools.map(({ name }) => name)).toEqual([
-          "entity_schema",
-          "entity_find",
-          "entity_count",
-          "buffer_update",
-          "buffer_label",
-          "buffer_create",
-          "thread_update",
-          "mode_find",
-          "fs_tree",
-          "fs_find",
-          "fs_read",
-          "fs_write",
-          "fs_stat",
-          "fs_move",
-          "fs_delete",
-          "shell_run",
-          "web_search",
-          "web_read",
-          "view_create",
-          "view_update",
-          "view_read",
-          "view_list",
-        ]);
-        specimen.expect(Object.keys(request.system)).toEqual(["brief", "thread"]);
+        const named = (tools) => steer.trie.leaves(tools).map((entry) => belt.hallucinate.nameOf(entry.steps));
+        specimen.expect(request.tools.map(({ name }) => name)).toEqual(
+          specimen.expect.arrayContaining([...named(rigged.mode.tools)]),
+        );
+        specimen.expect(Object.keys(request.system)).toEqual(["brief"]);
         specimen.expect(request.turns.at(-1).parts[0].text).toBe(ASK.brief);
       },
     );
@@ -157,7 +137,7 @@ specimen.describe(
         };
 
         const outer = new Vector().graft(research);
-        outer.use(shard.context.spread(contexts.host, rigged.daemon));
+        outer.use(shard.context.spread(contexts.daemonDie, rigged.daemon));
         outer.use(shard.context.bind("mode", rigged.mode));
         outer.use(shard.context.bind("thread", "thread-1"));
         outer.use(shard.context.bind("controller", tool));

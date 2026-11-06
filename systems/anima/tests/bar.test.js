@@ -65,7 +65,7 @@ specimen.describe("bar — Dom.bar: the mark and six segments; a segment opens i
     specimen.expect(harness.getAttribute("aria-expanded")).toBe("true");
     const wid = rig.target.querySelector(".wid[data-zone='0'][role='dialog'][aria-label='harness']");
     specimen.expect(rig.target.querySelector(".scrim")).not.toBe(null);
-    specimen.expect(shaped(wid).startsWith(`div.subj(div.subjh(span.t("harness")) div.subjb(div.choice.srow(span.cl("tune")`)).toBe(true);
+    specimen.expect(shaped(wid).startsWith(`div.subj(div.subjh(span.t("harness")) div.subjb(div.choice.srow(span.cl("tier")`)).toBe(true);
     specimen.expect(wid.getAttribute("style")).toBe(`left:8px;bottom:${client.surface.height + 6}px;width:320px;max-height:180px`);
     fire(wid.querySelector("[data-line='/effort high']"), "click");
     specimen.expect(sent).toEqual(["/effort high"]);
@@ -115,7 +115,6 @@ specimen.describe("bar — Dom.bar: the mark and six segments; a segment opens i
     await settle();
     await settle();
     specimen.expect(Array.isArray(client.terminal.repl.catalog)).toBe(true);
-    specimen.expect(client.surface.focus).toBe("composer");
     specimen.expect(words(rig.target.querySelector("section.panel .ph .tag"))).toBe("repl");
     specimen.expect(mark().className).toBe("mark open");
     fire(mark(), "click");

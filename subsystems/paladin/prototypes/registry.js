@@ -268,6 +268,7 @@ export class Registry {
   // a runtime's or a daemon's mask → its bag: every slot a citizen, the domain picked from its modes
   async wire(mask) {
     const many = (queries) => Promise.all(queries.map((query) => this.accio(query)));
+    const consumed = (consume) => object.traverse(consume, (slug, query) => this.accio(query));
     // an entry whose identifier named no type is placed here, by the folded manifest — same rule, later moment
     const placed = (citizen) => {
       if (citizen.reference || !mask.reference) return citizen;
@@ -275,11 +276,17 @@ export class Registry {
       const reference = new Path(`/mode/${type}/${slug}`);
       return { ...citizen, reference, url: mask.url?.branch(reference.absolute) };
     };
-    const modes = (await many(mask.modes ?? [])).map(placed);
+    const placedModes = (await many(mask.modes ?? [])).map(placed);
+    const modes = await Promise.all(
+      placedModes.map(async (citizen) => ({
+        ...citizen,
+        consume: await consumed(citizen.consume ?? {}),
+      })),
+    );
     return {
       ...(mask.datamap && { datamap: await this.accio(mask.datamap) }),
       hallucinators: await many(mask.hallucinators ?? []),
-      consume: Object.fromEntries(await Promise.all(Object.entries(mask.consume ?? {}).map(async ([slug, query]) => [slug, await this.accio(query)]))),
+      consume: await consumed(mask.consume ?? {}),
       modes,
       domain: v.primitives.kernel.Domain.cast(modes.find((citizen) => citizen.manifest.type === "domain") ?? {}),
     };

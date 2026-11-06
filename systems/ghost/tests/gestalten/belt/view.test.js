@@ -1,4 +1,5 @@
 import { crypto, mime, specimen, Url } from "@vivalence/typology";
+import { atom } from "nanostores";
 import * as ghost from "@vivalence/ghost";
 
 // m87 law 3 · 5 · 9 on the client side — the pin, else the mode's View rows (Q10′), unfiltered: each chrome keeps what it runs; the pick compiled first;
@@ -19,36 +20,37 @@ specimen.describe("ghost belt/view — candidates · pick · entry · bytes · l
   specimen.beforeAll(async () => {
     integrity = `sha256-${await crypto.digest(MODULE)}`;
     lying = `sha256-${await crypto.digest(TAMPERED)}`;
-    const rows = { "v-play": view("play", mime.tty.solid, "board.js", [file("f-play", "board.js", mime.javascript, integrity)]) };
     server = Deno.serve({ port: 0, hostname: "127.0.0.1", onListen() {} }, (request) => {
       const { pathname } = new URL(request.url);
       if (pathname === "/attached/file/f-play") return new Response(MODULE, { headers: { "content-type": mime.javascript, "x-viva-integrity": integrity } });
       if (pathname === "/attached/file/f-lying") return new Response(MODULE, { headers: { "content-type": mime.javascript, "x-viva-integrity": lying } });
       if (pathname === "/attached/file/f-tampered") return new Response(TAMPERED, { headers: { "content-type": mime.javascript, "x-viva-integrity": integrity } });
-      const held = rows[pathname.slice("/attached/view/".length)];
-      return held && pathname.startsWith("/attached/view/") ? Response.json(held) : new Response("nope", { status: 404 });
+      return new Response("nope", { status: 404 });
     });
     const url = new Url(`http://127.0.0.1:${server.addr.port}/attached`);
-    attach = { url, call: async (path) => (await fetch(url.branch(path).absolute)).json() };
+    attach = { url };
   });
   specimen.afterAll(async () => {
     await server.shutdown();
   });
 
-  specimen.it("identity reads an id or a row; row fetches /attached/view/:id by either", async () => {
+  specimen.it("identity reads an id or an entity", () => {
     specimen.expect(ghost.belt.view.identity("v-play")).toBe("v-play");
     specimen.expect(ghost.belt.view.identity({ id: "v-play" })).toBe("v-play");
-    specimen.expect((await ghost.belt.view.row("v-play", attach)).slug).toBe("play");
-    specimen.expect((await ghost.belt.view.row({ id: "v-play" }, attach)).entry).toBe("board.js");
   });
 
-  specimen.it("candidates: the pin wins (fetched by id); empty, the buffer's own mode's views from the store, fetched by id; no mode object, none", async () => {
-    const mode = (id, views) => ({ id, views });
-    specimen.expect((await ghost.belt.view.candidates({ views: ["v-play"], mode: mode("m1", []) }, attach)).map((held) => held.slug)).toEqual(["play"]);
-    specimen.expect((await ghost.belt.view.candidates({ views: [], mode: mode("m-play", [{ id: "v-play" }]) }, attach)).map((held) => held.entry)).toEqual(["board.js"]);
-    specimen.expect(await ghost.belt.view.candidates({ views: [], mode: mode("m-probe", []) }, attach)).toEqual([]);
-    specimen.expect(await ghost.belt.view.candidates({ views: [], mode: "m1" }, attach)).toEqual([]);
-    specimen.expect(await ghost.belt.view.candidates({ views: [], mode: null }, attach)).toEqual([]);
+  specimen.it("candidates: the pools merge in order, a view held by two pools once; a pool filling later lands in the store; the pools are not mutated", () => {
+    const play = { id: "v-play", slug: "play" };
+    const pulse = { id: "v-pulse", slug: "pulse" };
+    const pinned = atom([pulse]);
+    const shipped = atom([]);
+    const pool = ghost.belt.view.candidates(pinned, shipped);
+    specimen.expect(pool.get().map((held) => held.slug)).toEqual(["pulse"]);
+    shipped.set([play, pulse]);
+    specimen.expect(pool.get().map((held) => held.slug)).toEqual(["pulse", "play"]);
+    specimen.expect(ghost.belt.view.candidates(atom([]), atom([])).get()).toEqual([]);
+    specimen.expect(pinned.get()).toEqual([pulse]);
+    specimen.expect(shipped.get()).toEqual([play, pulse]);
   });
 
   specimen.it("pick takes a compiled entry over a source, the first of equals, and leaves its list unsorted; none, undefined; entry fails loud without its file", () => {

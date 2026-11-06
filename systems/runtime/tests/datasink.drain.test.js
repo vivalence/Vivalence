@@ -17,11 +17,11 @@ specimen.beforeAll(async () => {
     slug: scenario.fixtures.daemon.slug,
     reference: new Path(`/daemon/${scenario.fixtures.daemon.slug}`),
     entities: scenario.repos,
-    datamap: { getMetadata: () => scenario.orm.getMetadata() },
+    datamap: scenario.datamap,
     twitch: new Twitch(),
   };
   daemon.entities.em = scenario.em;
-  daemon.twitch.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
+  daemon.twitch.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.datamap.owned());
   daemon.twitch.branch("/after").use(shard.datamap.detached(scenario.datamap));
 
   const corpus = await topography.corpus();
@@ -29,12 +29,14 @@ specimen.beforeAll(async () => {
     manifest: { type: "topography", slug: "fixture", traits: [] },
     id: scenario.fixtures.mode.id,
     stdout: new Span("mode/topography/fixture"),
-    entity: { installed: "" },
+    twitch: new Twitch(),
+    entity: { installed: "", daemon: scenario.fixtures.daemon },
     module: { source: corpus, dataset: topography.dataset(), datasink: topography.datasink() },
   };
 
   await DATASET(mode, daemon);
   arm = DATASINK(mode, daemon).finalize;
+  daemon.twitch.graft(mode.twitch);
   first = await mode.datasink.drain({ all: true });
 });
 
@@ -97,7 +99,7 @@ specimen.describe("the twitch gate", () => {
   specimen.it("marks nothing dirty until the finalizer arms it, then goes incremental", async () => {
     scenario.datamap.registerSubscriber(daemon.twitch);
 
-    scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "pre-arm", trait: {}, symbol: {} });
+    scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug: "pre-arm", trait: {}, symbol: {} });
     await scenario.em.flush();
     await sleep.ms(5);
 
@@ -106,7 +108,7 @@ specimen.describe("the twitch gate", () => {
 
     arm();
 
-    scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "post-arm", trait: {}, symbol: {} });
+    scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug: "post-arm", trait: {}, symbol: {} });
     await scenario.em.flush();
     await sleep.ms(5);
 
@@ -122,9 +124,11 @@ specimen.describe("the twitch gate", () => {
       ...mode,
       manifest: { type: "topography", slug: "terminable", traits: ["DATASINK"] },
       terminators: collected,
-      entity: { installed: "" },
+      twitch: new Twitch(),
+      entity: { installed: "", daemon: scenario.fixtures.daemon },
     };
     const finalizers = await stagger(staggered, daemon, { DATASINK });
+    daemon.twitch.graft(staggered.twitch);
 
     specimen.expect(finalizers.length).toBe(1);
     specimen.expect(staggered.terminators.length).toBe(1);
@@ -134,7 +138,7 @@ specimen.describe("the twitch gate", () => {
     staggered.datasink.drain = (input) => (drained++, guarded(input));
 
     finalizers[0]();
-    scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "terminated", trait: {}, symbol: {} });
+    scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug: "terminated", trait: {}, symbol: {} });
     await scenario.em.flush();
     await sleep.ms(5);
 

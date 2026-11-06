@@ -14,13 +14,13 @@ when_to_use: >-
 
 Canon: `subsystems/paladin/gestalten/belt/find.js` · `subsystems/paladin/ledger/registry.js` · `world/codemap/commons.md`. Read `world/codemap/paladin.md` first — nothing auto-loads under `~/.viva`. Inside it → skills `mode` · `domain` · `topography`.
 
-A domain product is its OWN package (/"the whole thing started as its own package in the registry"/) — never `systems/` · `commons` (gateways only: mail · telegram · ocr) — landed in the ledger directly (/"no intermediate, no prototype in any of the other packages"/ 09-21).
+A domain product is its OWN package (/"the whole thing started as its own package in the registry"/) — never `systems/` · `commons` (gateways only: mail · telegram · ocr) — landed in the ledger directly (09-21).
 
 ## The recipe — content, never a filename
 
 `belt/find.js:48,69-75` walks every `.viva.{js,ts,md,org}`, filters by `manifest.type`; `registry.js:13`: root = `dirname(declaration)`.
 
-- A package is a DIRECTORY holding a `*.viva.js` whose `manifest.type === "package"`. Two legal spellings, do not pick — live: `package.viva.js` (assembly · chess · droneaid · media · stucatch) · `<slug>.viva.js` (education · vcompany · young-ladys-primer).
+- A package is a DIRECTORY holding a `*.viva.js` whose `manifest.type === "package"`. Two legal spellings, do not pick: `package.viva.js` · `<slug>.viva.js`.
 - Infinite-depth walk: stucatch declares at `stucatch/vivaware/package.viva.js`; `registry.tap` heals it to the declaration's dirname.
 - `~/.viva/ledger.viva.json` is NOT a package — the ledger recipe (m80), manifest DERIVED `{type:"ledger", slug:"ledger"}`; a declared one only LOCKS the name.
 - Invisible dirs: `bak archive slp node_modules .git .DS_Store *.bak .#* #*#` (`belt/ignore.js:4`).
@@ -67,7 +67,7 @@ systems/runtime/subjects/daemon/lifecycle/1-population.js:8    die.register = re
 ~/.viva/registry.json                               { "@<slug>": { slug, mount } }, mount store-relative or absolute
 ```
 
-Land = MY package + its `instances/<slug>/` template; `viva registry/tap <path>` · `viva instance/create @<pkg>/instance/<slug> --use --init` · VCS init are beef's (/"i create instance"/ 09-16), then walk it (skill `debug` · `readme`). REJECTED: hand-editing `registry.json`, a `localhost.viva.js` wiring tail. `viva ledger/doctor` shows `untapped`; `viva instance/doctor --json` the seats.
+Land = MY package + its `instances/<slug>/` template; `viva registry/tap <path>` · `viva instance/create @<pkg>/instance/<slug> --use --init` · VCS init are beef's (09-16), then walk it (skill `debug` · `readme`). REJECTED: hand-editing `registry.json`, a `localhost.viva.js` wiring tail. `viva ledger/doctor` shows `untapped`; `viva instance/doctor --json` the seats.
 
 ## Tests — nothing runs them
 
@@ -81,6 +81,8 @@ deno test --config /Users/finn/vivalence/code/vivalence/deno.jsonc -A --no-check
 
 ## Standing hazards
 
-VCS is per package — `git -C <pkg> rev-parse --show-toplevel` first; a `.git` package is read-only for me; one without: capture before any rm/strip (skill `readme`). Before proposing a push: `remote -v` + op log + outgoing scan (`.env` · db · key · conflict) — a package `.git` can be a copy of main (/"chess is what???!!"/: 6286 changes). Org move = GitHub TRANSFER, then re-point.
+A RESIDENT is not TAPPED: `viva registry/doctor` BEFORE a mode moves into a package — an untapped owner in a recipe = the watcher's reboot binds nothing (11-09 `@media`: `:2501` dark after the move).
+
+VCS is per package — `git -C <pkg> rev-parse --show-toplevel` first; a `.git` package is read-only for me; one without: capture before any rm/strip (skill `readme`). Before proposing a push: `remote -v` + op log + outgoing scan (`.env` · db · key · conflict) — a package `.git` can be a copy of main (chess: 6286 changes). Org move = GitHub TRANSFER, then re-point.
 
 The shelf copy drifts from the template → skill `debug`.

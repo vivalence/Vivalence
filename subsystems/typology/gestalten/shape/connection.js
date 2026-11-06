@@ -41,6 +41,7 @@ function aim(connection, effect) {
         method: method ?? "POST",
         body: input,
         headers: options.headers,
+        raw: options.raw,
       });
 
   return method

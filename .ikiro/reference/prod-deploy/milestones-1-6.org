@@ -1,0 +1,406 @@
+** milestone 1 — Dockerfile
+
+`install.sh:17` applies `subsystems/sheets/opentui-core.patch` with `patch`; `deno.jsonc:27` allows `better-sqlite3,argon2,svelte-preprocess`, the Dockerfile only `svelte-preprocess`. argon2 ships `prebuilds/linux-arm64/argon2.armv8.musl.node` (measured in the deno cache), so no build tools.
+
+#+BEGIN_SRC diff
+// Dockerfile:3
+ RUN apk add --no-cache \
+     bash \
+     git \
+     jujutsu \
+     curl \
+     ca-certificates \
+     openssh-client \
+     libgcc \
+     libstdc++ \
+-    sqlite
++    sqlite \
++    patch
+…
+// Dockerfile:51
+-RUN deno install --allow-scripts=npm:svelte-preprocess
++RUN deno install --allow-scripts=npm:better-sqlite3,npm:argon2,npm:svelte-preprocess
+#+END_SRC
+
+** milestone 2 — the user by hand — RULED 11-06 /"we use no traits on prod. we create user manual."/
+
+`traits: []` grafts no `/signup`: ghost's `viva instance/lighthouse/signup` → 404. The row goes in by hand, inside the runtime container (argon2 · uuid in the import map; `sqlite3` from apk); columns as `.schema User`, `created_at` epoch ms. **A raw insert skips the twitch that mints the first Terminal** (`typology/entities/Terminal.ts:50` `/after/user/create`) — without it the anima boots forever (`layout.jsx:136` `shown()` null, last log `daemon`; 11-06 21:11, his phone). The Terminal row goes in beside. PROVEN 11-06 (`beef|beef` · `/login` SUCCESS · wrong pw 401 · Terminal row by hand 21:20).
+
+#+BEGIN_SRC sh
+# on R000 — the hash from deno (argon2 · uuid in the import map), the row from the sqlite CLI (apk); single-quoted SQL — sqlite reads no backslash
+C=$(docker ps --format '{{.Names}}' | grep '^runtime-')
+docker exec -w /viva/repository $C deno eval '
+import * as argon2 from "argon2";
+import { v7 } from "uuid";
+const [username, password] = Deno.args;
+const authentication = { provider: "password", credentials: { username, password: await argon2.hash(password) } };
+const json = JSON.stringify(authentication).replaceAll("'"'"'", "'"''"'");
+const user = v7();
+console.log(`insert into User (id, created_at, updated_at, slug, authentication, traits, trait) values ('"'"'${user}'"'"', ${Date.now()}, ${Date.now()}, '"'"'${username}'"'"', '"'"'${json}'"'"', '"'"'[]'"'"', '"'"'{}'"'"');`);
+console.log(`insert into Terminal (id, user_id) values ('"'"'${v7()}'"'"', '"'"'${user}'"'"');`);
+' -- beef '<pw>' > /tmp/user.sql
+docker cp /tmp/user.sql $C:/tmp/user.sql
+docker exec $C sh -c 'sqlite3 /viva/mountpoint/prod.viva.db < /tmp/user.sql'
+docker exec $C sqlite3 /viva/mountpoint/prod.viva.db "select id, slug, json_extract(authentication, '$.credentials.username') from User"
+curl -s https://runtime.s4y.vivalence.com/lighthouse/login -H 'content-type: application/json' -d '{"username":"beef","password":"<pw>"}'
+#+END_SRC
+
+** milestone 3 — the recipe — RULED 11-06 /"no nlp today."/ (daemons as `~/.viva/instances/localhost/instance.viva.jsonc`, the nlp consume out)
+
+#+BEGIN_SRC jsonc
+// /data/coolify/services/egcwkgw0cwg0kkwko4owooco/instance/instance.viva.jsonc   (daemons = localhost 11-06, the nlp consume out)
+{
+  "manifest": {
+    "type": "instance",
+    "slug": "prod",
+    "version": "0.1.0"
+  },
+  "runtime": {
+    "statics": {
+      "serve": "${VIVA_RUNTIME_SERVE}",
+      "remote": "${PUBLIC_VIVA_RUNTIME_REMOTE}"
+    },
+    "modes": ["@commons/harness/runtime"]
+  },
+  "lighthouse": {
+    "secrets": {
+      "jwt": "${SECRET_VIVA_JWT}"
+    },
+    "traits": []
+  },
+  "hallucinators": [
+    {
+      "module": "@commons/hallucinator/anthropic",
+      "secrets": {
+        "key": "${SECRET_VIVA_ANTHROPIC_API_KEY}"
+      }
+    }
+  ],
+  "clients": [
+    {
+      "manifest": {
+        "type": "client",
+        "slug": "anima",
+        "traits": [
+          "HOME"
+        ]
+      },
+      "statics": {
+        "serve": "${VIVA_CLIENT_ANIMA_SERVE}"
+      },
+      "trait": {
+        "HOME": {
+          "reference": "/runtime/runtime/mode/harness/runtime"
+        }
+      }
+    }
+  ],
+  "daemons": [
+    {
+      "manifest": {
+        "type": "daemon",
+        "slug": "chess",
+        "version": "0.1.0",
+        "name": "Chess",
+        "description": "Play, study, riddles, practice, library — over one corpus of games, positions, openings and puzzles, with an engine behind the door.",
+        "icon": {
+          "emoji": "♞"
+        }
+      },
+      "modes": [
+        "@chess/domain/chess",
+        "@chess/topology/game",
+        "@chess/topology/position",
+        "@chess/topology/opening",
+        "@chess/topology/puzzle",
+        "@chess/topography/openings",
+        "@chess/topography/puzzles",
+        "@chess/board/play",
+        "@chess/study/analysis",
+        "@chess/riddle/puzzles",
+        "@chess/coach/practice",
+        "@chess/coach/coach",
+        "@chess/library/games"
+      ],
+      "consume": {
+        "engine": {
+          "module": "@chess/service/stockfish",
+          "statics": {
+            "binary": "${VIVA_SERVICE_STOCKFISH_BINARY}",
+            "threads": "${VIVA_SERVICE_STOCKFISH_THREADS}",
+            "hash": "${VIVA_SERVICE_STOCKFISH_HASH}"
+          }
+        }
+      }
+    },
+    {
+      "manifest": {
+        "type": "daemon",
+        "slug": "droneaid",
+        "version": "0.0.3",
+        "name": "DroneAid",
+        "description": "The workshop: the assembly domain, the drone and its build guide as rows installed from this package, the importer that reads a blend into them, the editors and the player.",
+        "icon": {
+          "emoji": "🛠️"
+        }
+      },
+      "modes": [
+        "@assembly/domain/assembly",
+        "@assembly/topology/part",
+        "@assembly/topology/placement",
+        "@assembly/topology/step",
+        "@assembly/topology/guide",
+        "@droneaid/topography/models",
+        "@droneaid/topography/guides",
+        "@assembly/editor/import",
+        "@assembly/editor/assembly",
+        "@assembly/editor/guide",
+        "@assembly/player/guide",
+        "@commons/dashboard/dataspace"
+      ]
+    },
+    {
+      "manifest": {
+        "type": "daemon",
+        "slug": "spanish",
+        "version": "0.0.1",
+        "name": "Español",
+        "description": "English → Spanish. Aprende is the homepage; dojo, nyan and riddler are live.",
+        "icon": {
+          "emoji": "🇪🇸"
+        }
+      },
+      "statics": {
+        "language": {
+          "known": {
+            "slug": "english",
+            "name": "English"
+          },
+          "learning": {
+            "slug": "spanish",
+            "name": "Español"
+          }
+        }
+      },
+      "modes": [
+        "@education/domain/language-learning",
+        "@education/topology/word",
+        "@education/topology/sentence",
+        "@education/topology/conjugation",
+        "@education/topography/english-to-spanish",
+        "@education/homepage/aprende",
+        "@commons/dashboard/dataspace",
+        "@education/game/dojo",
+        "@education/game/nyan",
+        "@education/game/riddler",
+        "@education/game/comando",
+        "@education/game/cocina"
+      ]
+    }
+  ],
+  "environment": {
+    "type": "object",
+    "required": [
+      "VIVA_SERVICE_STOCKFISH_BINARY",
+      "VIVA_SERVICE_STOCKFISH_THREADS",
+      "VIVA_SERVICE_STOCKFISH_HASH"
+    ],
+    "properties": {
+      "VIVA_SERVICE_STOCKFISH_BINARY": {
+        "type": "string",
+        "description": "The UCI engine binary the daemon spawns. brew install stockfish puts it on PATH. Example: stockfish",
+        "default": "stockfish",
+        "group": "engine"
+      },
+      "VIVA_SERVICE_STOCKFISH_THREADS": {
+        "type": "string",
+        "description": "Search threads the engine may use. Example: 2",
+        "default": "2",
+        "group": "engine"
+      },
+      "VIVA_SERVICE_STOCKFISH_HASH": {
+        "type": "string",
+        "description": "Transposition table in MB. Example: 128",
+        "default": "128",
+        "group": "engine"
+      }
+    },
+    "additionalProperties": false
+  }
+}
+#+END_SRC
+
+** milestone 4 — compose — RULED 11-06 /"cut."/ (the lighthouse service + volume)
+
+Env names as `commons/ledger/environment.json`: `VIVA_RUNTIME_SERVE` defaults `${VIVA_RUNTIME_ORIGIN}/` (:39), `VIVA_CLIENT_ANIMA_SERVE` defaults `${VIVA_CLIENT_ANIMA_ORIGIN}/` (:47), `PUBLIC_VIVA_RUNTIME_REMOTE` defaults the serve (:55) — the compose sets the ORIGINs and the public remote, as `commons/instances/hello-world/docker-compose.yml` does. The OLD compose (rendered, read 11-06 on R000) carried `PUBLIC_VIVA_LIGHTHOUSE_REMOTE: http://lighthouse:8004/attached/process/service/lighthouse/multiplayer` · `SECRET_VIVA_OPENROUTER_API_KEY` · `depends_on: [lighthouse]` and no `SECRET_VIVA_JWT` (the lighthouse container held it).
+
+#+BEGIN_SRC diff
+# /data/coolify/services/egcwkgw0cwg0kkwko4owooco/docker-compose.yml   (Coolify's source; its labels are added at render)
+ services:
+   runtime:
+     image: vivalence/prod-runtime:local
+     pull_policy: build
+     build:
+       context: .
+       dockerfile: Dockerfile
+       no_cache: true
+       pull: true
+     ports:
+       - "2501:2501"
+     environment:
++      VIVA_INSTANCE_MOUNT: /viva/instance
+       VIVA_RUNTIME_ORIGIN: http://0.0.0.0:2501
+       PUBLIC_VIVA_RUNTIME_REMOTE: https://runtime.s4y.vivalence.com/
+-      PUBLIC_VIVA_LIGHTHOUSE_REMOTE: http://lighthouse:8004/attached/process/service/lighthouse/multiplayer
++      VIVA_CLIENT_ANIMA_ORIGIN: https://vivalence.com
++      SECRET_VIVA_JWT: ${SECRET_VIVA_JWT}
+       VIVA_SERVICE_STOCKFISH_BINARY: stockfish
+       VIVA_SERVICE_STOCKFISH_THREADS: "2"
+       VIVA_SERVICE_STOCKFISH_HASH: "128"
+       SECRET_VIVA_ANTHROPIC_API_KEY: ${SECRET_VIVA_ANTHROPIC_API_KEY}
+-      SECRET_VIVA_OPENROUTER_API_KEY: ${SECRET_VIVA_OPENROUTER_API_KEY}
+     volumes:
+       - /data/coolify/services/egcwkgw0cwg0kkwko4owooco/instance:/viva/instance:ro
+       - egcwkgw0cwg0kkwko4owooco_mountpoint:/viva/mountpoint
+-    depends_on:
+-      - lighthouse
++    healthcheck:
++      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:2501/status"]
++      interval: 10s
++      timeout: 3s
++      retries: 12
+-  lighthouse:
+-    …the whole service…
+ volumes:
+   mountpoint:
+-  lighthouse-mountpoint:
+#+END_SRC
+
+#+BEGIN_SRC yaml
+# /data/coolify/services/xkgcgwck8k08cgs8okoo4sko/docker-compose.yml   (S000, anima)
+    environment:
+      VIVA_INSTANCE_MOUNT: /viva/instance
+      VIVA_MOUNTPOINT_MOUNT: /viva/mountpoint
+      PUBLIC_VIVA_RUNTIME_REMOTE: https://runtime.s4y.vivalence.com/
+      PUBLIC_VIVA_CLIENT_ANIMA_REMOTE: https://vivalence.com/
+    volumes:
+      - /data/coolify/services/xkgcgwck8k08cgs8okoo4sko/instance:/viva/instance:ro
+#+END_SRC
+Anima env table (Coolify): `SECRET_VIVA_JWT` = a DECOY 31-char string, never the runtime's — `known-issues.org` `* anima-bake-ships-instance-secrets`.
+
+The prod `Dockerfile` and every `image:` line stay AS THEY ARE — `:alpine` is the deploy tag, CI moves it (`.gitlab-ci.yml:32`); RULED 11-06 /"no hardcoding of images."/ · /"why are you … so hardboiled on changing this?"/ — REJECTED `:df54e5b7` in the FROM · `ARG VIVA_BASE` · `${VIVA_ANIMA_IMAGE}`.
+
+#+BEGIN_SRC sh
+# Coolify → runtime service → Environment Variables (Coolify rewrites .env from its table at deploy — prune THERE, the file follows)
+PUBLIC_VIVA_LIGHTHOUSE_REMOTE                                                    # delete (dead at HEAD)
+SECRET_VIVA_OPENROUTER_API_KEY                                                   # delete (no hallucinator consumes it)
+#+END_SRC
+
+** milestone 5 — rehearsal on R000, a throwaway volume + container, free port — RULED 11-06 /"reherse, test, whipe."/
+
+The volume is wiped at deploy (ruled), so the rehearsal boots EMPTY: the new recipe in place, the new image built from the untouched Dockerfile (`FROM …runtime:alpine`, pulled fresh), the compose env by hand, `:2502`. Nothing touches the live container or `_mountpoint`.
+
+#+BEGIN_SRC sh
+# R000 — build what Coolify will build
+cd /data/coolify/services/egcwkgw0cwg0kkwko4owooco
+ls instance/                                   # instance.viva.jsonc beside the old instance.viva.js
+docker pull registry.vivalence.org/beef/viva/vivalence/runtime:alpine
+docker build --pull -t vivalence/prod-runtime:rehearsal .
+docker volume create rehearsal_mountpoint
+set -a; . ./.env; set +a
+docker run -d --name runtime-rehearsal -p 2502:2501 \
+  -e VIVA_INSTANCE_MOUNT=/viva/instance -e VIVA_RUNTIME_ORIGIN=http://0.0.0.0:2501 \
+  -e PUBLIC_VIVA_RUNTIME_REMOTE=https://runtime.s4y.vivalence.com/ -e VIVA_CLIENT_ANIMA_ORIGIN=https://vivalence.com \
+  -e SECRET_VIVA_JWT -e SECRET_VIVA_ANTHROPIC_API_KEY \
+  -e VIVA_SERVICE_STOCKFISH_BINARY=stockfish -e VIVA_SERVICE_STOCKFISH_THREADS=2 -e VIVA_SERVICE_STOCKFISH_HASH=128 \
+  -v $PWD/instance:/viva/instance:ro -v rehearsal_mountpoint:/viva/mountpoint \
+  vivalence/prod-runtime:rehearsal
+docker logs -f runtime-rehearsal        # till the start track; ^C
+#+END_SRC
+
+#+BEGIN_SRC sh
+# measures — each a row in the gate
+curl -s localhost:2502/status                                   # RUNNING
+curl -s localhost:2502/lighthouse/metadata                      # {"type":"lighthouse","slug":"lighthouse","traits":[]}
+curl -s -o /dev/null -w '%{http_code}\n' localhost:2502/lighthouse/signup -d '{}' -H 'content-type: application/json'   # 404
+docker exec runtime-rehearsal ls /viva/mountpoint               # prod.viva.db
+# the user by hand (milestone 2 script, C=runtime-rehearsal, db /viva/mountpoint/prod.viva.db)
+curl -s localhost:2502/lighthouse/login -H 'content-type: application/json' -d '{"username":"beef","password":"<pw>"}'   # SUCCESS + authority
+curl -s localhost:2502/metadata/manifest                        # {"slug":"runtime"}
+curl -s localhost:2502/daemon/spanish/metadata/modes -H "authorization: Bearer $T"   # 12 modes; unauthed 401
+# freight: HEAD serves no file route (mode · daemon · runtime apertures hold none; `audio pick` owed on m115) — no measure
+#+END_SRC
+
+#+BEGIN_SRC sh
+# teardown
+docker rm -f runtime-rehearsal && docker volume rm rehearsal_mountpoint && docker rmi vivalence/prod-runtime:rehearsal
+#+END_SRC
+
+** milestone 6 — the deploy: wipe, redeploy, the user, login
+
+#+BEGIN_SRC sh
+# R000 — Coolify runtime service: compose (milestone 4) + env table saved FIRST; then
+cd /data/coolify/services/egcwkgw0cwg0kkwko4owooco
+docker stop runtime-egcwkgw0cwg0kkwko4owooco lighthouse-egcwkgw0cwg0kkwko4owooco
+docker rm runtime-egcwkgw0cwg0kkwko4owooco lighthouse-egcwkgw0cwg0kkwko4owooco
+docker volume rm egcwkgw0cwg0kkwko4owooco_mountpoint egcwkgw0cwg0kkwko4owooco_lighthouse-mountpoint
+mv instance/instance.viva.js instance/instance.viva.js.bak-20261106
+# Coolify UI → runtime → Redeploy (pull_policy: build rebuilds from the untouched Dockerfile, FROM :alpine)
+docker logs -f runtime-egcwkgw0cwg0kkwko4owooco     # start track
+curl -s https://runtime.s4y.vivalence.com/status                 # RUNNING
+curl -s https://runtime.s4y.vivalence.com/lighthouse/metadata    # traits: []
+# the user by hand — milestone 2 script, C=runtime-egcwkgw0cwg0kkwko4owooco
+curl -s https://runtime.s4y.vivalence.com/lighthouse/login -H 'content-type: application/json' -d '{"username":"beef","password":"<pw>"}'
+#+END_SRC
+
+#+BEGIN_SRC sh
+# S000 — Coolify anima service: compose (the anima image, S5) + env table saved; the recipe copied; then Redeploy
+scp root@com-vivalence-runtime-R000:/data/coolify/services/egcwkgw0cwg0kkwko4owooco/instance/instance.viva.jsonc \
+    root@com-vivalence-services-S000:/data/coolify/services/xkgcgwck8k08cgs8okoo4sko/instance/
+docker logs -f anima-xkgcgwck8k08cgs8okoo4sko      # one bundle, then nginx
+curl -s https://vivalence.com/ | grep -c 'runtime.s4y.vivalence.com'   # ≥1
+# browser: vivalence.com → login beef → a thread opens
+#+END_SRC
+
+*** rehearsal 11-06 — RED 19:07 at the taps, GREEN 18:17 after his push
+
+RED: `docker build --pull` died at `RUN viva registry/tap …` — `[ERROR] /registry/tap: (intermediate value).slurp is not a function`; `.slurp(` lives only in the github clones (`registry-chess/modes/coach/coach/harness.js:18`), all four registries unpushed. His `!` per registry: commit `@`, bookmark `master` to `@-`, push `master` to `github`; remote heads = local master after.
+
+GREEN: rebuilt (`rc=0`, `registry/doctor` lists education · chess · assembly · droneaid), `runtime-rehearsal` on `:2502`, spanish corpus installed 1742 literals, RUNNING at 18:17.
+
+| measure | got |
+|---|---|
+| `/status` | RUNNING |
+| `/lighthouse/metadata` | `traits: []` |
+| `/lighthouse/signup` · `/autologin` | 404 · 404 |
+| user row (milestone 2 script) | `beef|beef` |
+| `/lighthouse/login` right · wrong | SUCCESS + authority · 401 |
+| `/metadata/manifest` | `{"slug":"runtime"}` |
+| `/daemon/<slug>/metadata/modes` unauthed · authed | 401 · chess 13 · droneaid 12 · spanish 12 |
+| mountpoint | `prod.viva.db` · `daemon_chess` · `daemon_droneaid` · `daemon_spanish` · `migrations/` |
+| stockfish | `/usr/local/bin/stockfish` 17.1 |
+| `[ERROR]` in logs | none (`error: undefined` = the status log's shape) |
+| freight | NO ROUTE in HEAD — not measured |
+
+Torn down: container · `rehearsal_mountpoint` · image · `/tmp/*.sql`. Live `runtime-egcw…` · `lighthouse-egcw…` untouched.
+
+* deployed — 11-06, his `go` ×2 on milestone 6
+
+| step | did | got |
+|---|---|---|
+| S4 | Coolify runtime compose saved (one service, `mountpoint:`), env table −2 keys | `.env` on R000 = 3 keys; lighthouse service + volume gone |
+| S5 | Coolify anima compose saved | env table 3 → 5 keys (`VIVA_MOUNTPOINT_MOUNT` · decoy `SECRET_VIVA_JWT`) |
+| S7 wipe | `/data/backup/mountpoint-prewipe-20261106.tgz` 38M, both containers + both volumes removed, `instance.viva.js` → `.bak-20261106` | one volume `egcw…_mountpoint` reborn empty |
+| S7 runtime | Coolify Restart (build `no_cache`), then `docker compose up -d --no-build --force-recreate runtime` | healthy; `/status` RUNNING · `/lighthouse/metadata` `traits: []` · `/signup` 404 · `/login` SUCCESS · wrong 401 · `/metadata/manifest` · `User` count 1 |
+| S7 user | milestone 2 script, password generated into `/root/beef-initial.pw` (0600) | `beef\|beef` |
+| S7 anima | Coolify Restart (pull), then `docker compose up -d -V --force-recreate anima` | bundle `✓ built`; vivalence.com 200, sign-in screen, console clean |
+
+Three defects, mine at deploy — two in HEAD, one in the plan:
+
+1. **healthcheck `localhost` → `::1`** — busybox wget resolves `localhost` v6 first, the runtime binds `0.0.0.0` → `unhealthy` → traefik `503 no available server`. Fix landed: `127.0.0.1` (milestone 4 block). The rehearsal never ran the healthcheck (a `docker run`, not compose) — a rehearsal is the COMPOSE (`docker compose -f … up`), owed.
+2. **anima bake decodes the instance's secrets** — `subsystems/paladin/paladin/lifecycle.js:133` `Instance.decode(cast(data.instance))` on the client; `Lighthouse.secrets.jwt` `minLength: 24` (`instance.js:75`) REQUIRED; S000 had no `SECRET_VIVA_JWT` → baked `""` → `GL: Decode` at boot, grey page. The REAL jwt in the anima env would land in the PUBLIC bundle (the bake ships `instance` whole, `lifecycle.js:128`). Today: a decoy. Owed HIS call: the bake strips `secrets` + the client decode drops them — `known-issues.org`.
+3. **the hand-inserted user has no Terminal** (the plan's, milestone 2) — `typology/entities/Terminal.ts:50` mints the first Terminal on `/after/user/create`, a REPOSITORY twitch; raw SQL skips it → `layout.jsx:136` `shown()` null → `<Booting />` forever, last log `daemon` (his phone 21:11; /"does it work for you? i get stuck"/ · /"might be large initial data set"/ — no: Mode 37 · File 311 · View 21). Fix landed 21:20: a Terminal row by hand; milestone 2 script prints both rows.
+   Also: the anima image bakes no `VIVA_MOUNTPOINT_MOUNT` (the runtime image does) → `paladin:baked` mkdirs `<instance>/mountpoint` on the `:ro` bind → `EROFS`, crash loop. Fix landed: the compose env (milestone 4 block).
+
+Coolify, measured 11-06: `Restart` re-saves `.env` + compose but keeps the OLD container (env · healthcheck unchanged); `Force Restart` did nothing visible; the recreate is `docker compose up -d --force-recreate <svc>` in the service dir (`-V` to renew the anon bundle volume, `--no-build` to keep the image). `.env` it writes has NO trailing newline — `printf` after `sed -i -e '$a\'`.
+

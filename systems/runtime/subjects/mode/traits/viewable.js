@@ -2,17 +2,21 @@ import { join } from "@std/path";
 import paladin from "@vivalence/paladin";
 import { mime, Path } from "@vivalence/typology";
 
-export const VIEWABLE = async (mode, context) => {
+export const VIEWABLE = async (mode, modeDie) => {
   if (mode.module.buffer) {
     mode.buffer = Object.assign(
       ({ data = {}, ...desc } = {}) =>
-        context.entities.buffer.create({
+        modeDie.entities.buffer.create({
           mode: mode.entity.id,
           mime: mode.buffer.mime,
           ...desc,
           data: mode.module.buffer.fill({ ...desc, data }).data,
         }),
-      { mime: mime.viva(context.reference.branch(`/mode/${mode.manifest.type}/${mode.manifest.slug}`)) },
+      {
+        mime: mime.viva(
+          modeDie.reference.branch(`/mode/${mode.manifest.type}/${mode.manifest.slug}`),
+        ),
+      },
     );
   }
   if (!mode.module.views) return;
@@ -20,7 +24,7 @@ export const VIEWABLE = async (mode, context) => {
   mode.views = [];
   for (const declared of mode.module.views) {
     mode.views.push(
-      await context.entities.view.bundle(
+      await modeDie.entities.view.bundle(
         { mode: mode.entity.id, slug: declared.slug, mime: declared.mime, traits: declared.traits, entry: join(mode.module.source.dirname, declared.mount) },
         { bundler },
       ),

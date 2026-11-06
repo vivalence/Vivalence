@@ -1,0 +1,80 @@
+#+title: m119 land 11-09 — the census on the repo AFTER the land + both miswire fixes (serial, HOME empty, DENO_DIR the cache)
+# limit: 8000 chars
+
+#+BEGIN_EXAMPLE
+systems/runtime/tests/mint.test.js                               ok | 6 passed (29 steps) | 0 failed (465ms)
+systems/runtime/tests/datamap.scoped.test.js                     ok | 1 passed (4 steps) | 0 failed (376ms)
+systems/runtime/tests/turn.scope.test.js                         ok | 1 passed (8 steps) | 0 failed (129ms)
+systems/runtime/tests/subscriber.test.js                         ok | 1 passed (9 steps) | 0 failed (198ms)
+systems/runtime/tests/multiplex.filter.test.js                   ok | 1 passed (5 steps) | 0 failed (591ms)
+systems/runtime/tests/mode/traits.test.js                        ok | 2 passed (24 steps) | 0 failed (607ms)
+systems/runtime/tests/daemon/smoke.test.js                       ok | 1 passed (6 steps) | 0 failed (316ms)
+systems/runtime/tests/daemon/twitch.test.js                      ok | 1 passed (4 steps) | 0 failed (250ms)
+systems/runtime/tests/daemon/traits.test.js                      ok | 1 passed (4 steps) | 0 failed (154ms)
+subsystems/typology/tests/datamap.test.js                        ok | 1 passed (3 steps) | 0 failed (68ms)
+subsystems/typology/tests/gestalten/shard/datamap.inject.test.js ok | 1 passed (2 steps) | 0 failed (10ms)
+systems/runtime/tests/entities/turn.coverage.test.js             ok | 1 passed (4 steps) | 0 failed (144ms)
+systems/runtime/tests/entities/view.test.js                      ok | 1 passed (8 steps) | 0 failed (216ms)
+subsystems/typology/tests/dataspace.test.js                      ok | 2 passed (5 steps) | 0 failed (13ms)
+systems/runtime/tests/datasink.drain.test.js                     ok | 1 passed (10 steps) | 0 failed (3s)
+systems/runtime/tests/daemon/symbols-query.test.js               ok | 1 passed (8 steps) | 0 failed (119ms)
+systems/runtime/tests/runtime/beats.coverage.test.js             ok | 1 passed (10 steps) | 0 failed (148ms)
+systems/runtime/tests/runtime/composition.test.js                ok | 2 passed (9 steps) | 0 failed (355ms)
+systems/runtime/tests/buffer.labeled.test.js                     ok | 1 passed (5 steps) | 0 failed (178ms)
+systems/runtime/tests/turn.unit-of-work.test.js                  ok | 2 passed (5 steps) | 0 failed (321ms)
+systems/runtime/tests/mode/tooling.test.js                       ok | 1 passed (8 steps) | 0 failed (125ms)
+systems/runtime/tests/mode/looping.test.js                       ok | 1 passed (5 steps) | 0 failed (205ms)
+systems/runtime/tests/harness.metadata.snapshot.test.js          ok | 1 passed (4 steps) | 0 failed (251ms)
+systems/runtime/tests/bundle.spawn.test.js                       ok | 1 passed (3 steps) | 0 failed (293ms)
+systems/runtime/tests/cortex.stripwire.test.js                   ok | 1 passed (11 steps) | 0 failed (145ms)
+systems/runtime/tests/cortex.integration.test.js                 ok | 1 passed (24 steps) | 0 failed (350ms)
+systems/runtime/tests/multiplex.integration.test.js              ok | 1 passed (5 steps) | 0 failed (1s)
+systems/runtime/tests/harness.primer.test.js                     ok | 1 passed (5 steps) | 0 failed (197ms)
+systems/runtime/tests/stub.activity.test.js                      ok | 1 passed (6 steps) | 0 failed (1s)
+systems/runtime/tests/sse.integration.test.js                    ok | 1 passed (3 steps) | 0 failed (303ms)
+systems/runtime/tests/dictation.integration.test.js              ok | 1 passed (3 steps) | 0 failed (1s)
+systems/runtime/tests/hallucination-triad.doc.test.js            ok | 2 passed (4 steps) | 0 failed (146ms)
+systems/runtime/tests/cortex-contract.snapshot.test.js           ok | 1 passed (2 steps) | 0 failed (31ms)
+systems/runtime/tests/activity.integration.test.js               ok | 1 passed (3 steps) | 0 failed (1s)
+systems/runtime/tests/virtual.integration.test.js                ok | 1 passed (15 steps) | 0 failed (1s)
+systems/runtime/tests/thread.test.js                             ok | 1 passed (3 steps) | 0 failed (125ms)
+systems/runtime/tests/runtime/hello.test.js                      ok | 2 passed (24 steps) | 0 failed (4s)
+systems/runtime/tests/primer.entity.test.js                      ok | 1 passed (15 steps) | 0 failed (644ms)
+systems/runtime/tests/tools.coverage.test.js                     ok | 1 passed (4 steps) | 0 failed (134ms)
+commons/instances/hello-world/tests/catalog.test.js              ok | 6 passed (17 steps) | 0 failed (24ms)
+commons/fixtures/memo/tests/primer.coverage.test.js              ok | 1 passed (5 steps) | 0 failed (14ms)
+commons/playground/tests/primer.coverage.test.js                 ok | 2 passed (6 steps) | 0 failed (17ms)
+commons/editors/darkroom/tests/picture.test.js                   ok | 1 passed (11 steps) | 0 failed (263ms)
+systems/runtime/tests/dataset.install.test.js                    ok | 1 passed (14 steps) | 0 failed (174ms)
+systems/runtime/tests/datasink.roundtrip.test.js                 ok | 1 passed (11 steps) | 0 failed (392ms)
+systems/runtime/tests/scope.params.test.js                       ok | 1 passed (17 steps) | 0 failed (155ms)
+systems/runtime/tests/bench/smoke.test.js                        ok | 2 passed (7 steps) | 0 failed (1s)
+systems/runtime/tests/mode/emitters.test.js                      ok | 1 passed (2 steps) | 0 failed (1s)
+systems/runtime/tests/topography/literal.snapshot.test.js        ok | 1 passed (3 steps) | 0 failed (11ms)
+systems/runtime/tests/topography/symbol.snapshot.test.js         ok | 1 passed (3 steps) | 0 failed (10ms)
+subsystems/typology/tests/                                       ok | 159 passed (689 steps) | 0 failed (42s)
+#+END_EXAMPLE
+
+* the land's two MISWIREs — moved whole from the quest 11-10 (cap)
+
+** land — 11-09 · =go= on =land= · two MISWIREs the boot found, both traced on his span log, fixed with the land
+
+| # | where | wrote | broke | now |
+|---|---|---|---|---|
+| 1 | =mode/lifecycle/1-population.js:29= · =2-resolution.js:6= · =belt/modes.js:34= | =daemon: die.context.slug ?? null= | the RUNTIME host has a slug (=house= · =runtime=), no Daemon row: =insert into Mode (… daemon_slug …) values (… 'house' …)= → =FOREIGN KEY constraint failed= at =/mode/harness/runtime=; =hello.test.js= 2 failed | landed as =die.context.entities.mode.daemon= (=mint='s prototype stamp); REJECTED same night → ruling 13: paladin writes =daemon= on the mode's mask, =die.mode.daemon= |
+| 2 | =mode/traits/dataset.js:58= | the installer read under the beat's =mode= params | Symbol · Literal are unique per (daemon, slug): a sibling mode's symbol invisible → re-created → =UNIQUE constraint failed: Symbol.daemon_slug, Symbol.slug= at =/daemon/chess= =/mode/topography/openings= | the installer is a beat creating many rows: its own request, =daemon= named, =mode= null (law 2). REJECTED =filters: { mode: false }= ×3 — the handoff's =never= |
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/dataset.js:58
+  const installing = mode.stdout.branch("install").start();
+  try {
+    await context.datamap.shard.scope(async () => {
+      context.entities.em.setFilterParams("daemon", { daemon: context.entities.mode.daemon });
+      context.entities.em.setFilterParams("mode", { mode: null });
+      await install(mode, context, installing);
+    });
+  } catch (error) {
+#+END_SRC
+
+His instance: the =set null= migration was generated and applied by the 22:55 boot (=Migration20261109215513.ts=, =libsql.viva.js:30-32=); FK rows now =SET NULL=. The post-migration db is copied to =~/.viva/bak/instances/localhost-20261109/=. His runtime restarted at 23:10:52 on the fixed tree: no fault since, every daemon's =start= logged.
+

@@ -80,7 +80,8 @@ function partToAnthropic(part) {
 
 export const RESPOND = {
   name: "respond",
-  description: "Return the final result as structured data.",
+  description:
+    "Return the final result as structured data. Finish by calling this tool, never in plain text.",
 };
 
 export function buildParams(model, request, stream = false) {
@@ -93,7 +94,7 @@ export function buildParams(model, request, stream = false) {
   const settings = request.settings ?? {};
   const marks = new Set(request.cache?.marks ?? []);
   const structured = request.output?.schema;
-  const tool_choice = structured ? { type: "any" } : settings.tool_choice;
+  const tool_choice = structured ? { type: "auto" } : settings.tool_choice;
   const params = {
     model: model.id,
     system,
@@ -138,11 +139,12 @@ export function translateTools(tools) {
   }));
 }
 
-export const fault = (error) => ({
-  kind: error.status === 529 ? "overloaded" : error.status === 429 ? "throttled" : "request",
-  retryable: [408, 429, 500, 529].includes(error.status),
-  provider: { status: error.status, message: error.message },
-});
+export const fault = (error) =>
+  Object.assign(new Error(`anthropic ${error.status ?? ""} ${error.message}`.trim(), { cause: error }), {
+    kind: error.status === 529 ? "overloaded" : error.status === 429 ? "throttled" : "request",
+    retryable: [408, 429, 500, 529].includes(error.status),
+    provider: { status: error.status, message: error.message },
+  });
 
 // --- inbound: Anthropic response → turn ---
 

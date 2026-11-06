@@ -19,6 +19,22 @@ specimen.describe("Tab — dom.js:58: .tab · .n · label · .mirror · .dot", (
     rig.close();
   });
 
+  specimen.it("onClose grows a .close cross carrying its signal; a click on it closes and never picks; no onClose, no cross", () => {
+    const picked = [];
+    const closed = [];
+    const rig = screen(() => parts.Tab({ index: 2, label: "q3 filings", closing: "/terminal/close/t2", onPick: (index) => picked.push(index), onClose: (index) => closed.push(index) }));
+    const cross = rig.target.querySelector(".tab > span.close[role='button'][aria-label='close terminal']");
+    specimen.expect(cross.getAttribute("data-signal")).toBe("/terminal/close/t2");
+    specimen.expect(cross.querySelector("svg") === null).toBe(false);
+    fire(cross, "click");
+    specimen.expect(closed).toEqual([2]);
+    specimen.expect(picked).toEqual([]);
+    rig.close();
+    const bare = screen(() => parts.Tab({ index: 2, label: "q3 filings" }));
+    specimen.expect(bare.target.querySelector(".close")).toBe(null);
+    bare.close();
+  });
+
   specimen.it("the dot table is the design's", () => {
     specimen.expect(parts.TAB_DOTS).toEqual({ none: "", primary: "pri live", caution: "cau breathe", negative: "neg" });
   });

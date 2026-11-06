@@ -16,7 +16,7 @@ specimen.describe("REPLING (runtime) — the stripwire routine's runtime half", 
 
   specimen.it("REPLING seats the module's repl as mode.repl, the host's context and the mode bound on every line", () => {
     REPLING(mode, context);
-    specimen.expect(mode.repl).toBe(mode.module.repl);
+    specimen.expect(shape.strip(mode.repl)).toEqual(shape.strip(mode.module.repl));
     specimen.expect(Object.keys(shape.strip(mode.repl).branches)).toEqual(["hello"]);
   });
 

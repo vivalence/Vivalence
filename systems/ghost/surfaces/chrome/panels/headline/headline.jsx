@@ -11,6 +11,8 @@ export const tabbed = (held) => TABS.find(([test]) => test(held))[1](held);
 
 export const PLUS = " +";
 
+export const CROSS = "× ";
+
 export const ARROWS = "< ".length + " >".length;
 
 export const widened = (held) => [...tabbed(held)].length + 4;
@@ -40,7 +42,8 @@ export function Headline(props) {
   const faulted = (error) => terminal.controller.stdout.fault(error);
   const seat = (held) => terminal.repl.dispatch(`/terminal ${held.index}`).catch(faulted);
   const seated = () => terminals().findIndex((held) => held.id === terminal.id);
-  const widths = () => terminals().map(widened);
+  const closeable = () => terminals().length > 1;
+  const widths = () => terminals().map((held) => widened(held) + (closeable() ? CROSS.length : 0));
   const overflowing = () => summed(widths()) + PLUS.length > dimensions().width - 1;
   const shown = () => {
     if (!overflowing()) return terminals();
@@ -54,16 +57,29 @@ export function Headline(props) {
       </Show>
       <For each={shown()}>
         {(held) => (
-          <text
-            cursor="pointer"
-            wrapMode="none"
-            style={{ flexShrink: 1, minWidth: 0 }}
-            fg={held.id === terminal.id ? props.palette.textStrong : props.palette.textMuted}
-            bg={held.id === terminal.id ? props.palette.surface : props.palette.surfaceSunk}
-            onMouseUp={() => seat(held)}
-          >
-            {held.id === terminal.id ? <b>{`  ${tabbed(held)}  `}</b> : `  ${tabbed(held)}  `}
-          </text>
+          <>
+            <text
+              cursor="pointer"
+              wrapMode="none"
+              style={{ flexShrink: 1, minWidth: 0 }}
+              fg={held.id === terminal.id ? props.palette.textStrong : props.palette.textMuted}
+              bg={held.id === terminal.id ? props.palette.surface : props.palette.surfaceSunk}
+              onMouseUp={() => seat(held)}
+            >
+              {held.id === terminal.id ? <b>{`  ${tabbed(held)}  `}</b> : `  ${tabbed(held)}  `}
+            </text>
+            <Show when={closeable()}>
+              <text
+                cursor="pointer"
+                style={{ flexShrink: 0 }}
+                fg={props.palette.textMuted}
+                bg={held.id === terminal.id ? props.palette.surface : props.palette.surfaceSunk}
+                onMouseUp={() => terminal.repl.dispatch(`/terminal/close/${held.id}`).catch(faulted)}
+              >
+                {CROSS}
+              </text>
+            </Show>
+          </>
         )}
       </For>
       <Show when={overflowing()}>

@@ -1,4 +1,4 @@
-import fs from "@std/fs";
+import fs from "fs-extra";
 import { extname, join, relative } from "@std/path";
 import { Path } from "@vivalence/typology";
 import { skip } from "./ignore.js";

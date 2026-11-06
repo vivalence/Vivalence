@@ -37,8 +37,6 @@ export class ThreadEntity extends DataEntity {
   turns = new Collection<TurnEntity>(this);
 
   counter: number & Opt = 0; // these two might be candidates for a trait?!
-  cursor: number & Opt = 0; // these two might be candidates for a trait?!
-
 
   intent?: Rel<IntentEntity>;
 
@@ -58,6 +56,11 @@ export const ThreadSchema = new EntitySchema<ThreadEntity, DataEntity>({
     user: {
       cond: (args: any) => ({ user: args.user }),
       default: true,
+    },
+    mode: {
+      cond: (args: any) => (args?.mode ? { mode: args.mode } : {}),
+      default: true,
+      args: false,
     },
   },
   hooks: {
@@ -101,7 +104,7 @@ export const ThreadSchema = new EntitySchema<ThreadEntity, DataEntity>({
       fieldName: "mode",
       nullable: true,
       updateRule: "cascade",
-      deleteRule: "cascade",
+      deleteRule: "set null",
     },
 
     intent: {
@@ -123,7 +126,6 @@ export const ThreadSchema = new EntitySchema<ThreadEntity, DataEntity>({
     trait: { type: types.json },
 
     counter: { type: types.integer },
-    cursor: { type: types.integer },
 
     buffers: {
       kind: "1:m",

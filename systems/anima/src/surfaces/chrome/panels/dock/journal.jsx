@@ -122,7 +122,6 @@ export const Journal = () => {
   const activities = from(app.client.runtime.entities.activity.$entities);
   const records = from(computed(terminal.controller.stdout.$history, (held) => held.filter((record) => record.track === "log" || record.track === "fault")));
   const user = from(app.client.runtime.lighthouse.$user);
-  const focus = from(app.bridge.$focus);
   const selection = from(app.bridge.$selection);
 
   const lens = () => {
@@ -136,10 +135,7 @@ export const Journal = () => {
   const shown = () => lookup(LENS, lens(), "lens");
   const waiting = () => parts.listing(activities).some((activity) => thread() !== null && activity.thread === thread() && activity.status === "PAUSED");
   const sent = (signal) => terminal.repl.dispatch(signal).catch((error) => terminal.controller.stdout.fault(error));
-  const pick = (index) => () => {
-    app.bridge.$selection.set(index);
-    app.bridge.$focus.set("journal");
-  };
+  const pick = (index) => () => app.bridge.$selection.set(index);
   const listed = (turns, buffers) =>
     entries(shown().turns ? turns : [], parts.listing(records).filter((record) => shown().records.includes(record.track)), user().slug, waiting(), buffers);
 
@@ -151,7 +147,7 @@ export const Journal = () => {
           lens={lens()}
           markdown={markdown()}
           cells={entry.turn === undefined ? [] : cells(entry.turn, rows.buffers)}
-          selected={focus() === "journal" && selection() === index()}
+          selected={selection() === index()}
           onPick={pick(index())}
           onLine={sent}
         />

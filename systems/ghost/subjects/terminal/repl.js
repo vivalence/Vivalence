@@ -1,13 +1,18 @@
 import paladin from "@vivalence/paladin";
 import { atom } from "nanostores";
-import { ReplSignal, Vector, fromm, is, shard, steer } from "@vivalence/typology";
+import { NotFound, ReplSignal, Vector, fromm, is, shape, shard, steer } from "@vivalence/typology";
 import * as clientCommand from "../client/commands/index.js";
 import * as appCommand from "../app/commands/index.js";
 import * as terminalCommand from "./commands/index.js";
 
 export const execution = new Vector()
   .use(shard.controller.open)
-  .do((replDie) => steer.dispatch.execute(replDie.repl.commands, replDie, replDie.signal));
+  .do((replDie) => {
+    const [effect, carry, steps] = steer.dispatch.traverse(replDie.repl.commands, replDie.signal);
+    if (!effect) throw new NotFound(replDie.signal);
+    replDie.params = fromm.match(steps).parameters;
+    return steer.strategy.direct(carry, effect)(replDie);
+  });
 
 export class Repl {
   $catalog = atom(null);
@@ -22,13 +27,13 @@ export class Repl {
 
   get commands() {
     const absent = paladin.is.tty ? [] : [clientCommand.quit];
-    return new Vector().graft(
+    return steer.trie.sieve(new Vector().graft(
       ...Object.values(clientCommand).filter((command) => !absent.includes(command)),
       ...(this.terminal.client.app === null ? [] : Object.values(appCommand).filter((command) => !absent.includes(command))),
       ...fromm.modes(this.terminal.client.modes).flat.map((mode) => mode.repl),
       ...Object.values(terminalCommand),
       ...(is.object(this.terminal.mode) ? [this.terminal.mode.repl] : []),
-    );
+    ), (pattern) => pattern.rank !== "void");
   }
 
   dispatch(line) {

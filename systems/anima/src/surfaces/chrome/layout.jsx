@@ -15,11 +15,11 @@ import { Dock } from "./panels/dock/dock.jsx";
 
 export const DIRECTIONS = { right: "row", left: "row-reverse", bottom: "column", top: "column-reverse" };
 
-export const layout = ({ phone, pane, dock, framed }) => {
-  const floating = !phone && dock.view === "messenger";
-  const frame = phone ? pane === "frame" && framed : dock.view !== "full";
-  const docked = phone ? pane === "dock" : dock.view !== "closed";
-  return { floating, frame, dock: docked, both: !phone && frame && docked && dock.view === "docked", direction: phone ? "column" : lookup(DIRECTIONS, dock.align, "dock align") };
+export const layout = ({ dock }) => {
+  const floating = dock.view === "messenger";
+  const frame = dock.view !== "full";
+  const docked = dock.view !== "closed";
+  return { floating, frame, dock: docked, both: frame && docked && dock.view === "docked", direction: lookup(DIRECTIONS, dock.align, "dock align") };
 };
 
 export const percent = (share) => `${Math.round(share * 1000) / 10}%`;
@@ -27,7 +27,7 @@ export const percent = (share) => `${Math.round(share * 1000) / 10}%`;
 export function Split(props) {
   const terminal = ambient.terminal.consume();
   const [dragging, setDragging] = createSignal(null);
-  const shape = () => layout({ phone: props.phone, pane: props.pane, dock: props.dock, framed: props.framed });
+  const shape = () => layout({ dock: props.dock });
   const share = () => (dragging() === null ? props.dock.share : dragging());
   const basis = () => (shape().both ? { flex: `0 0 ${percent(share())}` } : { flex: "1 1 0" });
   const shared = (picked) =>
@@ -38,13 +38,13 @@ export function Split(props) {
   return (
     <parts.Split direction={shape().direction}>
       <Show when={shape().frame}>
-        <Frame dock={props.dock} phone={props.phone} />
+        <Frame dock={props.dock} />
       </Show>
       <Show when={shape().both}>
         <parts.Seam align={props.dock.align} onDrag={setDragging} onShare={shared} onReset={() => terminal.repl.dispatch(`/split ${belt.dock.DEFAULT_DOCK.share}`).catch((error) => terminal.controller.stdout.fault(error))} />
       </Show>
       <Show when={shape().dock}>
-        <Dock dock={props.dock} phone={props.phone} floating={shape().floating} basis={basis()} />
+        <Dock dock={props.dock} floating={shape().floating} basis={basis()} />
       </Show>
     </parts.Split>
   );
@@ -110,7 +110,9 @@ const Seated = () => {
             <Sbseam />
           </Show>
         </Show>
-        <Split dock={dock()} framed={buffer() !== null} phone={viewport().narrow} pane={pane()} />
+        <Show when={!(viewport().narrow && sided())}>
+          <Split dock={dock()} />
+        </Show>
       </div>
       <Panel />
       <Modeline />

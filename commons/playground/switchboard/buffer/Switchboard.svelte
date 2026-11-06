@@ -24,7 +24,7 @@
     const list = cards();
     if (!list.length) return;
     const at = list.findIndex((b) => b.id === terminal.buffer?.id);
-    terminal.buffer = list[(at + delta + list.length) % list.length];
+    terminal.setBuffer(list[(at + delta + list.length) % list.length]);
     trace = [`cursor → ${terminal.buffer?.data?.face ?? "?"}`, ...trace].slice(0, 6);
   }
   async function feed() {

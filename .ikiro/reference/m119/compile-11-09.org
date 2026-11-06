@@ -1,0 +1,63 @@
+#+title: m119 compile 11-09 — the quest's five milestone sections replayed on a FRESH copy, then run
+# limit: 6000 chars
+
+* the replay — =apply-diffs.py <quest> "<section>" --root <fresh copy> --write=, the repo untouched
+
+#+BEGIN_EXAMPLE
+** 1 · the entity rows        files 10 · hunks landed 14 · missed 0 · WRITTEN
+** 4 · the mode               files  4 · hunks landed  5 · missed 0 · WRITTEN
+** 3 · the daemon             files  6 · hunks landed 12 · missed 0 · WRITTEN
+** 6 · the client             files  1 · hunks landed  1 · missed 0 · WRITTEN
+** 7 · tests                  files 10 · hunks landed 36 · missed 0 · WRITTEN
+#+END_EXAMPLE
+
+* the run — serial, =HOME= empty, =DENO_DIR= the cache, from the copy's root
+
+#+BEGIN_EXAMPLE
+systems/runtime/tests/mint.test.js                             ok | 6 passed (29 steps) | 0 failed
+systems/runtime/tests/datamap.scoped.test.js                   ok | 1 passed (4 steps) | 0 failed
+systems/runtime/tests/turn.scope.test.js                       ok | 1 passed (8 steps) | 0 failed
+systems/runtime/tests/subscriber.test.js                       ok | 1 passed (9 steps) | 0 failed
+systems/runtime/tests/multiplex.filter.test.js                 ok | 1 passed (5 steps) | 0 failed
+systems/runtime/tests/mode/traits.test.js                      ok | 2 passed (24 steps) | 0 failed
+systems/runtime/tests/daemon/smoke.test.js                     ok | 1 passed (6 steps) | 0 failed
+systems/runtime/tests/daemon/twitch.test.js                    ok | 1 passed (4 steps) | 0 failed
+systems/runtime/tests/daemon/traits.test.js                    ok | 1 passed (4 steps) | 0 failed
+subsystems/typology/tests/datamap.test.js                      ok | 1 passed (3 steps) | 0 failed
+subsystems/typology/tests/gestalten/shard/datamap.inject.test.js ok | 1 passed (2 steps) | 0 failed
+systems/runtime/tests/entities/turn.coverage.test.js           ok | 1 passed (4 steps) | 0 failed
+systems/runtime/tests/entities/view.test.js                    ok | 1 passed (8 steps) | 0 failed
+subsystems/typology/tests/dataspace.test.js                    ok | 2 passed (5 steps) | 0 failed
+systems/runtime/tests/datasink.drain.test.js                   ok | 1 passed (10 steps) | 0 failed
+systems/runtime/tests/daemon/symbols-query.test.js             ok | 1 passed (8 steps) | 0 failed
+systems/runtime/tests/runtime/beats.coverage.test.js           ok | 1 passed (10 steps) | 0 failed
+systems/runtime/tests/runtime/composition.test.js              ok | 2 passed (9 steps) | 0 failed
+systems/runtime/tests/buffer.labeled.test.js                   ok | 1 passed (5 steps) | 0 failed
+systems/runtime/tests/turn.unit-of-work.test.js                ok | 2 passed (5 steps) | 0 failed
+systems/runtime/tests/mode/tooling.test.js                     ok | 1 passed (8 steps) | 0 failed
+systems/runtime/tests/mode/looping.test.js                     ok | 1 passed (5 steps) | 0 failed
+systems/runtime/tests/harness.metadata.snapshot.test.js        ok | 1 passed (4 steps) | 0 failed
+systems/runtime/tests/bundle.spawn.test.js                     ok | 1 passed (3 steps) | 0 failed
+systems/runtime/tests/cortex.stripwire.test.js                 ok | 1 passed (11 steps) | 0 failed
+systems/runtime/tests/cortex.integration.test.js               ok | 1 passed (24 steps) | 0 failed
+systems/runtime/tests/multiplex.integration.test.js            ok | 1 passed (5 steps) | 0 failed
+systems/runtime/tests/harness.primer.test.js                   ok | 1 passed (5 steps) | 0 failed
+systems/runtime/tests/stub.activity.test.js                    ok | 1 passed (6 steps) | 0 failed
+systems/runtime/tests/sse.integration.test.js                  ok | 1 passed (3 steps) | 0 failed
+systems/runtime/tests/dictation.integration.test.js            ok | 1 passed (3 steps) | 0 failed
+systems/runtime/tests/hallucination-triad.doc.test.js          ok | 2 passed (4 steps) | 0 failed
+systems/runtime/tests/cortex-contract.snapshot.test.js         ok | 1 passed (2 steps) | 0 failed
+systems/runtime/tests/activity.integration.test.js             ok | 1 passed (3 steps) | 0 failed
+systems/runtime/tests/virtual.integration.test.js              ok | 1 passed (15 steps) | 0 failed
+subsystems/typology/tests/                                     ok | 159 passed (689 steps) | 0 failed (45s)
+#+END_EXAMPLE
+
+* the reds before milestone 7 — milestones 1 · 4 · 3 · 6 landed, tests untouched: 7 of 14
+
+Every one =ValidationError: Value for LiteralEntity.daemon is required, 'undefined' found= (the fence's stamp gone, Q5). =scenarios/datamap.js:65-70= fed six: =datamap.scoped= · =turn.scope= · =subscriber= · =twitch= · =traits= · =view= (+ =turn.coverage=); =mint= also lost its fence assertions.
+
+* the miswire the compile found
+
+With the Q2 hunk =history({})= at =harnessed.js:111=: =cortex.integration.test.js= → =RangeError: Maximum call stack size exceeded= at /"parent chain: user1 ← assistant1 ← user2 ← assistant2"/. Ten rigs call =mode.harness.dialogue.stream= outside a request; there =shard.bind= sets no params (=datamap.js:14= =?.=) and =history({})= read the user's every thread. The narrow kept: =ok | 1 passed (24 steps)=. Same class as =Turn.ts:19= =chain= (eight callers outside a bind).
+
+* pre-existing, not m119's: =deno check= on the touched files prints 185 errors on the repo (the repo runs =--no-check=); the copy's set is the same.

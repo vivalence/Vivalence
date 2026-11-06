@@ -54,17 +54,12 @@ export { instance, stack, tiers } from "./tiers.js";
   translateTurns,
 } from "../provider/translate.js";
 ```
-**harnesses/runtime** (manifest · harness), no test; `daemon/` empty.
-```js
-// commons/harnesses/runtime/runtime-harness.viva.js:12
-export const harness = new Vector();
-
-```
+**harnesses/runtime** (manifest · harness · primer · tools) + `identity.md` · `world.md`, the harness an instance brings (m117); no test.
 **instances/hello-world/mode.viva.js** ← harness (← page/style) · page/{index,draw}; `localhost/` empty.
 ```js
-// commons/instances/hello-world/tests/catalog.snapshot.test.js:37
-  manifest: { slug: "hello-world", type: "demo" },
-  module: { generator },
+// commons/instances/hello-world/mode.viva.js:29-30
+  .graft(gestalten.tools.entity, gestalten.tools.buffer, gestalten.tools.thread, gestalten.tools.mode)
+  .graft(drawing);
 ```
 **hello-world/tools/index.js** `*`×5; routes ← doctor · research · wikipedia.
 ```js

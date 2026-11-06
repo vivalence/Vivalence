@@ -63,12 +63,13 @@ export const RETAINED = traits.define("RETAINED", {
       const notes = this.entities.note;
       const held = await notes.retention(literal);
       const retention = held === null
-        ? notes.create({ ...this.owner(), literal, slug: `retention.${literal.slug}`, traits: ["RETAINED"], trait: { RETAINED: {} } })
+        ? notes.create({ ...this.owner(), daemon: literal.daemon, literal, slug: `retention.${literal.slug}`, traits: ["RETAINED"], trait: { RETAINED: {} } })
         : held;
       notes.evolve(retention, signal);
       const retained = retention.trait.RETAINED;
       notes.create({
         ...this.owner(),
+        daemon: literal.daemon,
         literal,
         parent: retention,
         slug: `trace.${crypto.randomUUID()}`,

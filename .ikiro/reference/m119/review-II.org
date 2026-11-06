@@ -1,0 +1,13 @@
+#+title: m119 — review II, moved whole from the quest 11-10 (cap)
+# limit: 6000 chars
+
+* review II — 11-09 · the compile's delta · 5 stops · 4 amen · 0 drilled · 0 skipped · S4 mine (tests) — REVIEWED
+
+| S | stop | rides | tree | verdict | his words |
+|---|---|---|---|---|---|
+| 1 | the two =thread= narrows STAND; the bind fences what names none | Q2 pass · law 2 | QUEST | amen | /"amen"/ |
+| 2 | the emitter claims, then binds =thread= | Q2 · ruling 2 | QUEST | amen | /"amen"/ |
+| 3 | the prune names its host | law 2 · Q5 | QUEST | amen | /"amn"/ |
+| 4 | the rigs name =daemon=; a fence test opens with its params | Q5 · milestone 7 | QUEST | mine | /"dont care about tests. you test"/ |
+| 5 | the mechanical rest: ten entity blocks · the beat as a diff · seed ×6 · dataset ×2 · memo · stubs | milestones 1 · 3 · 6 · 7 | QUEST | amen | /"amen"/ |
+

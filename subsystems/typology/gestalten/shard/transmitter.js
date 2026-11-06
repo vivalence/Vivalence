@@ -96,6 +96,7 @@ export function multiplex({ authority, mount = "/multiplex", vector, connect } =
         verb: request.method,
         token: authority?.get()?.access,
         stream: upstream ? true : undefined,
+        headers: request.headers.size ? Object.fromEntries(request.headers) : undefined,
       });
 
       const abort = () => socket.shut(frame);
@@ -220,6 +221,7 @@ export const retry = (transport, options = {}) => {
 };
 
 export const inline = (serve) => async (ctx) => {
+  const upstream = ctx.request.stream();
   const req = new Request(ctx.request.url.absolute, {
     method: ctx.request.method,
     headers: {
@@ -227,9 +229,11 @@ export const inline = (serve) => async (ctx) => {
       ...Object.fromEntries(ctx.request.headers),
     },
     body:
-      ctx.request.method !== "GET" && ctx.request.body !== undefined
+      upstream ??
+      (ctx.request.method !== "GET" && ctx.request.body !== undefined
         ? JSON.stringify(ctx.request.body)
-        : undefined,
+        : undefined),
+    ...(upstream && { duplex: "half" }),
   });
 
   const res = await serve(req);
@@ -274,7 +278,7 @@ export const fetcher = async (ctx) => {
       );
     options.body = upstream;
     options.duplex = "half";
-    options.headers["Content-Type"] = "text/event-stream";
+    options.headers["Content-Type"] = request.headers.get("content-type") ?? "text/event-stream";
   } else if (request.method !== "GET" && request.body !== undefined) {
     options.body = JSON.stringify(request.body);
   }

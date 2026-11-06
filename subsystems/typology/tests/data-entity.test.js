@@ -14,10 +14,10 @@ specimen.describe("DataRepository.updateOne — a JSON column it names is replac
     const orm = await MikroORM.init({ dbName: ":memory:", contextName: "held", entities: [HeldSchema] });
     await orm.schema.create();
     const em = orm.em.fork();
-    em.persist(Object.assign(new Held(), { id: "th1", trait: { LABELED: { name: "hi" }, INTELLIGENT: { tune: "slow", effort: "low" } } }));
+    em.persist(Object.assign(new Held(), { id: "th1", trait: { LABELED: { name: "hi" }, INTELLIGENT: { tier: "slow", effort: "low" } } }));
     await em.flush();
-    const updated = await em.getRepository(Held).updateOne({ id: "th1" }, { trait: { INTELLIGENT: { tune: "fast" } } });
-    specimen.expect(updated.trait).toEqual({ INTELLIGENT: { tune: "fast" } });
+    const updated = await em.getRepository(Held).updateOne({ id: "th1" }, { trait: { INTELLIGENT: { tier: "fast" } } });
+    specimen.expect(updated.trait).toEqual({ INTELLIGENT: { tier: "fast" } });
 
     const cleared = await em.getRepository(Held).updateOne({ id: "th1" }, { trait: {} });
     specimen.expect(cleared.trait).toEqual({});

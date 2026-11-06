@@ -13,7 +13,7 @@ const FLIPPED = [
 ];
 
 export const focus = new Vector().open(
-  { nature: "/focus", valence: "the keys to a panel — the frame's mode view, or the dock's composer; bare, they flip between the two. Example: /focus frame", input: Focused, chord: "leader/d/f" },
+  { nature: "/focus", rank: "hidden", valence: "the keys to a panel — the frame's mode view, or the dock's composer; bare, they flip between the two. Example: /focus frame", input: Focused, chord: "leader/d/f" },
   (ctx) => {
     const { panel } = belt.input.cast(Focused, ctx.signal);
     const held = panel === undefined ? FLIPPED.find(([test]) => test(ctx.client.app.bridge.focus))[1]() : panel;

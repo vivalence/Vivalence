@@ -61,6 +61,7 @@ export const ViewSchema = new EntitySchema<ViewEntity, DataEntity>({
   tableName: "View",
   repository: () => ViewRepository,
   uniques: [{ properties: ["mode", "slug", "mime"] }],
+  filters: { mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false } },
   properties: {
     slug: { type: types.string },
     mime: { type: types.string },

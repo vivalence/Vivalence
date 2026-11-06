@@ -18,6 +18,7 @@ specimen.describe("smoke: full lifecycle", () => {
   specimen.it("create thread via userspace", async () => {
     thread = await scenario.userspace.call("/userspace/entities/thread/create", {
       data: {
+        user: scenario.fixtures.user.id,
         mode: scenario.fixtures.mode.id,
         intent: scenario.fixtures.intent.id,
       },

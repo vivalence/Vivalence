@@ -51,6 +51,29 @@ specimen.describe("object.filter", () => {
   });
 });
 
+specimen.describe("object.traverse", () => {
+  specimen.it("each value is awaited through the arrow under its own key — (key, value), filter's order", async () => {
+    const seen = [];
+    const held = await object.traverse({ a: 1, b: 2 }, async (key, value) => {
+      seen.push(key);
+      return `${key}${value * 2}`;
+    });
+    specimen.expect(held).toEqual({ a: "a2", b: "b4" });
+    specimen.expect(seen).toEqual(["a", "b"]);
+  });
+
+  specimen.it("an empty record is an empty record; one rejection rejects the whole", async () => {
+    specimen.expect(await object.traverse({}, () => 1)).toEqual({});
+    await specimen.expect(object.traverse({ a: 1 }, () => Promise.reject(new Error("gone")))).rejects.toThrow("gone");
+  });
+
+  specimen.it("does not mutate the source", async () => {
+    const source = { a: 1 };
+    await object.traverse(source, () => 2);
+    specimen.expect(source).toEqual({ a: 1 });
+  });
+});
+
 specimen.describe("object.merge", () => {
   specimen.it("an array is positional — a quaternion with repeated components survives whole; the later source replaces, never unions", () => {
     const trait = { PLACED: { rotation: [1, 0, 0, 0], scale: [-1, 1, 1] } };

@@ -1,12 +1,13 @@
 import { specimen } from "@vivalence/typology";
 import { mime } from "@vivalence/typology";
 import { fire, paint, settle, surface, world } from "./world.js";
+import { LENSES } from "../src/surfaces/chrome/panels/sidebar/sections.js";
 
 const LEAVES = ["tabs", "sidebar", "modebar", "fhead", "fbody", "dhead", "journal", "composer", "panel", "strip"];
 
 const named = (element) => {
   const slot = element.getAttribute("data-r");
-  const classes = [...element.classList].filter((name) => !["focus", "drag"].includes(name));
+  const classes = [...element.classList].filter((name) => name !== "drag");
   if (classes.length === 0 && slot !== null) return `${element.tagName.toLowerCase()}@${slot}`;
   return [element.tagName.toLowerCase(), ...classes].join(".");
 };
@@ -123,14 +124,17 @@ specimen.describe("anima regions — the design's skeleton (dom.js skeleton) ove
     rig.close();
   });
 
-  specimen.it("the dock head: close · lens cycling chat→repl→trace; the lens and the close are lines", async () => {
+  specimen.it("the dock head: the lens is the frame's select, the close sits right-most; both are lines", async () => {
     const { rig, root, sent } = await seated({ view: "docked", lens: "repl" });
     const head = root().querySelector(".dhead");
-    specimen.expect([...head.children].map((child) => child.className)).toEqual(["iconbtn", "lens"]);
+    specimen.expect([...head.children].map((child) => child.className)).toEqual(["asel", "iconbtn"]);
     specimen.expect(head.querySelector(".iconbtn").getAttribute("title")).toBe("close the dock · /dock closed · hold: display");
-    specimen.expect(head.querySelector(".lens").textContent).toBe("repl");
-    specimen.expect(head.querySelector(".lens").getAttribute("title")).toBe("lens · /dock/lens trace");
-    fire(head.querySelector(".lens"), "click");
+    const lens = head.querySelector(".asel select");
+    specimen.expect(lens.getAttribute("aria-label")).toBe("lens");
+    specimen.expect([...lens.options].map((option) => option.textContent)).toEqual(Object.keys(LENSES));
+    specimen.expect(lens.options[lens.selectedIndex].textContent).toBe("repl");
+    lens.value = "/dock/lens trace";
+    fire(lens, "change");
     fire(head.querySelector(".iconbtn"), "click");
     await settle();
     specimen.expect(sent).toEqual(["/dock/lens trace", "/dock closed"]);
@@ -182,7 +186,7 @@ specimen.describe("anima regions — the design's skeleton (dom.js skeleton) ove
     await settle();
     specimen.expect(bones(root())).toBe(ORACLE.phoneDock);
     specimen.expect(root().querySelector(".split").style.flexDirection).toBe("column");
-    specimen.expect([...root().querySelector(".dhead").children].map((child) => child.className)).toEqual(["lens"]);
+    specimen.expect([...root().querySelector(".dhead").children].map((child) => child.className)).toEqual(["asel", "iconbtn"]);
     specimen.expect(root().querySelector("[data-r='strip']").innerHTML).toBe('<button type="button" class="strip" title="open the frame"><span class="l">◆ board</span><span class="muted">chess/chess</span><span class="o">⤢</span></button>');
     fire(root().querySelector(".strip"), "click");
     await settle();
@@ -197,20 +201,6 @@ specimen.describe("anima regions — the design's skeleton (dom.js skeleton) ove
     await settle();
     specimen.expect(bones(root())).toBe(ORACLE.phoneSidebar);
     specimen.expect(sent).toEqual([]);
-    rig.close();
-  });
-
-  specimen.it("focus wears .focus on the pane it names; a click on the frame takes it", async () => {
-    const { rig, root, client } = await seated({ view: "docked" }, BUFFER);
-    specimen.expect(root().querySelectorAll(".pane.focus").length).toBe(0);
-    fire(root().querySelector(".pane.frame"), "click");
-    await settle();
-    specimen.expect(client.surface.focus).toBe("frame");
-    specimen.expect(root().querySelector(".pane.frame").classList.contains("focus")).toBe(true);
-    client.surface.$focus.set("journal");
-    await settle();
-    specimen.expect(root().querySelector(".pane.dock").classList.contains("focus")).toBe(true);
-    specimen.expect(root().querySelector(".pane.frame").classList.contains("focus")).toBe(false);
     rig.close();
   });
 

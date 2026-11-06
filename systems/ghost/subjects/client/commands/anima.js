@@ -18,10 +18,10 @@ const open = async () => {
 
 export const anima = new Vector()
   .open(
-    { nature: "/anima", valence: "start anima detached (instance/start anima) and open it in the browser. Example: /anima", chord: "leader/s/a" },
+    { nature: "/anima", rank: "hidden", valence: "start anima detached (instance/start anima) and open it in the browser. Example: /anima", chord: "leader/s/a" },
     async (ctx) => ({
       ...(await steer.dispatch.execute(paladin.commands, ctx, new Argv("/instance/start anima"))),
       ...(await open()),
     }),
   )
-  .open({ nature: "/anima/open", valence: "open the served anima in the browser. Example: /anima/open" }, open);
+  .open({ nature: "/anima/open", rank: "hidden", valence: "open the served anima in the browser. Example: /anima/open" }, open);

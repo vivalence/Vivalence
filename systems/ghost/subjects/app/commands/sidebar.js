@@ -16,15 +16,15 @@ const shown = (ctx, open) => {
 
 export const sidebar = new Vector()
   .open(
-    { nature: "/sidebar", valence: "the sidebar open or closed. Example: /sidebar open", input: Shown },
+    { nature: "/sidebar", rank: "hidden", valence: "the sidebar open or closed. Example: /sidebar open", input: Shown },
     (ctx) => shown(ctx, belt.input.cast(Shown, ctx.signal).state === "open"),
   )
   .open(
-    { nature: "/sidebar/toggle", valence: "the sidebar flipped — open if closed, closed if open. Example: /sidebar/toggle", chord: "leader/d/b" },
+    { nature: "/sidebar/toggle", rank: "hidden", valence: "the sidebar flipped — open if closed, closed if open. Example: /sidebar/toggle", chord: "leader/d/b" },
     (ctx) => shown(ctx, !ctx.client.app.bridge.sidebar.open),
   )
   .open(
-    { nature: "/sidebar/width", valence: "the sidebar's width in columns — the grip on its border drags it. Example: /sidebar/width 39", input: Wide },
+    { nature: "/sidebar/width", rank: "hidden", valence: "the sidebar's width in columns — the grip on its border drags it. Example: /sidebar/width 39", input: Wide },
     (ctx) => {
       const width = belt.input.cast(Wide, ctx.signal).width;
       ctx.client.app.bridge.$sidebar.set({ ...ctx.client.app.bridge.sidebar, width });

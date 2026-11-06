@@ -58,7 +58,11 @@ specimen.describe("batch: daemon lifecycle", () => {
 
   specimen.it("authed: batch through the runtime's userspace with auth context", async () => {
     await scenario.userspace.call("/userspace/entities/thread/create", {
-      data: { mode: scenario.fixtures.mode.id, intent: scenario.fixtures.intent.id },
+      data: {
+        user: scenario.fixtures.user.id,
+        mode: scenario.fixtures.mode.id,
+        intent: scenario.fixtures.intent.id,
+      },
     });
 
     const results = await scenario.userspace.call("/batch", [

@@ -46,24 +46,24 @@ async function* polishing(events, repair) {
   yield* soma.merge(upstream, polishes.drain());
 }
 
-export const verbatim = ({ polish, tune } = {}) => async (ctx) => {
+export const verbatim = ({ polish, tier } = {}) => async (ctx) => {
   const vocal = ctx.vocal;
   const source = ctx.input.source ?? (ctx.request.raw?.body && ctx.request.subscribe());
   if (!source) throw new Error("[hal.verbatim] no audio source — pass input.source or feed the request body");
-  const desire = vocal.tune ?? tune;
+  const picked = { provider: vocal.provider, id: vocal.id, tier: vocal.tier ?? tier, tune: vocal.tune };
   const controller = ctx.controller;
   const events = await ctx.cortex.hallucinate.verbatim.stream({
     controller: controller.branch("verbatim"),
     source,
     settings: { ...(vocal.language && { language: vocal.language }) },
-    policy: { ...(desire && { tune: desire }), ...(vocal.harmonize && { harmonize: vocal.harmonize }) },
+    policy: { ...picked, ...(vocal.harmonize && { harmonize: vocal.harmonize }) },
   });
   const repair = async (text) => {
     const rendered = await ctx.cortex.hallucinate.dialogue.render({
       controller: controller.branch("dialogue"),
       system: { polish },
       turns: [{ role: "user", parts: [{ type: "text", text }] }],
-      policy: { tune: "fast", rounds: 1 },
+      policy: { tier: "fast", rounds: 1 },
     });
     return rendered.output.message?.trim() ?? null;
   };
@@ -85,21 +85,7 @@ async function* controlled(controller, output) {
 export const voice = () => async (ctx, next) => {
   await next();
   if (!ctx.output?.[Symbol.asyncIterator]) return;
-
-  const speech = ctx.input.tune?.voice
-    ? ctx.cortex.findOne({ type: "speech", tune: ctx.input.tune, via: "stream" })
-    : null;
-
-  if (!speech) {
-    ctx.output = soma.channel(ctx.output, "dialogue");
-    return;
-  }
-
-  const [text, forSpeech] = soma.tee(ctx.output);
-  ctx.output = soma.merge(
-    soma.channel(text, "dialogue"),
-    soma.channel(speech.via.stream(soma.textFromPackets(forSpeech), {}), "speech"),
-  );
+  ctx.output = soma.channel(ctx.output, "dialogue");
 };
 
 const layers = ["policy", "settings", "system", "output"];

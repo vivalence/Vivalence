@@ -21,6 +21,7 @@ function tutor() {
   const answered = (turns) => turns.at(-1)?.parts?.some((p) => p.type === "tool_result");
   return {
     type: "dialogue",
+    id: "dialogue-1",
     tune: [0.9, 1.0, 0.3], // [intelligence, reasoning, speed] — register pads thrift → 0.5
     channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
     via: {
@@ -52,7 +53,7 @@ specimen.describe("47.02 hallucination triad — the request in isolation (typol
   specimen.it("cortex.hallucinate is the typed-fetch surface — ONE record describes the call", async () => {
     const folded = await cortex().hallucinate.dialogue.render({
       controller: new Controller(),
-      policy: { tune: "unleashed" },
+      policy: { tier: "unleashed" },
       system: { tutor: "You are a patient tutor." },
       turns: [{ role: "user", parts: [{ type: "text", text: "olá" }] }],
     }); // shape.object trie: /dialogue/render leaf
@@ -100,7 +101,7 @@ specimen.describe("47.02 hallucination triad — the tooling seam end to end (ru
     const stream = await scenario.dewey.harness.dialogue.stream({
       parts: [{ type: "text", text: "hello dewey" }],
       thread,
-      tune: "balanced", // picks the sonnet faculty via nearest()
+      tier: "balanced", // picks the sonnet faculty via nearest()
     });
     const turn = await collect(stream);
     specimen.expect(turn.parts[0].text).toContain("hello dewey");

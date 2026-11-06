@@ -33,20 +33,21 @@ specimen.describe("harness — the request's primer", () => {
 
   specimen.it("PRIMER mints the mode's own primer; a mode without AGENTIC reads no sibling", async () => {
     const system = await ask();
-    specimen.expect(Object.keys(system)).toEqual(["dewey", "thread"]);
-    specimen.expect(captured.tools.trie.has("primer")).toBe(false);
+    specimen.expect(Object.keys(system)).toEqual(["dewey"]);
+    specimen.expect(captured.tools.edge("primer")).toBe(null);
   });
 
   specimen.it("an AGENTIC mode lists every sibling's primer lazily, reads one with primer_read, and writes no mode", async () => {
     const { dewey, daemon } = scenario;
     dewey.manifest.traits.push("AGENTIC");
     const system = await ask();
-    specimen.expect(Object.keys(system)).toEqual(["dewey", "primer", "thread"]);
+    specimen.expect(Object.keys(system)).toEqual(["dewey", "primer"]);
     specimen.expect(system.primer).toBe("Read on demand with primer_read { nature }:\nharvest/archivist — the harvest persona");
     specimen.expect(await shape.primer.read(captured.primer, "harvest/archivist")).toBe("ARCHIVIST");
-    specimen.expect(captured.tools.trie.has("primer")).toBe(true);
+    specimen.expect(captured.tools.edge("primer")).not.toBe(null);
     specimen.expect(shape.primer.keys(dewey.primer)).toEqual(["dewey"]);
     specimen.expect(shape.primer.keys(daemon.modes.tactics.harvest.primer)).toEqual(["archivist"]);
+    specimen.expect(shape.strip(captured.primer).branches.harvest.meta).toEqual({ load: "lazy" });
     dewey.manifest.traits.pop();
   });
 
@@ -65,7 +66,7 @@ specimen.describe("harness — the request's primer", () => {
     const { daemon } = scenario;
     daemon.domain = { manifest: { type: "domain", slug: "memo" }, primer: new Vector().open("srs", "GLOSSARY") };
     const system = await ask();
-    specimen.expect(Object.keys(system)).toEqual(["dewey", "memo/srs", "thread"]);
+    specimen.expect(Object.keys(system)).toEqual(["dewey", "memo/srs"]);
     specimen.expect(system["memo/srs"]).toBe("GLOSSARY");
     delete daemon.domain;
   });

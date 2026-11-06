@@ -22,21 +22,35 @@ export class Vector {
 
   branch(signature, vector) {
     const pattern = new this.signature(signature);
-
     if (pattern.nature == null && !pattern.heir) return this;
+    if (pattern.heir) return this.seat(pattern).branch(pattern.heir, vector);
+    const seated = this.seat(pattern, vector);
+    if (vector && seated !== vector) seated.graft(vector);
+    return seated;
+  }
 
-    let edge = this.trie.get(pattern.nature);
-    if (!edge) {
-      edge = { pattern, trajectory: (!pattern.heir && vector) || new this.constructor(this, this.signature) };
-      this.trie.set(pattern.nature, edge);
-    } else if (vector && !pattern.heir) {
-      edge.trajectory.graft(vector);
-    }
+  edge(nature) {
+    for (const entry of this.trie) if (entry[0].nature === nature) return entry;
+    return null;
+  }
 
-    if (pattern.heir) {
-      return edge.trajectory.branch(pattern.heir, vector);
-    }
-    return edge.trajectory;
+  seat(pattern, trajectory = new this.constructor(this, this.signature)) {
+    const { trace, gauges, ...declared } = pattern;
+    const [own, seated] = this.edge(pattern.nature) ?? [
+      new this.signature(pattern.nature),
+      trajectory,
+    ];
+    this.trie.set(Object.assign(own, declared), seated);
+    return seated;
+  }
+
+  trim(signature) {
+    const pattern = new this.signature(signature);
+    const edge = this.edge(pattern.nature);
+    if (!edge) return this;
+    if (pattern.heir) edge[1].trim(pattern.heir);
+    else this.trie.delete(edge[0]);
+    return this;
   }
 
   open(signature, effect) {
@@ -45,7 +59,6 @@ export class Vector {
   }
 
   do(effect) {
-    if (this.effect) return console.log("vector already affected");
     this.effect = effect;
     return this;
   }
@@ -58,23 +71,17 @@ export class Vector {
     for (const vector of vectors) {
       if (vector === this) continue;
       if (vector.effect) this.effect = vector.effect;
-      for (const [nature, edge] of vector.trie) {
-        const existing = this.trie.get(nature);
-        const branch = existing?.trajectory ?? new this.constructor(this, this.signature);
-        branch.graft(edge.trajectory);
-        if (existing) existing.pattern = new this.signature({ ...existing.pattern, ...edge.pattern });
-        else this.trie.set(nature, { pattern: edge.pattern, trajectory: branch });
-      }
+      for (const [pattern, trajectory] of vector.trie) this.seat(pattern).graft(trajectory);
       this.carry.push(...vector.carry);
     }
     return this;
   }
 
   get patterns() {
-    return [...this.trie.values()].map((edge) => edge.pattern);
+    return [...this.trie.keys()];
   }
   get descendants() {
-    return [...this.trie.values()].map((edge) => edge.trajectory);
+    return [...this.trie.values()];
   }
   get root() {
     let position = this;
@@ -86,8 +93,8 @@ export class Vector {
   }
 
   survey(visit = (node) => node) {
-    const trajectories = [...this.trie.values()] //
-      .map((edge) => visit({ signature: edge.pattern, ...edge.trajectory.survey(visit) }));
+    const trajectories = [...this.trie] //
+      .map(([pattern, trajectory]) => visit({ signature: pattern, ...trajectory.survey(visit) }));
     return { effect: this.effect, trajectories };
   }
 }

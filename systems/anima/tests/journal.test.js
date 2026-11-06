@@ -50,7 +50,6 @@ specimen.describe("anima journal — the design's journal (dom.js:272) folded fr
       entities.terminal.$entities.set([...entities.terminal.$entities.get()]);
     };
     lensed("trace");
-    client.surface.$focus.set("journal");
     await settle();
     fire(rig.target.querySelectorAll(".entry")[0], "click");
     await settle();
@@ -65,18 +64,15 @@ specimen.describe("anima journal — the design's journal (dom.js:272) folded fr
     rig.close();
   });
 
-  specimen.it("a pick selects by index under journal focus; the selected trace wears .sel and the verbs row", async () => {
+  specimen.it("a pick selects by index; the selected trace wears .sel and the verbs row", async () => {
     const { rig, terminal, client } = await seated();
     terminal.controller.stdout.log("hello from the span");
     await settle();
     const [said] = terminal.controller.stdout.history.filter((record) => record.track === "log" && trace.key(record.path) === trace.key(terminal.controller.stdout.absolute)).map((record) => surface.clock(record.at));
     fire(rig.target.querySelectorAll(".entry")[2], "click");
     await settle();
-    specimen.expect([client.surface.focus, client.surface.jsel]).toEqual(["journal", 2]);
+    specimen.expect(client.surface.jsel).toBe(2);
     specimen.expect(shape(rig.target.querySelectorAll(".entry")[2].parentNode).split("\n")[2]).toBe(oracle(TRACE(said, trace.pathname(terminal.controller.stdout.absolute)).replace('<span class="path">' + trace.pathname(terminal.controller.stdout.absolute) + "</span>", "")));
-    client.surface.$focus.set("frame");
-    await settle();
-    specimen.expect(rig.target.querySelector(".entry.sel")).toBe(null);
     rig.close();
   });
 

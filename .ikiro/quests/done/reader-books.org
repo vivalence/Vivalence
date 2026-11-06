@@ -1,0 +1,411 @@
+#+title: reader books — whole books in the reader: drop · paste a link, a parsing screen per kind, one book File, read and navigate by chapter
+#+filetags: :mode:reader:books:epub:pdf:design:
+#+status: 11-12 DONE on his order /"move to done"/ — landed, suite 27 green, NOT walked; tails carried to =reader-mode.org= handoff
+#+phase: done
+# limit: 30000 chars
+
+* intent
+
+11-12, beef verbatim:
+
+#+BEGIN_QUOTE
+A new challenge for the reader mode. I would like to be able to both download and parse, and then read and navigate whole books. Those would be, for example, different types of books, EPUB, GitBooks, other common patterns, and then I would like the downloaders for these. Maybe even PDFs. Well, if we make PDFs, then we need a different type of parser. PDF might actually still be, might be on the edge. Like if we had a PDF, we get decisions about how this shit's parsed. We would also need that for the books. Maybe when we add something, we need an extra step for like settings. So what I would like to be able to do, for example, is paste in an archive link. Or just like drop a PDF or some EPUB. And then have that available in my reader view.
+#+END_QUOTE
+
+Same mode: =commons/reader/reader= (sibling quest =reader-mode.org=, its locks Q0–Q21 stand unless superseded below).
+
+* the dialogue
+
+- Q0 reframe: /"What if we make the book the single file? … the buffer is just a view against that with metadata … let's just keep the same. Use the same mode, the reader mode."/
+- Q0A /"a"/ · Q1B /"a"/ · Q2B /"a"/ · Q3 /"a"/
+- Q3A /"I don't understand the problem."/ → =/drill-me= · =/show-me= (S1/4 of the locks walked) → /"Need more detail."/ (interrupted) → /"I need more information about the code around this. Where is this called? What is the environment? Blah, blah, blah. It's too little, too narrow. Example on A, what is the value of options raw? And also, why is this a problem here and not in the image upload of Darkroom?"/ → Q3B /"a"/
+- /"file it as a known issue."/ · Q4 /"a"/
+- Q5 /"I'm not sure. Think about how other systems like this work … then decide based on that."/ → decided C (calibre: the input plugin owns extraction)
+- Q6 /"a. … some sort of parsing in between step … based on what we add, we have this or that parsing interface. And the zip library is just a plain NPM import … We don't want to populate the import map of Vivalence with shit that's needed by a mode."/
+- Q7 /"a"/ · Q8 /"c. check with cortex for faculties"/ · Q9 /"b"/ · Q10 /"a."/
+- Q12 /"all of the settings inside of the buffer, all of the stuff that I can select … persistent nano store … device level."/
+- Q11 → /"drop the refine tool completely for now. Comment it out. Don't delete it … inclusive the REPL tool."/
+- Q13 /"b"/ · Q14 /"b. a is basically teh 'originial' view"/ · Q15 /"a"/ · Q16 /"a"/
+
+* as code
+
+** Q0A · Q1B · Q7 · Q8 · Q9 · Q12 — =commons/reader/reader/schematics.js= (whole, every lock applied)
+
+Lookups, mine: =kind= tags by =v.const= (tree style, =hallucination.js:54=); =Intake.url= (=/parse= hands =article.url= on).
+
+#+BEGIN_SRC js
+import { v } from "@vivalence/typology";
+
+export const Cursor = v.object({
+  block: v.string().desc('A data-block id in the book. Example: "b6"'),
+  sentence: v.integer().desc("Index into the block's text, split at read. Example: 1"),
+});
+
+export const Article = v.object({
+  url: v.union([v.string(), v.null()]).desc('Where it came from; null = dropped. Example: "https://archive.org/details/tides"'),
+  title: v.string().desc("Example: The Tide Book"),
+  original: v.string().desc('The file as dropped or fetched: epub · pdf · html. Example: "01a1bd04-…"'),
+  book: v.string().desc('Our html: a section per chapter, a data-block per block. Example: "01a1bd05-…"'),
+  chapter: v.string().default("c1").desc('The open section. Example: "c3"'),
+});
+
+const EpubOptions = v.object({
+  kind: v.const("epub").desc("Example: epub"),
+  files: v.array(v.object({
+    href: v.string().desc('A spine file. Example: "text/ch01.xhtml"'),
+    title: v.string().desc("Example: I. The Moon"),
+    kept: v.boolean().default(true).desc("Example: true"),
+  })).desc("The spine, in order. Example: [{ href: 'text/ch01.xhtml', title: 'I. The Moon', kept: true }]"),
+});
+
+const PdfOptions = v.object({
+  kind: v.const("pdf").desc("Example: pdf"),
+  flow: v.enum(["reflow", "pages"]).default("reflow").desc("Example: reflow"),
+  reader: v.enum(["text", "model"]).default("text").desc("Who reads the pages: pdf.js text, or the model. Example: text"),
+});
+
+const PageOptions = v.object({
+  kind: v.const("page").desc("Example: page"),
+  extract: v.enum(["article", "whole"]).default("article").desc("Example: article"),
+  read: v.enum(["page", "contents"]).default("page").desc("This page alone, or every page its contents list. Example: page"),
+  files: v.array(v.object({
+    href: v.string().desc('Example: "https://archive.org/download/tidetables00smit/tidetables00smit.epub"'),
+    type: v.string().desc('Example: "application/epub+zip"'),
+  })).desc("Books the page links to. Example: [{ href: '…/tidetables00smit.epub', type: 'application/epub+zip' }]"),
+  contents: v.array(v.object({
+    href: v.string().desc('Example: "https://docs.example.org/guide/tides"'),
+    title: v.string().desc("Example: Tides"),
+    kept: v.boolean().default(true).desc("Example: true"),
+  })).desc("The page's navigation, same site, in order. Example: [{ href: '…/tides', title: 'Tides', kept: true }]"),
+});
+
+export const Intake = v.object({
+  url: v.union([v.string(), v.null()]).desc('Where it came from; null = dropped. Example: null'),
+  original: v.string().desc('The dropped or fetched File id. Example: "01a1bd04-…"'),
+  type: v.string().desc('Example: "application/epub+zip"'),
+  options: v.union([EpubOptions, PdfOptions, PageOptions]).desc("Example: { kind: 'pdf', flow: 'reflow', reader: 'text' }"),
+});
+
+export const Settings = v.object({
+  face: v.enum(["original", "reader"]).default("reader").desc("Example: reader"),
+  pace: v.enum(["scroll", "block", "speed"]).default("scroll").desc("How the reader face moves. Example: block"),
+  type: v.enum(["dyslexic", "sans", "serif"]).default("dyslexic").desc("Example: dyslexic"),
+  size: v.integer().default(18).desc("Pixels, 14–28. Example: 18"),
+  leading: v.enum(["tight", "normal", "loose"]).default("normal").desc("Example: normal"),
+  width: v.enum(["narrow", "normal", "wide"]).default("normal").desc("Example: normal"),
+  unit: v.enum(["sentence", "block", "section"]).default("block").desc("What the block pace shows. Example: block"),
+  style: v.enum(["word", "chunk", "pacer"]).default("word").desc("How the speed pace shows. Example: word"),
+  wpm: v.integer().default(300).desc("Words per minute, 100–1000. Example: 300"),
+  chunk: v.integer().default(2).desc("Words per frame in chunk · pacer, 1–5. Example: 2"),
+  pauses: v.enum(["off", "light", "strong"]).default("light").desc("Extra time at punctuation. Example: light"),
+  context: v.boolean().default(true).desc("The sentence under the word. Example: true"),
+});
+
+export const Reading = v.object({
+  article: v.union([Article, v.null()]).default(null).desc("Null = the empty face. Example: null"),
+  intake: v.union([Intake, v.null()]).default(null).desc("A drop or fetch waiting on its parsing screen. Example: null"),
+  done: v.record(v.string(), v.string()).default({}).desc('Block id → when. Example: { "b4": "2026-11-12T09:10:00Z" }'),
+  cursor: v.union([Cursor, v.null()]).default(null).desc("Example: { block: 'b6', sentence: 1 }"),
+});
+#+END_SRC
+
+Q12 read AS: the parsing screen's choices stay on the intake (a spine list is that book's); unruled whether =flow= · =reader= · =extract= remember the last pick per device.
+
+** Q6 — =commons/reader/reader/aperture/epub.js=: one section per spine file
+
+Zip: inline pinned =npm:fflate@0.8.3= (=world/codemap/map.md:33= "bar a =commons/= mode's server"). =opened= · =contents= unwritten.
+
+#+BEGIN_SRC js
+import { unzipSync } from "npm:fflate@0.8.3";
+
+export const epub = (bytes) => {
+  const archive = unzipSync(bytes);
+  const read = (path) => parseHTML(new TextDecoder().decode(archive[path])).document;
+  const opf = opened(archive);
+  const titles = contents(archive, opf);
+  return opf.spine.map((href) => {
+    const document = read(join(opf.base, href));
+    const heading = document.querySelector("h1, h2, h3")?.textContent.trim() ?? href;
+    return { title: titles[href] ?? heading, root: document.body };
+  });
+};
+#+END_SRC
+
+** Q2B · Q3 · Q4 · Q13 · Q16 — =commons/reader/reader/aperture/index.js=
+
+Q2B: an article is a one-section book; =article.html= dies; existing buffers fail =Reading.cast= → re-added (his pick of re-add READ, not ruled vs a script).
+Q3: =/put/:buffer= is a raw upload (darkroom =/picture/upload/:buffer=, =commons/editors/darkroom/aperture/index.js:55=).
+Q4: the kind = the =content-type= header the view's name table sets; =/add= reads the response's.
+Q7: =/add= · =/put= write =intake=; =/parse= builds the book from =intake.original=.
+
+#+BEGIN_SRC js
+const given = async (ctx) => ({
+  type: ctx.request.raw.headers.get("content-type"),
+  bytes: new Uint8Array(await new Response(ctx.request.raw.body).arrayBuffer()),
+});
+
+const bound = async (ctx, buffer, html) => {
+  const bytes = new TextEncoder().encode(html);
+  const sha = await crypto.digestBytes(bytes);
+  const path = `books/${sha}.html`;
+  const mount = join(ctx.mode.mountpoint.absolute, path);
+  await paladin.state.store(mount, bytes);
+  const file = await ctx.entities.file.record({ mode: ctx.mode.id, path, mount, mime: "text/html", bytes });
+  buffer.files.add(file);
+  return file.id;
+};
+#+END_SRC
+
+Q13 /"b"/: a re-parse carries marks by text. Lookup (mine): the chapter by title, the cursor by its block's text; no match → =c1= · =null=.
+
+#+BEGIN_SRC js
+const carried = (before, after, done) => {
+  const texts = new Map(Object.entries(done).map(([id, time]) => [
+    before.querySelector(`[data-block="${id}"]`).textContent.trim(),
+    time,
+  ]));
+  return Object.fromEntries([...after.querySelectorAll("[data-block]")]
+    .filter((node) => texts.has(node.textContent.trim()))
+    .map((node) => [node.dataset.block, texts.get(node.textContent.trim())]));
+};
+
+const titled = (before, after, chapter) => {
+  const title = before.querySelector(`[data-chapter="${chapter}"]`).dataset.title;
+  const found = [...after.querySelectorAll("[data-chapter]")].find((section) => section.dataset.title === title);
+  return found === undefined ? "c1" : found.dataset.chapter;
+};
+#+END_SRC
+
+Q16 /"a"/: a contents read, one page at a time, a step each, a failure skipped and named.
+
+#+BEGIN_SRC js
+async function* crawled(ctx, contents) {
+  const kept = contents.filter((entry) => entry.kept);
+  const chapters = [];
+  for (const [index, entry] of kept.entries()) {
+    const response = await fetch(entry.href, { redirect: "follow" }).catch((error) => error);
+    if (!(response instanceof Response) || !response.ok) {
+      yield { step: "fetch", value: `page ${index + 1}/${kept.length} · ${entry.title} · skipped` };
+      continue;
+    }
+    chapters.push(...page(await response.bytes(), response.headers.get("content-type"), response.url));
+    yield { step: "fetch", value: `page ${index + 1}/${kept.length} · ${entry.title}` };
+  }
+  return chapters;
+}
+#+END_SRC
+
+** Q5 — =commons/reader/reader/aperture/parse.js=: the converter owns extraction; one numbering across the book
+
+/"decide"/ → C, mine: calibre's input plugin owns "what is content"; A ran =rooted= on EPUB chapters, B dropped it for web pages. =page= = today's =extracted= minus =mint=.
+
+#+BEGIN_SRC js
+const page = (bytes, type, url) => {
+  const document = parseHTML(normalized(bytes, type)).document;
+  const title = document.querySelector("title")?.textContent.trim() ?? "";
+  return [{ title, root: rooted(document, title) }];
+};
+
+const CONVERTERS = [
+  [(type) => /^application\/epub\+zip\b/i.test(type), epub],
+  [(type) => /^application\/pdf\b/i.test(type), pdf],
+  [() => true, page],
+];
+
+export const bound = (bytes, type, url) => {
+  const chapters = CONVERTERS.find(([matches]) => matches(type))[1](bytes, type, url);
+  const { document } = parseHTML("<body></body>");
+  for (const [index, chapter] of chapters.entries()) {
+    const section = document.createElement("section");
+    section.setAttribute("data-chapter", `c${index + 1}`);
+    section.setAttribute("data-title", chapter.title);
+    section.append(...flattened(stripped(chapter.root, url)).childNodes);
+    document.body.append(section);
+  }
+  document.querySelectorAll("[data-chapter] > *")
+    .forEach((node, index) => node.setAttribute("data-block", `b${index + 1}`));
+  return { title: chapters[0].title, body: document.body };
+};
+#+END_SRC
+
+** Q8 · Q14 — =commons/reader/reader/aperture/pdf.js=
+
+Q8 /"c"/: =reader: text= (default) · =model=; both converters ship. Unprobed.
+
+#+BEGIN_SRC js
+import { extractText, getDocumentProxy } from "npm:unpdf@2.1.0";
+
+export const pdf = async (bytes) => {
+  const document = await getDocumentProxy(bytes);
+  const { text } = await extractText(document, { mergePages: false });
+  const html = normalized(new TextEncoder().encode(text.join("\f")), "text/plain; charset=utf-8");
+  const title = (await document.getMetadata()).info.Title ?? "";
+  return [{ title, root: parseHTML(html).document.body }];
+};
+
+const READ = "You turn a PDF into chapters of clean html: drop running headers, page numbers and footers; join hyphenated words.";
+
+export const modeled = async (bytes, ctx, buffer) => {
+  const { output } = await ctx.mode.harness.object.render({
+    thread: buffer.thread.id,
+    turns: [
+      { role: "system", parts: [{ type: "text", text: READ }] },
+      { role: "user", parts: [{ type: "document", media: "application/pdf", data: encodeBase64(bytes) }] },
+    ],
+    output: v.object({ chapters: v.array(v.object({ title: v.string(), html: v.string() })) }),
+  });
+  return output.object.chapters.map((chapter) => ({ title: chapter.title, root: parseHTML(chapter.html).document.body }));
+};
+#+END_SRC
+
+Q14 /"b"/: =flow: pages= = a figure per page, drawn in the view by pdf.js (=npm:pdfjs-dist@6.5.438=).
+
+#+BEGIN_SRC js
+export const paged = async (bytes) => {
+  const document = await getDocumentProxy(bytes);
+  const { document: html } = parseHTML("<body></body>");
+  for (let page = 1; page <= document.numPages; page++) {
+    const figure = html.createElement("figure");
+    figure.setAttribute("data-page", String(page));
+    html.body.append(figure);
+  }
+  return [{ title: (await document.getMetadata()).info.Title ?? "", root: html.body }];
+};
+#+END_SRC
+
+** Q1B · Q4 · Q8 · Q10 · Q12 · Q14 · Q15 — =commons/reader/reader/buffer/Reader.jsx=
+
+#+BEGIN_SRC js
+const TYPED = [
+  [/\.epub$/i, "application/epub+zip"],
+  [/\.pdf$/i, "application/pdf"],
+  [/\.(md|markdown)$/i, "text/markdown"],
+  [/\.org$/i, "text/org"],
+  [/\.html?$/i, "text/html"],
+  [/(?:)/, "text/plain"],
+];
+
+const put = (file) =>
+  taken(file.name, props.buffer.mode.call.put[props.buffer.id]({}, {
+    raw: { body: file.stream() },
+    headers: { "content-type": typed(TYPED, file.name) },
+  }));
+
+const done = (id) =>
+  settle({ done: { ...props.buffer.data.done, [id]: new Date().toISOString() } });
+
+const undo = () => {
+  const [newest] = Object.entries(props.buffer.data.done).sort(([, a], [, b]) => b.localeCompare(a));
+  const { [newest[0]]: _, ...kept } = props.buffer.data.done;
+  return settle({ done: kept });
+};
+
+const marked = (section) => {
+  for (const [id, time] of Object.entries(props.buffer.data.done)) {
+    section.querySelector(`[data-block="${id}"]`)?.setAttribute("data-done", time);
+  }
+  return section;
+};
+
+const open = () => book().querySelector(`[data-chapter="${held().article.chapter}"]`);
+
+const blocks = createMemo(() => listed(marked(open())));
+
+const chapters = () => [...book().querySelectorAll("[data-chapter]")]
+  .map((section) => ({
+    id: section.dataset.chapter,
+    title: section.dataset.title,
+    left: listed(marked(section)).filter((block) => !block.done).length,
+  }));
+
+const turn = (id) => settle({ article: { ...held().article, chapter: id } });
+
+const cortex = () => props.buffer.mode.daemon === null
+  ? props.terminal.client.runtime.cortex
+  : props.buffer.mode.daemon.cortex;
+
+const readable = () => cortex()
+  .find({ type: "dialogue", via: "render" })
+  .some((faculty) => faculty.channels.in.includes("document"));
+
+const drawn = async (figure, pdf) => {
+  const page = await pdf.getPage(Number(figure.dataset.page));
+  const viewport = page.getViewport({ scale: 2 });
+  const canvas = Object.assign(document.createElement("canvas"), { width: viewport.width, height: viewport.height });
+  await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
+  figure.replaceChildren(canvas);
+};
+#+END_SRC
+
+Q10: one chapter at a time; contents list in the top bar; a "next" stage at a chapter's end. Q12: face · pace buttons call =set()= on =$settings=. Q8: =cortex()= is reader-mode Q11B's reach (DEFERRED there), first used here.
+
+#+BEGIN_SRC jsx
+const PdfScreen = (props) => (
+  <div class="rd-intake">
+    <span class="kit-label">flow</span>
+    <div class="kit-choice">
+      <button aria-pressed={String(props.options.flow === "reflow")} onClick={() => props.set({ flow: "reflow" })}>reflow</button>
+      <button aria-pressed={String(props.options.flow === "pages")} onClick={() => props.set({ flow: "pages" })}>pages</button>
+    </div>
+    <Show when={props.options.flow === "reflow"}>
+      <span class="kit-label">read by</span>
+      <div class="kit-choice">
+        <button aria-pressed={String(props.options.reader === "text")} onClick={() => props.set({ reader: "text" })}>text</button>
+        <Show when={readable()}>
+          <button aria-pressed={String(props.options.reader === "model")} onClick={() => props.set({ reader: "model" })}>model</button>
+        </Show>
+      </div>
+    </Show>
+    <button class="kit-primary" onClick={props.parse}>read</button>
+  </div>
+);
+#+END_SRC
+
+Q15 /"a"/: =EpubScreen= · =PageScreen= the same way, by hand, from kit pieces (no comp asked).
+
+** Q3B — =subsystems/typology= (the wire never carried a dropped file)
+
+Probe =scratchpad/q3b.probe.js= (patched copies): 3 000 000 bytes by both arms. =object.merge= turns a stream into ={}= (="[object Object]"=, 15 bytes); darkroom's test skips =wire= (=picture.test.js:110=), its browser drop never walked (m118 11-09).
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shape/connection.js:38
+  if (effect.yields !== undefined)
+    return (input = {}, options = {}) =>
+      connection.stream("", options.signal, {
+        method: method ?? "POST",
+        body: input,
+        headers: options.headers,
+        raw: options.raw,
+      });
+
+// subsystems/typology/prototypes/connection.js:108
+  aim(endpoint, bodyBase = {}, optionsBase = {}) {
+    return (body = {}, options = {}) => {
+      const { raw, ...rest } = options;
+      return this.call(endpoint, object.merge(body, bodyBase), { ...object.merge(rest, optionsBase), raw });
+    };
+  }
+#+END_SRC
+
+* deferred
+
+- Q11 refine on a book (chapter-scoped =file.rewrite=, =File.ts:31=): parked with refine.
+- the fetch guard (reader-mode Q3): urgent now — =/parse= crawls every link a page offers.
+
+* changelog
+
+- 11-12 /"drop the refine tool completely for now. Comment it out."/: =tools/refine.js= in one =/* @beef … */=; =reader.viva.js= traits → =VIEWABLE · EXPOSED · FILESET= (old row kept commented), the =tools= export commented; =tests/reader.test.js= three traits, refine =describe= commented. Suite =ok | 1 passed (12 steps) | 0 failed=. =:2501= was LIVE (pid 2065) — saved before =lsof=, a deploy if =runtime/watch=.
+- 11-12 filed =plain-http-fetcher-doubles-content-type= (=known-issues.org=).
+- 11-12 /"land thee new reader mode we juust worked out."/: Q3B rows (=shape/connection.js= yields arm passes =raw=; =prototypes/connection.js= =aim= keeps =raw= out of the merge), probe through =wire=: 3 000 000 bytes both arms. =schematics.js= whole. =aperture/= =index.js= (=/add= · =/put/:buffer= raw · =/parse= · =/reopen=) · =parse.js= (=page= · =offered= · =bound= · =cleaned=; =mint= · =extracted= gone) · =epub.js= · =pdf.js=. =Reader.jsx= rewritten: book from its File, intake screens, contents panel, "next" stage, parse again, face · pace on =$settings=. Suite =ok | 1 passed (23 steps) | 0 failed=. Departures mine, reported: =/reopen= route (re-parse needs the intake rebuilt); dropped name rides =content-disposition=; Option schemas exported; =bound(chapters, cleaning)= (pages skip cleaning); epub original face = none, pdf original iframe unsandboxed; pdf.js loaded at runtime from jsdelivr (bundler resolves no =npm:=). Model reader: =modeled= lands, button hidden — =HARNESSED= is parked with refine. Word guard bypassed on existing =lines= · =place= /"that guard is not for existing cases. just new cases"/.
+- 11-12 /"just play and pause here. and at the end of a block, autoadvance continued"/: the deck's button reads play · pause only; a halted block (code · table · image) lingers =max(1500 ms, words at wpm)= then advances while playing. Read AS: the hop and wpm controls stay.
+- 11-12 walk aborted: my click closed his "reader" tab in his anima (:1794); nothing else touched.
+- 11-12 /"great. you need to be smart about writing the prompt … write a propper instrucion manual for this"/ (after /"do i have acess to daemon.cortex? might build an hallucination inline"/ — yes, probed): =pdf.js= =modeled= inline on =ctx.cortex.hallucinate.object.render=, no =HARNESSED=. =MANUAL= (system) · =asked= (user turn per window) · =Window= schema = typed blocks (chapter · heading · paragraph · list · quote · code · table · figure · note), rendered and escaped by us. Windows of 8 pages + 1 overlap page via inline =npm:pdf-lib@1.17.1=; faculty = =nearest= capable among dialogue faculties reading =document=. View: "read by text · model" gated by =readable()= (Q8). Suite =ok | 1 passed (27 steps) | 0 failed=. Unprobed: a real model, the client cortex's =find=.
+- 11-12 /"move to done"/: moved to =done/= before his walk; open tails carried BY NAME to =reader-mode.org= =* handoff= owed.
+
+* handoff
+
+- goal :: drop an EPUB · PDF · paste an archive.org or docs link → a parsing screen → read the book chapter by chapter.
+- done :: drill Q0A–Q16; refine commented out.
+- next :: his walk in anima: drop an epub · a pdf (reflow · pages) · paste an archive.org link; his 3 old-shape buffers (Deno security · Emacs · pasted) re-added.
+- never :: a dep in =import_map.json= for this mode; a book in =buffer.data=; a selectable choice on the buffer.
+- owed :: a real model read of a real pdf · probes (pdf.js from jsdelivr under anima's CSP, the upload over multiplex in anima incl. darkroom's drop) · =parse5= out of =import_map.json:95= inline · re-add his reading buffers.

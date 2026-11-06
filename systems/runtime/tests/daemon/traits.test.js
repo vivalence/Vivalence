@@ -28,6 +28,7 @@ const domain = { traits: { literal: [PICKED], note: [RETAINED] }, twitch };
 specimen.describe("a domain's traits on two daemons — claims, the schematics a verb reads, a note on its literal", { sanitizeResources: false, sanitizeOps: false }, () => {
   let scenario;
   let within;
+  const as = (slug) => scenario.datamap.entities.em.setFilterParams("daemon", { daemon: slug });
   const daemons = {};
 
   specimen.beforeAll(async () => {
@@ -48,11 +49,11 @@ specimen.describe("a domain's traits on two daemons — claims, the schematics a
       em.setFilterParams("user", { user: user.id });
       for (const slug of SLUGS) {
         const { entities } = daemons[slug];
-        const mode = entities.mode.create({ type: "game", slug: "dojo" });
-        const casa = entities.literal.create({ slug: "casa", mode });
-        entities.literal.create({ slug: "cane", mode });
-        entities.note.create({ user, literal: casa, slug: "retention.casa", traits: ["RETAINED"], trait: { RETAINED: { due: `${slug}-due` } } });
-        entities.note.create({ user, slug: "memo", traits: ["LABELED"], trait: { LABELED: { name: "memo" } } });
+        const mode = entities.mode.create({ type: "game", slug: "dojo", daemon: slug });
+        const casa = entities.literal.create({ slug: "casa", mode, daemon: slug });
+        entities.literal.create({ slug: "cane", mode, daemon: slug });
+        entities.note.create({ user, literal: casa, slug: "retention.casa", daemon: slug, traits: ["RETAINED"], trait: { RETAINED: { due: `${slug}-due` } } });
+        entities.note.create({ user, slug: "memo", daemon: slug, traits: ["LABELED"], trait: { LABELED: { name: "memo" } } });
       }
       await em.flush();
       await sleep.ms(20);
@@ -64,6 +65,7 @@ specimen.describe("a domain's traits on two daemons — claims, the schematics a
   specimen.it("a traits claim resolves through a daemon's minted repository and stays inside its daemon", () =>
     within(async () => {
       for (const slug of SLUGS) {
+        as(slug);
         const rows = await daemons[slug].entities.note.find({ traits: "RETAINED" });
         specimen.expect(rows.map((row) => `${row.daemon.slug}:${row.slug}`)).toEqual([`${slug}:retention.casa`]);
       }
@@ -71,6 +73,7 @@ specimen.describe("a domain's traits on two daemons — claims, the schematics a
 
   specimen.it("a trait verb reads its daemon's vocabulary through this.schematics", () =>
     within(async () => {
+      as("italian");
       const [note] = await daemons.italian.entities.note.find({ traits: "RETAINED" });
       specimen.expect(daemons.italian.entities.note.schematics.RETAINED).toBe(RETAINED.schematic);
       specimen.expect(daemons.italian.entities.note.held(note)).toEqual({ due: "italian-due" });
@@ -79,9 +82,11 @@ specimen.describe("a domain's traits on two daemons — claims, the schematics a
 
   specimen.it("a note rides its literal: Note.literal m:1 · Literal.notes 1:m, joined from the literal's repository", () =>
     within(async () => {
+      as("spanish");
       const picked = await daemons.spanish.entities.literal.retained();
       specimen.expect(picked.map((row) => row.slug)).toEqual(["casa"]);
       specimen.expect(picked[0].notes.getItems().map((note) => note.trait.RETAINED.due)).toEqual(["spanish-due"]);
+      as(null);
       specimen.expect(await scenario.datamap.entities.em.count(NoteEntity, { literal: { slug: "casa" } })).toBe(2);
       specimen.expect(await scenario.datamap.entities.em.count(LiteralEntity, { slug: "casa" })).toBe(2);
     }));

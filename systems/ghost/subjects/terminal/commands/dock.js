@@ -15,7 +15,7 @@ const docking = (word) => DOCKINGS.find(([test]) => test(word))[1](word);
 
 export const dock = new Vector()
   .open(
-    { nature: "/dock", valence: "the dock: its side, or how it shows — docked · full · closed · messenger. Example: /dock closed", input: Docking, chord: "leader/d/d" },
+    { nature: "/dock", rank: "hidden", valence: "the dock: its side, or how it shows — docked · full · closed · messenger. Example: /dock closed", input: Docking, chord: "leader/d/d" },
     async (ctx) => {
       const { word } = belt.input.cast(Docking, ctx.signal);
       const DOCKED = docking(word);
@@ -24,7 +24,7 @@ export const dock = new Vector()
     },
   )
   .open(
-    { nature: "/dock/lens", valence: "what the dock lists: chat is turns, trace is records, repl is both. Example: /dock/lens trace", input: Lensed, chord: "leader/d/j" },
+    { nature: "/dock/lens", rank: "hidden", valence: "what the dock lists: chat is turns, trace is records, repl is both. Example: /dock/lens trace", input: Lensed, chord: "leader/d/j" },
     async (ctx) => {
       const DOCKED = belt.input.cast(Lensed, ctx.signal);
       await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED }));
@@ -32,7 +32,7 @@ export const dock = new Vector()
     },
   )
   .open(
-    { nature: "/split", valence: "the divider — the dock's share of the chrome. Example: /split 0.5", input: Shared, chord: "leader/d/s" },
+    { nature: "/split", rank: "hidden", valence: "the divider — the dock's share of the chrome. Example: /split 0.5", input: Shared, chord: "leader/d/s" },
     async (ctx) => {
       const DOCKED = belt.input.cast(Shared, ctx.signal);
       await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED }));

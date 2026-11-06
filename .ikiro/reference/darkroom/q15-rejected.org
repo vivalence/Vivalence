@@ -1,0 +1,50 @@
+#+title: m118 Q3 → Q15 — the tool-result image slot, its hunks as drilled (Q3 A locked 11-08 /"m118 go. amen on"/, reopened 11-09 /"wtf is show? is this needed???"/; Q15 A · B /"both retarded."/), drained for cap
+<!-- limit: 12000 chars -->
+
+#+BEGIN_SRC js
+// A — the tool result carries images: one optional key on Part.ToolResult, one case per translate (RECOMMENDED)
+// subsystems/typology/schematics/primitives/hallucination.js:67
+Part.ToolResult = v.object({
+  type: v.const("tool_result"),
+  id: v.string(),
+  condition: v.string().optional(),
+  output: v.record(v.string(), v.unknown()),
+  shown: v.array(Part.Image).optional().desc("Images the model SEES beside the spoken output; a thumbnail, the full picture is a File. Example: [{ type: \"image\", media: \"image/webp\", data: \"UklGR…\" }]"),
+});
+// commons/hallucinators/anthropic/provider/translate.js:67
+    case "tool_result":
+      return {
+        type: "tool_result",
+        tool_use_id: part.id,
+        content: [
+          { type: "text", text: belt.hallucinate.speak(part.output) },
+          ...(part.shown ?? []).map((image) => ({ type: "image", source: { type: "base64", media_type: image.media, data: image.data } })),
+        ],
+        ...(part.condition === "ERROR" && { is_error: true }),
+      };
+// B — the harness shows the desk: the mode's /dialogue middleware appends the shown image to the user turn when it changed
+harness.branch("/dialogue").use(async (ctx, next) => {
+  const desk = await ctx.entities.buffer.findOne({ thread: ctx.thread.id, mode: ctx.mode.id });
+  if (desk?.data.shown && desk.data.shown !== desk.data.seen) ctx.turn.parts.push(await part(await ctx.entities.file.findOneOrFail({ id: desk.data.shown })));
+  await next();
+});
+#+END_SRC
+
+* Q12 A — straight to the cortex, REJECTED 11-09 (LOCKED B, his paste)
+#+BEGIN_SRC js
+// A — straight: the tool picks policy itself (hello-world web.js:89 does this for object)
+const rendered = await ctx.cortex.hallucinate.picture.render({
+  prompt: ctx.input.prompt,
+  images: await parts(ctx, held.data.references),
+  settings: knobs(held),
+  controller: ctx.controller.branch("picture"),
+});
+#+END_SRC
+
+* dropped from the desk 11-08 — the comp draws no control; the keys and routes stay
+
+- =desk.selection= + the mask → =picture_edit= uses it when the AGENT set it; no rectangle drag in the view (the brush · the markup: =* deferred=).
+- =desk.compare= → =picture_show { compare }= only.
+- ▸ vary · ▸ upscale buttons → =picture_vary= by chat.
+- the =›= field → Q10.
+

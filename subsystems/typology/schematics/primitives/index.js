@@ -5,6 +5,7 @@ export * as controller from "./controller.js";
 export * as track from "./track.js";
 export * as hallucination from "./hallucination.js";
 export * as harness from "./harness.js";
+export * as signatures from "./signatures.js";
 export * from "./manifest.js";
 export * from "./label.js";
 export * from "./home.js";

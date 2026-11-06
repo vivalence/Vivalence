@@ -1,8 +1,8 @@
 import { Vector, steer } from "@vivalence/typology";
 
 const bound = (mode, keymap) =>
-  steer.trie.rollup(keymap, (carry, effect) => effect).reduce(
-    (vector, { steps, fn: effect }) =>
+  steer.trie.leaves(keymap).reduce(
+    (vector, { steps, effect }) =>
       vector.open(
         { nature: steps.map((step) => step.nature).join("/"), valence: steps.at(-1).valence },
         (ctx) => steer.strategy.fire(effect, Object.assign(ctx, { mode })),

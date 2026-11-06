@@ -4,6 +4,7 @@ import * as oracle from "../../../commons/playground/chaosmonkey/oracle/oracle.v
 
 const seer = () => ({
   type: "dialogue",
+  id: "dialogue-1",
   tune: [0.9, 1.0, 0.3],
   context: 200000,
   channels: { in: ["text"], out: ["text"] },
@@ -32,15 +33,18 @@ specimen.afterAll(async () => {
 // handshake": (1) stream leaves must carry `yields` so wire projects connection.stream
 // not a buffered .call; (2) /metadata/harness must strip the mounted /harness branch.
 specimen.describe("client harness wire — mode.harness.dialogue.stream streams over the wire", () => {
-  specimen.it("the stream leaf carries yields in the harness strip", () => {
-    const strip = shape.strip(scenario.mode.aperture.branch("/harness"));
-    const streamLeaf = strip.branches.dialogue.branches.stream;
+  specimen.it("/metadata/harness is routes · primer · tools; the stream leaf carries yields in the routes strip", async () => {
+    const metadata = await scenario.authedConn.branch(MOUNT).call("/metadata/harness");
+    specimen.expect(Object.keys(metadata)).toEqual(["routes", "primer", "tools"]);
+    specimen.expect(metadata.routes).toEqual(shape.strip(scenario.mode.aperture.branch("/harness")));
+    specimen.expect(Object.keys(metadata.tools.branches)).toContain("fs");
+    const streamLeaf = metadata.routes.branches.dialogue.branches.stream;
     specimen.expect(streamLeaf.effect?.yields).not.toBe(undefined);
   });
 
   specimen.it("wire projects an async-iterable that yields parsed packets", async () => {
-    const metadata = shape.strip(scenario.mode.aperture.branch("/harness"));
-    const harness = shape.connection.wire(scenario.authedConn.branch(`${MOUNT}/harness`), metadata);
+    const metadata = await scenario.authedConn.branch(MOUNT).call("/metadata/harness");
+    const harness = shape.connection.wire(scenario.authedConn.branch(`${MOUNT}/harness`), metadata.routes);
 
     const packets = await scenario.scoped(async () => {
       const stream = harness.dialogue.stream({
@@ -63,8 +67,8 @@ specimen.describe("client harness wire — mode.harness.dialogue.stream streams 
   });
 
   specimen.it("persists user + assistant turns through the streamed wire path", async () => {
-    const metadata = shape.strip(scenario.mode.aperture.branch("/harness"));
-    const harness = shape.connection.wire(scenario.authedConn.branch(`${MOUNT}/harness`), metadata);
+    const metadata = await scenario.authedConn.branch(MOUNT).call("/metadata/harness");
+    const harness = shape.connection.wire(scenario.authedConn.branch(`${MOUNT}/harness`), metadata.routes);
 
     await scenario.scoped(async () => {
       const stream = harness.dialogue.stream({

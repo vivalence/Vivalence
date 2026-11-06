@@ -32,7 +32,7 @@ specimen.describe("turn persistence — each turn is saved at its close (m95 Q33
       const stream = await dewey.harness.dialogue.stream({
         parts: [{ type: "text", text: "what is casa" }],
         thread,
-        tune: "unleashed",
+        tier: "unleashed",
         tools: {
           lookup: {
             execute: async (ctx) => {
@@ -70,7 +70,7 @@ specimen.describe("turn persistence — each turn is saved at its close (m95 Q33
       const stream = await dewey.harness.dialogue.stream({
         parts: [{ type: "text", text: "what is casa" }],
         thread,
-        tune: "unleashed",
+        tier: "unleashed",
         tools: {
           lookup: {
             execute: async (ctx) => ({
@@ -100,7 +100,7 @@ specimen.describe("turn persistence — each turn is saved at its close (m95 Q33
       const stream = await dewey.harness.dialogue.stream({
         parts: [{ type: "text", text: "what is casa" }],
         thread,
-        tune: "unleashed",
+        tier: "unleashed",
         tools: {
           lookup: {
             execute: async (ctx) => ({

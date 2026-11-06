@@ -18,6 +18,12 @@ const Tabbed = (props) => {
       title={titled(thread(), props.held.index)}
       signal={`/terminal ${props.held.index}`}
       onPick={() => terminal.repl.dispatch(`/terminal ${props.held.index}`).catch((error) => terminal.controller.stdout.fault(error))}
+      closing={`/terminal/close/${props.held.id}`}
+      onClose={
+        props.closeable
+          ? () => terminal.repl.dispatch(`/terminal/close/${props.held.id}`).catch((error) => terminal.controller.stdout.fault(error))
+          : undefined
+      }
     />
   );
 };
@@ -30,7 +36,7 @@ export function Headline() {
   const threads = () => terminals().map((held) => held.thread);
   return (
     <nav class="tabs" data-zone="0" aria-label="terminals">
-      <For each={terminals()}>{(held) => <Tabbed held={held} current={held === terminal} threads={threads()} activities={activities()} />}</For>
+      <For each={terminals()}>{(held) => <Tabbed held={held} current={held === terminal} closeable={terminals().length > 1} threads={threads()} activities={activities()} />}</For>
       <button class="plus" data-signal="/terminal/new" aria-label="new terminal" title="new terminal · /terminal/new" onClick={() => terminal.repl.dispatch("/terminal/new").catch((error) => terminal.controller.stdout.fault(error))}>
         <parts.Icon name="plus" />
       </button>

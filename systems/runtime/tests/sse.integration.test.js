@@ -89,7 +89,7 @@ specimen.describe("SSE wire — http(dewey.aperture) → /harness/dialogue/strea
       body: JSON.stringify({
         thread: thread.id,
         parts: [{ type: "text", text: "lookup test" }],
-        tune: "unleashed",
+        tier: "unleashed",
         tools: { lookup: { execute: async (ctx) => ({ definition: `${ctx.input.query} means house` }) } },
       }),
     });

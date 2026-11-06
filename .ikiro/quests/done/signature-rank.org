@@ -1,0 +1,98 @@
+#+title: signature rank (UNNUMBERED) — one static key on every signature: =rank= active · hidden · void; each consumer reads it and decides; first ordering rule of =v=
+#+filetags: :typology:signature:repl:v:schematics:
+#+status: 11-12 DONE /"any move quest to done"/ — a · b · c landed, repl empty, every command runs; catalog steps ruled /"both. adjust testing"/, green
+#+phase: done
+#+progress: 4/4
+#+next: none — tails by name in * handoff
+# limit: 12000 chars
+
+* intent
+
+11-12, beef verbatim:
+
+/"i need a setting on the repl signatures. i need to be able to set a command as 'only available internally' or 'hidden' as in the system uses it, it can be executed, but the ui doesnt show it. look through the stack and propose something simple."/
+
+/"deactivated is 'ignored entirely by repl, ui, commands, etc'."/
+
+/"i might want that on the tools too. on what level of the vector/signature \ repl/keymap/tools can we define this?"/
+
+* the dialogue
+
+- the enum: /"what about a state enum? deactivated, hidden, default active' ?"/
+- the level: /"2 si wrong. 1 makes sense. we'd allow every consumer to make their own choices. its just one more mechanicsm on the signature/vector system."/ — REJECTED: a cut in =Vector.branch= that keeps a =void= edge out of every trie
+- the key: /"state changes. this dont change. its more static. i wnat a short word."/ → /"rank."/ — REJECTED =state= (it changes) · =mark= · =phase= · =cast= · =mode=
+- the values: /"active, hidden, void."/ — REJECTED =deactivated= · =inert= · =covert/reserve= · =live/masked/dead=
+- v's examples: /"Example: "hidden" not needed. and not how we do examples on v"/ — REJECTED =v.enum([…]).desc('… Example: "hidden"')=
+- v's order, the trigger: /"v has grown. now it needs order. there arent yet clean ordering principles on v. this is the first."/ · /"id generally for a few things want some sort of import from v.[e].[x].ENUM to get rid of the inline strings on the consumer."/
+- v's order, the ruling: /"moving all schematics into prototypes is either orphaning some definitions or incoherent. that was the idea behind primitives. kinda like semantic working groups. an integrated systems set of schematics."/ — REJECTED address-by-owner (orphans =auth=) · =v.traits.Docked.properties.align= /"i dont like this at all. soo messy."/
+- the home: /"// subsystems/typology/schematics/primitives/signatures.js — new  yes. plural. v.primitives.signatures.Rank  ok."/
+- the comment: /"add a comment with reference to the signatures research and that we will change this will define all the signature space."/
+
+* as code
+
+** a — the schematic (LANDED 11-12, /"a go."/)
+
+#+begin_src js
+// subsystems/typology/schematics/primitives/signatures.js
+import { v } from "../v.js";
+
+// TODO this file will define the whole signature space: every key a signature carries
+// TODO (nature · valence · chord · input · output · yields · feeds · load · rank) and the strip node.
+// TODO the survey of what IS today: .ikiro/reference/signatures.md
+
+export const Rank = v.enum(["active", "hidden", "void"]);
+#+end_src
+
+=primitives/index.js= =export * as signatures=. The comment is =// TODO= rows: =comment-guard.sh= passes only that form in product source.
+
+** b — the rank infra (LANDED 11-12, /"go for all."/)
+
+The key is DECLARED on the signature (=Pattern= spreads it onto the last segment, =pattern.js:20=); =Vector= is untouched. Readers:
+
+| reader | reads |
+|---|---|
+| =shape/strip.js= edgeMeta | carries =rank= |
+| =shape/repl.js= =repl= wire | restores =rank= |
+| =shape/repl.js= =prune= | drops =void= edges |
+| =ghost terminal/repl.js= =commands= | =shape.repl.prune(new Vector().graft(…))= |
+| =runtime mode/traits/repling.js= | =shape.repl.prune(mode.repl)= before =/metadata/repl= |
+| =ghost gestalten/shard/keymap.js= =catalog= | skips =hidden= |
+
+#+begin_src js
+// subsystems/typology/gestalten/shape/repl.js
+export const prune = (vector) => {
+  for (const [nature, edge] of [...vector.trie]) {
+    if (edge.pattern.rank === "void") vector.trie.delete(nature);
+    else prune(edge.trajectory);
+  }
+  return vector;
+};
+#+end_src
+
+** c — every ghost repl command hidden (LANDED 11-12)
+
+73 declarations in =systems/ghost/subjects/{client,app,terminal}/commands/=, the key after =nature=:
+
+#+begin_src js
+// systems/ghost/subjects/client/commands/quit.js:4
+  { nature: "/quit", rank: "hidden", valence: "leave — the client stops, the shell exits 0. Example: /quit", chord: "leader/q" },
+#+end_src
+
+** v's order — the first rule (RULED 11-12, unbuilt)
+
+A drawer by KIND: =scalars= · =primitives= (working groups) · =prototypes= (a class's codec) · =entities= · =traits=. A file is a group, its named exports the address: =v.<drawer>.<group>.<Name>=. A consumer's enum is a NAMED export of its group, never retyped inline. UNRULED: =v.thread.Phase= vs =v.entities.thread.Phase= · =Rank.members= / =Rank.of.hidden=.
+
+* terrain — measured 11-12
+
+- probe over the real modules: catalog =["/shown"]= · run =shown · quiet · NotFound= (active · hidden · void) · source not mutated · =rank= survives strip → wire
+- =.ikiro/reference/signatures.md= (agent sweep, 38107 chars): every key a signature carries, its writers and readers; =chord= is NOT in the strip (a remote mode's chord is lost); no schema describes a declaration or a strip node; =codestyle.md= quotes =graft= as replacing the pattern, live code merges (=vector.js:65=)
+- ghost suites 11-12: 45 passed · 7 failed (11 steps); 3 steps are this quest's (below), 8 carry no =rank= in their diff (=/help= lists · dock =shown= · =/frame/set= =get= · world =NOT_FOUND= · shell downloads), not proven base-tree
+
+* handoff
+
+- goal: a command the system runs and no surface lists; =void= gone everywhere a consumer prunes
+- done: a · b · c, LANDED 11-12; =signatures.md= reference
+- tests (11-12, /"both. adjust testing"/): =/repl= expects =[]=; =ctrl-v ctrl-v= expects the stub's =["/dock", "/boom"]=; =/repl/next= runs over =catalog(unranked(commands))= (=commands.test.js:6=) — 41 steps green, 1 red not mine (=frame-set-test-stub-lacks-views=)
+- was next: his ruling on the 3 red steps — =tests/subjects/terminal/commands.test.js= =/repl= catalog · =/repl/next= selection; =tests/subjects/terminal/legend.test.js= =ctrl-v ctrl-v= — expect empty, or build the catalog from unranked commands; his look at the empty repl panel (=surfaces/chrome/panels/repl/repl.jsx=, unverified on the served screen)
+- never: a cut in =Vector.branch=; =state= as the key; =.desc('… Example: …')= on a named enum
+- owed: registry mode repls ranked (=~/.viva/registry=, jj, a save under the watcher is a deploy) · tools (=shard/hallucinate.js= declarations · =belt/hallucinate.js= armory · =shape/mcp.js=) read =rank=? his call · =/help= prints the raw strip with =rank= · legend still shows a hidden command's chord · =chord= missing from the strip → known issue =strip-drops-chord= · v's order applied (=belt.dock.SIDES= · =belt.intelligent.EFFORTS= duplicate their schemas)

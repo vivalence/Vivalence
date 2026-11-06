@@ -14,12 +14,12 @@ specimen.describe("symbols: m:n slug query", () => {
     const { mode } = scenario.fixtures;
 
     greetingSym = scenario.fixtures.symbol;
-    farewellSym = scenario.repos.symbol.create({ slug: "farewell", mode, traits: [], trait: {} });
+    farewellSym = scenario.repos.symbol.create({ slug: "farewell", mode, daemon: scenario.fixtures.daemon, traits: [], trait: {} });
     await em.flush();
 
     hello = scenario.fixtures.hello;
     goodbye = scenario.fixtures.goodbye;
-    const wordSym = scenario.repos.symbol.create({ slug: "word", mode, traits: ["TOPOGRAPHICAL"], trait: {} });
+    const wordSym = scenario.repos.symbol.create({ slug: "word", mode, daemon: scenario.fixtures.daemon, traits: ["TOPOGRAPHICAL"], trait: {} });
     hello.symbols.add(wordSym);
     goodbye.symbols.add(wordSym);
     hello.assign({ updatedAt: new Date() });
@@ -27,6 +27,7 @@ specimen.describe("symbols: m:n slug query", () => {
     orphan = scenario.repos.literal.create({
       slug: "orphan",
       mode,
+      daemon: scenario.fixtures.daemon,
       traits: ["TRANSLATED"],
       trait: { TRANSLATED: { known: "orphan", learning: "órfão" } },
       symbol: { word: true },

@@ -46,7 +46,7 @@ specimen.describe("Thread", () => {
     await em.flush();
 
     specimen.expect(orphan.traits).toEqual(["INTELLIGENT", "VOCAL"]);
-    specimen.expect(orphan.trait.INTELLIGENT).toEqual({ tune: "capable", effort: "low", rounds: 12 });
+    specimen.expect(orphan.trait.INTELLIGENT).toEqual({ tier: "capable", effort: "low", rounds: 12 });
     specimen.expect(orphan.trait.QUEUEING).toEqual({ depth: 1 });
     specimen.expect(orphan.intent).toBeFalsy();
   });

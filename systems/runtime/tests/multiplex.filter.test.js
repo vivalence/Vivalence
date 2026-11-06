@@ -13,8 +13,12 @@ specimen.describe("multiplex filter context", { sanitizeOps: false, sanitizeReso
   specimen.beforeAll(async () => {
     scenario = await bench({});
     const access = await signer(SECRET).access(scenario.user);
-    scenario.daemon.aperture.branch("/userspace").use(shard.datamap.scope((ctx) => ({ user: ctx.user.id }))).branch("/entities/thread").graft(shard.datamap.repository(scenario.daemon.entities.thread));
-    scenario.daemon.aperture.branch("/userspace/entities/turn").use(shard.datamap.scope((ctx) => ({ thread: { user: ctx.user.id } }))).graft(shard.datamap.repository(scenario.daemon.entities.turn));
+    scenario.daemon.aperture
+      .branch("/userspace/entities/thread")
+      .graft(shard.datamap.repository(scenario.daemon.entities.thread));
+    scenario.daemon.aperture
+      .branch("/userspace/entities/turn")
+      .graft(shard.datamap.repository(scenario.daemon.entities.turn));
 
     scenario.daemon.aperture.open("/probe/filters", (ctx) => {
       const em = RequestContext.getEntityManager();

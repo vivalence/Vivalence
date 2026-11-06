@@ -93,7 +93,7 @@ specimen.describe("http shape: mounted vectors", () => {
 
     const burst = Array.from({ length: 200 }, (_, i) => {
       if (i % 20 === 0) service.open(`/r${i}`, () => i);
-      if (i % 30 === 0) service.trie.delete(`r${i - 30}`);
+      if (i % 30 === 0) service.trim(`r${i - 30}`);
       return get(handler, "/svc/ping");
     });
     const results = await Promise.all(burst);

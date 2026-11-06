@@ -79,7 +79,7 @@ export const emitter = new Vector()
           { role: "user", parts: [{ type: "text", text: "Deal the hand." }] },
         ],
         output: v.object({ faces: v.array(v.string()) }),
-        tune: "frugal",
+        tier: "frugal",
       });
       for (
         const face of (output.object?.faces ?? []).filter((f) =>

@@ -22,7 +22,7 @@ specimen.describe("the before lane — inline, against the live entity", () => {
       if (ctx.input.entity.slug === "before-lane") ctx.input.entity.trait = { STAMPED: true };
     });
 
-    const literal = scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "before-lane", trait: {}, symbol: {} });
+    const literal = scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug: "before-lane", trait: {}, symbol: {} });
     await scenario.em.flush();
 
     specimen.expect(stamped).toEqual(["before-lane"]);
@@ -39,7 +39,7 @@ specimen.describe("the after lane — deferred by middleware, not by the subscri
       seen.push(ctx.input.entity.slug);
     });
 
-    const literal = scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "after-lane", trait: {}, symbol: {} });
+    const literal = scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug: "after-lane", trait: {}, symbol: {} });
     await scenario.em.flush();
 
     literal.trait = { TOUCHED: true };
@@ -57,7 +57,7 @@ specimen.describe("the after lane — deferred by middleware, not by the subscri
     const captured = [];
     twitch.open("/after/literal/create", (ctx) => captured.push(ctx.input));
 
-    scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "live-args", trait: { A: 1 }, symbol: {} });
+    scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug: "live-args", trait: { A: 1 }, symbol: {} });
     await scenario.em.flush();
     await sleep.ms(10);
 
@@ -72,7 +72,7 @@ specimen.describe("the after lane — deferred by middleware, not by the subscri
       owners.push(scenario.repos.literal.getEntityManager().getFilterParams("user")?.user ?? null);
     });
 
-    scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "owned", trait: {}, symbol: {} });
+    scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug: "owned", trait: {}, symbol: {} });
     await scenario.em.flush();
     await sleep.ms(10);
 
@@ -85,7 +85,7 @@ specimen.describe("the after lane — deferred by middleware, not by the subscri
       counted.push(await scenario.repos.literal.count({}));
     });
 
-    scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "reentrant-read", trait: {}, symbol: {} });
+    scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug: "reentrant-read", trait: {}, symbol: {} });
     await scenario.em.flush();
     await sleep.ms(20);
 
@@ -102,7 +102,7 @@ specimen.describe("the pump — one queue, poison-resistant", () => {
     });
 
     for (const slug of ["one", "boom", "two"])
-      scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug, trait: {}, symbol: {} });
+      scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug, trait: {}, symbol: {} });
     await scenario.em.flush();
     await sleep.ms(20);
 

@@ -5,7 +5,7 @@ const { AGENTIC } = traits.mode;
 
 function provision(mode, daemon) {
   mode.tools = new Vector();
-  mode.tools.use(shard.context.spread(contexts.host, daemon));
+  mode.tools.use(shard.context.spread(contexts.daemonDie, daemon));
   mode.tools.use(shard.context.bind("mode", mode));
   if (mode.module.tools) mode.tools.graft(mode.module.tools);
 }
@@ -35,7 +35,7 @@ function daemonOf(modes) {
 
 function names(tools) {
   return steer.trie
-    .rollup(tools, () => null)
+    .leaves(tools)
     .map(({ steps }) => belt.hallucinate.nameOf(steps));
 }
 

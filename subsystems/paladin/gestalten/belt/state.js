@@ -1,4 +1,4 @@
-import fs from "@std/fs";
+import fs from "fs-extra";
 import { dirname } from "@std/path";
 
 export default function state(paladin) {

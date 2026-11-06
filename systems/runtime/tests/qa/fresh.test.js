@@ -89,7 +89,10 @@ describe("T-fresh — a clean ledger, ghost's verbs, hello-world from the JSON r
   });
 
   it("the runtime-level home under /userspace: a thread with no mode, a terminal at index 0, no notes yet", async () => {
-    const thread = await runtime.call("/userspace/entities/thread/create", { data: { trait: {} } }, finn.access);
+    const thread = await runtime.call("/userspace/entities/thread/create",
+      { data: { user: finn.user.id, trait: {} } },
+      finn.access,
+    );
     expect([thread.mode ?? null, thread.user?.id ?? thread.user]).toEqual([null, finn.user.id]);
     const [terminal] = await runtime.call("/userspace/entities/terminal/find", { where: {} }, finn.access);
     expect(terminal.index).toBe(0);

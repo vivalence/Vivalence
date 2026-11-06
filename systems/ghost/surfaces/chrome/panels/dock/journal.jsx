@@ -1,4 +1,4 @@
-import { createResource, For, from, Show } from "solid-js";
+import { For, from, Show } from "solid-js";
 import { Dynamic } from "@opentui/solid";
 import { SyntaxStyle } from "@opentui/core";
 import { is } from "@vivalence/typology";
@@ -81,8 +81,10 @@ function Artifact(props) {
   const terminal = ambient.terminal.consume();
   const framed = from(terminal.$buffer);
   const trait = from(props.buffer.$trait);
-  const [views] = createResource(() => props.buffer, (buffer) => widgets.buffer.cells(buffer, terminal.client.runtime.attach));
-  const listed = () => (views.state === "ready" ? views() : []);
+  const pool = from(
+    widgets.buffer.candidates(props.buffer, terminal.client.runtime.entities.file.$entities),
+  );
+  const listed = () => widgets.buffer.cells(pool());
   const view = () => {
     trait();
     return widgets.buffer.cell(props.buffer, listed());

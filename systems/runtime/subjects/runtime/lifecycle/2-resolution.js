@@ -41,17 +41,6 @@ export const attach = async (die, next) => {
   }
 
   const attached = die.aperture.branch("/attached");
-  attached.branch("/view/:id").use(shard.datamap.errors()).do(async (input, ctx) => {
-    const view = await die.runtime.entities.view.findOneOrFail({ id: ctx.params.id }, { populate: ["files"] });
-    return {
-      id: view.id,
-      slug: view.slug,
-      mime: view.mime,
-      entry: view.entry,
-      traits: view.traits,
-      files: view.files.getItems().map((file) => ({ id: file.id, path: file.path, mime: file.mime, integrity: file.integrity })),
-    };
-  });
   attached.branch("/file/:id").use(shard.datamap.errors()).do(async (input, ctx) => {
     const file = await die.runtime.entities.file.findOneOrFail({ id: ctx.params.id });
     ctx.response.type = file.mime;

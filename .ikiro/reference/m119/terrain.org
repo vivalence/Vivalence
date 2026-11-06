@@ -1,0 +1,91 @@
+#+title: m119 — terrain, measured; moved whole from the quest 11-09 (cap). §4 · §5 probes: terrain-probes.org
+# limit: 6000 chars
+
+* terrain — measured
+
+** §1 what IS — three sets, two fences
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/runtime/lifecycle/1-population.js:45
+die.runtime.entities = { ...die.runtime.datamap.entities };
+// systems/runtime/subjects/daemon/lifecycle/1-population.js:28
+die.daemon.entities = { ...datamap.entities, ...strike(die.daemon.minted, datamap.entities.em, sets.traits), activity: die.runtime.entities.activity };
+// systems/runtime/subjects/mode/lifecycle/1-population.js:16 — a mode reads its HOST's set
+    .use(shard.context.spread(contexts.host, die.context))
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/belt/traits.js:26 — the options-fence, twelve methods, one column
+          scope(options = {}) {
+            return { ...options, filters: { ...(options.filters ?? {}), daemon: { daemon: slug } } };
+          }
+          find(where, options) { return super.find(where, this.scope(options)); }
+          …
+          create(data, options) { return super.create({ ...data, daemon: slug }, options); }
+          upsert(data, options) { return super.upsert({ ...data, daemon: slug }, options); }
+          unique(query) { return { ...super.unique(query), daemon: slug }; }
+#+END_SRC
+
+#+BEGIN_SRC ts
+// subsystems/typology/entities/Literal.ts:86 — the daemon filter, dormant until a query names it
+  filters: { daemon: { cond: (args: any) => ({ daemon: args.daemon }), default: false } },
+#+END_SRC
+
+** §2 the other switch — the =user= filter already rides the context
+
+#+BEGIN_SRC ts
+// subsystems/typology/entities/Thread.ts:57
+  filters: {
+    user: {
+      cond: (args: any) => ({ user: args.user }),
+      default: true,
+    },
+  },
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/datamap.js:12
+    this.shard = {
+      scope: (task) => RequestContext.create(orm.em, task),
+      bind: (name, resolve) => async (ctx, next) => {
+        RequestContext.getEntityManager(orm.em.name)?.setFilterParams(name, resolve(ctx));
+        await next();
+      },
+// systems/runtime/subjects/lighthouse/lifecycle/1-population.js:8
+  die.lighthouse.bind = die.runtime.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id }));
+#+END_SRC
+
+** §3 mikro 7.2.3 — the rows that decide everything
+
+#+BEGIN_SRC js
+// @mikro-orm/core/7.2.3/EntityManager.js:649
+                const args = Utils.isPlainObject(options?.[filter.name]) ? options[filter.name] : this.getContext().#filterParams[filter.name];
+                if (!args && filter.cond.length > 0 && filter.args !== false) {
+                    throw new Error(`No arguments provided for filter '${filter.name}'`);
+// @mikro-orm/core/7.2.3/EntityManager.js:1909
+        fork.#filters = { ...em.#filters };
+        fork.#filterParams = Utils.copy(em.#filterParams);
+// @mikro-orm/core/7.2.3/utils/QueryHelper.js:434
+        return filter.default || filterName in options;
+// @mikro-orm/core/7.2.3/utils/Configuration.js:35
+    allowGlobalContext: false,
+#+END_SRC
+
+** §4 · §5 probes — moved whole to =reference/m119/terrain-probes.org= (11-09, cap); the probe files: =reference/m119/filter-params.probe.js= · =args-false.probe.js=
+
+** §6 baseline — eleven fence-adjacent files, serial, =HOME= empty, 11-09
+
+#+BEGIN_EXAMPLE
+systems/runtime/tests/mint.test.js                                 ok | 6 passed (29 steps) | 0 failed
+systems/runtime/tests/datamap.scoped.test.js                       ok | 1 passed (4 steps)  | 0 failed
+systems/runtime/tests/turn.scope.test.js                           ok | 1 passed (8 steps)  | 0 failed
+systems/runtime/tests/subscriber.test.js                           ok | 1 passed (9 steps)  | 0 failed
+systems/runtime/tests/multiplex.filter.test.js                     ok | 1 passed (5 steps)  | 0 failed
+systems/runtime/tests/mode/traits.test.js                          ok | 2 passed (24 steps) | 0 failed
+systems/runtime/tests/daemon/smoke.test.js                         ok | 1 passed (6 steps)  | 0 failed
+systems/runtime/tests/daemon/twitch.test.js                        ok | 1 passed (4 steps)  | 0 failed
+systems/runtime/tests/daemon/traits.test.js                        ok | 1 passed (4 steps)  | 0 failed
+subsystems/typology/tests/datamap.test.js                          ok | 1 passed (3 steps)  | 0 failed
+subsystems/typology/tests/gestalten/shard/datamap.inject.test.js   ok | 1 passed (2 steps) | 0 failed
+#+END_EXAMPLE
+

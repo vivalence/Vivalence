@@ -3,7 +3,17 @@ import { Controller, KeySignal, Path, ReplSignal, Span, Url, Vector, belt, mime,
 import * as ghost from "@vivalence/ghost";
 import { chrome } from "../../../surfaces/index.js";
 
-const repository = (rows, mint) => {
+const unranked = (commands) =>
+  shape.repl.wire(shape.strip(commands), (path, declared) => [
+    {
+      nature: path.at(-1),
+      valence: declared.valence,
+      input: declared.input,
+    },
+    () => undefined,
+  ]);
+
+const repository = (rows, mint, merged = () => {}) => {
   const $entities = atom(rows);
   const writes = [];
   return {
@@ -16,7 +26,9 @@ const repository = (rows, mint) => {
     },
     async updateOne(where, data) {
       writes.push({ where, data });
-      return $entities.get().find((row) => row.id === where.id);
+      const held = $entities.get().find((row) => row.id === where.id);
+      merged(held, data);
+      return held;
     },
     async removeOne(where) {
       $entities.set($entities.get().filter((row) => row.id !== where.id));
@@ -73,7 +85,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     "/view/v-board": { id: "v-board", slug: "play", mime: mime.tty.solid, traits: ["FRAME"], entry: "cells/Board.js", files: [{ id: "f-board", path: "cells/Board.js", integrity: "sha256-e7f3" }] },
     "/view/v-glance": { id: "v-glance", slug: "glance", mime: mime.tty.solid, traits: ["CELL"], entry: "cells/Glance.js", files: [{ id: "f-glance", path: "cells/Glance.js", integrity: "sha256-5d2a" }] },
   };
-  const board = Object.assign(new ghost.entities.buffer.Buffer(), { id: "b2", thread, mode: { id: "m-play", slug: "play", views: [{ id: "v-board" }, { id: "v-glance" }] }, traits: ["LABELED"], trait: { LABELED: { name: "board one" } }, data: { fen: "8/8" } });
+  const board = Object.assign(new ghost.entities.buffer.Buffer(), { id: "b2", thread, mode: { id: "m-play", slug: "play", $views: atom(Object.values(VIEWS)) }, traits: ["LABELED"], trait: { LABELED: { name: "board one" } }, data: { fen: "8/8" } });
   thread.$buffers = atom([buffer, board]);
   const paused = activity("a1", "PAUSED");
   const running = activity("a2", "RUNNING");
@@ -81,7 +93,10 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
 
   client.runtime = new ghost.entities.runtime.Runtime({ reference: new Path("/runtime/house"), remote: new Url("http://127.0.0.1:9"), lighthouse, connection: { branch: (path) => ({ path, call: async (route) => VIEWS[route] }) } });
   client.runtime.$status.set({ code: "RUNNING" });
-  const terminals = repository([], (data, count) => Object.assign(new ghost.terminal.Terminal(), { id: `t${count + 1}`, index: count, client, runtime: client.runtime, repository: terminals, controller: client.controller.branch(`terminal/t${count + 1}`), ...data }));
+  const terminals = repository([], (data, count) => Object.assign(new ghost.terminal.Terminal(), { id: `t${count + 1}`, index: count, client, runtime: client.runtime, repository: terminals, controller: client.controller.branch(`terminal/t${count + 1}`), ...data }), (held, data) => {
+    if (!("buffer" in data)) return;
+    held.buffer = data.buffer === null ? null : buffers.$entities.get().find((framed) => framed.id === data.buffer);
+  });
   const buffers = repository([buffer, board], (data, count) => Object.assign(new ghost.entities.buffer.Buffer(), { id: `b${count + 1}`, ...data }));
   const threads = repository([thread, other], (data, count) => hydrated(Object.assign(new ghost.entities.thread.Thread(), { id: `th${count + 1}`, ...data, mode: memo }), v.thread.traits));
   client.runtime.entities = {
@@ -146,6 +161,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     specimen.expect((await run("/lighthouse/login")).standing).toBe("LOGGED_OUT");
     specimen.expect((await run("/lighthouse/login beef hunter2")).standing).toBe("AUTHENTICATED");
     specimen.expect((await run("/lighthouse/logout")).standing).toBe("LOGGED_OUT");
+    await run("/lighthouse/login beef hunter2");
   });
 
   specimen.it("/telemetry toggles the app's telemetry window, a tab opens it on that tab, off shuts it; /telemetry/clear moves the watermark; a bad tab is VALIDATION", async () => {
@@ -252,10 +268,10 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     client.app.bridge.$focus.set(before);
   });
 
-  specimen.it("/repl opens the catalog — every command — with / prefilled, a draft that is a line kept; /repl/close drops it and the typed line; /legend/close flushes the held keys", async () => {
+  specimen.it("/repl opens the catalog — every ghost command is rank hidden, so it lists none — with / prefilled, a draft that is a line kept; /repl/close drops it and the typed line; /legend/close flushes the held keys", async () => {
     client.app.bridge.$draft.set("hello");
     specimen.expect(await run("/repl")).toBe("repl open");
-    specimen.expect([terminal.repl.catalog.map((row) => row.nature).includes("/repl/close"), client.app.bridge.draft, client.app.bridge.focus]).toEqual([true, "/", "composer"]);
+    specimen.expect([terminal.repl.catalog, client.app.bridge.draft, client.app.bridge.focus]).toEqual([[], "/", "composer"]);
     client.app.bridge.$draft.set("/dock");
     await run("/repl");
     specimen.expect(client.app.bridge.draft).toBe("/dock");
@@ -265,9 +281,10 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     client.app.bridge.$draft.set("");
   });
 
-  specimen.it("/repl/next · /repl/previous move the selection over what the draft shows, held at both ends; /repl/complete fills the draft with the selected row", async () => {
+  specimen.it("/repl/next · /repl/previous move the selection over what the draft shows, held at both ends; /repl/complete fills the draft with the selected row — over the commands with their rank dropped", async () => {
     client.app.bridge.$draft.set("/sidebar");
     await run("/repl");
+    terminal.repl.$catalog.set(ghost.shard.keymap.catalog(unranked(terminal.repl.commands)));
     specimen.expect([await run("/repl/previous"), await run("/repl/next"), await run("/repl/next"), await run("/repl/next"), await run("/repl/next")]).toEqual(["repl 0", "repl 1", "repl 2", "repl 3", "repl 3"]);
     await run("/repl/previous");
     await run("/repl/previous");
@@ -295,11 +312,17 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     specimen.expect(await fault("/popover box")).toBe("VALIDATION");
   });
 
-  specimen.it("/modes lists; /mode narrows and seats the mode's newest thread through the terminal's write", async () => {
+  specimen.it("/modes lists; /mode narrows and moves the seated thread onto the mode through the thread's write; no thread seated mints one", async () => {
     specimen.expect((await run("/modes")).map((row) => row.reference)).toEqual(["/runtime/house/mode/srs/memo", "/runtime/house/mode/home/probe"]);
-    specimen.expect(await run("/mode probe")).toBe("/runtime/house/mode/home/probe · thread #th2");
-    specimen.expect(terminals.writes.at(-1)).toEqual({ where: { id: "t1" }, data: { daemon: null, thread: "th2" } });
+    specimen.expect(await run("/mode probe")).toBe("/runtime/house/mode/home/probe · thread #th1");
+    specimen.expect(threads.writes.at(-1)).toEqual({ where: { id: "th1" }, data: { mode: "m2" } });
+    specimen.expect(terminals.writes.at(-1)).toEqual({ where: { id: "t1" }, data: { daemon: null, thread: "th1" } });
     specimen.expect(await run("/mode mode")).toEqual({ which: ["/runtime/house/mode/srs/memo", "/runtime/house/mode/home/probe"] });
+    terminal.$thread.set(null);
+    specimen.expect(await run("/mode probe")).toBe("/runtime/house/mode/home/probe · thread #th3");
+    specimen.expect(terminals.writes.at(-1)).toEqual({ where: { id: "t1" }, data: { daemon: null, thread: "th3" } });
+    await threads.removeOne({ id: "th3" });
+    terminal.$thread.set(thread);
   });
 
   specimen.it("/thread narrows by id or label and seats; no match answers the candidates; /thread/new mints on the seated mode; /thread/label claims LABELED", async () => {
@@ -314,7 +337,9 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
 
   specimen.it("/buffer seats a buffer of the thread into the frame by its label; an unknown label faults", async () => {
     specimen.expect(await run('/buffer "memo #1"')).toBe("buffer #b1 · memo #1");
+    specimen.expect(await run("/buffer memo #1")).toBe("buffer #b1 · memo #1");
     specimen.expect(terminal.buffer).toBe(buffer);
+    specimen.expect(terminals.writes.at(-1)).toEqual({ where: { id: "t1" }, data: { buffer: "b1" } });
     specimen.expect(await fault("/buffer nope")).toBe(undefined);
   });
 
@@ -359,7 +384,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     const before = terminals.writes.length;
     terminal.$buffer.set(buffer);
     specimen.expect(await run("/buffer/close")).toBe("frame closed");
-    specimen.expect(terminals.writes.length).toBe(before);
+    specimen.expect(terminals.writes.slice(before)).toEqual([{ where: { id: "t1" }, data: { buffer: null } }]);
     specimen.expect(await fault("/buffer/close")).toBe(undefined);
     terminal.$buffer.set(buffer);
   });
@@ -405,13 +430,28 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     ]);
   });
 
-  specimen.it("/tune · /effort · /rounds claim INTELLIGENT on the seated thread, field-wise; a value outside the schema is VALIDATION", async () => {
-    specimen.expect(await run("/tune fast")).toEqual({ INTELLIGENT: { tune: "fast" } });
-    specimen.expect(threads.writes.at(-1)).toMatchObject({ where: { id: "th1" }, data: { traits: ["LABELED", "INTELLIGENT"], trait: { LABELED: { name: "flamingo" }, INTELLIGENT: { tune: "fast" } } } });
+  specimen.it("/tier · /effort · /rounds claim INTELLIGENT on the seated thread, field-wise; a value outside the schema is VALIDATION", async () => {
+    specimen.expect(await run("/tier fast")).toEqual({ INTELLIGENT: { tier: "fast" } });
+    specimen.expect(threads.writes.at(-1)).toMatchObject({ where: { id: "th1" }, data: { traits: ["LABELED", "INTELLIGENT"], trait: { LABELED: { name: "flamingo" }, INTELLIGENT: { tier: "fast" } } } });
     specimen.expect(await run("/effort high")).toEqual({ INTELLIGENT: { effort: "high" } });
     specimen.expect(await run("/rounds 12")).toEqual({ INTELLIGENT: { rounds: 12 } });
     specimen.expect(await fault("/rounds 99")).toBe("VALIDATION");
-    specimen.expect(await fault("/tune lazy")).toBe("VALIDATION");
+    specimen.expect(await fault("/tier lazy")).toBe("VALIDATION");
+  });
+
+  specimen.it("/model pins INTELLIGENT.provider · id on the seated thread; /tier unpins; no id is VALIDATION", async () => {
+    const pin = { provider: "openrouter", id: "openai/gpt-5" };
+    specimen.expect(await run("/model openrouter openai/gpt-5")).toEqual({ INTELLIGENT: pin });
+    specimen.expect(threads.writes.at(-1).data.trait.INTELLIGENT).toMatchObject(pin);
+    const seated = threads.$entities.get().find((thread) => thread.id === "th1");
+    seated.trait = { ...seated.trait, INTELLIGENT: { ...seated.trait.INTELLIGENT, ...pin } };
+    await run("/tier fast");
+    specimen.expect(threads.writes.at(-1).data.trait.INTELLIGENT.tier).toBe("fast");
+    specimen.expect("id" in threads.writes.at(-1).data.trait.INTELLIGENT).toBe(false);
+    specimen.expect("provider" in threads.writes.at(-1).data.trait.INTELLIGENT).toBe(false);
+    await run("/set thread.tier capable");
+    specimen.expect("id" in threads.writes.at(-1).data.trait.INTELLIGENT).toBe(false);
+    specimen.expect(await fault("/model openrouter")).toBe("VALIDATION");
   });
 
   specimen.it("/dock · /dock/lens · /split claim DOCKED on the terminal, field-wise — /dock routes a side to align, a view to view — through the terminal's updateOne; a bad word is VALIDATION", async () => {
@@ -446,7 +486,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     specimen.expect(message).toContain("terminal.dock.view · terminal.dock.align");
   });
 
-  specimen.it("* — a bare line streams to a HARNESSED mode: every packet merges into ONE turn under the runtime's id, no stream record; on a mode without HARNESSED it is NotFound", async () => {
+  specimen.it("* — a bare line streams to a HARNESSED mode: every packet merges into ONE turn under the runtime's id, no stream record; on a mode without HARNESSED it faults naming the mode", async () => {
     await run("ciao");
     specimen.expect(requests.at(-1)).toMatchObject({ thread: "th1", terminal: "t1" });
     specimen.expect(client.runtime.entities.turn.merges).toHaveLength(REPLY.length);
@@ -456,12 +496,13 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     ]);
     specimen.expect(thread.controller.stdout.history.filter((record) => ["stream"].includes(record.track))).toEqual([]);
     terminal.$thread.set(other);
-    specimen.expect(await fault("ciao")).toBe("NOT_FOUND");
+    const refused = await run("ciao").then(() => null, (error) => error.message);
     terminal.$thread.set(thread);
+    specimen.expect(refused).toBe(`${other.mode.type}/${other.mode.slug} takes no turn — not HARNESSED. / for a command`);
   });
 
   specimen.it("every command of the three owners — client · app · terminal — carries a nature, a valence with an Example, and the chords of the keymap", () => {
-    const rows = steer.trie.rollup(repl, (carry, effect, steps) => steps.at(-1)).map((entry) => entry.fn);
+    const rows = steer.trie.leaves(repl).map((entry) => entry.steps.at(-1));
     for (const pattern of rows) specimen.expect(pattern.valence).toMatch(/Example: /);
     const chords = Object.fromEntries(rows.filter((pattern) => pattern.chord !== undefined).map((pattern) => [pattern.chord, pattern.nature]));
     specimen.expect(chords).toEqual({
@@ -483,7 +524,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
       "leader/a/s": "stop",
       "leader/a/k": "abort",
       "leader/a/a": "activity",
-      "leader/h/t": "tune",
+      "leader/h/t": "tier",
       "leader/h/e": "effort",
       "leader/h/r": "rounds",
       "leader/d/b": "toggle",

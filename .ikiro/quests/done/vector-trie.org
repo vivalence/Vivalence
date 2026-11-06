@@ -1,0 +1,297 @@
+#+title: vector trie (UNNUMBERED) — the trie is =Map<Pattern, Vector>=; =seat= merges a same-nature declaration onto the trie's OWN pattern; a later effect replaces
+#+filetags: :typology:vector:trie:steer:holy:
+#+status: DONE 11-12 /"if vector trie landed then move to done"/ — Map · seat · =do= replaces in the tree; runtime whole =ok | 101 passed (651 steps)=; registry vdex · media reds = =known-issues= =registry-mode-suites-red-against-the-runtime=
+#+phase: done
+#+progress: 6/6
+#+next: —
+# limit: 14000 chars
+
+* intent
+
+11-12, beef verbatim:
+
+/"ok. so. trie exists becasue we use the pattern.nature as map key in trie, and then have to store both pattern and trajectory inside the map value. correct? but then, how do we do multiple patterns of the same nature?"/
+
+/"your logic is still odd. i feel liek the perspective is off. -> can we rewrite to trie = Map([pattern]:[trajectory])?"/
+
+/"last/first wins is interesting. i assume there are contexts where either are used. meaning we need a default that allows for the other case and then some tooling. lets settle this first. then write quest"/
+
+/"c makes sense. i assume tho this will cuase issues so testing needs be thorough."/
+
+/"should grafted vectors be copied or referenced. hmm. thats the core question."/
+
+* rulings
+
+| Q  | his words                                              | the ruling                                                        |
+|----+--------------------------------------------------------+-------------------------------------------------------------------|
+| Q0 | /"c makes sense."/                                     | merge: later keys land on earlier, a bare mention changes nothing |
+| Q1 | /"a."/                                                 | a later effect replaces, on =open= · =do= · =graft=               |
+| Q2 | /"a"/                                                  | no second graft; the caller orders its =graft=                    |
+| Q3 | /"b."/                                                 | =trie= is =Map<Pattern, Vector>=; by-nature lookup = =edge=       |
+| Q4 | /"a. but the code is ugly."/ → /"amen."/ on =seat=     | =graft= copies the pattern; =seat= finds or mints, merges in place |
+| Q5 | /"a"/                                                  | every declared key rides; =heir= · =trace= · =gauges= never       |
+
+Standing, 10-01: /"always attach. but lets have one dedicated for deep copy."/ — =branch(sig, vector)= attaches LIVE, =graft= copies. Unchanged.
+
+* terrain — measured
+
+Moved whole: =reference/vector-trie/design-11-12.org= (terrain · SKETCH · blast · early changelog). Census =census-11-12.md= 2267 → sandbox =census-after-11-12.md= 2282: every new hit a test step; =same pattern= 52 → 0 (Q4).
+
+
+* as code
+
+Product, 7 files; tests (8) and registry (3): =reference/vector-trie/tangle-tests.org=. Replayed on a copy: 14 + 17 + 4 hunks, byte-equal to the sandbox.
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/vector.js:23
+   branch(signature, vector) {
+     const pattern = new this.signature(signature);
+-
+     if (pattern.nature == null && !pattern.heir) return this;
+-
+-    let edge = this.trie.get(pattern.nature);
+-    if (!edge) {
+-      edge = { pattern, trajectory: (!pattern.heir && vector) || new this.constructor(this, this.signature) };
+-      this.trie.set(pattern.nature, edge);
+-    } else if (vector && !pattern.heir) {
+-      edge.trajectory.graft(vector);
+-    }
+-
+-    if (pattern.heir) {
+-      return edge.trajectory.branch(pattern.heir, vector);
+-    }
+-    return edge.trajectory;
++    if (pattern.heir) return this.seat(pattern).branch(pattern.heir, vector);
++    const seated = this.seat(pattern, vector);
++    if (vector && seated !== vector) seated.graft(vector);
++    return seated;
++  }
++
++  edge(nature) {
++    for (const entry of this.trie) if (entry[0].nature === nature) return entry;
++    return null;
++  }
++
++  seat(pattern, trajectory = new this.constructor(this, this.signature)) {
++    const { trace, gauges, ...declared } = pattern;
++    const [own, seated] = this.edge(pattern.nature) ?? [
++      new this.signature(pattern.nature),
++      trajectory,
++    ];
++    this.trie.set(Object.assign(own, declared), seated);
++    return seated;
+   }
+ 
+   trim(signature) {
+     const pattern = new this.signature(signature);
+-    const edge = this.trie.get(pattern.nature);
++    const edge = this.edge(pattern.nature);
+     if (!edge) return this;
+-    if (pattern.heir) edge.trajectory.trim(pattern.heir);
+-    else this.trie.delete(pattern.nature);
++    if (pattern.heir) edge[1].trim(pattern.heir);
++    else this.trie.delete(edge[0]);
+     return this;
+   }
+…
+// subsystems/typology/prototypes/vector.js:68
+       if (vector === this) continue;
+       if (vector.effect) this.effect = vector.effect;
+-      for (const [nature, edge] of vector.trie) {
+-        const existing = this.trie.get(nature);
+-        const branch = existing?.trajectory ?? new this.constructor(this, this.signature);
+-        branch.graft(edge.trajectory);
+-        if (existing) existing.pattern = new this.signature({ ...existing.pattern, ...edge.pattern });
+-        else this.trie.set(nature, { pattern: edge.pattern, trajectory: branch });
+-      }
++      for (const [pattern, trajectory] of vector.trie) this.seat(pattern).graft(trajectory);
+       this.carry.push(...vector.carry);
+     }
+…
+// subsystems/typology/prototypes/vector.js:81
+ 
+   get patterns() {
+-    return [...this.trie.values()].map((edge) => edge.pattern);
++    return [...this.trie.keys()];
+   }
+   get descendants() {
+-    return [...this.trie.values()].map((edge) => edge.trajectory);
++    return [...this.trie.values()];
+   }
+   get root() {
+…
+// subsystems/typology/prototypes/vector.js:96
+ 
+   survey(visit = (node) => node) {
+-    const trajectories = [...this.trie.values()] //
+-      .map((edge) => visit({ signature: edge.pattern, ...edge.trajectory.survey(visit) }));
++    const trajectories = [...this.trie] //
++      .map(([pattern, trajectory]) => visit({ signature: pattern, ...trajectory.survey(visit) }));
+     return { effect: this.effect, trajectories };
+   }
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/twitch.js:17
+     if (vector === this) return this;
+     if (vector.effect) this.effect = this.effect ? sequence(this.effect, vector.effect) : vector.effect;
+-    for (const [nature, edge] of vector.trie) {
+-      const existing = this.trie.get(nature);
+-      const ear = existing?.trajectory ?? new this.constructor(this, this.signature);
+-      ear.graft(edge.trajectory);
+-      if (existing) existing.pattern = edge.pattern;
+-      else this.trie.set(nature, { pattern: edge.pattern, trajectory: ear });
+-    }
++    for (const [pattern, trajectory] of vector.trie) this.seat(pattern).graft(trajectory);
+     this.carry.push(...vector.carry);
+     return this;
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/span.js:45
+   tracks(vector) {
+     this.tracked.graft(vector);
+-    for (const nature of vector.trie.keys()) this[nature] ??= (data) => this.track(nature, data);
++    for (const { nature } of vector.patterns) this[nature] ??= (data) => this.track(nature, data);
+     return this;
+   }
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/steer/match.js:8
+ 
+ export function greedy(vector, signal) {
+-  for (const { pattern, trajectory } of vector.trie.values()) {
++  for (const [pattern, trajectory] of vector.trie) {
+     const match = pattern.apply(signal);
+     if (match) return [[match, trajectory, trajectory.effect ?? null]];
+…
+// subsystems/typology/gestalten/steer/match.js:19
+   const scope = [];
+ 
+-  for (const { pattern, trajectory } of vector.trie.values()) {
++  for (const [pattern, trajectory] of vector.trie) {
+     if (pattern.type === "wildcard") continue;
+     const match = pattern.apply(signal);
+…
+// subsystems/typology/gestalten/steer/match.js:25
+   }
+ 
+-  if (scope.length > 0 || !vector.trie.has("*")) return scope;
++  const wildcard = vector.edge("*");
++  if (scope.length > 0 || !wildcard) return scope;
+ 
+-  const { pattern, trajectory } = vector.trie.get("*");
++  const [pattern, trajectory] = wildcard;
+   return [[pattern.apply(signal), trajectory, trajectory.effect ?? null]];
+ }
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/steer/dispatch.js:23
+   const miss = () => {
+     if (missing === null) return [null, carry, steps, position];
+-    const match = missing.edge.pattern.apply(signals.array[missing.depth]);
+-    return [missing.edge.trajectory.effect, descend(descend(missing.carry, missing.position), missing.edge.trajectory), [...steps.slice(0, missing.depth), match], missing.edge.trajectory];
++    const [pattern, trajectory] = missing.edge;
++    const match = pattern.apply(signals.array[missing.depth]);
++    return [trajectory.effect, descend(descend(missing.carry, missing.position), trajectory), [...steps.slice(0, missing.depth), match], trajectory];
+   };
+ 
+   for (const signal of signals.array) {
+-    if (position.trie.has("*")) missing = { edge: position.trie.get("*"), carry, position, depth: steps.length };
++    const wildcard = position.edge("*");
++    if (wildcard) missing = { edge: wildcard, carry, position, depth: steps.length };
+ 
+     if (signal.nature == null) {
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/steer/trie.js:8
+   path.reduce((position, nature) => {
+     if (!position) return null;
+-    const edge = position.trie.get(nature);
+-    return edge ? edge.trajectory : null;
++    const edge = position.edge(nature);
++    return edge ? edge[1] : null;
+   }, vector);
+ 
+…
+// subsystems/typology/gestalten/steer/trie.js:20
+ ) {
+   const here = { ...frame, carry: descend(frame.carry, vector) };
+-  const trajectories = [...vector.trie.values()].map(({ pattern, trajectory }) =>
++  const trajectories = [...vector.trie].map(([pattern, trajectory]) =>
+     fold(trajectory, step, {
+       ...here,
+…
+// subsystems/typology/gestalten/steer/trie.js:67
+     .use(...vector.carry)
+     .do(vector.effect);
+-  for (const [nature, { pattern, trajectory }] of vector.trie) {
++  for (const [pattern, trajectory] of vector.trie) {
+     const path = [...steps, pattern];
+     if (!keep(pattern, path)) continue;
+-    kept.trie.set(nature, { pattern, trajectory: sieve(trajectory, keep, path, kept) });
++    kept.seat(pattern, sieve(trajectory, keep, path, kept));
+   }
+   return kept;
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shape/selbstbestimmt.js:5
+   const walk = (node) => {
+     if (node.effect != null) return [node.effect, [...node.carry]];
+-    for (const { trajectory } of node.trie.values()) {
++    for (const trajectory of node.trie.values()) {
+       const found = walk(trajectory);
+       if (found) return [found[0], [...node.carry, ...found[1]]];
+#+END_SRC
+
+* milestones
+
+| #   | noun                 | green when                                                                    |
+|-----+----------------------+-------------------------------------------------------------------------------|
+| 1   | the collision census | the =--preload= probe is a kept rig; its table pinned before any edit         |
+| 2·3 | the Map and the seat | =Map<Pattern, Vector>=, =edge(nature)=; =seat= in =branch= · =graft= · =Twitch.graft= · =sieve=; declared keys only |
+| 4   | the effects          | =do= replaces; =vector already affected= gone; hydration re-open still green  |
+| 5   | trim                 | =Vector.trim= on =edge=, no raw =trie.delete= outside it                      |
+| 6   | the whole census     | every suite, serial, =HOME= empty; registry suites; reds attributed           |
+
+Departure, mine, reported: 2 and 3 land as one. A Map keyed by the pattern object cannot swap a merged key in place: =delete= + =set= moves it to the end and reorders routes. =seat= merges INTO the kept key, so the order holds (pinned: "a merge holds the route order").
+
+* testing assessment
+
+Sandbox, 11-12: typology 162 passed (706 steps) · runtime =tests/mode= 12 (65) · hello-world 19 (64) · =harness.primer= · =lighthouse/shape= · ghost =host= green. Ghost 32 passed, 1 failed: =shell/lifecycle.test.js= /"client.factory … a kill settles it STOPPED"/ — red 2 of 2 on the UNTOUCHED tree too, =ghost-base-tree-reds-11-06=.
+- a seated =trace= is =null= (=signature.js= =from=), not the sketch's =undefined=; pinned =null=.
+- =edge(nature)= scans; =Map.get= was O(1). The =http.mount= burst (200 opens) green.
+
+* deferred
+
+- a second graft that keeps what is there (=underlay=, Q2 option B) — on its first caller.
+- a schema for a declaration (typo guard, =valance=) — =schematics/primitives/signatures.js=, its TODO.
+- the name =trajectory=; the name =seat= (mine, his to rule).
+
+* changelog
+
+Before the tangle (the drill · =leaves= · =sieve= · =trim= · the census): moved whole to =reference/vector-trie/design-11-12.org= =* changelog — before the tangle=.
+
+- 11-12 /"next step: .ikiro/quests/vector-trie.org"/ — the QUEST step: tangle, never land. Map + seat on a sandbox copy, tests moved, green; hunks generated off it, replayed byte-equal. =census.preload.js= reads both shapes. A safety check denied an =rm -rf=; a fresh =mktemp -d= instead.
+- 11-12 /"vector-trie land this."/ — =apply-diffs.py --write=: 14 + 17 + 4 hunks, 0 missed. Pasted: typology before =ok | 162 passed (701 steps)= → after =ok | 162 passed (706 steps)= (= the sandbox) · runtime =tests/mode= =ok | 12 passed (65 steps)= · =harness.primer= =1 passed (5 steps)= · =lighthouse/shape= =1 passed (9 steps)= · =harness.metadata.snapshot= =1 passed (4 steps)= · hello-world =ok | 19 passed (64 steps)= · ghost =host= =2 passed (3 steps)= · chess =tools= =1 passed (7 steps)= · =coach= =2 passed (8 steps)=. vdex =FAILED | 0 passed (2 steps) | 1 failed (4 steps)=: =:104= =fs_read= (=empty-armory=) and =aperture/index.js:12= =paladin.tools.fs.resolve is not a function=; neither reads the trie. Runtime =:2501= =RUNNING= after the saves.
+- 11-12 /"run. and go"/ — milestone 4: =vector.js:62= the =vector already affected= row cut; step "a later effect replaces the earlier on do, open and graft alike" red → green (=1 passed (27 steps)=). Census, serial, =HOME= empty: ghost =ok | 33 passed (111 steps)= · runtime =tests/mode= =12 passed (65 steps)= · typology =162 passed (707 steps)= · hello-world =19 passed (64 steps)= · paladin =58 passed (244 steps)= · runtime whole =FAILED | 100 passed (649 steps) | 1 failed (2 steps) | 1 ignored=: =stub.activity.test.js:56= fires =fs_tree=, cut from the root by =empty-armory= (mine, missed there) → the rig grafts =paladin.tools.fs=, =ok | 1 passed (6 steps)=. Collisions 2286: =do= effect over effect 2 (the new step), no product class moved.
+- 11-12 /"fix."/ ×2 — vdex: =paladin/gestalten/tools/index.js= exports =resolve= · =absolute= beside =fs= (the barrel went namespace → Vector, uncommitted, not mine; =paladin.tools.fs.resolve= died with it), vdex · media apertures read =paladin.tools.resolve= · =.absolute= (the home is mine, reported); =vdex.snapshot.test.js:104= now =not.toContain("fs_read")=. Left red, =registry-mode-suites-red-against-the-runtime=: vdex =6 passed | 3 failed=, media =3 passed | 2 failed= (=SymbolEntity.daemon is required= · =LiteralEntity.search=). Coverage gap closed: =systems/ghost/tests/entities/activity/hydration.test.js= =ok | 1 passed (2 steps)=, mutated → red.
+- 11-12 /"move to done"/ — runtime whole re-run after the rig fix: =ok | 101 passed (651 steps) | 0 failed | 1 ignored=.
+
+* release
+
+- changed =vector.trie= — =Map<nature, { pattern, trajectory }>= → =Map<Pattern, Vector>= · migrate: =vector.edge(nature)= → =[pattern, trajectory]=, =vector.patterns= · =.descendants= ⟨vector-trie⟩
+- changed =Vector.do= — a second effect was dropped with a console print, now replaces · migrate: none ⟨vector-trie⟩
+- changed =paladin.tools.fs.resolve= · =.absolute= → =paladin.tools.resolve= · =.absolute= · migrate: drop =.fs= ⟨vector-trie⟩
+
+* handoff
+
+- goal: one trie rule — =Map<Pattern, Vector>=, =seat= merges onto the trie's own pattern, a later effect replaces.
+- done: milestone 1, the census. Milestones 2 · 3 LANDED 11-12, green in the tree.
+- next: his look; milestone 5 = grep no raw =trie.delete= outside =Vector.trim=.
+- never: a closed key list in typology (Q5); =rank= read in typology (/"i dont want rank handled on typology level."/).
+- owed: the whole serial census (milestone 6); =testament/prototypes/repl-dispatch/run.js:8= still reads =trie.get("*")?.trajectory=.

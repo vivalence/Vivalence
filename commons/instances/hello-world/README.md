@@ -18,8 +18,9 @@ page of its own — and can hand all three to a second agent in one call.
     app/App.svelte  the buffer view
 
 Armed names are `viva_doctor` · `web_search` · `web_read` · `research` ·
-`view_create` · `view_update` · `view_read` · `view_list` · `buffer_create`, on top of the
-`fs_*` and `shell_run` every HARNESSED mode with a module mount already gets.
+`view_create` · `view_update` · `view_read` · `view_list` · `buffer_create`, plus the
+runtime's `entity_*` · `buffer_*` · `thread_update` · `mode_find` it grafts itself. A
+HARNESSED mode starts empty: no `fs_*`, no `shell_run` unless it grafts them.
 `web_read` is dark until a reader service is consumed — it says so rather than
 pretending.
 
@@ -35,18 +36,20 @@ aperture's `/emit` and on `mode.emit`. It passes NO thread to
 `generator.buffer` binds whenever handed one, so doing both advances
 `thread.counter` twice for one page. `tests/emitter.test.js` holds that.
 
-`generator` arms nothing. The GENERATIVE trait owns the model's tools —
-`view_create` · `view_update` · `view_read` · `view_list` · `buffer_create` on
-`mode.generator.tools` — and slurps this vector onto them AFTER, so its
-middleware runs on every draw and revise (a URL import is refused before the
-bundler sees it) and its two `open`s without an effect reword `view_create` and
-`view_update` with the house rules while the trait's effects stay. Every GENERATIVE
-mode has the same five names; this mode only changes what two of them say.
+`drawing` arms nothing. The GENERATIVE trait gives the mode `mode.generator.bundle`
+and grafts `gestalten.tools.generative` — `buffer_create` · `view_create` ·
+`view_update` · `view_read` · `view_list`, each wrapping the generator — onto
+`mode.tools`. GENERATIVE sits before TOOLING in the manifest, so `tools` grafts
+`drawing` AFTER: its middleware runs on every draw and revise (a URL import is
+refused before the bundler sees it) and its two `open`s without an effect reword
+`view_create` and `view_update` with the house rules while the trait's effects stay.
+Every GENERATIVE mode has the same five names; this mode only changes what two of
+them say.
 
 ## The nested agent
 
 `research` runs a second hallucination that cannot see the conversation. It arms
-`web` + `mode.generator.tools` by hand — never `mode.tools`, which would put
+`web` + `gestalten.tools.generative` by hand — never `mode.tools`, which would put
 `research` inside itself — and folds the stream with `soma.transcript` rather
 than calling `render()`. That choice is the whole point: `render()` throws on
 any close but `complete` and throws the fold away with it, including a page the

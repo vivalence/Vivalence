@@ -6,7 +6,7 @@
   const mood = $derived(buffer.data?.mood ?? "");
 
   function back() {
-    terminal.buffer = null;
+    terminal.setBuffer(null);
   }
 </script>
 

@@ -1,5 +1,5 @@
 import solid from "vite-plugin-solid";
-import { transformWithEsbuild } from "vite";
+import { transformWithOxc } from "vite";
 import { Status } from "@vivalence/typology";
 import { dirname, join } from "@std/path";
 import { fileURLToPath } from "node:url";
@@ -160,7 +160,7 @@ const jsr = () => {
     async load(id) {
       if (!byLocal.has(id)) return null;
       const module = byLocal.get(id);
-      return transformWithEsbuild(await Deno.readTextFile(id), new URL(module.specifier).pathname);
+      return transformWithOxc(await Deno.readTextFile(id), new URL(module.specifier).pathname);
     },
   };
 };

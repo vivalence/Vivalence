@@ -1,9 +1,13 @@
-import { monad, shape } from "@vivalence/typology";
+import { contexts, monad, shape, shard } from "@vivalence/typology";
 import { execution } from "./lifecycle/index.js";
 
-export function factory(mode) {
+export function factory(mode, traits) {
   return monad.kleisli([
-    (parentDie) => ({ mask: mode.module, mode, context: parentDie.context, traits: parentDie.traits }),
+    (context) => ({
+      ...shard.context.lift(contexts.modeDie, context),
+      mode,
+      traits,
+    }),
     shape.monad.execute(execution),
   ]);
 }

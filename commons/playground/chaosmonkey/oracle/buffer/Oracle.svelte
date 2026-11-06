@@ -178,7 +178,7 @@
         (b) => b.mode?.slug === "vision",
       );
       const fresh = visions.at(-1);
-      if (fresh) terminal.buffer = fresh;
+      if (fresh) terminal.setBuffer(fresh);
     } catch (error) {
       call.fault(error);
       assistant.set(`… ${error.message}`);

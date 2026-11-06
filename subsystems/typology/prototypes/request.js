@@ -12,7 +12,7 @@ export class Request {
     if (request.raw) this.raw = request.raw;
 
     this.options = {
-      timeout: request.timeout ?? 30000,
+      timeout: request.timeout,
       retries: request.retries ?? 0,
       credentials: request.credentials ?? "include",
       ...request.options,

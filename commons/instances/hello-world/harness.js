@@ -1,4 +1,5 @@
 import { Vector } from "@vivalence/typology";
+import { gestalten } from "@vivalence/runtime";
 import { machine, standing } from "./tools/index.js";
 import { RENDER } from "./page/style.js";
 
@@ -27,6 +28,7 @@ export const FORMAT = [
 export const primer = new Vector()
   .open("hello", HELLO)
   .open("machine", (ctx) => machine(standing(ctx)))
+  .graft(gestalten.primer.thread, gestalten.primer.buffer)
   .open({ nature: "guides/render", valence: "How to draw a page — component rules, buffer.data, styling. Read before view_create.", load: "lazy" }, RENDER);
 
 export const harness = new Vector();

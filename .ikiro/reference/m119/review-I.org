@@ -1,0 +1,17 @@
+#+title: m119 — review I, moved whole from the quest 11-10 (cap)
+# limit: 6000 chars
+
+* review — 11-09 · 7 stops · 7 amen · 4 drilled (Q2 · Q3 · Q4 · Q5) · 1 cut (=stamped=) · 0 skipped · ruling 12 on S5
+
+| S | stop | rides | tree | verdict | his words |
+|---|---|---|---|---|---|
+| 1 | nine kinds declare =mode=, two =thread=; the =args: false= switch | ruling 1 · 7 · 10 · law 1 | QUEST | drilled → Q2 · amen · re-shaped by Q4 | /"could we also add thread default false?"/ · /"what? i asked about thread. why talking about user again?"/ · /"b. is optional right?"/ · /"amen"/ |
+| 2 | =Turn.mode= stays optional · =set null= on a mode prune | milestone 1 · Q3 | QUEST | drilled → Q3 · amen | /"nope. turn mode optional. dont want to lose my chat when i shuffle modes."/ · /"b]"/ · /"amen"/ |
+| 3 | =datamap.js= untouched; a beat names its column, =2-resolution= sets params once | law 2 · 4 · Q4 | QUEST | drilled → Q4 · amen | /"what? no. stupid. why would we? is that needed?"/ · /"b."/ · /"seems complicated."/ · /"amen"/ |
+| — | =stamped= (was S4) | Q5 | QUEST | drilled → Q5 · cut | /"looks fucking weird. super fucking wierd."/ · /"no stamp function"/ · /"b"/ |
+| 4 | =mint= keeps traits only; five creators name =daemon= | law 7 · ruling 3 · Q5 | QUEST | amen | /"cool. amen"/ |
+| 5 | daemon aperture binds =daemon=; the beat whole | ruling 3 · 12 | QUEST | amen | /"amen but make this function less UUUGLLYYYYY"/ · /"bit more empty lines but yes. better. much bttter"/ |
+| 6 | mode aperture binds =mode=, nine mounts, two thread binds | ruling 2 · Q2 | QUEST | amen | /"amen"/ |
+| 7 | client =mode.entities= is one =branch= | law 5 | QUEST | amen | /"amen"/ |
+| — | tests · rigs | milestone 7 | QUEST | — | |
+

@@ -1,0 +1,245 @@
+# limit: 13000 chars
+#+title: vector-trie — the TEST tangle of the Map and the seat; the quest's =* as code= holds the product
+
+Replay: =python3 .ikiro/methods/apply-diffs.py .ikiro/reference/vector-trie/tangle-tests.org "* tests" --root <copy>=; the registry section with =--root ~/.viva/registry=. Proven 11-12 on a copy: 17 + 4 hunks, every file byte-equal to the green sandbox.
+
+* tests
+
+#+BEGIN_SRC diff
+// subsystems/typology/tests/vector.test.js:93
+     specimen.expect(source.branch("b").patterns.map((p) => p.nature)).toEqual(["c"]);
+     source.open("/e", () => 4);
+-    specimen.expect(destination.trie.has("e")).toBe(false);
++    specimen.expect(destination.edge("e")).toBe(null);
+     specimen.expect(destination.branch("a")).not.toBe(source.branch("a"));
+   });
+…
+// subsystems/typology/tests/vector.test.js:105
+     const findNode = (vector) => {
+       const literal = vector.descendants[0];
+-      const { pattern, trajectory } = [...literal.trie.values()][0];
+-      return [pattern, trajectory];
++      return [...literal.trie][0];
+     };
+ 
+…
+// subsystems/typology/tests/vector.test.js:137
+     const two = () => {};
+     const armed = new Vector().use(one, two).graft(first, second);
+-    specimen.expect([...armed.trie.keys()]).toEqual(["a", "b"]);
++    specimen.expect(armed.patterns.map((pattern) => pattern.nature)).toEqual(["a", "b"]);
+     specimen.expect(armed.effect()).toBe("root");
+     specimen.expect(armed.carry).toEqual([one, two]);
+…
+// subsystems/typology/tests/vector.test.js:151
+     vector.branch("first");
+     specimen.expect(vector.trie.size).toBe(2);
+-    specimen.expect([...vector.trie.keys()]).toEqual(["first", ":param"]);
++    specimen.expect(vector.patterns.map((pattern) => pattern.nature)).toEqual(["first", ":param"]);
+ 
+     const base = new Vector().open("/a", () => 1).open("/b", () => 2);
+     const override = new Vector().open("/a", () => 3);
+     const merged = new Vector().graft(base).graft(override);
+-    specimen.expect([...merged.trie.keys()]).toEqual(["a", "b"]);
++    specimen.expect(merged.patterns.map((pattern) => pattern.nature)).toEqual(["a", "b"]);
+     specimen.expect(merged.branch("a").effect()).toBe(3);
+   });
+…
+// subsystems/typology/tests/vector.test.js:177
+     specimen.expect(mounted).toBe(service);
+     specimen.expect(root.branch("svc")).toBe(service);
+-    specimen.expect([...root.trie.values()][0].trajectory).toBe(service);
++    specimen.expect([...root.trie.values()][0]).toBe(service);
+   });
+ 
+…
+// subsystems/typology/tests/vector.test.js:219
+ 
+     incoming.open("/later", () => "later");
+-    specimen.expect(existing.trie.has("later")).toBe(false);
++    specimen.expect(existing.edge("later")).toBe(null);
+     existing.open("/mine", () => "mine");
+-    specimen.expect(incoming.trie.has("mine")).toBe(false);
++    specimen.expect(incoming.edge("mine")).toBe(null);
+   });
+ 
+…
+// subsystems/typology/tests/vector.test.js:271
+     const reworded = new Vector().open({ nature: "leader/d/d", valence: "the dock" }, "/dock");
+     const merged = new Vector().graft(declared, derived, reworded);
+-    const d = merged.trie.get("leader").trajectory.trie.get("d");
+-    specimen.expect([merged.trie.get("leader").pattern.valence, d.pattern.valence]).toEqual(["the leader", "display"]);
+-    specimen.expect([d.trajectory.trie.get("d").pattern.valence, d.trajectory.trie.get("d").pattern.input !== undefined]).toEqual(["the dock", true]);
+-    specimen.expect(derived.trie.get("leader").trajectory.trie.get("d").trajectory.trie.get("d").pattern.valence).toBe("/dock");
++    const [leader, leading] = merged.edge("leader");
++    const [d, display] = leading.edge("d");
++    const [dock] = display.edge("d");
++    specimen.expect([leader.valence, d.valence]).toEqual(["the leader", "display"]);
++    specimen.expect([dock.valence, dock.input !== undefined]).toEqual(["the dock", true]);
++    specimen.expect(derived.branch("leader/d").edge("d")[0].valence).toBe("/dock");
+   });
+ 
+…
+// subsystems/typology/tests/vector.test.js:290
+     specimen.expect(paths).toEqual(["a/c", "d"]);
+     vector.trim("a");
+-    specimen.expect([...vector.trie.keys()]).toEqual(["d"]);
++    specimen.expect(vector.patterns.map((pattern) => pattern.nature)).toEqual(["d"]);
++  });
++
++  specimen.it("graft copies the pattern: a later merge never reaches the source", () => {
++    const client = new Vector().open({ nature: "/filter", valence: "narrow the list" }, () => "narrow");
++    const repl = new Vector().graft(client);
++    specimen.expect(repl.edge("filter")[0]).not.toBe(client.edge("filter")[0]);
++
++    const before = repl.edge("filter")[0];
++    repl.graft(new Vector().open({ nature: "/filter", valence: "the mode's filter" }, () => "own"));
++    specimen.expect(repl.edge("filter")[0]).toBe(before);
++    specimen.expect(before.valence).toBe("the mode's filter");
++    specimen.expect(client.edge("filter")[0].valence).toBe("narrow the list");
++  });
++
++  specimen.it("seat copies every declared key and none of the chain", () => {
++    const source = new Vector().open({ nature: "/deep/keep", valence: "kept", rank: "hidden" }, () => "keep");
++    const copy = new Vector().graft(source);
++    const [deep] = copy.edge("deep");
++    const [leaf] = copy.branch("deep").edge("keep");
++    specimen.expect([leaf.valence, leaf.rank]).toEqual(["kept", "hidden"]);
++    specimen.expect([deep.heir, deep.trace, leaf.trace]).toEqual([undefined, null, null]);
++  });
++
++  specimen.it("a key nobody listed still rides", () => {
++    const source = new Vector().open({ nature: "/x", mood: "curious" }, () => "x");
++    specimen.expect(new Vector().graft(source).edge("x")[0].mood).toBe("curious");
++  });
++
++  specimen.it("branch merges a later declaration onto the edge; a bare mention changes nothing", () => {
++    const vector = new Vector();
++    vector.branch("x");
++    vector.branch({ nature: "x", valence: "later" });
++    vector.branch("x");
++    specimen.expect(vector.patterns.map((pattern) => [pattern.nature, pattern.valence])).toEqual([["x", "later"]]);
++  });
++
++  specimen.it("a merge holds the route order: :id still answers before :slug", async () => {
++    const base = new Vector().open("/users/:id", () => "id").open("/users/:slug", () => "slug");
++    const merged = new Vector().graft(base).graft(new Vector().open({ nature: "/users/:slug", valence: "by slug" }, () => "slug"));
++    specimen.expect(merged.branch("users").patterns.map((pattern) => pattern.nature)).toEqual([":id", ":slug"]);
++    specimen.expect(await steer.dispatch.execute(merged, {}, new Signal("/users/7"))).toBe("id");
+   });
+ });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/tests/controller.test.js:27
+     specimen.expect(settled).toEqual(["DONE", "STOPPED", "FAILED", "ABORTED"]);
+     const controller = new Controller();
+-    for (const signal of SIGNALS) specimen.expect(controller.stdin.trie.has(signal)).toBe(true);
++    for (const signal of SIGNALS) specimen.expect(controller.stdin.edge(signal)).not.toBe(null);
+     specimen.expect(controller.stdin.trie.size).toBe(SIGNALS.length);
+   });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/tests/repl.test.js:38
+   specimen.it("a branch with no effect is a bare node under either leaf", () => {
+     const tools = shape.repl.wire(shape.strip(console_), shape.repl.tool(() => null));
+-    specimen.expect(tools.trie.get("mode").trajectory.effect).toBe(null);
+-    specimen.expect(tools.trie.get("mode").trajectory.trie.get("console").trajectory.effect).toBe(null);
++    specimen.expect(tools.branch("mode").effect).toBe(null);
++    specimen.expect(tools.branch("mode/console").effect).toBe(null);
+   });
+ });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/tests/gestalten/shape/http.mount.test.js:94
+     const burst = Array.from({ length: 200 }, (_, i) => {
+       if (i % 20 === 0) service.open(`/r${i}`, () => i);
+-      if (i % 30 === 0) service.trie.delete(`r${i - 30}`);
++      if (i % 30 === 0) service.trim(`r${i - 30}`);
+       return get(handler, "/svc/ping");
+     });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/tests/gestalten/shape/selbstbestimmt.test.js:92
+     const beforeCarryLength = source.carry.length;
+     const beforeEffect = source.effect;
+-    const beforeTrajectoryKeys = [...source.trie.keys()];
++    const beforeTrajectoryKeys = source.patterns.map((pattern) => pattern.nature);
+ 
+     shape.selbstbestimmt(source);
+…
+// subsystems/typology/tests/gestalten/shape/selbstbestimmt.test.js:98
+     specimen.expect(source.carry.length).toBe(beforeCarryLength);
+     specimen.expect(source.effect).toBe(beforeEffect);
+-    specimen.expect([...source.trie.keys()]).toEqual(beforeTrajectoryKeys);
++    specimen.expect(source.patterns.map((pattern) => pattern.nature)).toEqual(beforeTrajectoryKeys);
+   });
+ });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/tests/gestalten/shard/host.test.js:68
+     await ghost.shard.host.mounted("runtime")(die, async () => (passed = true));
+     specimen.expect(passed).toBe(true);
+-    specimen.expect([...die.client.aperture.trie.keys()]).toEqual([]);
++    specimen.expect(die.client.aperture.patterns).toEqual([]);
+     specimen.expect(messages).toEqual([{ runtime: "/runtime/runtime", modes: ["/runtime/runtime/mode/home/remote"] }]);
+     specimen.expect(die.runtime.$status.get()).toEqual({ code: "RELEASED" });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/harness.primer.test.js:35
+     const system = await ask();
+     specimen.expect(Object.keys(system)).toEqual(["dewey"]);
+-    specimen.expect(captured.tools.trie.has("primer")).toBe(false);
++    specimen.expect(captured.tools.edge("primer")).toBe(null);
+   });
+ 
+…
+// systems/runtime/tests/harness.primer.test.js:45
+     specimen.expect(system.primer).toBe("Read on demand with primer_read { nature }:\nharvest/archivist — the harvest persona");
+     specimen.expect(await shape.primer.read(captured.primer, "harvest/archivist")).toBe("ARCHIVIST");
+-    specimen.expect(captured.tools.trie.has("primer")).toBe(true);
++    specimen.expect(captured.tools.edge("primer")).not.toBe(null);
+     specimen.expect(shape.primer.keys(dewey.primer)).toEqual(["dewey"]);
+     specimen.expect(shape.primer.keys(daemon.modes.tactics.harvest.primer)).toEqual(["archivist"]);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/lighthouse/shape.test.js:27
+     specimen.assert(expected.every((name) => entities.includes(name)), entities.join(","));
+     specimen.assert(!entities.includes("IdentityEntity"), entities.join(","));
+-    const branches = [...scenario.aperture.trie.keys()];
++    const branches = scenario.aperture.patterns.map((pattern) => pattern.nature);
+     specimen.assert(["lighthouse", "userspace", "status"].every((name) => branches.includes(name)), branches.join(","));
+   });
+#+END_SRC
+
+* registry
+
+Unrun: the registry suites ride the land (milestone 6).
+
+#+BEGIN_SRC diff
+// vcompany/modes/office/vdex/tests/vdex.snapshot.test.js:28
+-  [...vector.trie.values()].flatMap(({ pattern, trajectory }) => {
++  [...vector.trie].flatMap(([pattern, trajectory]) => {
+#+END_SRC
+
+#+BEGIN_SRC diff
+// chess/modes/board/play/tests/tools.test.js:22
+-    expect([...play.harness.trie.keys()].sort()).toEqual(["dialogue", "object"]);
++    expect(play.harness.patterns.map((pattern) => pattern.nature).sort()).toEqual(["dialogue", "object"]);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// chess/modes/coach/coach/tests/coach.test.js:17
+-    expect([...coach.tools.trie.keys()].sort()).toEqual(["ask", "explain", "review", "suggest", "teach"]);
++    expect(coach.tools.patterns.map((pattern) => pattern.nature).sort()).toEqual(["ask", "explain", "review", "suggest", "teach"]);
+…
+// chess/modes/coach/coach/tests/coach.test.js:25
+-    expect([...ctx.hallucination.tools.trie.keys()].sort()).toEqual(["analyse", "board", "game", "games", "puzzle", "solution"]);
++    expect(ctx.hallucination.tools.patterns.map((pattern) => pattern.nature).sort()).toEqual(["analyse", "board", "game", "games", "puzzle", "solution"]);
+#+END_SRC

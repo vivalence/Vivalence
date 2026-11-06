@@ -43,7 +43,7 @@ EOF
 
 WORKDIR /viva/repository
 
-COPY deno.jsonc import_map.json ./
+COPY deno.jsonc deno.lock import_map.json ./
 COPY systems/ ./systems/
 COPY subsystems/ ./subsystems/
 COPY commons/ ./commons/

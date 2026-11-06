@@ -2,7 +2,6 @@ import { mime, v } from "@vivalence/typology";
 
 export { harness } from "./harness.js";
 export { emitter } from "./emitter.js";
-export { generator } from "./generator.js";
 
 export const manifest = {
   type: "chaosmonkey",

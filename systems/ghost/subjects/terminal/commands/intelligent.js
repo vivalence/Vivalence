@@ -1,21 +1,45 @@
 import { Vector, traits, v } from "@vivalence/typology";
 import * as belt from "../../../gestalten/belt/index.js";
 
-const Tuned = v.object({ tune: v.primitives.hallucination.Tier.desc('A tier. Example: "fast"') });
+const Tiered = v.object({ tier: v.primitives.hallucination.Tier.desc('A tier. Example: "fast"') });
 const Effortful = v.object({ effort: v.enum(belt.intelligent.EFFORTS).desc('Reasoning effort. Example: "high"') });
+const Pinned = v.object({
+  provider: v.string().desc('A provider slug, exact. Example: "openrouter"'),
+  id: v.string().desc('A model id, exact. Example: "openai/gpt-5"'),
+});
+const UNPINNED = { provider: null, id: null };
 const Rounded = v.object({ rounds: v.integer({ minimum: 1, maximum: 50 }).desc("The round budget. Example: 12") });
 
 export const intelligent = new Vector()
   .open(
-    { nature: "/tune", valence: "the seated thread's model tier — INTELLIGENT.tune. Example: /tune fast", input: Tuned, chord: "leader/h/t" },
+    { nature: "/tier", rank: "hidden", valence: "the seated thread's model tier — INTELLIGENT.tier. Example: /tier fast", input: Tiered, chord: "leader/h/t" },
     async (ctx) => {
-      const INTELLIGENT = belt.input.cast(Tuned, ctx.signal);
-      await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT }));
+      const INTELLIGENT = belt.input.cast(Tiered, ctx.signal);
+      await ctx.client.runtime.entities.thread.updateOne(
+        { id: ctx.terminal.thread.id },
+        traits.patch(ctx.terminal.thread, { INTELLIGENT: { ...UNPINNED, ...INTELLIGENT } }),
+      );
       return { INTELLIGENT };
     },
   )
   .open(
-    { nature: "/effort", valence: "the seated thread's reasoning effort — INTELLIGENT.effort. Example: /effort high", input: Effortful, chord: "leader/h/e" },
+    {
+      nature: "/model",
+      rank: "hidden",
+      valence: "pin the seated thread's model — INTELLIGENT.provider · id; /tier unpins. Example: /model openrouter openai/gpt-5",
+      input: Pinned,
+    },
+    async (ctx) => {
+      const INTELLIGENT = belt.input.cast(Pinned, ctx.signal);
+      await ctx.client.runtime.entities.thread.updateOne(
+        { id: ctx.terminal.thread.id },
+        traits.patch(ctx.terminal.thread, { INTELLIGENT }),
+      );
+      return { INTELLIGENT };
+    },
+  )
+  .open(
+    { nature: "/effort", rank: "hidden", valence: "the seated thread's reasoning effort — INTELLIGENT.effort. Example: /effort high", input: Effortful, chord: "leader/h/e" },
     async (ctx) => {
       const INTELLIGENT = belt.input.cast(Effortful, ctx.signal);
       await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT }));
@@ -23,7 +47,7 @@ export const intelligent = new Vector()
     },
   )
   .open(
-    { nature: "/rounds", valence: "the seated thread's round budget — INTELLIGENT.rounds. Example: /rounds 12", input: Rounded, chord: "leader/h/r" },
+    { nature: "/rounds", rank: "hidden", valence: "the seated thread's round budget — INTELLIGENT.rounds. Example: /rounds 12", input: Rounded, chord: "leader/h/r" },
     async (ctx) => {
       const INTELLIGENT = belt.input.cast(Rounded, ctx.signal);
       await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT }));

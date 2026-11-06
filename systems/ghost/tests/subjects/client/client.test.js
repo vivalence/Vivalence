@@ -62,8 +62,11 @@ specimen.describe("the client against a world — attach, sign in, see the runti
     await eventually(() => landed().length >= 4, 30000);
     specimen.expect(thread.$turns.get().map((turn) => turn.role)).toEqual(["user", "assistant", "user", "assistant"]);
     await first(clientDie).repl.dispatch("/mode probe");
+    const faults = () => clientDie.controller.stdout.history.filter((record) => ["fault"].includes(record.track));
+    const before = faults().length;
     await first(clientDie).repl.dispatch("ciao").catch(() => {});
-    specimen.expect(clientDie.controller.stdout.history.filter((record) => ["fault"].includes(record.track)).at(-1).data.code).toBe("NOT_FOUND");
+    specimen.expect(faults()).toHaveLength(before + 1);
+    specimen.expect(faults().at(-1).path.at(-1)).toBe("/*");
   });
 
   specimen.it("a memo buffer with no pinned view frames memo's own views from the store, the tty one the pick, its compile served", async () => {
@@ -71,7 +74,7 @@ specimen.describe("the client against a world — attach, sign in, see the runti
     const memo = first(clientDie).mode;
     const buffer = await clientDie.runtime.entities.buffer.create({ mode: memo.id, thread: first(clientDie).thread.id, data: {} });
     specimen.expect(buffer.views).toEqual([]);
-    const views = await ghost.belt.view.candidates(buffer, clientDie.runtime.attach);
+    const views = ghost.belt.view.candidates(buffer.$views, buffer.mode.$views).get();
     specimen.expect(views.map((view) => view.mime).sort()).toEqual([mime.dom.svelte, mime.tty.solid].sort());
     specimen.expect(views.every((view) => view.slug === "memo")).toBe(true);
     const picked = ghost.belt.view.pick(views.filter(chrome.runs));

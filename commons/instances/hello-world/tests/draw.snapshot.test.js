@@ -27,13 +27,17 @@ const STANDING = {
   faults: [],
 };
 
+// the thread and buffer primers hello imports are lazy: the eager strip carries their listing only.
+const MODE = { manifest: { type: "demo", slug: "hello-world", name: "hello-world", traits: ["HARNESSED", "TOOLING"] } };
+const THREAD = { id: "thread-1", phase: "manual", counter: 0, traits: [], user: { id: "user-1" } };
+
 // the REAL middleware chain, not a hand-composed object: section ORDER is what the root-use-
 // before-branch-use law produces, and a hand-built literal could not get it wrong.
 const assemble = async (path) => {
   const run = new Vector();
   run.use(async (ctx, next) => {
     ctx.hallucination = { primer: new Vector().graft(primer) };
-    Object.assign(ctx, { mountpoint: null, entities: {}, modes: {} });
+    Object.assign(ctx, { mountpoint: null, entities: { buffer: { find: async () => [] } }, modes: {}, mode: MODE, thread: THREAD });
     await next();
   });
   run.graft(harness);

@@ -12,18 +12,21 @@ describe("snapshot demo: cortex", () => {
     const cortex = new Cortex().register([
       {
         type: "dialogue",
+        id: "dialogue-1",
         tune: [0.9, 1.0, 0.3, 0.5],
         channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
         via: { render: async () => ({}), stream: async function* () {} },
       },
       {
         type: "speech",
+        id: "speech-2",
         tune: [0.3, 0.8, 0.7, 0.2],
         channels: { in: ["text"], out: ["audio"] },
         via: { render: async () => ({}) },
       },
       {
         type: "object",
+        id: "object-3",
         tune: [0.3, 0.7, 0.8, 0.5],
         channels: { in: ["text"], out: ["object"] },
         via: { render: async () => ({}) },

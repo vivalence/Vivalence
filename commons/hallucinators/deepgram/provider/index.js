@@ -124,13 +124,14 @@ export default async function provider(service) {
 
   const novaFaculty = () => ({
     type: "verbatim",
+    id: "nova-3",
     tune: [0.5, 0.1, 0.9, 0.6],
     context: 0,
     channels: {
       in: [{ type: "audio", codec: "pcm_16000" }],
       out: [{ type: "event" }],
     },
-    config: { model: "nova-3", language: "multi" },
+    config: { language: "multi" },
     via: {
       stream: (audioSource, config = {}) =>
         transcribe(
@@ -151,13 +152,14 @@ export default async function provider(service) {
 
   const fluxFaculty = () => ({
     type: "verbatim",
+    id: "flux-general-multi",
     tune: [0.6, 0.2, 0.8, 0.4],
     context: 0,
     channels: {
       in: [{ type: "audio", codec: "pcm_16000" }],
       out: [{ type: "event" }],
     },
-    config: { model: "flux-general-multi", turns: true },
+    config: { turns: true },
     via: {
       stream: (audioSource, config = {}) =>
         transcribe(

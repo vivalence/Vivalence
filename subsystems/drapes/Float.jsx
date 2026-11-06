@@ -40,7 +40,7 @@ export const perch = (align, float, min) => {
 };
 
 export const carry = (event, kind, held) => {
-  if (event.target.closest("button") !== null) return;
+  if (event.target.closest("button, select") !== null) return;
   event.preventDefault();
   const element = held.element;
   const rect = element.parentElement.getBoundingClientRect();

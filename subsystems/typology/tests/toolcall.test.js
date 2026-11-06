@@ -34,13 +34,13 @@ specimen.describe("ToolCall — the wire↔signal codec, a Signal sibling on the
       .open({ nature: "/fs/tree" }, () => {})
       .open({ nature: "/fs/find" }, () => {})
       .open({ nature: "/fs/read" }, () => {});
-    const names = steer.trie.rollup(tools, () => null).map(({ steps }) => new ToolCall(steps).name);
+    const names = steer.trie.leaves(tools).map(({ steps }) => new ToolCall(steps).name);
     specimen.expect(names).toEqual(["fs_tree", "fs_find", "fs_read"]);
   });
 
   specimen.it("construction from a foreign Signature adopts identity, never linkage", () => {
     const tools = new Vector().open({ nature: "/fs/tree" }, () => {});
-    const entries = steer.trie.rollup(tools, () => null);
+    const entries = steer.trie.leaves(tools);
     const donor = entries[0].steps[0];
     const gauges = donor.gauges.length;
     const trace = donor.trace;

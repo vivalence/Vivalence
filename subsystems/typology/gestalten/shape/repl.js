@@ -13,7 +13,13 @@ export const wire = (node, leaf, vector = new Vector(), steps = []) => {
 };
 
 export const repl = (send) => (path, declared) => [
-  { nature: path.at(-1), valence: declared.valence, chord: declared.chord, input: declared.input },
+  {
+    nature: path.at(-1),
+    valence: declared.valence,
+    chord: declared.chord,
+    rank: declared.rank,
+    input: declared.input,
+  },
   (ctx) => send(ctx.signal),
 ];
 

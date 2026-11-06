@@ -19,41 +19,41 @@ when_to_use: >-
 
 ## before — per noun touched
 
-- **grep the surface** — `grep -rn "export " <subsystem>/<dir>/`; an existing primitive WINS, never a hand-rolled walker.
+- **grep the surface** — `grep -rn "export " <subsystem>/<dir>/`; an existing primitive WINS. A scope VALUE is read off the host die, never a repository class (REJECTED 11-09 `entities.mode.daemon`).
 - **verify imports** — grep the ROOT barrel; a `<pkg>/<sub>` import is a defect, even quoted (REJECTED 10-24 ×2); `v` is typebox.
 - **ontology before verbs** — contested term → skill `name`.
-- **grep a NAME before typing it** — repo, typology, `~/.viva/registry`; a word refused once is refused everywhere.
+- **grep a NAME before typing it** — repo, typology, `~/.viva/registry`; a word refused once is refused everywhere. A fix mid-land reads the quest's `never` first (11-09).
 - **staged commands · a carried file:line are NOTES** — a fresh per-op `go`, re-read on `@`; VCS commands beef runs. "test this" on a design = a scratchpad probe (REJECTED 10-13).
-- **name the path's frame owner** — typed → cwd · declaration → its repo · record → its registry root; it decides placement (`find <owner> -name "*.test.js"`). PRINT a runtime value before deriving a path.
-- **a recorded defect or a ruled rename in a file you touch lands WITH the touch; `fix` on a found cause = the fix, HOLY too** — never "OWED" or "your call" (REJECTED /"chrome not at all"/ · /"Fix, do"/ · 10-26 m108 7b deferred → word-guard deny).
-- **guards read the whole command** — VCS words in `echo` · a heredoc → a file; `\//` → `startsWith` (REJECTED 10-22 ×5)
+- **name the path's frame owner** — typed → cwd · declaration → its repo · record → its registry root. PRINT a runtime value before deriving a path.
+- **a recorded defect or a ruled rename in a file you touch lands WITH the touch; `fix` on a found cause = the fix, HOLY too** — never "OWED", "your call", a question box; a vague `fix both` = the widest reading (REJECTED /"Fix, do"/ · 10-26 m108 7b → word-guard deny · 11-12 `fix both` → a dialog → /"fix all"/).
+- **guards read the whole command** — VCS words in `echo` · a heredoc → a file; `\//` → `startsWith` (REJECTED ×8 to 11-10)
 
-REJECTED: every check at once over a package.
+REJECTED: all checks at once over a package.
 
 ## around — blast · test · change · test · blast
 
-Skip a one-caller leaf · a doc · a test helper.
+Skip: 1-caller leaf · doc · test helper.
 
 1. **blast** — list every consumer before touching anything:
    ```bash
-   grep -rnI "<symbol>" systems/ subsystems/ commons/ testament/ documentation/ ~/.viva/instances ~/.viva/registry --exclude-dir=node_modules --exclude-dir=bak
+   grep -rnI "<symbol>" systems/ subsystems/ commons/ testament/ documentation/ ~/.viva/instances ~/.viva/registry --exclude-dir={node_modules,bak}
    ```
-   No `--include`, no `| head` (/"did you cover bruno?"/). Rename → also `grep -rn '\.\./.*<old>/'`. Every hit READ before it counts; a repository hides under its holders' names — grep the class too (`ctx.lighthouse.users` is `entities.user`), and the call SHAPE: `["key"]` · string · `accio(` · URL. NEW field: blast its SIBLING (`dock.lens`): every surface showing it, both clients, shows it (REJECTED 10-27 `DOCKED.markdown` ghost-only).
-2. **test** — every touched dir's suite RUN first; after, reds identical BY NAME.
-3. **change** — nothing else in the pass; a file list rides a python script, each anchor EXACTLY once (zsh never word-splits `$FILES`).
+   No `--include` · `| head`. Rename → also `grep -rn '\.\./.*<old>/'`. Every hit READ; a repository hides under its holders' names (`ctx.lighthouse.users` · a cut stamp `struck[kind].daemon` 11-10); the call SHAPE: `["key"]` · string · `accio(` · URL. NEW field: blast its SIBLING (`dock.lens`): every surface showing it, both clients, shows it (REJECTED 10-27 `DOCKED.markdown` ghost-only).
+2. **test** — each touched dir's suite WHOLE, first (REJECTED 11-12 `mode/` only); after, reds same BY NAME
+3. **change** — nothing else in the pass; a file list rides a python script, each anchor EXACTLY once.
 4. **test** — green again; a new red is yours. `*.snapshot.test.js` in compare mode + `SNAPSHOT_HOT=1` for wire ones; a rename's residue → skill `name`.
 5. **blast** — re-grep; radius = beat 1.
 
-Escalate before beat 3: suspected bug → test `current → broken`, patch, `→ fixed`; under-tested → contract test on OLD code; typology core → ask beef.
+Escalate before beat 3: suspected bug → test `current → broken` → patch → `fixed`; under-tested → contract test on OLD code; typology core → ask
 
 ## after — a pasted envelope beside a baseline
 
 1. **baseline before blame** — the pre-edit tree is `@` before my first edit (`jj evolog`), not HEAD (`@-` lacks his WIP): `methods/oldtree.sh <id> <path> <dest>`. REJECTED 10-19 `git archive` (vcs-guard).
-2. **attribute pre-existing reds** — `grep -n '<test file>' .ikiro/known-issues.org` first; a hit names it, NO hit = find the cause, file it (REJECTED 10-24: "as before" ×4 hid a dead chrome).
+2. **attribute pre-existing reds** — `grep -n '<test file>' .ikiro/known-issues.org` first; a hit, READ, names it, NO hit = find the cause, file it (REJECTED 10-24: "as before" ×4 hid a dead chrome).
 3. **one file, one verdict** — censuses SERIAL (`connection.test.js:8` fixed port), no edit mid-census (REJECTED 10-23: 3 false reds).
-4. **paste** `ok | N passed (M steps) | F failed (Ns)` from the tool result — never `suite N/M`.
+4. **paste** `ok | N passed (M steps) | F failed (Ns)` from the tool result — not `suite N/M`.
 5. **snapshots** — FROZEN `toEqual` the fixture, in PRODUCTION shape; `SNAPSHOT_HOT=1` REGENERATES them, never "verification" (capture: map).
-6. a green must FAIL once (revert its line); an `alive()` skip counts as a pass; a recorded green is not a standing green; **a repo test reads no machine** (census: map); ledger code touched → `md5 -q ~/.viva/*.json` before · after, `ps -axo command | grep -- --watch` first.
+6. a green must FAIL once (revert its line); an `alive()` skip counts as a pass; **a repo test reads no machine** (census: map); ledger code touched → `md5 -q ~/.viva/*.json` before · after, `ps -axo command | grep -- --watch` first.
 7. **seams** — SERVED-only code → mount or walk it (skill `debug`).
 8. /"run the coverage. blast change. itterate coverage."/ → per-file before → after.
 
@@ -62,13 +62,12 @@ Escalate before beat 3: suspected bug → test `current → broken`, patch, `→
 /"argue against it, find the weak spots"/.
 
 1. base facts — `git merge-base`, `git diff --stat <claimed> HEAD -- <touched>`; `patch -p1 --dry-run -N`, never `git apply`.
-2. sandbox — pre-edit copy minus `.git .jj`; `VIVA_REPOSITORY_MOUNT=<copy>` outranks `~/.viva/.env` (the REAL checkout); the copy's ledger names ITS commons; no root `.env`; a package copy under the ROOT config tests the REAL one → its own `deno.jsonc` (REJECTED 10-23).
-3. baseline unpatched, then patched, side by side.
-4. grep every absence claim.
-5. read the CONSUMER side of every new seam.
-6. compare against ≥1 live sibling — the oracle.
-7. scope against the artifact's own words; park to `quests/<name>/deferred/`.
-8. fix in sandbox → `git diff --no-index --src-prefix=a/ --dst-prefix=b/ base sandbox` → whitelist → dry-apply. Never hand-edit it.
-9. the quest carries the delta: a `* critical pass` section; stale sentences annotated `/(pass: …)/`.
+2. sandbox — pre-edit copy minus `.git .jj`, each workspace `deno.jsonc` kept (11-12 `documentation/` → stderr red); `VIVA_REPOSITORY_MOUNT=<copy>` outranks `~/.viva/.env` (the REAL checkout); the copy's ledger names ITS commons; no root `.env`; a package copy under the ROOT config tests the REAL one → its own `deno.jsonc`.
+3. baseline unpatched · patched, side by side.
+4. read the CONSUMER side of every new seam.
+5. compare against ≥1 live sibling — the oracle.
+6. scope against the artifact's own words; park in its `* deferred`.
+7. fix in sandbox → `git diff --no-index --src-prefix=a/ --dst-prefix=b/ base sandbox` → whitelist → dry-apply. Never hand-edit it.
+8. the quest carries the delta: a `* critical pass` section; stale sentences annotated `/(pass: …)/`.
 
-REJECTED: applying it — /"nooooooooot apply. just work them into the quest format"/.
+REJECTED: applying it (/"nooooooooot apply"/).

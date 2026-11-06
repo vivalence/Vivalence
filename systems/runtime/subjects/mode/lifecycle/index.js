@@ -4,6 +4,9 @@ import * as resolution from "./2-resolution.js";
 
 export { population, resolution };
 
-export const execution = new Vector().use(population.stdout).use(population.core);
+export const execution = new Vector()
+  .use(population.stdout)
+  .use(population.providers)
+  .use(population.core);
 
 execution.affect(resolution.traits);

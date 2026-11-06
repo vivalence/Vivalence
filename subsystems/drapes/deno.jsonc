@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "exports": {
     ".": "./mod.js",
-    "./dom": "./dom/index.js",
     "./parts": "./parts.js",
     "./parts.css": "./parts.css",
     "./scenarios": "./tests/scenarios/index.js",

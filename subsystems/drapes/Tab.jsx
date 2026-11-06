@@ -1,4 +1,5 @@
 import { mergeProps, Show } from "solid-js";
+import { Icon } from "./Icon.jsx";
 
 export const DOTS = {
   none: "",
@@ -18,6 +19,21 @@ export const Tab = (props) => {
       </Show>
       <Show when={DOTS[held.dot] !== ""}>
         <span class={`dot ${DOTS[held.dot]}`} />
+      </Show>
+      <Show when={held.onClose}>
+        <span
+          class="close"
+          role="button"
+          aria-label="close terminal"
+          data-signal={held.closing}
+          title={held.closing}
+          onClick={(event) => {
+            event.stopPropagation();
+            held.onClose(held.index, event);
+          }}
+        >
+          <Icon name="x" />
+        </span>
       </Show>
     </button>
   );

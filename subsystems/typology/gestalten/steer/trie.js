@@ -7,8 +7,8 @@ export const descend = (carry, vector) => middleware.chain(carry, middleware.com
 export const at = (vector, path) =>
   path.reduce((position, nature) => {
     if (!position) return null;
-    const edge = position.trie.get(nature);
-    return edge ? edge.trajectory : null;
+    const edge = position.edge(nature);
+    return edge ? edge[1] : null;
   }, vector);
 
 const route = (steps) => new Signal(steps.map((s) => s.nature).join("/"));
@@ -19,7 +19,7 @@ export function fold(
   frame = { carry: middleware.forward, steps: [], signal: new Signal(), signature: null },
 ) {
   const here = { ...frame, carry: descend(frame.carry, vector) };
-  const trajectories = [...vector.trie.values()].map(({ pattern, trajectory }) =>
+  const trajectories = [...vector.trie].map(([pattern, trajectory]) =>
     fold(trajectory, step, {
       ...here,
       signature: pattern,
@@ -46,18 +46,30 @@ export function survey(vector, visit = (node) => node, execute) {
   });
 }
 
-export function rollup(vector, execute = request) {
-  const entries = [];
+export const leaves = (vector) =>
   fold(vector, {
-    node: (f) => {
-      if (f.effect !== undefined)
-        entries.push({
-          pattern: f.signature,
-          steps: f.steps,
-          fn: execute(f.carry, f.effect, f.steps, route(f.steps)),
-        });
-      return null;
-    },
+    node: (f) => [
+      ...(f.effect === undefined
+        ? []
+        : [{ pattern: f.signature, steps: f.steps, effect: f.effect, carry: f.carry }]),
+      ...f.trajectories.flat(),
+    ],
   });
-  return entries;
-}
+
+export const rollup = (vector, execute = request) =>
+  leaves(vector).map((leaf) => ({
+    ...leaf,
+    fn: execute(leaf.carry, leaf.effect, leaf.steps, route(leaf.steps)),
+  }));
+
+export const sieve = (vector, keep, steps = [], ancestor = undefined) => {
+  const kept = new vector.constructor(ancestor, vector.signature)
+    .use(...vector.carry)
+    .do(vector.effect);
+  for (const [pattern, trajectory] of vector.trie) {
+    const path = [...steps, pattern];
+    if (!keep(pattern, path)) continue;
+    kept.seat(pattern, sieve(trajectory, keep, path, kept));
+  }
+  return kept;
+};

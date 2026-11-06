@@ -17,6 +17,7 @@ const { http } = shape;
 function stubSpeechFaculty() {
   return {
     type: "speech",
+    id: "speech-1",
     tune: [0.3, 0.5, 0.5, 0.1],
     context: 0,
     channels: { in: [{ type: "text" }], out: [{ type: "audio" }] },
@@ -37,6 +38,7 @@ function stubSpeechFaculty() {
 function stubVerbatimFaculty() {
   return {
     type: "verbatim",
+    id: "verbatim-2",
     tune: [0.4, 0.6, 0.5, 0.1],
     context: 0,
     channels: { in: [{ type: "audio" }], out: [{ type: "event" }] },
@@ -90,7 +92,7 @@ function CONVERSATIONAL(mode) {
     const stream = await mode.harness.dialogue.stream({
       parts:  ctx.input.parts,
       thread: ctx.input.thread,
-      tune:   ctx.input.tune,
+      tier:   ctx.input.tier,
     });
 
     if (!vocalized) {
@@ -107,7 +109,7 @@ function CONVERSATIONAL(mode) {
     })();
 
     const speechPath = (async () => {
-      const speech = mode.cortex.findOne({ type: "speech", tune: "eager", via: "stream" });
+      const speech = mode.cortex.findOne({ type: "speech", tier: "eager", via: "stream" });
       if (!speech) return;
       for await (const packet of speech.via.stream(soma.textFromPackets(audioBranch), {})) {
         live.send.speech.packet(packet);
@@ -125,7 +127,7 @@ function CONVERSATIONAL(mode) {
       const state = ctx.socket.state;
       state.verbatim ??= (() => {
         const audio = new Queue();
-        const asr   = mode.cortex.findOne({ type: "verbatim", tune: "eager", via: "stream" });
+        const asr   = mode.cortex.findOne({ type: "verbatim", tier: "eager", via: "stream" });
         (async () => {
           for await (const event of asr.via.stream(audio.drain(), {})) {
             state.conversation.send.verbatim?.packet?.(event);

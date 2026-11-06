@@ -12,11 +12,11 @@ paths: ["subsystems/paladin/**", "systems/runtime/**", "systems/ghost/**", "**/.
       record,
       "runtime",
 ```
-- **`gestalten/tools/` (was `skills/`) — `fs.js` (`resolve absolute fs`, also ← `shell.js`) · `shell.js` (`shell`); `index.js` (`*fs *shell`) ← `mod.js` → `paladin.tools`, and `deno.jsonc` `./tools`.** + `commands/` (m110).
+- **`gestalten/tools/` (was `skills/`) — `fs.js` (`resolve absolute fs`, also ← `shell.js`) · `shell.js` (`shell`); `index.js` (`{fs} {shell}`, one name each 11-09) ← `mod.js` → `paladin.tools`, and `deno.jsonc` `./tools`.** + `commands/` (m110).
 ```js
-// commons/instances/hello-world/tests/catalog.snapshot.test.js:55
-      .graft(paladin.tools.fs.fs)
-      .graft(paladin.tools.shell.shell)
+// commons/instances/hello-world/tests/catalog.snapshot.test.js:54
+      .graft(paladin.tools.fs)
+      .graft(paladin.tools.shell)
 ```
 - **`instance/` — `prototype.js` `Instance` (← `paladin/lifecycle.js` `instance`); `factory.js` `factory` (was `lifecycle.mount`) = `fn.memo` keyed on the instance (`:6`): `population` `environment · recipe` → `resolution` `defaults · mountpoints` → `integration` `settle` → `publish`; `resolution` also holds `inherit` (← `population.js`).**
 ```js

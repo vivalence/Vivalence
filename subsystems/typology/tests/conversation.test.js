@@ -45,7 +45,7 @@ function CONVERSATIONAL(mode) {
     const stream = await mode.harness.dialogue.stream({
       parts:  ctx.input.parts,
       thread: ctx.input.thread,
-      tune:   ctx.input.tune,
+      tier:   ctx.input.tier,
     });
     for await (const packet of stream) live.send.dialogue.packet(packet);
     live.send.dialogue.close();

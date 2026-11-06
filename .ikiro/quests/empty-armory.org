@@ -1,0 +1,105 @@
+#+title: empty armory — a HARNESSED mode starts with no tools; the generator is not a tool
+#+filetags: :runtime:harness:tools:
+#+status: LANDED 11-12 /"go. land"/ · /"amen"/ — the root armory is empty, the runtime harness grafts fs · shell itself, GENERATIVE = `mode.generator.bundle` + `gestalten.tools.generative` on `mode.tools`; owed: vdex · assembly · README · his look at the modeline
+<!-- writer: agent · limit: 9000 chars -->
+
+* intent
+
+| # | beef, verbatim | the shape |
+|---+----------------+-----------|
+| A | /"Absolutely, we do not want those two tools to be on every mode. That makes no sense."/ | fs · shell out of the root armory |
+| B | /"I want an entirely empty vessel. The system is an empty space, and then we add. Runtime tools do not enter the daemons. Runtime is its own thing."/ | the law |
+| C | /"The world keeps file system in shell."/ | the runtime harness grafts them |
+| D | /"The generator has nothing to do in the tools. We might use it within the tools. But it's not a tool itself."/ | `mode.generator = { bundle }` |
+| E | /"maybe a generative trait that attaches runtime level tools for generation … gestalten.tools.generative and then does the wiring into the mode where needed."/ → /"amen"/ | the trait grafts a fixed Vector |
+
+Supersedes m117 intent B /"basically empty besides some tools at default"/ (`done/m117-root-harness.org:14`): no tools at default.
+
+* the law
+
+- the root armory arms what the mode and its hosts DECLARE — services · domain · `mode.tools` — never a tool of its own.
+- a capability is not a tool: a tool WRAPS it (`ctx.mode.generator.bundle`).
+- a mode steers a trait's tool by grafting AFTER it: trait order is the manifest's.
+
+* as code — landed 11-12
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/harnessed.js:78
+-  const armed = new Vector()
+-    .graft(paladin.tools.fs)
+-    .graft(paladin.tools.shell);
++  const armed = new Vector();
+…
+-  if (ctx.mode.generator?.tools) armed.graft(ctx.mode.generator.tools);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/generative.js
+export const GENERATIVE = (mode, modeDie) => {
+  const bundler = paladin.bundler(new Path(mode.mountpoint).absolute);
+
+  mode.generator = {
+    bundle: (data) => modeDie.entities.view.bundle({ mode: mode.entity.id, ...data }, { bundler }),
+  };
+  mode.tools.graft(generative);
+};
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/tools/generative.js — moved from generative.js tools(mode, modeDie)
+export const generative = new Vector();
+generative.open({ nature: "/buffer/create", … }, async (ctx) => { … ctx.entities.buffer.create(…) });
+const view = generative.branch("/view");
+view.open({ nature: "/create", … }, async (ctx) => { … ctx.mode.generator.bundle(…) });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// commons/harnesses/runtime/runtime-harness.viva.js:82
+ export const tools = new Vector().graft(
++  paladin.tools.fs,
++  paladin.tools.shell,
+   gestalten.tools.entity,
+// commons/instances/hello-world/mode.viva.js
++    "GENERATIVE",     // buffers hallucinated at runtime
+     "TOOLING",         // mode provides agentic tools
+…
+-    "GENERATIVE",     // buffers hallucinated at runtime
+…
++  .graft(drawing);
+-export { emitter, generator } from "./page/index.js";
++export { emitter } from "./page/index.js";
+#+END_SRC
+
+- `hello-world/page/index.js` `generator` → `drawing` (URL refusal + house rules over `view_create` · `view_update`).
+- `chaosmonkey/reader/generator.js` CUT (declared a dead `/view/render`; bak `~/.viva/bak/generative-20261112/`).
+- anima, a crash met on the way (/"fix"/): `sections.js:44` `harness()` returns `UNMINDED` until the owner is `HEALTHY` (ghost fills `cortex` at `host.js:40`); `sidebar.jsx` `watched` subscribes each daemon's `$status`.
+
+* the dialogue — 11-12
+
+- /"how come The dojo mode has … the tools for file system and shell. Are they part of the harness because the domain imports them?"/ → no: `harnessed.js:80` grafted them on every HARNESSED mode.
+- /"this line makes no seesnse??"/ on `mode.tools.graft(mode.module.generator)` → dropped. History: 07-21 `0d7851c53` the module's `generator` WAS the tool surface; m57 kept it as "steering" (`done/m57-hello-world-researches.org:37`).
+- /"primer what? cut from where?fuuckin context reatrd."/ → `tools.primer` (`primer_read`) STAYS: armed only when the mode's primer holds a `load: "lazy"` node (`harnessed.js:91`).
+
+* changelog
+
+- 11-12 /"go. land"/ — fs · shell out of the root, `generator.tools` read cut. Pasted: runtime `generative.test.js` `ok | 1 passed (7 steps)` · `harness.metadata.snapshot` `ok | 1 passed (4 steps)` (snapshot diff = fs · shell gone) · `harness.primer` `ok | 1 passed (5 steps)`.
+- 11-12 /"amen"/ — `gestalten.tools.generative`, hello-world `drawing`, chaosmonkey generator cut. Pasted: hello-world `ok | 19 passed (64 steps)` · runtime `tests/mode` `ok | 12 passed (65 steps)`; snapshots re-pinned after a diff (armory · research: fs_* · shell_run gone; catalog: same 16, new order, `buffer's entry` reword). Dead words reworded in the moved valences (`in place` → `where it is stored`, `line` → `entry`, `verb` → `tool`), mine, reported.
+- 11-12 /"fix"/ — anima modeline; the three suites over it abort pre-existing (`known-issues.org:93` · `:2638`); probe: IDLE → `undefined`, HEALTHY → `MODEL`.
+- 11-12 (vector-trie census) — a red of this quest, missed: `systems/runtime/tests/stub.activity.test.js:56` fires `fs_tree`; I ran `tests/mode`, not the whole runtime suite. The rig grafts `paladin.tools.fs` → `ok | 1 passed (6 steps)`; runtime whole `ok | 101 passed (651 steps)`. vdex `:104` → `not.toContain("fs_read")` (/"fix."/).
+
+* release
+
+- removed `paladin.tools.fs` · `.shell` from every HARNESSED mode's armory — `fs_*` · `shell_run` gone unless the mode grafts them · migrate: `tools.graft(paladin.tools.fs, paladin.tools.shell)` ⟨empty-armory⟩
+- changed GENERATIVE — `mode.generator` = `{ bundle }`; its five tools are `gestalten.tools.generative`, grafted onto `mode.tools` · migrate: `mode.generator.tools` → `mode.tools` ⟨empty-armory⟩
+- removed module export `generator` — no reader · migrate: a steering Vector rides `tools`, GENERATIVE before TOOLING ⟨empty-armory⟩
+
+* handoff
+
+- goal: an empty root; a mode adds what it uses.
+- done: everything under `* as code`, green.
+- next: his look — anima modeline on a daemon thread, `—` → the model, no fault.
+- never: a tool armed by the runtime for every mode; `generator` as a tool surface.
+- owed:
+  - `assembly` `editor/guide` · `editor/assembly` · `player/guide` `harness.js` name `fs_*` · `shell_run` they no longer hold
+  - `hello-world/README.md` "The nested agent" — says research arms tools by hand; `research.test.js` says it rides the mode's harness
+  - `sidebar.jsx` `watched` daemon statuses: no running test covers it

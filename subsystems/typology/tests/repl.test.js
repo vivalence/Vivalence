@@ -16,9 +16,9 @@ specimen.describe("shape.repl — wire is the ana of strip; the leaf decides wha
   specimen.it("the tool leaf: the same node as a TOOL — input is the universal Call, the call carries a Signal { nature, body, flags }", async () => {
     const calls = [];
     const tools = shape.repl.wire(shape.strip(console_), shape.repl.tool((signal) => { calls.push(signal); return { terminal: "t1" }; }));
-    const names = steer.trie.rollup(tools, () => null).map((entry) => entry.steps.map((step) => step.nature).join("_"));
+    const names = steer.trie.leaves(tools).map((entry) => entry.steps.map((step) => step.nature).join("_"));
     specimen.expect(names).toEqual(["help", "mode_console_whoami"]);
-    const [, whoami] = steer.trie.rollup(tools, () => null);
+    const [, whoami] = steer.trie.leaves(tools);
     specimen.expect(whoami.pattern.valence).toBe("the terminal's id. Example: /mode/console/whoami");
     specimen.expect(Object.keys(whoami.pattern.input.properties)).toEqual(["body", "flags"]);
     const output = await steer.dispatch.invoke(tools, "/mode/console/whoami", steer.strategy.guarded)({ body: [], flags: {} });
@@ -37,7 +37,7 @@ specimen.describe("shape.repl — wire is the ana of strip; the leaf decides wha
 
   specimen.it("a branch with no effect is a bare node under either leaf", () => {
     const tools = shape.repl.wire(shape.strip(console_), shape.repl.tool(() => null));
-    specimen.expect(tools.trie.get("mode").trajectory.effect).toBe(null);
-    specimen.expect(tools.trie.get("mode").trajectory.trie.get("console").trajectory.effect).toBe(null);
+    specimen.expect(tools.branch("mode").effect).toBe(null);
+    specimen.expect(tools.branch("mode/console").effect).toBe(null);
   });
 });

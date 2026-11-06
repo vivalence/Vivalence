@@ -46,7 +46,7 @@ const searched = (focus) => KINDS.find((kind) => focus === `filter/${kind}`);
 
 export const filter = new Vector()
   .open(
-    { nature: "/filter", valence: "search an entity list — the keys go to its search, the list narrows to rows whose label or detail holds the query. Example: /filter mode chess", input: Typed },
+    { nature: "/filter", rank: "hidden", valence: "search an entity list — the keys go to its search, the list narrows to rows whose label or detail holds the query. Example: /filter mode chess", input: Typed },
     (ctx) => {
       const { kind, query } = belt.input.cast(Typed, lined(ctx.signal));
       ctx.client.app.bridge.$sections.set({ ...ctx.client.app.bridge.sections, filter: QUERIED.find(([test]) => test(query))[1](ctx.client.app.bridge.sections.filter, kind, query) });
@@ -55,7 +55,7 @@ export const filter = new Vector()
     },
   )
   .open(
-    { nature: "/filter/close", valence: "the search typed into steps back — a query is cleared first, an empty search hands the keys back to the composer. Example: /filter/close" },
+    { nature: "/filter/close", rank: "hidden", valence: "the search typed into steps back — a query is cleared first, an empty search hands the keys back to the composer. Example: /filter/close" },
     (ctx) => {
       const kind = searched(ctx.client.app.bridge.focus);
       if (kind === undefined) return "no search open";
@@ -63,7 +63,7 @@ export const filter = new Vector()
     },
   )
   .open(
-    { nature: "/filter/expand", valence: "an entity list past six rows shown whole, or cut back to six. Example: /filter/expand mode", input: Kind },
+    { nature: "/filter/expand", rank: "hidden", valence: "an entity list past six rows shown whole, or cut back to six. Example: /filter/expand mode", input: Kind },
     (ctx) => {
       const { kind } = belt.input.cast(Kind, ctx.signal);
       ctx.client.app.bridge.$sections.set({ ...ctx.client.app.bridge.sections, expand: flipped(ctx.client.app.bridge.sections.expand, kind) });
@@ -71,7 +71,7 @@ export const filter = new Vector()
     },
   )
   .open(
-    { nature: "/filter/pick", valence: "the host chips under an entity list's search, shown or hidden — ◈. Example: /filter/pick mode", input: Kind },
+    { nature: "/filter/pick", rank: "hidden", valence: "the host chips under an entity list's search, shown or hidden — ◈. Example: /filter/pick mode", input: Kind },
     (ctx) => {
       const { kind } = belt.input.cast(Kind, ctx.signal);
       const pick = ctx.client.app.bridge.sections.pick === kind ? null : kind;
@@ -80,7 +80,7 @@ export const filter = new Vector()
     },
   )
   .open(
-    { nature: "/filter/daemon", valence: "a host's rows hidden from one entity list, or shown again. Example: /filter/daemon mode /daemon/chess", input: Hosted },
+    { nature: "/filter/daemon", rank: "hidden", valence: "a host's rows hidden from one entity list, or shown again. Example: /filter/daemon mode /daemon/chess", input: Hosted },
     (ctx) => {
       const { kind, host } = belt.input.cast(Hosted, ctx.signal);
       const hostsOff = { ...ctx.client.app.bridge.sections.hostsOff, [kind]: toggled(ctx.client.app.bridge.sections.hostsOff[kind], host) };
@@ -89,7 +89,7 @@ export const filter = new Vector()
     },
   )
   .open(
-    { nature: "/filter/trait", valence: "one entity list narrowed to rows implementing a trait, or widened again. Example: /filter/trait mode VIEWABLE", input: Traited },
+    { nature: "/filter/trait", rank: "hidden", valence: "one entity list narrowed to rows implementing a trait, or widened again. Example: /filter/trait mode VIEWABLE", input: Traited },
     (ctx) => {
       const { kind, trait } = belt.input.cast(Traited, ctx.signal);
       const traits = { ...ctx.client.app.bridge.sections.traits, [kind]: toggled(ctx.client.app.bridge.sections.traits[kind], trait) };

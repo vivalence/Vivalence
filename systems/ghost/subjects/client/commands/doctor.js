@@ -1,13 +1,13 @@
 import { Vector } from "@vivalence/typology";
 
 export const doctor = new Vector().open(
-  { nature: "/doctor", valence: "the seat report card — who, which runtime, terminal, thread, mode, its daemon, the dock. Example: /doctor" },
+  { nature: "/doctor", rank: "hidden", valence: "the seat report card — who, which runtime, terminal, thread, mode, its daemon, the dock. Example: /doctor" },
   (ctx) => {
     const { runtime } = ctx.client;
     const thread = ctx.terminal.thread;
     const mode = ctx.terminal.mode;
     return {
-      client: { slug: ctx.client.mask.manifest.slug, remote: ctx.client.mask.statics.remote.origin },
+      client: { slug: ctx.client.mask.manifest.slug, remote: runtime.remote.origin },
       user: runtime.lighthouse.user === null ? null : runtime.lighthouse.user.username ?? runtime.lighthouse.user.id,
       lighthouse: runtime.lighthouse.status.code,
       runtime: { reference: runtime.reference.absolute, standing: runtime.status.code, daemons: runtime.entities.daemon.$entities.get().length },

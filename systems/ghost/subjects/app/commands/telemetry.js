@@ -13,7 +13,7 @@ const SHOWN = [
 
 export const telemetry = new Vector()
   .open(
-    { nature: "/telemetry", valence: "the telemetry window: a logger over spans and activities, an inspector over the client's state. Example: /telemetry inspector", input: Viewed, chord: "leader/s/t" },
+    { nature: "/telemetry", rank: "hidden", valence: "the telemetry window: a logger over spans and activities, an inspector over the client's state. Example: /telemetry inspector", input: Viewed, chord: "leader/s/t" },
     (ctx) => {
       const { view } = belt.input.cast(Viewed, ctx.signal);
       const held = SHOWN.find(([test]) => test(view))[1](ctx.client.app.telemetry.state, view);
@@ -22,7 +22,7 @@ export const telemetry = new Vector()
     },
   )
   .open(
-    { nature: "/telemetry/clear", valence: "drop every record the logger holds; live activities stay. Example: /telemetry/clear" },
+    { nature: "/telemetry/clear", rank: "hidden", valence: "drop every record the logger holds; live activities stay. Example: /telemetry/clear" },
     (ctx) => {
       ctx.client.app.telemetry.$state.set({ ...ctx.client.app.telemetry.state, since: performance.timeOrigin + performance.now(), selection: null });
       return "telemetry cleared";

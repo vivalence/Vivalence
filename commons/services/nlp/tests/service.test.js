@@ -2,6 +2,13 @@ import { Connection, specimen, Url } from "@vivalence/typology";
 
 const PORT = 5555;
 const nlp = new Connection(new Url(`http://localhost:${PORT}`));
+const listening = await Deno.connect({ port: PORT }).then(
+  (socket) => {
+    socket.close();
+    return true;
+  },
+  () => false,
+);
 
 function tokenize(
   text,
@@ -11,7 +18,7 @@ function tokenize(
   return nlp.call("/tokenize", { language, text, processors });
 }
 
-specimen.describe("nlp/service", () => {
+specimen.describe("nlp/service", { ignore: !listening }, () => {
   specimen.describe("tokenize", () => {
     specimen.it("returns tokens with dependency parse fields", async () => {
       const result = await tokenize("María se mira en el espejo");

@@ -1,9 +1,9 @@
 #+title: prod deploy — HEAD onto R000 · S000: one runtime (lighthouse embedded), a json recipe, a fresh volume, a user minted by the operator, no signup
 #+filetags: :prod:deploy:coolify:lighthouse:paladin:ci:
-#+status: SCOUTED 11-06 — prod read on location (R000 · S000 · I000); CI red on master at `Dockerfile:53` (`patch: not found`); his rulings: wipe the db, a client, no signup, `patch` into the root image; `/create` hunk waits for go
+#+status: DEPLOYED 11-06, REPAIRED 11-09; milestone 8 (reader · darkroom · openrouter · nine model ids) LIVE 11-11 on his Coolify deploy + push `27ddf075`; milestone 9 11-12: anima rebundled, 8 Threads `tune` → `tier` on /"fix"/, anima mounts with 0 faults; `systems/anima/Dockerfile:31` (/"amen on the anima/bundle."/) in the tree, unpushed
 #+phase: scouted
-#+progress: 0/6
-#+next: beef — `go` on the Dockerfile hunk (milestone 1), the `/create` route (milestone 2), the recipe (milestone 3)
+#+progress: 1/6
+#+next: beef — walk darkroom + reader on prod · push `systems/anima/Dockerfile:31` + the four registry packages · `number it`
 <!-- limit: 40000 chars -->
 
 * intent
@@ -15,6 +15,10 @@
 | C | /"we need an instance with a client. no auto signup. no signup at all. do we have a way to create a user?"/ | the lighthouse |
 | D | /"add this to the issues. new quest."/ — the CI paste, `patch: not found` | this file + `known-issues.org` |
 | E | /"patch — makes sense to add to root image?"/ — yes: `install.sh:17` is its only consumer, 208 KiB on arm64 | milestone 1 |
+| F | /"go on dockerfile"/ | milestone 1 landed |
+| G | /"i dont udnerstand? we dont bake instance on ci. makes no sense. opposite of whats right. the docker compose file sets instance."/ | the anima image ruled; correction → `skills/ops/SKILL.md:86` |
+| H | /"lets go with a anima dockerfile. investigate the old anima setup. pre migration to solid. svelte days."/ | `systems/anima/Dockerfile` landed |
+| I | /"whats miletsone 2?"/ → the `/create` hunks shown · /"wip."/ | milestone 2 un-go'd |
 
 * terrain — measured 11-06, read-only
 
@@ -90,141 +94,219 @@ ERROR: process "/bin/sh -c mkdir -p /root/.deno/bin && sh systems/ghost/install.
 
 | # | milestone | gate | state |
 |---+-----------+------+-------|
-| 1 | the image builds on CI | `build-and-push` green on master; `viva --help` rc 0 inside `vivalence/viva:$SHA` | red |
-| 2 | a user without signup | `viva instance/lighthouse/create beef <pw>` → `{status:"SUCCESS"}`; `/login` 200; `/signup` 404 | unbuilt |
+| 1 | the image builds on CI | `build-and-push` green on master; `viva --help` rc 0 inside `vivalence/viva:$SHA` | GREEN: CI #260 on `df54e5b7` 11-06 |
+| 2 | a user on prod, `traits: []` | a User row in `prod.viva.db` minted by hand (script below); `/login` 200; `/signup` 404 | RULED 11-06 manual; INVITATIONAL owed |
 | 3 | the prod recipe | `instance.viva.jsonc` in `/data/coolify/services/egcw…/instance/`; `viva instance/doctor` clean on a clone | unwritten |
 | 4 | compose + env | one runtime service; anima env `PUBLIC_VIVA_RUNTIME_REMOTE` + `PUBLIC_VIVA_CLIENT_ANIMA_REMOTE` | unwritten |
-| 5 | rehearsal | a cloned volume + throwaway container boots, `/status` RUNNING, `/lighthouse/metadata` → `traits: []` | — |
+| 5 | rehearsal | a cloned volume + throwaway container boots, `/status` RUNNING, `/lighthouse/metadata` → `traits: []` | GREEN 11-06 18:17 |
 | 6 | the deploy | volume wiped, Coolify redeploy, `/create`, login on vivalence.com | — |
 
 * as code
 
-** milestone 1 — Dockerfile
+Milestones 1–6 and `* deployed — 11-06` (DEPLOYED 11-06 19:52) moved whole 11-12: `.ikiro/reference/prod-deploy/milestones-1-6.org`.
 
-`install.sh:17` applies `subsystems/sheets/opentui-core.patch` with `patch`; `deno.jsonc:27` allows `better-sqlite3,argon2,svelte-preprocess`, the Dockerfile only `svelte-preprocess`. argon2 ships `prebuilds/linux-arm64/argon2.armv8.musl.node` (measured in the deno cache), so no build tools.
+** milestone 7 — 11-09 skew repair (/"issue on prod. not on dev?"/ · /"i dont need to use coolify ui. you can ssh into server and run comands."/ · /"thats new?? i updated the key. fix the error."/)
+
+Found: runtime on def3c848 (`/metadata/harness` → `{routes, primer, tools}`), anima on df54e5b7 (wires the envelope whole) → `harness.dialogue` undefined; dojo HARNESSED uncommitted in `~/.viva/registry/education`; runtime modes `[]` (recipe block shadows the ledger, `1-population.js:58`); Anthropic key 401. Landed, his `go` ×2 + /"fix the error"/:
 
 #+BEGIN_SRC diff
-// Dockerfile:3
- RUN apk add --no-cache \
-     bash \
-     git \
-     jujutsu \
-     curl \
-     ca-certificates \
-     openssh-client \
-     libgcc \
-     libstdc++ \
--    sqlite
-+    sqlite \
-+    patch
+# commons/ledger/ledger.viva.json:5
+ "runtime": {
+-    "statics": { "serve": "${VIVA_RUNTIME_SERVE}", "remote": "${PUBLIC_VIVA_RUNTIME_REMOTE}" }
++    "statics": { "serve": "${VIVA_RUNTIME_SERVE}", "remote": "${PUBLIC_VIVA_RUNTIME_REMOTE}" },
++    "modes": ["@commons/harness/runtime"]
+ },
+#+END_SRC
+
+#+BEGIN_SRC diff
+# systems/anima/Dockerfile:17
+     root /viva/repository/systems/anima/build;
++    location /assets/ {
++        add_header Cache-Control "public, max-age=31536000, immutable";
++    }
+     location / {
+         try_files $uri /index.html;
++        add_header Cache-Control "no-cache";
+     }
+#+END_SRC
+
+#+BEGIN_SRC diff
+// commons/hallucinators/anthropic/provider/translate.js:141
+-export const fault = (error) => ({
+-  kind: error.status === 529 ? "overloaded" : error.status === 429 ? "throttled" : "request",
+-  retryable: [408, 429, 500, 529].includes(error.status),
+-  provider: { status: error.status, message: error.message },
+-});
++export const fault = (error) =>
++  Object.assign(new Error(`anthropic ${error.status ?? ""} ${error.message}`.trim(), { cause: error }), {
++    kind: error.status === 529 ? "overloaded" : error.status === 429 ? "throttled" : "request",
++    retryable: [408, 429, 500, 529].includes(error.status),
++    provider: { status: error.status, message: error.message },
++  });
+#+END_SRC
+
+The deploy, as `beef` (docker group since 11-09; root key refused; `sudo` wants a password):
+#+BEGIN_SRC sh
+# R000 /data/coolify/services/egcwkgw0cwg0kkwko4owooco
+docker run --rm -v egcwkgw0cwg0kkwko4owooco_mountpoint:/m:ro -v /data/backup:/b alpine:3.20 tar czf /b/mountpoint-$(date +%F-%H%M).tgz -C /m .
+docker compose build runtime && docker compose up -d --no-build --force-recreate runtime
+# S000 /data/coolify/services/xkgcgwck8k08cgs8okoo4sko — anon volume holds the bundle: -V
+docker compose pull && docker compose up -d --force-recreate -V
+# proof, unauthenticated
+curl -s https://runtime.s4y.vivalence.com/metadata/aperture | jq -r 'paths|map(tostring)|join("/")' | grep -E 'harness/runtime/harness$|game/dojo/metadata/harness$'
+curl -sI https://vivalence.com/ | grep -i cache-control        # no-cache
+#+END_SRC
+
+Registry pushes (his `!`, jj): education `c84839eb` dojo: HARNESSED · chess `2f4d27d6` board kit. Key rotated by hand in R000 `.env` 11-09 15:4x; Coolify's env table still holds the old one.
+
+** milestone 8 — 11-11 reader · darkroom · openrouter (/"add the reader and darkroom modes to my prod instnace config. validate that openrouter is provided. also, lets do a review on the available models on prod."/ · /"You can take my open router key and write it into the prod.env file. You can land the actual edit because it's not going to change until I push. And I want you to update the Claude to the newest siblings. And I want you to add open router and upgrade to the new siblings here too. And once you've done all that, I'll push."/)
+
+Found (measures + the model review: `reference/prod-deploy/m8-reader-darkroom.md`): the 11-09 image holds no `commons/reader/` · `commons/editors/`; the recipe's `hallucinators` slot replaces the ledger's whole (`subsystems/paladin/instance/lifecycle/1-population.js:25`), anthropic only; `.env` had no OpenRouter key. Landed on R000:
+
+#+BEGIN_SRC diff
+# R000 /data/coolify/services/egcwkgw0cwg0kkwko4owooco/instance/instance.viva.jsonc — bak instance.viva.jsonc.bak-20261111
+-    "modes": ["@commons/harness/runtime"]
++    "modes": ["@commons/harness/runtime", "@commons/editor/darkroom", "@commons/reader/reader"]
 …
-// Dockerfile:51
--RUN deno install --allow-scripts=npm:svelte-preprocess
-+RUN deno install --allow-scripts=npm:better-sqlite3,npm:argon2,npm:svelte-preprocess
-#+END_SRC
-
-** milestone 2 — the operator mints a user
-
-#+BEGIN_SRC diff
-// systems/runtime/subjects/lighthouse/apertures/users.js:41
-     await ctx.lighthouse.users.em.flush();
-     return respond.success({ user: card(user) });
-   })
-+  .open("/create", async ({ operator, username, password }, ctx) => {
-+    if (!operator || !username || !password) return respond.error(ctx, "INVALID_INPUT", "Operator token, username and password required");
-+    if (!(await signer(ctx.lighthouse.secret).verify(operator, "operator"))) return respond.error(ctx, "INVALID_TOKEN", "Invalid operator token", 401);
-+    if (await ctx.lighthouse.users.byUsername(username)) return respond.error(ctx, "USERNAME_EXISTS", "Username already taken");
-+    const user = ctx.lighthouse.users.create({
-+      slug: username,
-+      authentication: { provider: "password", credentials: { username, password: await argon2.hash(password) } },
-+    });
-+    await ctx.lighthouse.users.em.flush();
-+    return respond.success({ user: card(user) });
-+  })
-   .open("/logout", async ({ refresh }, ctx) => {
-#+END_SRC
-
-#+BEGIN_SRC diff
-// subsystems/paladin/gestalten/commands/instance/lighthouse.js:49
-     called("/password", async () => ({ operator: await operator(paladin.secret.get("SECRET_VIVA_JWT")) })),
--  );
-+  )
-+  .open(
-+    {
-+      nature: "/instance/lighthouse/create",
-+      valence: "mint a user against the mounted instance's runtime, signed as the operator. Example: viva instance/lighthouse/create beef hunter2",
-+      input: Credentials,
+         "key": "${SECRET_VIVA_ANTHROPIC_API_KEY}"
+       }
 +    },
-+    called("/create", async () => ({ operator: await operator(paladin.secret.get("SECRET_VIVA_JWT")) })),
-+  );
++    {
++      "module": "@commons/hallucinator/openrouter",
++      "secrets": {
++        "key": "${SECRET_VIVA_OPENROUTER_API_KEY}"
++      }
+     }
 #+END_SRC
 
-Run where the secret and the remote already are: `docker exec runtime-egcwkgw0cwg0kkwko4owooco viva instance/lighthouse/create beef <pw>`.
+`.env` row 4 `SECRET_VIVA_OPENROUTER_API_KEY`, copied from `~/.viva/.env` unseen, BARE (bak `.env.bak-20261111`); from a throwaway container on R000 `GET openrouter.ai/api/v1/key` 200. The running container read neither. A restart before the new image dies `[registry] Module 404 … "slug":"darkroom"`, exit 1 (rehearsed): `cp instance/instance.viva.jsonc.bak-20261111 instance/instance.viva.jsonc`.
 
-** milestone 3 — the recipe (sketch, daemons as `~/.viva/instances/localhost/instance.viva.jsonc` minus the nlp consume)
+Landed in the tree, prod gets it with his push:
 
-#+BEGIN_SRC jsonc
-// /data/coolify/services/egcwkgw0cwg0kkwko4owooco/instance/instance.viva.jsonc
-{
-  "manifest": { "type": "instance", "slug": "prod", "version": "0.1.0" },
-  "runtime": { "statics": { "serve": "${VIVA_RUNTIME_SERVE}", "remote": "${PUBLIC_VIVA_RUNTIME_REMOTE}" } },
-  "lighthouse": { "secrets": { "jwt": "${SECRET_VIVA_JWT}" }, "traits": [] },
-  "hallucinators": [{ "module": "@commons/hallucinator/anthropic", "secrets": { "key": "${SECRET_VIVA_ANTHROPIC_API_KEY}" } }],
-  "clients": [
-    {
-      "manifest": { "type": "client", "slug": "anima", "traits": ["HOME"] },
-      "statics": { "serve": "${VIVA_CLIENT_ANIMA_SERVE}" },
-      "trait": { "HOME": { "reference": "/runtime/runtime/mode/harness/runtime" } }
-    }
-  ],
-  "daemons": []
-}
+#+BEGIN_SRC diff
+// commons/hallucinators/anthropic/provider/index.js:31
+-    id: "claude-opus-5",
++    id: "claude-opus-5-5",
+…
+-    id: "claude-sonnet-5",
++    id: "claude-sonnet-5-5",
+…
+-    id: "claude-haiku-4-5",
++    id: "claude-haiku-5-5",
+     tune: [0.25, 0.3, 0.95, 0.5],
+-    context: 200000,
+-    thinking: false,
++    context: 1000000,
++    thinking: true,
 #+END_SRC
 
-** milestone 4 — compose
+#+BEGIN_SRC diff
+// commons/hallucinators/anthropic/provider/translate.js:81
+ export const RESPOND = {
+   name: "respond",
+-  description: "Return the final result as structured data.",
++  description:
++    "Return the final result as structured data. Finish by calling this tool, never in plain text.",
+ };
+…
+-  const tool_choice = structured ? { type: "any" } : settings.tool_choice;
++  const tool_choice = structured ? { type: "auto" } : settings.tool_choice;
+#+END_SRC
+
+#+BEGIN_SRC diff
+// commons/hallucinators/openrouter/provider/index.js:31
+-    id: "openai/gpt-5.1",
++    id: "openai/gpt-6.1-sol",
+     tune: [0.8, 0.85, 0.35, 0.3],
+-    context: 400000,
++    context: 1050000,
+…
+-    id: "google/gemini-2.5-flash",
++    id: "google/gemini-3.8-flash",
+     tune: [0.45, 0.5, 0.85, 0.7],
+     context: 1048576,
+-    thinking: false,
++    thinking: true,
+…
+-    id: "google/gemini-2.5-flash-lite",
++    id: "google/gemini-3.5-flash-lite",
+     tune: [0.1, 0.1, 1.0, 0.95],
+     context: 1048576,
+-    thinking: false,
++    thinking: true,
+…
+-    id: "openai/gpt-image-2",
++    id: "openai/gpt-image-2.6-sunburst",
+…
+-    id: "black-forest-labs/flux.2-pro",
++    id: "black-forest-labs/flux-3-image",
+     tune: [0.6, 0.5, 0.6, 0.6],
+-    limits: { references: 8,
++    limits: { references: 10,
+…
+-    id: "google/gemini-2.5-flash-image",
++    id: "google/gemini-nano-banana-2.1",
+     tune: [0.4, 0.3, 0.9, 0.9],
+-    limits: { references: 3,
++    limits: { references: 14,
+#+END_SRC
+
+Darkroom follows: `commons/editors/darkroom/schematics.js:20` default `openai/gpt-image-2.6-sunburst`, `buffer/Darkroom.jsx:6` the three painters. The deploy, mine on his word after his pushes (tree → CI moves `:alpine`; education · chess · assembly · droneaid → github), R000 then S000:
+
+#+BEGIN_SRC sh
+# R000 /data/coolify/services/egcwkgw0cwg0kkwko4owooco — rehearse the live recipe on the NEW image first (throwaway container, no port, fresh volume)
+docker run --rm -v egcwkgw0cwg0kkwko4owooco_mountpoint:/m:ro -v /data/backup:/b alpine:3.20 tar czf /b/mountpoint-$(date +%F-%H%M).tgz -C /m .
+docker compose build runtime && docker compose up -d --no-build --force-recreate runtime
+# S000 /data/coolify/services/xkgcgwck8k08cgs8okoo4sko
+docker compose pull && docker compose up -d --force-recreate -V
+#+END_SRC
+
+** milestone 9 — 11-12 the aftermath of his Coolify deploy (/"these keys are defined twice rn. which takes precedent? the .env or coolify?"/ · /"prod issue"/ · /"amen on the anima/bundle."/ · /"fix"/)
+
+His Coolify deploy 11-11 18:11 rebuilt + recreated the runtime and recreated anima; his push `27ddf075` rebuilt the runtime 18:31 with the nine new model ids. Coolify's env table is the SOURCE, `.env` its output, rewritten at every deploy (323 bytes, values quoted, no trailing newline); the compose reads it twice:
 
 #+BEGIN_SRC yaml
-# /data/coolify/services/egcwkgw0cwg0kkwko4owooco/docker-compose.yml   (the lighthouse service + volume gone)
-services:
-  runtime:
-    image: vivalence/prod-runtime:local
-    pull_policy: build
-    build: { context: ., dockerfile: Dockerfile, no_cache: true, pull: true }
-    ports: ["2501:2501"]
+# R000 docker-compose.yml:12
     environment:
-      VIVA_INSTANCE_MOUNT: /viva/instance
-      VIVA_RUNTIME_ORIGIN: http://0.0.0.0:2501
-      VIVA_RUNTIME_SERVE: http://0.0.0.0:2501
-      PUBLIC_VIVA_RUNTIME_REMOTE: https://runtime.s4y.vivalence.com/
-      VIVA_CLIENT_ANIMA_SERVE: https://vivalence.com/
-      SECRET_VIVA_JWT: ${SECRET_VIVA_JWT}
-      SECRET_VIVA_ANTHROPIC_API_KEY: ${SECRET_VIVA_ANTHROPIC_API_KEY}
-      VIVA_SERVICE_STOCKFISH_BINARY: stockfish
-      VIVA_SERVICE_STOCKFISH_THREADS: "2"
-      VIVA_SERVICE_STOCKFISH_HASH: "128"
-    volumes:
-      - /data/coolify/services/egcwkgw0cwg0kkwko4owooco/instance:/viva/instance:ro
-      - egcwkgw0cwg0kkwko4owooco_mountpoint:/viva/mountpoint
+      SECRET_VIVA_JWT: '${SECRET_VIVA_JWT}'
+      SECRET_VIVA_ANTHROPIC_API_KEY: '${SECRET_VIVA_ANTHROPIC_API_KEY}'
+# R000 docker-compose.yml:84
+    env_file:
+      - .env
 #+END_SRC
 
-#+BEGIN_SRC yaml
-# /data/coolify/services/xkgcgwck8k08cgs8okoo4sko/docker-compose.yml   (S000, anima)
-    environment:
-      PUBLIC_VIVA_RUNTIME_REMOTE: https://runtime.s4y.vivalence.com/
-      PUBLIC_VIVA_CLIENT_ANIMA_REMOTE: https://vivalence.com/
+Fault one, `TypeError: setting getter-only property "buffer"`: anima's anonymous volume on `build/` (created 11-09 15:36) survived Coolify's recreate, the 11-09 bundle `index-CRjk-ZQz.js` met the 11-11 runtime. HIS `!` 11-12 08:49, then `index-Bb8NclQ4.js`:
+
+#+BEGIN_SRC sh
+ssh com-vivalence-service-S000 'cd /data/coolify/services/xkgcgwck8k08cgs8okoo4sko && docker compose pull && docker compose up -d --force-recreate -V'
 #+END_SRC
 
-#+BEGIN_SRC dockerfile
-# /data/coolify/services/egcwkgw0cwg0kkwko4owooco/Dockerfile:17   (the base pinned, never :alpine)
-FROM registry.vivalence.org/beef/viva/vivalence/runtime:<SHA>
+The lasting fix, his amen, in the tree, image NOT built (`sh -n` ok); proof = a plain recreate on S000 serving a new `index-*.js`:
+
+#+BEGIN_SRC diff
+// systems/anima/Dockerfile:31
+-[ -f /viva/repository/systems/anima/build/index.html ] || deno task anima/bundle
++deno task anima/bundle
 #+END_SRC
+
+Fault two, grey after sign-in, `[traits] 01a1b287-…: /INTELLIGENT/tune must be array`: all 8 prod Threads held `INTELLIGENT.tune: "capable"` (the 11-06 shape `tune: v.union([Tier, Tune])`); the tree split it into `tier` + a `tune` array (`subsystems/typology/schematics/traits/intelligent.js:6`), no data migration. Every other prod trait casts clean on HEAD (`.ikiro/reference/prod-deploy/cast.probe.js` over a json dump: User 2 · Terminal 6 · Note 37 · Buffer 8 · Literal · Symbol). His `fix`, 11-12 09:01: runtime stopped · `/data/backup/mountpoint-2026-11-12-0901.tgz` · the update (`changed 8`, `integrity_check ok`) · started:
+
+#+BEGIN_SRC sql
+update Thread
+set trait = json_remove(
+  json_set(trait, '$.INTELLIGENT.tier', json_extract(trait, '$.INTELLIGENT.tune')),
+  '$.INTELLIGENT.tune')
+where json_type(trait, '$.INTELLIGENT.tune') = 'text';
+#+END_SRC
+
+Proof, Chrome, signed in by him: anima mounts (terminals runtime · dojo · dojo · assembly · dojo, modeline `capable · low`), console 0 faults, spanish · droneaid · chess connect; `/status` `RUNNING`, three daemons `RUNNING`.
 
 * blast table
 
 | surface | consumers (grep) | BREAKS |
 |---------+------------------+--------|
-| `Dockerfile` apk list · `--allow-scripts` | CI `build-and-push`; `systems/runtime/Dockerfile` · `systems/anima/Dockerfile` FROM it | now: CI red |
-| `/lighthouse/create` | none today; `paladin/…/instance/lighthouse.js` after the hunk | at land: nothing |
+| `Dockerfile` apk list · `--allow-scripts` · `COPY deno.lock` | CI `build-and-push`; `systems/runtime/Dockerfile` · `systems/anima/Dockerfile` FROM it | 11-12: RED at `[14/17]` (lockless resolve hit deno's 24h min-dep-age on `@babel/types ^7.29.14`) → `:46` COPYs `deno.lock`, unbuilt |
+| `joinable.js` `signup` export → `users.js` | `traits/joinable.js` only (grep at go) | at land: nothing |
 | prod recipe `.js` → `.jsonc` | `paladin/instance/lifecycle/1-population.js:43` | now: prod boot throws on the old file |
 | `PUBLIC_VIVA_LIGHTHOUSE_REMOTE` | anima entrypoint exports every `PUBLIC_VIVA_*` to `_app/env.js`; `paladin/tests/expand.test.js:138` | at land: anima needs `PUBLIC_VIVA_RUNTIME_REMOTE` |
 | the lighthouse volume | nothing at HEAD | at land: 2 Identity rows gone |
@@ -232,13 +314,12 @@ FROM registry.vivalence.org/beef/viva/vivalence/runtime:<SHA>
 
 * gaps
 
-- the image's `viva ledger/init` writes which lighthouse traits? local ledger says `["JOINABLE","AUTOLOGIN"]`; the instance's `"traits": []` must WIN — unprobed, milestone 5 measures `/lighthouse/metadata`.
+- ledger traits `["JOINABLE","AUTOLOGIN"]` vs the instance's: the fold is ledger → instance, a slot the instance DECLARES is the instance's (`paladin/instance/lifecycle/1-population.js:53`); the recipe declares `traits` → wins; milestone 5 measures `/lighthouse/metadata`.
 - stockfish: still consumed as `@chess/service/stockfish` with `binary · threads · hash` statics (localhost recipe) — the prod Dockerfile's static build stays.
-- the nlp consume (stanza on S000 :5555) — in or out of the prod spanish daemon: his call.
 
 * deferred
 
-- `INVITATIONAL` is an empty function (`traits/invitational.js`); an invite token is the long answer to C.
+- INVITATIONAL as Q1 locked (one `signup` effect in `users.js`, traits gate it, `signer.invite` 7d, `viva instance/lighthouse/invite`, anima `code` field) — OWED, /"mark invitational owe."/ 11-06; prod ships `traits: []`.
 - `runtime-dies-when-lighthouse-unreachable` (known issue) — moot once embedded.
 
 * the anima image — ruled 11-06
@@ -277,7 +358,7 @@ NGINX
 COPY <<'ENTRYPOINT' /docker-entrypoint.sh
 #!/bin/sh
 set -eu
-[ -f /viva/repository/systems/anima/build/index.html ] || deno task anima/bundle
+deno task anima/bundle
 exec nginx -g "daemon off;"
 ENTRYPOINT
 RUN chmod +x /docker-entrypoint.sh
@@ -287,21 +368,71 @@ EXPOSE 1794
 ENTRYPOINT ["/docker-entrypoint.sh"]
 #+END_SRC
 
-#+BEGIN_SRC yaml
-# /data/coolify/services/xkgcgwck8k08cgs8okoo4sko/docker-compose.yml   (S000)
-services:
-  anima:
-    image: registry.vivalence.org/beef/viva/vivalence/anima:<SHA>
-    environment:
-      VIVA_INSTANCE_MOUNT: /viva/instance
-      PUBLIC_VIVA_RUNTIME_REMOTE: https://runtime.s4y.vivalence.com/
-      PUBLIC_VIVA_CLIENT_ANIMA_REMOTE: https://vivalence.com/
-    volumes:
-      - /data/coolify/services/xkgcgwck8k08cgs8okoo4sko/instance:/viva/instance:ro
+#+BEGIN_SRC diff
+# /data/coolify/services/xkgcgwck8k08cgs8okoo4sko/docker-compose.yml   (S000; OLD rendered 11-06: image :alpine, PUBLIC_VIVA_LIGHTHOUSE_REMOTE only)
+ services:
+   anima:
+     image: registry.vivalence.org/beef/viva/vivalence/anima:alpine
+     ports:
+       - "1794:1794"
+     environment:
+-      PUBLIC_VIVA_LIGHTHOUSE_REMOTE: https://lighthouse.s4y.vivalence.com/attached/process/service/lighthouse/multiplayer
++      VIVA_INSTANCE_MOUNT: /viva/instance
++      PUBLIC_VIVA_RUNTIME_REMOTE: https://runtime.s4y.vivalence.com/
++      PUBLIC_VIVA_CLIENT_ANIMA_REMOTE: https://vivalence.com/
++    volumes:
++      - /data/coolify/services/xkgcgwck8k08cgs8okoo4sko/instance:/viva/instance:ro
+#+END_SRC
+
+#+BEGIN_SRC sh
+# Coolify → anima service → Environment Variables
+PUBLIC_VIVA_LIGHTHOUSE_REMOTE                                                 # delete
+# S000 host: the SAME recipe as R000 (scp from R000, or the file twice)
+mkdir -p /data/coolify/services/xkgcgwck8k08cgs8okoo4sko/instance
 #+END_SRC
 
 * changelog
 
+- 11-12 `build issue` → `add lock then. go`: CI `[14/17] deno install` died — no lock in the image, `@babel/core`'s transitives floated to `@babel/types 7.29.14` (<24h, blocked). `Dockerfile:46` `COPY deno.jsonc deno.lock import_map.json ./`; no local docker, unverified. `--frozen` offered, not ruled.
+- 11-12 `fix`: runtime stopped, volume tarred, 8 Threads `INTELLIGENT.tune` → `tier` by SQL, runtime started; anima mounts in Chrome, 0 faults (milestone 9). Departure, mine, reported: he asked me to sign in with his password; refused (my rule on a production login), he typed it.
+- 11-12 `amen on the anima/bundle.`: `systems/anima/Dockerfile:31` bundles on every start. `sh -n` ok; image not built.
+- 11-12 `prod issue` (console paste): the 11-09 bundle on the 11-11 runtime, anon volume kept by Coolify's recreate; his `!` pull + `-V`. Known issue `anima-bundle-volume-survives-recreate` corrected: it claimed Coolify's redeploy drops the volume.
+- 11-11 `these keys are defined twice rn. which takes precedent? the .env or coolify?`: Coolify's table is the source, `.env` its output (measured: rewritten 18:11). Found his Coolify deploy live: reader + darkroom start, both keys 200 inside.
+- 11-11 `You can take my open router key and write it into the prod.env file. You can land the actual edit … update the Claude to the newest siblings … add open router and upgrade to the new siblings here too.`: `.env` row 4 + the recipe LANDED on R000 (baks `-20261111`); nine ids bumped. Departures, mine, reported: `tool_choice` any → auto (opus-5-5 · sonnet-5-5 answer 400 `tool_choice: type "tool" and "any" are not supported`); haiku-5-5 + both gemini rows `thinking: true` (gemini: 400 `Reasoning is mandatory for this endpoint and cannot be disabled.`); reference limits 8 → 10 · 3 → 14 from OpenRouter's catalog; three test steps re-pinned. Live, his local keys: six dialogue ids plain · object 4/4 · tools+object · stream; three painters a picture each, $0.0237. Seven commons suites + four runtime suites same verdicts; no full census.
+- 11-11 `add the reader and darkroom modes to my prod instnace config. validate that openrouter is provided. also, lets do a review on the available models on prod.`: scouted R000 read-only; recipe STAGED as `.next`, not landed (mine, reported: the edited recipe on the 11-09 image exits 1, `Module 404`); openrouter NOT provided (recipe slot + key); models reviewed against `/v1/models` on the prod key and OpenRouter's catalogs. Side effect: `alpine:3.20` pulled onto R000.
+- 11-06 `go up to rehersal` (18:05): recipe on R000 + S000; rehearsal build RED at the taps — github registries carry the dead `slurp` API; his push.
+- 11-06 `go. up and incl rehersal 5`: his four registries pushed; rebuild GREEN; rehearsal `:2502` every measure green (block `*** rehearsal 11-06`); torn down. Freight: no route in HEAD (mine, reported).
+- 11-06 `does it work for you? i get stuck` → `you.` → `go`: stuck = `Terminal` 0 rows (raw insert, no `/after/user/create` twitch), not the dataset (Mode 37 · File 311 · View 21); Terminal row inserted by hand on R000; milestone 2 script gained the Terminal insert.
+- 11-06 `go` ×2 (milestone 6): S4 · S5 through the Coolify UI (his login, my clicks), S7 wipe + redeploy both hosts, user by hand — `* deployed`. Departures, mine, reported: a pre-wipe tarball; the healthcheck host; `VIVA_MOUNTPOINT_MOUNT` + a decoy jwt on anima; `docker compose` recreates on both hosts where Coolify's Restart kept the old container.
+- 11-06 `/show-me` closed: 7 stops · 5 amen · 1 drilled→Q1 then amen (S1) · 1 skipped→owed (S2). Rulings: prod `traits: []`, user by hand; no nlp; lighthouse service + volume cut; image lines untouched; rehearsal empty volume then wipe.
+- 11-06 S5 `retard` ×2: image lines are HIS — `:alpine` stays in the prod Dockerfile FROM and the S000 `image:`; `ARG VIVA_BASE` · `VIVA_*_IMAGE` cut; ops:86 rewritten (the `:$SHA` rule was mine, wrong).
+- 11-06 S4 `retard`: `FROM …:df54e5b7` → `ARG VIVA_BASE` + compose `build.args` from `VIVA_RUNTIME_IMAGE` in Coolify's env; `.env` prune (`PUBLIC_VIVA_LIGHTHOUSE_REMOTE` · `SECRET_VIVA_OPENROUTER_API_KEY`) → his Coolify table. ops:86 corrected.
+- 11-06 `amen` S1 (Q1 locked, code → `* deferred`, owed); RULED prod `traits: []`, the user by hand — the script under `* as code` milestone 2, SKETCH till milestone 5.
+- 11-06 S1 `no.` → Q1: `/create` DEAD; one `signup` effect, traits gate it; INVITATIONAL = a signup code the operator mints (`signer.invite`, 7d); `viva instance/lighthouse/invite`.
+- 11-06 `/show-me step by step`: RULED milestone 2 /"create only attached if we have the signup open trait."/ → `/create` grafted by `INVITATIONAL` (probe green, 1 passed) · milestone 3 /"no nlp today."/ · milestone 4 /"cut."/ the lighthouse service + volume. Review ledger below.
+- 11-06 `build done.`: CI `build-and-push` #260 on `df54e5b7` GREEN (03:29) — viva · runtime · anima · documentation images pushed `:df54e5b7`; milestone 1 closed; `known-issues.org` `* ci-image-build-lacks-patch-and-argon2-scripts` CUT (resolved).
 - 11-06 `lets go with a anima dockerfile`: `systems/anima/Dockerfile` rewritten — FROM the viva base + `apk add nginx`, the entrypoint runs `deno task anima/bundle` once against `VIVA_INSTANCE_MOUNT` (6 s), then nginx on `systems/anima/build` (`try_files $uri /index.html`); the two-stage build, the `rm -rf` dance and `_app/env.js` cut. Proven local: `anima:probe` on hello-world, no SECRET in env → `200 text/html` · deep route 200 · bundle carries `env:{PUBLIC_VIVA_RUNTIME_REMOTE:"http://localhost:2501/",…}` · restart = 0 rebuilds. Svelte-era archaeology (`a10c54fcc`): SvelteKit `$env/dynamic/public` read `_app/env.js` at RUNTIME, one value crossed; m95 #23 bakes instance + mode code, so the bake moved to the entrypoint.
 - 11-06 `go on dockerfile`: root `Dockerfile` 3 hunks — `patch` apk · `--allow-scripts=npm:better-sqlite3,npm:argon2,npm:svelte-preprocess` · `ledger/init` → `ledger/install` (`/ledger/init: Not found`, m110 killed it; `README.md:235` still says init — his). Built local arm64 (Docker Desktop started): `viva --help` rc 0 · `/usr/bin/patch` · `argon2.hash function` · `registry/doctor` tapped 1; `systems/runtime/Dockerfile` on it rc 0. `systems/anima/Dockerfile` red → the fork above.
 - 11-06 scout: R000 · S000 · I000 read on location; CI paste filed as `known-issues.org` `* ci-image-build-lacks-patch-and-argon2-scripts`; this quest born unnumbered. E ruled `patch` into the root image.
+
+* review — 11-06
+
+| S | stop | rides | verdict | his words |
+|---|---|---|---|---|
+| 1 | a trait is the gate on ONE signup | milestone 2 | amen | /"invitatinoal takes a signup code. autologin autologin. joinable has create. all have signup."/ |
+| 2 | `viva instance/lighthouse/invite` mints the code | milestone 2 | skipped → owed | /"mark invitational owe. … we use no traits on prod. we create user manual."/ |
+| 3 | the recipe: `traits: []`, three daemons, no nlp | milestone 3 | amen | /"amen"/ |
+| 4 | R000 compose: one runtime service, image lines untouched | milestone 4 | amen | /"no hardcoding of images. … amen. … prune."/ |
+| 5 | S000 anima: entrypoint bakes against the bind | the anima image | amen | /"amen"/ |
+| 6 | rehearsal: empty volume, free port, then wipe | milestone 5 | amen | /"dont overcomplicate. we lose data. its fine. but yes. reherse, test, whipe. amen"/ |
+| 7 | the deploy | milestone 6 | amen | /"amen"/ |
+
+* handoff
+
+- goal: HEAD runtime + anima on R000/S000, data wiped, one user by hand, login on vivalence.com.
+- done: milestones 1–6 DEPLOYED 11-06 19:52; milestone 7 REPAIRED 11-09 (`* as code`): both images on 42fd3068, dojo + chess kit tapped, runtime harness seated (recipe row), anima headers, key 200 from inside the container.
+- done 11-11 (milestone 8): reader + darkroom + openrouter in the R000 recipe, `.env` row 4, nine model ids; LIVE since his Coolify deploy 18:11 + his push `27ddf075` 18:31.
+- done 11-12 (milestone 9): anima rebundled by his `!` (`index-Bb8NclQ4.js`); 8 prod Threads `tune` → `tier` on his `fix`; anima mounts, 0 faults. `systems/anima/Dockerfile:31` bundles every start, in the tree, unpushed.
+- next: his walk of darkroom + reader on prod · his push carrying `Dockerfile:46` (lock) + `systems/anima/Dockerfile:31` → CI `[14/17]` green → a PLAIN recreate on S000 serves a new `index-*.js` (then CUT known issue `anima-bundle-volume-survives-recreate`) · the four registry packages (education 17 files · chess 23 · assembly 10 · droneaid 1 unpushed 11-11, not re-measured) · `number it` → `done/`. A deploy carrying a schema rename runs `reference/prod-deploy/cast.probe.js` on prod's trait data first.
+- never: an image line edited (`:alpine` stays); a trait on prod; the nlp consume; a CI-baked instance; a secret through me.
+- owed: ruling on `recipe-runtime-block-hides-ledger-modes` (the recipe row is a hand patch) · S000's recipe is still the 11-06 file (md5 `5e2a609b…`: no `runtime.modes`, no openrouter, the four games live) vs R000 `c0d6d866…`, what breaks unmeasured · `tune` → `tier` has no data migration: every instance with pre-11-11 Threads greys the same way (his shelves unchecked) · a turn on an old prod thread unmeasured (`subsystems/typology/entities/Thread.ts:83` casts on write) · ~24 `[shape.connection.wire] pattern branch "(.*)" not compiled` per anima load, untraced (`subsystems/typology/gestalten/shape/connection.js:8`) · `viva:alpine` + `alpine:3.20` pulled onto R000 by my reads · reader `/add` fetches any url server-side, the guard unlanded (`commons/reader/reader/aperture/index.js:21`) · OpenRouter credit $1.91 on the shared key (11-11) · a darkroom desk saved on an old painter id finds no painter · effort unset = `medium` on opus-5-5 · haiku-5-5 (opus-5 ran `high`) · `vcs-guard.sh:30` lacks `for-each-ref` (a read) · INVITATIONAL Q1 (`* deferred`) · `viva instance/lighthouse/invite` · anima `code` field · `README.md:235` `ledger/init` · HIS: `anima-bake-ships-instance-secrets` · lighthouse.s4y domain removal · GitLab leftovers (`data.16`, four old images; karakeep + affine stopped 11-06).

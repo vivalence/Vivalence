@@ -28,10 +28,10 @@ export const HARNESSED = async (mode, die) => {
   });
 
   mode.metadata.harness = await mode.connection.call("/metadata/harness");
-  mode.harness = shape.connection.wire(harness, mode.metadata.harness);
+  mode.harness = shape.connection.wire(harness, mode.metadata.harness.routes);
 
   mode.repl.open(
-    { nature: "/harness", valence: "a turn to the attached mode's harness on the terminal's thread. Example: /harness ciao" },
+    { nature: "/harness", rank: "hidden", valence: "a turn to the attached mode's harness on the terminal's thread. Example: /harness ciao" },
     (ctx) => stream(mode, ctx.terminal, [{ type: "text", text: ctx.signal.body.map((datum) => String(datum)).join(" ") }]),
   );
 };

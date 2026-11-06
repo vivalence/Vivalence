@@ -26,7 +26,7 @@ specimen.describe("controller — one process, driven from stdin", () => {
     const settled = Object.keys(MACHINE.states).filter((code) => MACHINE.states[code].settled === true);
     specimen.expect(settled).toEqual(["DONE", "STOPPED", "FAILED", "ABORTED"]);
     const controller = new Controller();
-    for (const signal of SIGNALS) specimen.expect(controller.stdin.trie.has(signal)).toBe(true);
+    for (const signal of SIGNALS) specimen.expect(controller.stdin.edge(signal)).not.toBe(null);
     specimen.expect(controller.stdin.trie.size).toBe(SIGNALS.length);
   });
 

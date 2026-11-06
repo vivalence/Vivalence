@@ -91,12 +91,12 @@ specimen.describe("shape.selbstbestimmt", () => {
       .affect((ctx) => ctx.input);
     const beforeCarryLength = source.carry.length;
     const beforeEffect = source.effect;
-    const beforeTrajectoryKeys = [...source.trie.keys()];
+    const beforeTrajectoryKeys = source.patterns.map((pattern) => pattern.nature);
 
     shape.selbstbestimmt(source);
 
     specimen.expect(source.carry.length).toBe(beforeCarryLength);
     specimen.expect(source.effect).toBe(beforeEffect);
-    specimen.expect([...source.trie.keys()]).toEqual(beforeTrajectoryKeys);
+    specimen.expect(source.patterns.map((pattern) => pattern.nature)).toEqual(beforeTrajectoryKeys);
   });
 });

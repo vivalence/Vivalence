@@ -7,10 +7,11 @@ export const CONSENT = { onApprove: "/resume", onSkip: "/stop", onEdit: "/abort"
 
 export const PLACEHOLDERS = [
   [(draft) => draft.startsWith("/"), "a verb · tab completes · enter runs"],
+  [(draft, mode) => mode === null || !mode.implements("HARNESSED"), "/commands only"],
   [() => true, "say it, or / for a command"],
 ];
 
-const placeholder = (draft) => PLACEHOLDERS.find(([test]) => test(draft))[1];
+const placeholder = (draft, mode) => PLACEHOLDERS.find(([test]) => test(draft, mode))[1];
 
 const Control = (props) => {
   const [open, setOpen] = createSignal(false);
@@ -49,7 +50,6 @@ export const Composer = () => {
   const terminal = ambient.terminal.consume();
   const thread = from(terminal.$thread);
   const activities = from(app.client.runtime.entities.activity.$entities);
-  const focus = from(app.bridge.$focus);
   const draft = from(app.bridge.$draft);
 
   const owned = () => parts.listing(activities).filter((activity) => thread() !== null && activity.thread === thread());
@@ -83,11 +83,9 @@ export const Composer = () => {
             id="composer"
             kind="turn"
             value={draft()}
-            placeholder={placeholder(draft())}
-            focus={focus() === "composer"}
+            placeholder={placeholder(draft(), thread() === null ? null : thread().mode)}
             lead={<Control repl={draft().startsWith("/")} onLine={sent} />}
             onInput={typed}
-            onFocus={() => app.bridge.$focus.set("composer")}
             onSubmit={submit}>
             <Show
               when={running()}

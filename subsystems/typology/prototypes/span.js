@@ -44,7 +44,7 @@ export class Span extends Signature {
 
   tracks(vector) {
     this.tracked.graft(vector);
-    for (const nature of vector.trie.keys()) this[nature] ??= (data) => this.track(nature, data);
+    for (const { nature } of vector.patterns) this[nature] ??= (data) => this.track(nature, data);
     return this;
   }
 

@@ -34,6 +34,7 @@ export const IntentSchema = new EntitySchema({
       cond: (args: any) => ({ user: args.user }),
       default: true,
     },
+    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
   },
   properties: {
     slug: { type: types.string },

@@ -29,6 +29,12 @@ export const FNS = {
     terminal.legend.dispatch("leader");
   },
   expand: (app, terminal, kind) => patched(app, { expand: kind in app.bridge.sections.expand ? Object.fromEntries(Object.entries(app.bridge.sections.expand).filter(([held]) => held !== kind)) : { ...app.bridge.sections.expand, [kind]: true } }),
+  peek: async (app, terminal, key) => {
+    FNS.expand(app, terminal, key);
+    if (key in app.bridge.sections.peeks) return;
+    const text = await terminal.mode.connection.call(`/metadata/harness/primer/${key.replace(/^primer\//, "")}`, { thread: terminal.thread.id }).catch((error) => error.message);
+    patched(app, { peeks: { ...app.bridge.sections.peeks, [key]: text } });
+  },
   dpick: (app, terminal, kind) => patched(app, { pick: app.bridge.sections.pick === kind ? null : kind }),
   attach: (app, terminal) => terminal.controller.stdout.fault(new Error("attach: this client has no upload yet — the composer owns it")),
   none: () => undefined,
@@ -67,8 +73,11 @@ export const watched = (app, terminal) => {
     from(app.bridge.$theme),
     from(app.telemetry.$state),
   ];
+  const daemons = from(app.client.runtime.entities.daemon.$entities);
+  const statuses = createMemo(() => daemons().map((daemon) => from(daemon.$status)));
   return createMemo(() => {
     for (const signal of signals) signal();
+    for (const status of statuses()) status();
     return gathered(app, terminal);
   });
 };
@@ -83,10 +92,9 @@ export function Sidebar() {
   const app = ambient.app.consume();
   const terminal = ambient.terminal.consume();
   const world = watched(app, terminal);
-  const focus = from(app.bridge.$focus);
   const sidebar = from(app.bridge.$sidebar);
   return (
-    <aside class={focus() === "sidebar" ? "sidebar focus" : "sidebar"} data-zone="0" style={`--sb-w:${sidebar().width}px`} onClick={() => app.bridge.$focus.set("sidebar")}>
+    <aside class="sidebar" data-zone="0" style={`--sb-w:${sidebar().width}px`}>
       <div class="sbhead">
         <span class="t">{world().thread === null ? UNCLAIMED : world().thread.word}</span>
         <button class="iconbtn" data-signal="/sidebar" aria-label="close the sidebar" title="close the sidebar · /sidebar" onClick={() => act(app, terminal)({ signal: "/sidebar" })}>

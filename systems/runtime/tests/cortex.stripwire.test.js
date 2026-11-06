@@ -62,7 +62,7 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
     specimen.it("unleashed resolves opus through the wire", async () => {
       const folded = await remote.hallucinate.dialogue.render({
         controller: new Controller(),
-        policy: { tune: "unleashed" },
+        policy: { tier: "unleashed" },
         turns: [{ role: "user", parts: [{ type: "text", text: "casa" }] }],
       });
       specimen.expect(folded.output.message).toMatch(/\[opus\]/);
@@ -72,7 +72,7 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
     specimen.it("balanced resolves sonnet (exact tune re-resolved daemon-side)", async () => {
       const folded = await remote.hallucinate.dialogue.render({
         controller: new Controller(),
-        policy: { tune: "balanced" },
+        policy: { tier: "balanced" },
         turns: [{ role: "user", parts: [{ type: "text", text: "hola" }] }],
       });
       specimen.expect(folded.output.message).toMatch(/\[sonnet\]/);
@@ -84,7 +84,7 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
       const { packets, turn } = await collect(
         await remote.hallucinate.dialogue.stream({
           controller: new Controller(),
-          policy: { tune: "unleashed" },
+          policy: { tier: "unleashed" },
           turns: [{ role: "user", parts: [{ type: "text", text: "flow" }] }],
         }),
       );
@@ -103,7 +103,7 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
       });
       const folded = await remote.hallucinate.dialogue.render({
         controller: new Controller(),
-        policy: { tune: "unleashed" },
+        policy: { tier: "unleashed" },
         turns: [{ role: "user", parts: [{ type: "text", text: "what is casa" }] }],
         tools,
       });
@@ -117,7 +117,7 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
     specimen.it("derivation runs client-side over a single proxied dialogue round", async () => {
       const folded = await remote.hallucinate.object.render({
         controller: new Controller(),
-        policy: { tune: "unleashed" },
+        policy: { tier: "unleashed" },
         turns: [{ role: "user", parts: [{ type: "text", text: "casa" }] }],
         output: { schema: v.object({ query: v.string() }) },
       });

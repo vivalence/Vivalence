@@ -107,7 +107,8 @@ export class Connection {
 
   aim(endpoint, bodyBase = {}, optionsBase = {}) {
     return (body = {}, options = {}) => {
-      return this.call(endpoint, object.merge(body, bodyBase), object.merge(options, optionsBase));
+      const { raw, ...rest } = options;
+      return this.call(endpoint, object.merge(body, bodyBase), { ...object.merge(rest, optionsBase), raw });
     };
   }
 

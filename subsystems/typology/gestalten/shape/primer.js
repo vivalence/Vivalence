@@ -8,9 +8,9 @@ const joined = (prefix, steps) => [prefix, ...steps.map((step) => step.nature)].
 const loading = (steps, inherited) => steps.findLast((step) => step.load)?.load ?? inherited;
 
 const nodes = (primer, prefix = "", inherited = "eager") =>
-  steer.trie.rollup(primer, (carry, effect) => effect).flatMap(({ pattern, steps, fn }) => {
-    const node = { nature: joined(prefix, steps), valence: pattern.valence, load: loading(steps, inherited), effect: fn };
-    return fn instanceof Vector ? nodes(fn, node.nature, node.load) : [node];
+  steer.trie.leaves(primer).flatMap(({ pattern, steps, effect }) => {
+    const node = { nature: joined(prefix, steps), valence: pattern.valence, load: loading(steps, inherited), effect };
+    return effect instanceof Vector ? nodes(effect, node.nature, node.load) : [node];
   });
 
 const BODIES = [

@@ -13,7 +13,7 @@ const HELD = [
 
 export const popover = new Vector()
   .open(
-    { nature: "/popover", valence: "float a segment's widget above the modeline; the same segment again closes it. Example: /popover entity 5", input: Held },
+    { nature: "/popover", rank: "hidden", valence: "float a segment's widget above the modeline; the same segment again closes it. Example: /popover entity 5", input: Held },
     (ctx) => {
       const { held, anchor } = belt.input.cast(Held, ctx.signal);
       const popover = HELD.find(([test]) => test(ctx.client.app.bridge.popover, held))[1](ctx.client.app.bridge.popover, held, anchor);
@@ -22,7 +22,7 @@ export const popover = new Vector()
     },
   )
   .open(
-    { nature: "/popover/close", valence: "drop the modeline's popover. Example: /popover/close" },
+    { nature: "/popover/close", rank: "hidden", valence: "drop the modeline's popover. Example: /popover/close" },
     (ctx) => {
       ctx.client.app.bridge.$popover.set(null);
       return "popover closed";

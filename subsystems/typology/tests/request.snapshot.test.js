@@ -27,6 +27,6 @@ describe("snapshot demo: request", () => {
     expect(pojo.method).toBe("POST");
     expect(pojo.headers).toEqual({ accept: "application/json" });
     expect(pojo.body).toEqual({ name: "test" });
-    expect(pojo.options.timeout).toBe(30000);
+    expect(pojo.options.timeout).toBe(undefined);
   });
 });

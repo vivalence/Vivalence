@@ -1,9 +1,8 @@
 import { join } from "@std/path";
 import { belt, specimen, steer, Vector } from "@vivalence/typology";
-import paladin from "@vivalence/paladin";
 import { traits } from "@vivalence/runtime";
 const { GENERATIVE } = traits.mode;
-import { generator, tools } from "../mode.viva.js";
+import { tools } from "../mode.viva.js";
 
 const SNAPSHOTS = new URL("./snapshots", import.meta.url).pathname;
 const HOT = Deno.env.get("SNAPSHOT_HOT") === "1";
@@ -25,36 +24,27 @@ const pin = (subject, file) => {
 // hallucination.js:26-32, reproduced — it is local to Hallucination(), so a snapshot of what
 // actually crosses the wire has to spell it out rather than import it.
 const declarations = (vector) =>
-  steer.trie.rollup(vector, () => null).map(({ pattern, steps }) => ({
+  steer.trie.leaves(vector).map(({ pattern, steps }) => ({
     name: belt.hallucinate.nameOf(steps),
     ...(pattern.valence && { valence: pattern.valence }),
     ...(pattern.input && { input: pattern.input }),
   }));
 
-// tooling.js:10 then harnessed.js — the mode's own tools plus the GENERATIVE trait's, with the
-// mode's generator slurped onto them. `tools` alone is NOT what reaches the model.
+// generative.js then tooling.js, in manifest order — both graft onto mode.tools, the one
+// catalog harnessed.js arms. `tools` alone is NOT what reaches the model.
 const generative = {
   manifest: { slug: "hello-world", type: "demo" },
-  module: { generator },
+  module: {},
   mountpoint: "/nonexistent/catalog",
   entity: { id: "mode-1" },
+  tools: new Vector(),
 };
 await GENERATIVE(generative, { entities: {} });
-const catalog = () => {
-  const armed = new Vector().graft(tools);
-  armed.graft(generative.generator.tools);
-  return armed;
-};
+generative.tools.graft(tools);
+const catalog = () => generative.tools;
 
-// harnessed.js:52-71, the layers a bare HARNESSED mode with a module mount actually gets:
-// no entities, no services, no domain — paladin's two skill packs plus the mode's own.
-const armory = () =>
-  declarations(
-    new Vector()
-      .graft(paladin.tools.fs.fs)
-      .graft(paladin.tools.shell.shell)
-      .graft(catalog()),
-  ).map(({ name }) => name);
+// harnessed.js armory, a bare HARNESSED mode: no services, no domain — the mode's own only.
+const armory = () => declarations(new Vector().graft(catalog())).map(({ name }) => name);
 
 specimen.describe(
   "hello-world catalog snapshot — what crosses the wire",
@@ -66,18 +56,25 @@ specimen.describe(
           declarations(catalog()),
           "hello-world-catalog.snapshot.json",
         );
-        // exactly five names, the trait's. SIX means the generator leaked a branch.
-        // `research` sits where the assembly put it — after web, before the trait's tools.
+        // five from the trait first (GENERATIVE precedes TOOLING), then four of its own and
+        // seven imported from the runtime; buffer_update · buffer_label join the trait's buffer.
         specimen.expect(pinned.map(({ name }) => name)).toEqual([
-          "viva_doctor",
-          "web_search",
-          "web_read",
-          "research",
           "buffer_create",
+          "buffer_update",
+          "buffer_label",
           "view_create",
           "view_update",
           "view_read",
           "view_list",
+          "viva_doctor",
+          "web_search",
+          "web_read",
+          "research",
+          "entity_schema",
+          "entity_find",
+          "entity_count",
+          "thread_update",
+          "mode_find",
         ]);
       },
     );

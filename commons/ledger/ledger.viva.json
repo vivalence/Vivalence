@@ -3,7 +3,8 @@
   "registry": "./registry.json",
   "environment": "./environment.json",
   "runtime": {
-    "statics": { "serve": "${VIVA_RUNTIME_SERVE}", "remote": "${PUBLIC_VIVA_RUNTIME_REMOTE}" }
+    "statics": { "serve": "${VIVA_RUNTIME_SERVE}", "remote": "${PUBLIC_VIVA_RUNTIME_REMOTE}" },
+    "modes": ["@commons/harness/runtime"]
   },
   "lighthouse": { "secrets": { "jwt": "${SECRET_VIVA_JWT}" }, "traits": ["JOINABLE", "AUTOLOGIN"] },
   "datamap": { "module": "@commons/datamap/libsql" },

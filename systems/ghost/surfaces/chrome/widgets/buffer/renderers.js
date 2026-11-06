@@ -1,3 +1,4 @@
+import { computed } from "nanostores";
 import { mime } from "@vivalence/typology";
 import * as belt from "../../../../gestalten/belt/index.js";
 
@@ -5,11 +6,14 @@ export const RUNS = [mime.tty.solid];
 
 export const runs = (view) => RUNS.includes(view.mime);
 
-export const candidates = async (buffer, attach) => (await belt.view.candidates(buffer, attach)).filter(runs);
+export const candidates = (buffer, files) =>
+  computed([belt.view.candidates(buffer.$views, buffer.mode.$views), files], (views) =>
+    views.filter(belt.view.held),
+  );
 
-export const framed = async (buffer, attach) => (await candidates(buffer, attach)).filter((view) => view.traits.includes("FRAME"));
+export const framed = (views) => views.filter(runs).filter((view) => view.traits.includes("FRAME"));
 
-export const cells = async (buffer, attach) => (await candidates(buffer, attach)).filter((view) => view.traits.includes("CELL"));
+export const cells = (views) => views.filter(runs).filter((view) => view.traits.includes("CELL"));
 
 const FRAMING = [
   [(buffer, views) => views.some((view) => view.slug === buffer.trait.RENDERED.frame), (buffer, views) => views.find((view) => view.slug === buffer.trait.RENDERED.frame)],

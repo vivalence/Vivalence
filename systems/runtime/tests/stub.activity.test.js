@@ -1,6 +1,7 @@
-import { specimen } from "@vivalence/typology";
+import { specimen, Vector } from "@vivalence/typology";
 import { metronome } from "@vivalence/typology/scenarios";
 import provider from "../../../commons/fixtures/testing/hal/stub/provider/index.js";
+import paladin from "@vivalence/paladin";
 import { create } from "./scenarios/cortex.js";
 
 const { ledger, until } = metronome;
@@ -11,6 +12,7 @@ const { ledger, until } = metronome;
 let world;
 specimen.beforeAll(async () => {
   world = await create();
+  world.dewey.tools = new Vector().graft(paladin.tools.fs);
   // playground's shape: the stub ALONE. the scenario seeds fixture faculties, and two
   // providers at neighbouring tunes would shadow each other on the nearest-tune pick.
   world.cortex.faculties.clear();
@@ -58,11 +60,11 @@ specimen.describe("stub · the controller machine over a scripted run", () => {
     const thread = await world.createThread();
 
     const events = [];
-    for await (const packet of await fire(thread, "--tool entity_find --rounds 1 --pace 5ms")) events.push(packet.event);
+    for await (const packet of await fire(thread, "--tool fs_tree --rounds 1 --pace 5ms")) events.push(packet.event);
 
     await until(() => roster.rows.length);
     const walked = roster.rows.map((frame) => frame.last).filter(Boolean);
-    specimen.expect(walked.some((last) => last.startsWith("hallucination › entity_find/"))).toBe(true);
+    specimen.expect(walked.some((last) => last.startsWith("hallucination › fs_tree/"))).toBe(true);
     specimen.expect(events).toContain("/tool/yield");
     specimen.expect(events.at(-1)).toBe("/response/close");
     roster.off();

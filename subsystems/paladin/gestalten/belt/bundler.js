@@ -8,21 +8,23 @@ const missing = (error) => {
   throw error;
 };
 
-const universal = {
-  name: "solid-universal",
+const solid = (filter, options) => ({
+  name: "solid",
   setup(build) {
-    build.onLoad({ filter: /\.jsx$/ }, async (file) => {
-      const [{ transformAsync }, { default: solid }] = await Promise.all([import("@babel/core"), import("babel-preset-solid")]);
+    build.onLoad({ filter }, async (file) => {
+      const [{ transformAsync }, { default: preset }] = await Promise.all([import("@babel/core"), import("babel-preset-solid")]);
       const transformed = await transformAsync(await Deno.readTextFile(file.path), {
         filename: file.path,
         configFile: false,
         babelrc: false,
-        presets: [[solid, { generate: "universal", moduleName: "@opentui/solid" }]],
+        presets: [[preset, options]],
       });
       return { contents: transformed.code, loader: "js" };
     });
   },
-};
+});
+const universal = solid(/\.jsx$/, { generate: "universal", moduleName: "@opentui/solid" });
+const dom = solid(/\.(jsx|dom\.solid)$/, { generate: "dom" });
 
 export default function bundler(paladin) {
   const imports = () => ({
@@ -40,6 +42,22 @@ export default function bundler(paladin) {
       })).find((output) => output.path === entry).text,
     [mime.tty.solid]: async (entry) =>
       (await esbuild.build({ entryPoints: [entry], bundle: true, format: "esm", platform: "neutral", packages: "external", write: false, plugins: [universal], logLevel: "silent" })).outputFiles[0].text,
+    [mime.dom.solid]: async (entry) =>
+      (await esbuild.build({
+        entryPoints: [entry],
+        bundle: true,
+        format: "esm",
+        platform: "browser",
+        nodePaths: [paladin.scope.repository.branch("node_modules").absolute],
+        alias: {
+          "@vivalence/drapes": paladin.scope.repository.branch("subsystems/drapes").absolute,
+          "@vivalence/typology": paladin.scope.repository.branch("subsystems/typology/mod.client.js").absolute,
+        },
+        loader: { ".css": "text" },
+        write: false,
+        plugins: [dom],
+        logLevel: "silent",
+      })).outputFiles[0].text,
     [mime.dom.html]: async (entry) => {
       const html = await paladin.read.text(entry);
       return `const html = ${JSON.stringify(html)};\nexport default (target) => { target.innerHTML = html; return { destroy: () => { target.innerHTML = ""; } }; };`;

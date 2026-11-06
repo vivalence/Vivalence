@@ -420,7 +420,7 @@ specimen.describe("anthropic provider", () => {
     });
 
     specimen.it(
-      "request.output.schema appends a respond tool + forces tool_choice:any",
+      "request.output.schema appends a respond tool, tool_choice auto: 5.5 refuses a forced choice",
       () => {
         const schema = {
           type: "object",
@@ -429,10 +429,11 @@ specimen.describe("anthropic provider", () => {
         const params = buildParams(haiku, { ...request(), output: { schema } });
         specimen.expect(params.tools.at(-1)).toEqual({
           name: "respond",
-          description: "Return the final result as structured data.",
+          description:
+            "Return the final result as structured data. Finish by calling this tool, never in plain text.",
           input_schema: schema,
         });
-        specimen.expect(params.tool_choice).toEqual({ type: "any" });
+        specimen.expect(params.tool_choice).toEqual({ type: "auto" });
       },
     );
 
@@ -469,13 +470,13 @@ specimen.describe("anthropic provider", () => {
     );
 
     specimen.it(
-      "only the thinking models expose thinking channels",
+      "all three models think: each exposes thinking channels",
       async () => {
         const faculties = await provider({ secrets: { key: "fake-key" } });
         const thinking = faculties.filter((faculty) =>
           faculty.channels.out.includes("thinking")
         );
-        specimen.expect(thinking).toHaveLength(2);
+        specimen.expect(thinking).toHaveLength(3);
       },
     );
   });

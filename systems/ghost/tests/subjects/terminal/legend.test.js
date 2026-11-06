@@ -49,12 +49,12 @@ specimen.describe("the Legend — a press goes through translation into the queu
     specimen.expect([held(terminal), terminal.legend.chord]).toEqual([[], null]);
   });
 
-  specimen.it("ctrl-v ctrl-v dispatches /repl, its chord: the catalog opens with / prefilled", async () => {
+  specimen.it("ctrl-v ctrl-v dispatches /repl, its chord: the catalog opens with / prefilled — the stub's unranked commands only, every ghost command rank hidden", async () => {
     const terminal = seat();
     for (const key of [ctrlV, ctrlV]) terminal.legend.dispatch(key);
     await settled();
     specimen.expect(terminal.client.dispatched).toEqual(["/repl"]);
-    specimen.expect(terminal.repl.$catalog.get().map((entry) => entry.nature)).toEqual(["/dock", "/boom", "/repl", "/repl/close", "/repl/next", "/repl/previous", "/repl/complete", "/leader", "/leader/leader", "/legend/close"]);
+    specimen.expect(terminal.repl.$catalog.get().map((entry) => entry.nature)).toEqual(["/dock", "/boom"]);
     specimen.expect([terminal.client.app.bridge.draft, terminal.client.app.bridge.focus, terminal.legend.chord]).toEqual(["/", "composer", null]);
   });
 

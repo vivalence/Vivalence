@@ -79,6 +79,7 @@ export const FileSchema = new EntitySchema<FileEntity, DataEntity>({
   name: "File",
   tableName: "File",
   repository: () => FileRepository,
+  filters: { mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false } },
   properties: {
     path: { type: types.string },
     mount: { type: types.string },
@@ -93,6 +94,7 @@ export const FileSchema = new EntitySchema<FileEntity, DataEntity>({
       kind: "m:1",
       entity: () => ModeEntity,
       fieldName: "mode",
+      inversedBy: (mode) => mode.files,
       updateRule: "cascade",
       deleteRule: "cascade",
     },

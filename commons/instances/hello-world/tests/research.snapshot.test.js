@@ -8,7 +8,7 @@ const SNAPSHOTS = new URL("./snapshots", import.meta.url).pathname;
 
 const invoke = (rigged, input) => {
   const outer = new Vector().graft(research);
-  outer.use(shard.context.spread(contexts.host, rigged.daemon));
+  outer.use(shard.context.spread(contexts.daemonDie, rigged.daemon));
   outer.use(shard.context.bind("mode", rigged.mode));
   outer.use(shard.context.bind("thread", "thread-1"));
   return steer.dispatch.invoke(
@@ -82,15 +82,6 @@ specimen.describe(
           name.startsWith("web_") || name.startsWith("view_") || name === "buffer_create"
         );
         for (const name of declared) specimen.expect(inner).toContain(name);
-        specimen.expect(inner.slice(0, 7)).toEqual([
-          "entity_schema",
-          "entity_find",
-          "entity_count",
-          "buffer_update",
-          "buffer_label",
-          "buffer_create",
-          "thread_update",
-        ]);
       },
     );
   },

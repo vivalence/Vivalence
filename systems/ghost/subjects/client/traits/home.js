@@ -11,7 +11,10 @@ export const HOME = (mask, clientDie) => {
     if (status.code === "ERROR") throw status.error;
     const mode = owner.modes.find((held) => held.reference.absolute === home);
     if (mode === undefined) throw new Error(`${home}: no such mode on ${owner.reference.absolute}`);
-    const thread = await clientDie.runtime.entities.thread.create({ mode: mode.id });
+    const thread = await clientDie.runtime.entities.thread.create({
+      user: clientDie.runtime.lighthouse.user.id,
+      mode: mode.id,
+    });
     await terminal.setThread(thread);
     terminal.controller.stdout.log({ home, thread: thread.id });
   };

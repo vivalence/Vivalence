@@ -3,13 +3,14 @@ import { RequestContext } from "@mikro-orm/core";
 import { seed } from "./fixtures.js";
 import { gestalten, traits } from "@vivalence/runtime";
 import { connector, lighthouseOf } from "./daemon.js";
-const { VIEWABLE, INTENTED, EMITTER, EXPOSED, HARNESSED, TOOLING } = traits.mode;
+const { VIEWABLE, INTENTED, EMITTER, EXPOSED, HARNESSED, TOOLING, PRIMER, AGENTIC } = traits.mode;
 const { stagger } = gestalten.belt;
 
 function buildDaemon({ datamap, runtime, held }) {
   const daemon = Object.assign(held, {
     type: "daemon",
     aperture: new Aperture(),
+    mountpoint: new Path("/rig/mountpoint"),
     statics: {
       language: {
         known: { slug: "english", name: "English" },
@@ -19,7 +20,7 @@ function buildDaemon({ datamap, runtime, held }) {
   });
 
   const lighthouse = lighthouseOf(datamap, runtime.user);
-  daemon.aperture.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.inject(datamap)).use(lighthouse.authenticate).use(lighthouse.bind);
+  daemon.aperture.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.datamap.inject(datamap)).use(lighthouse.authenticate).use(lighthouse.bind);
 
   return { daemon, lighthouse };
 }
@@ -28,15 +29,16 @@ async function wireMode(viva, daemon) {
   const em = daemon.entities.em;
   const mode = new Mode({ manifest: viva.manifest });
   mode.aperture = new Aperture();
-  mode.aperture.use(shard.context.spread(contexts.host, daemon));
+  mode.aperture.use(shard.context.spread(contexts.daemonDie, daemon));
   mode.aperture.use(shard.context.bind("mode", mode));
   mode.reference = new Path(`/mode/${viva.manifest.type}/${viva.manifest.slug}`);
 
   mode.entity =
-    (await daemon.entities.mode.findOne({ slug: viva.manifest.slug })) ??
+    (await daemon.entities.mode.findOne({ slug: viva.manifest.slug, daemon: daemon.slug })) ??
     daemon.entities.mode.create({
       slug: viva.manifest.slug,
       type: viva.manifest.type,
+      daemon: daemon.slug,
       traits: viva.manifest.traits,
       installed: "installed",
     });
@@ -49,15 +51,16 @@ async function wireMode(viva, daemon) {
   if (viva.harness) mode.module.harness = viva.harness;
   if (viva.aperture) mode.aperture.graft(viva.aperture);
   if (viva.tools) mode.module.tools = viva.tools;
+  if (viva.primer) mode.module.primer = viva.primer;
 
   mode.tools = new Vector();
-  mode.tools.use(shard.context.spread(contexts.host, daemon));
+  mode.tools.use(shard.context.spread(contexts.daemonDie, daemon));
   mode.tools.use(shard.context.bind("mode", mode));
 
   daemon.modes[viva.manifest.type] ??= {};
   daemon.modes[viva.manifest.type][viva.manifest.slug] = mode;
 
-  const finalizers = await stagger(mode, daemon, { VIEWABLE, INTENTED, EMITTER, EXPOSED, TOOLING, ...(daemon.cortex && { HARNESSED }) });
+  const finalizers = await stagger(mode, daemon, { VIEWABLE, INTENTED, EMITTER, EXPOSED, TOOLING, PRIMER, AGENTIC, ...(daemon.cortex && { HARNESSED }) });
   for (const finalize of finalizers) await finalize();
 
   daemon.aperture.branch(mode.reference.absolute, mode.aperture);

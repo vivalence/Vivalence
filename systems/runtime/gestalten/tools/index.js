@@ -1,5 +1,6 @@
-export * as entity from "./entity.js"; // canonical! new meta! @beef
-export * as buffer from "./buffer.js";
-export * as thread from "./thread.js";
-export * as mode from "./mode.js";
-export * as primer from "./primer.js";
+export { entity } from "./entity.js";
+export { buffer } from "./buffer.js";
+export { thread } from "./thread.js";
+export { mode } from "./mode.js";
+export { primer } from "./primer.js";
+export { generative } from "./generative.js";

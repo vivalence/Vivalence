@@ -1,9 +1,23 @@
 import { atom, computed, deepMap } from "nanostores";
-import { Entity, Bundle, fn, v } from "@vivalence/typology";
+import { Entity, Bundle, fn, is, v } from "@vivalence/typology";
 
 export class Buffer extends Entity {
-  views = [];
-  files = [];
+  $views = atom([]);
+  get views() {
+    return this.$views.get();
+  }
+  set views(value) {
+    this.$views.set(value ?? []);
+  }
+
+  $files = atom([]);
+  get files() {
+    return this.$files.get();
+  }
+  set files(value) {
+    this.$files.set(value ?? []);
+  }
+
   $data = atom({});
   get data() {
     return this.$data.get();
@@ -42,9 +56,11 @@ export class Buffer extends Entity {
   }
 
   toJSON() {
-    const { $data, $bundle, $traits, $trait, ...base } = super.toJSON();
+    const { $views, $files, $data, $bundle, $traits, $trait, ...base } = super.toJSON();
     return {
       ...base,
+      views: this.views.map((view) => (is.string(view) ? view : { id: view.id })),
+      files: this.files,
       data: this.data,
       bundle: this.bundle,
       traits: this.traits,

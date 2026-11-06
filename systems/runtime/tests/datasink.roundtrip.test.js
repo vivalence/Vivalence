@@ -40,8 +40,7 @@ const cycle = async ({ from, into, extension }) => {
   const scenario = await datamap.seed();
   const daemon = {
     entities: scenario.repos,
-    datamap: { getMetadata: () => scenario.orm.getMetadata() },
-    twitch: new Vector(),
+    datamap: scenario.datamap,
   };
   daemon.entities.em = scenario.em;
 
@@ -50,7 +49,8 @@ const cycle = async ({ from, into, extension }) => {
     manifest: { type: "topography", slug: `gen-${into}`, traits: [] },
     id: scenario.fixtures.mode.id,
     stdout: new Span(`mode/topography/gen-${into}`),
-    entity: { installed: "" },
+    twitch: new Vector(),
+    entity: { installed: "", daemon: scenario.fixtures.daemon },
     module: { source: { dirname: mount }, dataset: shape.dataset, datasink: shape.datasink },
   };
 
@@ -133,8 +133,7 @@ specimen.describe("the composite — cata ∘ ana is idempotent", () => {
     const scenario = await datamap.seed();
     const daemon = {
       entities: scenario.repos,
-      datamap: { getMetadata: () => scenario.orm.getMetadata() },
-      twitch: new Vector(),
+      datamap: scenario.datamap,
     };
     daemon.entities.em = scenario.em;
 
@@ -143,7 +142,8 @@ specimen.describe("the composite — cata ∘ ana is idempotent", () => {
       manifest: { type: "topography", slug: "gen-refix", traits: [] },
       id: scenario.fixtures.mode.id,
       stdout: new Span("mode/topography/gen-refix"),
-      entity: { installed: "" },
+      twitch: new Vector(),
+      entity: { installed: "", daemon: scenario.fixtures.daemon },
       module: { source: { dirname: mount }, dataset: shape.dataset, datasink: shape.datasink },
     };
 

@@ -22,6 +22,7 @@ const CASES = [
       <div class="aligns"><button class="">←</button><button class="cur">→</button><button class="">↑</button><button class="">↓</button></div>
       <div class="shrow"><button aria-label="less">−</button><span class="track slider"><span class="fill" style="width:42%"></span><span class="sv" data-slider-v="1">42 %</span></span><button aria-label="more">+</button></div></div></div>`],
   ["more", { type: "more", label: "3 more", fn: "expand", arg: "thread" }, `<button class="srow more">3 more</button>`],
+  ["note", { type: "note", text: "The directory tree under an absolute path." }, `<div class="srow note">The directory tree under an absolute path.</div>`],
 ];
 
 specimen.describe("Srow — dom.js:63 srow(r, pre): one row per type, the design's markup", () => {
@@ -32,6 +33,19 @@ specimen.describe("Srow — dom.js:63 srow(r, pre): one row per type, the design
       rig.close();
     });
   }
+
+  specimen.it("a value that carries fn is a disclosure: a button, its chevron ▸ shut, ▾ open, acting with its fn", () => {
+    const acted = [];
+    const held = { type: "value", label: "model", value: "anthropic · claude-sonnet", dot: "", fn: "expand", arg: "model" };
+    const shut = row({ ...held, open: false }, { onAct: (entry) => acted.push(entry.fn) });
+    specimen.expect(shaped(shut.target)).toBe(oracle(`<button class="srow value"><span class="lab">model</span><span class="v">anthropic · claude-sonnet</span><span class="chev">▸</span></button>`));
+    fire(shut.target.querySelector("button"), "click");
+    specimen.expect(acted).toEqual(["expand"]);
+    shut.close();
+    const open = row({ ...held, open: true });
+    specimen.expect(open.target.querySelector(".chev").textContent).toBe("▾");
+    open.close();
+  });
 
   specimen.it("every type the design draws, nothing else; an unknown type is loud", () => {
     specimen.expect(Object.keys(parts.SROWS)).toEqual(CASES.map(([type]) => type));

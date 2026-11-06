@@ -84,38 +84,39 @@ export { enhance };
 
 const resolving = new Set();
 
-export function entityFactory(descriptor, base) {
+export function entityFactory(schematic) {
+  const { base } = schematic;
   const factory = (spec) => {
-    if (resolving.has(descriptor.$id)) {
+    if (resolving.has(schematic.$id)) {
       return enhance(
-        Type.Intersect([base, Type.Object(descriptor.own, { additionalProperties: true })], {
-          $id: descriptor.$id,
+        Type.Intersect([base, Type.Object(schematic.own, { additionalProperties: true })], {
+          $id: schematic.$id,
           additionalProperties: true,
         }),
       );
     }
 
-    resolving.add(descriptor.$id);
+    resolving.add(schematic.$id);
     const relations = {};
-    for (const [k, thunk] of Object.entries(descriptor.relations ?? {})) {
+    for (const [k, thunk] of Object.entries(schematic.relations ?? {})) {
       relations[k] = thunk();
     }
-    resolving.delete(descriptor.$id);
+    resolving.delete(schematic.$id);
 
     const full = Type.Intersect(
       [
         base,
-        Type.Object(descriptor.own, { additionalProperties: true }),
+        Type.Object(schematic.own, { additionalProperties: true }),
         Type.Object(relations, { additionalProperties: true }),
       ],
-      { $id: descriptor.$id, additionalProperties: true },
+      { $id: schematic.$id, description: schematic.is, examples: schematic.examples, additionalProperties: true },
     );
 
     if (!spec) return enhance(full);
 
     const overrides = {};
     for (const [k, v] of Object.entries(spec)) {
-      if (descriptor.narrowable?.includes(k)) {
+      if (schematic.narrowable?.includes(k)) {
         overrides[k] =
           typeof v === "object" && v !== null && !v.type && !v.anyOf && !v.allOf && !v.oneOf
             ? Type.Object(v, { additionalProperties: true })
@@ -128,9 +129,9 @@ export function entityFactory(descriptor, base) {
     return enhance(Type.Intersect([full, Type.Object(overrides)], { additionalProperties: true }));
   };
 
-  factory.$id = descriptor.$id;
-  factory.descriptor = descriptor;
-  factory.traits = descriptor.traits ?? {};
+  factory.$id = schematic.$id;
+  factory.schematic = schematic;
+  factory.traits = schematic.traits ?? {};
   return factory;
 }
 

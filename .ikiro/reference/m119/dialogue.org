@@ -1,0 +1,35 @@
+#+title: m119 — the dialogue, moved whole from the quest 11-09 (cap)
+# limit: 6000 chars
+
+* the dialogue
+
+| his turn | my answer | lands at |
+|---|---|---|
+| /"could we have mode.entities scoped by mode???"/ | yes: the daemon fence is a =mint= Repository subclass passing =options.filters.daemon= on every method + stamping =daemon: slug= on create (=belt/traits.js:24-46=); mode = the same shape, column =mode= | terrain §1 |
+| /"on a subset of all entities where that makes sense"/ → /"literal, symbol, view, intent, file, note . all of those. ok lets run thread turn adn buffer there too."/ | nine kinds; =activity= stays the runtime's | ruling 1 |
+| /"how does that work on the client?"/ | the daemon mirror exists: server mounts =/entities/<kind>= over its fenced repo (=daemon/3-integration.js:17=), client =runtime.entities.branch(daemon.connection, [...])= (=ghost/entities/daemon/lifecycle/index.js:5=); mode = the same two rows; the client STORE is shared (=remote-repository.js:19=), the fence is in the wire | milestone 6 |
+| /"Filters ride repository options, not RequestContext → raw em bypass. explain?!"/ | two mikro switches: =default: false= + per-query =options.filters= (daemon today) vs =default: true= + =em.setFilterParams= in the =RequestContext= (the =user= filter today, =lighthouse.bind=) | terrain §2 |
+| /"why not used today? any issues ? seeems the right way"/ | used for =user=; daemon took the options route because =mint= already had a class for trait schematics — no ruling, an accident of order; issues: cross-scope reads, stamping is separate, a context must exist, escaped generators | terrain §3 |
+| /"ok i want both mode and daemon to follow this pattern … test."/ | probed on =:memory:= with the real entities: 19 probes; then the gravity I missed — daemon-WIDE reads of literal · symbol · note throw under a =default: true= mode filter — and 7 more probes proving a per-context enable | terrain §4 · §5 · Q1 |
+| /"any case where this condition is not met?"/ | none silent: a global em outside a context throws (=allowGlobalContext: false=), a fork outside a context carries no params → throws, a fork taken inside carries them anywhere; only a literal =filters: false= escapes | terrain §4 M · M2 · M3 |
+| /"L is the gravity … what?"/ | inside a request scoped to chess, =populate: ["literals"]= on the italian Mode row yields =[]=: the filter rides the JOIN; no error; without any mode params the same populate THROWS (N) | law 6 |
+| /"m119-scope-params amen"/ | this file | — |
+| =filters: { mode: { cond: (args: any) => ({ mode: args.mode }), default: false } },= · /"b"/ | Q1 RULED b; the entity row dormant, =bind= enables | ruling 7 |
+| /"could we also add thread default false?"/ | a =thread= row, same shape, on turn · buffer; the harness binds it after =claiming=; 5 hand stamps + 3 hand narrows die; probed | Q2 |
+| /"b. is optional right?"/ | yes: dormant until bound; a create names its thread or sits in a bound context | ruling 8 |
+| /"nope. turn mode optional. dont want to lose my chat when i shuffle modes."/ | =nullable= stays; traced: =prune= removes an uninstalled mode's row (=modes.js:34=) and =deleteRule: "cascade"= on =Thread.mode= · =Turn.mode= · =Buffer.mode= takes the chat with it TODAY — the fix under his ruling is =set null= | Q3 |
+| /"b]"/ | Q3 RULED B | ruling 9 |
+| /"what? no. stupid. why would we? is that needed?"/ (S3: =enable= · =scope(task, params)= · a throwing =bind=) | no: =User.ts:52= already fences only with params — =default: true, args: false=, a tolerant cond; zero datamap rows | Q4 |
+| /"b."/ | Q4 RULED B | ruling 10 |
+| =stamped= + its runtime ear pasted · /"looks fucking weird. super fucking wierd. … weird. needed?"/ | no: every =mode= write names its column today (16 sites); the fence's =daemon= stamp has five live creators — each names =daemon= | Q5 |
+| /"no stamp function"/ · /"b"/ | Q5 RULED B | ruling 11 |
+| the daemon =datamap= beat pasted · /"amen but make this function less UUUGLLYYYYY"/ → /"bit more empty lines but yes. better. much bttter"/ | the beat whole, stacked: four literal =gather= rows, no alias, a blank row per act | ruling 12 · milestone 3 |
+| the daemon beat hunk pasted · /"seems complicated."/ | the Daemon kind carries no scope row — the params row fenced nothing; hunk dies, beat unchanged. A beat touching ONE row names the column in its where · data (=ensure({ ...manifest, daemon })=, =prune= =find({ daemon })=); only =mode/2-resolution.js:5= (sixteen creates under one scope) sets params | Q4 · law 2 |
+
+** 11-10 review III S3 → Q7
+
+/"ok so on the mask it makes sense that the mode carries daemon slug. but on hte mode instance why not the daemon instnace?"/ → A (the slug; =mode.module.daemon= and =mode.daemon= one value, one kind; a runtime-host mode has no Daemon) vs B (the Daemon instance; =?.slug ?? null= ×4, a birth touched, a cycle) → /"a"/ (ruling 14).
+
+** 11-10 Q8
+
+/"i dont get the question. unclear. so. we want to review all literals not those who are owned by that mode"/ → Q8A (every mode sees the daemon's vocabulary vs memo opts out per read) → /"ok. so. when we go through mode.entities.[any] then filter by mode and daemon. when daemon.entities.[any]  filter daemon. when runtime.entities.[any] dont fucking filter. whats the holdup???"/ (ruling 15).

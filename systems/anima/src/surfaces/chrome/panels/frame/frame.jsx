@@ -1,9 +1,10 @@
-import { createResource, For, from, Show } from "solid-js";
+import { For, from, Show } from "solid-js";
 import * as parts from "@vivalence/drapes/parts";
 import { belt } from "@vivalence/typology";
 import * as ambient from "../../ambient/index.js";
 import { lookup, named, reference, short } from "../sidebar/sections.js";
-import { frame, framed } from "../../widgets/buffer/view.js";
+import { candidates, frame, framed } from "../../widgets/buffer/view.js";
+import { Select } from "../../widgets/select.jsx";
 import { popping } from "../dock/dock.jsx";
 import { View } from "./view.jsx";
 
@@ -24,41 +25,13 @@ export const picks = (buffer, views) =>
 
 const Asel = (props) => {
   const app = ambient.app.consume();
-  const terminal = ambient.terminal.consume();
-  const [views] = createResource(
-    () => props.buffer,
-    (buffer) => framed(buffer, app.client.runtime.attach),
-  );
+  const pool = from(candidates(props.buffer, app.client.runtime.entities.file.$entities));
   const trait = from(props.buffer.$trait);
   const listed = () => {
     trait();
-    return views.state === "ready" ? picks(props.buffer, views()) : [];
+    return picks(props.buffer, framed(pool()));
   };
-  return (
-    <label
-      class="asel"
-      title={listed()
-        .map((entry) => entry.title)
-        .join("\n")}>
-      <select
-        data-linesel="1"
-        aria-label="artifact"
-        onChange={(event) =>
-          terminal.repl
-            .dispatch(event.currentTarget.value)
-            .catch((error) => terminal.controller.stdout.fault(error))
-        }>
-        <For each={listed()}>
-          {(entry) => (
-            <option value={entry.signal} selected={entry.current}>
-              {entry.label}
-            </option>
-          )}
-        </For>
-      </select>
-      <parts.Icon name="chev" size={12} />
-    </label>
-  );
+  return <Select label="artifact" entries={listed()} />;
 };
 
 const Head = (props) => {
@@ -66,20 +39,11 @@ const Head = (props) => {
   const terminal = ambient.terminal.consume();
   return (
     <>
-      <Show when={props.phone}>
-        <button
-          type="button"
-          class="iconbtn back"
-          aria-label="back to the journal"
-          onClick={() => app.bridge.$phonePane.set("dock")}>
-          <parts.Icon name="back" />
-        </button>
-      </Show>
       <span class="fl">◆ artifact</span>
       <span class="fm">{reference(props.buffer.mode)}</span>
       <span class="fa">
         <Asel buffer={props.buffer} />
-        <Show when={props.dock.view === "closed" && !props.phone}>
+        <Show when={props.dock.view === "closed"}>
           <button
             type="button"
             class="iconbtn"
@@ -107,32 +71,46 @@ const Head = (props) => {
   );
 };
 
-const Empty = (props) => (
-  <div class="empty">
-    <div class="sign">◇</div>
-    <div>no buffer in the frame</div>
-    <div class="cmd">
-      {props.buffers.length === 0 ? "/buffer ‹label›" : `/buffer ${named(props.buffers[0])}`}
+const Empty = (props) => {
+  const terminal = ambient.terminal.consume();
+  return (
+    <div class="empty">
+      <div class="sign">◇</div>
+      <div>no buffer in the frame</div>
+      <Show when={props.buffers.length > 0} fallback={<div class="cmd">/buffer ‹label›</div>}>
+        <For each={props.buffers}>
+          {(buffer) => (
+            <button
+              type="button"
+              class="cmd"
+              title={`seat ${named(buffer)} in the frame · /buffer ${named(buffer)}`}
+              onClick={() =>
+                terminal.repl
+                  .dispatch(`/buffer ${named(buffer)}`)
+                  .catch((error) => terminal.controller.stdout.fault(error))
+              }>
+              /buffer {named(buffer)}
+            </button>
+          )}
+        </For>
+      </Show>
     </div>
-  </div>
-);
+  );
+};
 
 export function Frame(props) {
   const app = ambient.app.consume();
   const terminal = ambient.terminal.consume();
   const buffer = from(terminal.$buffer);
   const buffers = from(belt.atom.chain(terminal.$thread, "$buffers"));
-  const focus = from(app.bridge.$focus);
   console.log("buffer, buffers", buffer(), buffers(), buffer);
   return (
     <section
       class="pane frame"
-      classList={{ focus: focus() === "frame" }}
-      style={{ flex: "1 1 0" }}
-      onClick={() => buffer() !== null && app.bridge.$focus.set("frame")}>
+      style={{ flex: "1 1 0" }}>
       <div class="fhead" data-r="fhead">
         <Show when={buffer()} keyed>
-          {(held) => <Head buffer={held} dock={props.dock} phone={props.phone} />}
+          {(held) => <Head buffer={held} dock={props.dock} />}
         </Show>
       </div>
       <div class="fbody" data-r="fbody">

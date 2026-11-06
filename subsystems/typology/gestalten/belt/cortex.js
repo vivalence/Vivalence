@@ -1,6 +1,7 @@
 export const strip = (cortex) =>
   [...cortex.faculties.values()].flat().map((faculty) => ({
     type: faculty.type,
+    id: faculty.id,
     tune: faculty.tune,
     context: faculty.context,
     ...(faculty.options !== undefined && { options: faculty.options }),
@@ -15,7 +16,7 @@ export const wire = (connection, stripped = []) => stripped.map((meta) => ({ ...
 
 const avenues = (faculty, meta) => {
   const via = {};
-  if (meta.via.includes("render")) via.render = (request) => faculty.call("/render", { tune: meta.tune, ...request });
-  if (meta.via.includes("stream")) via.stream = (request) => faculty.observe("/stream", { method: "POST", body: { tune: meta.tune, ...request } });
+  if (meta.via.includes("render")) via.render = (request) => faculty.call("/render", { provider: meta.provider, id: meta.id, ...request });
+  if (meta.via.includes("stream")) via.stream = (request) => faculty.observe("/stream", { method: "POST", body: { provider: meta.provider, id: meta.id, ...request } });
   return via;
 };

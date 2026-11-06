@@ -10,11 +10,11 @@ const standing = (lighthouse) => ({ standing: lighthouse.status.code, user: ligh
 
 export const lighthouse = new Vector()
   .open(
-    { nature: "/lighthouse", valence: "standing · user · traits. Example: /lighthouse", chord: "leader/s/l" },
+    { nature: "/lighthouse", rank: "hidden", valence: "standing · user · traits. Example: /lighthouse", chord: "leader/s/l" },
     (ctx) => standing(ctx.client.runtime.lighthouse),
   )
   .open(
-    { nature: "/lighthouse/login", valence: "sign in with a username and a password; bare, the session is forgotten and the signin pane opens. Example: /lighthouse/login beef hunter2", input: Login },
+    { nature: "/lighthouse/login", rank: "hidden", valence: "sign in with a username and a password; bare, the session is forgotten and the signin pane opens. Example: /lighthouse/login beef hunter2", input: Login },
     async (ctx) => {
       if (ctx.signal.body.length === 0) {
         ctx.client.runtime.lighthouse.logout();
@@ -26,14 +26,14 @@ export const lighthouse = new Vector()
     },
   )
   .open(
-    { nature: "/lighthouse/refresh", valence: "refresh the session. Example: /lighthouse/refresh" },
+    { nature: "/lighthouse/refresh", rank: "hidden", valence: "refresh the session. Example: /lighthouse/refresh" },
     async (ctx) => {
       await ctx.client.runtime.lighthouse.refresh();
       return standing(ctx.client.runtime.lighthouse);
     },
   )
   .open(
-    { nature: "/lighthouse/logout", valence: "sign out — the lighthouse forgets the session. Example: /lighthouse/logout", chord: "leader/s/o" },
+    { nature: "/lighthouse/logout", rank: "hidden", valence: "sign out — the lighthouse forgets the session. Example: /lighthouse/logout", chord: "leader/s/o" },
     (ctx) => {
       ctx.client.runtime.lighthouse.logout();
       return standing(ctx.client.runtime.lighthouse);

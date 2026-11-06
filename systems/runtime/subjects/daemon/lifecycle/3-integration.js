@@ -1,4 +1,4 @@
-import { Url, Connection, shard, shape } from "@vivalence/typology";
+import { Url, Connection, fromm, shard, shape } from "@vivalence/typology";
 import * as belt from "../../../gestalten/belt/index.js";
 import { host } from "../../../gestalten/shard/index.js";
 
@@ -7,8 +7,15 @@ export const call = async (die, next) => {
   await next();
 };
 
+export const twitch = async (die, next) => {
+  for (const mode of fromm.modes(die.daemon.modes).flat) {
+    die.daemon.twitch.graft(mode.twitch);
+  }
+  await next();
+};
+
 export const prune = async (die, next) => {
-  await belt.modes.prune(die.daemon);
+  await belt.modes.prune(die.daemon, die.daemon.slug);
   await next();
 };
 

@@ -20,7 +20,6 @@ specimen.beforeAll(async () => {
   aperture
     .branch("/thread")
     .use(shard.context.attach("user", fixtures.user))
-    .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
     .graft(shard.datamap.repository(repos.thread))
 
   aperture.open("/manifest", () => ({ slug: "test", version: "0.0.1" }))
@@ -87,7 +86,12 @@ specimen.describe("shard.batch.route", () => {
     specimen.expect(statuses[1].status).toBe(200)
 
     await conn.call("/thread/create", {
-      data: { mode: scenario.fixtures.mode.id, trait: {}, cursor: 0, counter: 0 },
+      data: {
+        user: scenario.fixtures.user.id,
+        mode: scenario.fixtures.mode.id,
+        trait: {},
+        counter: 0,
+      },
     })
     const scoped = await conn.call("/batch", [
       { path: "/thread/find", body: { where: {} } },

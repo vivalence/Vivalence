@@ -19,6 +19,10 @@ export const FacultyType = v.union([
   v.const("verbatim"),
   v.const("call"),
   v.const("choice"),
+  v.const("picture"),
+  // v.const("movie"),
+  // v.const("sound"),
+  // v.const("embedding"),
 ]);
 
 export const Part = {};
@@ -201,6 +205,7 @@ export const Request = v.object({
 // documented vocabulary for consumers that DO care about the encoding.
 export const Faculty = v.object({
   type: v.string(),
+  id: v.string().desc('The faculty, exact — a model id, a voice id. Example: "openai/gpt-image-2"'),
   tune: Tune,
   context: v.integer().optional(),
   options: v.integer({ minimum: 2 }).optional().desc("Depth — the largest answer space one choice question may carry. Example: 255"),
@@ -403,9 +408,13 @@ Packet.Response = v.union([
   Packet.ResponseClose,
 ]);
 
-const shared = {
-  tune: v.union([Tier, Tune]).optional().desc('Desire in tune-space; the cortex resolves the faculty on it. Example: "fast"'),
+export const Selector = {
+  provider: v.string().optional().desc('A provider slug, exact. Example: "openrouter"'),
+  id: v.string().optional().desc('A faculty id, exact. Example: "openai/gpt-image-2"'),
+  tier: Tier.optional().desc('A named point in tune-space; ranks what the exact keys leave. Example: "fast"'),
+  tune: Tune.optional().desc("A point in tune-space; ranks what the exact keys leave. Example: [0.4, 0.3, 1.0, 0.8]"),
 };
+const shared = Selector;
 
 export const Policy = {};
 Policy.dialogue = v.object({
@@ -421,6 +430,7 @@ Policy.verbatim = v.object({
 }, { default: {} });
 Policy.speech = v.object({ ...shared }, { default: {} });
 Policy.choice = v.object({ ...shared }, { default: {} });
+Policy.picture = v.object({ ...shared }, { default: {} });
 
 const controlled = (policy) => ({
   controller: v.unknown().desc('A live Controller — required; is.Controller gates it, no schema can. Example: new Controller({ stdout: new Span("hallucination") })'),
@@ -456,11 +466,44 @@ Hallucination.choice = v.object({
   ...Choice.Round.properties,
 });
 
+export const Picture = {};
+Picture.Reference = v.object({
+  image: Part.Image,
+  role: v.union([v.const("style"), v.const("subject"), v.const("structure"), v.const("init")]).desc('What the provider is to take from it: paint like this · this thing · these edges and this composition · the picture being edited. Example: "style"'),
+});
+Picture.Settings = v.object(
+  {
+    size: v.string().optional().desc('WxH or an aspect the provider knows. Example: "1536x1024"'),
+    aspect: v.string().optional().desc('W:H the provider maps onto its sizes; refused LOUD when the faculty lacks it. Example: "3:2"'),
+    count: v.integer({ minimum: 1, maximum: 4 }).optional().desc("Pictures per request. Example: 2"),
+    format: v.union([v.const("png"), v.const("webp"), v.const("jpeg")]).optional().desc('The bytes wanted back. Example: "webp"'),
+    background: v.union([v.const("transparent"), v.const("opaque")]).optional().desc('Example: "transparent"'),
+  },
+  { additionalProperties: true },
+).desc("Provider knobs; the four named ones every provider maps, the rest pass through opaque. Example: { aspect: \"3:2\", count: 1 }");
+Picture.Request = v.object({
+  prompt: v.string({ minLength: 1 }).desc('What to make or change. Example: "a red fox in loose watercolor, white paper showing"'),
+  images: v.array(Picture.Reference, { default: [] }).desc("References, each with a role; the first `init` is the picture being edited. Example: []"),
+  mask: Part.Image.optional().desc('Alpha = the hole to repaint, over the first init image. Example: { type: "image", media: "image/png", data: "iVBOR…" }'),
+  settings: Picture.Settings.optional(),
+});
+Picture.Response = v.object({
+  images: v.array(Part.Image).desc('The pictures, in the provider\'s order. Example: [{ type: "image", media: "image/png", data: "iVBOR…" }]'),
+  revised: v.string().optional().desc('The prompt the provider actually painted from, when it rewrote ours. Example: "A red fox rendered in loose watercolor…"'),
+  provider: v.string().optional().desc('The hallucinator that painted it, stamped by the belt. Example: "openrouter"'),
+  id: v.string().optional().desc('The faculty that painted it, stamped by the belt. Example: "openai/gpt-image-2"'),
+  usage: v.record(v.string(), v.unknown()).optional().desc("The provider's usage record, opaque. Example: { input_tokens: 120 }"),
+});
+Hallucination.picture = v.object({
+  ...controlled(Policy.picture),
+  ...Picture.Request.properties,
+});
+
 export const Context = v.object({
   input: v.unknown().desc("Hallucination[avenue], filled; lowering rewrites it to the wire Request"),
   output: v.unknown().optional(),
   controller: v.unknown().desc("The record's controller, lifted; is.Controller"),
-  policy: v.union([Policy.dialogue, Policy.verbatim, Policy.speech, Policy.choice]).desc("The record's policy, lifted; lowering strips it off input"),
+  policy: v.union([Policy.dialogue, Policy.verbatim, Policy.speech, Policy.choice, Policy.picture]).desc("The record's policy, lifted; lowering strips it off input"),
   tools: v.unknown().optional().desc("The armed Vector, lifted off the record by lowering"),
   steps: v.array(v.unknown()),
   signal: v.unknown(),

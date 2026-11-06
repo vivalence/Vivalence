@@ -12,7 +12,7 @@
     if (terminal.stall?.$phase?.get?.() !== "inert") return;
     terminal.thread.daemon.entities.buffer.drop(buffer.id);
     terminal.thread.daemon.entities.buffer.removeOne({ id: buffer.id });
-    if (terminal.buffer?.id === buffer.id) terminal.buffer = null;
+    if (terminal.buffer?.id === buffer.id) terminal.setBuffer(null);
   }
 </script>
 

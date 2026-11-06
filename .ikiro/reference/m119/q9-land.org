@@ -1,0 +1,1406 @@
+#+title: m119 Q9 land 11-10 — =contexts.host= → =runtimeDie= · =daemonDie= · =modeDie=; the mode reaches the ORM through =entities.em=; =mode.twitch= grafted; the flat mode die
+# limit: 72000 chars
+
+Landed 11-10 on /"ok. go land via subagent."/: Q9A (ruling 16) · Q9B (ruling 17) · Q9C (ruling 18) · ruling 13's flat die. Sandbox first (=land9=), then the repo and =~/.viva/registry=; 73 files, each =cmp= same as a replay of the four land scripts on the pre-land text (proven by the replay itself: =git show 93e9ec2e= for 48 repo files, the session's own read of =mode/lifecycle/1-population.js= after Q8, the registry's 24 by the inverse rename). =contexts.host= readers after: 0 (repo + registry, =node_modules= · =bak= · =.ikiro= out).
+
+The sets, as measured: =runtimeDie= carries =domain= (=Runtime.domain=, set at =population.modes=) and no =providers=; =daemonDie= and =modeDie= are spelled whole (ruling 16: duplication over a set spread into a set). =Aperture= · =Tool= · =Harness= · =Emitter= spread =modeDie= (was =host= + =mode=); =Twitch= unchanged.
+
+MISWIRE 1, the flat die: the sketch =({ mode, traits, ...lift(contexts.host, host) })= under =modeDie= lifts the PARENT's =mode= word (=undefined= on a daemon) over the mode. The lift goes first: =({ ...lift(contexts.modeDie, context), mode, traits })=; the parent is =context=, the name =belt/modes.js= already gives it (ruling 16 cuts =host=).
+
+MISWIRE 2, Q9C under rigs: five stubs ran a twitch trait on a plain mode with no =twitch= (=TypeError: Cannot read properties of undefined (reading 'open')=): =datasink.drain= · =datasink.roundtrip= · =drain.playground= · droneaid =tests/rig.js= · education =domain/tests/kernel/datasink.test.js=. Each stub mode carries =twitch=; a rig that fires its daemon's twitch grafts the mode's after the trait, as the integration beat does. =beats.coverage= read =target.context === die.runtime=; the mode factory now receives =die.runtime= itself. =modes.test.js= mirrors the flat factory and reads =die.reference=.
+
+UNRULED, Q9B's name: =export const scope = (em, task)= cannot sit beside =export function scope(resolve)= (=shard/datamap.js:273=, the =ctx.scope= narrow; readers =runtime/lifecycle/3-integration.js:75 · :85= + 7 test files). Not landed under that name: the three mode scopes call mikro whole, =RequestContext.create(modeDie.entities.em, …)= (=mode/lifecycle/1-population.js:32= · =2-resolution.js:6= · =traits/dataset.js:61=), and =Datamap.shard.scope= keeps its own row. =bind(em, name, resolve)= landed as ruled; =Datamap.shard.bind= delegates to it. His call: rename the =ctx.scope= narrow (=* deferred= names it a cut candidate) or name the em-first scope otherwise.
+
+Left as found: rows a one-word rename widened stay wide in tests and registry rigs; product rows past 100 chars were reflowed. =traits/booted.js:3='s comment still reads =boot(context, mode)=; the =.desc= texts in =contexts.js= still say "The host's". The census rewrote three CAPTURE snapshots in =~/.viva/registry/vcompany/modes/office/vdex/tests/snapshots/= (=DRY = false=, a run writes them; vcompany has no VCS).
+
+* product — 29 files
+
+#+BEGIN_SRC diff
+// commons/fixtures/testing/data/seed.js:40
+   };
+-  held.twitch.use(shard.context.spread(contexts.host, held)).use(shard.datamap.owned());
++  held.twitch.use(shard.context.spread(contexts.daemonDie, held)).use(shard.datamap.owned());
+   held.twitch.branch("/after").use(shard.datamap.detached(datamap));
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shard/datamap.js:4
+ import * as object from "../belt/object.js";
+-import { serialize } from "@mikro-orm/core";
++import { RequestContext, serialize } from "@mikro-orm/core";
+ 
+…
+// subsystems/typology/gestalten/shard/datamap.js:265
+ 
++export const bind = (em, name, resolve) => async (ctx, next) => {
++  RequestContext
++    .getEntityManager(em.name)
++    ?.setFilterParams(name, resolve(ctx));
++  await next();
++};
++
+ export function scope(resolve) {
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/datamap.js:2
+ import * as shape from "../gestalten/shape/index.js";
++import * as datamap from "../gestalten/shard/datamap.js";
+ 
+…
+// subsystems/typology/prototypes/datamap.js:13
+       scope: (task) => RequestContext.create(orm.em, task),
+-      bind: (name, resolve) => async (ctx, next) => {
+-        RequestContext.getEntityManager(orm.em.name)?.setFilterParams(name, resolve(ctx));
+-        await next();
+-      },
++      bind: (name, resolve) => datamap.bind(orm.em, name, resolve),
+       carry: () => {
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/mode.js:2
+ import { Path } from "./path.js";
++import { Twitch } from "./twitch.js";
+ 
+…
+// subsystems/typology/prototypes/mode.js:12
+   daemon = null;
++  twitch = new Twitch();
+ 
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/contexts.js:60
+ export const vector = { ...input, ...output, ...request, ...response, ...params, ...steps, ...signal };
+-export const host = { ...entities, ...call, ...cortex, ...modes, ...providers, ...statics, ...domain, ...mountpoint, ...reference, ...attach };
+ 
+-export const Aperture = { ...vector, ...host, ...mode, ...optional(user) };
+-export const Tool = { ...vector, ...host, ...mode, ...user, ...optional(thread), ...optional(service) };
+-export const Harness = { ...vector, ...host, ...mode, ...user, ...thread, ...optional(turn), ...hallucination, ...tools, ...controller, ...intelligent, ...vocal, ...optional(activity), ...optional(screen) };
+-export const Emitter = { ...vector, ...host, ...mode, ...pool, ...thread, ...optional(user) };
++export const runtimeDie = {
++  ...entities,
++  ...call,
++  ...cortex,
++  ...modes,
++  ...statics,
++  ...domain,
++  ...mountpoint,
++  ...reference,
++  ...attach,
++};
++
++export const daemonDie = {
++  ...entities,
++  ...call,
++  ...cortex,
++  ...modes,
++  ...providers,
++  ...statics,
++  ...domain,
++  ...mountpoint,
++  ...reference,
++  ...attach,
++};
++
++export const modeDie = {
++  ...entities,
++  ...call,
++  ...cortex,
++  ...modes,
++  ...providers,
++  ...statics,
++  ...domain,
++  ...mountpoint,
++  ...reference,
++  ...attach,
++  ...mode,
++};
++
++export const Aperture = { ...vector, ...modeDie, ...optional(user) };
++export const Tool = { ...vector, ...modeDie, ...user, ...optional(thread), ...optional(service) };
++export const Harness = { ...vector, ...modeDie, ...user, ...thread, ...optional(turn), ...hallucination, ...tools, ...controller, ...intelligent, ...vocal, ...optional(activity), ...optional(screen) };
++export const Emitter = { ...vector, ...modeDie, ...pool, ...thread, ...optional(user) };
+ export const Twitch = { ...vector, ...entities, ...call, ...cortex, ...providers, ...statics, ...domain, ...mountpoint, ...reference, ...optional(scope), ...optional(mode) };
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/belt/modes.js:4
+   for (const mode of fromm.modes(context.modes).flat) {
+-    await factory(mode)({ context, traits });
++    await factory(mode, traits)(context);
+   }
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/daemon/lifecycle/1-population.js:43
+   die.daemon.twitch = new Twitch()
+-    .use(shard.context.spread(contexts.host, die.daemon))
++    .use(shard.context.spread(contexts.daemonDie, die.daemon))
+     .use(shard.datamap.owned());
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/daemon/lifecycle/2-resolution.js:15
+   if (die.daemon.domain.aperture) {
+-    die.daemon.domain.aperture.use(shard.context.spread(contexts.host, die.daemon));
++    die.daemon.domain.aperture.use(shard.context.spread(contexts.daemonDie, die.daemon));
+     die.daemon.aperture.graft(die.daemon.domain.aperture);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/daemon/lifecycle/3-integration.js:1
+-import { Url, Connection, shard, shape } from "@vivalence/typology";
++import { Url, Connection, fromm, shard, shape } from "@vivalence/typology";
+ import * as belt from "../../../gestalten/belt/index.js";
+…
+// systems/runtime/subjects/daemon/lifecycle/3-integration.js:6
+   die.connection = new Connection(new Url("http://internal"), shard.transmitter.inline(shape.http(die.daemon.aperture)));
++  await next();
++};
++
++export const twitch = async (die, next) => {
++  for (const mode of fromm.modes(die.daemon.modes).flat) {
++    die.daemon.twitch.graft(mode.twitch);
++  }
+   await next();
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/daemon/lifecycle/index.js:19
+   .use(resolution.modes(mode))
++  .use(integration.twitch)
+   .use(integration.datamap)
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/daemon/prototype.js:4
+   type = "daemon";
+-  aperture = new Aperture().use(shard.context.spread(contexts.host, this));
++  aperture = new Aperture().use(shard.context.spread(contexts.daemonDie, this));
+   slug = null;
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/factory.js:1
+-import { monad, shape } from "@vivalence/typology";
++import { contexts, monad, shape, shard } from "@vivalence/typology";
+ import { execution } from "./lifecycle/index.js";
+ 
+-export function factory(mode) {
++export function factory(mode, traits) {
+   return monad.kleisli([
+-    (parentDie) => ({ mask: mode.module, mode, context: parentDie.context, traits: parentDie.traits }),
++    (context) => ({
++      ...shard.context.lift(contexts.modeDie, context),
++      mode,
++      traits,
++    }),
+     shape.monad.execute(execution),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/lifecycle/1-population.js:1
+-import { wrap } from "@mikro-orm/core";
++import { RequestContext, wrap } from "@mikro-orm/core";
+ import { Aperture, contexts, shard, Vector } from "@vivalence/typology";
+ 
+-export const stdout = async (die, next) => {
++export const stdout = async (modeDie, next) => {
+   try {
+     await next();
+-    die.mode.stdout.start();
++    modeDie.mode.stdout.start();
+   } catch (error) {
+-    die.mode.stdout.fault(error);
++    modeDie.mode.stdout.fault(error);
+     throw error;
+…
+// systems/runtime/subjects/mode/lifecycle/1-population.js:13
+ 
+-export const core = async (die, next) => {
+-  die.mode.aperture = new Aperture()
+-    .use(shard.context.spread(contexts.host, die.context))
+-    .use(shard.context.bind("mode", die.mode))
++export const core = async (modeDie, next) => {
++  modeDie.mode.aperture = new Aperture()
++    .use(shard.context.spread(contexts.modeDie, modeDie))
++    .use(shard.context.bind("mode", modeDie.mode))
+     .open("/metadata/status", (ctx) => ctx.mode.status.reflection)
+     .open("/metadata/manifest", (ctx) => ctx.mode.manifest);
+-  if (die.mode.module.aperture) die.mode.aperture.graft(die.mode.module.aperture);
++  if (modeDie.mode.module.aperture) modeDie.mode.aperture.graft(modeDie.mode.module.aperture);
+   for (const kind of ["literal", "symbol", "view", "intent", "file", "note", "thread", "turn", "buffer"]) {
+-    die.mode.aperture
++    modeDie.mode.aperture
+       .branch(`/entities/${kind}`)
+-      .use(die.context.datamap.shard.bind("mode", (ctx) => ({ mode: ctx.mode.id })))
+-      .graft(shard.datamap.repository(die.context.entities[kind]));
++      .use(shard.datamap.bind(modeDie.entities.em, "mode", (ctx) => ({ mode: ctx.mode.id })))
++      .graft(shard.datamap.repository(modeDie.entities[kind]));
+   }
+ 
+-  die.mode.tools = new Vector().use(shard.context.spread(contexts.host, die.context)).use(shard.context.bind("mode", die.mode));
++  modeDie.mode.tools = new Vector()
++    .use(shard.context.spread(contexts.modeDie, modeDie))
++    .use(shard.context.bind("mode", modeDie.mode));
+ 
+-  await die.context.datamap.shard.scope(async () => {
+-    const entity = await die.context.entities.mode.ensure({ ...die.mode.manifest, daemon: die.mode.daemon });
+-    entity.traits = [...die.mode.manifest.traits];
+-    await die.context.entities.em.flush();
+-    die.mode.entity = wrap(entity).toPOJO();
+-    die.mode.id = die.mode.entity.id;
++  await RequestContext.create(modeDie.entities.em, async () => {
++    const entity = await modeDie.entities.mode.ensure({
++      ...modeDie.mode.manifest,
++      daemon: modeDie.mode.daemon,
++    });
++    entity.traits = [...modeDie.mode.manifest.traits];
++    await modeDie.entities.em.flush();
++    modeDie.mode.entity = wrap(entity).toPOJO();
++    modeDie.mode.id = modeDie.mode.entity.id;
+   });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/lifecycle/2-resolution.js:1
++import { RequestContext } from "@mikro-orm/core";
+ import { stagger } from "../../../gestalten/belt/index.js";
+…
+// systems/runtime/subjects/mode/lifecycle/2-resolution.js:3
+ 
+-export const traits = async (die) => {
+-  await die.context.datamap.shard.scope(async () => {
+-    die.context.entities.em.setFilterParams("daemon", { daemon: die.mode.daemon });
+-    die.context.entities.em.setFilterParams("mode", { mode: die.mode.id });
+-    const installed = await stamp(die.mode);
++export const traits = async (modeDie) => {
++  await RequestContext.create(modeDie.entities.em, async () => {
++    modeDie.entities.em.setFilterParams("daemon", { daemon: modeDie.mode.daemon });
++    modeDie.entities.em.setFilterParams("mode", { mode: modeDie.mode.id });
++    const installed = await stamp(modeDie.mode);
+ 
+     if (
+-      typeof die.mode.entity.installed === "string" &&
+-      die.mode.entity.installed &&
+-      die.mode.entity.installed !== installed
++      typeof modeDie.mode.entity.installed === "string" &&
++      modeDie.mode.entity.installed &&
++      modeDie.mode.entity.installed !== installed
+     ) {
+…
+// systems/runtime/subjects/mode/lifecycle/2-resolution.js:16
+       console.log(
+-        `[DATASET] ${die.mode.manifest.type}/${die.mode.manifest.slug} dataset files differ from the installed stamp — reinstalling`,
++        `[DATASET] ${modeDie.mode.manifest.type}/${modeDie.mode.manifest.slug} ` +
++          "dataset files differ from the installed stamp — reinstalling",
+       );
+-      die.mode.entity.installed = "";
++      modeDie.mode.entity.installed = "";
+     }
+ 
+-    die.mode.finalizers = await stagger(die.mode, die.context, die.traits);
++    modeDie.mode.finalizers = await stagger(modeDie.mode, modeDie, modeDie.traits);
+ 
+-    for (const name of die.mode.manifest.traits.filter((name) => !die.traits[name])) {
++    for (const name of modeDie.mode.manifest.traits.filter((name) => !modeDie.traits[name])) {
+       // @beef should be done in paladin.
+       console.warn(
+-        `[trait] ${die.mode.manifest.type}/${die.mode.manifest.slug} declares ${name}, which ${die.context.reference.absolute} does not offer`,
++        `[trait] ${modeDie.mode.manifest.type}/${modeDie.mode.manifest.slug} ` +
++          `declares ${name}, which ${modeDie.reference.absolute} does not offer`,
+       );
+…
+// systems/runtime/subjects/mode/lifecycle/2-resolution.js:30
+ 
+-    if (die.mode.module.aperture && !die.mode.implements("EXPOSED")) {
++    if (modeDie.mode.module.aperture && !modeDie.mode.implements("EXPOSED")) {
+       // @beef should be done in paladin.
+       console.warn(
+-        `[trait] ${die.mode.manifest.type}/${die.mode.manifest.slug} exports aperture without EXPOSED`,
++        `[trait] ${modeDie.mode.manifest.type}/${modeDie.mode.manifest.slug} ` +
++          "exports aperture without EXPOSED",
+       );
+     }
+-    if (die.mode.module.datasink && !die.mode.implements("DATASINK")) {
++    if (modeDie.mode.module.datasink && !modeDie.mode.implements("DATASINK")) {
+       // @beef should be done in paladin.
+       console.warn(
+-        `[trait] ${die.mode.manifest.type}/${die.mode.manifest.slug} exports datasink without DATASINK`,
++        `[trait] ${modeDie.mode.manifest.type}/${modeDie.mode.manifest.slug} ` +
++          "exports datasink without DATASINK",
+       );
+…
+// systems/runtime/subjects/mode/lifecycle/2-resolution.js:43
+ 
+-    die.mode.entity.installed = installed;
++    modeDie.mode.entity.installed = installed;
+ 
+-    await die.context.entities.mode.nativeUpdate(
+-      { id: die.mode.entity.id },
++    await modeDie.entities.mode.nativeUpdate(
++      { id: modeDie.mode.entity.id },
+       { installed: installed },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/agentic.js:2
+ 
+-export const AGENTIC = (mode, context) => () => {
++export const AGENTIC = (mode, modeDie) => () => {
+   fromm
+-    .modes(context.modes)
++    .modes(modeDie.modes)
+     .flat.filter(
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/booted.js:4
+ // returns is the teardown, owed back at context disintegrate.
+-export const BOOTED = (mode, context) => {
++export const BOOTED = (mode, modeDie) => {
+   let teardown;
+…
+// systems/runtime/subjects/mode/traits/booted.js:8
+     finalize: async () => {
+-      teardown = await mode.module.boot(context, mode);
++      teardown = await mode.module.boot(modeDie, mode);
+     },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/dataset.js:9
+ } from "@vivalence/typology";
++import { RequestContext } from "@mikro-orm/core";
+ import paladin from "@vivalence/paladin";
+…
+// systems/runtime/subjects/mode/traits/dataset.js:54
+ 
+-export const DATASET = async (mode, context) => {
++export const DATASET = async (mode, modeDie) => {
+   if (mode.entity.installed) return;
+…
+// systems/runtime/subjects/mode/traits/dataset.js:59
+   try {
+-    await context.datamap.shard.scope(async () => {
+-      context.entities.em.setFilterParams("daemon", { daemon: mode.daemon });
+-      context.entities.em.setFilterParams("mode", { mode: null });
+-      await install(mode, context, installing);
++    await RequestContext.create(modeDie.entities.em, async () => {
++      modeDie.entities.em.setFilterParams("daemon", { daemon: mode.daemon });
++      modeDie.entities.em.setFilterParams("mode", { mode: null });
++      await install(mode, modeDie, installing);
+     });
+…
+// systems/runtime/subjects/mode/traits/dataset.js:72
+ 
+-async function install(mode, context, installing) {
++async function install(mode, modeDie, installing) {
+   const dataset = new Dataset(mode.module.dataset ?? {});
+-  const meta = shard.datamap.strip(context.datamap.getMetadata());
+-  const repo = (type) => context.entities[type];
+-  const em = context.entities.em;
++  const meta = shard.datamap.strip(modeDie.entities.em.getMetadata());
++  const repo = (type) => modeDie.entities[type];
++  const em = modeDie.entities.em;
+   const flush = async () => {
+…
+// systems/runtime/subjects/mode/traits/dataset.js:85
+     guard(mode, meta, type);
+-    if (!context.entities[type]) {
++    if (!modeDie.entities[type]) {
+       installing.log({ skipped: type, reason: "unknown entity" });
+…
+// systems/runtime/subjects/mode/traits/dataset.js:123
+     for (const [prop, relation] of Object.entries(meta[type]?.properties ?? {})) {
+-      await linkPhase({ repo, context, flush, mode, installing }, meta, type, prop, relation, staged[type] ?? []);
++      await linkPhase(
++        { repo, modeDie, flush, mode, installing },
++        meta,
++        type,
++        prop,
++        relation,
++        staged[type] ?? [],
++      );
+     }
+…
+// systems/runtime/subjects/mode/traits/dataset.js:140
+ async function linkPhase(
+-  { repo, context, flush, mode, installing },
++  { repo, modeDie, flush, mode, installing },
+   meta,
+…
+// systems/runtime/subjects/mode/traits/dataset.js:148
+   const toType = relation.target;
+-  if (!toType || !context.entities[toType]) return;
++  if (!toType || !modeDie.entities[toType]) return;
+ 
+…
+// systems/runtime/subjects/mode/traits/dataset.js:153
+ 
+-  const pmeta = context.datamap.getMetadata().get(repo(fromType).getEntityName())
++  const pmeta = modeDie.entities.em.getMetadata().get(repo(fromType).getEntityName())
+     .properties[prop];
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/datasink.js:7
+ 
+-export const DATASINK = (mode, context) => {
++export const DATASINK = (mode, modeDie) => {
+   const datasink = new Datasink(mode.module.datasink ?? {});
+…
+// systems/runtime/subjects/mode/traits/datasink.js:11
+ 
+-  const meta = shard.datamap.strip(context.datamap.getMetadata());
++  const meta = shard.datamap.strip(modeDie.entities.em.getMetadata());
+   for (const type of datasink.types) {
+…
+// systems/runtime/subjects/mode/traits/datasink.js:21
+     }
+-    if (!context.entities[type]) {
++    if (!modeDie.entities[type]) {
+       console.warn(
+…
+// systems/runtime/subjects/mode/traits/datasink.js:42
+       if (!sinks.length) continue;
+-      const repo = context.entities[type];
++      const repo = modeDie.entities[type];
+       if (!repo) continue;
+…
+// systems/runtime/subjects/mode/traits/datasink.js:59
+           .map(project.row(relations, [...columns, ...relations]))
+-          .filter((row) => sink.match?.(row, { ...shard.context.lift(contexts.host, context), mode }) ?? true)
++          .filter((row) =>
++            sink.match?.(row, { ...shard.context.lift(contexts.modeDie, modeDie), mode }) ?? true
++          )
+           .map(sink.shape ?? project.lean(relations))
+…
+// systems/runtime/subjects/mode/traits/datasink.js:82
+ 
+-    if (report.written && mode.entity?.id && context.entities.mode) {
++    if (report.written && mode.entity?.id && modeDie.entities.mode) {
+       mode.entity.installed = await stamp(mode);
+-      await context.entities.mode.nativeUpdate({ id: mode.entity.id }, {
++      await modeDie.entities.mode.nativeUpdate({ id: mode.entity.id }, {
+         installed: mode.entity.installed,
+…
+// systems/runtime/subjects/mode/traits/datasink.js:101
+     for (const op of ["create", "update", "delete"]) {
+-      context.twitch.open(`/after/${type}/${op}`, (ctx) => {
++      mode.twitch.open(`/after/${type}/${op}`, (ctx) => {
+         if (!armed) return;
+…
+// systems/runtime/subjects/mode/traits/datasink.js:107
+           ? sinks.filter((sink) =>
+-            sink.match?.(entity, { ...shard.context.lift(contexts.host, context), mode }) === true
++            sink.match?.(
++              entity,
++              { ...shard.context.lift(contexts.modeDie, modeDie), mode },
++            ) === true
+           )
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/emitter.js:2
+ 
+-export const EMITTER = async (mode, context) => {
++export const EMITTER = async (mode, modeDie) => {
+   if (!mode.module.emitter) return;
+…
+// systems/runtime/subjects/mode/traits/emitter.js:19
+   emitter.use(async (ctx, next) => {
+-    Object.assign(ctx, shard.context.lift(contexts.host, context));
++    Object.assign(ctx, shard.context.lift(contexts.modeDie, modeDie));
+     ctx.mode = mode;
+…
+// systems/runtime/subjects/mode/traits/emitter.js:26
+     // emitter requires thread.
+-    ctx.thread = await context.entities.thread.findOneOrFail({ id: ctx.input.thread });
++    ctx.thread = await modeDie.entities.thread.findOneOrFail({ id: ctx.input.thread });
+ 
+…
+// systems/runtime/subjects/mode/traits/emitter.js:34
+ 
+-  emitter.use(context.datamap.shard.bind("thread", (ctx) => ({ thread: ctx.thread.id })));
++  emitter.use(
++    shard.datamap.bind(modeDie.entities.em, "thread", (ctx) => ({ thread: ctx.thread.id })),
++  );
+ 
+…
+// systems/runtime/subjects/mode/traits/emitter.js:59
+ 
+-    await context.entities.em.flush();
++    await modeDie.entities.em.flush();
+ 
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/fileset.js:4
+ 
+-export const FILESET = async (mode, context) => {
++export const FILESET = async (mode, modeDie) => {
+   const directory = join(mode.module.source.dirname, mode.module.fileset.path);
+…
+// systems/runtime/subjects/mode/traits/fileset.js:9
+   for (const file of await paladin.find.walk(/./)(directory)) {
+-    await context.entities.file.record({
++    await modeDie.entities.file.record({
+       mode: mode.entity.id,
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/filesink.js:4
+ 
+-export const FILESINK = (mode, context) => {
++export const FILESINK = (mode, modeDie) => {
+   mode.aperture.open(
+…
+// systems/runtime/subjects/mode/traits/filesink.js:17
+       await paladin.state.store(mount, ctx.input.bytes);
+-      return context.entities.file.record({
++      return modeDie.entities.file.record({
+         mode: mode.entity.id,
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/generative.js:4
+ 
+-export const GENERATIVE = (mode, context) => {
++export const GENERATIVE = (mode, modeDie) => {
+   const bundler = paladin.bundler(new Path(mode.mountpoint).absolute);
+…
+// systems/runtime/subjects/mode/traits/generative.js:8
+   mode.generator = {
+-    bundle: (data) => context.entities.view.bundle({ mode: mode.entity.id, ...data }, { bundler }),
+-    tools: tools(mode, context),
++    bundle: (data) => modeDie.entities.view.bundle({ mode: mode.entity.id, ...data }, { bundler }),
++    tools: tools(mode, modeDie),
+   };
+…
+// systems/runtime/subjects/mode/traits/generative.js:73
+ 
+-const tools = (mode, context) => {
++const tools = (mode, modeDie) => {
+   const root = new Vector();
+…
+// systems/runtime/subjects/mode/traits/generative.js:118
+                 views: (
+-                  await context.entities.view.find({
++                  await modeDie.entities.view.find({
+                     mode: mode.entity.id,
+…
+// systems/runtime/subjects/mode/traits/generative.js:124
+               };
+-        const buffer = await context.entities.buffer.create({
++        const buffer = await modeDie.entities.buffer.create({
+           mode: mode.entity.id,
+…
+// systems/runtime/subjects/mode/traits/generative.js:137
+         });
+-        await context.entities.em.flush();
++        await modeDie.entities.em.flush();
+         if (ctx.input.source !== undefined) {
+…
+// systems/runtime/subjects/mode/traits/generative.js:143
+           await paladin.state.store(mount, bytes);
+-          buffer.files.add(await context.entities.file.record({ mode: mode.entity.id, path, mount, mime: ctx.input.mime, bytes }));
++          buffer.files.add(
++            await modeDie.entities.file.record({
++              mode: mode.entity.id,
++              path,
++              mount,
++              mime: ctx.input.mime,
++              bytes,
++            }),
++          );
+         }
+-        await context.entities.em.flush();
++        await modeDie.entities.em.flush();
+         return { message: `opened ${named(buffer)}`, buffer: [buffer] };
+…
+// systems/runtime/subjects/mode/traits/generative.js:198
+       try {
+-        held = await context.entities.view.findOneOrFail({
++        held = await modeDie.entities.view.findOneOrFail({
+           mode: mode.entity.id,
+…
+// systems/runtime/subjects/mode/traits/generative.js:235
+       try {
+-        const held = await context.entities.view.findOneOrFail(
++        const held = await modeDie.entities.view.findOneOrFail(
+           {
+…
+// systems/runtime/subjects/mode/traits/generative.js:268
+     async (ctx) => {
+-      const rows = await context.entities.view.find(
++      const rows = await modeDie.entities.view.find(
+         { mode: mode.entity.id, ...(ctx.input.mime !== undefined && { mime: ctx.input.mime }) },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/harnessed.js:101
+   }
+-  armed.use(shard.context.spread(contexts.host, ctx));
++  armed.use(shard.context.spread(contexts.modeDie, ctx));
+   armed.use(shard.context.bind("mode", ctx.mode));
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:215
+ 
+-export const HARNESSED = (mode, context) => {
+-  if (!context.cortex) throw new Error(`HARNESSED: ${context.reference.absolute} has no cortex`);
++export const HARNESSED = (mode, modeDie) => {
++  if (!modeDie.cortex) throw new Error(`HARNESSED: ${modeDie.reference.absolute} has no cortex`);
+ 
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:220
+   const harness = new Vector()
+-    .use(shard.context.spread(contexts.host, context))
++    .use(shard.context.spread(contexts.modeDie, modeDie))
+     .use(shard.context.bind("mode", mode))
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:224
+     .use(claiming)
+-    .use(context.datamap.shard.bind("thread", (ctx) => ({ thread: ctx.thread.id })))
++    .use(shard.datamap.bind(modeDie.entities.em, "thread", (ctx) => ({ thread: ctx.thread.id })))
+     .use(activating)
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:241
+ 
+-  if (context.domain?.harness) harness.graft(context.domain.harness);
++  if (modeDie.domain?.harness) harness.graft(modeDie.domain.harness);
+   if (mode.module.harness) harness.graft(mode.module.harness);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/intented.js:15
+ 
+-export const INTENTED = async (mode, context) => {
++export const INTENTED = async (mode, modeDie) => {
+   if (!is.array(mode.module.dataset?.intent)) return;
+ 
+-  context.twitch.open("/after/user/create", async (ctx) => {
+-    for (const peer of fromm.modes(context.modes).flat) {
++  mode.twitch.open("/after/user/create", async (ctx) => {
++    for (const peer of fromm.modes(modeDie.modes).flat) {
+       if (!peer.implements("INTENTED")) continue;
+…
+// systems/runtime/subjects/mode/traits/intented.js:27
+   return async () => {
+-    for (const user of await context.entities.user.findAll({ filters: { user: false } })) {
+-      await ensure(context.entities.em, mode, user);
++    for (const user of await modeDie.entities.user.findAll({ filters: { user: false } })) {
++      await ensure(modeDie.entities.em, mode, user);
+     }
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/repling.js:2
+ 
+-export const REPLING = (mode, context) => {
+-  mode.repl.use(shard.context.spread(contexts.host, context)).use(shard.context.bind("mode", mode)).graft(mode.module.repl);
++export const REPLING = (mode, modeDie) => {
++  mode.repl
++    .use(shard.context.spread(contexts.modeDie, modeDie))
++    .use(shard.context.bind("mode", mode))
++    .graft(mode.module.repl);
+   mode.aperture.open("/metadata/repl", () => shape.strip(mode.repl));
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/viewable.js:4
+ 
+-export const VIEWABLE = async (mode, context) => {
++export const VIEWABLE = async (mode, modeDie) => {
+   if (mode.module.buffer) {
+…
+// systems/runtime/subjects/mode/traits/viewable.js:8
+       ({ data = {}, ...desc } = {}) =>
+-        context.entities.buffer.create({
++        modeDie.entities.buffer.create({
+           mode: mode.entity.id,
+…
+// systems/runtime/subjects/mode/traits/viewable.js:14
+         }),
+-      { mime: mime.viva(context.reference.branch(`/mode/${mode.manifest.type}/${mode.manifest.slug}`)) },
++      {
++        mime: mime.viva(
++          modeDie.reference.branch(`/mode/${mode.manifest.type}/${mode.manifest.slug}`),
++        ),
++      },
+     );
+…
+// systems/runtime/subjects/mode/traits/viewable.js:22
+     mode.views.push(
+-      await context.entities.view.bundle(
++      await modeDie.entities.view.bundle(
+         { mode: mode.entity.id, slug: declared.slug, mime: declared.mime, traits: declared.traits, entry: join(mode.module.source.dirname, declared.mount) },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/1-population.js:49
+   );
+-  die.runtime.twitch.use(shard.context.spread(contexts.host, die.runtime));
++  die.runtime.twitch.use(shard.context.spread(contexts.runtimeDie, die.runtime));
+   for (const held of twitch) die.runtime.twitch.graft(held);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/3-integration.js:7
+   await belt.modes.prune(die.runtime, null);
++  await next();
++};
++
++export const twitch = async (die, next) => {
++  for (const mode of fromm.modes(die.runtime.modes).flat) {
++    die.runtime.twitch.graft(mode.twitch);
++  }
+   await next();
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/index.js:26
+   .use(resolution.modes(mode))
++  .use(integration.twitch)
+   .use(integration.entities)
+#+END_SRC
+
+* tests and rigs — 20 files
+
+#+BEGIN_SRC diff
+// commons/instances/hello-world/tests/catalog.test.js:31
+ armed.graft(generative.generator.tools);
+-armed.use(shard.context.spread(contexts.host, daemon));
++armed.use(shard.context.spread(contexts.daemonDie, daemon));
+ 
+…
+// commons/instances/hello-world/tests/catalog.test.js:184
+       const bare = new Vector().graft(tools);
+-      bare.use(shard.context.spread(contexts.host, cortexless));
++      bare.use(shard.context.spread(contexts.daemonDie, cortexless));
+       const { output } = await steer.dispatch.invoke(
+…
+// commons/instances/hello-world/tests/catalog.test.js:273
+ const litArmed = new Vector().graft(tools);
+-litArmed.use(shard.context.spread(contexts.host, lit));
++litArmed.use(shard.context.spread(contexts.daemonDie, lit));
+ litArmed.use(shard.context.bind("controller", new Controller({ stdout: new Span("hallucination") })));
+…
+// commons/instances/hello-world/tests/catalog.test.js:326
+       const angryArmed = new Vector().graft(tools);
+-      angryArmed.use(shard.context.spread(contexts.host, angry));
++      angryArmed.use(shard.context.spread(contexts.daemonDie, angry));
+       const { condition, output } = await steer.dispatch.invoke(
+#+END_SRC
+
+#+BEGIN_SRC diff
+// commons/instances/hello-world/tests/research.snapshot.test.js:10
+   const outer = new Vector().graft(research);
+-  outer.use(shard.context.spread(contexts.host, rigged.daemon));
++  outer.use(shard.context.spread(contexts.daemonDie, rigged.daemon));
+   outer.use(shard.context.bind("mode", rigged.mode));
+#+END_SRC
+
+#+BEGIN_SRC diff
+// commons/instances/hello-world/tests/research.test.js:6
+   const outer = new Vector().graft(research);
+-  outer.use(shard.context.spread(contexts.host, rigged.daemon));
++  outer.use(shard.context.spread(contexts.daemonDie, rigged.daemon));
+   outer.use(shard.context.bind("mode", rigged.mode));
+…
+// commons/instances/hello-world/tests/research.test.js:159
+         const outer = new Vector().graft(research);
+-        outer.use(shard.context.spread(contexts.host, rigged.daemon));
++        outer.use(shard.context.spread(contexts.daemonDie, rigged.daemon));
+         outer.use(shard.context.bind("mode", rigged.mode));
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/buffer.labeled.test.js:16
+     await steer.dispatch.invoke(
+-      new Vector().graft(gestalten.tools.buffer).use(shard.context.spread(contexts.host, daemon)),
++      new Vector().graft(gestalten.tools.buffer).use(shard.context.spread(contexts.daemonDie, daemon)),
+       new ToolCall(name).signal,
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/datasink.drain.test.js:23
+   daemon.entities.em = scenario.em;
+-  daemon.twitch.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
++  daemon.twitch.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.datamap.owned());
+   daemon.twitch.branch("/after").use(shard.datamap.detached(scenario.datamap));
+…
+// systems/runtime/tests/datasink.drain.test.js:31
+     stdout: new Span("mode/topography/fixture"),
++    twitch: new Twitch(),
+     entity: { installed: "", daemon: scenario.fixtures.daemon },
+…
+// systems/runtime/tests/datasink.drain.test.js:37
+   arm = DATASINK(mode, daemon).finalize;
++  daemon.twitch.graft(mode.twitch);
+   first = await mode.datasink.drain({ all: true });
+…
+// systems/runtime/tests/datasink.drain.test.js:124
+       terminators: collected,
++      twitch: new Twitch(),
+       entity: { installed: "", daemon: scenario.fixtures.daemon },
+…
+// systems/runtime/tests/datasink.drain.test.js:127
+     const finalizers = await stagger(staggered, daemon, { DATASINK });
++    daemon.twitch.graft(staggered.twitch);
+ 
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/datasink.roundtrip.test.js:43
+     datamap: scenario.datamap,
+-    twitch: new Vector(),
+   };
+…
+// systems/runtime/tests/datasink.roundtrip.test.js:52
+     stdout: new Span(`mode/topography/gen-${into}`),
++    twitch: new Vector(),
+     entity: { installed: "", daemon: scenario.fixtures.daemon },
+…
+// systems/runtime/tests/datasink.roundtrip.test.js:136
+       datamap: scenario.datamap,
+-      twitch: new Vector(),
+     };
+…
+// systems/runtime/tests/datasink.roundtrip.test.js:145
+       stdout: new Span("mode/topography/gen-refix"),
++      twitch: new Vector(),
+       entity: { installed: "", daemon: scenario.fixtures.daemon },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/drain.playground.js:45
+ daemon.entities.em = scenario.em;
+-daemon.twitch.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
++daemon.twitch.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.datamap.owned());
+ daemon.twitch.branch("/after").use(shard.datamap.detached(scenario.datamap));
+…
+// systems/runtime/tests/drain.playground.js:54
+   stdout: new Span("mode/topography/playground"),
++  twitch: new Twitch(),
+   entity: { installed: "" },
+…
+// systems/runtime/tests/drain.playground.js:66
+ const { finalize: arm, terminate } = DATASINK(mode, daemon);
++daemon.twitch.graft(mode.twitch);
+ console.log(`sinks declared: ${mode.datasink.sinks.length}`);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/mode/agentic.test.js:7
+   mode.tools = new Vector();
+-  mode.tools.use(shard.context.spread(contexts.host, daemon));
++  mode.tools.use(shard.context.spread(contexts.daemonDie, daemon));
+   mode.tools.use(shard.context.bind("mode", mode));
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/mode/generative.test.js:98
+   vector.graft(mode.generator.tools);
+-  vector.use(shard.context.spread(contexts.host, daemon));
++  vector.use(shard.context.spread(contexts.daemonDie, daemon));
+   vector.use(shard.context.bind("mode", mode));
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/mode/tooling.test.js:8
+   mode.tools = new Vector();
+-  mode.tools.use(shard.context.spread(contexts.host, daemon));
++  mode.tools.use(shard.context.spread(contexts.daemonDie, daemon));
+   mode.tools.use(shard.context.bind("mode", mode));
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/modes.test.js:1
+-import { Aperture, Controller, fromm, Mode, monad, Path, shape, specimen, Vector } from "@vivalence/typology";
++import {
++  Aperture,
++  contexts,
++  Controller,
++  fromm,
++  Mode,
++  monad,
++  Path,
++  shape,
++  shard,
++  specimen,
++  Vector,
++} from "@vivalence/typology";
+ import { gestalten } from "@vivalence/runtime";
+…
+// systems/runtime/tests/modes.test.js:19
+   new Vector().affect(async (die) => {
+-    seen.push([die.context.type, die.mode.manifest.slug]);
++    seen.push([die.reference.absolute, die.mode.manifest.slug]);
+     die.mode.aperture = new Aperture().open("/ping", () => die.mode.manifest.slug);
+…
+// systems/runtime/tests/modes.test.js:25
+ 
+-const factory = (seen) => (mode) =>
++const factory = (seen) => (mode, traits) =>
+   monad.kleisli([
+-    (parentDie) => ({ mask: mode.module, mode, context: parentDie.context, traits: parentDie.traits }),
++    (context) => ({
++      ...shard.context.lift(contexts.modeDie, context),
++      mode,
++      traits,
++    }),
+     shape.monad.execute(execution(seen)),
+…
+// systems/runtime/tests/modes.test.js:33
+   for (const type of ["daemon", "runtime"]) {
+-    specimen.it(`${type}: resolve → release — the same calls, the mode read through die.context`, async () => {
++    specimen.it(`${type}: resolve → release — the mode die lifted flat off its parent`, async () => {
+       const context = rung(type);
+…
+// systems/runtime/tests/modes.test.js:42
+       await modes.resolve(context, factory(seen), {});
+-      specimen.expect(seen).toEqual([[type, "board"], [type, "lobby"], ["finalized", "board"], ["finalized", "lobby"]]);
++      const reference = context.reference.absolute;
++      specimen.expect(seen).toEqual([
++        [reference, "board"],
++        [reference, "lobby"],
++        ["finalized", "board"],
++        ["finalized", "lobby"],
++      ]);
+       specimen.expect(context.aperture.branch("/mode/game/board/ping").effect?.()).toBe("board");
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/runtime/beats.coverage.test.js:141
+     const ran = [];
+-    const factory = (subject) => async (target) => ran.push([subject.slug ?? subject.manifest?.slug ?? "lighthouse", target === die || target.context === die.runtime]);
++    const factory = (subject) => async (target) => ran.push([subject.slug ?? subject.manifest?.slug ?? "lighthouse", target === die || target === die.runtime]);
+     die.runtime.lighthouse.slug = "lighthouse";
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/scenarios/bench.js:80
+   daemon.datamap = datamapInstance;
+-  daemon.twitch = new Twitch().use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
++  daemon.twitch = new Twitch().use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.datamap.owned());
+   daemon.twitch.branch("/after").use(shard.datamap.detached(datamapInstance));
+…
+// systems/runtime/tests/scenarios/bench.js:111
+   if (domain?.aperture) {
+-    domain.aperture.use(shard.context.spread(contexts.host, daemon));
++    domain.aperture.use(shard.context.spread(contexts.daemonDie, daemon));
+     daemon.aperture.graft(domain.aperture);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/scenarios/cortex.js:38
+ 
+-  daemon.aperture.use(shard.context.spread(contexts.host, daemon));
++  daemon.aperture.use(shard.context.spread(contexts.daemonDie, daemon));
+ 
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/scenarios/daemon.js:63
+   const lighthouse = lighthouseOf(datamap, runtime.user);
+-  daemon.aperture.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.inject(datamap)).use(lighthouse.authenticate).use(lighthouse.bind);
++  daemon.aperture.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.datamap.inject(datamap)).use(lighthouse.authenticate).use(lighthouse.bind);
+ 
+   if (domain.aperture) {
+-    domain.aperture.use(shard.context.spread(contexts.host, daemon));
++    domain.aperture.use(shard.context.spread(contexts.daemonDie, daemon));
+     daemon.aperture.graft(domain.aperture);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/scenarios/mode.js:22
+   const lighthouse = lighthouseOf(datamap, runtime.user);
+-  daemon.aperture.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.inject(datamap)).use(lighthouse.authenticate).use(lighthouse.bind);
++  daemon.aperture.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.datamap.inject(datamap)).use(lighthouse.authenticate).use(lighthouse.bind);
+ 
+…
+// systems/runtime/tests/scenarios/mode.js:31
+   mode.aperture = new Aperture();
+-  mode.aperture.use(shard.context.spread(contexts.host, daemon));
++  mode.aperture.use(shard.context.spread(contexts.daemonDie, daemon));
+   mode.aperture.use(shard.context.bind("mode", mode));
+…
+// systems/runtime/tests/scenarios/mode.js:56
+   mode.tools = new Vector();
+-  mode.tools.use(shard.context.spread(contexts.host, daemon));
++  mode.tools.use(shard.context.spread(contexts.daemonDie, daemon));
+   mode.tools.use(shard.context.bind("mode", mode));
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/skill.entity.test.js:6
+ const harness = (entities) =>
+-  new Vector().use(shard.context.spread(contexts.host, { entities })).graft(gestalten.tools.entity);
++  new Vector().use(shard.context.spread(contexts.daemonDie, { entities })).graft(gestalten.tools.entity);
+ 
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/skill.mode.test.js:29
+ 
+-const armed = new Vector().use(shard.context.spread(contexts.host, daemon)).graft(gestalten.tools.mode);
++const armed = new Vector().use(shard.context.spread(contexts.daemonDie, daemon)).graft(gestalten.tools.mode);
+ 
+…
+// systems/runtime/tests/skill.mode.test.js:70
+     const bare = new Vector()
+-      .use(shard.context.spread(contexts.host, { reference: new Path("/daemon/test-daemon"), modes: { teacher: { dewey } } }))
++      .use(shard.context.spread(contexts.daemonDie, { reference: new Path("/daemon/test-daemon"), modes: { teacher: { dewey } } }))
+       .graft(gestalten.tools.mode);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/tools.coverage.test.js:31
+ 
+-const armed = (vector, daemon) => new Vector().graft(vector).use(shard.context.spread(contexts.host, daemon));
++const armed = (vector, daemon) => new Vector().graft(vector).use(shard.context.spread(contexts.daemonDie, daemon));
+ 
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/topography/harness.js:80
+   const daemon = { slug: DAEMON, aperture: new Aperture(), entities, twitch: new Twitch(), datamap };
+-  daemon.twitch.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
++  daemon.twitch.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.datamap.owned());
+   daemon.twitch.branch("/after").use(shard.datamap.detached(datamap));
+#+END_SRC
+
+* registry — 24 files (=~/.viva/registry=, jj or no VCS: files only)
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/domain/assembly/tests/aperture.test.js:40
+   it("P-slug-unique: the same slug from another caller is the same literal, its annotation unchanged; an unknown slug is refused by name", async () => {
+-    const same = await steer.dispatch.invoke(rig.daemon.domain.aperture, "/part", steer.strategy.direct)({ ...shard.context.lift(contexts.host, rig.daemon), mode: { id: rig.modes.part.id }, input: { slug: "plate", qty: 2 } });
++    const same = await steer.dispatch.invoke(rig.daemon.domain.aperture, "/part", steer.strategy.direct)({ ...shard.context.lift(contexts.daemonDie, rig.daemon), mode: { id: rig.modes.part.id }, input: { slug: "plate", qty: 2 } });
+     expect(same.mode.id).toBe(rig.mode.id);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/domain/assembly/tests/tools.test.js:64
+   it("P-no-mode: without a mode on the caller a mint still lands — under the topology that ships its ontology's root symbol", async () => {
+-    const orphan = await rig.tools["/part"]({ ...shard.context.lift(contexts.host, rig.daemon), input: { slug: "loose", name: "Loose" } });
++    const orphan = await rig.tools["/part"]({ ...shard.context.lift(contexts.daemonDie, rig.daemon), input: { slug: "loose", name: "Loose" } });
+     const mode = orphan.entities.literal[0].mode;
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/modes/editor/assembly/tests/assembly.test.js:80
+     held = { id: editor.id, entity: editor, mountpoint: null, freight: null };
+-    const bound = new Vector().use(shard.context.spread(contexts.host, rig.daemon)).use(shard.context.bind("mode", held)).graft(aperture);
++    const bound = new Vector().use(shard.context.spread(contexts.daemonDie, rig.daemon)).use(shard.context.bind("mode", held)).graft(aperture);
+     call = (path, input) => steer.dispatch.invoke(bound, path, steer.strategy.direct)({ input: input ?? {} });
+-    const hands = new Vector().use(shard.context.spread(contexts.host, rig.daemon)).use(shard.context.bind("mode", held)).use(shard.context.bind("thread", thread)).graft(tools);
++    const hands = new Vector().use(shard.context.spread(contexts.daemonDie, rig.daemon)).use(shard.context.bind("mode", held)).use(shard.context.bind("thread", thread)).graft(tools);
+     armed = (path, input) => steer.dispatch.invoke(hands, path, steer.strategy.direct)({ input: input ?? {} });
+…
+// ~/.viva/registry/assembly/modes/editor/assembly/tests/assembly.test.js:191
+     probe.branch("/dialogue").open("/probe", (ctx) => shape.primer.load(ctx.hallucination.primer, ctx));
+-    const told = await steer.dispatch.invoke(probe, "/dialogue/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.host, rig.daemon), mode: { id: editor.id, entity: editor }, thread, hallucination: { policy: {}, primer: new Vector() }, input: {} });
++    const told = await steer.dispatch.invoke(probe, "/dialogue/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.daemonDie, rig.daemon), mode: { id: editor.id, entity: editor }, thread, hallucination: { policy: {}, primer: new Vector() }, input: {} });
+     expect(Object.keys(told)).toEqual(["role", "ontology", "vocabulary", "format", "screen"]);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/modes/editor/assembly/tests/harness.test.js:38
+     vector.branch(avenue).open("/probe", async (ctx) => ({ ...ctx.hallucination, system: await shape.primer.load(ctx.hallucination.primer, ctx) }));
+-    return steer.dispatch.invoke(vector, `${avenue}/probe`, steer.strategy.direct)({ ...shard.context.lift(contexts.host, rig.daemon), mode: held, thread, hallucination: { policy: {}, primer: new Vector() }, input: {} });
++    return steer.dispatch.invoke(vector, `${avenue}/probe`, steer.strategy.direct)({ ...shard.context.lift(contexts.daemonDie, rig.daemon), mode: held, thread, hallucination: { policy: {}, primer: new Vector() }, input: {} });
+   };
+…
+// ~/.viva/registry/assembly/modes/editor/assembly/tests/harness.test.js:79
+     const vector = new Vector().graft(harness).open("/probe", (ctx) => ctx.hallucination.policy);
+-    const dialed = await steer.dispatch.invoke(vector, "/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.host, rig.daemon), mode: held, thread, hallucination: { policy: { tier: "capable", rounds: 2 }, primer: new Vector() }, input: {} });
++    const dialed = await steer.dispatch.invoke(vector, "/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.daemonDie, rig.daemon), mode: held, thread, hallucination: { policy: { tier: "capable", rounds: 2 }, primer: new Vector() }, input: {} });
+     expect(dialed).toEqual({ tier: "capable", rounds: 2 });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/modes/editor/assembly/tests/scripted.js:42
+   if (tools) armed.graft(tools);
+-  armed.use(shard.context.spread(contexts.host, daemon));
++  armed.use(shard.context.spread(contexts.daemonDie, daemon));
+   armed.use(shard.context.bind("mode", mode));
+…
+// ~/.viva/registry/assembly/modes/editor/assembly/tests/scripted.js:47
+   const vector = new Vector()
+-    .use(shard.context.spread(contexts.host, daemon))
++    .use(shard.context.spread(contexts.daemonDie, daemon))
+     .use(shard.context.bind("mode", mode))
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/modes/editor/guide/tests/guide.test.js:53
+     const held = { id: editor.id, entity: editor, mountpoint: null, freight: null };
+-    const bound = new Vector().use(shard.context.spread(contexts.host, rig.daemon)).use(shard.context.bind("mode", held)).graft(aperture);
++    const bound = new Vector().use(shard.context.spread(contexts.daemonDie, rig.daemon)).use(shard.context.bind("mode", held)).graft(aperture);
+     call = (path, input) => steer.dispatch.invoke(bound, path, steer.strategy.direct)({ input: input ?? {} });
+-    const hands = new Vector().use(shard.context.spread(contexts.host, rig.daemon)).use(shard.context.bind("mode", held)).use(shard.context.bind("thread", thread)).graft(tools);
++    const hands = new Vector().use(shard.context.spread(contexts.daemonDie, rig.daemon)).use(shard.context.bind("mode", held)).use(shard.context.bind("thread", thread)).graft(tools);
+     armed = (path, input) => steer.dispatch.invoke(hands, path, steer.strategy.direct)({ input: input ?? {} });
+…
+// ~/.viva/registry/assembly/modes/editor/guide/tests/guide.test.js:168
+     const probe = new Vector().graft(harness).open("/probe", (ctx) => ({ policy: ctx.hallucination.policy, settings: ctx.hallucination.settings, keys: shape.primer.keys(ctx.hallucination.primer) }));
+-    const bench = (hallucination) => steer.dispatch.invoke(probe, "/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.host, rig.daemon), mode: { id: editor.id, entity: editor }, thread, hallucination, input: {} });
++    const bench = (hallucination) => steer.dispatch.invoke(probe, "/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.daemonDie, rig.daemon), mode: { id: editor.id, entity: editor }, thread, hallucination, input: {} });
+     expect(await bench({ primer: new Vector(), policy: {} })).toEqual({ policy: {}, settings: undefined, keys: ["role", "ontology", "guide"] });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/modes/editor/import/tests/import.test.js:125
+     const held = { id: importer.id, entity: importer, mountpoint: { absolute: root }, freight: null };
+-    bound = new Vector().use(shard.context.spread(contexts.host, rig.daemon)).use(shard.context.bind("mode", held)).graft(aperture);
++    bound = new Vector().use(shard.context.spread(contexts.daemonDie, rig.daemon)).use(shard.context.bind("mode", held)).graft(aperture);
+     call = (path, input, request) => steer.dispatch.invoke(bound, path, steer.strategy.direct)({ input: input ?? {}, ...(request && { request }) });
+-    ctx = { ...shard.context.lift(contexts.host, rig.daemon), mode: held, user: null, thread: null };
++    ctx = { ...shard.context.lift(contexts.daemonDie, rig.daemon), mode: held, user: null, thread: null };
+   });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/modes/player/guide/tests/guide.test.js:79
+     const held = { id: player.id, entity: player, mountpoint: null, freight: null };
+-    const bound = new Vector().use(shard.context.spread(contexts.host, rig.daemon)).use(shard.context.bind("mode", held)).graft(aperture);
++    const bound = new Vector().use(shard.context.spread(contexts.daemonDie, rig.daemon)).use(shard.context.bind("mode", held)).graft(aperture);
+     call = (path, input) => steer.dispatch.invoke(bound, path, steer.strategy.direct)({ input: input ?? {} });
+-    const hands = new Vector().use(shard.context.spread(contexts.host, rig.daemon)).use(shard.context.bind("mode", held)).use(shard.context.bind("thread", thread)).graft(tools);
++    const hands = new Vector().use(shard.context.spread(contexts.daemonDie, rig.daemon)).use(shard.context.bind("mode", held)).use(shard.context.bind("thread", thread)).graft(tools);
+     armed = (path, input) => steer.dispatch.invoke(hands, path, steer.strategy.direct)({ input: input ?? {} });
+…
+// ~/.viva/registry/assembly/modes/player/guide/tests/guide.test.js:180
+     const probe = new Vector().graft(harness).open("/probe", (ctx) => ({ policy: ctx.hallucination.policy, settings: ctx.hallucination.settings, keys: shape.primer.keys(ctx.hallucination.primer) }));
+-    const bench = (hallucination) => steer.dispatch.invoke(probe, "/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.host, rig.daemon), mode: { id: player.id, entity: player }, thread, hallucination, input: {} });
++    const bench = (hallucination) => steer.dispatch.invoke(probe, "/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.daemonDie, rig.daemon), mode: { id: player.id, entity: player }, thread, hallucination, input: {} });
+     expect(await bench({ primer: new Vector(), policy: {} })).toEqual({ policy: {}, settings: undefined, keys: ["role", "guide"] });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/tests/hal.js:42
+   if (daemon.domain?.tools) armed.branch(daemon.domain.manifest.slug, daemon.domain.tools);
+-  armed.use(shard.context.spread(contexts.host, daemon));
++  armed.use(shard.context.spread(contexts.daemonDie, daemon));
+   armed.use(shard.context.bind("mode", mode));
+…
+// ~/.viva/registry/assembly/tests/hal.js:47
+   const vector = new Vector()
+-    .use(shard.context.spread(contexts.host, daemon))
++    .use(shard.context.spread(contexts.daemonDie, daemon))
+     .use(shard.context.bind("mode", mode))
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/tests/rig.js:54
+   };
+-  daemon.twitch.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
++  daemon.twitch.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.datamap.owned());
+   daemon.twitch.branch("/after").use(shard.datamap.detached(held));
+   held.registerSubscriber(daemon.twitch);
+-  daemon.aperture.use(shard.context.spread(contexts.host, daemon));
+-  domain.aperture.use(shard.context.spread(contexts.host, daemon));
++  daemon.aperture.use(shard.context.spread(contexts.daemonDie, daemon));
++  domain.aperture.use(shard.context.spread(contexts.daemonDie, daemon));
+   daemon.aperture.graft(domain.aperture);
+…
+// ~/.viva/registry/assembly/tests/rig.js:67
+   const tools = shape.proxy(domain.tools, steer.strategy.direct);
+-  const caller = () => ({ ...shard.context.lift(contexts.host, daemon), user, mode: { id: modes.model.id } });
++  const caller = () => ({ ...shard.context.lift(contexts.daemonDie, daemon), user, mode: { id: modes.model.id } });
+   const call = (path, input) => steer.dispatch.invoke(domain.aperture, path, steer.strategy.direct)({ ...caller(), input });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/chess/domain/tests/daemons.test.js:86
+       const attempt = (moves) =>
+-        steer.dispatch.invoke(domain.aperture, "/puzzle/attempt", steer.strategy.direct)({ ...shard.context.lift(contexts.host, daemons.chess), user, mode: null, thread: null, input: { puzzle: posed.id, moves } });
++        steer.dispatch.invoke(domain.aperture, "/puzzle/attempt", steer.strategy.direct)({ ...shard.context.lift(contexts.daemonDie, daemons.chess), user, mode: null, thread: null, input: { puzzle: posed.id, moves } });
+       expect((await attempt(["h5h7"])).status).toBe("FAILED");
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/chess/modes/board/play/tests/tools.test.js:39
+     await board.call("/match/move", { buffer: buffer.id, uci: "d2d4" });
+-    const ctx = { ...shard.context.lift(contexts.host, rig.daemon), mode: board.mode, thread: rig.thread, hallucination: { primer: new Vector(), policy: {} } };
++    const ctx = { ...shard.context.lift(contexts.daemonDie, rig.daemon), mode: board.mode, thread: rig.thread, hallucination: { primer: new Vector(), policy: {} } };
+     const probe = new Vector().graft(play.harness);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/chess/modes/coach/coach/tests/coach.test.js:40
+   const fromPlay = (path, input) =>
+-    steer.dispatch.invoke(desk.mode.tools, path, steer.strategy.direct)({ ...shard.context.lift(contexts.host, rig.daemon), mode: board.mode, user: rig.user, thread: rig.thread, input });
++    steer.dispatch.invoke(desk.mode.tools, path, steer.strategy.direct)({ ...shard.context.lift(contexts.daemonDie, rig.daemon), mode: board.mode, user: rig.user, thread: rig.thread, input });
+ 
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/chess/tests/rig.js:59
+   };
+-  daemon.twitch.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
++  daemon.twitch.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.datamap.owned());
+   daemon.twitch.branch("/after").use(shard.datamap.detached(held));
+   held.registerSubscriber(daemon.twitch);
+-  daemon.aperture.use(shard.context.spread(contexts.host, daemon));
+-  domain.aperture.use(shard.context.spread(contexts.host, daemon));
++  daemon.aperture.use(shard.context.spread(contexts.daemonDie, daemon));
++  domain.aperture.use(shard.context.spread(contexts.daemonDie, daemon));
+   daemon.aperture.graft(domain.aperture);
+…
+// ~/.viva/registry/chess/tests/rig.js:71
+   const tools = shape.proxy(domain.tools, steer.strategy.direct);
+-  const caller = () => ({ ...shard.context.lift(contexts.host, daemon), user, mode: { id: modes.game.id }, thread });
++  const caller = () => ({ ...shard.context.lift(contexts.daemonDie, daemon), user, mode: { id: modes.game.id }, thread });
+   const call = (path, input) => steer.dispatch.invoke(domain.aperture, path, steer.strategy.direct)({ ...caller(), input });
+…
+// ~/.viva/registry/chess/tests/rig.js:128
+   if (module.buffer) mode.buffer = (desc = {}) => entities.buffer.create({ mode: row.id, ...desc, data: module.buffer.fill({ data: {}, ...desc }).data });
+-  mode.aperture.use(shard.context.spread(contexts.host, daemon)).use(shard.context.bind("mode", mode));
++  mode.aperture.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.context.bind("mode", mode));
+   if (module.aperture) mode.aperture.graft(module.aperture);
+…
+// ~/.viva/registry/chess/tests/rig.js:133
+   daemon.modes[module.manifest.type][module.manifest.slug] = mode;
+-  const call = (path, input) => steer.dispatch.invoke(mode.aperture, path, steer.strategy.direct)({ ...shard.context.lift(contexts.host, daemon), mode, user: rig.user, thread: rig.thread, input });
++  const call = (path, input) => steer.dispatch.invoke(mode.aperture, path, steer.strategy.direct)({ ...shard.context.lift(contexts.daemonDie, daemon), mode, user: rig.user, thread: rig.thread, input });
+   const tools = shape.proxy(mode.tools, steer.strategy.direct);
+-  const invoke = (path, input) => tools[path]({ ...shard.context.lift(contexts.host, daemon), mode, user: rig.user, thread: rig.thread, input });
++  const invoke = (path, input) => tools[path]({ ...shard.context.lift(contexts.daemonDie, daemon), mode, user: rig.user, thread: rig.thread, input });
+   return { mode, row, call, invoke };
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/droneaid/tests/rig.js:25
+   stdout: new Span("mode"),
++  twitch: new Twitch(),
+   module: { ...module, source: { ...module.source, dirname } },
+…
+// ~/.viva/registry/droneaid/tests/rig.js:46
+   const daemon = { slug: DAEMON, manifest: { slug: DAEMON, traits: [] }, reference: new Path(`/daemon/${DAEMON}`), modes: {}, entities, datamap: held, twitch: new Twitch(), domain };
+-  daemon.twitch.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
++  daemon.twitch.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.datamap.owned());
+   daemon.twitch.branch("/after").use(shard.datamap.detached(held));
+…
+// ~/.viva/registry/droneaid/tests/rig.js:64
+     await sink.finalize();
++    daemon.twitch.graft(seated.twitch);
+     return seated;
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/domain/tests/kernel/datasink.test.js:1
+-import { specimen, sleep } from "@vivalence/typology";
++import { specimen, sleep, Twitch } from "@vivalence/typology";
+ import { traits } from "@vivalence/runtime";
+…
+// ~/.viva/registry/education/domain/tests/kernel/datasink.test.js:37
+     });
+-    mode = { manifest: { type: "topography", slug: "english-to-italian", traits: ["DATASINK"] }, module: { datasink, source: { dirname: directory } } };
++    mode = {
++      manifest: { type: "topography", slug: "english-to-italian", traits: ["DATASINK"] },
++      module: { datasink, source: { dirname: directory } },
++      twitch: new Twitch(),
++    };
+     await DATASINK(mode, rig.daemons.italian).finalize();
++    rig.daemons.italian.twitch.graft(mode.twitch);
+   });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/domain/tests/scenarios/domain.js:8
+   const invoke = (path, input, extra = {}) =>
+-    scenario.scoped(() => tools[path]({ input, ...shard.context.lift(contexts.host, scenario.daemon), user: scenario.fixtures.user, mode: null, thread: null, ...extra }));
++    scenario.scoped(() => tools[path]({ input, ...shard.context.lift(contexts.daemonDie, scenario.daemon), user: scenario.fixtures.user, mode: null, thread: null, ...extra }));
+   return { ...scenario, domain, tools, invoke };
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/cocina/tests/harness.test.js:31
+     vector.branch(avenue).open("/probe", async (ctx) => ({ system: await shape.primer.load(ctx.hallucination.primer, ctx) }));
+-    return scenario.scoped(() => steer.dispatch.invoke(vector, `${avenue}/probe`, steer.strategy.direct)({ ...shard.context.lift(contexts.host, scenario.daemon), mode: scenario.mode, thread, hallucination: { policy: {}, primer: new Vector() }, input: {} }));
++    return scenario.scoped(() => steer.dispatch.invoke(vector, `${avenue}/probe`, steer.strategy.direct)({ ...shard.context.lift(contexts.daemonDie, scenario.daemon), mode: scenario.mode, thread, hallucination: { policy: {}, primer: new Vector() }, input: {} }));
+   };
+…
+// ~/.viva/registry/education/modes/games/cocina/tests/harness.test.js:57
+   it("P-screen: once begin ran on the thread, the screen carries the rail", async () => {
+-    const armed = new Vector().graft(tools).use(shard.context.spread(contexts.host, scenario.daemon)).use(shard.context.bind("mode", scenario.mode)).use(shard.context.bind("user", scenario.fixtures.user)).use(shard.context.bind("thread", thread.id));
++    const armed = new Vector().graft(tools).use(shard.context.spread(contexts.daemonDie, scenario.daemon)).use(shard.context.bind("mode", scenario.mode)).use(shard.context.bind("user", scenario.fixtures.user)).use(shard.context.bind("thread", thread.id));
+     await scenario.scoped(() => steer.dispatch.invoke(armed, "/begin", steer.strategy.guarded)({}));
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/cocina/tests/tools.test.js:34
+       .graft(tools)
+-      .use(shard.context.spread(contexts.host, scenario.daemon))
++      .use(shard.context.spread(contexts.daemonDie, scenario.daemon))
+       .use(shard.context.bind("mode", scenario.mode))
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/comando/tests/harness.test.js:31
+     vector.branch(avenue).open("/probe", async (ctx) => ({ system: await shape.primer.load(ctx.hallucination.primer, ctx) }));
+-    return scenario.scoped(() => steer.dispatch.invoke(vector, `${avenue}/probe`, steer.strategy.direct)({ ...shard.context.lift(contexts.host, scenario.daemon), mode: scenario.mode, thread, hallucination: { policy: {}, primer: new Vector() }, input: {} }));
++    return scenario.scoped(() => steer.dispatch.invoke(vector, `${avenue}/probe`, steer.strategy.direct)({ ...shard.context.lift(contexts.daemonDie, scenario.daemon), mode: scenario.mode, thread, hallucination: { policy: {}, primer: new Vector() }, input: {} }));
+   };
+…
+// ~/.viva/registry/education/modes/games/comando/tests/harness.test.js:57
+   it("P-screen: once begin ran on the thread, the screen carries the board", async () => {
+-    const armed = new Vector().graft(tools).use(shard.context.spread(contexts.host, scenario.daemon)).use(shard.context.bind("mode", scenario.mode)).use(shard.context.bind("user", scenario.fixtures.user)).use(shard.context.bind("thread", thread.id));
++    const armed = new Vector().graft(tools).use(shard.context.spread(contexts.daemonDie, scenario.daemon)).use(shard.context.bind("mode", scenario.mode)).use(shard.context.bind("user", scenario.fixtures.user)).use(shard.context.bind("thread", thread.id));
+     await scenario.scoped(() => steer.dispatch.invoke(armed, "/begin", steer.strategy.guarded)({ units: 2 }));
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/comando/tests/tools.test.js:29
+       .graft(tools)
+-      .use(shard.context.spread(contexts.host, scenario.daemon))
++      .use(shard.context.spread(contexts.daemonDie, scenario.daemon))
+       .use(shard.context.bind("mode", scenario.mode))
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/tactics/harvest/tests/tools.test.js:61
+ 
+-  const call = shape.object(new Vector().use(shard.context.spread(contexts.host, daemon)).graft(tools));
++  const call = shape.object(new Vector().use(shard.context.spread(contexts.daemonDie, daemon)).graft(tools));
+   return { call, daemon, literals, received, flushed: () => flushed };
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/media/modes/editor/media/tests/aperture.test.js:56
+     const ctx = {
+-      ...shard.context.lift(contexts.host, scenario.daemon),
++      ...shard.context.lift(contexts.daemonDie, scenario.daemon),
+       attach: scenario.daemon.attach,
+…
+// ~/.viva/registry/media/modes/editor/media/tests/aperture.test.js:72
+   specimen.it("/media/derive writes peaks · thumbs · proxy, remembers them on the row and serves their urls", async () => {
+-    const ctx = { ...shard.context.lift(contexts.host, scenario.daemon), attach: scenario.daemon.attach, mode: scenario.mode, request: {} };
++    const ctx = { ...shard.context.lift(contexts.daemonDie, scenario.daemon), attach: scenario.daemon.attach, mode: scenario.mode, request: {} };
+     const steps = await scenario.scoped(() => drain(handler("/media/derive")({ slug: hash }, ctx)));
+…
+// ~/.viva/registry/media/modes/editor/media/tests/aperture.test.js:132
+   specimen.it("/render streams progress and lands a rendered media row in renders/", async () => {
+-    const ctx = { ...shard.context.lift(contexts.host, scenario.daemon), attach: scenario.daemon.attach, mode: scenario.mode, request: {} };
++    const ctx = { ...shard.context.lift(contexts.daemonDie, scenario.daemon), attach: scenario.daemon.attach, mode: scenario.mode, request: {} };
+     const steps = await scenario.scoped(() => drain(handler("/render")({ slug: "lesson-3-intro", settings: { preset: "ultrafast", crf: 30 } }, ctx)));
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/vcompany/tests/scenarios.js:60
+   mode.aperture = new Aperture();
+-  mode.aperture.use(shard.context.spread(contexts.host, daemon));
++  mode.aperture.use(shard.context.spread(contexts.daemonDie, daemon));
+   mode.aperture.use(shard.context.bind("mode", mode));
+…
+// ~/.viva/registry/vcompany/tests/scenarios.js:69
+   mode.tools = new Vector();
+-  mode.tools.use(shard.context.spread(contexts.host, daemon));
++  mode.tools.use(shard.context.spread(contexts.daemonDie, daemon));
+   mode.tools.use(shard.context.bind("mode", mode));
+#+END_SRC

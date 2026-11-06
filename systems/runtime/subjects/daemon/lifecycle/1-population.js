@@ -21,16 +21,36 @@ export const wiring = async (die, next) => {
 };
 
 export const datamap = async (die, next) => {
-  const { datamap } = die.runtime;
-  die.daemon.datamap = datamap;
-  const traits = Object.fromEntries(Object.keys(sets.traits).map((kind) => [kind, gather(die.daemon.domain, die.register.modes, kind)]));
-  die.daemon.minted = mint({ slug: die.daemon.slug, kinds: sets.traits, traits });
-  die.daemon.entities = { ...datamap.entities, ...strike(die.daemon.minted, datamap.entities.em, sets.traits), activity: die.runtime.entities.activity };
-  die.daemon.twitch = new Twitch().use(shard.context.spread(contexts.host, die.daemon)).use(shard.datamap.owned());
-  die.daemon.twitch.branch("/after").use(shard.datamap.detached(datamap));
+  die.daemon.datamap = die.runtime.datamap;
+
+  die.daemon.minted = mint({
+    slug: die.daemon.slug,
+    kinds: sets.traits,
+    traits: {
+      literal: gather(die.daemon.domain, die.register.modes, "literal"),
+      symbol: gather(die.daemon.domain, die.register.modes, "symbol"),
+      note: gather(die.daemon.domain, die.register.modes, "note"),
+      mode: gather(die.daemon.domain, die.register.modes, "mode"),
+    },
+  });
+
+  die.daemon.entities = {
+    ...die.daemon.datamap.entities,
+    ...strike(die.daemon.minted, die.daemon.datamap.entities.em, sets.traits),
+    activity: die.runtime.entities.activity,
+  };
+
+  die.daemon.twitch = new Twitch()
+    .use(shard.context.spread(contexts.daemonDie, die.daemon))
+    .use(shard.datamap.owned());
+  die.daemon.twitch.branch("/after").use(shard.datamap.detached(die.daemon.datamap));
   if (die.daemon.domain.twitch) die.daemon.twitch.graft(die.daemon.domain.twitch);
-  datamap.registerSubscriber(die.daemon.twitch);
-  die.daemon.aperture.use(shard.datamap.inject(datamap));
+  die.daemon.datamap.registerSubscriber(die.daemon.twitch);
+
+  die.daemon.aperture
+    .use(shard.datamap.inject(die.daemon.datamap))
+    .use(die.daemon.datamap.shard.bind("daemon", () => ({ daemon: die.daemon.slug })));
+
   await next();
 };
 

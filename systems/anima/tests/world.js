@@ -2,7 +2,7 @@ import { compile, fire, screen, settle, words } from "@vivalence/drapes/scenario
 import * as esbuild from "esbuild";
 import { atom } from "nanostores";
 import { tokens } from "@vivalence/dapper";
-import { Controller, Span, Vector } from "@vivalence/typology";
+import { Controller, Cortex, Span, Vector } from "@vivalence/typology";
 import * as ghost from "@vivalence/ghost";
 
 export { fire, settle, words };
@@ -53,12 +53,12 @@ export const world = () => {
   });
   client.surface.$sidebar.set(true);
   const lighthouse = Object.assign(new ghost.entities.lighthouse.Lighthouse(), { stdout: controller.stdout.branch("lighthouse"), manifest: { type: "lighthouse", slug: "lighthouse", traits: ["AUTOLOGIN"] } });
-  const chat = { type: "chat", slug: "chat", traits: ["HARNESSED"], repl: new Vector(), keymap: new Vector(), host: { reference: { absolute: "/runtime/stub" } }, reference: { absolute: "/runtime/stub/mode/chat/chat" }, implements: (trait) => trait === "HARNESSED" };
+  const chat = { type: "chat", slug: "chat", traits: ["HARNESSED"], repl: new Vector(), keymap: new Vector(), daemon: null, reference: { absolute: "/runtime/stub/mode/chat/chat" }, implements: (trait) => trait === "HARNESSED", metadata: { harness: { routes: { branches: {} }, primer: { branches: { identity: { effect: {} }, hello: { meta: { load: "lazy" }, branches: { greet: { effect: {} } } } } }, tools: { branches: { fs: { branches: { tree: { effect: {} } } }, shell: { branches: { run: { effect: {} } } } } } } } };
   const thread = Object.assign(new ghost.entities.thread.Thread(), {
     id: "thread-1",
     mode: chat,
     traits: ["LABELED", "INTELLIGENT"],
-    trait: { LABELED: { name: "first words" }, INTELLIGENT: { tune: "fast", effort: "low", rounds: 6 } },
+    trait: { LABELED: { name: "first words" }, INTELLIGENT: { tier: "fast", effort: "low", rounds: 6 } },
     $buffers: atom([]),
     $turns: atom([
       turned("user", "2026-10-21T10:00:00.000Z", [{ type: "text", text: "ciao, come stai?" }]),
@@ -115,6 +115,7 @@ export const world = () => {
     client.runtime = {
       lighthouse,
       entities,
+      cortex: new Cortex().register([{ type: "dialogue", provider: "stub", id: "seer", tune: [0.4, 0.3, 1.0, 0.8], via: { stream: () => {}, render: () => {} } }]),
       reference: { absolute: "/runtime/stub" },
       $status: atom({ code: "HEALTHY" }),
       get status() {

@@ -3,7 +3,7 @@
   import { CHECKS, ENUMS, ONTOLOGIES, TRAIT_SCHEMA, OPS, ALL_VERBS } from "./schema.js";
 
   const { terminal } = $props();
-  const host = terminal.mode.host;
+  const daemon = terminal.mode.daemon === null ? terminal.client.runtime : terminal.mode.daemon;
   const runtime = terminal.client.runtime;
 
   const ROW_H = 26;
@@ -122,9 +122,9 @@
 
   async function boot() {
     try {
-      datamap = await host.aperture.call("/metadata/datamap");
+      datamap = await daemon.aperture.call("/metadata/datamap");
       log("POST", "/metadata/datamap", "");
-      const aperture = await host.aperture.call("/metadata/aperture");
+      const aperture = await daemon.aperture.call("/metadata/aperture");
       log("POST", "/metadata/aperture", "");
       const root = await runtime.connection.call("/metadata/aperture");
       log("POST", "/metadata/aperture", "");
@@ -133,7 +133,7 @@
       doors = {
         ...readDoors(root.branches.userspace.branches.entities.branches, "/userspace/entities", runtime.entities),
         ...readDoors(house.branches.entities.branches, `${runtime.reference.absolute}/entities`, runtime.entities),
-        ...readDoors(aperture.branches.entities.branches, `${host.reference.absolute}/entities`, host.entities),
+        ...readDoors(aperture.branches.entities.branches, `${daemon.reference.absolute}/entities`, daemon.entities),
       };
       booted = true;
       await refreshCounts();
@@ -1264,7 +1264,7 @@
 <div class="dataspace">
   <div class="bar">
     <span class="brand">dataspace</span>
-    <span class="origin">{host.slug} · {host.reference.absolute}</span>
+    <span class="origin">{daemon.slug} · {daemon.reference.absolute}</span>
     <div class="crumbs">
       {#each crumbs as crumb, index}
         <button class="crumb" data-index={index} onclick={jumpCrumb}>{crumb.label}</button>
@@ -1438,7 +1438,7 @@
               <textarea bind:value={rawText} spellcheck="false"></textarea>
               <div class="raw-side">
                 <button class="run" onclick={runRaw}>▶ run</button>
-                <span class="faint">host.entities.{entity}.find(body)</span>
+                <span class="faint">daemon.entities.{entity}.find(body)</span>
                 {#if rawError}<span class="err">{rawError}</span>{/if}
               </div>
             </div>

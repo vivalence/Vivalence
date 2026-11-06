@@ -8,7 +8,6 @@ export class Mode extends Entity {
   version = null;
   traits = [];
   daemon = null;
-  host = null;
   reference = null;
   module = null;
   status = new Status();

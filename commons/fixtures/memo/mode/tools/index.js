@@ -55,6 +55,7 @@ export const add = new Vector().open(
     const literal = ctx.entities.literal.create({
       slug: held,
       mode: ctx.mode.id,
+      daemon: ctx.mode.entity.daemon,
       traits: ["TRANSLATED", "RANKED"],
       trait: { TRANSLATED: { known: ctx.input.known, learning: ctx.input.learning }, RANKED: { rank: 0 } },
     });

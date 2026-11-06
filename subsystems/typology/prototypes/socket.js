@@ -10,6 +10,15 @@ import * as fromm from "../gestalten/fromm/index.js";
 import { v } from "../schematics/index.js";
 
 const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+
+const framed = (id, bytes) => {
+  const head = encoder.encode(`${id}\n`);
+  const packet = new Uint8Array(head.length + bytes.length);
+  packet.set(head);
+  packet.set(bytes, head.length);
+  return packet;
+};
 
 let signalCodecMemo;
 const signalCodec = () => (signalCodecMemo ??= v.prototypes.Signal());
@@ -35,7 +44,7 @@ export class Socket {
   $error = atom(null);
   state = {};
   frames = new Map();
-  lines = new Map();
+  answers = new Map();
 
   // Resolves when the WebSocket is open (immediately if already open — server side).
   // Browser WebSockets start in CONNECTING state; push/open must wait for this.
@@ -43,6 +52,7 @@ export class Socket {
 
   constructor(ws, vector, options = {}) {
     this.ws = ws;
+    ws.binaryType = "arraybuffer";
     this.vector = vector;
     this.span = new Span("socket", options.trace);
     this.bearer = options.bearer ?? null;
@@ -76,8 +86,8 @@ export class Socket {
       frame.close();
     }
     this.frames.clear();
-    for (const line of this.lines.values()) line.controller.abort();
-    this.lines.clear();
+    for (const answer of this.answers.values()) answer.controller.abort();
+    this.answers.clear();
   }
 
   #send(packet) {
@@ -88,7 +98,16 @@ export class Socket {
     return typeof signal === "string" ? signal : v.encode(signalCodec(), signal);
   }
 
+  #raw(packet) {
+    const cut = packet.indexOf(10);
+    const id = decoder.decode(packet.subarray(0, cut));
+    const answer = this.answers.get(id);
+    if (!answer) return void this.span.log({ drop: "orphan-frame", frame: id });
+    answer.upstream?.enqueue(packet.subarray(cut + 1));
+  }
+
   async #onmessage(event) {
+    if (event.data instanceof ArrayBuffer) return void this.#raw(new Uint8Array(event.data));
     let packet;
     try { packet = JSON.parse(event.data); } catch { this.span.log({ drop: "parse" }); return; }
     if (!v.primitives.connection.Packet.check(packet)) {
@@ -109,15 +128,15 @@ export class Socket {
         return;
       }
 
-      const line = this.lines.get(packet.frame);
-      if (!line) return void this.span.log({ drop: "orphan-frame", frame: packet.frame });
-      if (packet.input !== undefined) line.upstream?.enqueue(encoder.encode(packet.input));
+      const answer = this.answers.get(packet.frame);
+      if (!answer) return void this.span.log({ drop: "orphan-frame", frame: packet.frame });
+      if (packet.input !== undefined) answer.upstream?.enqueue(encoder.encode(packet.input));
       else if (packet.done) {
-        line.upstream?.close();
-        line.upstream = null;
+        answer.upstream?.close();
+        answer.upstream = null;
       } else if (packet.close) {
-        line.controller.abort();
-        this.lines.delete(packet.frame);
+        answer.controller.abort();
+        this.answers.delete(packet.frame);
       }
       return;
     }
@@ -149,9 +168,9 @@ export class Socket {
     const id = packet.frame;
     const trace = this.span.branch(`${packet.signal}/${packet.frame}`);
     const controller = new AbortController();
-    const line = { controller, upstream: null };
+    const answer = { controller, upstream: null };
     let status;
-    this.lines.set(id, line);
+    this.answers.set(id, answer);
     trace.start();
 
     try {
@@ -170,7 +189,7 @@ export class Socket {
         request: {
           url: destination.href,
           method: packet.verb ?? "POST",
-          headers: token ? { authorization: `Bearer ${token}` } : {},
+          headers: { ...packet.headers, ...(token && { authorization: `Bearer ${token}` }) },
           body: packet.input,
         },
       });
@@ -183,7 +202,7 @@ export class Socket {
             signal: controller.signal,
             body: new ReadableStream({
               start: (feed) => {
-                line.upstream = feed;
+                answer.upstream = feed;
               },
             }),
           }
@@ -229,7 +248,7 @@ export class Socket {
       console.error(`[multiplex] "${packet.signal}" failed`, error);
       this.#send({ frame: id, error: { status, message: error.message } });
     } finally {
-      this.lines.delete(id);
+      this.answers.delete(id);
       trace.response({ status }).stop();
     }
   }
@@ -240,7 +259,7 @@ export class Socket {
       .catch(() => {});
   }
 
-  async open(signal, { query, input, verb, token, stream } = {}) {
+  async open(signal, { query, input, verb, token, stream, headers } = {}) {
     await this.#ready;
     const frame = new Queue();
     frame.id = crypto.randomUUID();
@@ -254,6 +273,7 @@ export class Socket {
         ...(verb && verb !== "POST" && { verb }),
         ...(token && { token }),
         ...(stream && { stream: true }),
+        ...(headers && { headers }),
       }),
     );
     return frame;
@@ -283,14 +303,13 @@ export class Socket {
 
   async feed(frame, body) {
     const reader = body.getReader();
-    const decoder = new TextDecoder();
     try {
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
-        const chunk = typeof value === "string" ? value : decoder.decode(value, { stream: true });
         if (this.ws.readyState !== 1) return;
-        this.ws.send(JSON.stringify({ frame: frame.id, input: chunk }));
+        if (typeof value === "string") this.ws.send(JSON.stringify({ frame: frame.id, input: value }));
+        else this.ws.send(framed(frame.id, value));
       }
       this.#send({ frame: frame.id, done: true });
     } catch {

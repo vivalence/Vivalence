@@ -38,7 +38,7 @@ export async function seed(domain = {}) {
     modes: {},
     providers: {},
   };
-  held.twitch.use(shard.context.spread(contexts.host, held)).use(shard.datamap.owned());
+  held.twitch.use(shard.context.spread(contexts.daemonDie, held)).use(shard.datamap.owned());
   held.twitch.branch("/after").use(shard.datamap.detached(datamap));
   if (domain.twitch) held.twitch.graft(domain.twitch);
   datamap.registerSubscriber(held.twitch);
@@ -46,12 +46,13 @@ export async function seed(domain = {}) {
   const mode = entities.mode.create({
     slug: "dojo",
     type: "game",
+    daemon,
     traits: ["VIEWABLE", "INTENTED", "EMITTER"],
     installed: "seed",
   });
   await em.flush();
 
-  const symbol = (slug, trait = {}) => entities.symbol.create({ slug, mode, traits: ["ONTOLOGICAL"], trait });
+  const symbol = (slug, trait = {}) => entities.symbol.create({ slug, mode, daemon, traits: ["ONTOLOGICAL"], trait });
   const greeting = symbol("greeting");
   const casual = symbol("casual");
   const polite = symbol("polite");
@@ -73,6 +74,7 @@ export async function seed(domain = {}) {
     const entity = entities.literal.create({
       slug,
       mode,
+      daemon,
       ontology: "word",
       traits: ["TRANSLATED"],
       trait: { TRANSLATED: { known, learning } },
@@ -127,6 +129,7 @@ export async function seed(domain = {}) {
   const paradigm = entities.literal.create({
     slug: "chamar.presente.indicativo",
     mode,
+    daemon,
     ontology: "conjugation",
     traits: [],
     trait: {
@@ -150,6 +153,7 @@ export async function seed(domain = {}) {
       user,
       literal: row,
       slug: `retention.${row.slug}`,
+      daemon,
       traits: ["RETAINED"],
       trait: { RETAINED: { driver: "BAYESIAN", status, lastSignal, state: {}, due: new Date(due).toISOString(), lastAt: now } },
     });
@@ -164,6 +168,7 @@ export async function seed(domain = {}) {
       user,
       literal: row,
       parent,
+      daemon,
       slug: `trace.${crypto.randomUUID()}`,
       traits: ["TRACED"],
       trait: { TRACED: { signal: { enum: signal }, snapshot: { status: parent.trait.RETAINED.status, due: parent.trait.RETAINED.due } } },
@@ -187,7 +192,6 @@ export async function seed(domain = {}) {
     mode,
     intent,
     trait: {},
-    cursor: 0,
     counter: 0,
   });
   await em.flush();

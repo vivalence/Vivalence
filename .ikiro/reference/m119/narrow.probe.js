@@ -1,0 +1,16 @@
+import { soma } from "@vivalence/typology";
+import { TurnEntity } from "@vivalence/runtime";
+const root = Deno.args[0];
+const { create } = await import(`${root}/systems/runtime/tests/scenarios/cortex.js`);
+const scenario = await create();
+const { dewey, createThread, em } = scenario;
+const drain = async (stream) => { let turn = null; for await (const packet of stream) turn = soma.pour(turn, packet); return turn; };
+const a = await createThread();
+await drain(await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "first, thread a" }], thread: a }));
+const b = await createThread();
+await drain(await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "second, thread b" }], thread: b }));
+em.clear();
+const turns = await em.find(TurnEntity, { thread: b.id }, { orderBy: { createdAt: "ASC" } });
+const pojo = turns.map(async (turn) => ({ id: turn.id, role: turn.role, text: turn.parts[0].text, thread: turn.thread.id, parent: turn.parent?.id ?? null, parentThread: turn.parent ? (await em.findOne(TurnEntity, { id: turn.parent.id }))?.thread.id : null }));
+console.log(JSON.stringify(await Promise.all(pojo), null, 2));
+await scenario.orm.close();

@@ -1,6 +1,7 @@
 import { join } from "@std/path";
 import { contexts, fromm, mime, Mode, Path, shard, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
 import { gestalten, ThreadEntity } from "@vivalence/runtime";
+import { paths } from "../gestalten/tools/mode.js";
 import { seed } from "./scenarios/datamap.js";
 
 // the harness tools m87 touched, armed as harnessed.js arms them (grafted whole, the host spread onto ctx), on :memory:
@@ -28,7 +29,7 @@ const host = () => ({
   modes: { srs: { memo: buildMode("srs", "memo", join(directory, "memo")) }, home: { probe: buildMode("home", "probe") } },
 });
 
-const armed = (vector, daemon) => new Vector().graft(vector).use(shard.context.spread(contexts.host, daemon));
+const armed = (vector, daemon) => new Vector().graft(vector).use(shard.context.spread(contexts.daemonDie, daemon));
 
 const invoke = async (vector, name, input) => fromm.yield(await steer.dispatch.invoke(vector, new ToolCall(name).signal, steer.strategy.guarded)(input));
 
@@ -47,7 +48,7 @@ specimen.describe("the harness tools — buffer · thread · mode", { sanitizeRe
 
   specimen.it("buffer_update with neither data nor source is refused; a data patch merges over the row's data", async () => {
     const daemon = host();
-    const vector = armed(tools.buffer.buffer, daemon);
+    const vector = armed(tools.buffer, daemon);
     const buffer = await scenario.repos.buffer.create({ mode: scenario.fixtures.mode.id, thread: thread.id, data: { title: "Q3", summary: "draft" } });
     await scenario.em.flush();
 
@@ -63,7 +64,7 @@ specimen.describe("the harness tools — buffer · thread · mode", { sanitizeRe
 
   specimen.it("buffer_update with a source rewrites the file of the buffer's own kind in place — same row, same mount, new hash; a buffer without one refuses", async () => {
     const daemon = host();
-    const vector = armed(tools.buffer.buffer, daemon);
+    const vector = armed(tools.buffer, daemon);
     const mount = join(directory, "memo", "q3.md");
     await Deno.writeTextFile(mount, "# Q3");
     const file = await scenario.repos.file.create({ mode: scenario.fixtures.mode, path: "q3.md", mount, mime: mime.markdown, hash: "h0", integrity: "sha256-h0", bytes: 4 });
@@ -85,37 +86,17 @@ specimen.describe("the harness tools — buffer · thread · mode", { sanitizeRe
     specimen.expect(refused.output.message).toMatch(/loads no file of its own kind text\/markdown/);
   });
 
-  specimen.it("thread_update merges trait data by name; the summary lists the thread, the mode's places and every buffer row", async () => {
+  specimen.it("thread_update merges trait data by name", async () => {
     const daemon = host();
-    const vector = armed(tools.thread.thread, daemon);
+    const vector = armed(tools.thread, daemon);
     const updated = await invoke(vector, "thread_update", { id: thread.id, trait: { LABELED: { name: "Q3 filings" }, MASKED: { where: {} } } });
     specimen.expect(updated.condition).toBe("NOMINAL");
     specimen.expect(updated.output.thread[0].trait).toMatchObject({ LABELED: { name: "Q3 filings" }, MASKED: { where: {} } });
-
-    const summary = await tools.thread.summary({ modes: daemon.modes, entities: daemon.entities, mode: daemon.modes.srs.memo, thread });
-    const lines = summary.split("\n");
-    specimen.expect(lines[0]).toBe(`[Thread ${thread.id}] · Q3 filings · phase ${thread.phase} · buffers minted ${thread.counter} · traits LABELED INTELLIGENT VOCAL · user ${scenario.fixtures.user.id}`);
-    specimen.expect(lines[1]).toBe(`[Mode srs/memo] Memo · traits TOOLING · source ${join(directory, "memo")} · mountpoint ${join(directory, "memo")}`);
-    specimen.expect(lines[2]).toMatch(/^\[Buffers on this thread\] · 3 · rows:/);
-    specimen.expect(lines[3]).toMatch(new RegExp(`^0 · [0-9a-f-]+ · test #0 · (srs/memo|home/probe) · PENDING · ${mime.json} · \\{"title":"Q3","summary":"final"\\}$`));
-    specimen.expect(lines[4]).toMatch(/^1 · [0-9a-f-]+ · Annual accounts · (srs\/memo|home\/probe) · PENDING · text\/markdown · \{\}$/);
-    specimen.expect(lines[5]).toMatch(/^2 · [0-9a-f-]+ · test #2 · (srs\/memo|home\/probe) · PENDING · text\/markdown · \{\}$/);
-    specimen.expect(lines).toHaveLength(6);
-  });
-
-  specimen.it("the summary clips a wide data row to 320 characters and names its keys", async () => {
-    const daemon = host();
-    const buffer = await scenario.repos.buffer.create({ mode: scenario.fixtures.mode.id, thread: thread.id, data: { wide: "x".repeat(400), keys: 1 } });
-    await scenario.em.flush();
-    const summary = await tools.thread.summary({ modes: daemon.modes, entities: daemon.entities, mode: daemon.modes.home.probe, thread });
-    const row = summary.split("\n").find((line) => line.includes(buffer.id));
-    specimen.expect(row).toMatch(/… keys wide keys$/);
-    specimen.expect(summary.split("\n")[1]).toBe(`[Mode home/probe] probe · traits TOOLING · source ${join(directory, "probe")}`);
   });
 
   specimen.it("mode_find lists the host and every mode with its places; type or slug narrows; places() is empty for a mode with none", async () => {
     const daemon = host();
-    const vector = armed(tools.mode.mode, daemon);
+    const vector = armed(tools.mode, daemon);
     const all = await invoke(vector, "mode_find", {});
     specimen.expect(all.condition).toBe("NOMINAL");
     specimen.expect(all.output.message.split("\n")).toEqual([
@@ -128,12 +109,12 @@ specimen.describe("the harness tools — buffer · thread · mode", { sanitizeRe
     specimen.expect((await invoke(vector, "mode_find", { slug: "nobody" })).output.message.split("\n")).toHaveLength(1);
 
     const bare = new Mode({ manifest: { type: "home", slug: "bare" } });
-    specimen.expect(tools.mode.places(bare)).toBe("");
+    specimen.expect(paths(bare)).toBe("");
     const read = new Mode({ manifest: { type: "home", slug: "read" }, source: { dirname: "/src" } });
     read.mountpoint = new Path("/mnt");
     read.files = { directory: "/elsewhere" };
-    specimen.expect(tools.mode.places(read)).toBe("source /src · mountpoint /mnt · files /elsewhere");
+    specimen.expect(paths(read)).toBe("source /src · mountpoint /mnt · files /elsewhere");
     read.files = { directory: "/mnt" };
-    specimen.expect(tools.mode.places(read)).toBe("source /src · mountpoint /mnt");
+    specimen.expect(paths(read)).toBe("source /src · mountpoint /mnt");
   });
 });

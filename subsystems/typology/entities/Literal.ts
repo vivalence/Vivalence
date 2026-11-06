@@ -83,7 +83,10 @@ export const LiteralSchema = new EntitySchema({
   name: "Literal",
   uniques: [{ properties: ["daemon", "slug"] }],
   repository: () => LiteralRepository,
-  filters: { daemon: { cond: (args: any) => ({ daemon: args.daemon }), default: false } },
+  filters: {
+    daemon: { cond: (args: any) => (args?.daemon ? { daemon: args.daemon } : {}), default: true, args: false },
+    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
+  },
   properties: {
     slug: { type: types.string },
     traits: { type: types.json, defaultRaw: `'[]'` },

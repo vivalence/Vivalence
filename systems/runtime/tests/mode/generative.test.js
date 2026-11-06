@@ -5,7 +5,7 @@ const { GENERATIVE } = traits.mode;
 const SOURCE =
   "<script>let { buffer } = $props();</script><h1>{buffer.data.title}</h1>";
 
-function buildMode({ generator, slug = "gen-test", directory } = {}) {
+function buildMode({ slug = "gen-test", directory } = {}) {
   const mode = new Mode({
     manifest: { type: "chaosmonkey", slug, traits: ["GENERATIVE"] },
   });
@@ -14,7 +14,6 @@ function buildMode({ generator, slug = "gen-test", directory } = {}) {
   mode.mountpoint = `${directory}/mode_chaosmonkey_${slug}`;
   mode.entity = { id: "mode-1" };
   mode.tools = new Vector();
-  if (generator) mode.module.generator = generator;
   return mode;
 }
 
@@ -95,15 +94,15 @@ const stub = (mode, daemon) => {
 // mirrors harnessed.js: the trait's tools are grafted whole onto the armed vector, no namespace.
 const armed = (mode, daemon, thread = "thread-1") => {
   const vector = new Vector();
-  vector.graft(mode.generator.tools);
-  vector.use(shard.context.spread(contexts.host, daemon));
+  vector.graft(mode.tools);
+  vector.use(shard.context.spread(contexts.daemonDie, daemon));
   vector.use(shard.context.bind("mode", mode));
   if (thread) vector.use(shard.context.bind("thread", thread));
   return vector;
 };
 
 const names = (vector) =>
-  steer.trie.rollup(vector, () => null).map((entry) =>
+  steer.trie.leaves(vector).map((entry) =>
     new ToolCall(entry.steps).name
   );
 
@@ -130,20 +129,20 @@ specimen.describe("GENERATIVE — the capability and its tools", {
   });
 
   specimen.it(
-    "mode.generator carries the bundle verb and the five tools; mode.tools is untouched",
+    "mode.generator carries the bundle verb; the five tools land on mode.tools",
     async () => {
       const mode = buildMode({ slug: "bare", directory });
       await GENERATIVE(mode, buildDaemon(directory));
 
       specimen.expect(typeof mode.generator.bundle).toBe("function");
-      specimen.expect(names(mode.generator.tools)).toEqual([
+      specimen.expect(names(mode.tools)).toEqual([
         "buffer_create",
         "view_create",
         "view_update",
         "view_read",
         "view_list",
       ]);
-      specimen.expect(names(mode.tools)).toEqual([]);
+      specimen.expect(mode.generator.tools).toBe(undefined);
       specimen.expect(mode.generator.inspect).toBe(undefined);
       specimen.expect(mode.generator.serve).toBe(undefined);
       specimen.expect(mode.generator.buffer).toBe(undefined);
@@ -288,7 +287,7 @@ specimen.describe("GENERATIVE — the capability and its tools", {
   );
 
   specimen.it(
-    "a mode's generator STEERS: its middleware runs on the trait's door, its reword wins the pattern, the trait's effect stays",
+    "a mode's tools STEER: grafted after the trait, its middleware runs, its reword wins, the trait's effect stays",
     async () => {
       const seen = [];
       const generator = new Vector();
@@ -308,9 +307,10 @@ specimen.describe("GENERATIVE — the capability and its tools", {
         valence: "HOUSE RULES apply. ".repeat(6),
       });
 
-      const mode = buildMode({ generator, slug: "steered", directory });
+      const mode = buildMode({ slug: "steered", directory });
       const daemon = buildDaemon(directory);
       await GENERATIVE(mode, daemon);
+      mode.tools.graft(generator);
       stub(mode, daemon);
       const vector = armed(mode, daemon);
 
@@ -321,7 +321,7 @@ specimen.describe("GENERATIVE — the capability and its tools", {
         "view_read",
         "view_list",
       ]);
-      const [, create] = steer.trie.rollup(vector, () => null);
+      const [, create] = steer.trie.leaves(vector);
       specimen.expect(create.pattern.valence).toContain("HOUSE RULES");
       specimen.expect(Object.keys(create.pattern.input.properties)).toEqual(["slug", "mime", "source"]);
 

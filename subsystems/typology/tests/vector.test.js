@@ -92,7 +92,7 @@ specimen.describe("Vector", () => {
     destination.branch("b").open("d", () => 3);
     specimen.expect(source.branch("b").patterns.map((p) => p.nature)).toEqual(["c"]);
     source.open("/e", () => 4);
-    specimen.expect(destination.trie.has("e")).toBe(false);
+    specimen.expect(destination.edge("e")).toBe(null);
     specimen.expect(destination.branch("a")).not.toBe(source.branch("a"));
   });
 
@@ -104,8 +104,7 @@ specimen.describe("Vector", () => {
 
     const findNode = (vector) => {
       const literal = vector.descendants[0];
-      const { pattern, trajectory } = [...literal.trie.values()][0];
-      return [pattern, trajectory];
+      return [...literal.trie][0];
     };
 
     const [edge, node] = findNode(armed);
@@ -136,7 +135,7 @@ specimen.describe("Vector", () => {
     const one = () => {};
     const two = () => {};
     const armed = new Vector().use(one, two).graft(first, second);
-    specimen.expect([...armed.trie.keys()]).toEqual(["a", "b"]);
+    specimen.expect(armed.patterns.map((pattern) => pattern.nature)).toEqual(["a", "b"]);
     specimen.expect(armed.effect()).toBe("root");
     specimen.expect(armed.carry).toEqual([one, two]);
     specimen.expect(new Vector().affect(() => "x").effect()).toBe("x");
@@ -150,12 +149,12 @@ specimen.describe("Vector", () => {
     vector.branch(":param");
     vector.branch("first");
     specimen.expect(vector.trie.size).toBe(2);
-    specimen.expect([...vector.trie.keys()]).toEqual(["first", ":param"]);
+    specimen.expect(vector.patterns.map((pattern) => pattern.nature)).toEqual(["first", ":param"]);
 
     const base = new Vector().open("/a", () => 1).open("/b", () => 2);
     const override = new Vector().open("/a", () => 3);
     const merged = new Vector().graft(base).graft(override);
-    specimen.expect([...merged.trie.keys()]).toEqual(["a", "b"]);
+    specimen.expect(merged.patterns.map((pattern) => pattern.nature)).toEqual(["a", "b"]);
     specimen.expect(merged.branch("a").effect()).toBe(3);
   });
 
@@ -176,7 +175,7 @@ specimen.describe("Vector", () => {
     const mounted = root.branch("svc", service);
     specimen.expect(mounted).toBe(service);
     specimen.expect(root.branch("svc")).toBe(service);
-    specimen.expect([...root.trie.values()][0].trajectory).toBe(service);
+    specimen.expect([...root.trie.values()][0]).toBe(service);
   });
 
   specimen.it("attached vectors are live at every depth, including new top-level branches", () => {
@@ -218,9 +217,9 @@ specimen.describe("Vector", () => {
     specimen.expect(existing.carry.length).toBe(1);
 
     incoming.open("/later", () => "later");
-    specimen.expect(existing.trie.has("later")).toBe(false);
+    specimen.expect(existing.edge("later")).toBe(null);
     existing.open("/mine", () => "mine");
-    specimen.expect(incoming.trie.has("mine")).toBe(false);
+    specimen.expect(incoming.edge("mine")).toBe(null);
   });
 
   specimen.it("attach through an occupied path still lands and grafts at the leaf only", () => {
@@ -270,10 +269,12 @@ specimen.describe("Vector", () => {
     const derived = new Vector().open({ nature: "leader/d/d", valence: "/dock", input: v.object({}) }, "/dock");
     const reworded = new Vector().open({ nature: "leader/d/d", valence: "the dock" }, "/dock");
     const merged = new Vector().graft(declared, derived, reworded);
-    const d = merged.trie.get("leader").trajectory.trie.get("d");
-    specimen.expect([merged.trie.get("leader").pattern.valence, d.pattern.valence]).toEqual(["the leader", "display"]);
-    specimen.expect([d.trajectory.trie.get("d").pattern.valence, d.trajectory.trie.get("d").pattern.input !== undefined]).toEqual(["the dock", true]);
-    specimen.expect(derived.trie.get("leader").trajectory.trie.get("d").trajectory.trie.get("d").pattern.valence).toBe("/dock");
+    const [leader, leading] = merged.edge("leader");
+    const [d, display] = leading.edge("d");
+    const [dock] = display.edge("d");
+    specimen.expect([leader.valence, d.valence]).toEqual(["the leader", "display"]);
+    specimen.expect([dock.valence, dock.input !== undefined]).toEqual(["the dock", true]);
+    specimen.expect(derived.branch("leader/d").edge("d")[0].valence).toBe("/dock");
   });
 
   specimen.it("scope asks the literals first and the * only when none matched; a * mid-path is walked through", () => {
@@ -281,5 +282,65 @@ specimen.describe("Vector", () => {
     specimen.expect(steer.match.scope(vector, new Signal("ctrl-v")).map(([match]) => match.nature)).toEqual(["ctrl-v"]);
     specimen.expect(steer.match.scope(vector, new Signal("d")).map(([match]) => match.type)).toEqual(["wildcard"]);
     specimen.expect(steer.dispatch.traverse(vector, new Signal("/proxy/anything/status"))[0]).not.toBe(null);
+  });
+
+  specimen.it("trim drops the edge at the end of a /nature path, its siblings and ancestors stay", () => {
+    const vector = new Vector().open("a/b", () => "b").open("a/c", () => "c").open("d", () => "d");
+    vector.trim("/a/b").trim("/absent/x");
+    const paths = steer.trie.leaves(vector).map((leaf) => leaf.steps.map((step) => step.nature).join("/"));
+    specimen.expect(paths).toEqual(["a/c", "d"]);
+    vector.trim("a");
+    specimen.expect(vector.patterns.map((pattern) => pattern.nature)).toEqual(["d"]);
+  });
+
+  specimen.it("graft copies the pattern: a later merge never reaches the source", () => {
+    const client = new Vector().open({ nature: "/filter", valence: "narrow the list" }, () => "narrow");
+    const repl = new Vector().graft(client);
+    specimen.expect(repl.edge("filter")[0]).not.toBe(client.edge("filter")[0]);
+
+    const before = repl.edge("filter")[0];
+    repl.graft(new Vector().open({ nature: "/filter", valence: "the mode's filter" }, () => "own"));
+    specimen.expect(repl.edge("filter")[0]).toBe(before);
+    specimen.expect(before.valence).toBe("the mode's filter");
+    specimen.expect(client.edge("filter")[0].valence).toBe("narrow the list");
+  });
+
+  specimen.it("seat copies every declared key and none of the chain", () => {
+    const source = new Vector().open({ nature: "/deep/keep", valence: "kept", rank: "hidden" }, () => "keep");
+    const copy = new Vector().graft(source);
+    const [deep] = copy.edge("deep");
+    const [leaf] = copy.branch("deep").edge("keep");
+    specimen.expect([leaf.valence, leaf.rank]).toEqual(["kept", "hidden"]);
+    specimen.expect([deep.heir, deep.trace, leaf.trace]).toEqual([undefined, null, null]);
+  });
+
+  specimen.it("a key nobody listed still rides", () => {
+    const source = new Vector().open({ nature: "/x", mood: "curious" }, () => "x");
+    specimen.expect(new Vector().graft(source).edge("x")[0].mood).toBe("curious");
+  });
+
+  specimen.it("branch merges a later declaration onto the edge; a bare mention changes nothing", () => {
+    const vector = new Vector();
+    vector.branch("x");
+    vector.branch({ nature: "x", valence: "later" });
+    vector.branch("x");
+    specimen.expect(vector.patterns.map((pattern) => [pattern.nature, pattern.valence])).toEqual([["x", "later"]]);
+  });
+
+  specimen.it("a merge holds the route order: :id still answers before :slug", async () => {
+    const base = new Vector().open("/users/:id", () => "id").open("/users/:slug", () => "slug");
+    const merged = new Vector().graft(base).graft(new Vector().open({ nature: "/users/:slug", valence: "by slug" }, () => "slug"));
+    specimen.expect(merged.branch("users").patterns.map((pattern) => pattern.nature)).toEqual([":id", ":slug"]);
+    specimen.expect(await steer.dispatch.execute(merged, {}, new Signal("/users/7"))).toBe("id");
+  });
+
+  specimen.it("a later effect replaces the earlier on do, open and graft alike", async () => {
+    const done = new Vector().do(() => "first").do(() => "second");
+    specimen.expect(await steer.dispatch.execute(done, {})).toBe("second");
+    const opened = new Vector().open("/x", () => "first").open("/x", () => "second");
+    specimen.expect(await steer.dispatch.execute(opened, {}, new Signal("/x"))).toBe("second");
+    const grafted = new Vector().do(() => "first").graft(new Vector().do(() => "second"));
+    specimen.expect(await steer.dispatch.execute(grafted, {})).toBe("second");
+    specimen.expect(new Vector().do(() => "first").do(() => "second")).toBeInstanceOf(Vector);
   });
 });

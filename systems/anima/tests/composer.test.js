@@ -53,18 +53,6 @@ specimen.describe("anima composer — the design's composer (dom.js:280): consen
     rig.close();
   });
 
-  specimen.it("focus on the textarea is the composer's focus; the field wears .focus; journal focus drops it", async () => {
-    const { rig, client } = await seated();
-    client.surface.$focus.set("journal");
-    await settle();
-    specimen.expect(rig.target.querySelector(".field").classList.contains("focus")).toBe(false);
-    fire(rig.target.querySelector("textarea"), "focus");
-    await settle();
-    specimen.expect(client.surface.focus).toBe("composer");
-    specimen.expect(rig.target.querySelector(".field").classList.contains("focus")).toBe(true);
-    rig.close();
-  });
-
   specimen.it("a RUNNING activity on the thread trades send for stop, which is /stop", async () => {
     const { rig, entities, thread, sent } = await seated();
     entities.activity.$entities.set([{ id: "activity-1", type: "HALLUCINATION", status: "RUNNING", steps: [], thread }]);

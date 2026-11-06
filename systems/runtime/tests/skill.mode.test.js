@@ -1,6 +1,7 @@
 import { assert, assertEquals } from "@std/assert";
 import { contexts, Path, shard, steer, ToolCall, Vector } from "@vivalence/typology";
 import { gestalten } from "@vivalence/runtime";
+import { paths } from "../gestalten/tools/mode.js";
 
 const invoke = (armed, name, input) =>
   steer.dispatch.invoke(armed, new ToolCall(name).signal, steer.strategy.guarded)(input);
@@ -26,19 +27,19 @@ const daemon = {
   modes: { office: { vdex }, tutor: { francesca }, teacher: { dewey } },
 };
 
-const armed = new Vector().use(shard.context.spread(contexts.host, daemon)).graft(gestalten.tools.mode.mode);
+const armed = new Vector().use(shard.context.spread(contexts.daemonDie, daemon)).graft(gestalten.tools.mode);
 
-Deno.test("skill.mode — every mode's places on disk", async (t) => {
-  await t.step("places: source, then what a mode serves, then what it reads when that differs", () => {
+Deno.test("skill.mode — every mode's paths on disk", async (t) => {
+  await t.step("paths: source, then what a mode serves, then what it reads when that differs", () => {
     assertEquals(
-      gestalten.tools.mode.places(vdex),
+      paths(vdex),
       "source /registry/vcompany/modes/office/vdex · mountpoint /Users/finn/vivalence/coorporation",
     );
     assertEquals(
-      gestalten.tools.mode.places(francesca),
+      paths(francesca),
       "source /registry/education/modes/tutor/francesca · files /registry/education/modes/tutor/francesca/assets",
     );
-    assertEquals(gestalten.tools.mode.places(dewey), "");
+    assertEquals(paths(dewey), "");
   });
 
   await t.step("mode_find lists the daemon and every mode as rows", async () => {
@@ -67,8 +68,8 @@ Deno.test("skill.mode — every mode's places on disk", async (t) => {
 
   await t.step("a daemon without a mountpoint names none", async () => {
     const bare = new Vector()
-      .use(shard.context.spread(contexts.host, { reference: new Path("/daemon/test-daemon"), modes: { teacher: { dewey } } }))
-      .graft(gestalten.tools.mode.mode);
+      .use(shard.context.spread(contexts.daemonDie, { reference: new Path("/daemon/test-daemon"), modes: { teacher: { dewey } } }))
+      .graft(gestalten.tools.mode);
     const spoken = await invoke(bare, "mode_find", {});
     assertEquals(spoken.output.message.split("\n")[0], "[Host /daemon/test-daemon]");
   });

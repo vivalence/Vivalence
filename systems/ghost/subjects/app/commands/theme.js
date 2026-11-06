@@ -12,7 +12,7 @@ const NAMED = [
 ];
 
 export const theme = new Vector().open(
-  { nature: "/theme/set", valence: "the chrome's theme for this session; bare, the next one. Example: /theme/set northsea", input: Named, chord: "leader/d/t" },
+  { nature: "/theme/set", rank: "hidden", valence: "the chrome's theme for this session; bare, the next one. Example: /theme/set northsea", input: Named, chord: "leader/d/t" },
   (ctx) => {
     const named = belt.input.cast(Named, ctx.signal).theme;
     const theme = NAMED.find(([test]) => test(named))[1](ctx.client.app, named);

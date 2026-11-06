@@ -28,22 +28,22 @@ function extractObject(turn, schema) {
 
 const models = {
   opus: {
-    id: "claude-opus-5",
+    id: "claude-opus-5-5",
     tune: [0.95, 1.0, 0.15, 0.15],
     context: 1000000,
     thinking: true,
   },
   sonnet: {
-    id: "claude-sonnet-5",
+    id: "claude-sonnet-5-5",
     tune: [0.6, 0.65, 0.6, 0.5],
     context: 1000000,
     thinking: true,
   },
   haiku: {
-    id: "claude-haiku-4-5",
+    id: "claude-haiku-5-5",
     tune: [0.25, 0.3, 0.95, 0.5],
-    context: 200000,
-    thinking: false,
+    context: 1000000,
+    thinking: true,
   },
 };
 
@@ -88,6 +88,7 @@ export default async function provider(service) {
     const { render, stream } = makeDialogue(model);
     faculties.push({
       type: "dialogue",
+      id: model.id,
       tune: model.tune,
       context: model.context,
       channels: {
@@ -100,7 +101,6 @@ export default async function provider(service) {
         ],
         out: ["text", "tool_use", ...(model.thinking ? ["thinking"] : [])],
       },
-      config: { model: model.id },
       via: { render, stream },
     });
   }

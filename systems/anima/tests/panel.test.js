@@ -83,7 +83,7 @@ specimen.describe("panel — Dom.panel: the chord walk under ctrl-v, the palette
     specimen.expect(shaped(rig.target.querySelector("section.panel"))).toBe(oracle(CHOOSER));
     fire(rig.target.querySelector(".crow"), "click");
     await settle();
-    specimen.expect([client.surface.draft, client.terminal.repl.catalog, client.surface.focus]).toEqual(["/dock closed", null, "composer"]);
+    specimen.expect([client.surface.draft, client.terminal.repl.catalog]).toEqual(["/dock closed", null]);
     client.terminal.repl.$catalog.set(ghost.shard.keymap.catalog(terminal.repl.commands));
     await settle();
     surface.enter(client, client.terminal.repl.catalog, "/dock closed");

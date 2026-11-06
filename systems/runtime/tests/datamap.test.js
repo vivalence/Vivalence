@@ -26,7 +26,6 @@ specimen.beforeAll(async () => {
   aperture
     .branch("/thread")
     .use(shard.context.attach("user", fixtures.user))
-    .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
     .graft(shard.datamap.repository(repos.thread))
 
   scenario.datamap.registerSubscriber(twitch)
@@ -44,7 +43,7 @@ specimen.afterAll(async () => {
 
 specimen.describe("shard.datamap.repository", () => {
   specimen.it("a repository creates, reads, counts, and finds one", async () => {
-    const created = await conn.call("/literal/create", { data: { slug: "created", mode: scenario.fixtures.mode.id, trait: {} } })
+    const created = await conn.call("/literal/create", { data: { slug: "created", mode: scenario.fixtures.mode.id, daemon: scenario.fixtures.daemon.slug, trait: {} } })
     specimen.expect(created.id).toBeDefined()
     specimen.expect(created.slug).toBe("created")
 
@@ -64,13 +63,13 @@ specimen.describe("shard.datamap.repository", () => {
   })
 
   specimen.it("a repository updates, removes, and ensures", async () => {
-    const mutable = await conn.call("/literal/create", { data: { slug: "mutable", mode: scenario.fixtures.mode.id, trait: {} } })
+    const mutable = await conn.call("/literal/create", { data: { slug: "mutable", mode: scenario.fixtures.mode.id, daemon: scenario.fixtures.daemon.slug, trait: {} } })
     const updated = await conn.call("/literal/updateOne", {
       where: { id: mutable.id }, data: { trait: { TAGGED: true } },
     })
     specimen.expect(updated.trait.TAGGED).toBe(true)
 
-    const ephemeral = await conn.call("/literal/create", { data: { slug: "ephemeral", mode: scenario.fixtures.mode.id, trait: {} } })
+    const ephemeral = await conn.call("/literal/create", { data: { slug: "ephemeral", mode: scenario.fixtures.mode.id, daemon: scenario.fixtures.daemon.slug, trait: {} } })
     const removed = await conn.call("/literal/removeOne", { where: { id: ephemeral.id } })
     specimen.expect(removed.ok).toBe(true)
     specimen.expect(await scenario.repos.literal.findOne({ slug: "ephemeral" })).toBeNull()
@@ -99,12 +98,18 @@ specimen.describe("shard.datamap.repository", () => {
   })
 })
 
-specimen.describe("shard.datamap.scope", () => {
-  specimen.it("scope injects the owner into writes and filters reads", async () => {
+specimen.describe("the user filter param", () => {
+  specimen.it("a write names its owner; the filter param fences reads", async () => {
     const userId = scenario.fixtures.user.id
 
     const thread = await conn.call("/thread/create", {
-      data: { mode: scenario.fixtures.mode.id, trait: {}, cursor: 0, counter: 0 },
+      data: {
+        user: userId,
+        mode: scenario.fixtures.mode.id,
+        daemon: scenario.fixtures.daemon.slug,
+        trait: {},
+        counter: 0,
+      },
     })
     const threadUser = typeof thread.user === "object" ? thread.user.id : thread.user
     specimen.expect(threadUser).toBe(userId)
@@ -138,7 +143,7 @@ specimen.describe("shard.datamap.reactive", () => {
       events.push({ custom: true, slug: ctx.input.entity?.slug })
     })
 
-    await conn.call("/literal/create", { data: { slug: "twitch-fire", mode: scenario.fixtures.mode.id, trait: {} } })
+    await conn.call("/literal/create", { data: { slug: "twitch-fire", mode: scenario.fixtures.mode.id, daemon: scenario.fixtures.daemon.slug, trait: {} } })
 
     specimen.expect(events.length).toBe(1)
     specimen.expect(events[0].custom).toBe(true)
@@ -158,7 +163,7 @@ specimen.describe("shard.datamap.ingest", () => {
 
     const single = await (await post(new ReadableStream({
       start(controller) {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ op: "create", data: { slug: "ingested", mode: scenario.fixtures.mode.id, trait: {} } })}\n\n`))
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ op: "create", data: { slug: "ingested", mode: scenario.fixtures.mode.id, daemon: scenario.fixtures.daemon.slug, trait: {} } })}\n\n`))
         controller.close()
       },
     }))).json()
@@ -167,8 +172,8 @@ specimen.describe("shard.datamap.ingest", () => {
 
     const many = await (await post(new ReadableStream({
       start(controller) {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ op: "create", data: { slug: "batch-a", mode: scenario.fixtures.mode.id, trait: {} } })}\n\n`))
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ op: "create", data: { slug: "batch-b", mode: scenario.fixtures.mode.id, trait: {} } })}\n\n`))
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ op: "create", data: { slug: "batch-a", mode: scenario.fixtures.mode.id, daemon: scenario.fixtures.daemon.slug, trait: {} } })}\n\n`))
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ op: "create", data: { slug: "batch-b", mode: scenario.fixtures.mode.id, daemon: scenario.fixtures.daemon.slug, trait: {} } })}\n\n`))
         controller.close()
       },
     }))).json()
@@ -193,12 +198,12 @@ specimen.describe("shard.datamap.ingest", () => {
       }),
     }))
 
-    const toUpdate = await conn.call("/literal/create", { data: { slug: "ingest-update", mode: scenario.fixtures.mode.id, trait: {} } })
+    const toUpdate = await conn.call("/literal/create", { data: { slug: "ingest-update", mode: scenario.fixtures.mode.id, daemon: scenario.fixtures.daemon.slug, trait: {} } })
     const updated = await (await post({ op: "update", where: { id: toUpdate.id }, data: { trait: { INGESTED: true } } })).json()
     specimen.expect(updated.length).toBe(1)
     specimen.expect(updated[0].trait.INGESTED).toBe(true)
 
-    const toDelete = await conn.call("/literal/create", { data: { slug: "ingest-delete", mode: scenario.fixtures.mode.id, trait: {} } })
+    const toDelete = await conn.call("/literal/create", { data: { slug: "ingest-delete", mode: scenario.fixtures.mode.id, daemon: scenario.fixtures.daemon.slug, trait: {} } })
     const deleted = await (await post({ op: "delete", where: { id: toDelete.id } })).json()
     specimen.expect(deleted.length).toBe(1)
     specimen.expect(deleted[0].ok).toBe(true)

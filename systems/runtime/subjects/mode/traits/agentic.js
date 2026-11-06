@@ -1,8 +1,8 @@
 import { fromm } from "@vivalence/typology";
 
-export const AGENTIC = (mode, context) => () => {
+export const AGENTIC = (mode, modeDie) => () => {
   fromm
-    .modes(context.modes)
+    .modes(modeDie.modes)
     .flat.filter(
       (source) =>
         source !== mode && source.manifest?.type !== "domain" && source.implements("TOOLING"),

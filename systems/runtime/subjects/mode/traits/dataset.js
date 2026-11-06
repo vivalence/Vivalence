@@ -52,12 +52,16 @@ const pull = (source, mode) => {
 };
 
 
-export const DATASET = async (mode, context) => {
+export const DATASET = async (mode, modeDie) => {
   if (mode.entity.installed) return;
 
   const installing = mode.stdout.branch("install").start();
   try {
-    await install(mode, context, installing);
+    await modeDie.datamap.shard.scope(async () => {
+      modeDie.entities.em.setFilterParams("daemon", { daemon: mode.daemon });
+      modeDie.entities.em.setFilterParams("mode", { mode: null });
+      await install(mode, modeDie, installing);
+    });
   } catch (error) {
     installing.fault(error);
     throw error;
@@ -66,11 +70,11 @@ export const DATASET = async (mode, context) => {
   }
 };
 
-async function install(mode, context, installing) {
+async function install(mode, modeDie, installing) {
   const dataset = new Dataset(mode.module.dataset ?? {});
-  const meta = shard.datamap.strip(context.datamap.getMetadata());
-  const repo = (type) => context.entities[type];
-  const em = context.entities.em;
+  const meta = shard.datamap.strip(modeDie.entities.em.getMetadata());
+  const repo = (type) => modeDie.entities[type];
+  const em = modeDie.entities.em;
   const flush = async () => {
     await em.flush();
     em.clear();
@@ -79,7 +83,7 @@ async function install(mode, context, installing) {
 
   for (const type of dataset.types) {
     guard(mode, meta, type);
-    if (!context.entities[type]) {
+    if (!modeDie.entities[type]) {
       installing.log({ skipped: type, reason: "unknown entity" });
       continue;
     }
@@ -106,7 +110,7 @@ async function install(mode, context, installing) {
           const data = object.omit(row, relations);
           const found = byKey.get(row.slug);
           if (found) found.assign(object.patch(found, data));
-          else store.create({ ...data, mode: owner });
+          else store.create({ ...data, mode: owner, daemon: mode.entity.daemon });
         }
         await flush();
       })();
@@ -117,7 +121,14 @@ async function install(mode, context, installing) {
 
   for (const type of dataset.types) {
     for (const [prop, relation] of Object.entries(meta[type]?.properties ?? {})) {
-      await linkPhase({ repo, context, flush, mode, installing }, meta, type, prop, relation, staged[type] ?? []);
+      await linkPhase(
+        { repo, modeDie, flush, mode, installing },
+        meta,
+        type,
+        prop,
+        relation,
+        staged[type] ?? [],
+      );
     }
   }
 }
@@ -134,7 +145,7 @@ function guard(mode, meta, type) {
 }
 
 async function linkPhase(
-  { repo, context, flush, mode, installing },
+  { repo, modeDie, flush, mode, installing },
   meta,
   fromType,
   prop,
@@ -142,12 +153,12 @@ async function linkPhase(
   rows,
 ) {
   const toType = relation.target;
-  if (!toType || !context.entities[toType]) return;
+  if (!toType || !modeDie.entities[toType]) return;
 
   const refs = rows.filter((row) => row[prop]?.length);
   if (!refs.length) return;
 
-  const pmeta = context.datamap.getMetadata().get(repo(fromType).getEntityName())
+  const pmeta = modeDie.entities.em.getMetadata().get(repo(fromType).getEntityName())
     .properties[prop];
   if (pmeta?.kind !== "m:n") {
     installing.log({ skipped: `${fromType}.${prop}`, reason: "not m:n" });
@@ -186,7 +197,7 @@ async function linkPhase(
           if (to) to.assign(object.patch(to, ref));
           else {toMap.set(
               ref.slug,
-              to = repo(toType).create({ ...ref, mode: holder }),
+              to = repo(toType).create({ ...ref, mode: holder, daemon: mode.entity.daemon }),
             );}
           from[prop].add(to);
         }

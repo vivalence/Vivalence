@@ -68,7 +68,7 @@ specimen.describe("dealer — the emitter deals card buffers off a finite deck",
     await seat.deal("/oracle", { focus: "royals", thread: "th-1" });
     specimen.expect(seat.dealt).toEqual(["Q♦", "A♠"]);
     specimen.expect(asked[0].turns[0].parts[0].text).toBe("Pick 3 cards for a themed hand from this deck: A♠ K♥ Q♦ J♣ 10♠ 9♥ 8♦ 7♣.\nTheme: royals.\nReturn the faces only, exactly as written in the deck.");
-    specimen.expect(asked[0].tune).toBe("frugal");
+    specimen.expect(asked[0].tier).toBe("frugal");
     specimen.expect(asked[0].thread).toBe("th-1");
   });
 });

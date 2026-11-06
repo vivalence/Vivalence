@@ -9,7 +9,7 @@ export const authorize = ($authority) => async (ctx, next) => {
 };
 
 export const timeout = (ms) => async (ctx, next) => {
-  const duration = ms ?? ctx.request.options.timeout;
+  const duration = ctx.request.options.timeout ?? ms;
   if (!duration) return next();
   // a stream's lifetime is not a request timeout — SSE connects exempt
   if (ctx.request.headers.get("accept") === "text/event-stream") return next();

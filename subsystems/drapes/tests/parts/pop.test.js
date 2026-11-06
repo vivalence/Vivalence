@@ -24,15 +24,15 @@ specimen.describe("Pop — dom.js:108 pop(w): .scrim + .pop[role=dialog] over ds
   });
 
   specimen.it("the glyph per view is the design's dispGlyph (dom.js:45)", () => {
-    const rects = (view, align, framed) => {
-      const rig = screen(() => parts.Glyph({ view, align, framed }));
+    const rects = (view, align) => {
+      const rig = screen(() => parts.Glyph({ view, align }));
       const held = [...rig.target.querySelectorAll("rect")].map((rect) => ["x", "y", "width", "height"].map((name) => rect.getAttribute(name)).join(","));
       rig.close();
       return held;
     };
-    specimen.expect(rects("docked", "left", true)).toEqual(["1.5,2.5,25,11", "1.5,2.5,12.5,11"]);
-    specimen.expect(rects("docked", "right", false)).toEqual(["1.5,2.5,25,11", "1.5,2.5,25,11"]);
-    specimen.expect(rects("closed", "right", true)).toEqual(["1.5,2.5,25,11"]);
-    specimen.expect(rects("messenger", "left", true)).toEqual(["1.5,2.5,25,11", "4,6.5,9,4.5"]);
+    specimen.expect(rects("docked", "left")).toEqual(["1.5,2.5,25,11", "1.5,2.5,12.5,11"]);
+    specimen.expect(rects("docked", "right")).toEqual(["1.5,2.5,25,11", "14,2.5,12.5,11"]);
+    specimen.expect(rects("closed", "right")).toEqual(["1.5,2.5,25,11"]);
+    specimen.expect(rects("messenger", "left")).toEqual(["1.5,2.5,25,11", "4,6.5,9,4.5"]);
   });
 });

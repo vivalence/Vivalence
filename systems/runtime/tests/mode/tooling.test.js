@@ -6,7 +6,7 @@ import { create } from "../scenarios/cortex.js";
 
 function provision(mode, daemon) {
   mode.tools = new Vector();
-  mode.tools.use(shard.context.spread(contexts.host, daemon));
+  mode.tools.use(shard.context.spread(contexts.daemonDie, daemon));
   mode.tools.use(shard.context.bind("mode", mode));
   if (mode.module.tools) mode.tools.graft(mode.module.tools);
 }

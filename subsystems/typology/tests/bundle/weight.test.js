@@ -59,7 +59,7 @@ specimen.describe("bundle weight — atom through the barrel", { sanitizeResourc
       ].join("\n"),
     );
     const run = await new Deno.Command("deno", {
-      args: ["run", "-A", "npm:vite@6.3.3", "build", "--config", join(dir, "vite.config.mjs")],
+      args: ["run", "-A", "npm:vite@8.1.0", "build", "--config", join(dir, "vite.config.mjs")],
       cwd: repository,
       stdout: "piped",
       stderr: "piped",

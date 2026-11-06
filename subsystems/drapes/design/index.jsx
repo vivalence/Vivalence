@@ -17,7 +17,7 @@ const READS = {
   Panel: ["the held node of the keymap: tag · crumbs · hint over rows", "surface-lift · boundary · divider · text-strong · signal-primary-ink"],
   Row: ["key · name · icon · value on a grid; a row with choices latches one", "signal-primary-ink (key) · text-strong (name) · text-muted (value) · control-selected · text-disabled"],
   Choice: ["inline options, one latched", "control-contrast-pressed + control-on-pressed (latched) · text-muted"],
-  Field: ["the composer, the repl line, the filter; › a turn · << a line", "control-field · control-field-placeholder · control-field-caret · control-focus · text-light · signal-negative (dictating)"],
+  Field: ["the composer, the repl line, the filter; › a turn · << a line", "control-field · control-field-placeholder · control-field-caret · text-light · signal-negative (dictating)"],
   Turn: ["one journal entry by register: you · agent · tool · command · fault · trace", "text-muted · text-strong (you) · text-ink (agent) · surface-sunk (tool) · signal-primary-ink · signal-negative-ink"],
   Consent: ["takes the composer's place while a call waits; y · n · e are bindings", "signal-caution-tint · signal-caution-ink · signal-caution · control-contrast + control-on"],
   Split: ["one BSP split; the seam drags, double-click resets, 20–80", "boundary · boundary-strong (dragging)"],

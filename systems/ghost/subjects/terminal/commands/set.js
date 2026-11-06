@@ -30,9 +30,9 @@ const WRITABLE = [
     await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { LABELED: { name } }));
     return { LABELED: { name } };
   }),
-  at("thread.tune", v.primitives.hallucination.Tier.desc('A tier. Example: "fast"'), async (ctx, tune) => {
-    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT: { tune } }));
-    return { INTELLIGENT: { tune } };
+  at("thread.tier", v.primitives.hallucination.Tier.desc('A tier. Example: "fast"'), async (ctx, tier) => {
+    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT: { provider: null, id: null, tier } }));
+    return { INTELLIGENT: { tier } };
   }),
   at("thread.effort", v.enum(belt.intelligent.EFFORTS).desc('Reasoning effort. Example: "high"'), async (ctx, effort) => {
     await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT: { effort } }));
@@ -65,7 +65,7 @@ const writable = (ctx, path) => {
 const lined = (signal) => ({ ...signal, body: signal.body.length > 2 ? [signal.body[0], signal.body.slice(1).join(" ")] : signal.body });
 
 export const set = new Vector().open(
-  { nature: "/set", valence: "inspector: write one path of the client's state — the terminal's dock, the seated thread, the screen; a list toggles membership. Example: /set terminal.dock.view closed" },
+  { nature: "/set", rank: "hidden", valence: "inspector: write one path of the client's state — the terminal's dock, the seated thread, the screen; a list toggles membership. Example: /set terminal.dock.view closed" },
   (ctx) => {
     const entry = writable(ctx, String(ctx.signal.body[0]));
     const Setting = v.object({ path: v.string().desc('A writable path. Example: "terminal.dock.view"'), value: entry.value });

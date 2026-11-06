@@ -14,11 +14,11 @@
     // "preview": "deno run -A npm:vite preview",
     // "build": "docker build -f ./systems/anima/Dockerfile -t vivalence/anima:alpine .",
 
-    "run": "VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@6 dev",
-    "watch": "VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@6 dev",
-    "start": "VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@6 dev",
-    "bundle": "deno run -A npm:vite@6 build",
-    "preview": "deno run -A npm:vite@6 preview",
+    "run": "VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@8.1.0 dev --configLoader native",
+    "watch": "VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@8.1.0 dev --configLoader native",
+    "start": "VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@8.1.0 dev --configLoader native",
+    "bundle": "deno run -A npm:vite@8.1.0 build --configLoader native",
+    "preview": "deno run -A npm:vite@8.1.0 preview --configLoader native",
     // "build": "docker build -f ./systems/anima/Dockerfile -t vivalence/anima:alpine .",
 
     "test": "deno test -A --no-check --watch tests/**/*.test.js",

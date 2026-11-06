@@ -1,0 +1,32 @@
+export { thread } from "./thread.js";
+export { buffer } from "./buffer.js";
+export { turn } from "./turn.js";
+export { mode } from "./mode.js";
+export { daemon } from "./daemon.js";
+export { user } from "./user.js";
+export { terminal } from "./terminal.js";
+export { note } from "./note.js";
+export { view } from "./view.js";
+export { file } from "./file.js";
+export { intent } from "./intent.js";
+export { literal } from "./literal.js";
+export { symbol } from "./symbol.js";
+export { activity } from "./activity.js";
+
+import { Vector } from "@vivalence/typology";
+import { thread } from "./thread.js";
+import { buffer } from "./buffer.js";
+import { turn } from "./turn.js";
+import { mode } from "./mode.js";
+import { daemon } from "./daemon.js";
+import { user } from "./user.js";
+import { terminal } from "./terminal.js";
+import { note } from "./note.js";
+import { view } from "./view.js";
+import { file } from "./file.js";
+import { intent } from "./intent.js";
+import { literal } from "./literal.js";
+import { symbol } from "./symbol.js";
+import { activity } from "./activity.js";
+
+export const entities = new Vector().graft(thread, buffer, turn, mode, daemon, user, terminal, note, view, file, intent, literal, symbol, activity);

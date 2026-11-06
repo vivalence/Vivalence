@@ -1,0 +1,60 @@
+#+title: m119 — superseded by Q5 (11-09): the stamp twitch and the hand-stamp cuts
+# limit: 8000 chars
+
+Moved whole from =quests/m119-scope-params.org= on /"looks fucking weird. super fucking wierd."/ · /"no stamp function"/ · /"b"/. A write names its columns; a filter narrows reads.
+
+** 2 · the datamap — a twitch stamps; =datamap.js= untouched (Q4)
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shard/datamap.js:298
++export function stamped(...names) {
++  return async (ctx) => {
++    const { meta, entity, em } = ctx.input;
++    for (const name of names) {
++      if (!meta.properties[name] || entity[name] !== undefined) continue;
++      const params = em.getFilterParams(name);
++      if (!params) throw new Error(`[datamap] ${meta.className} created with no ${name} in context`);
++      entity[name] = params[name] === null ? null : em.getReference(meta.properties[name].targetMeta.class, params[name]);
++    }
++  };
++}
++
+ export function owned() {
+#+END_SRC
+
+An EAR, not a carry, on the RUNTIME twitch, once (S4 trace, =reference/m119/stamped.probe.js=): a =use= on =/before= wraps an opened ear only — with no ear under it, it never fires; and under a daemon twitch =owned()= reads =entity.daemon= BEFORE the stamp sets it → owner =null= → not that daemon's → skipped. The runtime twitch carries no =owned()= and sees every create of every host.
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/1-population.js:50
+   die.runtime.twitch.use(shard.context.spread(contexts.host, die.runtime));
+   for (const held of twitch) die.runtime.twitch.graft(held);
++  die.runtime.twitch.open("/before/*/create", shard.datamap.stamped("daemon", "mode", "thread"));
+   die.runtime.twitch.branch("/after").use(shard.datamap.detached(die.runtime.datamap));
+   die.runtime.datamap.registerSubscriber(die.runtime.twitch);
+#+END_SRC
+
+A create with no params for a column its kind carries throws (probe E2 · stamped.probe "NO params"); a column named in data is kept; =daemon: null= params stamp =null= (a runtime-hosted mode); =user= · =lighthouse= creates carry no scope property, the =meta.properties[name]= guard passes them; an update never fires it.
+
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/harnessed.js:112
+   ctx.turn = await ctx.entities.turn.chain({
+     id: ctx.input.turn,
+     role: "user",
+     parts: ctx.input.parts,
+     parent: ctx.hallucination.turns.at(-1) ?? null,
+     thread: ctx.input.thread,
+-    mode: ctx.mode.id,
+   });
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:140
+         parent = em.create(TurnEntity, {
+           id: v7(),
+           role: packet.turn.role,
+           parts: [],
+           parent,
+           thread: ctx.thread.id,
+-          mode: ctx.mode.id,
+         });
+#+END_SRC
+

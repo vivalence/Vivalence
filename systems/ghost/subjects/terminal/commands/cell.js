@@ -11,12 +11,12 @@ const labeled = (signal) => ({ ...signal, body: signal.body.length < 2 ? signal.
 const named = (buffer) => buffer.trait.LABELED.name;
 
 export const cell = new Vector().open(
-  { nature: "/cell/set", valence: "which view a buffer shows as its cell in the journal. Example: /cell/set board play #1", input: Celled },
+  { nature: "/cell/set", rank: "hidden", valence: "which view a buffer shows as its cell in the journal. Example: /cell/set board play #1", input: Celled },
   async (ctx) => {
     const { slug, name } = belt.input.cast(Celled, labeled(ctx.signal));
     const found = ctx.terminal.thread.$buffers.get().find((candidate) => named(candidate) === name);
     if (found === undefined) throw new Error(`no buffer ${name} on thread #${ctx.terminal.thread.id} — its buffers: ${ctx.terminal.thread.$buffers.get().map(named).join(" · ") || "none"}`);
-    const slugs = (await belt.view.candidates(found, ctx.client.runtime.attach)).filter((view) => view.traits.includes("CELL")).map((view) => view.slug);
+    const slugs = belt.view.candidates(found.$views, found.mode.$views).get().filter((view) => view.traits.includes("CELL")).map((view) => view.slug);
     if (!slugs.includes(slug)) throw new Error(`${name} cells ${slugs.join(" · ") || "none"}`);
     await ctx.client.runtime.entities.buffer.updateOne({ id: found.id }, traits.patch(found, { RENDERED: { cell: slug } }));
     return `${name} · cell ${slug}`;

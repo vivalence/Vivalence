@@ -1,7 +1,7 @@
 import { Controller, Cortex, Path, Span, soma, Vector, mime } from "@vivalence/typology";
 import { traits } from "@vivalence/runtime";
 const { EMITTER, GENERATIVE, HARNESSED } = traits.mode;
-import { emitter, generator } from "../page/index.js";
+import { drawing, emitter } from "../page/index.js";
 import { web } from "../tools/web.js";
 
 // the offline rig for the nested agent: a REAL cortex holding a fixture faculty, the REAL
@@ -44,6 +44,7 @@ export const faculty = (script) => {
     seen,
     faculty: {
       type: "dialogue",
+      id: "dialogue-1",
       tune: [0.5, 0.5, 0.5],
       via: {
         stream: async function* (request) {
@@ -111,7 +112,7 @@ export const rig = async (script) => {
         history: async () => [],
         chain: async (turn) => ({ id: "turn-1", ...turn }),
       },
-      em: { flush: async () => {}, fork: () => ({ create: () => null, flush: async () => {}, clear: () => {}, getReference: () => null }) },
+      em: { flush: async () => {}, fork: () => ({ create: (Entity, data) => ({ ...data }), flush: async () => {}, clear: () => {}, getReference: () => null }) },
       view: held,
       buffer: {
         find: async () => [],
@@ -128,16 +129,17 @@ export const rig = async (script) => {
   };
   const mode = {
     manifest: { slug: "hello-world", type: "demo" },
-    module: { emitter, generator },
+    module: { emitter },
     mountpoint: "/nonexistent/rig",
     aperture: new Vector(),
     entity: { id: "mode-1" },
-    tools: new Vector().graft(web),
+    tools: new Vector(),
     implements: () => false,
   };
   daemon.modes = { [mode.manifest.type]: { [mode.manifest.slug]: mode } };
   (await EMITTER(mode, daemon))();
   await GENERATIVE(mode, daemon);
+  mode.tools.graft(web).graft(drawing);
   mode.generator.bundle = held.bundle;
   (await HARNESSED(mode, daemon))();
   return { row, daemon, mode, seen: scripted.seen, views: held.rows };

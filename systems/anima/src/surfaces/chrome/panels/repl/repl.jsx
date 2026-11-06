@@ -44,7 +44,6 @@ const pick = (app, terminal, signal) => {
 
 const fill = (app, terminal, signal) => {
   app.bridge.$draft.set(signal);
-  app.bridge.$focus.set("composer");
 };
 
 const ENTER = [

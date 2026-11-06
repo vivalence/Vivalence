@@ -1,0 +1,175 @@
+# limit: 9000 chars
+#+title: vector-trie — the design terrain, moved whole from the quest 11-12 when the tangle took =* as code=
+
+* terrain — measured
+
+The trie today, and the two writers that disagree:
+
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/vector.js:28
+    let edge = this.trie.get(pattern.nature);
+    if (!edge) {
+      edge = { pattern, trajectory: (!pattern.heir && vector) || new this.constructor(this, this.signature) };
+      this.trie.set(pattern.nature, edge);
+    } else if (vector && !pattern.heir) {
+      edge.trajectory.graft(vector);
+    }
+// subsystems/typology/prototypes/vector.js:66
+        if (existing) existing.pattern = new this.signature({ ...existing.pattern, ...edge.pattern });
+        else this.trie.set(nature, { pattern: edge.pattern, trajectory: branch });
+#+END_SRC
+
+Dispatch never reads the key — it asks every pattern:
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/steer/match.js:21
+  for (const { pattern, trajectory } of vector.trie.values()) {
+    if (pattern.type === "wildcard") continue;
+    const match = pattern.apply(signal);
+#+END_SRC
+
+Copy against reference today:
+
+| act                                   | child vector          | pattern object      |
+|---------------------------------------+-----------------------+---------------------|
+| =branch(sig)=                         | new                   | the declaration's   |
+| =branch(sig, vector)=, free edge      | the SAME vector, live | the declaration's   |
+| =branch(sig, vector)=, occupied edge  | existing, copied into | first kept          |
+| =graft=, new edge                     | fresh per node        | the SOURCE's, shared |
+| =graft=, existing edge                | copied into existing  | a new merged object |
+
+Collision census, 11-12, pinned BEFORE any edit: =reference/vector-trie/census-11-12.md= (instrument =census.preload.js=, table =census.py=), four suites all green, 2267 hits, the same on two passes:
+
+| via      | existing → incoming | hits |
+|----------+---------------------+------|
+| =branch= | bare → bare         | 1452 |
+| =branch= | rich → bare         |  578 |
+| =branch= | bare → rich         |    0 |
+| =branch= | rich → rich         |    0 |
+| =graft=  | rich → rich         |  125 |
+| =graft=  | bare → rich         |   69 |
+| =graft=  | bare → bare         |   29 |
+| =graft=  | rich → bare         |    2 |
+| =open=   | effect over effect  |    9 |
+| =graft=  | effect over effect  |    3 |
+| =do=     | effect over effect  |    0 |
+
+52 of the =graft= hits carry the SAME pattern object on both sides (one vector grafted twice; the drill's 2215 skipped them). 8 of the 9 =open= hits: =systems/ghost/entities/activity/hydration.js:6= re-opens =SIGTERM= · =SIGSTOP= · =SIGCONT= · =SIGKILL= on a re-hydrated entity. Four effect rules live today: =open= replaces · =do= keeps the first and prints =vector already affected= (=vector.js:57=) · =graft= replaces · =Twitch.graft= sequences both (=twitch.js:17=, its subclass's own, stays).
+
+Residue on a stored pattern: =open("deep/keep")= leaves =heir: keep= on the =deep= key — =branch(storedPattern, child)= walks it again (=sieve= built =deep/keep/keep=; it sets the edge directly today, =steer/trie.js=). No code compares a pattern by identity across two vectors (grep 11-12: zero).
+
+
+* as code — the SKETCH the tangle replaced
+
+SKETCH — unprobed until the Map lands.
+
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/vector.js
+  edge(nature) {
+    for (const entry of this.trie) if (entry[0].nature === nature) return entry;
+    return null;
+  }
+
+  seat(pattern) {
+    const [own, trajectory] = this.edge(pattern.nature) ?? [
+      new this.signature(pattern.nature),
+      new this.constructor(this, this.signature),
+    ];
+    this.trie.set(Object.assign(own, pattern), trajectory);
+    return trajectory;
+  }
+
+  graft(...vectors) {
+    for (const vector of vectors) {
+      if (vector === this) continue;
+      if (vector.effect) this.effect = vector.effect;
+      for (const [pattern, trajectory] of vector.trie) this.seat(pattern).graft(trajectory);
+      this.carry.push(...vector.carry);
+    }
+    return this;
+  }
+#+END_SRC
+
+Owed on this sketch: =Object.assign(own, pattern)= copies =heir= · =trace= · =gauges= — Q5 says never; the copy takes the declared keys only. =branch= calls =seat= too (one rule, one home); its live attach on a free edge stays.
+
+Readers, before → after:
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/steer/match.js — before
+  for (const { pattern, trajectory } of vector.trie.values()) {
+// after
+  for (const [pattern, trajectory] of vector.trie) {
+// subsystems/typology/gestalten/steer/trie.js at — before
+    const edge = position.trie.get(nature);
+    return edge ? edge.trajectory : null;
+// after
+    const edge = position.edge(nature);
+    return edge ? edge[1] : null;
+#+END_SRC
+
+The steps that pin the rulings:
+
+#+BEGIN_SRC js
+// subsystems/typology/tests/vector.test.js
+  specimen.it("graft copies the pattern: a later merge never reaches the source", () => {
+    const client = new Vector().open({ nature: "/filter", valence: "narrow the list" }, narrow);
+    const repl = new Vector().graft(client);
+    specimen.expect(repl.edge("filter")[0]).not.toBe(client.edge("filter")[0]);
+
+    const before = repl.edge("filter")[0];
+    repl.graft(new Vector().open({ nature: "/filter", valence: "the mode's filter" }, own));
+    specimen.expect(repl.edge("filter")[0]).toBe(before);
+    specimen.expect(before.valence).toBe("the mode's filter");
+    specimen.expect(client.edge("filter")[0].valence).toBe("narrow the list");
+  });
+
+  specimen.it("seat copies every declared key and none of the chain", () => {
+    const source = new Vector().open({ nature: "/deep/keep", valence: "kept", rank: "hidden" }, keep);
+    const copy = new Vector().graft(source);
+    const [deep] = copy.edge("deep");
+    const [leaf] = copy.branch("deep").edge("keep");
+    specimen.expect([leaf.valence, leaf.rank]).toEqual(["kept", "hidden"]);
+    specimen.expect([deep.heir, deep.trace, leaf.trace]).toEqual([undefined, undefined, undefined]);
+  });
+
+  specimen.it("a key nobody listed still rides", () => {
+    const source = new Vector().open({ nature: "/x", mood: "curious" }, keep);
+    specimen.expect(new Vector().graft(source).edge("x")[0].mood).toBe("curious");
+  });
+
+  specimen.it("a later effect replaces, on open and on do", async () => {
+    const repl = new Vector().open("/quit", () => "first").open("/quit", () => "second");
+    repl.branch("/quit").do(() => "third");
+    specimen.expect(await steer.dispatch.execute(repl, {}, new Signal("/quit"))).toBe("third");
+  });
+#+END_SRC
+
+
+* blast table — 11-12, the tangle's
+
+| where                                              | hunks |
+|----------------------------------------------------+-------|
+| =prototypes/= vector · twitch · span                |     9 |
+| =gestalten/steer/= match · dispatch · trie         |     7 |
+| =gestalten/shape/selbstbestimmt.js=                |     1 |
+| typology tests (6 files)                           |    14 |
+| ghost =host.test.js= · runtime =harness.primer= · =lighthouse/shape= | 3 |
+| =~/.viva/registry= vcompany vdex · chess play · coach |   4 |
+
+=steer/bak.js= DEAD · =testament/= probes: history, untouched.
+
+* testing assessment
+
+- the census is the gate: same four suites, same instrument, before and after each milestone; a class that moves is a finding, never noise.
+- existing pins that must stay green untouched: =vector.test.js:84= (graft owns) · =:99= (collision, sources unmutated) · =:173= · =:182= · =:240= · =:252= (attach is live) · =:267= (field-by-field merge).
+- COVERAGE GAP: no step names the pattern object on a NEW grafted edge; no step runs =do= over an effect; no step re-hydrates an activity twice and signals it.
+- COVERAGE GAP: route order under a merge (=:id= before =:slug=) is unpinned; a step before the Map lands.
+
+* changelog — before the tangle
+
+- 11-12 drill, Q0–Q5 locked, one per turn. Before the quest, on his go: =steer.trie.leaves= · =sieve= (/"leaves amen, rollup amen, filter as sieve. migrate as much of the codebase as you can find."/) · =Vector.trim= (/"go on trim."/); =shape.repl.prune= deleted, =rank= predicates at ghost and runtime. Typology 162 passed (701 steps).
+- departures, mine, reported: =sieve= sets its edge directly and mints by =vector.constructor= (his paste used =branch= and =new Vector()=; =heir= residue and =Aperture= broke both). =repling.coverage.test.js:19= compares strips, no longer identity: =sieve= copies.
+- a claim of mine corrected: =graft= already merges field by field (=vector.js:66=, =vector.test.js:267=); Q0 adds =branch= only.
+
+- 11-12 /"run census."/ — milestone 1: the rig kept under =reference/vector-trie/=, the table pinned. One ghost pass red once in three (32 passed, 1 failed), green after with and without the instrument: =ghost-base-tree-reds-11-06=, not the rig's.
+

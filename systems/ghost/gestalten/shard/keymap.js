@@ -5,9 +5,9 @@ const line = (steps) => "/" + steps.map((step) => step.nature).join("/");
 const chord = (steps) => (is.string(steps.at(-1).chord) ? steps.at(-1).chord : null);
 
 export const fromRepl = (repl) =>
-  steer.trie.rollup(repl, (carry, effect, steps) => chord(steps))
-    .filter((entry) => entry.fn !== null)
-    .reduce((keymap, { steps, fn }) => keymap.open({ nature: fn, valence: line(steps) }, line(steps)), new Vector());
+  steer.trie.leaves(repl)
+    .filter(({ steps }) => chord(steps) !== null)
+    .reduce((keymap, { steps }) => keymap.open({ nature: chord(steps), valence: line(steps) }, line(steps)), new Vector());
 
 const OPTIONS = [
   [(input) => input === undefined, () => []],
@@ -30,5 +30,10 @@ const row = (steps) => ({ nature: line(steps), valence: steps.at(-1).valence, ch
 
 export const catalog = (repl) =>
   steer.trie.fold(repl, {
-    node: (f) => [...(f.effect === undefined || f.signature === null ? [] : [row(f.steps)]), ...f.trajectories.flat()],
+    node: (f) => [
+      ...(f.effect === undefined || f.signature === null || f.signature.rank === "hidden"
+        ? []
+        : [row(f.steps)]),
+      ...f.trajectories.flat(),
+    ],
   });

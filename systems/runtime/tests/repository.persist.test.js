@@ -46,7 +46,7 @@ specimen.describe("RemoteRepository.persist", { sanitizeResources: false, saniti
     specimen.expect(parsed.length).toBeGreaterThan(0);
     specimen.expect(parsed[0].slug).toBeDefined();
 
-    await literals.create({ slug: "persist-create", mode: scenario.fixtures.mode.id, trait: {} });
+    await literals.create({ slug: "persist-create", mode: scenario.fixtures.mode.id, daemon: scenario.fixtures.daemon.slug, trait: {} });
     const afterCreate = JSON.parse(localStorage.getItem(literalKey));
     specimen.expect(afterCreate.find((entity) => entity.slug === "persist-create")).toBeDefined();
 

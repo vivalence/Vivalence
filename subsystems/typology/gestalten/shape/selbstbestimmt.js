@@ -4,7 +4,7 @@ import * as steer from "../steer/index.js";
 export function selbstbestimmt(vector, strategy = steer.strategy.bare) {
   const walk = (node) => {
     if (node.effect != null) return [node.effect, [...node.carry]];
-    for (const { trajectory } of node.trie.values()) {
+    for (const trajectory of node.trie.values()) {
       const found = walk(trajectory);
       if (found) return [found[0], [...node.carry, ...found[1]]];
     }

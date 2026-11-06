@@ -44,10 +44,10 @@ specimen.describe("v.traits — one schema per carrier at v.traits.<entity>; its
 
 specimen.describe("belt.traits.cast — the door: every name filled, the claimed validated, loud", () => {
   specimen.it("a claimed name is filled from its defaults and kept", () => {
-    const thread = { id: "th-1", traits: ["QUEUEING", "INTELLIGENT"], trait: { QUEUEING: {}, INTELLIGENT: { tune: "fast" } } };
+    const thread = { id: "th-1", traits: ["QUEUEING", "INTELLIGENT"], trait: { QUEUEING: {}, INTELLIGENT: { tier: "fast" } } };
     const trait = belt.traits.cast(thread, v.thread.traits);
     specimen.expect(trait.QUEUEING).toEqual({ depth: 1 });
-    specimen.expect(trait.INTELLIGENT).toEqual({ tune: "fast", effort: "low", rounds: 12 });
+    specimen.expect(trait.INTELLIGENT).toEqual({ tier: "fast", effort: "low", rounds: 12 });
   });
 
   specimen.it("an unclaimed name is filled, never validated — a toggled-off trait keeps its data", () => {

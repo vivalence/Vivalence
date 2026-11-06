@@ -21,7 +21,7 @@
     terminal.stall?.only(isCard); // scope the cursor to cards (the hub stays unselectable)
     terminal.thread.phase = key; // live → the stall re-engages
     terminal.thread.daemon.entities.thread.updateOne({ id: terminal.thread.id }, { phase: key });
-    if (key !== "inert") terminal.buffer = hand()[0] ?? buffer;
+    if (key !== "inert") terminal.setBuffer(hand()[0] ?? buffer);
   }
 
   // deal — deterministic, off the finite deck (drains to EXHAUSTED).
@@ -60,7 +60,7 @@
   <ul class="hand">
     {#each ($buffers ?? []).filter(isCard) as c (c.id)}
       <li class:active={terminal.buffer?.id === c.id}>
-        <button onclick={() => (terminal.buffer = terminal.buffer?.id === c.id ? null : c)}>
+        <button onclick={() => terminal.setBuffer(terminal.buffer?.id === c.id ? null : c)}>
           {c.data?.face ?? "?"}
         </button>
       </li>

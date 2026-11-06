@@ -13,10 +13,6 @@ paths: ["**/tests/**", "**/specimen/**", "**/fixtures/**"]
     "runtime/test": "deno task --cwd ./systems/runtime test",
 ```
 
-| typology | paladin | runtime | anima | ghost | drapes | dapper | commons |
-|---|---|---|---|---|---|---|---|
-| 103 | 25 | 72 | 39 | 3 | 10 | 4 | 35 |
-
 ## specimen
 **`index.js`: bdd · assert · expect · `{snapshot}` · `is` + `matches`; direct `paladin/gestalten/belt/scribe.js` · `typology/mod.ts`, reach 360.**
 ```js
@@ -113,7 +109,10 @@ export async function boot(world, { shelf, slug, extra = {}, deadline = 120_000 
 // systems/runtime/tests/topography/literal.snapshot.test.js:15
     skip = missing();
 ```
-**ghost `systems/ghost/tests/world.js` `settle screen` (`keys.test.js:5`); drapes `subsystems/drapes/tests/dom/rig.js` `fresh world fire surface` (`chassis.test.js:2`).**
+**ghost `systems/ghost/tests/world.js` `settle screen` (`keys.test.js:5`).**
+
+- **an expectation never spells product content** — read off the FIXTURE or the live value (11-12).
+- **a suite on a live port runs only if it listens** — `{ ignore: !listening }` (`commons/services/nlp/tests/service.test.js:5`, 11-12).
 
 ## snapshots
 **`snapshot.js` `snapshot(subject, {dry, locate, parse, base})`; CAPTURE (`DRY = false`, 15) vs PIN (`HOT`, 12) diffs the frozen file.**
@@ -137,10 +136,4 @@ export async function boot(world, { shelf, slug, extra = {}, deadline = 120_000 
 # census 10-16; bench/smoke.test.js:12 accio()s @education
 HOME=$(mktemp -d) deno test -A --no-check systems/runtime/tests/daemon/smoke.test.js  # ok | 1 passed (6 steps)
 HOME=$(mktemp -d) deno test -A --no-check systems/runtime/tests/bench/smoke.test.js   # 2 failed
-```
-```jsonc
-// testing — census 10-16
-{ "systems/runtime/tests/scenarios": {"files": 14, "exports": 50, "tests": 10},
-  "subsystems/typology/tests/scenarios": {"files": 8, "exports": 25, "tests": 6},
-  "subsystems/typology/specimen": {"files": 2, "exports": 6, "tests": 2} }
 ```

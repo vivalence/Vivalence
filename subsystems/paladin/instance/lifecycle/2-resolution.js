@@ -53,14 +53,14 @@ export function mountpoints(instance) {
   };
   const referenced = (client) => {
     client.reference ??= `/client/${client.manifest?.slug}`;
-    client.modes = (client.modes ?? []).map(place(client));
+    client.modes = (client.modes ?? []).map(referencing(client, null));
   };
   instance.daemons.forEach(address);
-  instance.daemons.forEach(ground);
+  instance.daemons.forEach((daemon) => ground(daemon, daemon.manifest.slug));
   instance.clients.forEach(referenced);
   if (instance.runtime) {
     root(instance.runtime);
-    ground(instance.runtime);
+    ground(instance.runtime, null);
   }
 }
 
@@ -88,11 +88,11 @@ const identity = (entry) => {
   return null;
 };
 
-const place = (declaration) => (entry) => {
-  const id = identity(entry);
-  if (!id) return entry;
+const referencing = (declaration, daemon) => (entry) => {
+  const held = { ...(is.string(entry) ? { module: entry } : entry), daemon };
+  const id = identity(held);
+  if (!id) return held;
   const [type, slug] = id;
-  const held = is.string(entry) ? { module: entry } : entry;
   if (!type) return held;
   const reference = `/mode/${type}/${slug}`;
   return { ...held, reference: held.reference ?? reference, url: held.url ?? (declaration.url ? new Url(declaration.url).branch(reference).absolute : undefined) };
@@ -104,6 +104,6 @@ const mount = (declaration) => (entry) => {
   const mountpoint = "mountpoint" in entry ? entry.mountpoint : `${declaration.mountpoint}/mode_${[type, slug].filter(Boolean).join("_")}`;
   return { ...entry, mountpoint };
 };
-function ground(declaration) {
-  declaration.modes = (declaration.modes ?? []).map(place(declaration)).map(mount(declaration));
+function ground(declaration, daemon) {
+  declaration.modes = (declaration.modes ?? []).map(referencing(declaration, daemon)).map(mount(declaration));
 }

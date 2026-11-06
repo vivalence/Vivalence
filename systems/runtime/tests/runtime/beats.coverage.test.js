@@ -5,7 +5,7 @@ import { lifecycle, ViewEntity } from "@vivalence/runtime";
 import { seed } from "../scenarios/datamap.js";
 import { connector, lighthouseOf } from "../scenarios/daemon.js";
 
-// the runtime's lifecycle beats over a hand-built die on :memory: — law 9 (/attached/view/:id · /attached/file/:id with
+// the runtime's lifecycle beats over a hand-built die on :memory: — law 9 (/attached/file/:id with
 // x-viva-integrity), the host metadata the beats open, the userspace routes, the patrol interval (process census + file sweep), Deno.serve on a free port
 
 const { resolution, integration } = lifecycle.runtime;
@@ -77,7 +77,7 @@ specimen.describe("runtime lifecycle beats on a hand-built die", { sanitizeResou
     await Deno.remove(directory, { recursive: true });
   });
 
-  specimen.it("resolution.attach: /attached/view/:id answers the row with its files; /attached/file/:id serves the bytes under the file's mime with x-viva-integrity", async () => {
+  specimen.it("resolution.attach: /attached/file/:id serves the bytes under the file's mime with x-viva-integrity", async () => {
     const die = buildDie();
     const { repos, em, fixtures } = scenario;
     await Deno.writeTextFile(join(directory, "board.js"), "export default () => 'board';");
@@ -91,9 +91,6 @@ specimen.describe("runtime lifecycle beats on a hand-built die", { sanitizeResou
 
     await through(resolution.attach, die, async () => {
       const handler = shape.http(die.aperture);
-      const listed = await (await handler(new Request(`http://test/attached/view/${view.id}`))).json();
-      specimen.expect(listed).toEqual({ id: view.id, slug: "board", mime: mime.tty.solid, entry: "board.js", traits: [], files: [{ id: file.id, path: "board.js", mime: mime.javascript, integrity }] });
-
       const served = await handler(new Request(`http://test/attached/file/${file.id}`));
       specimen.expect(served.status).toBe(200);
       specimen.expect(served.headers.get("content-type")).toBe(mime.javascript);
@@ -101,7 +98,6 @@ specimen.describe("runtime lifecycle beats on a hand-built die", { sanitizeResou
       specimen.expect(await served.text()).toBe(text);
 
       specimen.expect(await (await handler(new Request("http://test/service/tts/ping"))).json()).toEqual({ pong: true });
-      specimen.expect((await handler(new Request("http://test/attached/view/nope"))).status).toBe(404);
       specimen.expect((await handler(new Request("http://test/attached/file/nope"))).status).toBe(404);
     });
   });
@@ -139,7 +135,7 @@ specimen.describe("runtime lifecycle beats on a hand-built die", { sanitizeResou
   specimen.it("resolution.lighthouse · services · daemons · modes: each factory runs on the die, the processes are killed in finally, the modes are grafted under the runtime", async () => {
     const die = buildDie();
     const ran = [];
-    const factory = (subject) => async (target) => ran.push([subject.slug ?? subject.manifest?.slug ?? "lighthouse", target === die || target.context === die.runtime]);
+    const factory = (subject) => async (target) => ran.push([subject.slug ?? subject.manifest?.slug ?? "lighthouse", target === die || target === die.runtime]);
     die.runtime.lighthouse.slug = "lighthouse";
     die.runtime.services = { tts: controlled({ slug: "tts" }) };
     die.runtime.daemons = { memo: controlled({ slug: "memo" }) };
@@ -185,15 +181,17 @@ specimen.describe("runtime lifecycle beats on a hand-built die", { sanitizeResou
     await specimen.expect(fetch(`http://127.0.0.1:${port}/ping`)).rejects.toThrow();
   });
 
-  specimen.it("integration.prune: a mode row no live mode claims is removed; the live one stays", async () => {
+  specimen.it("integration.prune: a runtime mode row no live mode claims is removed; the live one and a daemon's row stay", async () => {
     const die = buildDie();
     const { repos, em, fixtures } = scenario;
-    repos.mode.create({ slug: "orphan", type: "test", traits: [], installed: "installed" });
+    repos.mode.create({ slug: "orphan", type: "test", daemon: null, traits: [], installed: "installed" });
+    repos.mode.create({ slug: "held", type: "test", daemon: fixtures.daemon, traits: [], installed: "installed" });
     await em.flush();
     die.runtime.modes = { test: { test: buildMode("test", "test") } };
     await run(integration.prune, die);
     specimen.expect(await em.fork().count(repos.mode.entityName ?? fixtures.mode.constructor, { slug: "orphan" })).toBe(0);
     specimen.expect(await em.fork().count(fixtures.mode.constructor, { slug: "test" })).toBe(1);
+    specimen.expect(await em.fork().count(fixtures.mode.constructor, { slug: "held" })).toBe(1);
   });
 
   specimen.it("integration.userspace: the view and file routes answer an authorized call by the datamap shard; a bare request is refused; /view/bundle is opened", async () => {
@@ -245,15 +243,12 @@ specimen.describe("runtime lifecycle beats on a hand-built die", { sanitizeResou
       { type: "srs", slug: "memo", name: "Memo", traits: ["VIEWABLE", "EMITTER", "HARNESSED"], reference: "/runtime/house/mode/srs/memo", metadata: "/runtime/house/mode/srs/memo/metadata" },
       { type: "home", slug: "probe", name: "probe", traits: [], reference: "/runtime/house/mode/home/probe", metadata: "/runtime/house/mode/home/probe/metadata" },
     ]);
-    specimen.expect(await read("/runtime/house/mode/srs/memo/metadata/statics")).toEqual({ language: "latin" });
-    specimen.expect(await read("/runtime/house/mode/srs/memo/metadata/mountpoint")).toBe(join(directory, "memo"));
-    specimen.expect((await handler(new Request("http://test/runtime/house/mode/srs/memo/metadata/application"))).status).toBe(404);
-    specimen.expect(Object.keys((await read("/runtime/house/mode/srs/memo/metadata/emitter")).branches)).toEqual(["literal"]);
-    specimen.expect(Object.keys((await read("/runtime/house/mode/srs/memo/metadata/harness")).branches)).toEqual(["ask"]);
-    specimen.expect(Object.keys((await read("/runtime/house/mode/home/probe/metadata/aperture")).branches)).toEqual([]);
+    for (const fact of ["statics", "mountpoint", "application", "aperture", "emitter", "harness"]) {
+      specimen.expect((await handler(new Request(`http://test/runtime/house/mode/srs/memo/metadata/${fact}`))).status).toBe(404);
+    }
     specimen.expect(await read("/runtime/house/entities/mode/find", { where: { slug: "test" } })).toHaveLength(1);
     specimen.expect((await read("/runtime/house/entities/daemon/find", { where: {} })).map((daemon) => [daemon.id, daemon.slug])).toEqual([["test-daemon", "test-daemon"]]);
-    specimen.expect(await read("/runtime/house/cortex/dialogue/render", { tune: "warm", prompt: "hi" })).toEqual({ echoed: { prompt: "hi" } });
+    specimen.expect(await read("/runtime/house/cortex/dialogue/render", { tier: "fast", prompt: "hi" })).toEqual({ echoed: { prompt: "hi" } });
     specimen.expect((await read("/runtime/house/cortex/object/stream", { prompt: "hi" })).message).toMatch(/no 'object' faculty resolves a 'stream' avenue/);
     specimen.expect(runtime).toBe(die.aperture.branch("/runtime/house"));
   });

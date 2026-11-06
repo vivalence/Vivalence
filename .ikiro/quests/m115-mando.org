@@ -1271,3 +1271,15 @@ Left: the client bundles the view at `data: {}` — a `/manual` buffer never car
 - =hablar= · =saber= present forms first appear at 303 · 385 (seed jumps ir/tener/poder/querer/hacer ahead of conjugation.js 3 · 8); =haber= · =por favor= have no rows.
 - =conjugation.*= symbols dangle in both corpora (no =topologies/conjugation=; =:1120= above).
 
+* dojo pass 11-07 — =~/.viva/registry/education/modes/games/dojo/buffer/=, no shelf copy (=~/.viva/instances/localhost/= holds no package tree)
+** the dialogue
+- /"in the dojo game, give me the ability to import and export presets. i think they are buffer json, no?"/ → no: saved sets live in =preferences("dojo")= = localStorage =viva.mode.dojo=, entry ={ name, set, axes, at }=; buffer json is the MATERIALIZED set. /"3 go"/.
+- /"this 'resolves to' panel overflows the container"/ → /"2 go"/ · /"on dojo this icon isnt properly centered"/ · /"in dojo the chrome and hint buttons are also fucked"/ · /"another button issue"/ (library ×).
+** landed
+- =parts/Library.svelte=: =export= (the =saved= array → =dojo-sets.json=) · =import= (file → =onimport=); =Dojo.svelte adopt=: every =set= through =types.set.cast= + =errors= (throws =[dojo] import "<name>": …=), axes =object.pluck(…, types.SETUP)=, merge by name OVERWRITES. Proven served: good entry lands, bad clause throws, nothing saved; probe entry forgotten.
+- =parts/Builder.svelte:495= =style:flex= =0 0 ${Math.min(split, Math.max(RESULTS_MIN, builderHeight - FORM_MIN))}px= — a persisted drag clamps to the room at render (600px split → bottom 812 in a 400 builder). REJECTED =0 1 ${split}px= same day: shrink ate the drag, /"the drag handle … no working"/.
+- =display: inline-flex; align-items: center; justify-content: center= on =Drawer.svelte .rail-button= (+ =line-height: 1=) · =Prompt.svelte .knob= · =Library.svelte .close=: a block button's glyph hugs the baseline left in Plex Mono (control: 1 / 16 px → 8.6 / 8.6).
+** owed
+- the =export= click never fired by me (a download into his =Downloads=) — his one click.
+- =.knob= · =.close= centered by the same rule, not seen on screen (a rep must run · the library must open wide).
+

@@ -1,7 +1,8 @@
 import { contexts, Controller, fromm, Path, shard, Span, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
 import { traits } from "@vivalence/runtime";
 const { GENERATIVE } = traits.mode;
-import { generator, tools } from "../mode.viva.js";
+import { tools } from "../mode.viva.js";
+import { drawing } from "../page/index.js";
 
 // the mode's report() reads paladin directly, so the fake daemon supplies only what it walks;
 // every assertion here is on KEYS, never on this machine's content.
@@ -18,24 +19,25 @@ const daemon = {
 // the same daemon with NO cortex at all — the shape that used to crash the fold.
 const cortexless = { ...daemon, cortex: null };
 
-// tooling.js:10 then harnessed.js — mode.tools, then the GENERATIVE trait's tools with the
-// mode's generator slurped onto them. `tools` alone is a catalog the model never gets.
+// generative.js then tooling.js, in manifest order — both graft onto mode.tools, the one
+// catalog harnessed.js arms. `tools` alone is a catalog the model never gets.
 const generative = {
   manifest: { slug: "hello-world", type: "demo" },
-  module: { generator },
+  module: {},
   mountpoint: "/nonexistent/catalog",
   entity: { id: "mode-1" },
+  tools: new Vector(),
 };
 await GENERATIVE(generative, { entities: {} });
-const armed = new Vector().graft(tools);
-armed.graft(generative.generator.tools);
-armed.use(shard.context.spread(contexts.host, daemon));
+const armed = generative.tools.graft(tools);
+armed.use(shard.context.spread(contexts.daemonDie, daemon));
 
 const names = () =>
-  steer.trie.rollup(armed, () => null).map((entry) =>
+  steer.trie.leaves(armed).map((entry) =>
     new ToolCall(entry.steps).name
   );
-const nodes = () => steer.trie.rollup(armed, () => null);
+const nodes = () => steer.trie.leaves(armed);
+const node = (name) => nodes().find((entry) => new ToolCall(entry.steps).name === name);
 const invoke = async (name, input) =>
   fromm.yield(
     await steer.dispatch.invoke(
@@ -46,25 +48,32 @@ const invoke = async (name, input) =>
   );
 
 specimen.describe("hello-world tools — the catalog", () => {
-  specimen.it("P-catalog: the armed catalog is exactly nine names", () => {
+  specimen.it("P-catalog: the armed catalog is four of its own, seven imported from the runtime, five from GENERATIVE", () => {
     specimen.expect(names()).toEqual([
-      "viva_doctor",
-      "web_search",
-      "web_read",
-      "research",
       "buffer_create",
+      "buffer_update",
+      "buffer_label",
       "view_create",
       "view_update",
       "view_read",
       "view_list",
+      "viva_doctor",
+      "web_search",
+      "web_read",
+      "research",
+      "entity_schema",
+      "entity_find",
+      "entity_count",
+      "thread_update",
+      "mode_find",
     ]);
   });
 
   specimen.it(
-    "P-catalog: the assembly contributes four; the generator rewords two and mints none",
+    "P-catalog: the assembly contributes four and imports seven (m117: the root arms no domain tool); drawing rewords two and mints none",
     () => {
       const named = (vector) =>
-        steer.trie.rollup(vector, () => null).map((entry) =>
+        steer.trie.leaves(vector).map((entry) =>
           new ToolCall(entry.steps).name
         );
       specimen.expect(named(tools)).toEqual([
@@ -72,11 +81,17 @@ specimen.describe("hello-world tools — the catalog", () => {
         "web_search",
         "web_read",
         "research",
+        "entity_schema",
+        "entity_find",
+        "entity_count",
+        "buffer_update",
+        "buffer_label",
+        "thread_update",
+        "mode_find",
       ]);
-      // the generator arms NOTHING by itself: rollup lists callable nodes and it has none —
-      // two rewords the trait's tools absorb, plus the refuse middleware. the five names
-      // come from GENERATIVE.
-      specimen.expect(named(generator)).toEqual([]);
+      // drawing arms NOTHING by itself: it holds no effect — two rewords over the trait's
+      // tools, plus the refuse middleware. the five names come from GENERATIVE.
+      specimen.expect(named(drawing)).toEqual([]);
     },
   );
 
@@ -92,8 +107,8 @@ specimen.describe("hello-world tools — the catalog", () => {
   );
 
   specimen.it("P-provenance: the assembly slurps, it does not rewrite", () => {
-    const [doctor, search, read, research, open, create, update, peek, list] =
-      nodes();
+    const byName = Object.fromEntries(nodes().map((node) => [new ToolCall(node.steps).name, node]));
+    const { viva_doctor: doctor, web_search: search, web_read: read, research, buffer_create: open, view_create: create, view_update: update, view_read: peek, view_list: list } = byName;
     specimen.expect(doctor.pattern.valence).toContain("viva instance/doctor");
     specimen.expect(search.pattern.valence).toContain("Wikipedia");
     specimen.expect(read.pattern.valence).toContain("markdown");
@@ -134,8 +149,8 @@ specimen.describe("hello-world tools — the catalog", () => {
 
 specimen.describe("viva_doctor — the whole record, no knobs", () => {
   specimen.it("P-noknobs: the schematic takes no input at all", () => {
-    const [node] = nodes();
-    specimen.expect(Object.keys(node.pattern.input.properties ?? {})).toEqual(
+    const doctor = node("viva_doctor");
+    specimen.expect(Object.keys(doctor.pattern.input.properties ?? {})).toEqual(
       [],
     );
   });
@@ -168,7 +183,7 @@ specimen.describe("viva_doctor — a daemon with no cortex", () => {
     "P-nocortex: the fold reports no faculties instead of throwing",
     async () => {
       const bare = new Vector().graft(tools);
-      bare.use(shard.context.spread(contexts.host, cortexless));
+      bare.use(shard.context.spread(contexts.daemonDie, cortexless));
       const { output } = await steer.dispatch.invoke(
         bare,
         new ToolCall("viva_doctor").signal,
@@ -183,7 +198,7 @@ specimen.describe("web_search — the door, without the index", () => {
   specimen.it(
     "P-count: the count field defaults to 8 and caps at 100",
     () => {
-      const [, search] = nodes();
+      const search = node("web_search");
       const { count } = search.pattern.input.properties;
       specimen.expect(count.default).toBe(8);
       specimen.expect(count.maximum).toBe(100);
@@ -197,7 +212,7 @@ specimen.describe("web_search — the door, without the index", () => {
   specimen.it(
     "P-count: query is required and count is NOT — a default is not a demand",
     () => {
-      const [, search] = nodes();
+      const search = node("web_search");
       specimen.expect(search.pattern.input.required).toEqual(["query"]);
     },
   );
@@ -205,7 +220,7 @@ specimen.describe("web_search — the door, without the index", () => {
   specimen.it(
     "P-count: omitting count still arrives as 8 at the effect",
     () => {
-      const [, search] = nodes();
+      const search = node("web_search");
       const input = search.pattern.input.cast({ query: "deno permission flags" });
       specimen.expect(input.count).toBe(8);
       specimen.expect([...search.pattern.input.errors(input)].length).toBe(0);
@@ -257,7 +272,7 @@ const lit = {
 let seenRequest = null;
 
 const litArmed = new Vector().graft(tools);
-litArmed.use(shard.context.spread(contexts.host, lit));
+litArmed.use(shard.context.spread(contexts.daemonDie, lit));
 litArmed.use(shard.context.bind("controller", new Controller({ stdout: new Span("hallucination") })));
 const litInvoke = (name, input) =>
   steer.dispatch.invoke(
@@ -292,7 +307,7 @@ specimen.describe("web_read — lit, once a reader is consumed", () => {
       });
       const text = seenRequest.turns[0].parts[0].text;
       specimen.expect(text).toBe(PAGE.skeleton);
-      specimen.expect(seenRequest.policy.tune).toBe("frugal");
+      specimen.expect(seenRequest.policy.tier).toBe("frugal");
       specimen.expect(seenRequest.output.schema).toBeTruthy();
     },
   );
@@ -310,7 +325,7 @@ specimen.describe("web_read — lit, once a reader is consumed", () => {
         },
       };
       const angryArmed = new Vector().graft(tools);
-      angryArmed.use(shard.context.spread(contexts.host, angry));
+      angryArmed.use(shard.context.spread(contexts.daemonDie, angry));
       const { condition, output } = await steer.dispatch.invoke(
         angryArmed,
         new ToolCall("web_read").signal,

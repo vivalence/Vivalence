@@ -21,17 +21,21 @@ export const v = Object.assign(base, {
   // Convert has nothing to descend into — entities pass through whole and their
   // MikroORM Collections (symbols/uses) are never mauled. `schema` documents intent.
   rel: (schema) => v.union([scalars.ID, v.object({}, { additionalProperties: true })]),
-  literal: entityFactory(entities.LiteralDescriptor, entities.DataEntitySchema),
-  symbol: entityFactory(entities.SymbolDescriptor, entities.DataEntitySchema),
-  buffer: entityFactory(entities.BufferDescriptor, entities.DataEntitySchema),
+  literal: entityFactory(entities.LiteralSchematic),
+  symbol: entityFactory(entities.SymbolSchematic),
+  buffer: entityFactory(entities.BufferSchematic),
   bundle: prototypes.Bundle,
-  mode: entityFactory(entities.ModeDescriptor, entities.DataEntitySchema),
-  intent: entityFactory(entities.IntentDescriptor, entities.DataEntitySchema),
-  thread: entityFactory(entities.ThreadDescriptor, entities.DataEntitySchema),
-  turn: entityFactory(entities.TurnDescriptor, entities.DataEntitySchema),
-  view: entityFactory(entities.ViewDescriptor, entities.DataEntitySchema),
-  file: entityFactory(entities.FileDescriptor, entities.DataEntitySchema),
-  user: entityFactory(entities.UserDescriptor, entities.DataEntitySchema),
+  mode: entityFactory(entities.ModeSchematic),
+  intent: entityFactory(entities.IntentSchematic),
+  thread: entityFactory(entities.ThreadSchematic),
+  turn: entityFactory(entities.TurnSchematic),
+  view: entityFactory(entities.ViewSchematic),
+  file: entityFactory(entities.FileSchematic),
+  user: entityFactory(entities.UserSchematic),
+  note: entityFactory(entities.NoteSchematic),
+  daemon: entityFactory(entities.DaemonSchematic),
+  terminal: entityFactory(entities.TerminalSchematic),
+  activity: entityFactory(entities.ActivitySchematic),
 });
 export { mime } from "./scalars/index.js";
 export * as contexts from "./primitives/contexts.js";

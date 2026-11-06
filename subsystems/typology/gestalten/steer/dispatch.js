@@ -22,12 +22,14 @@ export function traverse(vector, signals) {
 
   const miss = () => {
     if (missing === null) return [null, carry, steps, position];
-    const match = missing.edge.pattern.apply(signals.array[missing.depth]);
-    return [missing.edge.trajectory.effect, descend(descend(missing.carry, missing.position), missing.edge.trajectory), [...steps.slice(0, missing.depth), match], missing.edge.trajectory];
+    const [pattern, trajectory] = missing.edge;
+    const match = pattern.apply(signals.array[missing.depth]);
+    return [trajectory.effect, descend(descend(missing.carry, missing.position), trajectory), [...steps.slice(0, missing.depth), match], trajectory];
   };
 
   for (const signal of signals.array) {
-    if (position.trie.has("*")) missing = { edge: position.trie.get("*"), carry, position, depth: steps.length };
+    const wildcard = position.edge("*");
+    if (wildcard) missing = { edge: wildcard, carry, position, depth: steps.length };
 
     if (signal.nature == null) {
       if (position.effect) return [position.effect, descend(carry, position), steps, position];

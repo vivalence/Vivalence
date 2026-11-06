@@ -61,9 +61,9 @@ export const emitter = new Vector().open(
   },
 );
 
-export const generator = new Vector();
+export const drawing = new Vector();
 
-generator.branch("/view").use(async (ctx, next) => {
+drawing.branch("/view").use(async (ctx, next) => {
   try {
     if (ctx.input?.source) refuse(ctx.input.source);
   } catch (error) {
@@ -77,7 +77,7 @@ generator.branch("/view").use(async (ctx, next) => {
   await next();
 });
 
-generator
+drawing
   .branch("/view")
   .open({
     nature: "/create",

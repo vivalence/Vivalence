@@ -63,7 +63,11 @@ describe("runtime boot — the rig's run.js on a temp ledger: one datamap, the l
   });
 
   it("a runtime-level thread — mode null — under /userspace", async () => {
-    const response = await world.post("/userspace/entities/thread/create", { data: {} }, finn.access);
+    const response = await world.post(
+      "/userspace/entities/thread/create",
+      { data: { user: finn.user.id } },
+      finn.access,
+    );
     expect(response.status).toBe(200);
     thread = await response.json();
     expect(thread.user.id ?? thread.user).toBe(finn.user.id);
@@ -86,15 +90,15 @@ describe("runtime boot — the rig's run.js on a temp ledger: one datamap, the l
     expect(world.query("select user_entity_id as user, daemon_entity_slug as daemon from User_daemons")).toEqual([{ user: finn.user.id, daemon: "hello" }]);
   });
 
-  it("/attached/view/:id · /attached/file/:id answer with no token — hello-world's declared view is a View row whose entry is a served File", async () => {
+  it("/attached/file/:id answers with no token — hello-world's declared view is a View row whose entry is a served File", async () => {
     const retired = await world.get("/daemon/hello/mode/demo/hello-world/metadata/application", finn.access);
     expect(retired.status).toBe(404);
     await retired.body?.cancel();
     const rows = await (await world.post("/userspace/entities/view/find", { where: { slug: "hello-world" } }, finn.access)).json();
     expect(rows.map((row) => row.mime)).toEqual([mime.dom.svelte]);
-    const view = await (await fetch(`${world.origin}/attached/view/${rows[0].id}`)).json();
-    expect(view.files.map((file) => file.path)).toContain(view.entry);
-    const entry = view.files.find((file) => file.path === view.entry);
+    const files = await (await world.post("/userspace/entities/file/find", { where: { view: rows[0].id } }, finn.access)).json();
+    expect(files.map((file) => file.path)).toContain(rows[0].entry);
+    const entry = files.find((file) => file.path === rows[0].entry);
     const response = await fetch(`${world.origin}/attached/file/${entry.id}`);
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toBe("text/javascript");
@@ -162,8 +166,7 @@ describe("runtime boot — the rig's run.js on a temp ledger: one datamap, the l
   it("a runtime mode's metadata answers at the URL its listing names", async () => {
     const [probe] = await (await world.get("/runtime/house/metadata/modes", finn.access)).json();
     const manifest = await world.get(`${probe.metadata}/manifest`, finn.access);
-    expect(manifest.status).toBe(404);
-    await manifest.body?.cancel();
+    expect([manifest.status, (await manifest.json()).slug]).toEqual([200, "probe"]);
     const aperture = await world.get(`${probe.metadata}/aperture`, finn.access);
     expect(aperture.status).toBe(200);
     expect(JSON.stringify(await aperture.json())).toContain("ping");

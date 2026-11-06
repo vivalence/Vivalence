@@ -37,7 +37,7 @@ let harness;
 specimen.describe("dictation integration — duplex verbatim over one socket, through a mode with a ROOT harness middleware", () => {
   specimen.beforeAll(async () => {
     const persona = new Vector().use(async (ctx, next) => {
-      ctx.hallucination.policy.tune ??= "fast";
+      ctx.hallucination.policy.tier ??= "fast";
       ctx.hallucination.primer.open("persona", "You are Dewey.");
       await next();
     });
@@ -116,7 +116,7 @@ specimen.describe("dictation integration — duplex verbatim over one socket, th
     } catch {}
     await sleep.ms(200);
     for (const socket of world.gate.sockets) {
-      specimen.expect(socket.lines.size).toBe(0);
+      specimen.expect(socket.answers.size).toBe(0);
     }
   });
 });

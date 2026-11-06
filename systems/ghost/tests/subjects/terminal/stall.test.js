@@ -6,9 +6,10 @@ import { hydration as bufferHydration } from "../../../entities/buffer/hydration
 
 const { describe, it, expect } = specimen;
 
-const rig = async () => {
+const rig = async ({ traits = ["VIEWABLE"] } = {}) => {
   const faults = [];
   const created = [];
+  const written = [];
   const runtime = { entities: {} };
   const hydrate = async (vector, entity) => vector.carry[0]({ entity, runtime }, async () => {});
   runtime.entities.thread = { $entities: atom([]) };
@@ -24,14 +25,24 @@ const rig = async () => {
       this.$entities.set([...this.$entities.get(), buffer]);
       return buffer;
     },
+    async ensure(data) {
+      return this.$entities.get().find((buffer) => buffer.thread.id === data.thread) ?? (await this.create(data));
+    },
     async removeOne(where) {
       this.$entities.set(this.$entities.get().filter((buffer) => buffer.id !== where.id));
     },
   };
-  const thread = Object.assign(new ghost.entities.thread.Thread(), { id: "th1", mode: { id: "m1" }, phase: "manual" });
+  const thread = Object.assign(new ghost.entities.thread.Thread(), { id: "th1", mode: { id: "m1", traits }, phase: "manual" });
   await hydrate(threadHydration, thread);
   runtime.entities.thread.$entities.set([thread]);
   const terminal = Object.assign(new ghost.terminal.Terminal(), { id: "t1", client: { runtime }, controller: { stdout: { fault: (error) => faults.push(error) } } });
+  terminal.repository = {
+    async updateOne(where, data) {
+      written.push(data);
+      terminal.buffer = data.buffer === null ? null : runtime.entities.buffer.$entities.get().find((buffer) => buffer.id === data.buffer);
+      return terminal;
+    },
+  };
   const settle = async () => {
     let last;
     do {
@@ -44,7 +55,7 @@ const rig = async () => {
     terminal.thread = thread;
     await settle();
   };
-  return { runtime, thread, terminal, faults, created, settle, seat, stop };
+  return { runtime, thread, terminal, faults, created, written, settle, seat, stop };
 };
 
 describe("stall — the terminal keeps the seated thread's frame filled (m105 Q6K)", () => {
@@ -53,6 +64,15 @@ describe("stall — the terminal keeps the seated thread's frame filled (m105 Q6
     await world.seat();
     expect(world.created).toEqual([{ mode: "m1", thread: "th1", data: {} }]);
     expect(world.terminal.buffer).toBe(world.thread.$buffers.get()[0]);
+    expect(world.written).toEqual([{ buffer: "b0" }]);
+    expect(world.faults).toEqual([]);
+    world.stop();
+  });
+
+  it("a mode without VIEWABLE gets no buffer — the frame stays empty", async () => {
+    const world = await rig({ traits: [] });
+    await world.seat();
+    expect([world.created, world.terminal.buffer, world.written]).toEqual([[], null, []]);
     expect(world.faults).toEqual([]);
     world.stop();
   });

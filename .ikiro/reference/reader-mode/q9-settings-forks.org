@@ -1,0 +1,13 @@
+# limit: 3000 chars
+# moved whole 11-10 — Q9 ruled: nanostore persisted, defaults on schematics
+
+** Q9 — settings: per article or per reader (ex Q2, renumbered)
+
+Context: the comp writes =/set …= into THIS buffer's journal; a second article starts from defaults
+unless settings live above the buffer.
+
+A — =Reading.settings= (drafted above): each article keeps its own.
+B — the user's: one row the mode reads for every buffer; no per-user mode-prefs store exists,
+so B is a new surface.
+Lean: A now.
+

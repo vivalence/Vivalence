@@ -29,6 +29,14 @@ describe("v.primitives.instance — one schematic for the settled unit", () => {
     expect(sentences(held)).toEqual([]);
   });
 
+  it("a mode consumes as its daemon does — cast fills an empty consume on a mode mask, a declared one stays", () => {
+    const reader = { module: "@commons/service/reader" };
+    const held = Instance.cast(recipe({ daemons: [daemon({ modes: [{ module: "@chess/study/analysis", consume: { reader } }, { module: "@chess/game/play" }] })] }));
+    expect(held.daemons[0].modes[0].consume).toEqual({ reader });
+    expect(held.daemons[0].modes[1].consume).toEqual({});
+    expect(sentences(held)).toEqual([]);
+  });
+
   it("a daemon owes only its manifest — no lighthouse, no datamap of its own; the lighthouse is the runtime's", () => {
     const bare = Instance.cast(recipe({ daemons: [{ manifest: { type: "daemon", slug: "hello" }, mountpoint: "/m/daemon_hello" }] }));
     expect(sentences(bare)).toEqual([]);
@@ -47,8 +55,11 @@ describe("v.primitives.instance — one schematic for the settled unit", () => {
       { module: "@vcompany/office/vdex", mountpoint: "/jdex", statics: { formats: ["md"] } },
       { module: "@vcompany/office/chat", mountpoint: null },
     ];
-    expect(v.faults(Modes, modes)).toEqual([]);
-    const held = v.decode(Modes, modes);
+    expect(v.faults(Modes, modes).map(({ at, reason }) => `${at} ${reason}`)).toContain("/1 must have required properties consume");
+    const settled = Modes.cast(modes);
+    expect(v.faults(Modes, settled)).toEqual([]);
+    expect(settled.map((entry) => entry.consume)).toEqual([undefined, {}, {}]);
+    const held = v.decode(Modes, settled);
     expect(held[1].mountpoint).toBeInstanceOf(Path);
     expect(held[1].mountpoint.absolute).toBe("/jdex");
     expect(held[2].mountpoint).toBe(null);
@@ -139,8 +150,11 @@ describe("v.primitives.instance.InstanceMask — the file as authored: reference
     expect(faults(mask({ datamap: { module: "m", statics: { file: "plain.db" } } }))).toEqual([]);
   });
 
-  it("a mode mask carries module · manifest · mountpoint (nullable) · statics · secrets and nothing else", () => {
+  it("a mode mask carries module · manifest · mountpoint (nullable) · statics · secrets · consume and nothing else", () => {
     expect(faults(mask({ daemons: [{ manifest: { type: "daemon", slug: "x" }, modes: [{ module: "m", mountpoint: null, manifest: { name: "X" } }] }] }))).toEqual([]);
+    expect(faults(mask({ daemons: [{ manifest: { type: "daemon", slug: "x" }, modes: [{ module: "m", consume: { reader: { module: "@commons/service/reader" } } }] }] }))).toEqual([]);
+    expect(faults(mask({ runtime: { modes: [{ module: "m", consume: { reader: { module: "@commons/service/reader" } } }] } }))).toEqual([]);
+    expect(faults(mask({ daemons: [{ manifest: { type: "daemon", slug: "x" }, modes: [{ module: "m", consume: { reader: "@commons/service/reader" } }] }] })).join(" ")).toContain("/daemons/0/modes/0/consume/reader must be object");
     expect(faults(mask({ daemons: [{ manifest: { type: "daemon", slug: "x" }, modes: [{ module: "m", application: {} }] }] })).join(" ")).toContain("/daemons/0/modes/0");
   });
 });

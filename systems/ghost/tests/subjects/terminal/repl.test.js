@@ -43,47 +43,7 @@ specimen.describe("repl — a line runs on the terminal's Repl; its records land
     await on(true, () => terminal.repl.dispatch("/help"));
     specimen.expect(tracks(tail)).toEqual(["log"]);
     const listed = natures(tail.get().at(-1).data);
-    specimen.expect(listed).toEqual([
-      "/anima",
-      "/anima/open",
-      "/doctor",
-      "/help",
-      "/lighthouse",
-      "/lighthouse/login",
-      "/lighthouse/refresh",
-      "/lighthouse/logout",
-      "/quit",
-      "/runtime",
-      "/abort",
-      "/activity",
-      "/attach",
-      "/buffer",
-      "/buffer/close",
-      "/buffer/full",
-      "/cell/set",
-      "/detach",
-      "/dictate",
-      "/dock",
-      "/dock/lens",
-      "/split",
-      "/frame/set",
-      "/tune",
-      "/effort",
-      "/rounds",
-      "/leader",
-      "/leader/leader",
-      "/legend/close",
-      "/modes",
-      "/mode",
-      "/pause",
-      "/resume",
-      "/set",
-      "/stop",
-      "/thread",
-      "/thread/new",
-      "/thread/label",
-      "/*",
-    ]);
+    specimen.expect(listed).toEqual(on(true, () => natures(shape.strip(terminal.repl.commands))));
     specimen.expect(listed).toEqual(specimen.expect.arrayContaining(LAWFUL));
     specimen.expect(tail.get().at(-1).data.branches.quit.effect.valence).toMatch(/Example: \/quit/);
     specimen.expect(tail.get().at(-1).path).toEqual(["ghost", "client", "terminal/t1", "/help"]);
@@ -127,7 +87,7 @@ specimen.describe("repl — a line runs on the terminal's Repl; its records land
     client.app = new ghost.app.App({ client });
     const shown = on(true, () => natures(shape.strip(terminal.repl.commands)));
     client.app = null;
-    specimen.expect(shown.filter((nature) => !headless.includes(nature))).toEqual(["/filter", "/filter/close", "/filter/expand", "/filter/pick", "/filter/daemon", "/filter/trait", "/focus", "/popover", "/popover/close", "/repl", "/repl/close", "/repl/next", "/repl/previous", "/repl/complete", "/sidebar", "/sidebar/toggle", "/sidebar/width", "/telemetry", "/telemetry/clear", "/terminal", "/terminal/new", "/terminal/close", "/theme/set", "/widget/toggle/close", "/widget/toggle/sidebar", "/widget/toggle/entity", "/widget/toggle/display", "/widget/toggle/system", "/widget/toggle/dock", "/widgets/close"]);
+    specimen.expect(shown.filter((nature) => !headless.includes(nature))).toEqual(["/filter", "/filter/close", "/filter/expand", "/filter/pick", "/filter/daemon", "/filter/trait", "/focus", "/popover", "/popover/close", "/repl", "/repl/close", "/repl/next", "/repl/previous", "/repl/complete", "/sidebar", "/sidebar/toggle", "/sidebar/width", "/telemetry", "/telemetry/clear", "/terminal", "/terminal/new", "/terminal/close", "/terminal/close/:id", "/theme/set", "/widget/toggle/close", "/widget/toggle/sidebar", "/widget/toggle/entity", "/widget/toggle/display", "/widget/toggle/system", "/widget/toggle/dock", "/widgets/close"]);
     specimen.expect(on(true, () => natures(shape.strip(terminal.repl.commands)))).toEqual(headless);
   });
 

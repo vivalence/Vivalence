@@ -150,7 +150,7 @@ export const tools = new Vector()
   .slurp(research);
 
 export { harness } from "./harness.js";
-export { emitter, generator } from "./page/index.js";
+export { emitter } from "./page/index.js";
 ```
 
 The agent harness, the api endpoint, procedural rendering, and many more capabilities are implemented as `Vectors`. The rest is in <a href="commons/instances/hello-world/README.md">the mode's own README</a>.
@@ -227,7 +227,7 @@ Everything runs through the shell tool `viva`, an instance of the `@vivalence/gh
 ```sh
 git clone https://github.com/vivalence/vivalence.git
 cd vivalence
-deno task install  # system dry-run and `viva` in `~/.deno/bin` 
+deno task embed  # system dry-run and `viva` in `~/.deno/bin` 
 ```
 
 The CLI remembers the repo via `$VIVA_REPOSITORY_MOUNT` in `~/.config/viva/env`. From here on you should be able to run `viva`. Test this with e.g. `$ viva ledger/doctor`.
@@ -344,7 +344,7 @@ Run one child on its own with `viva instance/run runtime` or `viva instance/run 
 
 ### 6 — Summary and next steps
 
-- [x] `deno task install` — `viva` linked into `~/.deno/bin`, this checkout pinned in `~/.config/viva/env`
+- [x] `deno task embed` — `viva` linked into `~/.deno/bin`, this checkout pinned in `~/.config/viva/env`
 - [x] `ledger/init`       — `~/.viva` exists: the one directory Vivalence owns on your machine
 - [x] `registry/tap`      — `@commons` recorded from the checkout, `@education` tapped; their modes resolve by reference from any shell
 - [x] `instance/create`   — `hello-world` copied into `~/.viva/instances`, yours to edit and version
