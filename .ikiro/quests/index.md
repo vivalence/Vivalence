@@ -3,8 +3,9 @@
 > Derived — regenerate at every sunset/revival (`skills/quest/`). Root = live only; `done/` = landed + verified; `discarded/` = sunset without landing; `benched/` = beef's bench; `bak/` = beef's recovery surface, untouched. ⚑ = classification is the 09-01 revival's judgment call (header status and landed reality disagreed, or the lean was mine) — beef curates. Bucket names follow DISK, never a rename that was only ever made in this file.
 > Rebuilt WHOLE from disk 10-22 (`ls` of the root and the four buckets); `reference/<quest>/` holds each quest's drained sections.
 
-## live (6 quests · 6 files: m103 · m108 · m110 · m113 · m115 · m116) — the only quests at the root
+## live (7 quests · 7 files: m103 · m108 · m110 · m113 · m115 · m116 · prod-deploy) — the only quests at the root
 
+- `prod-deploy.org` — prod deploy (UNNUMBERED) — HEAD onto R000 · S000: one runtime with the lighthouse embedded, `instance.viva.jsonc`, the volume wiped, a user minted by `viva instance/lighthouse/create` (operator JWT), `traits: []`; CI red at `Dockerfile:53` `patch: not found` (SCOUTED 11-06; hunks wait for go)
 - `m103-command-pass.org` — m103 command pass — every shell and repl command run once: `* the map` (93) = command · widget callers · source; `viva help` pretty LANDED (WALKING 10-27; the chrome-panels quest MOVED whole to `reference/m103/chrome-panels-10-27.org`, its handoff carried)
 - `m108-anima-app.org` — m108 anima on the App — anima moved onto m107's style (LANDING 10-26, milestones 1–3 in; next: milestone 4)
 - `m110-paladin-commands.org` — m110 paladin commands — the 19 machine commands (`ledger/` · `registry/` · `instance/` · `/doctor`) the m86 ghost rebuild parked in `bak.3`, back on the shell; `instance/user` dead

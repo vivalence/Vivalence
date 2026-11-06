@@ -13,13 +13,13 @@ when_to_use: >-
 
 ## Pull prod mountpoint
 
-Prod state lives in the named volume `mountpoint` (`/viva/mountpoint`). Target: the instance's `mountpoint/`, never `testament/`. Foot-guns: **named** volume (no host path to `tar`); WAL flushes only with the runtime **stopped**; extracting onto the mountpoint root (local `daemon_brazilian/` `service_multiplayer/`) mixes state silently — `tmp/` first.
+Prod state lives in the named volume `mountpoint` (`/viva/mountpoint`). Target: the instance's `mountpoint/`, never `testament/`. Foot-guns: **named** volume (no host path to `tar`); WAL flushes only with the runtime **stopped**; extract to `tmp/` first, never the mountpoint root.
 
-Confirm: server (default `root@com-vivalence-runtime-R000`) · prod → local only (the reverse: propose, per-command go) · target · backup to `bak/` (default yes).
+Confirm: server (default `root@com-vivalence-runtime-R000`) · prod → local only · target · `bak/` (default yes).
 
 ### Phase 0 — inspect, read-only
 
-A prod defect is scouted ON the host — volume · image · container — never by local grep or nested-quoted ssh; every name here was once guessed wrong — LIST each container's ledger · mountpoint · instance before a plan names it; a prod compose/`.env` is the OLD world till checked against HEAD (/"scout the issue on location."/ 09-20). Tag + sha = the rollback pin; the env grep skips secrets; never `tree -L 2` on `/viva`.
+A prod defect is scouted ON the host — volume · image · container — never by local grep or nested-quoted ssh; LIST each container's ledger · mountpoint · instance before a plan names it; a prod compose/`.env` is the OLD world till checked against HEAD (/"scout the issue on location."/ 09-20). Tag + sha = the rollback pin; the env grep skips secrets; never `tree -L 2` on `/viva`.
 
 ```bash
 C=$(docker ps --format '{{.Names}}' | grep '^runtime-')
@@ -45,7 +45,7 @@ jq 'length' /m/service_multiplayer/tokens.json
 ```
 
 - `_mikro_migrations`, not `mikro_orm_migrations`; tables Capitalised, as queried above.
-- PROD daemon dbs carry the `db.file` their creating recipe pinned (`test-language*.viva.db`), NOT `<slug>.viva.db` (`paladin/instance/lifecycle/2-resolution.js:30`); a mismatch mints an empty db beside the old — rename the file, keep the dir. Local since m80 = ONE `<instance>.viva.db` (`runtime/population.js:31`).
+- a prod daemon db carries the `db.file` its recipe pinned (`test-language*.viva.db`); HEAD = ONE `<instance>.viva.db` (`runtime/subjects/runtime/lifecycle/1-population.js:39`), no migration path — the prod volume is wiped (ruled 11-06).
 - `$(ls -d /m/daemon_*)` over several daemons is several paths — loop, never assign.
 - `-readonly` on `:ro` is safe live; "disk I/O error" = wrong path, not a lock.
 
@@ -75,7 +75,7 @@ rm -rf tmp/
 sqlite3 daemon_brazilian/<dbname>.viva.db ".tables"
 ```
 
-`ls` before `tar` (a wrong cwd fails silently-ish). Prod may hold several `daemon_<slug>/` — swap each. Then `viva instance/use <slug> run`; report boot/migration errors. `commons/instances/hello-world/docker-compose.yml` is the one compose.
+`ls` before `tar`. Several `daemon_<slug>/` — swap each. Then `viva instance/use <slug> run`; report boot/migration errors.
 
 ## Prod change
 
@@ -83,7 +83,7 @@ A prod change (slug move · schema diff) boots first on a CLONED volume with a t
 
 Prod data is KEPT: row counts per daemon, beef rules (/"if its got rich data, use it. else chuck it"/ 09-20), the chucked seat stays byte-identical beside; a move carries db + `tokens.json`, drops `migrations/` · `.snapshot-*.json` (/"drop generated files"/ 09-20).
 
-A deploy plan leads with the step beef is AT (passed steps dropped) and names each image's ROLE — the copy tool pinned by digest, the CI-built image pulled by `:$SHA`, never a rolling tag (/"were on server now. … i need ot pull the fucking image"/ 09-20); a container's state fills through an entrypoint whose every step checks first, baking into the image permitted beneath (/"I want a flexible entry point"/ 09-19).
+A deploy plan leads with the step beef is AT (passed steps dropped) and names each image's ROLE — the copy tool pinned by digest, the CI-built image pulled by `:$SHA`, never a rolling tag (/"were on server now. … i need ot pull the fucking image"/ 09-20); a container's state fills through an entrypoint whose every step checks first, baking into the image permitted beneath (/"I want a flexible entry point"/ 09-19). **The instance is a compose fact** (`VIVA_INSTANCE_MOUNT` + a bind), never a CI build-arg: anima's `paladin:baked` bundle runs in the ENTRYPOINT against the mounted recipe (REJECTED 11-06 a CI-bake fork — /"we dont bake instance on ci. makes no sense. opposite of whats right. the docker compose file sets instance."/).
 
 ## DBeaver connections
 
@@ -107,4 +107,4 @@ D update viva-italian --name "italian daemon" --path $M/service_multiplayer/ligh
 
 `create` refuses an existing id or a missing path (`--allow-missing`), `update`/`delete` an unknown id: exit 1. `--file <path>` rehearses on a copy. `create-instance` reads `~/.viva/instances.json`, walks `<mount>/mountpoint/`, mints `viva-<slug>-<stem>` named `viva <slug> <filename>` per `*.viva.db`; existing ids `skipped`; `--dry` writes nothing. Run from the repo root.
 
-First write copies `data-sources.json.bak` once (delete to re-arm); reparse is identical. REJECTED: the CLI `-con` (launches the GUI, one per call) and GraphQL (CloudBeaver only).
+First write copies `data-sources.json.bak` once (delete to re-arm). REJECTED: the CLI `-con` (launches the GUI, one per call) and GraphQL (CloudBeaver only).

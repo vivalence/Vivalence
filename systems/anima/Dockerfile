@@ -1,72 +1,34 @@
 ARG VIVA_BASE=vivalence/viva:alpine
-FROM ${VIVA_BASE} AS build
+FROM ${VIVA_BASE}
+
+RUN apk add --no-cache nginx
 
 WORKDIR /viva/repository
-ENV VIVA_SYSTEM_MODE="BUILD"
-ENV VIVA_SYSTEM_ROLE="CLIENT"
-
-RUN rm -rf \
-    ./commons \
-    ./systems/anima \
-    ./subsystems/typology \
-    ./subsystems/dapper \
-    ./subsystems/drapes \
-    ./subsystems/paladin
-
-COPY deno.jsonc import_map.json ./
-COPY systems/runtime/deno.jsonc ./systems/runtime/deno.jsonc
-COPY systems/anima/deno.jsonc ./systems/anima/deno.jsonc
-COPY systems/ghost/deno.jsonc ./systems/ghost/deno.jsonc
-COPY subsystems/typology/deno.jsonc ./subsystems/typology/deno.jsonc
-COPY subsystems/paladin/deno.jsonc ./subsystems/paladin/deno.jsonc
-COPY subsystems/dapper/deno.jsonc ./subsystems/dapper/deno.jsonc
-COPY subsystems/drapes/deno.jsonc ./subsystems/drapes/deno.jsonc
-COPY documentation/deno.jsonc ./documentation/deno.jsonc
-
-RUN deno install
-
-COPY commons/ ./commons/
-COPY subsystems/typology/ ./subsystems/typology/
-COPY subsystems/dapper/ ./subsystems/dapper/
-COPY subsystems/drapes/ ./subsystems/drapes/
-COPY subsystems/paladin/ ./subsystems/paladin/
-COPY systems/anima/ ./systems/anima/
+ENV VIVA_SYSTEM_MODE="PRODUCTION" \
+    VIVA_SYSTEM_ROLE="CLIENT" \
+    VIVA_CLIENT_ANIMA_SERVE=http://0.0.0.0:1794
 
 ARG VIVA_STAMP
 ENV VIVA_STAMP=${VIVA_STAMP}
-RUN deno task anima/bundle
 
-FROM nginx:alpine
-
-RUN rm -rf /usr/share/nginx/html/*
-COPY --from=build /viva/repository/systems/anima/build /usr/share/nginx/html
-
-COPY <<'NGINX' /etc/nginx/conf.d/default.conf
+COPY <<'NGINX' /etc/nginx/http.d/default.conf
 server {
     listen 1794;
-    root /usr/share/nginx/html;
+    root /viva/repository/systems/anima/build;
     location / {
-        try_files $uri /200.html;
+        try_files $uri /index.html;
     }
 }
 NGINX
 
 COPY <<'ENTRYPOINT' /docker-entrypoint.sh
 #!/bin/sh
-ENV_JSON="{"
-FIRST=true
-for var in $(env | grep "^PUBLIC_VIVA_" | sort); do
-  key="${var%%=*}"
-  value="${var#*=}"
-  if [ "$FIRST" = true ]; then FIRST=false; else ENV_JSON="${ENV_JSON},"; fi
-  ENV_JSON="$ENV_JSON\"$key\":\"$value\""
-done
-ENV_JSON="$ENV_JSON}"
-echo "export const env=$ENV_JSON" > /usr/share/nginx/html/_app/env.js
+set -eu
+[ -f /viva/repository/systems/anima/build/index.html ] || deno task anima/bundle
 exec nginx -g "daemon off;"
 ENTRYPOINT
-
 RUN chmod +x /docker-entrypoint.sh
 
+VOLUME /viva/repository/systems/anima/build
 EXPOSE 1794
 ENTRYPOINT ["/docker-entrypoint.sh"]

@@ -2829,3 +2829,15 @@ None — a catalog-checked nature at =gathered=, or the chip built from the verb
 
 * spanish-sentence-audio-orphans — OPEN (11-06)
 21 orphan mp3s + 25 stale slugs in =english-to-spanish/freight/audio/sentences/= — cause and his call: =quests/m115-mando.org= =* spanish dataset 11-06 ** owed=.
+
+* ci-image-build-lacks-patch-and-argon2-scripts — OPEN (11-06, master =bf2d0299= pushed, CI red)
+** Symptom
+=build-and-push= dies at =Dockerfile:53=: =systems/ghost/install.sh: … 17: patch: not found=, exit 127. Earlier in the same build: =Ignored build scripts for packages: npm:argon2@0.44.0=.
+** Root cause
+=install.sh:17= applies =subsystems/sheets/opentui-core.patch= with =patch=; the root =Dockerfile:3= apk list has none. =Dockerfile:51= allows =npm:svelte-preprocess= only; =deno.jsonc:27= allows =better-sqlite3,argon2,svelte-preprocess=.
+** Evidence
+His CI paste 11-06 16:58; =apk add patch= on alpine 3.20 arm64 = 208 KiB (measured on R000). argon2 0.44.0 ships =prebuilds/linux-arm64/argon2.armv8.musl.node= — no build tools owed.
+** Ruling
+/"patch — makes sense to add to root image?"/ — yes. Hunk: =quests/prod-deploy.org= =** milestone 1 — Dockerfile=.
+** Why not fixed
+Waits for go.

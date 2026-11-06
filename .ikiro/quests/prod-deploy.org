@@ -1,0 +1,307 @@
+#+title: prod deploy — HEAD onto R000 · S000: one runtime (lighthouse embedded), a json recipe, a fresh volume, a user minted by the operator, no signup
+#+filetags: :prod:deploy:coolify:lighthouse:paladin:ci:
+#+status: SCOUTED 11-06 — prod read on location (R000 · S000 · I000); CI red on master at `Dockerfile:53` (`patch: not found`); his rulings: wipe the db, a client, no signup, `patch` into the root image; `/create` hunk waits for go
+#+phase: scouted
+#+progress: 0/6
+#+next: beef — `go` on the Dockerfile hunk (milestone 1), the `/create` route (milestone 2), the recipe (milestone 3)
+<!-- limit: 40000 chars -->
+
+* intent
+
+| # | beef, verbatim | trigger |
+|---+----------------+---------|
+| A | /"we changed runtime and anima a lot since my last deploy. log into the servers, find the serivce and docker image and volumes at /data/coolify and so forth, and investigate what changes must be done for deployment. i assume data loss"/ | the scout |
+| B | /"i assume we whipe the prod db."/ | the volume |
+| C | /"we need an instance with a client. no auto signup. no signup at all. do we have a way to create a user?"/ | the lighthouse |
+| D | /"add this to the issues. new quest."/ — the CI paste, `patch: not found` | this file + `known-issues.org` |
+| E | /"patch — makes sense to add to root image?"/ — yes: `install.sh:17` is its only consumer, 208 KiB on arm64 | milestone 1 |
+
+* terrain — measured 11-06, read-only
+
+| host | container | image | built | state |
+|------+-----------+-------+-------+-------|
+| R000 | runtime-egcwkgw0cwg0kkwko4owooco | vivalence/prod-runtime:local | 09-30 | up 5 weeks, 3 daemons RUNNING |
+| R000 | lighthouse-egcwkgw0cwg0kkwko4owooco | registry…/runtime:alpine | 09-30 | restarts every ~30 s |
+| S000 | anima-xkgcgwck8k08cgs8okoo4sko | registry…/anima:alpine | 09-30 | nginx :1794, serving |
+
+Lighthouse crash loop, verbatim:
+#+BEGIN_SRC text
+[cause]: Error: error sending request for url (https://lighthouse.s4y.vivalence.com/attached/process/service/lighthouse/multiplayer/entities/daemon/remove): client error (Connect): tcp connect error: Connection timed out (os error 110)
+    at async announce (file:///viva/repository/systems/runtime/lifecycle/runtime/integration.js:48:23)
+#+END_SRC
+
+Volumes on R000 (sidecar, `sqlite3 -readonly`):
+#+BEGIN_SRC text
+egcwkgw0cwg0kkwko4owooco_mountpoint
+  daemon_brazilian/test-language.viva.db       Buffer=3535 Thread=17 User=2  Migration20260730221350
+  daemon_italian/italian.viva.db               Buffer=8 Turn=401 Thread=9   Migration20260920150810 (unserved)
+  daemon_chess/chess.viva.db                   Buffer=8 Turn=5 Thread=6     Migration20260920150822
+  daemon_spanish/spanish.viva.db               Buffer=1 Thread=1            Migration20260927191251
+  daemon_droneaid/droneaid.viva.db             Buffer=0 User=1 Mode=11      Migration20260925140456
+  daemon_spanish.july/test-language-spanish.viva.db  Buffer=13 Thread=7
+egcwkgw0cwg0kkwko4owooco_lighthouse-mountpoint
+  multiplayer.viva.db                          Identity=2 Daemon=4          Migration20260325073850
+  tokens.json                                  1
+#+END_SRC
+
+Prod recipe + compose, the OLD world:
+#+BEGIN_SRC text
+/data/coolify/services/egcwkgw0cwg0kkwko4owooco/
+  .env                 SECRET_VIVA_JWT · SECRET_VIVA_ANTHROPIC_API_KEY · SECRET_VIVA_OPENROUTER_API_KEY · PUBLIC_VIVA_LIGHTHOUSE_REMOTE
+  Dockerfile           FROM registry…/runtime:alpine + stockfish sf_17.1 (static) + 4 taps (education · chess · assembly · droneaid)
+  docker-compose.yml   runtime (pull_policy: build) + lighthouse (separate container, :8004, own volume)
+  instance/instance.viva.js   ESM, `kernel:` per daemon, `export const clients = []`, `services = []`
+/data/coolify/services/xkgcgwck8k08cgs8okoo4sko/   (S000)
+  docker-compose.yml   anima, PUBLIC_VIVA_LIGHTHOUSE_REMOTE only
+#+END_SRC
+
+HEAD, what the runtime reads today:
+#+BEGIN_SRC js
+// systems/runtime/subjects/runtime/lifecycle/1-population.js:39
+        db: { file: `${die.runtime.instance.manifest.slug}.viva.db` },
+// systems/runtime/subjects/runtime/lifecycle/1-population.js:68
+  die.runtime.lighthouse = new Lighthouse(die.runtime.instance.lighthouse);
+// systems/runtime/subjects/lighthouse/lifecycle/2-resolution.js:7
+  die.aperture.branch("/lighthouse", die.lighthouse.aperture);
+// subsystems/paladin/instance/lifecycle/1-population.js:43
+  if (!file) throw new Error(`instance.mount: no instance.viva.json or instance.viva.jsonc at ${home}`);
+#+END_SRC
+
+CI, master `bf2d0299`, 11-06 16:58:
+#+BEGIN_SRC text
+#19 [15/17] RUN mkdir -p /root/.deno/bin && sh systems/ghost/install.sh /viva/repository
+#19 0.472 systems/ghost/install.sh: … 17: patch: not found
+ERROR: process "/bin/sh -c mkdir -p /root/.deno/bin && sh systems/ghost/install.sh /viva/repository" did not complete successfully: exit code: 127
+#18 8.020 │  Ignored build scripts for packages:
+#18 8.020 │  npm:argon2@0.44.0
+#+END_SRC
+
+* the law
+
+- ONE db per instance now (`prod.viva.db`), users inside it; prod holds one db per daemon + Identity in a lighthouse db. No migration path. The volume is wiped (B).
+- the lighthouse is a slot of the runtime, served at `<runtime>/lighthouse/*`; the lighthouse container and its volume are CUT.
+- `traits: []` — no `/signup`, no `/autologin`. AUTOLOGIN is public entry as one user, not an answer to C.
+- a user is minted by the OPERATOR: a 2-min JWT signed with `SECRET_VIVA_JWT`, as `/password` already is.
+- the recipe is `instance.viva.jsonc`; `kernel` → `modes`; a client declared or the client has no seat.
+- the CI-built image is pulled by `:$SHA`, never `:alpine` (known issue `runtime-image-base-rides-a-mutable-tag`).
+- the volume wipe runs on HIS `!`; before it, `docker volume rm` is PROPOSED with both names.
+
+* milestones
+
+| # | milestone | gate | state |
+|---+-----------+------+-------|
+| 1 | the image builds on CI | `build-and-push` green on master; `viva --help` rc 0 inside `vivalence/viva:$SHA` | red |
+| 2 | a user without signup | `viva instance/lighthouse/create beef <pw>` → `{status:"SUCCESS"}`; `/login` 200; `/signup` 404 | unbuilt |
+| 3 | the prod recipe | `instance.viva.jsonc` in `/data/coolify/services/egcw…/instance/`; `viva instance/doctor` clean on a clone | unwritten |
+| 4 | compose + env | one runtime service; anima env `PUBLIC_VIVA_RUNTIME_REMOTE` + `PUBLIC_VIVA_CLIENT_ANIMA_REMOTE` | unwritten |
+| 5 | rehearsal | a cloned volume + throwaway container boots, `/status` RUNNING, `/lighthouse/metadata` → `traits: []` | — |
+| 6 | the deploy | volume wiped, Coolify redeploy, `/create`, login on vivalence.com | — |
+
+* as code
+
+** milestone 1 — Dockerfile
+
+`install.sh:17` applies `subsystems/sheets/opentui-core.patch` with `patch`; `deno.jsonc:27` allows `better-sqlite3,argon2,svelte-preprocess`, the Dockerfile only `svelte-preprocess`. argon2 ships `prebuilds/linux-arm64/argon2.armv8.musl.node` (measured in the deno cache), so no build tools.
+
+#+BEGIN_SRC diff
+// Dockerfile:3
+ RUN apk add --no-cache \
+     bash \
+     git \
+     jujutsu \
+     curl \
+     ca-certificates \
+     openssh-client \
+     libgcc \
+     libstdc++ \
+-    sqlite
++    sqlite \
++    patch
+…
+// Dockerfile:51
+-RUN deno install --allow-scripts=npm:svelte-preprocess
++RUN deno install --allow-scripts=npm:better-sqlite3,npm:argon2,npm:svelte-preprocess
+#+END_SRC
+
+** milestone 2 — the operator mints a user
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/lighthouse/apertures/users.js:41
+     await ctx.lighthouse.users.em.flush();
+     return respond.success({ user: card(user) });
+   })
++  .open("/create", async ({ operator, username, password }, ctx) => {
++    if (!operator || !username || !password) return respond.error(ctx, "INVALID_INPUT", "Operator token, username and password required");
++    if (!(await signer(ctx.lighthouse.secret).verify(operator, "operator"))) return respond.error(ctx, "INVALID_TOKEN", "Invalid operator token", 401);
++    if (await ctx.lighthouse.users.byUsername(username)) return respond.error(ctx, "USERNAME_EXISTS", "Username already taken");
++    const user = ctx.lighthouse.users.create({
++      slug: username,
++      authentication: { provider: "password", credentials: { username, password: await argon2.hash(password) } },
++    });
++    await ctx.lighthouse.users.em.flush();
++    return respond.success({ user: card(user) });
++  })
+   .open("/logout", async ({ refresh }, ctx) => {
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/gestalten/commands/instance/lighthouse.js:49
+     called("/password", async () => ({ operator: await operator(paladin.secret.get("SECRET_VIVA_JWT")) })),
+-  );
++  )
++  .open(
++    {
++      nature: "/instance/lighthouse/create",
++      valence: "mint a user against the mounted instance's runtime, signed as the operator. Example: viva instance/lighthouse/create beef hunter2",
++      input: Credentials,
++    },
++    called("/create", async () => ({ operator: await operator(paladin.secret.get("SECRET_VIVA_JWT")) })),
++  );
+#+END_SRC
+
+Run where the secret and the remote already are: `docker exec runtime-egcwkgw0cwg0kkwko4owooco viva instance/lighthouse/create beef <pw>`.
+
+** milestone 3 — the recipe (sketch, daemons as `~/.viva/instances/localhost/instance.viva.jsonc` minus the nlp consume)
+
+#+BEGIN_SRC jsonc
+// /data/coolify/services/egcwkgw0cwg0kkwko4owooco/instance/instance.viva.jsonc
+{
+  "manifest": { "type": "instance", "slug": "prod", "version": "0.1.0" },
+  "runtime": { "statics": { "serve": "${VIVA_RUNTIME_SERVE}", "remote": "${PUBLIC_VIVA_RUNTIME_REMOTE}" } },
+  "lighthouse": { "secrets": { "jwt": "${SECRET_VIVA_JWT}" }, "traits": [] },
+  "hallucinators": [{ "module": "@commons/hallucinator/anthropic", "secrets": { "key": "${SECRET_VIVA_ANTHROPIC_API_KEY}" } }],
+  "clients": [
+    {
+      "manifest": { "type": "client", "slug": "anima", "traits": ["HOME"] },
+      "statics": { "serve": "${VIVA_CLIENT_ANIMA_SERVE}" },
+      "trait": { "HOME": { "reference": "/runtime/runtime/mode/harness/runtime" } }
+    }
+  ],
+  "daemons": []
+}
+#+END_SRC
+
+** milestone 4 — compose
+
+#+BEGIN_SRC yaml
+# /data/coolify/services/egcwkgw0cwg0kkwko4owooco/docker-compose.yml   (the lighthouse service + volume gone)
+services:
+  runtime:
+    image: vivalence/prod-runtime:local
+    pull_policy: build
+    build: { context: ., dockerfile: Dockerfile, no_cache: true, pull: true }
+    ports: ["2501:2501"]
+    environment:
+      VIVA_INSTANCE_MOUNT: /viva/instance
+      VIVA_RUNTIME_ORIGIN: http://0.0.0.0:2501
+      VIVA_RUNTIME_SERVE: http://0.0.0.0:2501
+      PUBLIC_VIVA_RUNTIME_REMOTE: https://runtime.s4y.vivalence.com/
+      VIVA_CLIENT_ANIMA_SERVE: https://vivalence.com/
+      SECRET_VIVA_JWT: ${SECRET_VIVA_JWT}
+      SECRET_VIVA_ANTHROPIC_API_KEY: ${SECRET_VIVA_ANTHROPIC_API_KEY}
+      VIVA_SERVICE_STOCKFISH_BINARY: stockfish
+      VIVA_SERVICE_STOCKFISH_THREADS: "2"
+      VIVA_SERVICE_STOCKFISH_HASH: "128"
+    volumes:
+      - /data/coolify/services/egcwkgw0cwg0kkwko4owooco/instance:/viva/instance:ro
+      - egcwkgw0cwg0kkwko4owooco_mountpoint:/viva/mountpoint
+#+END_SRC
+
+#+BEGIN_SRC yaml
+# /data/coolify/services/xkgcgwck8k08cgs8okoo4sko/docker-compose.yml   (S000, anima)
+    environment:
+      PUBLIC_VIVA_RUNTIME_REMOTE: https://runtime.s4y.vivalence.com/
+      PUBLIC_VIVA_CLIENT_ANIMA_REMOTE: https://vivalence.com/
+#+END_SRC
+
+#+BEGIN_SRC dockerfile
+# /data/coolify/services/egcwkgw0cwg0kkwko4owooco/Dockerfile:17   (the base pinned, never :alpine)
+FROM registry.vivalence.org/beef/viva/vivalence/runtime:<SHA>
+#+END_SRC
+
+* blast table
+
+| surface | consumers (grep) | BREAKS |
+|---------+------------------+--------|
+| `Dockerfile` apk list · `--allow-scripts` | CI `build-and-push`; `systems/runtime/Dockerfile` · `systems/anima/Dockerfile` FROM it | now: CI red |
+| `/lighthouse/create` | none today; `paladin/…/instance/lighthouse.js` after the hunk | at land: nothing |
+| prod recipe `.js` → `.jsonc` | `paladin/instance/lifecycle/1-population.js:43` | now: prod boot throws on the old file |
+| `PUBLIC_VIVA_LIGHTHOUSE_REMOTE` | anima entrypoint exports every `PUBLIC_VIVA_*` to `_app/env.js`; `paladin/tests/expand.test.js:138` | at land: anima needs `PUBLIC_VIVA_RUNTIME_REMOTE` |
+| the lighthouse volume | nothing at HEAD | at land: 2 Identity rows gone |
+| registry taps `@chess/coach/coach` · `@droneaid/topography/guides` | the github registries | now: unpushed → `registry/doctor` fails in the image build |
+
+* gaps
+
+- the image's `viva ledger/init` writes which lighthouse traits? local ledger says `["JOINABLE","AUTOLOGIN"]`; the instance's `"traits": []` must WIN — unprobed, milestone 5 measures `/lighthouse/metadata`.
+- stockfish: still consumed as `@chess/service/stockfish` with `binary · threads · hash` statics (localhost recipe) — the prod Dockerfile's static build stays.
+- the nlp consume (stanza on S000 :5555) — in or out of the prod spanish daemon: his call.
+
+* deferred
+
+- `INVITATIONAL` is an empty function (`traits/invitational.js`); an invite token is the long answer to C.
+- `runtime-dies-when-lighthouse-unreachable` (known issue) — moot once embedded.
+
+* the anima image — ruled 11-06
+
+`paladin:baked` (`systems/anima/vite.config.mjs:98`, m95 #23) bakes `paladin.instance` + every `PUBLIC_VIVA_*` into the bundle at BUILD; `_app/env.js` written by the anima entrypoint (`systems/anima/Dockerfile:65`) has zero readers. The CI anima build dies: `instance: nothing selected`.
+#+BEGIN_SRC text
+#28 1.533 [paladin:baked] Could not load paladin:baked (imported by ../../subsystems/paladin/mod.client.js): instance: nothing selected — viva instance/use <slug|path>, --instance=<slug|path>, or VIVA_INSTANCE_MOUNT=<path>
+#+END_SRC
+RULED 11-06: /"we dont bake instance on ci. makes no sense. opposite of whats right. the docker compose file sets instance."/ — the anima entrypoint bundles against the mounted `VIVA_INSTANCE_MOUNT` at container start, then serves. CI ships code only. Static server: nginx from apk, the svelte-era config kept.
+
+#+BEGIN_SRC dockerfile
+# systems/anima/Dockerfile   (LANDED 11-06, proven on hello-world)
+ARG VIVA_BASE=vivalence/viva:alpine
+FROM ${VIVA_BASE}
+
+RUN apk add --no-cache nginx
+
+WORKDIR /viva/repository
+ENV VIVA_SYSTEM_MODE="PRODUCTION" \
+    VIVA_SYSTEM_ROLE="CLIENT" \
+    VIVA_CLIENT_ANIMA_SERVE=http://0.0.0.0:1794
+
+ARG VIVA_STAMP
+ENV VIVA_STAMP=${VIVA_STAMP}
+
+COPY <<'NGINX' /etc/nginx/http.d/default.conf
+server {
+    listen 1794;
+    root /viva/repository/systems/anima/build;
+    location / {
+        try_files $uri /index.html;
+    }
+}
+NGINX
+
+COPY <<'ENTRYPOINT' /docker-entrypoint.sh
+#!/bin/sh
+set -eu
+[ -f /viva/repository/systems/anima/build/index.html ] || deno task anima/bundle
+exec nginx -g "daemon off;"
+ENTRYPOINT
+RUN chmod +x /docker-entrypoint.sh
+
+VOLUME /viva/repository/systems/anima/build
+EXPOSE 1794
+ENTRYPOINT ["/docker-entrypoint.sh"]
+#+END_SRC
+
+#+BEGIN_SRC yaml
+# /data/coolify/services/xkgcgwck8k08cgs8okoo4sko/docker-compose.yml   (S000)
+services:
+  anima:
+    image: registry.vivalence.org/beef/viva/vivalence/anima:<SHA>
+    environment:
+      VIVA_INSTANCE_MOUNT: /viva/instance
+      PUBLIC_VIVA_RUNTIME_REMOTE: https://runtime.s4y.vivalence.com/
+      PUBLIC_VIVA_CLIENT_ANIMA_REMOTE: https://vivalence.com/
+    volumes:
+      - /data/coolify/services/xkgcgwck8k08cgs8okoo4sko/instance:/viva/instance:ro
+#+END_SRC
+
+* changelog
+
+- 11-06 `lets go with a anima dockerfile`: `systems/anima/Dockerfile` rewritten — FROM the viva base + `apk add nginx`, the entrypoint runs `deno task anima/bundle` once against `VIVA_INSTANCE_MOUNT` (6 s), then nginx on `systems/anima/build` (`try_files $uri /index.html`); the two-stage build, the `rm -rf` dance and `_app/env.js` cut. Proven local: `anima:probe` on hello-world, no SECRET in env → `200 text/html` · deep route 200 · bundle carries `env:{PUBLIC_VIVA_RUNTIME_REMOTE:"http://localhost:2501/",…}` · restart = 0 rebuilds. Svelte-era archaeology (`a10c54fcc`): SvelteKit `$env/dynamic/public` read `_app/env.js` at RUNTIME, one value crossed; m95 #23 bakes instance + mode code, so the bake moved to the entrypoint.
+- 11-06 `go on dockerfile`: root `Dockerfile` 3 hunks — `patch` apk · `--allow-scripts=npm:better-sqlite3,npm:argon2,npm:svelte-preprocess` · `ledger/init` → `ledger/install` (`/ledger/init: Not found`, m110 killed it; `README.md:235` still says init — his). Built local arm64 (Docker Desktop started): `viva --help` rc 0 · `/usr/bin/patch` · `argon2.hash function` · `registry/doctor` tapped 1; `systems/runtime/Dockerfile` on it rc 0. `systems/anima/Dockerfile` red → the fork above.
+- 11-06 scout: R000 · S000 · I000 read on location; CI paste filed as `known-issues.org` `* ci-image-build-lacks-patch-and-argon2-scripts`; this quest born unnumbered. E ruled `patch` into the root image.

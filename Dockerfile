@@ -9,7 +9,8 @@ RUN apk add --no-cache \
     openssh-client \
     libgcc \
     libstdc++ \
-    sqlite
+    sqlite \
+    patch
 
 RUN apk add --no-cache \
     bat \
@@ -48,7 +49,7 @@ COPY subsystems/ ./subsystems/
 COPY commons/ ./commons/
 COPY documentation/deno.jsonc ./documentation/deno.jsonc
 
-RUN deno install --allow-scripts=npm:svelte-preprocess
+RUN deno install --allow-scripts=npm:better-sqlite3,npm:argon2,npm:svelte-preprocess
 
 RUN mkdir -p /root/.deno/bin && sh systems/ghost/install.sh /viva/repository
 
@@ -60,7 +61,7 @@ ENV VIVA_REPOSITORY_MOUNT=/viva/repository \
     VIVA_LEDGER_MOUNT=/viva/ledger \
     VIVA_REGISTRY_MOUNT=/viva/ledger/registry
 
-RUN viva ledger/init /viva/ledger && viva registry/tap /viva/repository/commons
+RUN viva ledger/install /viva/ledger && viva registry/tap /viva/repository/commons
 
 ARG VIVA_REGISTRY_TAPS=""
 RUN for url in $VIVA_REGISTRY_TAPS; do viva registry/tap "$url"; done && viva registry/doctor
