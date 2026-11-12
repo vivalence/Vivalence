@@ -44,7 +44,7 @@ Deno.test("skill.mode — every mode's paths on disk", async (t) => {
 
   await t.step("mode_find lists the daemon and every mode as rows", async () => {
     const spoken = await invoke(armed, "mode_find", {});
-    const rows = spoken.output.message.split("\n");
+    const rows = spoken.product.message.split("\n");
     assertEquals(rows[0], "[Host /daemon/vcompany] · mountpoint /Users/finn/.viva/instances/vivalence/mountpoint/daemon_vcompany");
     assertEquals(
       rows[1],
@@ -57,13 +57,13 @@ Deno.test("skill.mode — every mode's paths on disk", async (t) => {
 
   await t.step("mode_find narrows by type and by slug", async () => {
     const byType = await invoke(armed, "mode_find", { type: "tutor" });
-    assertEquals(byType.output.message.split("\n").length, 2);
-    assert(byType.output.message.includes("tutor/francesca"));
+    assertEquals(byType.product.message.split("\n").length, 2);
+    assert(byType.product.message.includes("tutor/francesca"));
     const bySlug = await invoke(armed, "mode_find", { slug: "vdex" });
-    assertEquals(bySlug.output.message.split("\n").length, 2);
-    assert(bySlug.output.message.includes("office/vdex"));
+    assertEquals(bySlug.product.message.split("\n").length, 2);
+    assert(bySlug.product.message.includes("office/vdex"));
     const none = await invoke(armed, "mode_find", { slug: "nobody" });
-    assertEquals(none.output.message.split("\n").length, 1);
+    assertEquals(none.product.message.split("\n").length, 1);
   });
 
   await t.step("a daemon without a mountpoint names none", async () => {
@@ -71,6 +71,6 @@ Deno.test("skill.mode — every mode's paths on disk", async (t) => {
       .use(shard.context.spread(contexts.daemonDie, { reference: new Path("/daemon/test-daemon"), modes: { teacher: { dewey } } }))
       .graft(gestalten.tools.mode);
     const spoken = await invoke(bare, "mode_find", {});
-    assertEquals(spoken.output.message.split("\n")[0], "[Host /daemon/test-daemon]");
+    assertEquals(spoken.product.message.split("\n")[0], "[Host /daemon/test-daemon]");
   });
 });

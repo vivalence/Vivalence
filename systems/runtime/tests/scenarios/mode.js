@@ -1,9 +1,9 @@
 import { Aperture, contexts, Mode, Path, shape, shard, Twitch, Vector } from "@vivalence/typology";
 import { RequestContext } from "@mikro-orm/core";
 import { seed } from "./fixtures.js";
-import { gestalten, traits } from "@vivalence/runtime";
+import { gestalten, Runtime, traits } from "@vivalence/runtime";
 import { connector, lighthouseOf } from "./daemon.js";
-const { VIEWABLE, INTENTED, EMITTER, EXPOSED, HARNESSED, TOOLING, PRIMER, AGENTIC } = traits.mode;
+const { VIEWABLE, INTENTED, EMITTER, EXPOSED, HARNESSED, TOOLING, PRIMER } = traits.mode;
 const { stagger } = gestalten.belt;
 
 function buildDaemon({ datamap, runtime, held }) {
@@ -20,7 +20,8 @@ function buildDaemon({ datamap, runtime, held }) {
   });
 
   const lighthouse = lighthouseOf(datamap, runtime.user);
-  daemon.aperture.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.datamap.inject(datamap)).use(lighthouse.authenticate).use(lighthouse.bind);
+  const host = new Runtime({ slug: "runtime", reference: new Path("/runtime/runtime"), daemons: { [daemon.slug]: daemon } });
+  daemon.aperture.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.context.bind("runtime", host)).use(shard.datamap.inject(datamap)).use(lighthouse.authenticate).use(lighthouse.bind);
 
   return { daemon, lighthouse };
 }
@@ -60,7 +61,7 @@ async function wireMode(viva, daemon) {
   daemon.modes[viva.manifest.type] ??= {};
   daemon.modes[viva.manifest.type][viva.manifest.slug] = mode;
 
-  const finalizers = await stagger(mode, daemon, { VIEWABLE, INTENTED, EMITTER, EXPOSED, TOOLING, PRIMER, AGENTIC, ...(daemon.cortex && { HARNESSED }) });
+  const finalizers = await stagger(mode, daemon, { VIEWABLE, INTENTED, EMITTER, EXPOSED, TOOLING, PRIMER, ...(daemon.cortex && { HARNESSED }) });
   for (const finalize of finalizers) await finalize();
 
   daemon.aperture.branch(mode.reference.absolute, mode.aperture);

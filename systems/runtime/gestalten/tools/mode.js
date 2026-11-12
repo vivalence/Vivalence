@@ -26,7 +26,7 @@ export const mode = new Vector().open(
     }),
   },
   (ctx) => ({
-    output: {
+    product: {
       message: [
         `[Host ${ctx.reference.absolute}]` +
         (ctx.mountpoint ? ` · mountpoint ${ctx.mountpoint.absolute}` : ""),

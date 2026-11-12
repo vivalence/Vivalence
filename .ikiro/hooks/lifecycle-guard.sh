@@ -23,6 +23,6 @@ reason="lifecycle-guard (lifecycle-is-not-a-toolbox ×2): a top-level (ctx, …)
 $hits"
 mode=${IKIRO_GUARD_MODE:-deny}
 printf '%s lifecycle-guard %s %s\n' "$(date +%s)" "$mode" "$session" >> "$log" 2>/dev/null
-if [ "$mode" = "warn" ]; then echo "$reason" >&2; exit 0; fi
+if [ "$mode" = "warn" ]; then jq -n --arg reason "$reason" '{ hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: $reason } }'; exit 0; fi
 jq -n --arg reason "$reason" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:$reason}}'
 exit 0

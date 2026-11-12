@@ -90,13 +90,13 @@ function Filter(props) {
   const focus = from(app.bridge.$focus);
   const sections = from(app.bridge.$sections);
   const faulted = (error) => terminal.controller.stdout.fault(error);
-  const searching = () => focus() === `filter/${props.kind}`;
+  const searching = () => focus() === `sidebar.filter.${props.kind}`;
   const query = () => (props.kind in sections().filter ? sections().filter[props.kind] : "");
   const typed = (query) => app.bridge.$sections.set({ ...app.bridge.sections, filter: { ...app.bridge.sections.filter, [props.kind]: query } });
   const picked = () => {
     const first = props.kept[0];
     typed("");
-    app.bridge.$focus.set("composer");
+    app.bridge.$focus.set("dock.input");
     if (first !== undefined) terminal.repl.dispatch(first.signal).catch(faulted);
   };
   useKeyboard((event) => {

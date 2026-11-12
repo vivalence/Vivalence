@@ -34,15 +34,25 @@ class FakeSocket {
 
 async function* silence() {}
 
-function run(source, translate = nova) {
+const OPENED = [
+  { event: "/turn/open", turn: { role: "user" } },
+  { event: "/part/open", index: 0, part: { type: "text", text: "" } },
+];
+
+function run(source, abort = new AbortController()) {
   const collected = [];
   let fault = null;
   const done = (async () => {
     try {
       for await (
-        const event of transcribe("wss://fake", [], source, translate, {
-          type: "CloseStream",
-        })
+        const event of transcribe(
+          "wss://fake",
+          [],
+          source,
+          nova(),
+          { type: "CloseStream" },
+          abort.signal,
+        )
       ) {
         collected.push(event);
       }
@@ -85,10 +95,10 @@ specimen.describe(
         await sleep.ms(1);
         ws.close(1000);
         await flow.done;
-        specimen.expect(flow.collected).toEqual([{
-          event: "/verbatim/partial",
-          transcript: "ciao",
-        }]);
+        specimen.expect(flow.collected).toEqual([
+          ...OPENED,
+          { event: "/part/draft", index: 0, part: { text: "ciao" } },
+        ]);
         specimen.expect(flow.fault()).toBe(null);
       },
     );
@@ -111,10 +121,10 @@ specimen.describe(
         await sleep.ms(1);
         ws.dispatch("error");
         await flow.done;
-        specimen.expect(flow.collected).toEqual([{
-          event: "/verbatim/partial",
-          transcript: "so",
-        }]);
+        specimen.expect(flow.collected).toEqual([
+          ...OPENED,
+          { event: "/part/draft", index: 0, part: { text: "so" } },
+        ]);
         specimen.expect(flow.fault()?.message).toContain("socket failed");
       },
     );
@@ -134,6 +144,25 @@ specimen.describe(
     );
 
     specimen.it(
+      "an Audio.Packet's audio.data reaches the socket as bytes",
+      async () => {
+        FakeSocket.instances = [];
+        async function* spoken() {
+          yield { event: "/audio/packet", audio: { data: btoa("\x01\x02"), rate: 16000 } };
+        }
+        const flow = run(spoken());
+        await sleep.ms(1);
+        const ws = FakeSocket.instances[0];
+        ws.open();
+        await sleep.ms(1);
+        ws.close(1000);
+        await flow.done;
+        specimen.expect(ws.sent[0]).toEqual(new Uint8Array([1, 2]));
+        specimen.expect(flow.fault()).toBe(null);
+      },
+    );
+
+    specimen.it(
       "a malformed audio frame faults the stream loudly, not the process",
       async () => {
         FakeSocket.instances = [];
@@ -148,6 +177,34 @@ specimen.describe(
         await flow.done;
         specimen.expect(flow.collected).toEqual([]);
         specimen.expect(flow.fault()).not.toBe(null);
+      },
+    );
+
+    specimen.it(
+      "an abort closes the socket and ends the stream without a fault",
+      async () => {
+        FakeSocket.instances = [];
+        const abort = new AbortController();
+        const flow = run(silence(), abort);
+        await sleep.ms(1);
+        const ws = FakeSocket.instances[0];
+        ws.open();
+        ws.dispatch("message", {
+          data: JSON.stringify({
+            type: "Results",
+            is_final: true,
+            channel: { alternatives: [{ transcript: "basta" }] },
+          }),
+        });
+        await sleep.ms(1);
+        abort.abort("SIGTERM");
+        await flow.done;
+        specimen.expect(ws.readyState).toBe(3);
+        specimen.expect(flow.collected).toEqual([
+          ...OPENED,
+          { event: "/part/delta", index: 0, part: { text: "basta" } },
+        ]);
+        specimen.expect(flow.fault()).toBe(null);
       },
     );
   },

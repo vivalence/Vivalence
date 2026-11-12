@@ -102,7 +102,7 @@ specimen.describe("buffer — LABELED at create", () => {
       label: { name: "Flamingo", description: "six species" },
     });
     specimen.expect(named.condition).toBe("NOMINAL");
-    specimen.expect(named.output.message).toBe('labeled "Flamingo"');
+    specimen.expect(named.product.message).toBe('labeled "Flamingo"');
     specimen.expect((await reload(em, row.id)).trait.LABELED).toEqual({
       name: "Flamingo",
       description: "six species",

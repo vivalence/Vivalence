@@ -7,19 +7,15 @@ export const RUNS = [mime.dom.svelte, mime.dom.solid];
 export const runs = (view) => RUNS.includes(view.mime);
 
 export const candidates = (buffer, files) =>
-  computed([belt.view.candidates(buffer.$views, buffer.mode.$views), files], (views) =>
-    views.filter(belt.view.held),
-  );
+  computed([belt.view.candidates(buffer.$views, buffer.mode.$views), files], (views) => views);
 
 export const framed = (views) => views.filter(runs).filter((view) => view.traits.includes("FRAME"));
 
 export const cells = (views) => views.filter(runs).filter((view) => view.traits.includes("CELL"));
 
-const compiled = (view) => belt.view.entry(view).mime === mime.javascript;
+const latest = (left, right) => new Date(right.updatedAt) - new Date(left.updatedAt);
 
-const compiledFirstThenLatest = (left, right) => compiled(right) - compiled(left) || new Date(right.updatedAt) - new Date(left.updatedAt);
-
-export const pick = (views) => views.toSorted(compiledFirstThenLatest)[0];
+export const pick = (views) => views.toSorted(latest)[0];
 
 export const frame = (buffer, views) => views.find((view) => view.slug === buffer.trait.RENDERED.frame) ?? pick(views);
 

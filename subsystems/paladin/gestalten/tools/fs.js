@@ -63,7 +63,7 @@ export const fs = new Vector()
       const capped = lines.length >= LIST_CAP
         ? `\n… capped at ${LIST_CAP} entries — descend with path`
         : "";
-      return { output: { message: (lines.join("\n") || "(empty)") + capped } };
+      return { product: { message: (lines.join("\n") || "(empty)") + capped } };
     },
   )
   .open(
@@ -95,7 +95,7 @@ export const fs = new Vector()
         }
       };
       await recurse(start);
-      return { output: { files, count: files.length } };
+      return { product: { files, count: files.length } };
     },
   )
   .open(
@@ -124,7 +124,7 @@ export const fs = new Vector()
         slice = slice.slice(0, READ_CAP);
         note = `\n… cut at ${READ_CAP} bytes (file has ${lines.length} lines) — narrow with range`;
       }
-      return { output: { message: (slice || "(empty)") + note } };
+      return { product: { message: (slice || "(empty)") + note } };
     },
   )
   .open(
@@ -143,7 +143,7 @@ export const fs = new Vector()
       await Deno.mkdir(full.split("/").slice(0, -1).join("/"), { recursive: true });
       await Deno.writeTextFile(full, ctx.input.content, { append: ctx.input.append });
       return {
-        output: {
+        product: {
           message: `${
             ctx.input.append ? "appended" : "wrote"
           } ${ctx.input.content.length} bytes to ${ctx.input.path}`,
@@ -161,7 +161,7 @@ export const fs = new Vector()
     async (ctx) => {
       const stat = await Deno.stat(absolute(ctx.input.path));
       return {
-        output: {
+        product: {
           bytes: stat.size,
           mtime: stat.mtime?.toISOString() ?? null,
           format: extname(ctx.input.path).slice(1).toLowerCase(),
@@ -182,7 +182,7 @@ export const fs = new Vector()
       const to = absolute(ctx.input.to);
       await Deno.mkdir(to.split("/").slice(0, -1).join("/"), { recursive: true });
       await Deno.rename(from, to);
-      return { output: { message: `moved ${ctx.input.from} → ${ctx.input.to}` } };
+      return { product: { message: `moved ${ctx.input.from} → ${ctx.input.to}` } };
     },
   )
   .open(
@@ -195,8 +195,8 @@ export const fs = new Vector()
     async (ctx) => {
       const full = absolute(ctx.input.path);
       const stat = await Deno.stat(full);
-      if (stat.isDirectory) return { condition: "ERROR", output: { message: `${ctx.input.path} is a directory` } };
+      if (stat.isDirectory) return { condition: "ERROR", product: { message: `${ctx.input.path} is a directory` } };
       await Deno.remove(full);
-      return { output: { message: `deleted ${ctx.input.path}` } };
+      return { product: { message: `deleted ${ctx.input.path}` } };
     },
   );

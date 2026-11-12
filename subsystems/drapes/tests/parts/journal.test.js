@@ -9,11 +9,11 @@ const painted = (part) => {
   return held;
 };
 
-const YIELDED = `<div class="tool" data-fn="tool" data-arg="1:0" title="click for the yield"><span class="g neg">✕</span><span class="lp">loop</span><span class="name">fs_write</span><span class="arg">{"path":"a"}</span><span class="dur">0.2s</span></div><div class="yield"><span style="padding-left:0px"><span class="k">message</span> <span class="s">"denied"</span></span></div>`;
+const YIELDED = `<div class="toolc neg open"><button class="tool" aria-expanded="true"><svg class="cv open"><path></path></svg><span class="g neg">✕</span><span class="lp">loop</span><span class="name">fs_write</span><span class="arg">{"path":"a"}</span><span class="dur">0.2s</span></button><div class="toolb"><div class="tf open"><button class="tfh" aria-expanded="true"><svg class="cv open"><path></path></svg><span class="l">input</span></button><div class="drill"><div class="dl"><span class="k">path</span><span class="v s">a</span></div></div></div><div class="tf open"><button class="tfh" aria-expanded="true"><svg class="cv open"><path></path></svg><span class="l">yield</span></button><div class="drill"><div class="dn open"><button class="dh" aria-expanded="true"><svg class="cv open"><path></path></svg><span class="k">held</span><span class="m">{1}</span></button><div class="db"><div class="dl"><span class="k">by</span><span class="v s">policy</span></div></div></div><div class="dl"><span class="k">message</span><span class="v s">denied</span></div></div></div></div></div>`;
 
 const THINK_SHUT = `<div class="think  "><button class="thh" data-fn="think" data-arg="1" aria-expanded="false"><span class="g">✓</span><span class="l">thinking</span><span class="m">1 steps · 0 calls</span><span class="cv">▸</span></button></div>`;
 
-const THINK_LIVE = `<div class="think live open"><button class="thh" data-fn="think" data-arg="1" aria-expanded="true"><span class="g">◐</span><span class="l">thinking</span><span class="m">2 steps · 1 calls · weigh d4</span><span class="cv">▾</span></button><div class="thb"><div class="thn d1 ok"><div class="tht"><span class="g">✓</span><span class="l">weigh e4</span><span class="dur">1.5s</span></div><div class="thx">e4 opens the bishop</div></div><div class="thn d1 run"><div class="tht"><span class="g">◐</span><span class="l">weigh d4</span><span class="dur"></span></div><div class="thx">d4 holds the centre<span class="cursor"></span></div><div class="tools"><div class="tool" data-fn="tool" data-arg="1:n1:0" title=""><span class="g pri">◐</span><span class="name">match_board</span><span class="arg">{}</span><span class="dur">…</span></div></div></div></div></div>`;
+const THINK_LIVE = `<div class="think live open"><button class="thh" data-fn="think" data-arg="1" aria-expanded="true"><span class="g">◐</span><span class="l">thinking</span><span class="m">2 steps · 1 calls · weigh d4</span><span class="cv">▾</span></button><div class="thb"><div class="thn d1 ok"><div class="tht"><span class="g">✓</span><span class="l">weigh e4</span><span class="dur">1.5s</span></div><div class="thx">e4 opens the bishop</div></div><div class="thn d1 run"><div class="tht"><span class="g">◐</span><span class="l">weigh d4</span><span class="dur"></span></div><div class="thx">d4 holds the centre<span class="cursor"></span></div><div class="tools"><div class="toolc pri"><button class="tool" aria-expanded="false"><svg class="cv"><path></path></svg><span class="g pri">◐</span><span class="name">match_board</span><span class="arg">{}</span><span class="dur">…</span></button></div></div></div></div></div>`;
 
 const TABLE = `<div class="block"><table><thead><tr><th>slug</th><th>mime</th></tr></thead><tbody><tr><td>board</td><td>json</td></tr></tbody></table></div>`;
 
@@ -25,22 +25,32 @@ const DONE = `<div class="block prog"><span class="lbl">harvest</span><span clas
 
 const BENCH = `<div class="block bench" data-zone="3"><div class="bh"><span>tools · 1 / 2 armed</span><span>chess</span></div><button class="item " data-signal="/tools/toggle match_move" data-echo="0"><span class="mark">●</span><span class="nm">match_move</span><span class="meta">board/play</span></button><button class="item off" data-signal="/tools/toggle fs_write" data-echo="0"><span class="mark">○</span><span class="nm">fs_write</span><span class="meta">paladin</span></button><div class="bf">a click arms or disarms · /tools/toggle ‹name›</div></div>`;
 
-const ARTCARD = `<div class="artcard inframe"><div class="ah"><span class="sign">◆</span><span class="al">artifact</span><span>chess/chess</span><label class="asel" title="artifact 1 · cell · json&#10;artifact 2 · cell · solid"><select data-signalsel="1" aria-label="artifact"><option value="/cell/set play board" selected>artifact 1</option><option value="/cell/set glance board">artifact 2</option></select><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg></label><button class="iconbtn full" data-signal="/buffer/full board" data-echo="0" aria-label="fullscreen" title="fullscreen · /buffer/full board"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h4v4M13 3 8.5 7.5M7 13H3V9M3 13l4.5-4.5"/></svg></button></div><div class="ab"><div class="sub">board</div></div></div>`;
+const ARTCARD = `<div class="artcard inframe"><div class="ah"><span class="sign">◆</span><span class="al">artifact</span><span>chess/chess</span><label class="asel" title="artifact 1 · cell · json&#10;artifact 2 · cell · solid"><select data-signalsel="1" aria-label="artifact"><option value="/cell/set play board" selected>artifact 1</option><option value="/cell/set glance board">artifact 2</option></select><svg style="width:0.75rem;height:0.75rem" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg></label><button class="iconbtn full" data-signal="/buffer/full board" data-echo="0" aria-label="fullscreen" title="fullscreen · /buffer/full board"><svg style="width:1rem;height:1rem" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h4v4M13 3 8.5 7.5M7 13H3V9M3 13l4.5-4.5"/></svg></button></div><div class="ab"><div class="sub">board</div></div></div>`;
 
 const ATTS = `<div class="atts"><button class="att" data-signal="/detach notes.txt" data-echo="0" title="drop · /detach notes.txt">notes.txt<span class="x">✕</span></button></div>`;
 
-const DICTLINE = `<div class="dictline"><span class="neg">◉</span><span class="lvl"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><span class="muted">listening…</span><button class="iconbtn" data-signal="/dictate" title="stop · /dictate"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1"/></svg></button></div>`;
+const DICTLINE = (spoken, tail) => `<div class="dictline"><span class="words"><span class="spoken">${spoken}</span><span class="tail">${tail}</span><span class="live">▍</span></span><button class="iconbtn trash" aria-label="trash the words" title="trash · /dictate/trash"><svg style="width:0.875rem;height:0.875rem"><path></path></svg></button></div>`;
 
 const MD = `<div class="md"><p><strong>bene</strong>, grazie — the <em>Sicilian</em> answers <code>e4</code> with c5.</p><ul><li>open games</li><li>closed games</li></ul></div>`;
 
-const JSON_ROWS = `<div class="yield" style="padding:8px 12px 10px"><span style="padding-left:0px"><span class="k">turn</span> <span class="s">"white"</span></span><span style="padding-left:0px"><span class="k">legal</span> <span class="m">[1]</span></span><span style="padding-left:14px"><span class="k">0</span> <span class="s">"e2e4"</span></span><span style="padding-left:0px"><span class="k">clock</span> <span class="n">300</span></span><span style="padding-left:0px"><span class="k">mate</span> <span class="m">null</span></span><span style="padding-left:0px"><span class="k">over</span> <span class="b">false</span></span></div>`;
+const JSON_ROWS = `<div class="yield" style="padding:8px 12px 10px"><span style="padding-left:0rem"><span class="k">turn</span> <span class="s">"white"</span></span><span style="padding-left:0rem"><span class="k">legal</span> <span class="m">[1]</span></span><span style="padding-left:0.875rem"><span class="k">0</span> <span class="s">"e2e4"</span></span><span style="padding-left:0rem"><span class="k">clock</span> <span class="n">300</span></span><span style="padding-left:0rem"><span class="k">mate</span> <span class="m">null</span></span><span style="padding-left:0rem"><span class="k">over</span> <span class="b">false</span></span></div>`;
 
 specimen.describe("journal parts — Tool · Think · Block · Bench · Prog · Artcard · Atts · Dictline · Markdown · Yield, each the design's markup", () => {
-  specimen.it("Tool (dom.js:255): shut, then a click opens its .yield", () => {
-    const rig = screen(() => parts.Tool({ tool: { name: "fs_write", arg: '{"path":"a"}', status: "err", dur: "0.2s", loop: true, yield: { message: "denied" } } }));
-    fire(rig.target.querySelector(".tool"), "click");
+  specimen.it("Tool (dom.js:255): a failed call stands open on input and yield, a branch drills down, a click shuts it; a settled one starts shut", () => {
+    const rig = screen(() => parts.Tool({ tool: { name: "fs_write", arg: '{"path":"a"}', input: { path: "a" }, status: "err", dur: "0.2s", loop: true, yield: { held: { by: "policy" }, message: "denied" } } }));
     specimen.expect(shape(rig.target)).toBe(oracle(YIELDED));
+    fire(rig.target.querySelector(".drill .dh"), "click");
+    specimen.expect(rig.target.querySelector(".drill .db")).toBe(null);
+    fire(rig.target.querySelector(".drill .dh"), "click");
+    specimen.expect(rig.target.querySelector(".drill .dn.open .db").textContent).toBe("bypolicy");
+    fire(rig.target.querySelector(".tool"), "click");
+    specimen.expect(rig.target.querySelector(".toolb")).toBe(null);
     rig.close();
+    const settled = screen(() => parts.Tool({ tool: { name: "fs_read", arg: "{}", input: {}, status: "ok", dur: "", yield: { message: "read" } } }));
+    specimen.expect(settled.target.querySelector(".toolb")).toBe(null);
+    fire(settled.target.querySelector(".tool"), "click");
+    specimen.expect(settled.target.querySelector(".toolb .drill .v").textContent).toBe("read");
+    settled.close();
     specimen.expect(() => screen(() => parts.Tool({ tool: { name: "x", arg: "", status: "pending", dur: "" } }))).toThrow("not a tool status");
   });
 
@@ -107,10 +117,18 @@ specimen.describe("journal parts — Tool · Think · Block · Bench · Prog · 
     rig.close();
   });
 
-  specimen.it("Atts (dom.js:284) · Dictline (dom.js:285): chips that drop, eight level bars over the tail", () => {
+  specimen.it("Atts (dom.js:284) · Dictline (call-faculty prototype.dc.html:33): chips that drop; the spoken words solid, the tail muted, trash only — the mic is the stop", () => {
     specimen.expect(painted(() => parts.Atts({ attachments: [{ name: "notes.txt" }], onDrop: () => {} }))).toBe(oracle(ATTS));
     specimen.expect(painted(() => parts.Atts({ attachments: [], onDrop: () => {} }))).toBe("");
-    specimen.expect(painted(() => parts.Dictline({ level: 0.4, tail: "", onStop: () => {} }))).toBe(oracle(DICTLINE));
+    specimen.expect(painted(() => parts.Dictline({ text: "", tail: "", onTrash: () => {} }))).toBe(oracle(DICTLINE("", "listening")));
+    specimen.expect(painted(() => parts.Dictline({ text: "", tail: "vado al", onTrash: () => {} }))).toBe(oracle(DICTLINE("", "vado al")));
+    const exits = [];
+    const rig = screen(() => parts.Dictline({ text: "Vado al mercato. poi", tail: "torno a", onTrash: () => exits.push("trash") }));
+    specimen.expect(shape(rig.target)).toBe(oracle(DICTLINE("Vado al mercato. poi", " torno a")));
+    specimen.expect(rig.target.querySelector(".stop")).toBe(null);
+    fire(rig.target.querySelector(".trash"), "click");
+    specimen.expect(exits).toEqual(["trash"]);
+    rig.close();
   });
 
   specimen.it("Markdown (dom.js:187) is .md over plain tags; Yield + JsonTree (dom.js:201) are the flat k · s · n · b · m rows", () => {

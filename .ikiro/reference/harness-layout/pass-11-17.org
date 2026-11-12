@@ -1,0 +1,41 @@
+#+title: harness-layout — the completeness pass and the typology wins, 11-17
+# writer: agent · limit: 3600 chars
+
+* asked
+
+/"do a review of this quest … are we done"/ · /"look for pieces of the code … already in typology … a map of typology wins"/ → /"1 go. q19 … wire in now. 3. thats an issue. natures should match. 4. fix. bring into coherence. 5. fix."/ · /"absolute should already filter for boolean, no?"/ · /"land all the improvements now. go"/
+
+* landed
+
+| item | where |
+|---|---|
+| stop 9 — the round declares the live tree | =belt/hallucinate.js= =declared(request, policy.tools)=; =declarations= moved from =shard/= to =belt.hallucinate= |
+| Q19 =slugging= read: =nested= seats the home's own tools and sections behind its slug | =belt.reference.narrow(home, reference, slugging)= · =fold(…, slugging)=; runtime =own(ctx)= in =armory= · =priming= |
+| gap 3 — tool_load answers by natures | =tool.js= =within(signalOf(held.name), narrow(…))= |
+| gap 4 — one reducer for the write and the preview | =belt.reference.loaded · preloaded · unloaded=; preload reads the NEAREST key; ghost =belt.harness.unchanged= is "already so" |
+| gap 5 — nested primer sections | =shape.primer.nodes= exported; =reading.js= =listed= · =edged= reach a section inside a Vector |
+| =Signature.absolute= drops a nature-less root step | =prototypes/signature.js= |
+| his anima fault: =metadata.harness= read before it landed | ghost =belt.harness.mounted= |
+| wins: =Signal.pathname= · =branch(array)= · =array.unique= · =object.filter= · =traits.patch= · =signalOf= · =tally= | runtime =reading · seating · tool · 2-resolution=; ghost =harness · catalog · widget · modeline=; anima =sections · entities= |
+| lifts: =MARKS · counted · acts= → ghost =belt.harness=; =EFFORTS= → =belt.harnessed=; =soma.spoken=; =answer(policy, turn)= | ghost · anima · typology |
+| m123 wins: speech over =Queue= + =pcm.bytes= · =fn.once= · =soma.bridge= · =fromm.yield= product · =atom.until= · =streams()= | commons · typology · ghost devices · runtime |
+
+* not landed — why
+
+- =converse= declares once a session: a native call takes its tools at open; the cascade could re-read per answer — his
+- the provider sockets (elevenlabs ≡ deepgram), the translators' =plain= · =RESPOND=: two packages, no shared home short of a new typology primitive
+- the empty dictation seed in =dictate.js= · =call.js=: m123's, mid-ruling (Q33 · Q34)
+- the lazy listing line twice (=harnessed.js= · =shape/primer.js=): two tools, two shapes
+- =reached='s rest slice through =narrow=: no gain
+
+* proof
+
+typology ok | 167 passed (724 steps); 156 files across runtime · ghost · anima · commons: all green bar 11 anima suites aborting at =tests/world.js:13= (known-issues =anima-tests-world-rig-dead=); snapshots re-pinned: =harness-map= (the nested section), =harness-metadata= (valences), hello-world =draw= · =research= (m122 drift since 11-09 · 11-12)
+
+* late 11-17 — his screen
+
+- unload = out of the thread: =unloaded(delta, home, key)= keys =none= where a parent key OR the home default carries; × on anything live (Q16 widened) — /"i literally for th elife of me cant go below 16"/
+- context = the last turn's =usage= / =model.context=; =HARNESSED.context= was never written
+- =MARKS.none= =×=, lazy =○=: unload previews =● → ×=
+- lag 150 → 46 ms: the closed inspector rebuilt per bridge change (gated); =within= re-parsed; tones pos · cau · neg
+- 11-18: a harness write prints nothing (/"a tool added via command does not print to repl!"/); primer preload · unload as tools (7 model tools); a pressed own key = =/tool|primer/reset=

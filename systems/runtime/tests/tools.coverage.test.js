@@ -54,12 +54,12 @@ specimen.describe("the harness tools — buffer · thread · mode", { sanitizeRe
 
     const refused = await invoke(vector, "buffer_update", { id: buffer.id });
     specimen.expect(refused.condition).toBe("ERROR");
-    specimen.expect(refused.output.message).toMatch(/nothing to change/);
+    specimen.expect(refused.product.message).toMatch(/nothing to change/);
 
     const patched = await invoke(vector, "buffer_update", { id: buffer.id, data: { summary: "final" } });
     specimen.expect(patched.condition).toBe("NOMINAL");
-    specimen.expect(patched.output.message).toBe(`updated "test #${buffer.index}"`);
-    specimen.expect(patched.output.buffer[0].data).toEqual({ title: "Q3", summary: "final" });
+    specimen.expect(patched.product.message).toBe(`updated "test #${buffer.index}"`);
+    specimen.expect(patched.product.buffer[0].data).toEqual({ title: "Q3", summary: "final" });
   });
 
   specimen.it("buffer_update with a source rewrites the file of the buffer's own kind in place — same row, same mount, new hash; a buffer without one refuses", async () => {
@@ -75,7 +75,7 @@ specimen.describe("the harness tools — buffer · thread · mode", { sanitizeRe
 
     const rewritten = await invoke(vector, "buffer_update", { id: content.id, source: "# Q3 · final" });
     specimen.expect(rewritten.condition).toBe("NOMINAL");
-    specimen.expect(rewritten.output.message).toBe('updated "Annual accounts"');
+    specimen.expect(rewritten.product.message).toBe('updated "Annual accounts"');
     specimen.expect(await Deno.readTextFile(mount)).toBe("# Q3 · final");
     specimen.expect(file.hash).not.toBe("h0");
     specimen.expect(file.integrity).toBe(`sha256-${file.hash}`);
@@ -83,7 +83,7 @@ specimen.describe("the harness tools — buffer · thread · mode", { sanitizeRe
 
     const refused = await invoke(vector, "buffer_update", { id: plain.id, source: "# nothing to load" });
     specimen.expect(refused.condition).toBe("ERROR");
-    specimen.expect(refused.output.message).toMatch(/loads no file of its own kind text\/markdown/);
+    specimen.expect(refused.product.message).toMatch(/loads no file of its own kind text\/markdown/);
   });
 
   specimen.it("thread_update merges trait data by name", async () => {
@@ -91,7 +91,30 @@ specimen.describe("the harness tools — buffer · thread · mode", { sanitizeRe
     const vector = armed(tools.thread, daemon);
     const updated = await invoke(vector, "thread_update", { id: thread.id, trait: { LABELED: { name: "Q3 filings" }, MASKED: { where: {} } } });
     specimen.expect(updated.condition).toBe("NOMINAL");
-    specimen.expect(updated.output.thread[0].trait).toMatchObject({ LABELED: { name: "Q3 filings" }, MASKED: { where: {} } });
+    specimen.expect(updated.product.thread[0].trait).toMatchObject({ LABELED: { name: "Q3 filings" }, MASKED: { where: {} } });
+  });
+
+  specimen.it("literal_update merges trait data deep by slug, a new name joins its traits", async () => {
+    const daemon = host();
+    const vector = armed(tools.literal, daemon);
+    await invoke(vector, "literal_update", { slug: "hello", trait: { TRANSLATED: { known: "hello", learning: "hola" } } });
+    const updated = await invoke(vector, "literal_update", { slug: "hello", trait: { TRANSLATED: { learning: "buenas" } } });
+    specimen.expect(updated.condition).toBe("NOMINAL");
+    specimen.expect(updated.product.message).toBe("updated literal hello");
+    specimen.expect(updated.product.literal[0].trait.TRANSLATED).toEqual({ known: "hello", learning: "buenas" });
+    specimen.expect(updated.product.literal[0].traits).toEqual(["TRANSLATED"]);
+  });
+
+  specimen.it("symbol_update merges trait data deep by slug, a new name joins its traits", async () => {
+    const daemon = host();
+    const vector = armed(tools.symbol, daemon);
+    const slug = scenario.fixtures.symbol.slug;
+    await invoke(vector, "symbol_update", { slug, trait: { LABELED: { name: "greeting", description: "a hello" } } });
+    const updated = await invoke(vector, "symbol_update", { slug, trait: { LABELED: { name: "salutation" } } });
+    specimen.expect(updated.condition).toBe("NOMINAL");
+    specimen.expect(updated.product.message).toBe(`updated symbol ${slug}`);
+    specimen.expect(updated.product.symbol[0].trait.LABELED).toEqual({ name: "salutation", description: "a hello" });
+    specimen.expect(updated.product.symbol[0].traits).toEqual(["LABELED"]);
   });
 
   specimen.it("mode_find lists the host and every mode with its places; type or slug narrows; places() is empty for a mode with none", async () => {
@@ -99,14 +122,14 @@ specimen.describe("the harness tools — buffer · thread · mode", { sanitizeRe
     const vector = armed(tools.mode, daemon);
     const all = await invoke(vector, "mode_find", {});
     specimen.expect(all.condition).toBe("NOMINAL");
-    specimen.expect(all.output.message.split("\n")).toEqual([
+    specimen.expect(all.product.message.split("\n")).toEqual([
       `[Host /daemon/test] · mountpoint ${join(directory, "daemon")}`,
       `srs/memo · Memo · traits TOOLING · source ${join(directory, "memo")} · mountpoint ${join(directory, "memo")}`,
       `home/probe · probe · traits TOOLING · source ${join(directory, "probe")}`,
     ]);
-    specimen.expect((await invoke(vector, "mode_find", { type: "home" })).output.message.split("\n")).toHaveLength(2);
-    specimen.expect((await invoke(vector, "mode_find", { slug: "memo" })).output.message.split("\n")[1]).toMatch(/^srs\/memo/);
-    specimen.expect((await invoke(vector, "mode_find", { slug: "nobody" })).output.message.split("\n")).toHaveLength(1);
+    specimen.expect((await invoke(vector, "mode_find", { type: "home" })).product.message.split("\n")).toHaveLength(2);
+    specimen.expect((await invoke(vector, "mode_find", { slug: "memo" })).product.message.split("\n")[1]).toMatch(/^srs\/memo/);
+    specimen.expect((await invoke(vector, "mode_find", { slug: "nobody" })).product.message.split("\n")).toHaveLength(1);
 
     const bare = new Mode({ manifest: { type: "home", slug: "bare" } });
     specimen.expect(paths(bare)).toBe("");

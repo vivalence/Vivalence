@@ -1,0 +1,784 @@
+{
+  "rounds": [
+    {
+      "tools": [
+        {
+          "name": "tool_load",
+          "valence": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/drain"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest",
+                  "/runtime/runtime/mode/harness/runtime/fs"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "tool_unload",
+          "valence": "Takes tools out of this thread: one tool, a subtree or a whole mode. They are no longer declared from the next round on; what earlier turns say about them stays.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/runtime/runtime/mode/harness/runtime/fs/delete"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "primer_load",
+          "valence": "Loads primer sections into this thread in full: one section, or every section a reference covers. Each stays in the system prompt from the next request on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/archivist"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "turns": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "text": "go"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tools": [
+        {
+          "name": "tool_load",
+          "valence": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/drain"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest",
+                  "/runtime/runtime/mode/harness/runtime/fs"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "tool_unload",
+          "valence": "Takes tools out of this thread: one tool, a subtree or a whole mode. They are no longer declared from the next round on; what earlier turns say about them stays.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/runtime/runtime/mode/harness/runtime/fs/delete"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "primer_load",
+          "valence": "Loads primer sections into this thread in full: one section, or every section a reference covers. Each stays in the system prompt from the next request on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/archivist"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "fs_read",
+          "valence": "Read a file at an absolute path. Long files come back cut at 16 kB with a note — pass range (line numbers, 1-based) for the rest. Example: { path: \"/home/operator/jdex/README.md\", range: { from: 40, to: 120 } }.",
+          "input": {
+            "type": "object",
+            "required": [
+              "path"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Absolute path to the file. Example: \"/home/operator/jdex/20-29 company\""
+              },
+              "range": {
+                "type": "object",
+                "required": [
+                  "from",
+                  "to"
+                ],
+                "properties": {
+                  "from": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "to": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "daemon_education_tactic_harvest_drain",
+          "valence": "Write the daemon's current truth back to the topography's dataset files through its datasink — the explicit flush of the katabolic loop. Returns the drain report verbatim.",
+          "input": {
+            "type": "object",
+            "properties": {
+              "topography": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ],
+      "turns": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "text": "go"
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "parts": [
+            {
+              "type": "text",
+              "text": "thinking about tool_load..."
+            },
+            {
+              "type": "tool_use",
+              "id": "c1",
+              "name": "tool_load",
+              "input": {
+                "references": [
+                  "/fs/read",
+                  "/daemon/education/tactic/harvest/drain"
+                ]
+              }
+            }
+          ],
+          "meta": {
+            "usage": {
+              "input": 10,
+              "output": 20
+            },
+            "state": "tools"
+          }
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "tool_result",
+              "id": "c1",
+              "condition": "NOMINAL",
+              "output": {
+                "tools": [
+                  {
+                    "name": "fs_read",
+                    "valence": "Read a file at an absolute path. Long files come back cut at 16 kB with a note — pass range (line numbers, 1-based) for the rest. Example: { path: \"/home/operator/jdex/README.md\", range: { from: 40, to: 120 } }.",
+                    "input": {
+                      "type": "object",
+                      "required": [
+                        "path"
+                      ],
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "description": "Absolute path to the file. Example: \"/home/operator/jdex/20-29 company\""
+                        },
+                        "range": {
+                          "type": "object",
+                          "required": [
+                            "from",
+                            "to"
+                          ],
+                          "properties": {
+                            "from": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "to": {
+                              "type": "integer",
+                              "minimum": 1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "name": "daemon_education_tactic_harvest_drain",
+                    "valence": "Write the daemon's current truth back to the topography's dataset files through its datasink — the explicit flush of the katabolic loop. Returns the drain report verbatim.",
+                    "input": {
+                      "type": "object",
+                      "properties": {
+                        "topography": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tools": [
+        {
+          "name": "tool_load",
+          "valence": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/drain"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest",
+                  "/runtime/runtime/mode/harness/runtime/fs"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "tool_unload",
+          "valence": "Takes tools out of this thread: one tool, a subtree or a whole mode. They are no longer declared from the next round on; what earlier turns say about them stays.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/runtime/runtime/mode/harness/runtime/fs/delete"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "primer_load",
+          "valence": "Loads primer sections into this thread in full: one section, or every section a reference covers. Each stays in the system prompt from the next request on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/archivist"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "daemon_education_tactic_harvest_drain",
+          "valence": "Write the daemon's current truth back to the topography's dataset files through its datasink — the explicit flush of the katabolic loop. Returns the drain report verbatim.",
+          "input": {
+            "type": "object",
+            "properties": {
+              "topography": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ],
+      "turns": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "text": "go"
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "parts": [
+            {
+              "type": "text",
+              "text": "thinking about tool_load..."
+            },
+            {
+              "type": "tool_use",
+              "id": "c1",
+              "name": "tool_load",
+              "input": {
+                "references": [
+                  "/fs/read",
+                  "/daemon/education/tactic/harvest/drain"
+                ]
+              }
+            }
+          ],
+          "meta": {
+            "usage": {
+              "input": 10,
+              "output": 20
+            },
+            "state": "tools"
+          }
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "tool_result",
+              "id": "c1",
+              "condition": "NOMINAL",
+              "output": {
+                "tools": [
+                  {
+                    "name": "fs_read",
+                    "valence": "Read a file at an absolute path. Long files come back cut at 16 kB with a note — pass range (line numbers, 1-based) for the rest. Example: { path: \"/home/operator/jdex/README.md\", range: { from: 40, to: 120 } }.",
+                    "input": {
+                      "type": "object",
+                      "required": [
+                        "path"
+                      ],
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "description": "Absolute path to the file. Example: \"/home/operator/jdex/20-29 company\""
+                        },
+                        "range": {
+                          "type": "object",
+                          "required": [
+                            "from",
+                            "to"
+                          ],
+                          "properties": {
+                            "from": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "to": {
+                              "type": "integer",
+                              "minimum": 1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "name": "daemon_education_tactic_harvest_drain",
+                    "valence": "Write the daemon's current truth back to the topography's dataset files through its datasink — the explicit flush of the katabolic loop. Returns the drain report verbatim.",
+                    "input": {
+                      "type": "object",
+                      "properties": {
+                        "topography": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "parts": [
+            {
+              "type": "text",
+              "text": "thinking about tool_unload..."
+            },
+            {
+              "type": "tool_use",
+              "id": "c2",
+              "name": "tool_unload",
+              "input": {
+                "references": [
+                  "/runtime/runtime/mode/harness/runtime/fs/read"
+                ]
+              }
+            }
+          ],
+          "meta": {
+            "usage": {
+              "input": 10,
+              "output": 20
+            },
+            "state": "tools"
+          }
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "tool_result",
+              "id": "c2",
+              "condition": "NOMINAL",
+              "output": {
+                "unloaded": [
+                  "/runtime/runtime/mode/harness/runtime/fs/read"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "packets": [
+    {
+      "event": "/tool/yield",
+      "id": "c1",
+      "result": {
+        "condition": "NOMINAL",
+        "output": {
+          "tools": [
+            {
+              "name": "fs_read",
+              "valence": "Read a file at an absolute path. Long files come back cut at 16 kB with a note — pass range (line numbers, 1-based) for the rest. Example: { path: \"/home/operator/jdex/README.md\", range: { from: 40, to: 120 } }.",
+              "input": {
+                "type": "object",
+                "required": [
+                  "path"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Absolute path to the file. Example: \"/home/operator/jdex/20-29 company\""
+                  },
+                  "range": {
+                    "type": "object",
+                    "required": [
+                      "from",
+                      "to"
+                    ],
+                    "properties": {
+                      "from": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "to": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "daemon_education_tactic_harvest_drain",
+              "valence": "Write the daemon's current truth back to the topography's dataset files through its datasink — the explicit flush of the katabolic loop. Returns the drain report verbatim.",
+              "input": {
+                "type": "object",
+                "properties": {
+                  "topography": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "event": "/tool/yield",
+      "id": "c2",
+      "result": {
+        "condition": "NOMINAL",
+        "output": {
+          "unloaded": [
+            "/runtime/runtime/mode/harness/runtime/fs/read"
+          ]
+        }
+      }
+    },
+    {
+      "event": "/response/close",
+      "meta": {
+        "usage": {
+          "input": 10,
+          "output": 4
+        },
+        "state": "complete",
+        "rounds": 3
+      }
+    }
+  ],
+  "trait": {
+    "TOOLED": {
+      "/daemon/education/mode/tactic/harvest/drain": "eager"
+    },
+    "PRIMED": {}
+  },
+  "next": [
+    {
+      "name": "tool_load",
+      "valence": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+      "input": {
+        "type": "object",
+        "required": [
+          "references"
+        ],
+        "properties": {
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "examples": [
+          {
+            "references": [
+              "/daemon/education/mode/tactic/harvest/drain"
+            ]
+          },
+          {
+            "references": [
+              "/tactic/harvest",
+              "/runtime/runtime/mode/harness/runtime/fs"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "tool_unload",
+      "valence": "Takes tools out of this thread: one tool, a subtree or a whole mode. They are no longer declared from the next round on; what earlier turns say about them stays.",
+      "input": {
+        "type": "object",
+        "required": [
+          "references"
+        ],
+        "properties": {
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "examples": [
+          {
+            "references": [
+              "/runtime/runtime/mode/harness/runtime/fs/delete"
+            ]
+          },
+          {
+            "references": [
+              "/tactic/harvest"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "primer_load",
+      "valence": "Loads primer sections into this thread in full: one section, or every section a reference covers. Each stays in the system prompt from the next request on. A wider reference loads more: start narrow.",
+      "input": {
+        "type": "object",
+        "required": [
+          "references"
+        ],
+        "properties": {
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "examples": [
+          {
+            "references": [
+              "/daemon/education/mode/tactic/harvest/archivist"
+            ]
+          },
+          {
+            "references": [
+              "/tactic/harvest"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "daemon_education_tactic_harvest_drain",
+      "valence": "Write the daemon's current truth back to the topography's dataset files through its datasink — the explicit flush of the katabolic loop. Returns the drain report verbatim.",
+      "input": {
+        "type": "object",
+        "properties": {
+          "topography": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
+}

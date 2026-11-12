@@ -48,11 +48,11 @@ export const shell = new Vector().open(
       const tail = merged.length > TAIL
         ? `… tail of ${merged.length} bytes\n${merged.slice(-TAIL)}`
         : merged;
-      return { output: { message: tail || "(no output)", code } };
+      return { product: { message: tail || "(no output)", code } };
     } catch (fault) {
       return {
         condition: "ERROR",
-        output: { message: `${fault.message} — command killed (timeout ${ctx.input.timeout}ms?)` },
+        product: { message: `${fault.message} — command killed (timeout ${ctx.input.timeout}ms?)` },
       };
     }
   },

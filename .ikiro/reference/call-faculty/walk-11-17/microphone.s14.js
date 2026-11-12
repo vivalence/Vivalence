@@ -1,0 +1,213 @@
+import { atom } from "nanostores";
+import paladin from "@vivalence/paladin";
+import { pcm, Pipe } from "@vivalence/typology";
+import { native, samples } from "./recorder.s14.js";
+
+const SPEAKING_THRESHOLD = 0.02;
+const SPEAKING_RISE_MS = 100;
+const SPEAKING_FALL_MS = 600;
+
+export class Microphone {
+  $claimed = atom(false);
+  $permission = atom("prompt");
+  $error = atom(null);
+  $level = atom(0);
+  $speaking = atom(false);
+  $paused = atom(false);
+  in = new Pipe();
+  feed = null;
+  recorder = null;
+  rate = null;
+  stream = null;
+  source = null;
+  worklet = null;
+  analyser = null;
+  raf = null;
+  inflight = null;
+  audioUnsubscribe = null;
+  riseSince = 0;
+  fallSince = 0;
+
+  constructor(box) {
+    this.box = box;
+    hydratePermission(this);
+  }
+
+  get claimed() { return this.$claimed.get(); }
+  get permission() { return this.$permission.get(); }
+  get error() { return this.$error.get(); }
+  get level() { return this.$level.get(); }
+  get speaking() { return this.$speaking.get(); }
+  get paused() { return this.$paused.get(); }
+
+  async claim() {
+    if (this.$claimed.get()) return;
+    if (this.inflight) return this.inflight;
+    this.inflight = (paladin.is.browser ? acquire : record)(this);
+    try {
+      await this.inflight;
+    } finally {
+      this.inflight = null;
+    }
+  }
+
+  release(exit) {
+    teardown(this, null, exit);
+  }
+
+  async *frames(signal = this.feed.signal) {
+    let pts = 0;
+    for await (const samples of this.in.drain(signal)) {
+      yield { event: "/audio/packet", audio: pcm.encode(samples), rate: this.rate, pts };
+      pts += samples.length / this.rate;
+    }
+  }
+
+  pause() {
+    if (!this.$claimed.get() || this.$paused.get()) return;
+    this.source?.disconnect(this.worklet);
+    this.$paused.set(true);
+  }
+
+  resume() {
+    if (!this.$claimed.get() || !this.$paused.get()) return;
+    this.source?.connect(this.worklet);
+    this.$paused.set(false);
+  }
+}
+
+async function acquire(microphone) {
+  try {
+    microphone.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    for (const track of microphone.stream.getAudioTracks()) {
+      track.onended = () => teardown(microphone, new Error("track ended"));
+    }
+    const driver = microphone.box.drivers.audio;
+    const context = driver.acquire();
+    if (context.state === "suspended") await context.resume();
+    const worklet = new URL("./worklet.js", import.meta.url);
+    await context.audioWorklet.addModule(worklet.href);
+    microphone.source = context.createMediaStreamSource(microphone.stream);
+    microphone.worklet = new AudioWorkletNode(context, "microphone-pcm");
+    microphone.worklet.port.onmessage = (event) => {
+      if (!microphone.$claimed.get()) return;
+      microphone.in.send(event.data);
+    };
+    microphone.analyser = context.createAnalyser();
+    microphone.analyser.fftSize = 256;
+    microphone.source.connect(microphone.worklet);
+    microphone.source.connect(microphone.analyser);
+    microphone.audioUnsubscribe = driver.$state.subscribe((state) => {
+      if (state === "closed" && microphone.$claimed.get()) {
+        teardown(microphone, new Error("audio context closed"));
+      }
+    });
+    pollLevel(microphone);
+    microphone.feed = new AbortController();
+    microphone.rate = context.sampleRate;
+    microphone.$permission.set("granted");
+    microphone.$claimed.set(true);
+    microphone.$error.set(null);
+  } catch (err) {
+    teardown(microphone, err);
+    throw err;
+  }
+}
+
+async function record(microphone) {
+  try {
+    const recorder = microphone.recorder ?? native(Deno.build.os);
+    const feed = new AbortController();
+    hear(microphone, samples(recorder, feed.signal));
+    microphone.feed = feed;
+    microphone.rate = recorder.rate;
+    microphone.$permission.set("granted");
+    microphone.$claimed.set(true);
+    microphone.$error.set(null);
+  } catch (err) {
+    teardown(microphone, err);
+    throw err;
+  }
+}
+
+async function hear(microphone, heard) {
+  try {
+    for await (const chunk of heard) microphone.in.send(chunk);
+  } catch (err) {
+    teardown(microphone, err);
+  }
+}
+
+function teardown(microphone, err, exit = "stop") {
+  microphone.feed?.abort(exit);
+  microphone.feed = null;
+  if (microphone.raf) cancelAnimationFrame(microphone.raf);
+  microphone.raf = null;
+  microphone.audioUnsubscribe?.();
+  microphone.audioUnsubscribe = null;
+  microphone.worklet?.disconnect();
+  microphone.worklet = null;
+  microphone.analyser = null;
+  microphone.source?.disconnect();
+  microphone.source = null;
+  microphone.stream?.getTracks().forEach((track) => track.stop());
+  microphone.stream = null;
+  microphone.$level.set(0);
+  microphone.$speaking.set(false);
+  microphone.$paused.set(false);
+  microphone.riseSince = 0;
+  microphone.fallSince = 0;
+  microphone.$claimed.set(false);
+  if (err) {
+    if (err.name === "NotAllowedError") microphone.$permission.set("denied");
+    microphone.$error.set(err.message ?? String(err));
+  }
+}
+
+function pollLevel(microphone) {
+  const buffer = new Uint8Array(microphone.analyser.frequencyBinCount);
+  const tick = () => {
+    if (!microphone.analyser) return;
+    microphone.analyser.getByteTimeDomainData(buffer);
+    let sum = 0;
+    for (let i = 0; i < buffer.length; i++) {
+      const sample = (buffer[i] - 128) / 128;
+      sum += sample * sample;
+    }
+    const level = Math.sqrt(sum / buffer.length);
+    microphone.$level.set(level);
+    updateSpeaking(microphone, level);
+    microphone.raf = requestAnimationFrame(tick);
+  };
+  microphone.raf = requestAnimationFrame(tick);
+}
+
+async function hydratePermission(microphone) {
+  if (typeof navigator === "undefined" || !navigator.permissions?.query) return;
+  try {
+    const status = await navigator.permissions.query({ name: "microphone" });
+    microphone.$permission.set(status.state);
+    status.onchange = () => microphone.$permission.set(status.state);
+  } catch {}
+}
+
+function updateSpeaking(microphone, level) {
+  const now = performance.now();
+  if (level > SPEAKING_THRESHOLD) {
+    microphone.fallSince = 0;
+    if (!microphone.$speaking.get()) {
+      if (!microphone.riseSince) microphone.riseSince = now;
+      if (now - microphone.riseSince > SPEAKING_RISE_MS) {
+        microphone.$speaking.set(true);
+      }
+    }
+  } else {
+    microphone.riseSince = 0;
+    if (microphone.$speaking.get()) {
+      if (!microphone.fallSince) microphone.fallSince = now;
+      if (now - microphone.fallSince > SPEAKING_FALL_MS) {
+        microphone.$speaking.set(false);
+      }
+    }
+  }
+}

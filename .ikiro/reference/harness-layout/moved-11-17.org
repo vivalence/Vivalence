@@ -1,0 +1,49 @@
+#+title: harness-layout — moved out of the quest 11-17, for the milestones
+# writer: agent · limit: 3000 chars
+
+* as code — the quest's, whole
+
+Q1A · Q2A — =conversational.js= · =harnessed.js= hunks: =reference/harness-layout/moved.org=
+
+Q3A · Q10 — =subsystems/typology/schematics/traits/tooled.js= · =primed.js=; a bad state is rejected, the whole thread printed by =reference/harness-layout/thread.test.js=
+#+BEGIN_SRC js
+import { v } from "../v.js";
+
+export const Load = v.enum(["eager", "lazy", "none"]);
+export const Tooled = v.record(v.string(), Load);
+export const Primed = v.record(v.string(), Load);
+#+END_SRC
+
+Q36A — =q36.test.js=
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/contexts.js:103
+   ...attach,
++  ...runtime,
+   ...mode,
+#+END_SRC
+
+Q12 – Q18: =moved.org=
+
+Q24 – Q26: =moved.org=
+
+* terrain — measured 11-16: =moved.org=, re-measure before a tangle
+* deliverables · milestones: =moved.org=, rewrite at the tangle
+
+* blast table: =moved.org=, 17 files, recount after Q10
+
+* measured — live, 11-16: =reference/harness-layout/measured.org=
+
+* asides — his, outside the walk: =moved.org= (=v.eg= LANDED)
+
+* testing assessment — the campaign, 11-17
+
+/"run a thorough testing campaign against this via subagent opus. test all levels of integration. standalone scratchpad"/ — suites · logs · snapshots: =reference/harness-layout/lab/campaign/=
+
+levels: =moved.org=, 16 ok, 20 red.
+
+the reds R1 – R17 by rule: =moved.org=; =file:line= in =lab/index.org=. R16 dies with Q8 (Q29); R5 · R6 =* deferred=.
+
+BUILT 11-17: =system.test.js= =primed=; its COVERAGE GAPs: =measured.org=
+COVERAGE GAP, the probes: =measured.org=
+
+* review — 11-17: 9 stops · 9 amen, ledger in =moved.org=

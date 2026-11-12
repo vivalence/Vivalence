@@ -23,14 +23,25 @@ describe("runtime boot — the rig's run.js on a temp ledger: one datamap, the l
     const files = [];
     for await (const entry of Deno.readDir(join(world.root, "instance/mountpoint"))) files.push(entry.name);
     expect(files.filter((name) => name.endsWith(".viva.db"))).toEqual(["hello-world.viva.db"]);
-    for await (const entry of Deno.readDir(join(world.root, "instance/mountpoint/daemon_hello"))) expect(entry.name.endsWith(".viva.db")).toBe(false);
+    const daemon = await Array.fromAsync(Deno.readDir(join(world.root, "instance/mountpoint/daemon_hello"))).catch((error) => {
+      if (error instanceof Deno.errors.NotFound) return [];
+      throw error;
+    });
+    expect(daemon.filter((entry) => entry.name.endsWith(".viva.db"))).toEqual([]);
     expect(world.query("select slug from Daemon")).toEqual([{ slug: "hello" }]);
   });
 
-  it("/status · /metadata answer with no token", async () => {
-    for (const path of ["/status", "/metadata/manifest", "/metadata/daemons", "/metadata/aperture"]) {
+  it("/beacon answers with no token, /metadata refuses", async () => {
+    for (const [path, status] of [
+      ["/beacon/status", 200],
+      ["/beacon/manifest", 200],
+      ["/metadata/daemons", 401],
+      ["/metadata/aperture", 401],
+      ["/metadata/datamap", 401],
+      ["/metadata/services", 401],
+    ]) {
       const response = await world.get(path);
-      expect([path, response.status]).toEqual([path, 200]);
+      expect([path, response.status]).toEqual([path, status]);
       await response.body?.cancel();
     }
   });
@@ -90,18 +101,28 @@ describe("runtime boot — the rig's run.js on a temp ledger: one datamap, the l
     expect(world.query("select user_entity_id as user, daemon_entity_slug as daemon from User_daemons")).toEqual([{ user: finn.user.id, daemon: "hello" }]);
   });
 
-  it("/attached/file/:id answers with no token — hello-world's declared view is a View row whose entry is a served File", async () => {
+  it("/attached/view/:id answers with no token — hello-world's declared view is built at its first fetch, its File served after, a held fingerprint answers 304", async () => {
     const retired = await world.get("/daemon/hello/mode/demo/hello-world/metadata/application", finn.access);
     expect(retired.status).toBe(404);
     await retired.body?.cancel();
     const rows = await (await world.post("/userspace/entities/view/find", { where: { slug: "hello-world" } }, finn.access)).json();
     expect(rows.map((row) => row.mime)).toEqual([mime.dom.svelte]);
+    expect(rows[0].entry).toBe("bundle/hello-world.dom.svelte.mjs");
+    const unbuilt = await (await world.post("/userspace/entities/file/find", { where: { view: rows[0].id } }, finn.access)).json();
+    expect(unbuilt.map((file) => file.path)).not.toContain(rows[0].entry);
+    const built = await fetch(`${world.origin}/attached/view/${rows[0].id}`);
+    expect(built.status).toBe(200);
+    expect(built.headers.get("content-type")).toBe("text/javascript");
+    await built.body?.cancel();
     const files = await (await world.post("/userspace/entities/file/find", { where: { view: rows[0].id } }, finn.access)).json();
-    expect(files.map((file) => file.path)).toContain(rows[0].entry);
     const entry = files.find((file) => file.path === rows[0].entry);
+    expect(built.headers.get("x-viva-integrity")).toBe(entry.integrity);
+    expect(built.headers.get("etag")).toBe(`"${entry.integrity}"`);
+    const held = await fetch(`${world.origin}/attached/view/${rows[0].id}`, { headers: { "if-none-match": `"${entry.integrity}"` } });
+    expect(held.status).toBe(304);
+    await held.body?.cancel();
     const response = await fetch(`${world.origin}/attached/file/${entry.id}`);
     expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toBe("text/javascript");
     expect(response.headers.get("x-viva-integrity")).toBe(entry.integrity);
     await response.body?.cancel();
   });
@@ -143,7 +164,7 @@ describe("runtime boot — the rig's run.js on a temp ledger: one datamap, the l
     const refused = await world.get("/runtime/house/metadata/modes");
     expect(refused.status).toBe(401);
     expect((await refused.json()).error.code).toBe("MISSING_TOKEN");
-    for (const path of ["/status", "/metadata/manifest", "/metadata/statics", "/metadata/datamap", "/metadata/aperture", "/metadata/cortex"]) {
+    for (const path of ["/status", "/metadata/manifest", "/metadata/statics", "/metadata/datamap", "/metadata/aperture", "/metadata/cortex", "/metadata/tiers"]) {
       const response = await world.get(`/runtime/house${path}`, finn.access);
       expect([path, response.status]).toEqual([path, 200]);
       await response.body?.cancel();
@@ -189,7 +210,7 @@ describe("runtime boot — the rig's run.js on a temp ledger: one datamap, the l
     world.child.kill("SIGTERM");
     const exit = await world.child.status;
     expect(exit.code).toBe(0);
-    await expect(fetch(`${world.origin}/status`)).rejects.toThrow();
+    await expect(fetch(`${world.origin}/beacon/status`)).rejects.toThrow();
   });
 });
 
@@ -207,12 +228,10 @@ describe("runtime boot — the shipped commons/instances/hello-world/instance.vi
 
   afterAll(() => world.stop());
 
-  it("boots the shipped recipe as authored — the relative modes, both hallucinators dormant on blank keys", async () => {
+  it("boots the shipped recipe as authored — the relative modes, all four hallucinators dormant on blank keys", async () => {
     expect(world.ready).toMatch(hello.READY);
     expect(world.query("select slug from Daemon")).toEqual([{ slug: "hello" }]);
-    expect(world.log.filter((line) => /\[instance\] hallucinators\[\d\] filtered/.test(line)).length).toBe(2);
-    const daemons = await (await world.get("/metadata/daemons")).json();
-    expect(daemons.map((daemon) => daemon.slug)).toEqual(["hello"]);
+    expect(world.log.filter((line) => /\[instance\] hallucinators\[\d\] filtered/.test(line)).length).toBe(4);
   });
 
   it("signs a user up and lets them into the shipped daemon", async () => {
@@ -221,6 +240,8 @@ describe("runtime boot — the shipped commons/instances/hello-world/instance.vi
     const status = await world.get("/daemon/hello/status", signup.authority.access);
     expect(status.status).toBe(200);
     await status.body?.cancel();
+    const daemons = await (await world.get("/metadata/daemons", signup.authority.access)).json();
+    expect(daemons.map((daemon) => daemon.slug)).toEqual(["hello"]);
     const modes = await (await world.get("/daemon/hello/metadata/modes", signup.authority.access)).json();
     expect(JSON.stringify(modes)).toContain("hello-world");
   });
@@ -228,5 +249,21 @@ describe("runtime boot — the shipped commons/instances/hello-world/instance.vi
   it("SIGTERM → exit 0", async () => {
     world.child.kill("SIGTERM");
     expect((await world.child.status).code).toBe(0);
+  });
+});
+
+describe("runtime boot — a runtime mode with a buffer branches the runtime's reference", () => {
+  let world;
+
+  beforeAll(async () => {
+    world = await hello.boot({ modes: ["@commons/playground/card"] });
+  });
+
+  afterAll(() => world.stop());
+
+  it("the runtime's aperture still answers at /runtime/<slug>, behind the token", async () => {
+    const refused = await world.get("/runtime/house/metadata/datamap");
+    expect(refused.status).toBe(401);
+    expect((await refused.json()).error.code).toBe("MISSING_TOKEN");
   });
 });

@@ -2,6 +2,7 @@ import { Entity, is, v } from "@vivalence/typology";
 
 const WORD = [
   [(thread) => thread.traits.includes("LABELED"), (thread) => thread.trait.LABELED.name],
+  [(thread) => thread.mode === null, () => "thread"],
   [(thread) => is.string(thread.mode), (thread) => thread.mode.split("/").at(-1)],
   [() => true, (thread) => thread.mode.slug],
 ];

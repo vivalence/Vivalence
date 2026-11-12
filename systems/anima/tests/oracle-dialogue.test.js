@@ -1,3 +1,4 @@
+import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { specimen, soma, Cortex } from "@vivalence/typology";
 import { mountMode } from "@vivalence/runtime/scenarios";
 import * as oracle from "../../../commons/playground/chaosmonkey/oracle/oracle.viva.js";
@@ -14,7 +15,7 @@ const lastUserText = (turns) => {
 const seer = () => ({
   type: "dialogue",
   id: "dialogue-1",
-  tune: [0.9, 1.0, 0.3],
+  tune: [0.9, 0.3, 0.5],
   context: 200000,
   channels: { in: ["text"], out: ["text"] },
   via: {
@@ -22,7 +23,7 @@ const seer = () => ({
       soma.drain({
         role: "assistant",
         parts: [{ type: "text", text: `the mist parts: ${lastUserText(turns)}` }],
-        meta: { stop: "end_turn" },
+        meta: { state: "complete" },
       }),
   },
 });
@@ -30,7 +31,7 @@ const seer = () => ({
 let scenario;
 
 specimen.beforeAll(async () => {
-  scenario = await mountMode(oracle, { cortex: new Cortex().register([seer()]) });
+  scenario = await mountMode(oracle, { cortex: new Cortex(TIER_POINTS).register([seer()]) });
 });
 
 specimen.afterAll(async () => {
@@ -53,7 +54,7 @@ specimen.describe("oracle harness.dialogue.stream — turns created + streamed",
 
     specimen.expect(packets.find((packet) => packet.event === "/turn/open")).toBeDefined();
     specimen.expect(packets.find((packet) => packet.event === "/part/delta")).toBeDefined();
-    specimen.expect(packets.find((packet) => packet.event === "/turn/close")?.meta?.stop).toBe("end_turn");
+    specimen.expect(packets.find((packet) => packet.event === "/turn/close").turn.meta.state).toBe("complete");
 
     let turn = null;
     for (const packet of packets) turn = soma.pour(turn, packet);

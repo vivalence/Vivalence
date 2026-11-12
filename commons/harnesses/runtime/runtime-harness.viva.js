@@ -8,7 +8,7 @@ export const manifest = {
   name: "Runtime Harness",
   description: "default runtime harness",
   version: "0.3.0",
-  traits: ["HARNESSED", "AGENTIC", "TOOLING", "PRIMER"], //, "APPLICATION"],
+  traits: ["HARNESSED", "TOOLING", "PRIMER"], //, "APPLICATION"],
 };
 
 const read = (file) => () => paladin.read.text(new URL(file, import.meta.url));

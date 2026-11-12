@@ -7,14 +7,20 @@ const { modes } = ghost.client.lifecycle;
 const execution = new Vector().use(shard.controller.open).use(modes).do(shard.controller.hold);
 
 const boot = async (id) => {
-  const mask = { manifest: { type: "client", slug: "ghost", traits: [] }, reference: new Path("/client/ghost"), modes: [] };
+  const mask = { manifest: { type: "client", slug: "ghost", traits: [] }, reference: new Path("/client/ghost"), modes: [], trait: {} };
   const root = new Controller({ stdout: new Span("ghost") });
   const register = { modes: [await accio({ module: "@commons/home/console", reference: new Path("/mode/home/console") })] };
   const client = new ghost.client.Client({ controller: root.branch("client"), mask, register, instance: null });
   const held = steer.dispatch.execute(execution, client);
   await control.controlled(client.controller);
-  const terminal = Object.assign(new ghost.terminal.Terminal(), { id, index: 0, client, controller: client.controller.branch(`terminal/${id}`) });
-  client.runtime = { entities: { mode: { $entities: atom([]) }, terminal: { $entities: atom([terminal]) } } };
+  const terminal = Object.assign(new ghost.terminal.Terminal(), { id, index: 0, client, traits: [], trait: {}, controller: client.controller.branch(`terminal/${id}`) });
+  client.runtime = {
+    lighthouse: { user: { trait: {} } },
+    entities: {
+      mode: { $entities: atom([]) },
+      terminal: { $entities: atom([terminal]), updateOne: async (where, data) => Object.assign(terminal, data) },
+    },
+  };
   return { client, terminal, held };
 };
 

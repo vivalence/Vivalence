@@ -16,34 +16,34 @@ Deno.test("skill.entity — the generic entity trio", async (t) => {
 
   await t.step("schema without arguments lists every entity with counts and cards", async () => {
     const spoken = await invoke(armed, "entity_schema", {});
-    const literal = spoken.output.entities.find((row) => row.type === "literal");
+    const literal = spoken.product.entities.find((row) => row.type === "literal");
     assertEquals(literal.rows, 2);
     assert(literal.card.includes("slug"));
-    assert(spoken.output.entities.some((row) => row.type === "symbol"));
+    assert(spoken.product.entities.some((row) => row.type === "symbol"));
   });
 
   await t.step("schema with an entity describes columns and operators", async () => {
     const spoken = await invoke(armed, "entity_schema", { entity: "literal" });
-    assertEquals(spoken.output.schema.columns.slug, "string");
-    assert(spoken.output.schema.operators.includes("$in"));
-    assert(spoken.output.schema.extensions.traits);
+    assertEquals(spoken.product.schema.columns.slug, "string");
+    assert(spoken.product.schema.operators.includes("$in"));
+    assert(spoken.product.schema.extensions.traits);
   });
 
   await t.step("find returns cards, total and pages with offset", async () => {
     const first = await invoke(armed, "entity_find", { entity: "literal", limit: 1 });
-    assertEquals(first.output.literal.length, 1);
-    assertEquals(first.output.total, 2);
-    assertEquals(first.output.next.offset, 1);
-    assert(first.output.literal[0].slug);
-    assertEquals(first.output.literal[0].trait, undefined);
+    assertEquals(first.product.literal.length, 1);
+    assertEquals(first.product.total, 2);
+    assertEquals(first.product.next.offset, 1);
+    assert(first.product.literal[0].slug);
+    assertEquals(first.product.literal[0].trait, undefined);
 
     const second = await invoke(armed, "entity_find", {
       entity: "literal",
       limit: 1,
-      offset: first.output.next.offset,
+      offset: first.product.next.offset,
     });
-    assertEquals(second.output.next, undefined);
-    assert(second.output.literal[0].slug !== first.output.literal[0].slug);
+    assertEquals(second.product.next, undefined);
+    assert(second.product.literal[0].slug !== first.product.literal[0].slug);
   });
 
   await t.step("find with fields full returns rows", async () => {
@@ -52,8 +52,8 @@ Deno.test("skill.entity — the generic entity trio", async (t) => {
       fields: "full",
       where: { slug: "hello" },
     });
-    assertEquals(spoken.output.literal.length, 1);
-    assert("trait" in spoken.output.literal[0]);
+    assertEquals(spoken.product.literal.length, 1);
+    assert("trait" in spoken.product.literal[0]);
   });
 
   await t.step("count counts without loading", async () => {
@@ -61,14 +61,41 @@ Deno.test("skill.entity — the generic entity trio", async (t) => {
       entity: "literal",
       where: { slug: { $like: "%o%" } },
     });
-    assertEquals(spoken.output.count, 2);
+    assertEquals(spoken.product.count, 2);
   });
 
   await t.step("an unknown entity answers with the available types", async () => {
     const spoken = await invoke(armed, "entity_find", { entity: "litreal" });
     assertEquals(spoken.condition, "ERROR");
-    assert(spoken.output.message.includes("litreal"));
-    assert(spoken.output.message.includes("literal"));
+    assert(spoken.product.message.includes("litreal"));
+    assert(spoken.product.message.includes("literal"));
+  });
+
+  await t.step("update merges a trait patch deep over the held data and names the trait", async () => {
+    await invoke(armed, "entity_update", {
+      entity: "literal",
+      where: { slug: "hello" },
+      trait: { TRANSLATED: { known: "hello", learning: "hola" } },
+    });
+    const spoken = await invoke(armed, "entity_update", {
+      entity: "literal",
+      where: { slug: "hello" },
+      trait: { TRANSLATED: { learning: "buenas" } },
+    });
+    assertEquals(spoken.product.message, "updated literal hello");
+    assertEquals(spoken.product.literal[0].trait.TRANSLATED, { known: "hello", learning: "buenas" });
+    assertEquals(spoken.product.literal[0].traits, ["TRANSLATED"]);
+    em.clear();
+    const stored = await repos.literal.findOneOrFail({ slug: "hello" });
+    assertEquals(stored.trait.TRANSLATED, { known: "hello", learning: "buenas" });
+    const untouched = await repos.literal.findOneOrFail({ slug: "goodbye" });
+    assertEquals(untouched.traits, []);
+  });
+
+  await t.step("update on an unknown entity answers with the available types", async () => {
+    const spoken = await invoke(armed, "entity_update", { entity: "litreal", where: {}, trait: {} });
+    assertEquals(spoken.condition, "ERROR");
+    assert(spoken.product.message.includes("litreal"));
   });
 
   await orm.close();
@@ -86,19 +113,19 @@ Deno.test("skill.entity — a bound user reads only their own user row and activ
 
   await t.step("entity_find user answers the bound user alone", async () => {
     const spoken = await invoke(armed, "entity_find", { entity: "user", fields: "full" });
-    assertEquals(spoken.output.user.map((row) => row.slug), ["beef"]);
-    assertEquals(spoken.output.total, 1);
+    assertEquals(spoken.product.user.map((row) => row.slug), ["beef"]);
+    assertEquals(spoken.product.total, 1);
   });
 
   await t.step("entity_find activity answers the bound user's runs and the system's, never another user's", async () => {
     const spoken = await invoke(armed, "entity_find", { entity: "activity", fields: "full" });
-    assertEquals(spoken.output.activity.map((row) => row.user), [fixtures.user.id, null]);
-    assertEquals(spoken.output.total, 2);
+    assertEquals(spoken.product.activity.map((row) => row.user), [fixtures.user.id, null]);
+    assertEquals(spoken.product.total, 2);
   });
 
   await t.step("a where naming another user cannot widen the scope", async () => {
     const spoken = await invoke(armed, "entity_find", { entity: "activity", where: { user: intruder.id } });
-    assertEquals(spoken.output.total, 0);
+    assertEquals(spoken.product.total, 0);
   });
 
   await t.step("another user's run is not found by id", async () => {

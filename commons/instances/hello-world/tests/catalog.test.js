@@ -48,7 +48,7 @@ const invoke = async (name, input) =>
   );
 
 specimen.describe("hello-world tools — the catalog", () => {
-  specimen.it("P-catalog: the armed catalog is four of its own, seven imported from the runtime, five from GENERATIVE", () => {
+  specimen.it("P-catalog: the armed catalog is four of its own, eight imported from the runtime, five from GENERATIVE", () => {
     specimen.expect(names()).toEqual([
       "buffer_create",
       "buffer_update",
@@ -64,13 +64,14 @@ specimen.describe("hello-world tools — the catalog", () => {
       "entity_schema",
       "entity_find",
       "entity_count",
+      "entity_update",
       "thread_update",
       "mode_find",
     ]);
   });
 
   specimen.it(
-    "P-catalog: the assembly contributes four and imports seven (m117: the root arms no domain tool); drawing rewords two and mints none",
+    "P-catalog: the assembly contributes four and imports eight (m117: the root arms no domain tool); drawing rewords two and mints none",
     () => {
       const named = (vector) =>
         steer.trie.leaves(vector).map((entry) =>
@@ -84,6 +85,7 @@ specimen.describe("hello-world tools — the catalog", () => {
         "entity_schema",
         "entity_find",
         "entity_count",
+        "entity_update",
         "buffer_update",
         "buffer_label",
         "thread_update",
@@ -125,14 +127,14 @@ specimen.describe("hello-world tools — the catalog", () => {
   specimen.it(
     "P-noexternal: the refusal rides the trait's door as middleware — a URL import never reaches the bundler",
     async () => {
-      const { condition, output } = await invoke("view_create", {
+      const { condition, product } = await invoke("view_create", {
         slug: "external",
         mime: "application/vnd.viva.dom.svelte+javascript",
         source: '<script>import x from "https://esm.sh/x";</script><p/>',
       });
       specimen.expect(condition).toBe("ERROR");
-      specimen.expect(output.message).toContain("may not import from a URL");
-      specimen.expect(output.message).toContain("do not retry it unchanged");
+      specimen.expect(product.message).toContain("may not import from a URL");
+      specimen.expect(product.message).toContain("do not retry it unchanged");
     },
   );
 
@@ -156,8 +158,8 @@ specimen.describe("viva_doctor — the whole record, no knobs", () => {
   });
 
   specimen.it("P-fold: the three subjects come back together", async () => {
-    const { output } = await invoke("viva_doctor", {});
-    specimen.expect(Object.keys(output)).toEqual([
+    const { product } = await invoke("viva_doctor", {});
+    specimen.expect(Object.keys(product)).toEqual([
       "daemon",
       "ledger",
       "registry",
@@ -167,8 +169,8 @@ specimen.describe("viva_doctor — the whole record, no knobs", () => {
   specimen.it(
     "P-novalues: no environment entry carries anything but key and set",
     async () => {
-      const { output } = await invoke("viva_doctor", {});
-      for (const held of output.ledger.environment) {
+      const { product } = await invoke("viva_doctor", {});
+      for (const held of product.ledger.environment) {
         specimen.expect(Object.keys(held)).toEqual(["key", "set"]);
       }
     },
@@ -184,12 +186,12 @@ specimen.describe("viva_doctor — a daemon with no cortex", () => {
     async () => {
       const bare = new Vector().graft(tools);
       bare.use(shard.context.spread(contexts.daemonDie, cortexless));
-      const { output } = await steer.dispatch.invoke(
+      const { product } = await steer.dispatch.invoke(
         bare,
         new ToolCall("viva_doctor").signal,
         steer.strategy.guarded,
       )({});
-      specimen.expect(output.daemon.cortex).toEqual([]);
+      specimen.expect(product.daemon.cortex).toEqual([]);
     },
   );
 });
@@ -259,7 +261,7 @@ const lit = {
         render: (request) => {
           seenRequest = request;
           return Promise.resolve({
-            output: {
+            product: {
               // no title — the Pick has none. the skeleton carries no text to name a page with.
               object: { selector: "main#content", reason: "7 paragraphs" },
             },
@@ -286,16 +288,16 @@ specimen.describe("web_read — lit, once a reader is consumed", () => {
     "P-lit: the reader is opened with the model's url and the article comes back",
     async () => {
       opened.length = 0;
-      const { condition, output } = await litInvoke("web_read", {
+      const { condition, product } = await litInvoke("web_read", {
         url: "https://docs.deno.test/permissions",
       });
       specimen.expect(condition).toBe(undefined);
       specimen.expect(opened).toEqual(["https://docs.deno.test/permissions"]);
-      specimen.expect(output.markdown).toContain("secure by default");
+      specimen.expect(product.markdown).toContain("secure by default");
       // the DOCUMENT's title, not the pick's — the model never saw any text to name it with.
-      specimen.expect(output.title).toBe("Permissions | Deno Docs");
-      specimen.expect(output.url).toBe("https://docs.deno.test/permissions");
-      specimen.expect(output.matched).toBe(true);
+      specimen.expect(product.title).toBe("Permissions | Deno Docs");
+      specimen.expect(product.url).toBe("https://docs.deno.test/permissions");
+      specimen.expect(product.matched).toBe(true);
     },
   );
 
@@ -326,14 +328,14 @@ specimen.describe("web_read — lit, once a reader is consumed", () => {
       };
       const angryArmed = new Vector().graft(tools);
       angryArmed.use(shard.context.spread(contexts.daemonDie, angry));
-      const { condition, output } = await steer.dispatch.invoke(
+      const { condition, product } = await steer.dispatch.invoke(
         angryArmed,
         new ToolCall("web_read").signal,
         steer.strategy.guarded,
       )({ url: "http://127.0.0.1/" });
       specimen.expect(condition).toBe("ERROR");
-      specimen.expect(output.message).toContain("not a public address");
-      specimen.expect(output.message).toContain("http://127.0.0.1/");
+      specimen.expect(product.message).toContain("not a public address");
+      specimen.expect(product.message).toContain("http://127.0.0.1/");
     },
   );
 });
@@ -344,13 +346,13 @@ specimen.describe("web_read — dark on a daemon that consumes no reader", () =>
   specimen.it(
     "P-dark: with no reader service the node says so instead of throwing",
     async () => {
-      const { condition, output } = await invoke("web_read", {
+      const { condition, product } = await invoke("web_read", {
         url: "https://example.test/",
       });
       specimen.expect(condition).toBe("ERROR");
-      specimen.expect(output.message).toContain("not available on this daemon");
-      specimen.expect(output.message).toContain("Do not retry");
-      specimen.expect(output.message).toContain("web_search snippets");
+      specimen.expect(product.message).toContain("not available on this daemon");
+      specimen.expect(product.message).toContain("Do not retry");
+      specimen.expect(product.message).toContain("web_search snippets");
     },
   );
 });

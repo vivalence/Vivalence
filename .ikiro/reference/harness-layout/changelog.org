@@ -1,0 +1,8 @@
+#+title: harness-layout — the changelog, moved whole from the quest 11-17
+# writer: agent · limit: 2000 chars
+
+- 11-16 born from call-faculty Q9; the withdrawn first cuts: =reference/harness-layout/moved.org=
+- 11-17 the campaign: 13 · 19 red steps, 17 reds, re-run equal · the ui lab: =lab/index.org=
+- 11-17 Q28 – Q35; =system= · =missed= · =exclude.test.js=; R12 · R14 · R15 fixed. Q36A – Q39A; =sketches/=
+- 11-17 /"break the quests tangle into milestones. code first, then ui."/ — 5 code · 4 ui, =milestones.org=; Q40 · /"quest m122 go after /fold"/
+- 11-17 /"plan their integration into ghost and anima"/ — =ui.org=; the lab overwritten, mine, /"dont mind but wrong direction"/; /"quest reigns design"/ · /"design is sketch"/

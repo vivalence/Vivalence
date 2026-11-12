@@ -1,4 +1,5 @@
-import { soma, specimen } from "@vivalence/typology";
+import { STUB_FACULTIES } from "../../../data/stub.js";
+import { soma, specimen, v } from "@vivalence/typology";
 import { join } from "@std/path";
 import provider from "../provider/index.js";
 
@@ -39,10 +40,11 @@ const RUNS = {
 
 describe("stub · every scripted run, packet by packet and folded", () => {
   it("the dialogue faculty at its deepest tune, one request per run", async () => {
-    const [deep] = await provider({ statics: {} });
+    const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
     const runs = {};
     for (const [name, request] of Object.entries(RUNS)) {
       const packets = await drain(deep.via.stream(request));
+      for (const packet of packets) expect(v.primitives.hallucination.Packet.Response.check(packet)).toBe(true);
       runs[name] = { packets, folded: packets.reduce((turn, packet) => soma.pour(turn, packet), null) };
     }
     const pinned = pin(runs, "stub-runs.snapshot.json");
@@ -50,7 +52,7 @@ describe("stub · every scripted run, packet by packet and folded", () => {
   });
 
   it("the same request twice is the same stream", async () => {
-    const [deep] = await provider({ statics: {} });
+    const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
     const request = RUNS["two rounds, the second"];
     expect(await drain(deep.via.stream(request))).toEqual(await drain(deep.via.stream(request)));
   });

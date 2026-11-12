@@ -54,7 +54,7 @@ const invoke = (name, input) =>
 Deno.test("nlp classify — the annotation fold", async (t) => {
   await t.step("folds tokens into flat annotations", async () => {
     const spoken = await invoke("classify", { text: "María se mira" });
-    const [sentence] = spoken.output.sentences;
+    const [sentence] = spoken.product.sentences;
     assertEquals(sentence.length, 3);
 
     const [maria, se, mira] = sentence;
@@ -78,7 +78,7 @@ Deno.test("nlp classify — the annotation fold", async (t) => {
     "drops wire noise — no deprel, head or char offsets survive",
     async () => {
       const spoken = await invoke("classify", { text: "María se mira" });
-      for (const annotation of spoken.output.sentences.flat()) {
+      for (const annotation of spoken.product.sentences.flat()) {
         assertEquals(annotation.deprel, undefined);
         assertEquals(annotation.head, undefined);
         assertEquals(annotation.start_char, undefined);
@@ -89,6 +89,6 @@ Deno.test("nlp classify — the annotation fold", async (t) => {
   await t.step("bounces oversized text with a steering message", async () => {
     const spoken = await invoke("classify", { text: "a".repeat(1001) });
     assertEquals(spoken.condition, "ERROR");
-    assert(spoken.output.message.includes("1000"));
+    assert(spoken.product.message.includes("1000"));
   });
 });

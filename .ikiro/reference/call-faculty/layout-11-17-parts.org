@@ -1,0 +1,32 @@
+#+title: call-faculty — the layout law's part hunks, locked in the S13 drill 11-17
+# writer: agent · limit: 3000 chars
+
+* Q26 /"b"/ — every part on the wire is a valid part; the translator parses a tool's input
+
+Run by =walk-11-17/opening.probe.js= on the recorded anthropic stream (a stand-in for the translator): every packet valid, the sealed turn the same as today's; the dock paints ={}= until the model is done, then the whole input. The translator hunk below is unrun. Anthropic's translator turns stateful (today stateless per event, =translate.js:183=), as its sibling openrouter's =streamTranslator= (=translate.js:179=) is. A tool opens with =input: {}= at the openrouter translator · the stub provider · =faculties.js= · =soma.drain= (the owed drain defect closes).
+#+BEGIN_SRC js
+// commons/hallucinators/anthropic/provider/translate.js:188
+case "content_block_start": {
+  const part = blockToPart(event.content_block);
+  if (part.type === "tool_use") held.set(event.index, "");
+  return [{ event: "/part/open", index: event.index, part }];
+}
+case "content_block_stop": {
+  if (!held.has(event.index)) return [{ event: "/part/close", index: event.index }];
+  const text = held.get(event.index);
+  held.delete(event.index);
+  return [
+    { event: "/part/delta", index: event.index, part: { input: text ? JSON.parse(text) : {} } },
+    { event: "/part/close", index: event.index },
+  ];
+}
+#+END_SRC
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/belt/soma.js:18
+     case "/part/close": {
+-      const part = turn.parts[packet.index];
+-      if (part?.type === "tool_use" && typeof part.input === "string")
+-        part.input = part.input ? JSON.parse(part.input) : {};
+       break;
+     }
+#+END_SRC

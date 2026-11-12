@@ -9,7 +9,6 @@ export * from "./tooling.js";
 export * from "./primer.js";
 export * from "./looping.js";
 export * from "./repling.js";
-export * from "./agentic.js";
 export * from "./selfevident.js";
 export * from "./conversational.js";
 export * from "./runtime.js";

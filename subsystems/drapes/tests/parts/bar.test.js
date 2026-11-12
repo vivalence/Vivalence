@@ -9,9 +9,9 @@ const bar = (world, extra = {}) =>
 const IDLE = `<nav class="modebar" data-zone="0" data-r="bar" aria-label="mode bar"><button class="mark " data-fn="mark" aria-label="vivalence" title="once: keys · twice: repl · hold: sidebar"><span class="viket" style="width:20px;height:20px" aria-hidden="true"></span></button>
     <button class="seg ent " data-fn="wid" data-arg="entity" aria-haspopup="dialog" aria-expanded="false" title="entity · ctrl-v e"><span class="lab">[e4 openings</span><span class="q">‹board/play›]</span></button>
     <span class="seg sp"></span>
-    <button class="seg har " data-fn="wid" data-arg="harness" aria-haspopup="dialog" aria-expanded="false" title="harness · ctrl-v h"><span class="q"><svg></svg></span><span>capable</span><span class="q">·</span><span class="v">low</span><span class="meter " title="context 34 %"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><span class="q"><svg></svg></span></button>
+    <button class="seg har " data-fn="wid" data-arg="harness" aria-haspopup="dialog" aria-expanded="false" title="harness · ctrl-v h"><span class="q"><svg></svg></span><span>capable</span><span class="q">·</span><span class="v">low</span><span class="meter " title="context 34 %"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pair"><span class="g eager">●</span><span class="v">7</span></span><span class="pair"><span class="g lazy">○</span><span class="v">1</span></span><span class="q"><svg></svg></span></button>
     <button class="seg proc idle " data-fn="wid" data-arg="activity" aria-haspopup="dialog" aria-expanded="false" title="activity · ctrl-v a"><span class="dot" style="opacity:.35"></span><span class="lab">idle</span></button>
-    <button class="seg disp " data-fn="wid" data-arg="display" data-hold="pop" aria-haspopup="dialog" aria-expanded="false" title="display · ctrl-v d"><svg class="dispg"></svg><span class="q">chat</span></button>
+    <button class="seg disp " data-fn="wid" data-arg="display" data-hold="pop" aria-haspopup="dialog" aria-expanded="false" title="display · ctrl-v d"><svg class="dispg"></svg><span class="q">turns · harness</span></button>
     <button class="seg box " data-fn="wid" data-arg="box" aria-haspopup="dialog" aria-expanded="false" title="box · ctrl-v x"><span class="light"><svg></svg></span></button>
     <button class="seg sys " data-fn="wid" data-arg="system" aria-haspopup="dialog" aria-expanded="false" title="system · ctrl-v s"><span class="light"><svg></svg></span><span class="dot pos"></span></button></nav>`;
 
@@ -60,7 +60,7 @@ specimen.describe("Bar — dom.js:153 bar(w): the mark · entity · sp · harnes
     specimen.expect([...rig.target.querySelectorAll(".seg[data-arg]")].map((segment) => segment.getAttribute("data-arg"))).toEqual(["entity", "harness", "display", "box", "system"]);
     specimen.expect(rig.target.querySelector(".seg.ent").textContent).toBe(`[${WORLDS.idle.entity.label}‹${WORLDS.idle.entity.mode}›]`);
     specimen.expect(rig.target.querySelectorAll(".meter i").length).toBe(4);
-    specimen.expect(rig.target.querySelector(".viket").getAttribute("style")).toBe("width:24px;height:24px");
+    specimen.expect(rig.target.querySelector(".viket").getAttribute("style")).toBe("width:1.5rem;height:1.5rem");
     rig.close();
   });
 });

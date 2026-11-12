@@ -1,0 +1,33 @@
+#+title: harness-layout — moved out for the cap, 11-16
+# writer: agent · limit: 3000 chars
+
+* captured 11-17 (fold) → =~/.viva/bak/ikiro/m122-fold-20261117/moved.org=: terrain · blast · as code (landed) · review 11-16 · the reds · Q8 · Q13 · Q25 (dead) · asides (landed)
+
+* deferred, moved 11-17 (fold)
+
+- one state per path covers tools AND primer: =/"/": "lazy"= lists a sibling's tools too (today loaded); ="eager"= puts every sibling's primer in every request
+- a mode's own tools sit at the armory root (=harnessed.js:86=): =/"/francesca": "eager"= needs them under the slug
+- how =CONVERSATIONAL= mounts under =/harness= (trait order: francesca lists it first)
+- =LOOPING= · =GENERATIVE= · =PRIMER= under the map; the word forms (=-ED= · =-ING= · adjective · noun)
+- =INTELLIGENT= held three subjects (model · budget · initiative); memory and form have no owner
+- subagents: /"a whole additional ontology of control"/ — a child thread wearing its own =HARNESSED= · =TOOLED= · =PRIMED= is UNSTUDIED (=thread.parent= exists)
+
+- the trait as an append-only list + =sealed= (=sealed.probe.js=): /"clever. but no. maybe later. … we can add this loaded head dichotomy later on top."/
+- /"maybe splitting tools and primer into ARMED and ...? is a good idea. i'd want more prompt management tools like manyally editing some parts of the system prompt"/ → Q10
+
+- | Q11A | a user's own prompt text = custom instructions, one markdown text; NOT built now | /"a. but not implemented now. ignore. no custom user level prompt"/ | (moved 11-17)
+
+* review — 11-17, moved (fold)
+| S | stop | rides | verdict | his words |
+|---+------+-------+---------+-----------|
+| 1 | the thread wears four traits | Q0 · Q1A · Q2A · Q10 | amen | /"amen"/ |
+| 2 | a hallucination's tool carries input and output | Q15 | amen | /"amen"/ |
+| 3 | every tool and primer section sits behind its mode | Q17 · Q18 · Q19 | amen + Q19 amen | /"s3 amen but i want the setting enum"/ |
+| 4 | the tool tree reaches its own tools | Q14 · Q14C | amen | /"amen"/ |
+| 5 | =modes/index= reads a reference against runtime · daemon | Q12 · Q13 · Q20 · Q22 · Q25 | amen | /"amen"/ |
+| 6 | =tool/load= answers ={ tools }= via =declarations=, the provider's own (=load.test.js=) | Q14 · Q21 · Q25 | amen | /"output should just be 'tools'. … the character count is a problem. … we will do something about that once the system runs. amen"/ |
+| 7 | =tool/unload= by reference; a narrower key under a kept one = =none= | Q16 · Q21 | amen | /"kk amen"/ |
+| 8 | =primer/load= by reference, ={ primers }= in full | Q9A · Q12 · Q18 | amen | /"amen."/ |
+| 9 | the loop declares the live tree each round; the next request rebuilds it from =TOOLED= (=rounds.test.js=) | Q8 · Q9A | amen | /"amen."/ |
+
+9 stops · 9 amen. Q26 A LOCKED /"a. but lets add a tool for this. preload? preload. that loads mode or tool references as lazy."/: an index writes nothing; =tool/preload= writes =lazy=, never downgrades (=preload.test.js=) — /"cool. very good. amen."/

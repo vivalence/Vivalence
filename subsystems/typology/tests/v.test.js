@@ -89,13 +89,13 @@ specimen.describe("v", () => {
     specimen.expect(v.string().default("X").desc("label").default).toBe("X");
     specimen.expect(v.string().desc("label").default("X").description).toBe("label");
 
-    specimen.expect(v.string().examples("viva instance/run --instance=vivalence").examples)
+    specimen.expect(v.string().example("viva instance/run --instance=vivalence").examples)
       .toEqual(["viva instance/run --instance=vivalence"]);
-    specimen.expect(v.string().examples("a", "b").examples).toEqual(["a", "b"]);
-    specimen.expect(Array.isArray(v.string().examples("only").examples)).toBe(true);
-    specimen.expect(v.string().examples("x").desc("label").examples).toEqual(["x"]);
-    specimen.expect(v.string().examples("x").desc("label").description).toBe("label");
-    specimen.expect(v.string().examples("x").check("anything")).toBe(true);
+    specimen.expect(v.string().example("a", "b").examples).toEqual(["a", "b"]);
+    specimen.expect(Array.isArray(v.string().example("only").examples)).toBe(true);
+    specimen.expect(v.string().example("x").desc("label").examples).toEqual(["x"]);
+    specimen.expect(v.string().example("x").desc("label").description).toBe("label");
+    specimen.expect(v.string().example("x").check("anything")).toBe(true);
 
     const optional = v.object({ name: v.string().optional() });
     specimen.expect(optional.check({})).toBe(true);
@@ -280,7 +280,7 @@ specimen.describe("v", () => {
       .check({ user: "u", mode: "m", trait: { progress: { level: 3 } } })).toBe(true);
   });
   specimen.it("an entity's vocabulary is ONE schema — its names are its properties", () => {
-    specimen.expect(Object.keys(v.thread.traits.properties)).toEqual(["LABELED", "INTELLIGENT", "VOCAL", "AIMED", "MASKED", "QUEUEING"]);
+    specimen.expect(Object.keys(v.thread.traits.properties)).toEqual(["LABELED", "HARNESSED", "CONVERSATIONAL", "TOOLED", "PRIMED", "AIMED", "MASKED", "QUEUEING"]);
     specimen.expect(Object.keys(v.user.traits.properties)).toEqual(["HOME", "DOCKED", "THEMED"]);
     specimen.expect(v.thread.trait).toBeUndefined();
   });

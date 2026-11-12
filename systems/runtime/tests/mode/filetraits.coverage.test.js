@@ -1,6 +1,7 @@
 import { join } from "@std/path";
 import { Aperture, crypto, mime, Mode, Path, shape, specimen, steer, v } from "@vivalence/typology";
 import { FileEntity, ThreadEntity, traits, ViewEntity } from "@vivalence/runtime";
+import paladin from "@vivalence/paladin";
 import { seed } from "../scenarios/datamap.js";
 
 // m87 law 8 on :memory: — FILESINK receives, FILESET reads a directory into File rows, VIEWABLE bundles the declared
@@ -112,7 +113,7 @@ specimen.describe("the file traits — FILESINK · FILESET · VIEWABLE over a se
     specimen.expect(await scenario.em.fork().count(FileEntity, { mount: { $like: `${files}%` } })).toBe(2);
   });
 
-  specimen.it("VIEWABLE: mode.buffer mints with the mode's reference mime and the schema's defaults; the declared views bundle to View rows whose entry is the compile", async () => {
+  specimen.it("VIEWABLE: mode.buffer mints with the mode's reference mime and the schema's defaults; the declared views seat as View rows, unbuilt; the first bundle builds, a second reuses, an edit rebuilds", async () => {
     const mode = buildMode("viewable", {
       buffer: v.buffer({ data: { title: v.string({ default: "untitled" }), count: v.number({ default: 0 }) } }),
       views: [{ slug: "page", mime: mime.dom.html, mount: "views/page.html" }],
@@ -133,11 +134,22 @@ specimen.describe("the file traits — FILESINK · FILESET · VIEWABLE over a se
     specimen.expect(mode.views).toHaveLength(1);
     const view = await reload(ViewEntity, { id: mode.views[0].id }, ["files"]);
     specimen.expect([view.slug, view.mime]).toEqual(["page", mime.dom.html]);
-    specimen.expect(view.entry).toMatch(/^bundle\/[0-9a-f]{16}\.dom\.html\.mjs$/);
-    const compiled = view.files.getItems().find((file) => file.path === view.entry);
-    specimen.expect(compiled.mime).toBe(mime.javascript);
+    specimen.expect([view.mount, view.entry]).toEqual(["views/page.html", "bundle/page.dom.html.mjs"]);
+    specimen.expect(view.files.getItems()).toEqual([]);
+
+    const held = await scenario.repos.view.findOneOrFail({ id: view.id }, { populate: ["sources"] });
+    const bundling = { bundler: paladin.bundler(join(directory, "viewable", "mountpoint"), join(directory, "viewable")) };
+    const compiled = await scenario.repos.view.bundle(held, bundling);
+    specimen.expect([compiled.path, compiled.mime]).toEqual([view.entry, mime.javascript]);
     specimen.expect(compiled.mount).toBe(join(directory, "viewable", "mountpoint", view.entry));
     specimen.expect(await Deno.readTextFile(compiled.mount)).toContain("<h1>page</h1>");
+    specimen.expect(held.sources.map((source) => source.path)).toEqual([join(directory, "viewable", "views", "page.html"), compiled.mount]);
+    specimen.expect((await scenario.repos.view.bundle(held, bundling)).integrity).toBe(compiled.integrity);
+
+    await Deno.writeTextFile(join(directory, "viewable", "views", "page.html"), "<h1>page, edited</h1>");
+    const rebuilt = await scenario.repos.view.bundle(held, bundling);
+    specimen.expect(rebuilt.id).toBe(compiled.id);
+    specimen.expect(await Deno.readTextFile(rebuilt.mount)).toContain("page, edited");
   });
 
   specimen.it("VIEWABLE: a module without a buffer mints no mode.buffer; without views it bundles nothing", async () => {

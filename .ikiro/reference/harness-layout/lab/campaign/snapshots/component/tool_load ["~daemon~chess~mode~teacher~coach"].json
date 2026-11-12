@@ -1,0 +1,40 @@
+{
+  "input": {
+    "references": [
+      "/daemon/chess/mode/teacher/coach"
+    ]
+  },
+  "answer": {
+    "output": {
+      "tools": [
+        {
+          "name": "daemon_chess_teacher_coach_whoami",
+          "valence": "chess·coach /whoami"
+        },
+        {
+          "name": "daemon_chess_teacher_coach_position_analyse",
+          "valence": "chess·coach /position/analyse"
+        }
+      ]
+    }
+  },
+  "trait": {
+    "TOOLED": {
+      "/daemon/education/mode/teacher/francesca/drill/deal": "eager",
+      "/daemon/education/mode/tactic/harvest/drain": "eager",
+      "/daemon/chess/mode/teacher/coach/whoami": "eager",
+      "/daemon/chess/mode/teacher/coach": "eager"
+    },
+    "PRIMED": {}
+  },
+  "live": [
+    {
+      "name": "daemon_chess_teacher_coach_whoami",
+      "valence": "chess·coach /whoami"
+    },
+    {
+      "name": "daemon_chess_teacher_coach_position_analyse",
+      "valence": "chess·coach /position/analyse"
+    }
+  ]
+}

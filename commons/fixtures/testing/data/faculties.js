@@ -3,12 +3,12 @@ export function textStream(text, role = "assistant") {
     yield { event: "/turn/open", turn: { role } };
     yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
     for (const character of text) {
-      yield { event: "/part/delta", index: 0, delta: { text: character } };
+      yield { event: "/part/delta", index: 0, part: { text: character } };
     }
     yield { event: "/part/close", index: 0 };
     yield {
       event: "/turn/close",
-      meta: { usage: { input: 10, output: text.length }, state: "complete" },
+      turn: { meta: { usage: { input: 10, output: text.length }, state: "complete" } },
     };
   };
 }
@@ -33,29 +33,28 @@ export function toolUseTurn(id, name, input) {
 }
 
 export function toolUseStream(id, name, input) {
-  const inputString = JSON.stringify(input);
   const thinkingText = `thinking about ${name}...`;
   return async function* () {
     yield { event: "/turn/open", turn: { role: "assistant" } };
     yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
     for (const character of thinkingText) {
-      yield { event: "/part/delta", index: 0, delta: { text: character } };
+      yield { event: "/part/delta", index: 0, part: { text: character } };
     }
     yield { event: "/part/close", index: 0 };
     yield {
       event: "/part/open",
       index: 1,
-      part: { type: "tool_use", id: "", name: "", input: "" },
+      part: { type: "tool_use", id: "", name: "", input: {} },
     };
     yield {
       event: "/part/delta",
       index: 1,
-      delta: { id, name, input: inputString },
+      part: { id, name, input },
     };
     yield { event: "/part/close", index: 1 };
     yield {
       event: "/turn/close",
-      meta: { usage: { input: 10, output: 20 }, state: "tools" },
+      turn: { meta: { usage: { input: 10, output: 20 }, state: "tools" } },
     };
   };
 }
@@ -89,7 +88,7 @@ export function faculties() {
     {
       type: "dialogue",
       id: "opus",
-      tune: [0.9, 1.0, 0.3],
+      tune: [0.9, 0.3, 0.5],
       context: 200000,
       channels: {
         in: ["text", "image", "document", "tool_result", "thinking"],
@@ -105,7 +104,6 @@ export function faculties() {
               role: "assistant",
               parts: [{ type: "object", data }],
               meta: { state: "complete" },
-              object: data,
             };
           }
           const lookup = tools?.find((tool) => tool.name === "lookup");
@@ -127,7 +125,7 @@ export function faculties() {
     {
       type: "dialogue",
       id: "sonnet",
-      tune: [0.4, 0.6, 0.6],
+      tune: [0.4, 0.6, 0.5],
       context: 200000,
       channels: {
         in: ["text", "image", "tool_result"],
@@ -143,7 +141,7 @@ export function faculties() {
     {
       type: "dialogue",
       id: "haiku",
-      tune: [0.1, 0.3, 1.0],
+      tune: [0.1, 1.0, 0.5],
       context: 200000,
       channels: { in: ["text", "tool_result"], out: ["text"] },
       via: {
@@ -153,7 +151,7 @@ export function faculties() {
     {
       type: "choice",
       id: "chooser",
-      tune: [0.4, 0.3, 1.0, 0.9],
+      tune: [0.4, 1.0, 0.9],
       context: 32000,
       options: 26,
       choices: null,
@@ -169,25 +167,32 @@ export function verbatimFaculty(overrides = {}) {
   return {
     type: "verbatim",
     id: "scripted-verbatim",
-    tune: [0.4, 0.6, 0.5, 0.1],
+    tune: [0.4, 0.5, 0.1],
     context: 0,
     channels: {
       in: [{ type: "audio", codec: "pcm_16000" }],
       out: [{ type: "event" }],
     },
     via: {
-      stream: async function* (audioSource) {
+      stream: async function* ({ source }) {
         const heard = [];
         yield { event: "/turn/open", turn: { role: "user" } };
-        for await (const packet of audioSource) {
-          heard.push(packet.audio);
+        yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
+        for await (const packet of source) {
+          heard.push(packet.audio.data);
           yield {
-            event: "/verbatim/partial",
-            transcript: heard.join(" ").trim(),
+            event: "/part/draft",
+            index: 0,
+            part: { text: heard.join(" ").trim() },
           };
         }
-        yield { event: "/verbatim/final", transcript: heard.join(" ").trim() };
-        yield { event: "/turn/close" };
+        yield {
+          event: "/part/delta",
+          index: 0,
+          part: { text: heard.join(" ").trim() },
+        };
+        yield { event: "/part/close", index: 0 };
+        yield { event: "/turn/close", turn: {} };
       },
     },
     ...overrides,
@@ -198,22 +203,21 @@ export function speechFaculty(overrides = {}) {
   return {
     type: "speech",
     id: "scripted-speech",
-    tune: [0.3, 0.5, 0.5, 0.1],
+    tune: [0.3, 0.5, 0.1],
     context: 0,
     channels: {
       in: [{ type: "text" }],
       out: [{ type: "audio", codec: "pcm_16000" }],
     },
     via: {
-      stream: async function* (textChunks) {
-        for await (const chunk of textChunks) {
+      stream: async function* ({ source }) {
+        for await (const chunk of source) {
           yield {
             event: "/audio/packet",
-            audio: "audio:" + chunk,
-            rate: 16000,
+            audio: { data: "audio:" + chunk, rate: 16000 },
           };
         }
-        yield { event: "/audio/close" };
+        yield { event: "/audio/close", audio: { meta: { state: "complete" } } };
       },
     },
     ...overrides,

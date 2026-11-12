@@ -1,0 +1,67 @@
+#+title: call-faculty, the call's hunks moved 11-16 evening on the Q10 · Q11 locks — whole, unchanged
+# writer: agent · limit: 3000 chars
+
+* Q2 — an interrupted turn closes =interrupted=
+
+Q2 — =subsystems/typology/schematics/primitives/hallucination.js:110=
+#+BEGIN_SRC js
+export const State = v.union([
+  v.const("complete"),
+  v.const("tools"),
+  v.const("length"),
+  v.const("abort"),
+  v.const("error"),
+  v.const("filter"),
+  v.const("interrupted"),
+]);
+// client
+if (packet.event === "/turn/close" && packet.meta?.state === "interrupted") speaker.flush();
+#+END_SRC
+
+* Q8 — moved 11-16 on the Q11 lock (the call's, by Q10)
+
+Q8 — =PartFull= grows =turn=; =recording= rewrites the sealed Turn (=getReference= → =findOneOrFail=, mine: a reference carries no =parts=)
+#+BEGIN_SRC js
+// subsystems/typology/schematics/primitives/hallucination.js
+Packet.PartFull = v.object({
+  event: v.const("/part/full"),
+  index: v.integer(),
+  part: Part.Any.desc("the part, rewritten whole: a polish, a correction"),
+  turn: v.string().optional().desc('A sealed turn this rewrites; absent → the open one. Example: "0199f3a2-7c1e-7b40-9d2a-5e6f8a1b2c3d"'),
+});
+// systems/runtime/subjects/mode/traits/harnessed.js — recording, before the OPENING check
+if (packet.event === "/part/full" && packet.turn) {
+  const sealed = await em.findOneOrFail(TurnEntity, packet.turn);
+  sealed.parts = sealed.parts.with(packet.index, packet.part);
+  await em.flush();
+}
+#+END_SRC
+
+* Q1 — a call provider's signature
+
+Q1 — =commons/hallucinators/<slug>/provider/index.js=
+#+BEGIN_SRC js
+via: {
+  stream: ({ source, system, turns, tools, settings }, { signal } = {}) =>
+    session(source, { system, turns, tools, settings }, signal),
+},
+#+END_SRC
+
+* Q7 — =Vocal=, superseded by =quests/m122-harness-layout.org= Q1A
+
+Q7 — =subsystems/typology/schematics/traits/vocal.js:4=, cast at hydration, read by =systems/runtime/subjects/mode/traits/harnessed.js:30=
+#+BEGIN_SRC js
+export const Vocal = v.object({
+  language: v.string().optional(),
+  hear: v.object({ ...Selector }).optional().desc('The ear. Example: { provider: "deepgram", id: "flux-general-multi" }'),
+  speak: v.object({ ...Selector }).optional().desc('The mouth. Example: { provider: "elevenlabs", tier: "fast" }'),
+  call: v.object({ ...Selector }).optional().desc('A native call; absent → the cortex cascades hear · mind · speak. Example: { provider: "google" }'),
+  harmonize: v.object({ window: v.integer({ minimum: 1 }).optional(), tolerance: v.number({ minimum: 0, maximum: 1 }).optional(), tail: v.integer({ minimum: 1 }).optional() }).optional(),
+  polish: v.boolean().optional(),
+});
+#+END_SRC
+
+* deferred, moved 11-16 evening (cap)
+
+- not taken from the meta: a second ear (=scribe_v3_live= · soniox), =with-timestamps= for read-aloud, pronunciation scoring; =google/gemini-3.8-flash= doubles 2027-01-01
+- first native provider: =gemini-3.8-live= · =gpt-realtime-2.1-mini=

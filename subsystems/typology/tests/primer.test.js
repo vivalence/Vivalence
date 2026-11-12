@@ -18,7 +18,7 @@ specimen.describe("Primer — a Vector of text effects", () => {
     specimen.expect(await shape.primer.load(primer, { slug: "demo" })).toEqual({
       hello: "HELLO",
       machine: "machine demo",
-      primer: "Read on demand with primer_read { nature }:\nguides/render — How to draw",
+      primer: "Load on demand with primer_load { references }:\n/guides/render — How to draw",
       "guides/style": "STYLE",
     });
   });
@@ -64,9 +64,9 @@ specimen.describe("Primer — a Vector of text effects", () => {
     specimen.expect(await shape.primer.load(primer)).toEqual({
       "persona/render": "RENDER",
       "persona/style": "STYLE",
-      primer: "Read on demand with primer_read { nature }:\narchivist — the harvest persona",
+      primer: "Load on demand with primer_load { references }:\n/archivist — the harvest persona",
     });
-    specimen.expect(await shape.primer.read(primer, "archivist")).toBe("archivist/ladder");
+    specimen.expect(await shape.primer.read(primer, "archivist")).toBe("/archivist/ladder");
     specimen.expect(await shape.primer.read(primer, "archivist/ladder")).toBe("LADDER");
   });
 });

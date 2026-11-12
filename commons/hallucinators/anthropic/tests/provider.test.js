@@ -1,19 +1,27 @@
-import { specimen } from "@vivalence/typology";
+import { specimen, v } from "@vivalence/typology";
 import provider from "../provider/index.js";
 import {
   buildParams,
+  streamTranslator,
   translateResponse,
-  translateStreamEvent,
   translateTools,
   translateTurns,
 } from "../provider/translate.js";
 
-const opus = { id: "claude-opus-5", tune: [0.9, 1.0, 0.3], thinking: true };
+const opus = { id: "claude-opus-5", tune: [0.9, 0.3, 0.5], thinking: true };
 const haiku = {
   id: "claude-haiku-4-5",
-  tune: [0.1, 0.3, 1.0],
+  tune: [0.1, 1.0, 0.5],
   thinking: false,
 };
+
+const FACULTIES = [
+  { type: "dialogue", id: "claude-opus-5-5", tune: [1.0, 0.8, 0.1], context: 1000000, thinking: true },
+  { type: "dialogue", id: "claude-sonnet-5-5", tune: [0.6, 0.6, 0.5], context: 1000000, thinking: true },
+  { type: "dialogue", id: "claude-haiku-5-5", tune: [0.25, 0.95, 0.5], context: 1000000, thinking: true },
+];
+
+const service = (faculties = FACULTIES) => ({ secrets: { key: "fake-key" }, faculties });
 
 specimen.describe("anthropic provider", () => {
   specimen.describe("translateTurns", () => {
@@ -57,7 +65,7 @@ specimen.describe("anthropic provider", () => {
         },
         {
           role: "user",
-          parts: [{ type: "tool_result", id: "t1", output: { r: 2 } }],
+          parts: [{ type: "tool_result", id: "t1", product: { r: 2 } }],
         },
       ]);
       specimen.expect(messages[0].content[0]).toEqual({
@@ -85,7 +93,7 @@ specimen.describe("anthropic provider", () => {
               {
                 type: "tool_result",
                 id: "a1",
-                output: { object: [{ literal: "vedere", signal: "SUCCESS" }] },
+                product: { object: [{ literal: "vedere", signal: "SUCCESS" }] },
               },
             ],
           },
@@ -111,7 +119,7 @@ specimen.describe("anthropic provider", () => {
     );
 
     specimen.it(
-      "passes tool_use input verbatim — parse-once lives at soma /part/close",
+      "passes tool_use input verbatim — the stream translator parsed it at content_block_stop",
       () => {
         const { messages } = translateTurns([
           {
@@ -148,6 +156,23 @@ specimen.describe("anthropic provider", () => {
         signature: "sig",
       });
     });
+
+    specimen.it("a thinking part another provider wrote (no signature) is dropped; a turn left empty sends no message", () => {
+      const { messages } = translateTurns([
+        { role: "user", parts: [{ type: "text", text: "hola" }] },
+        { role: "assistant", parts: [{ type: "thinking", text: "gemini reasons" }, { type: "text", text: "hola!" }] },
+        { role: "user", parts: [{ type: "text", text: "otra vez" }] },
+        { role: "assistant", parts: [{ type: "thinking", text: "only thought" }] },
+        { role: "assistant", parts: [] },
+        { role: "user", parts: [{ type: "text", text: "y?" }] },
+      ]);
+      specimen.expect(messages).toEqual([
+        { role: "user", content: [{ type: "text", text: "hola" }] },
+        { role: "assistant", content: [{ type: "text", text: "hola!" }] },
+        { role: "user", content: [{ type: "text", text: "otra vez" }] },
+        { role: "user", content: [{ type: "text", text: "y?" }] },
+      ]);
+    });
   });
 
   specimen.describe("translateTools", () => {
@@ -181,7 +206,7 @@ specimen.describe("anthropic provider", () => {
       const turn = translateResponse({
         role: "assistant",
         content: [{ type: "text", text: "hello" }],
-        usage: { input_tokens: 1 },
+        usage: { input_tokens: 1, output_tokens: 2, cache_read_input_tokens: 5 },
         stop_reason: "end_turn",
         model: "claude-opus-4-6",
       });
@@ -189,9 +214,14 @@ specimen.describe("anthropic provider", () => {
       specimen.expect(turn.parts).toEqual([{ type: "text", text: "hello" }]);
       specimen.expect(turn.meta).toEqual({
         state: "complete",
-        usage: { input_tokens: 1 },
-        provider: { stop_reason: "end_turn", model: "claude-opus-4-6" },
+        usage: { input: 1, output: 2 },
+        provider: {
+          stop_reason: "end_turn",
+          model: "claude-opus-4-6",
+          usage: { input_tokens: 1, output_tokens: 2, cache_read_input_tokens: 5 },
+        },
       });
+      specimen.expect(turn).matches(v.primitives.hallucination.Turn);
     });
 
     specimen.it("maps tool_use (input verbatim) + thinking blocks", () => {
@@ -201,7 +231,7 @@ specimen.describe("anthropic provider", () => {
           { type: "tool_use", id: "t1", name: "look", input: { q: 1 } },
           { type: "thinking", thinking: "hmm", signature: "s" },
         ],
-        usage: {},
+        usage: { input_tokens: 1, output_tokens: 2 },
         stop_reason: "tool_use",
         model: "m",
       });
@@ -219,21 +249,21 @@ specimen.describe("anthropic provider", () => {
     });
   });
 
-  specimen.describe("translateStreamEvent", () => {
+  specimen.describe("streamTranslator", () => {
     specimen.it("message_start → /turn/open", () => {
       specimen.expect(
-        translateStreamEvent({
+        streamTranslator().translate({
           type: "message_start",
-          message: { role: "assistant" },
+          message: { role: "assistant", usage: { input_tokens: 7, output_tokens: 1 } },
         }),
       )
-        .toEqual({ event: "/turn/open", turn: { role: "assistant" } });
+        .toEqual([{ event: "/turn/open", turn: { role: "assistant" } }]);
     });
 
     specimen.it(
-      "content_block_start (tool_use) resets input for streaming fill",
+      "content_block_start (tool_use) opens a valid part, input {} until content_block_stop",
       () => {
-        const packet = translateStreamEvent({
+        const [packet] = streamTranslator().translate({
           type: "content_block_start",
           index: 0,
           content_block: {
@@ -244,69 +274,92 @@ specimen.describe("anthropic provider", () => {
           },
         });
         specimen.expect(packet.event).toBe("/part/open");
-        specimen.expect(packet.part.input).toBe("");
+        specimen.expect(packet.part.input).toEqual({});
+        specimen.expect(packet).matches(v.primitives.hallucination.Packet.PartOpen);
       },
     );
 
     specimen.it(
-      "content_block_delta maps text/thinking/input_json/signature",
+      "content_block_delta maps text/thinking/signature to part; input_json is held",
       () => {
-        specimen.expect(
-          translateStreamEvent({
-            type: "content_block_delta",
-            index: 0,
-            delta: { type: "text_delta", text: "hi" },
-          }).delta,
-        ).toEqual({ text: "hi" });
-        specimen.expect(
-          translateStreamEvent({
-            type: "content_block_delta",
-            index: 0,
-            delta: { type: "thinking_delta", thinking: "t" },
-          }).delta,
-        ).toEqual({ text: "t" });
-        specimen.expect(
-          translateStreamEvent({
-            type: "content_block_delta",
-            index: 0,
-            delta: { type: "input_json_delta", partial_json: "{" },
-          }).delta,
-        ).toEqual({ input: "{" });
-        specimen.expect(
-          translateStreamEvent({
-            type: "content_block_delta",
-            index: 0,
-            delta: { type: "signature_delta", signature: "s" },
-          }).delta,
-        ).toEqual({ signature: "s" });
+        const translator = streamTranslator();
+        const deltas = [
+          { type: "text_delta", text: "hi" },
+          { type: "thinking_delta", thinking: "t" },
+          { type: "input_json_delta", partial_json: "{" },
+          { type: "signature_delta", signature: "s" },
+        ].map((delta) => translator.translate({ type: "content_block_delta", index: 0, delta }));
+        specimen.expect(deltas).toEqual([
+          [{ event: "/part/delta", index: 0, part: { text: "hi" } }],
+          [{ event: "/part/delta", index: 0, part: { text: "t" } }],
+          [],
+          [{ event: "/part/delta", index: 0, part: { signature: "s" } }],
+        ]);
       },
     );
 
     specimen.it(
-      "content_block_stop → /part/close; message_delta → /turn/close; message_stop + ping → null",
+      "content_block_stop parses a tool's held input once — an empty string parses to {}",
       () => {
+        const translator = streamTranslator();
+        const tool = (index) => ({
+          type: "content_block_start",
+          index,
+          content_block: { type: "tool_use", id: `t${index}`, name: "look", input: {} },
+        });
+        translator.translate(tool(0));
+        translator.translate({
+          type: "content_block_delta",
+          index: 0,
+          delta: { type: "input_json_delta", partial_json: '{"q":' },
+        });
+        translator.translate({
+          type: "content_block_delta",
+          index: 0,
+          delta: { type: "input_json_delta", partial_json: "1}" },
+        });
+        specimen.expect(translator.translate({ type: "content_block_stop", index: 0 })).toEqual([
+          { event: "/part/delta", index: 0, part: { input: { q: 1 } } },
+          { event: "/part/close", index: 0 },
+        ]);
+        translator.translate(tool(1));
+        specimen.expect(translator.translate({ type: "content_block_stop", index: 1 })).toEqual([
+          { event: "/part/delta", index: 1, part: { input: {} } },
+          { event: "/part/close", index: 1 },
+        ]);
+      },
+    );
+
+    specimen.it(
+      "content_block_stop → /part/close; message_delta → /turn/close in our words; message_stop + ping → []",
+      () => {
+        const translator = streamTranslator();
+        translator.translate({
+          type: "message_start",
+          message: { role: "assistant", usage: { input_tokens: 7, output_tokens: 1 } },
+        });
         specimen.expect(
-          translateStreamEvent({ type: "content_block_stop", index: 0 }),
-        ).toEqual({ event: "/part/close", index: 0 });
+          translator.translate({ type: "content_block_stop", index: 0 }),
+        ).toEqual([{ event: "/part/close", index: 0 }]);
         specimen.expect(
-          translateStreamEvent({
+          translator.translate({
             type: "message_delta",
             delta: { stop_reason: "end_turn" },
             usage: { output_tokens: 3 },
           }),
         )
-          .toEqual({
+          .toEqual([{
             event: "/turn/close",
-            meta: {
-              state: "complete",
-              usage: { output_tokens: 3 },
-              provider: { stop_reason: "end_turn" },
+            turn: {
+              meta: {
+                state: "complete",
+                usage: { input: 7, output: 3 },
+                provider: { stop_reason: "end_turn", usage: { input_tokens: 7, output_tokens: 3 } },
+              },
             },
-          });
-        specimen.expect(translateStreamEvent({ type: "message_stop" })).toBe(
-          null,
-        );
-        specimen.expect(translateStreamEvent({ type: "ping" })).toBe(null);
+          }]);
+        specimen.expect(translator.translate({ type: "message_stop" })).toEqual([]);
+        specimen.expect(translator.translate({ type: "ping" })).toEqual([]);
       },
     );
   });
@@ -386,13 +439,13 @@ specimen.describe("anthropic provider", () => {
     });
 
     specimen.it(
-      "effort none forces a thinking model quiet — no thinking, no output_config, sane budget",
+      "effort none forces a thinking model quiet — thinking disabled on the wire, no output_config",
       () => {
         const params = buildParams(opus, {
           ...request(),
           settings: { effort: "none" },
         });
-        specimen.expect(params.thinking).toBe(undefined);
+        specimen.expect(params.thinking).toEqual({ type: "disabled" });
         specimen.expect(params.output_config).toBe(undefined);
       },
     );
@@ -458,7 +511,7 @@ specimen.describe("anthropic provider", () => {
     specimen.it(
       "returns 3 dialogue faculties (no network) with render + stream",
       async () => {
-        const faculties = await provider({ secrets: { key: "fake-key" } });
+        const faculties = await provider(service());
         specimen.expect(faculties).toHaveLength(3);
         for (const faculty of faculties) {
           specimen.expect(faculty.type).toBe("dialogue");
@@ -472,11 +525,29 @@ specimen.describe("anthropic provider", () => {
     specimen.it(
       "all three models think: each exposes thinking channels",
       async () => {
-        const faculties = await provider({ secrets: { key: "fake-key" } });
+        const faculties = await provider(service());
         const thinking = faculties.filter((faculty) =>
           faculty.channels.out.includes("thinking")
         );
         specimen.expect(thinking).toHaveLength(3);
+      },
+    );
+
+    specimen.it(
+      "only the row's faculties load: one entry yields one faculty; an unknown type faults naming it",
+      async () => {
+        const faculties = await provider(service([FACULTIES[0]]));
+        specimen.expect(faculties.map((faculty) => [faculty.id, faculty.tune])).toEqual([
+          ["claude-opus-5-5", [1.0, 0.8, 0.1]],
+        ]);
+        const speech = { ...FACULTIES[0], type: "speech" };
+        await specimen.expect(provider(service([speech]))).rejects.toThrow(
+          "[anthropic] faculties/0/type must be equal to constant",
+        );
+        await specimen.expect(provider({ secrets: { key: "fake-key" } })).rejects.toThrow(
+          "[anthropic] faculties/ must be array",
+        );
+        specimen.expect(await provider(service([]))).toEqual([]);
       },
     );
   });

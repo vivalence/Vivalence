@@ -8,10 +8,12 @@ import {
   Path,
   shape,
   shard,
+  Signal,
   specimen,
+  steer,
   Vector,
 } from "@vivalence/typology";
-import { gestalten, lifecycle } from "@vivalence/runtime";
+import { Daemon, Runtime, gestalten, lifecycle } from "@vivalence/runtime";
 
 const { modes } = gestalten.belt;
 
@@ -109,5 +111,44 @@ specimen.describe("lifecycle.mode.population.providers — a mode's own consume 
   specimen.it("the beat runs after stdout and before core — a mode's aperture and tools are built over its own providers", () => {
     const { stdout, providers, core } = lifecycle.mode.population;
     specimen.expect(lifecycle.mode.execution.carry).toEqual([stdout, providers, core]);
+  });
+});
+
+specimen.describe("Q36A (B) — every request into a host carries ctx.runtime, bound where the host is exposed", () => {
+  specimen.it("through the root aperture, a daemon's own aperture and a mode's harness called direct; modeDie carries no runtime", async () => {
+    const runtime = new Runtime({ slug: "runtime", reference: new Path("/runtime/runtime"), controller: new Controller() });
+    const daemon = new Daemon({
+      slug: "probe",
+      mask: { manifest: { slug: "probe" }, reference: new Path("/daemon/probe") },
+      controller: new Controller(),
+    });
+    runtime.daemons = { probe: daemon };
+    const whoami = (ctx) => ({ output: { runtime: ctx.runtime.slug } });
+    runtime.aperture.open("/whoami", whoami);
+    daemon.aperture.open("/whoami", whoami);
+    const harness = new Vector().open("/whoami", whoami);
+    const play = new Mode({ manifest: { type: "board", slug: "play", traits: ["HARNESSED"] } });
+    play.aperture = new Aperture();
+    play.aperture.branch("/harness", harness);
+    play.harness = shape.object(harness, steer.strategy.guarded);
+    daemon.modes = { board: { play } };
+    const die = { aperture: new Aperture(), runtime };
+    await lifecycle.runtime.resolution.expose(die, async () => {});
+    const ask = async (vector, path) =>
+      (await steer.dispatch.invoke(vector, new Signal(path), steer.strategy.guarded)({})).output;
+    const answers = {
+      "root → runtime": await ask(die.aperture, "/runtime/runtime/whoami"),
+      "root → daemon": await ask(die.aperture, "/daemon/probe/whoami"),
+      "internal → daemon": await ask(daemon.aperture, "/whoami"),
+      "direct → a mode's harness": (await play.harness.whoami({})).output,
+    };
+    console.log(JSON.stringify(answers, null, 2));
+    specimen.expect(answers).toEqual({
+      "root → runtime": { runtime: "runtime" },
+      "root → daemon": { runtime: "runtime" },
+      "internal → daemon": { runtime: "runtime" },
+      "direct → a mode's harness": { runtime: "runtime" },
+    });
+    specimen.expect(Object.keys(contexts.modeDie)).not.toContain("runtime");
   });
 });

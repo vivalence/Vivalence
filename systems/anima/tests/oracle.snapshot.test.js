@@ -1,3 +1,4 @@
+import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { specimen, trace, Cortex } from "@vivalence/typology";
 import { mountMode } from "@vivalence/runtime/scenarios";
 import * as oracle from "../../../commons/playground/chaosmonkey/oracle/oracle.viva.js";
@@ -19,7 +20,7 @@ const answered = (turns) => turns.at(-1)?.parts?.some((part) => part.type === "t
 const seer = () => ({
   type: "dialogue",
   id: "dialogue-1",
-  tune: [0.9, 1.0, 0.3],
+  tune: [0.9, 0.3, 0.5],
   context: 200000,
   channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
   via: {
@@ -27,7 +28,7 @@ const seer = () => ({
       const { turns, output } = request;
       if (output?.schema) {
         const data = { answer: `the mist parts: ${lastUserText(turns)}` };
-        return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" }, object: data };
+        return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" } };
       }
       return {
         role: "assistant",
@@ -49,7 +50,7 @@ const stable = (node) => {
 let scenario;
 
 specimen.beforeAll(async () => {
-  scenario = await mountMode(oracle, { cortex: new Cortex().register([seer()]) });
+  scenario = await mountMode(oracle, { cortex: new Cortex(TIER_POINTS).register([seer()]) });
 });
 
 specimen.afterAll(async () => {
@@ -73,7 +74,7 @@ specimen.describe("oracle /ask over the wire — daemon spans cross as flat reco
       thread: scenario.fixtures.thread.id,
     });
     const render = root.children.find((child) => child.nature === "render");
-    specimen.expect(render.entries[0].data.output.object).toEqual({ answer: "the mist parts: what am i" });
+    specimen.expect(render.entries[0].data.product.object).toEqual({ answer: "the mist parts: what am i" });
     specimen.expect(trace.duration(root)).not.toBe(null);
 
     const capture = specimen.snapshot(story.roots, {

@@ -1,7 +1,7 @@
 // The stub — a hallucinator that calls nothing. It reads a script off the request and plays
 // it in REAL time, so a run is long enough to hold, stop and kill while you watch the row.
 // Contract: provider(service) → Faculty[], the same one anthropic keeps.
-import { v } from "@vivalence/typology";
+import { soma, v } from "@vivalence/typology";
 import { plan, shape, spoken } from "./script.js";
 
 // every gap is interruptible: the belt hands the controller's abort signal down, and a killed
@@ -34,7 +34,12 @@ async function* dialogue(model, request, signal) {
   if (script.close) {
     yield { event: "/turn/open", turn: { role: "assistant" } };
     await pause(script.pace, signal);
-    yield { event: "/turn/close", meta: { state: script.close, usage: null, provider: { finish_reason: script.close, model: model.slug } } };
+    yield {
+      event: "/turn/close",
+      turn: {
+        meta: { state: script.close, provider: { finish_reason: script.close, model: model.id } },
+      },
+    };
     return;
   }
 
@@ -43,11 +48,15 @@ async function* dialogue(model, request, signal) {
   if (script.tool && armed && script.round < script.rounds) {
     yield { event: "/turn/open", turn: { role: "assistant" } };
     await pause(script.pace, signal);
-    yield { event: "/part/open", index: 0, part: { type: "tool_use", id: `stub-${script.round}`, name: armed.name, input: "" } };
-    yield { event: "/part/delta", index: 0, delta: { input: JSON.stringify({ query: spoken(request.turns) }) } };
+    yield {
+      event: "/part/open",
+      index: 0,
+      part: { type: "tool_use", id: `stub-${script.round}`, name: armed.name, input: {} },
+    };
+    yield { event: "/part/delta", index: 0, part: { input: { query: spoken(request.turns) } } };
     await pause(script.stall || script.pace, signal);
     yield { event: "/part/close", index: 0 };
-    yield { event: "/turn/close", meta: { state: "tools" } };
+    yield { event: "/turn/close", turn: { meta: { state: "tools" } } };
     return;
   }
 
@@ -58,7 +67,7 @@ async function* dialogue(model, request, signal) {
     yield { event: "/turn/open", turn: { role: "assistant" } };
     yield { event: "/part/open", index: 0, part: { type: "object", data } };
     yield { event: "/part/close", index: 0 };
-    yield { event: "/turn/close", meta: { state: "complete" } };
+    yield { event: "/turn/close", turn: { meta: { state: "complete" } } };
     return;
   }
 
@@ -70,96 +79,92 @@ async function* dialogue(model, request, signal) {
   for (let at = 0; at < grains; at += 1) {
     await pause(at === 1 ? script.stall || script.pace : script.pace, signal);
     if (signal?.aborted) return;
-    yield { event: "/part/delta", index: 0, delta: { text: text.slice(at * slice, (at + 1) * slice) || "." } };
+    const part = { text: text.slice(at * slice, (at + 1) * slice) || "." };
+    yield { event: "/part/delta", index: 0, part };
   }
   yield { event: "/part/close", index: 0 };
-  yield { event: "/turn/close", meta: { usage: { input: 10, output: text.length }, state: "complete" } };
+  yield {
+    event: "/turn/close",
+    turn: { meta: { usage: { input: 10, output: text.length }, state: "complete" } },
+  };
 }
 
-// render is the same script, poured into one turn — the belt's soma does the pouring for a
-// stream, so here it is done by hand.
-async function collect(packets) {
-  const parts = [];
-  let meta = { state: "complete" };
-  for await (const packet of packets) {
-    if (packet.event === "/part/open") parts.push({ ...packet.part });
-    if (packet.event === "/part/delta") {
-      const part = parts.at(-1);
-      if (packet.delta.text) part.text = (part.text ?? "") + packet.delta.text;
-      if (packet.delta.input) Object.assign(part, { ...packet.delta, input: JSON.parse(packet.delta.input) });
-    }
-    if (packet.event === "/turn/close") meta = { ...meta, ...packet.meta };
-  }
-  const object = parts.find((part) => part.type === "object")?.data;
-  return { role: "assistant", parts, meta, ...(object && { object }) };
-}
 
-const MODELS = {
-  deep: { slug: "stub-deep", tune: [0.95, 1.0, 0.15, 0.15], context: 1000000 },
-  middle: { slug: "stub-middle", tune: [0.6, 0.65, 0.6, 0.5], context: 1000000 },
-  quick: { slug: "stub-quick", tune: [0.25, 0.3, 0.95, 0.5], context: 200000 },
-};
+const { Tune } = v.primitives.hallucination;
+
+const Faculties = v.array(
+  v.union([
+    v.object({ type: v.const("dialogue"), id: v.string(), tune: Tune, context: v.integer() }),
+    v.object({ type: v.const("verbatim"), id: v.string(), tune: Tune }),
+    v.object({ type: v.const("speech"), id: v.string(), tune: Tune }),
+  ]),
+);
 
 // async by contract — paladin awaits every provider, and the real ones open a client here.
 // deno-lint-ignore require-await
 export default async function provider(service) {
+  const [violation] = v.faults(Faculties, service.faculties);
+  if (violation) throw new Error(`[stub] faculties${violation.at} ${violation.reason}`);
   const statics = service.statics ?? {};
-  const faculties = [];
 
-  for (const model of Object.values(MODELS)) {
-    const seat = { ...model, statics };
-    faculties.push({
+  const dialogueFaculty = (entry) => {
+    const seat = { ...entry, statics };
+    return {
       type: "dialogue",
-      id: model.slug,
-      tune: model.tune,
-      context: model.context,
+      id: entry.id,
+      tune: entry.tune,
+      context: entry.context,
       channels: { in: ["text", "image", "document", "tool_result"], out: ["text", "tool_use", "object"] },
       via: {
         stream: (request, { signal } = {}) => dialogue(seat, request, signal),
-        render: (request, { signal } = {}) => collect(dialogue(seat, request, signal)),
+        render: (request, { signal } = {}) => soma.bridge(dialogue(seat, request, signal)),
       },
-    });
-  }
+    };
+  };
 
-  faculties.push({
+  const verbatimFaculty = (entry) => ({
     type: "verbatim",
-    id: "stub-verbatim",
-    tune: [0.4, 0.6, 0.8, 0.9],
+    id: entry.id,
+    tune: entry.tune,
     channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
     via: {
-      stream: async function* (source, settings = {}) {
+      stream: async function* ({ source, settings = {} }, { signal } = {}) {
         const script = plan({ settings }, statics);
         const heard = [];
         yield { event: "/turn/open", turn: { role: "user" } };
+        yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
         for await (const packet of source) {
-          heard.push(typeof packet.audio === "string" ? packet.audio : "·");
-          await pause(script.pace);
-          yield { event: "/verbatim/partial", transcript: heard.join(" ") };
+          heard.push(packet.audio.data);
+          await pause(script.pace, signal);
+          yield { event: "/part/draft", index: 0, part: { text: heard.join(" ") } };
         }
-        await pause(script.stall);
-        yield { event: "/verbatim/final", transcript: heard.join(" "), segment: 0 };
-        yield { event: "/turn/close" };
+        await pause(script.stall, signal);
+        yield { event: "/part/delta", index: 0, part: { text: heard.join(" ") } };
+        yield { event: "/part/close", index: 0 };
+        yield { event: "/turn/close", turn: {} };
       },
     },
   });
 
-  faculties.push({
+  const speechFaculty = (entry) => ({
     type: "speech",
-    id: "stub-speech",
-    tune: [0.3, 0.5, 0.8, 0.9],
+    id: entry.id,
+    tune: entry.tune,
     channels: { in: [{ type: "text" }], out: [{ type: "audio", codec: "pcm_16000" }] },
     via: {
-      stream: async function* (source) {
+      stream: async function* ({ source }, { signal } = {}) {
         const chunks = typeof source === "string" ? [source] : source;
         for await (const chunk of chunks) {
-          await pause(40);
-          yield { event: "/audio/packet", audio: `audio:${chunk}`, rate: 16000 };
+          await pause(40, signal);
+          yield { event: "/audio/packet", audio: { data: `audio:${chunk}`, rate: 16000 } };
         }
-        yield { event: "/audio/close" };
+        yield { event: "/audio/close", audio: { meta: { state: "complete" } } };
       },
-      render: (source) => Promise.resolve({ audio: `audio:${typeof source === "string" ? source : "stream"}`, rate: 16000 }),
+      render: ({ source }) => Promise.resolve({ audio: `audio:${typeof source === "string" ? source : "stream"}`, rate: 16000 }),
     },
   });
 
-  return faculties;
+  const TYPES = { dialogue: dialogueFaculty, verbatim: verbatimFaculty, speech: speechFaculty };
+
+  return service.faculties.map((entry) => TYPES[entry.type](entry));
 }

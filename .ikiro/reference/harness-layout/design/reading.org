@@ -1,0 +1,72 @@
+#+title: harness-ui — the comp, read 11-17
+# writer: agent · limit: 6000 chars
+
+comp: https://claude.ai/artifact/L65TxFgk5mkqbpjCZqyW4R (slug =9a931ad8-1049-4d25-91b5-864bf3f8b65a=, version =1794929323-a8b7=) — 4 boards + =harness.css= + the DS =tokens.css= copy (sha =d560b341…=). HANDOFF.md: ABSENT — not in the artifact's files, not in the tree (=mdfind= · =find= 0); the boards are read as the spec until it arrives.
+
+built-from copy: =testament/prototypes/harness-ui/harness.css= = the comp's =project/harness.css=, verbatim. The boards are NOT copied to disk (the type refuses =paths=; 60 kB by hand) — a parity claim re-reads them through the artifact.
+
+* panes — one line each: shows what, from where
+
+| board | pane | shows | from (the lab) |
+|---+---+---+---|
+| Main | sidebar · harness | tier · model · effort · rounds · context meter (primer · tools · turns, used / window), then =primer= · =tools= trees, mode rows as roots | =thread.trait.HARNESSED= · =request(thread)= · =MODEL.window= · =TOOLS= · =PRIMERS= |
+| Main | the tree | a row per mode → branch → leaf; leaf = its RESOLVED glyph; branch = its OWN key's glyph, bold; carried = dim + a rail at the carrier's depth; closed branch = tally ● n ○ n; hover · current = set ● load · ○ preload · × unload | =resolved= · =covering= · =thread.trait.TOOLED · PRIMED= |
+| Main | strip | per trait: label · tally · view loaded / all · fold | same |
+| Inspector | tree column | the same tree, primer shut | same |
+| Inspector | reference | glyph · label · kind; reference · state · decided by · model sees (n/64) · cost; acts load · preload · unload; parts valence · input · output · examples (tool) · text (primer) · members (branch) | =TOOLS= leaf · =narrow= · =declaration= |
+| Inspector | invoke | a field per input name, required → the schema's error; invoke composes =/invoke …= | leaf =input= |
+| Inspector | journal | turns touching the picked reference: who · at · signal · result | =store.events= |
+| Repl | the field | ONE signal line; 8 states: complete a segment · filter and tick · preview · many references · refused · no-op · unruled · =/mode= names | =store.line= · =ids= · =changes= · =narrow= |
+| Themes | widget | the modeline segment ={ tier ▮▮ n% · n● n○ }= opens the DELTA: keys per trait, each × = unload; =+ /tool/load= field; meter · used / window | =thread.trait.TOOLED · PRIMED= |
+
+* glyphs — the comp's, over the brief's
+
+| state | brief · lab | comp |
+|---+---+---|
+| eager | ● | ● =g-eager= |
+| lazy | ◇ | ○ =g-lazy= |
+| none | ○ | blank in a tree; ○ =g-none= in a preview |
+
+* dropped — the comp has, the lab has no source
+
+- =cached= (context fold) — the cortex's cache read, no source without a runtime
+- the model fold (a list of models) — =cortex.find=, no source
+- invoke's result · packets — the lab runs nothing; the field validates, the signal is shown, the answer says so
+- four themes side by side — =emit.js= scopes a theme on =:root= only; the page's theme switch shows each
+
+* kept — live has, the comp omits
+
+- =tune= (the radar) — anima =sections.js:302=; the lab has no tune fixture: stays in the anima milestone
+- B · columns — the lab's Miller walk, kept below the field for his ruling
+
+* the system lacks
+
+- widening (Q27 reverse): the comp types =/tactic/harvest=; the lab reads absolute references only
+- =/primer/preload= · =/primer/unload= — unruled, shown =not ruled=
+- the model's own edits announcing themselves — the journal's =who= is the only mark
+
+* open
+
+- glyph: CLOSED 11-17, the comp's — lazy ○ (=belt.harness.MARKS=, the bar), a tree's none blank
+- unload: the comp SPLITS the parent key into its siblings; the lab writes =none= under the kept parent (the brief, Q16 as read) — the lab's kept
+- the meter's empty cell: =--divider= = =--surface-lift= on northsea zone 0 (=#1A2A38= both) — 30 cells read as 2; the comp's DS copy may differ (its =tokens.css= sha ≠ ours)
+- host collisions, the lab's =page.css= resets them: drapes =.tools= (margin · flex) hits the meter's =i.tools=; =.seg= adds a margin
+
+* REJECTED 11-17 — the comp as a skin
+
+=Harness.jsx= + =harness.css= replaced the live sidebar · δ widget · inspector cells · segment: /"you replaced the old harness. you should INTEGRATE. not replace. that design was meant to be integrated not authoritative!"/ Reverted the same day; my files: =~/.viva/bak/ikiro/harness-replace-20261117/=. The comp's CONTENT enters the live rows; the live kit stays the look.
+
+* integrated 11-17 — /"that, and the inspector."/
+
+- sidebar (=sections.js= =rooted · folded · treed=): the live rows, rooted at the MODE (=type/slug= · =home= | host · tally); a head counts =n● n◇=; =view= loaded · all (=/harness/view=, =VIEWS_SHOWN=); a folder opens with its acts; a leaf says =loaded · listed · not in the thread=; keyed · carried tint the mark
+- inspector (=entities.js= =mapped · forked · leafed=): the map mode → branch → leaf; a leaf's lines the comp's (=● loaded= · decided by · model sees); a branch: members + acts; a primer reads
+- repl: =Chooser= =changes= — =would change n=, a mode head, =before → after=; matches nothing · already so · not ruled
+- =acts=: unload where a key covers (own or carried)
+- live stays: segment · widget (=* open= 1 his) · the δ panel unbuilt
+
+* pass 11-17 (2) — /"look more at features than impleemtnation. copy what fits, adjust the rest."/
+
+- strip (=sub= + =chips=): label · tally =●n ○n= · view inline · fold; the =view= row gone
+- tree row (=item= + =set=): owner =/daemon/chess= → mode → leaf (/"runtime n daemon are siblings"/), indent by depth · glyph by state, none blank · keyed bold · carried dim + rail · host right · tally folded · set ● ○ × inline (hover · current) · fold right; =current= on =$sections=; empty = =nothing loaded · all=
+- a user load writes the trait only (runtime =loading=): /"printed a turn. very stupid. not wanted"/
+- not built, no client source: inspector cost · input · invoke (the map's entries carry =reference · valence · load= only)

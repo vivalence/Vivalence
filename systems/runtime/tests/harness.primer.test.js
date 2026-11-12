@@ -1,13 +1,19 @@
-import { Mode, shape, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
-import { traits } from "@vivalence/runtime";
+import { belt, Mode, Path, shape, shard, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
+import { Runtime, ThreadEntity, traits } from "@vivalence/runtime";
 import { create } from "./scenarios/cortex.js";
 const { PRIMER } = traits.mode;
 
 let scenario;
 let captured;
 
-const ask = async () => {
-  const thread = await scenario.createThread();
+const HARVEST = "/daemon/test-daemon/mode/tactics/harvest";
+
+const ask = async (PRIMED, thread) => {
+  thread ??= await scenario.createThread();
+  if (PRIMED) {
+    thread.trait.PRIMED = PRIMED;
+    await scenario.em.flush();
+  }
   await scenario.dewey.harness.dialogue.render({ thread: thread.id, parts: [{ type: "text", text: "what do you know?" }] });
   return await shape.primer.load(captured.primer);
 };
@@ -26,40 +32,41 @@ specimen.describe("harness — the request's primer", () => {
     harvest.module.primer = new Vector().open({ nature: "archivist", valence: "the harvest persona" }, "ARCHIVIST");
     PRIMER(harvest);
     daemon.modes.tactics = { harvest };
+    const runtime = new Runtime({ slug: "runtime", reference: new Path("/runtime/runtime"), daemons: { [daemon.slug]: daemon } });
+    dewey.aperture.branch("/harness").use(shard.context.bind("runtime", runtime));
   });
   specimen.afterAll(async () => {
     await scenario.orm.close();
   });
 
-  specimen.it("PRIMER mints the mode's own primer; a mode without AGENTIC reads no sibling", async () => {
+  specimen.it("PRIMER mints the mode's own primer; an empty PRIMED reads no other mode; the seven load tools ride every request", async () => {
     const system = await ask();
+    const declared = belt.hallucinate.declarations(captured.tools).map((tool) => tool.name);
+    console.log(JSON.stringify({ system, declared }, null, 2));
     specimen.expect(Object.keys(system)).toEqual(["dewey"]);
-    specimen.expect(captured.tools.edge("primer")).toBe(null);
+    specimen.expect(declared).toEqual(["modes_index", "tool_load", "tool_preload", "tool_unload", "primer_load", "primer_preload", "primer_unload"]);
   });
 
-  specimen.it("an AGENTIC mode lists every sibling's primer lazily, reads one with primer_read, and writes no mode", async () => {
+  specimen.it("a lazy PRIMED key lists another mode's primer for primer_load, narrowed; no mode is written", async () => {
     const { dewey, daemon } = scenario;
-    dewey.manifest.traits.push("AGENTIC");
-    const system = await ask();
+    const system = await ask({ [HARVEST]: "lazy" });
+    console.log(JSON.stringify(system, null, 2));
     specimen.expect(Object.keys(system)).toEqual(["dewey", "primer"]);
-    specimen.expect(system.primer).toBe("Read on demand with primer_read { nature }:\nharvest/archivist — the harvest persona");
-    specimen.expect(await shape.primer.read(captured.primer, "harvest/archivist")).toBe("ARCHIVIST");
-    specimen.expect(captured.tools.edge("primer")).not.toBe(null);
+    specimen.expect(system.primer).toBe("Load on demand with primer_load { references }:\n/tactics/harvest/archivist — the harvest persona");
     specimen.expect(shape.primer.keys(dewey.primer)).toEqual(["dewey"]);
     specimen.expect(shape.primer.keys(daemon.modes.tactics.harvest.primer)).toEqual(["archivist"]);
-    specimen.expect(shape.strip(captured.primer).branches.harvest.meta).toEqual({ load: "lazy" });
-    dewey.manifest.traits.pop();
   });
 
-  specimen.it("a read lands in the turn, never in the primer: the loaded record and the armed tools are byte-equal across a primer_read", async () => {
-    const { dewey } = scenario;
-    dewey.manifest.traits.push("AGENTIC");
-    await ask();
-    const before = { system: JSON.stringify(await shape.primer.load(captured.primer)), tools: JSON.stringify(shape.strip(captured.tools)) };
-    specimen.expect(await steer.dispatch.invoke(captured.tools, new ToolCall("primer_read").signal, steer.strategy.guarded)({ nature: "harvest/archivist" })).toEqual({ output: { message: "ARCHIVIST" } });
-    specimen.expect(JSON.stringify(await shape.primer.load(captured.primer))).toBe(before.system);
-    specimen.expect(JSON.stringify(shape.strip(captured.tools))).toBe(before.tools);
-    dewey.manifest.traits.pop();
+  specimen.it("Q9A — primer_load answers the section, keys PRIMED; the next request carries it in full", async () => {
+    const thread = await scenario.createThread();
+    await ask({ [HARVEST]: "lazy" }, thread);
+    const loaded = await steer.dispatch.invoke(captured.tools, new ToolCall("primer_load"), steer.strategy.guarded)({ references: ["/tactics/harvest/archivist"] });
+    const stored = (await scenario.em.fork().findOneOrFail(ThreadEntity, { id: thread.id }, { filters: false })).trait.PRIMED;
+    const system = await ask(undefined, thread);
+    console.log(JSON.stringify({ loaded: loaded.output, stored, system }, null, 2));
+    specimen.expect(loaded.output).toEqual({ primers: { "tactics/harvest/archivist": "ARCHIVIST" }, missed: [] });
+    specimen.expect(stored).toEqual({ [HARVEST]: "lazy", [`${HARVEST}/archivist`]: "eager" });
+    specimen.expect(system).toEqual({ dewey: "You are Dewey.", "tactics/harvest/archivist": "ARCHIVIST" });
   });
 
   specimen.it("a domain's primer hangs under the domain's slug on every request", async () => {

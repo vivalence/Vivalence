@@ -1,0 +1,95 @@
+#+title: ledger faculties — the locked hunks R1–R6, as drilled 11-17 (moved whole, cap; built into =land/repo.patch=)
+# writer: agent · limit: 4000 chars
+
+* as code
+
+R1 — the row, =~/.viva/ledger.viva.json= =hallucinators[]=:
+
+#+BEGIN_SRC json
+{
+  "module": "@commons/hallucinator/elevenlabs",
+  "secrets": { "key": "${SECRET_VIVA_ELEVENLABS_API_KEY}" },
+  "faculties": [
+    { "type": "speech", "id": "luiza", "model": "eleven_flash_v2_5", "voice": "21m00Tcm4TlvDq8ikWAM", "tune": [0.3, 0.4, 0.1] },
+    { "type": "verbatim", "id": "scribe_v3_live", "model": "scribe_v3_live", "tune": [0.8, 0.9, 0.7] }
+  ]
+}
+#+END_SRC
+
+R1 — the provider:
+
+#+BEGIN_SRC js
+export default async function provider(row) {
+  const client = connect(row.secrets.key);
+  return row.faculties.map((faculty) => TYPES[faculty.type](faculty, client));
+}
+#+END_SRC
+
+R3 · R4 · R5 — the tiers, the schema, the score, the readers:
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/cortex.js:12
+-// [intelligence, reasoning, speed, thrift]  (each 0-1, 1 = max)
+ export const tiers = {
+…
+-  balanced: [0.4, 0.6, 0.6],
+-  capable: [0.6, 0.4, 0.4],
+-  unleashed: [0.9, 0.2, 0.2],
+-  eager: [0.3, 0.5, 0.1],
++  balanced: [0.5, 0.5, 0.5],
++  capable: [0.9, 0.2, 0.5],
++  unleashed: [1.0, 0.9, 0.1],
+ };
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/hallucination.js:223
+     v.const("unleashed"),
+-    v.const("eager"),
+   ])
+   .desc(
+-    "A named desire in tune-space: frugal=cheap+fast, balanced=even trade, capable=strong+moderate cost, unleashed=max capability cost-no-object, eager=engagement-first.",
++    "A named desire in tune-space: frugal=cheap+fast, balanced=even trade, capable=slow+smart+fair price, unleashed=fast+smart+expensive.",
+   );
+#+END_SRC
+
+R6 — the ledger owes the five points; the cortex takes them:
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/instance.js:133
+     hallucinators: v.array(Mask).optional(),
++    tiers: v.object({
++      frugal: Tune,
++      fast: Tune,
++      balanced: Tune,
++      capable: Tune,
++      unleashed: Tune,
++    }),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/1-population.js:85
+-  die.runtime.cortex = new Cortex();
++  die.runtime.cortex = new Cortex(die.runtime.instance.tiers);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// commons/hallucinators/anthropic/provider/index.js:31
+-    tune: [0.95, 0.15, 0.15],
++    tune: [1.0, 0.8, 0.1],
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:397
+-export const TIERS = ["frugal", "fast", "balanced", "capable", "unleashed", "eager"];
++export const TIERS = ["frugal", "fast", "balanced", "capable", "unleashed"];
+#+END_SRC
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/riddler/aperture.js:25
+-      policy: { tier: "eager" },
++      policy: { tier: "fast" },
+#+END_SRC
+
+Probed picks (=scratchpad/rebalance.probe.js opus=): capable → gpt-6.1-sol · unleashed → opus · a thread naming no model: sonnet → gpt-6.1-sol. Tests naming =eager= at land: typology =cortex.hallucinators.test.js:42 · :46 · :81= · =voice.conversation.test.js:112 · :130=; anima =tele.test.js:137=; the mock picks =cortex.test.js:93 · :116= re-read.
+

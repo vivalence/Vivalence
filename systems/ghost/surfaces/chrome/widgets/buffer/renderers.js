@@ -7,9 +7,7 @@ export const RUNS = [mime.tty.solid];
 export const runs = (view) => RUNS.includes(view.mime);
 
 export const candidates = (buffer, files) =>
-  computed([belt.view.candidates(buffer.$views, buffer.mode.$views), files], (views) =>
-    views.filter(belt.view.held),
-  );
+  computed([belt.view.candidates(buffer.$views, buffer.mode.$views), files], (views) => views);
 
 export const framed = (views) => views.filter(runs).filter((view) => view.traits.includes("FRAME"));
 

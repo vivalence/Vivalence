@@ -1,0 +1,100 @@
+#+title: call-faculty, moved whole from the quest 11-16 (cap, second cut): the call's hunks (Q0 · Q3A · law 6 · Q6) · the blast table
+# writer: agent · limit: 5500 chars
+
+* Q3A as code
+
+Q3A — a provider's feed =switch=; a packet without a =case= falls through (=soma.pour= · =flux= style)
+#+BEGIN_SRC js
+// commons/hallucinators/<openai-slug>/provider/index.js
+switch (packet.event) {
+  case "/audio/packet":
+    return ws.send(JSON.stringify({ type: "input_audio_buffer.append", audio: packet.audio }));
+  case "/audio/played":
+    return ws.send(JSON.stringify({ type: "conversation.item.truncate", item_id: speaking, content_index: 0, audio_end_ms: Math.round(packet.pts * 1000) }));
+  case "/tool/yield":
+    return ws.send(JSON.stringify({ type: "conversation.item.create", item: { type: "function_call_output", call_id: packet.id, output: JSON.stringify(packet.result) } }));
+}
+// commons/hallucinators/<gemini-slug>/provider/index.js — no "/audio/played" case
+switch (packet.event) {
+  case "/audio/packet":
+    return ws.send(JSON.stringify({ realtimeInput: { audio: { data: packet.audio, mimeType: "audio/pcm;rate=16000" } } }));
+  case "/tool/yield":
+    return ws.send(JSON.stringify({ toolResponse: { functionResponses: [{ id: packet.id, response: packet.result }] } }));
+}
+// systems/ghost/subjects/app/prototypes/box/device/speaker/speaker.js — beside $playing
+$played = atom(0);
+get played() { return this.$played.get(); }
+// subsystems/typology/schematics/primitives/hallucination.js
+Audio.Played = v.object({ event: v.const("/audio/played"), pts: v.number() });
+#+END_SRC
+
+Q0 — =subsystems/typology/gestalten/belt/hallucinate.js=, called by shard =calling(cortex)= once per call
+#+BEGIN_SRC js
+export async function* converse(faculty, { source, settings, ...request }, policy) {
+  const answers = new Queue();
+  let turn = null;
+  for await (const packet of faculty.via.stream({ ...request, source: soma.merge(source, answers.drain()), settings }, { signal: policy.controller.abort.signal })) {
+    turn = soma.pour(turn, packet);
+    yield packet;
+    if (packet.event !== "/turn/close" || state(turn) !== "tools") continue;
+    for (const { call, result } of await dispatch(policy, turn.parts)) {
+      yield { event: "/tool/yield", id: call.id, result };
+      answers.enqueue({ event: "/tool/yield", id: call.id, result });
+    }
+  }
+}
+#+END_SRC
+
+law 6 — =subsystems/typology/prototypes/cortex.js:135=
+#+BEGIN_SRC js
+call: (cortex, query) => {
+  const ear = cortex.findOne({ type: "verbatim", via: "stream" });
+  const mind = cortex.findOne({ type: "dialogue", via: "stream" });
+  const mouth = cortex.findOne({ type: "speech", via: "stream" });
+  return ear && mind && mouth ? cascade(ear, mind, mouth) : undefined;
+},
+#+END_SRC
+
+Q6 — =subsystems/typology/gestalten/belt/cascade.js= (new, home mine), the ear's packets inside =cascade(ear, mind, mouth).via.stream=
+#+BEGIN_SRC js
+switch (packet.event) {
+  case "/turn/open":
+    speaking?.abort("interrupted");
+    break;
+  case "/turn/close":
+    history = [...history, heard];
+    speaking = answer(history);
+    break;
+}
+#+END_SRC
+
+* blast table
+
+| consumer of =Verbatim.*= | path | BREAKS |
+|---|---|---|
+| =polishing= | =subsystems/typology/gestalten/shard/hal.js:4= | at land |
+| =harmonize= · =fold= · =transcript= | =subsystems/typology/gestalten/belt/verbatim.js= | at land |
+| =nova= · =flux= | =commons/hallucinators/deepgram/provider/index.js:78 · :93= | at land |
+| =/harness/verbatim/stream= =yields= | =systems/runtime/subjects/mode/traits/harnessed.js:226= | at land |
+| =/verbatim= branch =yields= | =subsystems/typology/prototypes/cortex.js:56= | at land |
+| =VOCAL= flat =Selector= → =hear= (Q7) | =subsystems/typology/gestalten/shard/hal.js:53= · =commons/dashboards/dataspace/schema.js:60= · =systems/runtime/tests/dictation.integration.test.js:84= · stored threads | at land |
+| tests | =subsystems/typology/tests/{dictation,voice}.conversation.test.js= · =commons/hallucinators/deepgram/tests/= · =systems/runtime/tests/dictation.integration.test.js= | at land |
+
+* Q1A — moved 11-16 evening (cap), milestone 3; re-cut 11-17 on S4 (Q18 killed deepgram's line · Q22 the signal)
+
+Q1A — =subsystems/typology/gestalten/belt/hallucinate.js:209 · :218 · :229 · :243=, =shard/hallucinate.js:61=, elevenlabs
+#+BEGIN_SRC js
+yield* verbatim.harmonize(faculty.via.stream(input, { signal: policy.controller.abort.signal }), policy.harmonize);
+yield* faculty.via.stream(input, { signal: policy.controller.abort.signal });
+return await faculty.via.render(input, { signal: policy.controller.abort.signal });
+// transcript — the render pours with soma, verbatim.fold is dead (S2)
+let turn = null;
+for await (const packet of transcribe(faculty, input, policy)) turn = soma.pour(turn, packet);
+return turn.parts[0].text;
+// shard/hallucinate.js:61 — the dead local renamed (word-guard 11-17)
+const transcriber = via === "render" ? hallucinate.transcript : hallucinate.transcribe;
+ctx.output = transcriber(faculty(cortex, "verbatim", via, ctx.policy), ctx.input, policyOf(ctx));
+// commons/hallucinators/elevenlabs/provider/index.js:35 — speech; the scribe ear is born the same
+const stream = async function* ({ source, settings = {} }, { signal } = {}) {
+signal.addEventListener("abort", () => ws.close(), { once: true });
+#+END_SRC

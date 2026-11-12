@@ -44,7 +44,7 @@ specimen.describe("views bundled through the repository verb", { sanitizeResourc
 
   specimen.it("a source bundles to a View row whose Files are the kept source and the content-addressed compile; entry names the compile", async () => {
     const view = await scenario.scoped(async (em) => {
-      const row = await scenario.daemon.entities.view.bundle({ mode: mode.entity.id, slug: "spawned", mime: mime.dom.svelte, source: SOURCE }, { bundler });
+      const row = await scenario.daemon.entities.view.generate({ mode: mode.entity.id, slug: "spawned", mime: mime.dom.svelte, source: SOURCE }, { bundler });
       return await em.fork().findOneOrFail(ViewEntity, { id: row.id }, { populate: ["files"] });
     });
     const hash = await crypto.digest(SOURCE);
@@ -69,7 +69,7 @@ specimen.describe("views bundled through the repository verb", { sanitizeResourc
     const before = await scenario.scoped((em) => em.fork().findOneOrFail(ViewEntity, { slug: "spawned" }));
     const revised = SOURCE.replace("A+", "A++");
     const view = await scenario.scoped(async (em) => {
-      const row = await scenario.daemon.entities.view.bundle({ mode: mode.entity.id, slug: "spawned", mime: mime.dom.svelte, source: revised }, { bundler });
+      const row = await scenario.daemon.entities.view.generate({ mode: mode.entity.id, slug: "spawned", mime: mime.dom.svelte, source: revised }, { bundler });
       return await em.fork().findOneOrFail(ViewEntity, { id: row.id }, { populate: ["files"] });
     });
     const stem = (await crypto.digest(revised)).slice(0, 16);

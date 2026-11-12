@@ -12,12 +12,15 @@ Over cap the write warns and lands (beef: warn, no interrupt); the file is conso
 """
 import glob, json, os, re, sys
 
-ROOT = os.path.join(os.environ.get("CLAUDE_PROJECT_DIR", "."), ".ikiro")
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LIMIT = re.compile(r"limit: (\d+) chars")
 
 
 def capped():
+    headed = [f for f in glob.glob(f"{ROOT}/reference/**/*.org", recursive=True) + glob.glob(f"{ROOT}/reference/**/*.md", recursive=True)
+              if LIMIT.search(open(f, encoding="utf-8").read())]
     files = (glob.glob(f"{ROOT}/*.md") + glob.glob(f"{ROOT}/*.org") + [f"{ROOT}/quests/frontier.md"]
+             + glob.glob(f"{ROOT}/quests/*.org") + headed
              + glob.glob(f"{ROOT}/world/codemap/*.md") + glob.glob(f"{ROOT}/skills/*/SKILL.md"))
     return sorted(f for f in set(files) if not os.path.islink(f))
 
@@ -100,7 +103,8 @@ def deny(path, n, lim):
     except OSError:
         pass
     if mode == "warn":
-        print(reason, file=sys.stderr); return
+        print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse",
+                                                 "additionalContext": f"WARN {reason}"}})); return
     print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny",
                                              "permissionDecisionReason": reason}}))
 

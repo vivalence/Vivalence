@@ -207,10 +207,10 @@ specimen.describe("emit — a zone's override", () => {
 
 specimen.describe("design() — one sheet: the scales, then every theme", () => {
   const SCALES = ["spacing", "font-size", "line-height", "box-shadow", "drop-shadow", "container", "border-radius", "animation"];
-  const selectors = [...ds.output.css.matchAll(/^([^\n{}]+) \{$/gm)].map((match) => match[1]);
+  const selectors = [...ds.product.css.matchAll(/^([^\n{}]+) \{$/gm)].map((match) => match[1]);
 
   specimen.it("the sheet is the scales, then each theme emitted, nothing else", () => {
-    specimen.expect(ds.output.css).toBe([scales(), ...Object.entries(THEMES).map(([name, held]) => emit(name, held))].join("\n"));
+    specimen.expect(ds.product.css).toBe([scales(), ...Object.entries(THEMES).map(([name, held]) => emit(name, held))].join("\n"));
     specimen.expect(Object.keys(ds.themes)).toEqual(["northsea", "parchment", "porcelain", "datasette"]);
   });
 
@@ -239,7 +239,7 @@ specimen.describe("design() — one sheet: the scales, then every theme", () => 
   specimen.it("a family is the theme's: six names in every theme root and zone block, none under the bare :root", () => {
     const families = ["--font-family-sans-heading", "--font-family-sans-text", "--font-family-serif-heading", "--font-family-serif-text", "--font-family-brand", "--font-family-code"];
     specimen.expect(named(scales(), ":root").declarations.filter(([name]) => name.startsWith("--font-family-"))).toEqual([]);
-    for (const block of blocks(ds.output.css).slice(1)) {
+    for (const block of blocks(ds.product.css).slice(1)) {
       specimen.expect([block.selector, block.declarations.map(([name]) => name).filter((name) => name.startsWith("--font-family-"))]).toEqual([block.selector, families]);
     }
     const held = (name, zone) => Object.fromEntries(declarations(THEMES[name].zones[zone]));
@@ -257,13 +257,13 @@ specimen.describe("design() — one sheet: the scales, then every theme", () => 
   specimen.it("the scales hold no colour and the themes hold no scale", () => {
     specimen.expect(/#[0-9A-Fa-f]{6}|rgba?\(/.test(scales())).toBe(false);
     specimen.expect(Object.keys(TOKENS)).toEqual(["spacing", "font", "line-height", "box-shadow", "drop-shadow", "container", "border", "animation"]);
-    const zoned = ds.output.css.slice(scales().length);
+    const zoned = ds.product.css.slice(scales().length);
     specimen.expect(/--(font-size|line-height|spacing|border-radius|box-shadow|drop-shadow)-/.test(zoned)).toBe(false);
   });
 
   specimen.it("nothing of the retired pipeline is emitted", () => {
     for (const retired of ["--colors-", "--zone-", "--text-primary", "--text-body", "--text-support", "--shadow-soft", "--shadow-strong", "--filter-", "--mix-", ".zone-"]) {
-      specimen.expect([retired, ds.output.css.includes(retired)]).toEqual([retired, false]);
+      specimen.expect([retired, ds.product.css.includes(retired)]).toEqual([retired, false]);
     }
   });
 
@@ -273,15 +273,15 @@ specimen.describe("design() — one sheet: the scales, then every theme", () => 
   });
 
   specimen.it("the whole sheet parses: braces balance, every line inside a block is one declaration", () => {
-    specimen.expect(ds.output.css.split("{").length).toBe(ds.output.css.split("}").length);
-    const inside = ds.output.css.split("\n").filter((line) => line.startsWith("  "));
+    specimen.expect(ds.product.css.split("{").length).toBe(ds.product.css.split("}").length);
+    const inside = ds.product.css.split("\n").filter((line) => line.startsWith("  "));
     specimen.expect(inside.filter((line) => !/^  --[a-z0-9-]+: [^;]+;$/.test(line))).toEqual([]);
     specimen.expect(inside).toHaveLength(56 + 4 * 5 * 106);
   });
 
   specimen.it("dapper's door exports the one pipe and nothing of the old", async () => {
     const door = await import("../mod.js");
-    specimen.expect(Object.keys(door).sort()).toEqual(["THEMES", "TOKENS", "contrast", "declarations", "design", "emit", "postcssPlugin", "scales", "tailwindClasses", "theme", "tokens"]);
+    specimen.expect(Object.keys(door).sort()).toEqual(["FONTS", "THEMES", "TOKENS", "contrast", "declarations", "design", "emit", "postcssPlugin", "scales", "tailwindClasses", "theme", "tokens"]);
   });
 
   specimen.it("dapper holds no file of the retired pipeline", () => {

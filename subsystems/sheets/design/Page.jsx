@@ -1,20 +1,20 @@
 import { For, Show } from "solid-js";
 import { Bar, Choice, Consent, Dot, Field, JsonTree, Mark, Meter, Panel, Row, Split, Tab, Turn } from "../index.js";
 
-const Composer = (props) => (
+const Textarea = (props) => (
   <Show
-    when={props.world.composer.kind === "consent"}
+    when={props.world.textarea.kind === "consent"}
     fallback={
       <Field
         palette={props.palette}
-        prompt={props.world.composer.prompt}
-        value={props.world.composer.value}
-        placeholder={props.world.composer.placeholder}
-        keys={props.world.composer.keys}
+        prompt={props.world.textarea.prompt}
+        value={props.world.textarea.value}
+        placeholder={props.world.textarea.placeholder}
+        keys={props.world.textarea.keys}
       />
     }
   >
-    <Consent palette={props.palette} name={props.world.composer.name} argument={props.world.composer.argument} onApprove={() => {}} onSkip={() => {}} onEdit={() => {}} />
+    <Consent palette={props.palette} name={props.world.textarea.name} argument={props.world.textarea.argument} onApprove={() => {}} onSkip={() => {}} onEdit={() => {}} />
   </Show>
 );
 
@@ -50,7 +50,7 @@ export const World = (props) => (
       dock={
         <box style={{ flexDirection: "column" }}>
           <For each={props.world.journal}>{(turn) => <Turn palette={props.palette} {...turn} />}</For>
-          <Composer palette={props.palette} world={props.world} />
+          <Textarea palette={props.palette} world={props.world} />
         </box>
       }
     />

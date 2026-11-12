@@ -1,7 +1,7 @@
-import { For } from "solid-js";
+import { For, Show } from "solid-js";
 import { Icon } from "./Icon.jsx";
 
-export const TABS = ["logger", "inspector"];
+export const TABS = ["inspector", "logger"];
 export const FLOOR = { w: 320, h: 200 };
 export const GUTTER = 4;
 
@@ -44,21 +44,25 @@ export const Tele = (props) => {
       role="dialog"
       aria-label="telemetry"
       style={{ left: `${frame().x}px`, top: `${frame().y}px`, width: `${frame().w}px`, height: `${frame().h}px` }}>
-      <div class="tth" title="drag to move" onPointerDown={drag}>
-        <span class="ttl">telemetry</span>
-        <span class="ttabs">
+      <div class="ins-head" title="drag to move" onPointerDown={drag}>
+        <span class="kit-label">telemetry</span>
+        <div class="kit-choice" role="tablist">
           <For each={TABS}>
             {(tab) => (
-              <button class={props.tab === tab ? "cur" : ""} onClick={() => props.onTab(tab)}>
-                {tab}
+              <button role="tab" aria-pressed={String(props.tab === tab)} aria-selected={String(props.tab === tab)} onClick={() => props.onTab(tab)}>
+                {tab === "logger" ? `logger ${props.count}` : tab}
               </button>
             )}
           </For>
-        </span>
-        <span class="sp" />
-        <span class="mut">{props.count}</span>
-        <button class="iconbtn" aria-label="close telemetry" title="close · /telemetry off" onClick={() => props.onClose()}>
-          <Icon name="x" size={14} />
+        </div>
+        <span class="ins-gap" />
+        <Show when={props.faults > 0}>
+          <button class="kit-seg is-fault" aria-label="faults, show them" onClick={() => props.onFaults()}>
+            {`! ${props.faults}`}
+          </button>
+        </Show>
+        <button class="ins-x" aria-label="close" title="close · /telemetry off" onClick={() => props.onClose()}>
+          <Icon name="x" size={12} />
         </button>
       </div>
       <div class="tbody">{props.children}</div>

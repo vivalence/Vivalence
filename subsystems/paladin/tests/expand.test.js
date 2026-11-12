@@ -138,6 +138,8 @@ const THUNKED = [
   { at: "lighthouse.statics.remote", read: ["PUBLIC_VIVA_LIGHTHOUSE_REMOTE"], unset: ["PUBLIC_VIVA_LIGHTHOUSE_REMOTE"] },
   { at: "hallucinators[0].secrets.key", read: ["SECRET_VIVA_ANTHROPIC_API_KEY"], unset: [] },
   { at: "hallucinators[1].secrets.key", read: ["SECRET_VIVA_OPENROUTER_API_KEY"], unset: ["SECRET_VIVA_OPENROUTER_API_KEY"] },
+  { at: "hallucinators[2].secrets.key", read: ["SECRET_VIVA_ELEVENLABS_API_KEY"], unset: ["SECRET_VIVA_ELEVENLABS_API_KEY"] },
+  { at: "hallucinators[3].secrets.key", read: ["SECRET_VIVA_DEEPGRAM_API_KEY"], unset: ["SECRET_VIVA_DEEPGRAM_API_KEY"] },
   { at: "client[anima].statics.serve", read: ["VIVA_CLIENT_ANIMA_SERVE"], unset: ["VIVA_CLIENT_ANIMA_SERVE"] },
   { at: "service[multiplayer].secrets.jwt", read: ["SECRET_VIVA_JWT"], unset: ["SECRET_VIVA_JWT"] },
 ];
@@ -145,6 +147,8 @@ const DOCTORED = [
   { key: "PUBLIC_VIVA_LIGHTHOUSE_REMOTE", at: "lighthouse.statics.remote", verdict: "REQUIRED", required: true },
   { key: "PUBLIC_VIVA_RUNTIME_REMOTE", at: "runtime.statics.remote", verdict: "ok", required: true },
   { key: "SECRET_VIVA_ANTHROPIC_API_KEY", at: "hallucinators[0].secrets.key", verdict: "ok", required: false },
+  { key: "SECRET_VIVA_DEEPGRAM_API_KEY", at: "hallucinators[3].secrets.key", verdict: "optional", required: false },
+  { key: "SECRET_VIVA_ELEVENLABS_API_KEY", at: "hallucinators[2].secrets.key", verdict: "optional", required: false },
   { key: "SECRET_VIVA_JWT", at: "service[multiplayer].secrets.jwt", verdict: "REQUIRED", required: true },
   { key: "SECRET_VIVA_OPENROUTER_API_KEY", at: "hallucinators[1].secrets.key", verdict: "optional", required: false },
   { key: "VIVA_CLIENT_ANIMA_ORIGIN", at: null, verdict: "REQUIRED", required: true },
@@ -153,8 +157,6 @@ const DOCTORED = [
   { key: "VIVA_RUNTIME_SERVE", at: "runtime.statics.serve", verdict: "ok", required: true },
 ];
 const LEDGERED = [
-  { key: "SECRET_VIVA_DEEPGRAM_API_KEY", at: null, verdict: "documented", required: false },
-  { key: "SECRET_VIVA_ELEVENLABS_API_KEY", at: null, verdict: "documented", required: false },
   { key: "VIVA_REPOSITORY_MOUNT", at: null, verdict: "REQUIRED", required: true },
 ];
 const FLAGS = { VIVA_RUNTIME_SERVE: "http://localhost:2501/", PUBLIC_VIVA_RUNTIME_REMOTE: "${VIVA_RUNTIME_SERVE}" };

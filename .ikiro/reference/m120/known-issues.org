@@ -1,0 +1,78 @@
+# limit: 7000 chars · drained 11-16 from known-issues.org, owner: quests/done/m120-lazy-view-bundles.org — RESOLVED 11-16 (milestones 1 · 5)
+
+* bundle-store-never-prunes — OPEN (design, marked at his ask during the vdex scroll session)
+
+** Symptom
+=~/.viva= holds *757* =*.svelte.mjs= artifacts. Nothing has ever been unlinked.
+=stucatch/dashboard/watch/bundle/= alone carries 15 generations of the same view.
+
+Each dev artifact is *6385 kb* (inline sourcemap — =sourcemap: prod ? false : "inline"=,
+=subsystems/typology/gestalten/bundle/svelte.js:38=), and one =Vdex.svelte= compile measures
+*858ms cold · 426ms warm*.
+
+** Why it just got sharper
+The dev-rebundle landing (this session, =daemon/aperture/metadata.js= + =daemon/traits/application.js=)
+makes =/metadata/app= recompile whenever =paladin.is.dev=. That is once per mode per *client boot*, so a
+page reload now mints a fresh artifact for every source change instead of once per daemon boot. The store
+grows at the speed of the edit loop.
+
+Second multiplier: one module at two mountings writes *byte-identical output into two stores* —
+=office/vdocs/bundle/b5b4fa174fc598eb.svelte.mjs= and =office/corpo/bundle/b5b4fa174fc598eb.svelte.mjs=
+are the same bytes under the same hash, because the store path is keyed by the MOUNTING
+(=bundles/${manifest.type}/${manifest.slug}=) while the content is keyed by the module.
+
+** The design he ruled out, in his own words
+#+begin_quote
+lets think aaabout how to do this. we want a cleanup process in the runtime. runtime goes through the
+waste and cleans up anything older than xyz or something.
+no that would force the runtime to regularly re-compile. stupid. hmmm.
+no clue.
+#+end_quote
+
+He is right and the reason is worth keeping: the artifacts are *content-addressed*, so an age-keyed reaper
+cannot tell a dead generation from the live one. The only pointer to the live artifact is
+=mode.app.view.mount=, held in the runtime's memory — not on disk, not in the ledger. Sweep by age and you
+either delete the artifact the running daemon is still serving (next client boot 404s until something
+recompiles), or you have to ask the runtime what is live — at which point age is the wrong key entirely.
+
+** The key that is actually available
+*Supersession, not age.* =mode.app.compile()= knows both hashes: the one it is replacing and the one it just
+minted. Everything else under that mode's =bundle/= is dead the instant =compile()= returns a different hash.
+That is a one-=Deno.remove= prune with zero inference and no reaper process.
+
+It only prunes going forward. The standing 757 need a separate one-shot, and that one CAN be age-keyed
+because nothing is serving them.
+
+** Unsettled — what a "go" would have to decide
+- *Whose verb.* =paladin.bundler(store)= mints and serves, so it could own =prune=; but only the trait knows
+  which hash is live. Runtime lifecycle is a third candidate and the one he reached for first.
+- *Does prod want it.* Prod compiles once per daemon boot, so the store grows once per deploy — slow enough
+  that pruning may be a dev-only concern, and deleting in prod costs the rollback.
+- *Shared stores.* Two daemons under one mountpoint, or one module at two mountings, both write into paths
+  that a naive prune would treat as exclusively its own.
+- *The dedup.* Whether the store should be keyed by module identity rather than by mounting, which would
+  make vdocs/corpo one artifact instead of two and shrink the problem before pruning it.
+
+** Workaround meanwhile
+=find ~/.viva -name "*.svelte.mjs" -delete= while every runtime is down. The next boot re-mints what is live.
+
+* bundler-spams-the-mountpoint — OPEN (beef 2026-09-19: /"why do we store the same bundles under different hashes??? should be equal, no?!"/)
+
+** Symptom
+=~/.viva/instances/*/mountpoint/daemon_*/bundles= = 3.7G; =language-learning/daemon_playground= alone 595 files; italian 7 files / 55M. Every boot after any repo change adds a 7–10 MB file per APPLICATION mode. Nothing prunes.
+
+** Root cause
+Sibling bundles ARE different bytes (every md5 distinct, KB drift) — the hashes are honest, the defect is upstream. =subsystems/paladin/gestalten/belt/bundler.js:38-57=: on the ENTRY path (=traits/application.js:27=, every APPLICATION mode at boot) no source is digested; the file is compiled first and =hash ??= digest(text)= hashes the OUTPUT. Any change in the import closure (mode svelte, drapes, typology, dapper, a dev path string) → new bytes → new name. =mode.application.view= is in-memory per boot; no row references it. The SOURCE path (generative, =bundle({source})=) hashes the input and dedupes, and Buffer rows persist that hash in =view.json= — a generative bundle is referenced state, an application bundle is an unmanaged cache.
+
+** Evidence
+Italian db, 2026-09-19: Buffer rows with a non-null view = 0; each of the 7 on-disk hashes in =Buffer.view= = 0; Mode has no view/hash column. Readers of =bundles/= outside bundler.js: =resolve.js:25= · =application.js:26= · =generative.js:9=, all construct the store path only. Cleanup verbs in =systems/ghost/trajectories= (prune|clean|gc): 0 files.
+
+** Ruling
+beef, verbatim: /"i want the fact of persistence questioned. maybe graceful shutdown includes cleanup? for sure we want cleanup commands in ghost. maybe cleanup hooks in runtime + manual? same tooling in paladin."/
+
+** Why not fixed now
+Own quest (number beef's). Shape: application bundles keyed on their INPUTS (digest of the entry's import closure, or entry + repo rev + package rev) or not persisted at all; generative bundles stay because rows name them. ONE paladin primitive =paladin.bundler(store).prune({ keep })=; callers = runtime =disintegrate=, a post-compile boot hook, ghost =instance/prune --json= reporting bytes freed. =keep= = live application views + every Buffer-held hash.
+
+** Workaround
+=rm -rf <mountpoint>/daemon_*/bundles= while the instance is stopped; the next boot recompiles every APPLICATION mode. Generative views held by Buffer rows are LOST by this — only safe on an instance with none.
+

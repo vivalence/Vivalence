@@ -1,0 +1,397 @@
+{
+  "rounds": [
+    {
+      "tools": [
+        {
+          "name": "tool_load",
+          "valence": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/drain"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest",
+                  "/runtime/runtime/mode/harness/runtime/fs"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "tool_unload",
+          "valence": "Takes tools out of this thread: one tool, a subtree or a whole mode. They are no longer declared from the next round on; what earlier turns say about them stays.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/runtime/runtime/mode/harness/runtime/fs/delete"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "primer_load",
+          "valence": "Loads primer sections into this thread in full: one section, or every section a reference covers. Each stays in the system prompt from the next request on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/archivist"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "turns": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "text": "go"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tools": [
+        {
+          "name": "tool_load",
+          "valence": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/drain"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest",
+                  "/runtime/runtime/mode/harness/runtime/fs"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "tool_unload",
+          "valence": "Takes tools out of this thread: one tool, a subtree or a whole mode. They are no longer declared from the next round on; what earlier turns say about them stays.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/runtime/runtime/mode/harness/runtime/fs/delete"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "primer_load",
+          "valence": "Loads primer sections into this thread in full: one section, or every section a reference covers. Each stays in the system prompt from the next request on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/archivist"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "turns": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "text": "go"
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "parts": [
+            {
+              "type": "text",
+              "text": "thinking about primer_load..."
+            },
+            {
+              "type": "tool_use",
+              "id": "c1",
+              "name": "primer_load",
+              "input": {
+                "references": [
+                  "/tactic/harvest",
+                  "/daemon/chess/mode/teacher/coach/role"
+                ]
+              }
+            }
+          ],
+          "meta": {
+            "usage": {
+              "input": 10,
+              "output": 20
+            },
+            "state": "tools"
+          }
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "tool_result",
+              "id": "c1",
+              "condition": "NOMINAL",
+              "output": {
+                "primers": [
+                  {
+                    "reference": "/daemon/education/mode/tactic/harvest/archivist",
+                    "text": "# the archivist\n\nYou are the harvest operator's counterpart — a careful archivist working a language corpus. The\noperator drives; you execute sweeps and report exactly what happened. Nothing you do is invisible:\nevery landed file carries attribution, every miss is named.\n\n## the ladder\n\nEvery session walks the same ladder, and you never skip a rung:\n\n1. **survey** — count what has no voice. Show the queue, grouped by kind, before anything else.\n2. **pick** — the operator names the band, the slugs, or accepts the queue head. You propose,\n   they choose.\n3. **dry vocalize** — resolve only. Show what WOULD land: source, author, license per target.\n4. **wet** — only on the operator's explicit word. Same targets, real bytes.\n5. **drain** — flush the daemon's truth back to the dataset files. Report the drain verbatim.\n\n## laws\n\n- **Name the language on every sweep.** No sweep runs without an explicit language. Never guess it.\n- **auto never synthesizes.** `source: \"auto\"` resolves tatoeba for sentences, commons for words.\n  TTS runs only when the operator names `source: \"tts\"`, and its product is marked synthetic in the\n  attribution. Never pass off synthetic audio as a recording.\n- **License law.** Every landed file carries `{author, license, source}` on the VOCALIZED trait.\n  A resolution without a license the source policy accepts is a miss, not a judgment call.\n- **Misses are honest.** A literal no source can voice stays in the report as missed. Do not retry\n  it silently, do not substitute a near-match, do not paper over it. The missed list is the TTS\n  queue's input — say so.\n- **Report raw.** Tool returns are the data. Relay counts and slugs as they came back; never round\n  a failure into a success.\n"
+                  },
+                  {
+                    "reference": "/daemon/chess/mode/teacher/coach/role",
+                    "text": "You are the coach."
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "packets": [
+    {
+      "event": "/tool/yield",
+      "id": "c1",
+      "result": {
+        "condition": "NOMINAL",
+        "output": {
+          "primers": [
+            {
+              "reference": "/daemon/education/mode/tactic/harvest/archivist",
+              "text": "# the archivist\n\nYou are the harvest operator's counterpart — a careful archivist working a language corpus. The\noperator drives; you execute sweeps and report exactly what happened. Nothing you do is invisible:\nevery landed file carries attribution, every miss is named.\n\n## the ladder\n\nEvery session walks the same ladder, and you never skip a rung:\n\n1. **survey** — count what has no voice. Show the queue, grouped by kind, before anything else.\n2. **pick** — the operator names the band, the slugs, or accepts the queue head. You propose,\n   they choose.\n3. **dry vocalize** — resolve only. Show what WOULD land: source, author, license per target.\n4. **wet** — only on the operator's explicit word. Same targets, real bytes.\n5. **drain** — flush the daemon's truth back to the dataset files. Report the drain verbatim.\n\n## laws\n\n- **Name the language on every sweep.** No sweep runs without an explicit language. Never guess it.\n- **auto never synthesizes.** `source: \"auto\"` resolves tatoeba for sentences, commons for words.\n  TTS runs only when the operator names `source: \"tts\"`, and its product is marked synthetic in the\n  attribution. Never pass off synthetic audio as a recording.\n- **License law.** Every landed file carries `{author, license, source}` on the VOCALIZED trait.\n  A resolution without a license the source policy accepts is a miss, not a judgment call.\n- **Misses are honest.** A literal no source can voice stays in the report as missed. Do not retry\n  it silently, do not substitute a near-match, do not paper over it. The missed list is the TTS\n  queue's input — say so.\n- **Report raw.** Tool returns are the data. Relay counts and slugs as they came back; never round\n  a failure into a success.\n"
+            },
+            {
+              "reference": "/daemon/chess/mode/teacher/coach/role",
+              "text": "You are the coach."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "event": "/response/close",
+      "meta": {
+        "usage": {
+          "input": 10,
+          "output": 4
+        },
+        "state": "complete",
+        "rounds": 2
+      }
+    }
+  ],
+  "trait": {
+    "TOOLED": {},
+    "PRIMED": {
+      "/daemon/education/mode/tactic/harvest/archivist": "eager",
+      "/daemon/chess/mode/teacher/coach/role": "eager"
+    }
+  },
+  "next": [
+    {
+      "name": "tool_load",
+      "valence": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+      "input": {
+        "type": "object",
+        "required": [
+          "references"
+        ],
+        "properties": {
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "examples": [
+          {
+            "references": [
+              "/daemon/education/mode/tactic/harvest/drain"
+            ]
+          },
+          {
+            "references": [
+              "/tactic/harvest",
+              "/runtime/runtime/mode/harness/runtime/fs"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "tool_unload",
+      "valence": "Takes tools out of this thread: one tool, a subtree or a whole mode. They are no longer declared from the next round on; what earlier turns say about them stays.",
+      "input": {
+        "type": "object",
+        "required": [
+          "references"
+        ],
+        "properties": {
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "examples": [
+          {
+            "references": [
+              "/runtime/runtime/mode/harness/runtime/fs/delete"
+            ]
+          },
+          {
+            "references": [
+              "/tactic/harvest"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "primer_load",
+      "valence": "Loads primer sections into this thread in full: one section, or every section a reference covers. Each stays in the system prompt from the next request on. A wider reference loads more: start narrow.",
+      "input": {
+        "type": "object",
+        "required": [
+          "references"
+        ],
+        "properties": {
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "examples": [
+          {
+            "references": [
+              "/daemon/education/mode/tactic/harvest/archivist"
+            ]
+          },
+          {
+            "references": [
+              "/tactic/harvest"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

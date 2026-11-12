@@ -1,0 +1,58 @@
+#+title: call-faculty, hunks born in the show-me walk 11-17 — each amen'd at its stop
+# writer: agent · limit: 4000 chars
+
+* S5 — no ear, no route (milestone 4) /"amen"/
+
+The twin: =systems/runtime/subjects/mode/traits/tooling.js:1= (grafted or absent). Checked once at boot, the cortex filled by =acid= before the trait beat; the request path checks nothing. Moves with the route when =harness-layout= rules where =CONVERSATIONAL= mounts (=m122-harness-layout.org=, its mount item). =/call= takes the same at S7. Probe: =absent.probe.js= · =noear.probe.js= (=walk-11-17/=).
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/harnessed.js:224
+if (modeDie.cortex.find({ type: "verbatim", via: "stream" }).length)
+  harness
+    .branch("/verbatim")
+    .open(
+      { nature: "stream", feeds: Audio.Packet, yields: Packet.Response },
+      shard.hal.verbatim({ polish: POLISH, tier: "fast" }),
+    );
+#+END_SRC
+
+* S7 — the cascaded call: three MISWIREs, whole in =review-11-17-call.org= (cap)
+
+* S8 · S9 — the client dictation (milestone 5), shown 11-17
+
+S8: the microphone hunk re-cut in =moved-11-17-client.org= (=walk-11-17/microphone.probe.js=). S9: the command at its target shape = =dictate.sketch.js=, run by =walk-11-17/dictate.probe.js=; it folds turns with =soma.transcript= (S7's ear seals one per utterance).
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/belt/soma.js:33 — transcript; without it Q19's pour writes a sealed turn's polish over the OPEN turn (=walk-11-17/full.probe.js=)
+case "/part/full":
+  if (!record.turn) return { ...current, open: pour(current.open, record) };
+  return {
+    ...current,
+    turns: current.turns.map((turn) =>
+      turn.id === record.turn ? { ...turn, parts: turn.parts.with(record.index, record.part) } : turn,
+    ),
+  };
+// systems/ghost/subjects/terminal/repl.js:60 — the global graft dies
+// systems/ghost/entities/mode/traits/harnessed.js:37 — no ear, no command
+if (mode.harness.verbatim) mode.repl.graft(commands.content.dictate);
+#+END_SRC
+Unwritten: =polishing= in the one grammar · who stamps an unstored turn's =id= · the =textarea.jsx= hunk (Q15A send), unprobed on a DOM; Q23 killed the caret: the words append.
+
+* S6 — polish, moved from the quest 11-17 (cap), whole
+
+Q13 · Q13A · Q13B — =subsystems/typology/schematics/traits/conversational.js= (=harness-layout= Q1A), read at =shard/hal.js:62 · :66 · :70=; a stored =polish: true= HEALS as =DOCKED= does (=systems/ghost/subjects/terminal/hydration.js:5=): =cast(repair(cast(stored)))= → ={"engaged":true}= (=polish.probe.js=; =engaged= optional, or repair throws)
+#+BEGIN_SRC js
+polish: v
+  .object({
+    ...Selector,
+    engaged: v.boolean().default(true).optional(),
+  })
+  .default({})
+  .desc('The model that repairs a dictation, and whether it runs. Example: { id: "google/gemini-3.5-flash-lite", engaged: false }'),
+// hal.js — SKETCH: the default =tier: "fast"= sits at the route until the mode's default exists (=harness-layout= Q5A)
+const { engaged, ...selector } = ctx.conversational.polish;
+policy: { tier: "fast", ...selector, rounds: 1 },
+ctx.output = controlled(controller, engaged ? polishing(events, repair) : events);
+#+END_SRC
+
+* S10 — the strip above =dock.input= (Q12 · Q15A), shown 11-17; mounted on the drapes DOM rig (=walk-11-17/textarea.probe.js=; anima's own rig is red, =known-issues.org:94=)
+
+Targets: =subsystems/drapes/Dictline.jsx= (=text= solid beside the muted =tail=, a trash button, icon =x=) · =systems/anima/src/surfaces/chrome/panels/dock/textarea.jsx= (the strip under =Atts=, =Field dictating=, =submit= sends =/dictate/send= while a dictation is held) · =systems/ghost/gestalten/belt/dictation.js= (=spoken= · =tail=, the command's and the dock's). Copies: =walk-11-17/Dictline.target.jsx= · =textarea.target.jsx= · =dictation.belt.js=. =dock.input= is NOT sealed: the words append at stop (Q23).

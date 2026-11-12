@@ -4,6 +4,7 @@ import { Manifest } from "./manifest.js";
 import { Home } from "./home.js";
 import { Docked, Themed } from "../traits/index.js";
 import { Path, Url } from "../prototypes/signatures.js";
+import { Tiers } from "./hallucination.js";
 
 const Statics = (known = {}) => v.object(known, { additionalProperties: true });
 const Secrets = v.record(v.string(), v.unknown());
@@ -131,6 +132,7 @@ export const Instance = v.object(
     clients: v.array(Client).default([]),
     datamap: Datamap.optional(),
     hallucinators: v.array(Mask).optional(),
+    tiers: Tiers.optional(),
     services: v.array(Service).default([]),
     daemons: v.array(Daemon).default([]),
   },
@@ -186,6 +188,7 @@ export const InstanceMask = v.object(
     lighthouse: v.object({ secrets: v.object({ jwt: Reference("SECRET_") }), traits: v.array(v.enum(LighthouseTraitsEnum)).optional(), trait: LighthouseTrait.optional() }, { additionalProperties: false }).optional(),
     datamap: MaskOf.optional(),
     hallucinators: v.array(MaskOf).optional(),
+    tiers: Tiers.optional(),
     clients: v.array(v.object({ manifest: Manifest, module: v.string().optional(), mountpoint: v.string().optional(), statics: MaskStatics.optional(), modes: v.array(v.union([v.string(), ModeMask])).optional(), trait: ClientTrait.optional() }, { additionalProperties: false })).optional(),
     services: v.array(v.object({ manifest: Manifest, module: v.string(), mountpoint: v.string().optional(), statics: MaskStatics.optional(), secrets: MaskSecrets.optional(), datamap: MaskOf.optional() }, { additionalProperties: false })).optional(),
     daemons: v.array(DaemonMask).optional(),
@@ -205,6 +208,7 @@ export const Ledger = v.object(
     lighthouse: Lighthouse.optional(),
     datamap: Datamap.optional(),
     hallucinators: v.array(Mask).optional(),
+    tiers: Tiers.optional(),
     clients: v.array(Client).optional(),
     services: v.array(Service).optional(),
   },

@@ -1,5 +1,5 @@
 import { join } from "@std/path";
-import { specimen } from "@vivalence/typology";
+import { specimen, v } from "@vivalence/typology";
 import {
   buildParams,
   streamTranslator,
@@ -24,10 +24,10 @@ function pin(subject, file) {
   return pojo;
 }
 
-const strong = { id: "openai/gpt-5.1", tune: [0.9, 1.0, 0.3], thinking: true };
+const strong = { id: "openai/gpt-5.1", tune: [0.9, 0.3, 0.5], thinking: true };
 const light = {
   id: "google/gemini-2.5-flash-lite",
-  tune: [0.1, 0.3, 1.0],
+  tune: [0.1, 1.0, 0.5],
   thinking: false,
 };
 
@@ -169,12 +169,30 @@ specimen.describe(
           ...translator.flush(),
         ];
         specimen.expect(packets.at(-1).event).toBe("/turn/close");
-        specimen.expect(packets.at(-1).meta.usage).toEqual({
-          prompt_tokens: 11,
-          completion_tokens: 29,
+        specimen.expect(packets.at(-1).turn.meta.usage).toEqual({
+          input: 11,
+          output: 29,
         });
+        for (const packet of packets) {
+          specimen.expect(v.primitives.hallucination.Packet.Response.check(packet)).toBe(true);
+        }
         pin(packets, "translate-stream-events.snapshot.json");
       },
     );
   },
 );
+
+specimen.describe("translateTools — Q15: output never reaches the wire", () => {
+  specimen.it("a declaration's output schema is dropped; the provider's tool takes no output field", () => {
+    const declared = {
+      name: "web_search",
+      valence: "Searches the web.",
+      input: v.object({ query: v.string() }),
+      output: v.object({ pages: v.array(v.string()) }),
+    };
+    const wire = translateTools([declared]);
+    console.log(JSON.stringify(wire, null, 2));
+    specimen.expect(JSON.stringify(wire).includes('"pages"')).toBe(false);
+    specimen.expect(JSON.stringify(wire).includes('"query"')).toBe(true);
+  });
+});

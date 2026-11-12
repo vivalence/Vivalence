@@ -1,4 +1,4 @@
-<!-- limit: 6000 chars · measured 2026-11-11 17:43–17:50 CET on R000, read-only bar ONE staged file · quest: .ikiro/quests/prod-deploy.org -->
+<!-- limit: 6000 chars · measured 2026-11-11 17:43–17:50 CET on R000, read-only bar ONE staged file · quest: .ikiro/quests/done/prod-deploy.org -->
 # prod: reader + darkroom + openrouter — LIVE 11-11 18:31; the aftermath (two faults, 11-12) is the quest's milestone 9
 
 beef: /"add the reader and darkroom modes to my prod instnace config. validate that openrouter is provided. also, lets do a review on the available models on prod."/
@@ -9,7 +9,7 @@ beef: /"add the reader and darkroom modes to my prod instnace config. validate t
 - the image holds NO `commons/reader/`, NO `commons/editors/`; its openrouter table has no painters.
 - `.env`: 3 keys (`SERVICE_NAME_RUNTIME` · `SECRET_VIVA_JWT` · `SECRET_VIVA_ANTHROPIC_API_KEY`), no trailing newline.
 - `instance/instance.viva.jsonc` (md5 `59ef089f…`): his 17:41 edit comments out nyan · riddler · comando · cocina; the running container still serves them (booted 11-09).
-- `instance/instance.viva.jsonc.next` (md5 `c0d6d866…`): MINE, the live file plus two hunks — the diff and every landed hunk live in `quests/prod-deploy.org` `* as code` milestone 8.
+- `instance/instance.viva.jsonc.next` (md5 `c0d6d866…`): MINE, the live file plus two hunks — the diff and every landed hunk live in `quests/done/prod-deploy.org` `* as code` milestone 8.
 
 ## why staged — the rehearsal
 

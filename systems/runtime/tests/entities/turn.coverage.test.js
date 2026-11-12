@@ -60,4 +60,36 @@ specimen.describe("Turn — create · history · chain · fold", () => {
     specimen.expect(await repos.turn.fold(tract, async () => null)).toBe(null);
     specimen.expect(await em.fork().count(TurnEntity, { thread: thread.id })).toBe(0);
   });
+
+  specimen.it("a stored dialect heals on load and is written back at the next flush: usage in our words, the receipt under provider, a tool_result's output read as product", async () => {
+    const { repos, em } = scenario;
+    const receipt = { input_tokens: 90, cache_creation_input_tokens: 9489, output_tokens: 124 };
+    const stale = await repos.turn.create({
+      thread: thread.id,
+      role: "user",
+      parts: [{ type: "tool_result", id: "u1", condition: "NOMINAL", output: { message: "house" } }],
+      meta: { state: "complete", usage: receipt, provider: { stop_reason: "end_turn" } },
+    });
+    await em.flush();
+    const stored = async () => {
+      const [row] = await em.getConnection().execute('select parts, meta from "Turn" where id = ?', [stale.id]);
+      return { parts: JSON.parse(row.parts), meta: JSON.parse(row.meta) };
+    };
+    specimen.expect((await stored()).meta.usage).toEqual(receipt);
+
+    const reader = em.fork();
+    const healed = await reader.findOneOrFail(TurnEntity, { id: stale.id });
+    specimen.expect(healed.meta).toEqual({
+      state: "complete",
+      usage: { input: 90, output: 124 },
+      provider: { stop_reason: "end_turn", usage: receipt },
+    });
+    specimen.expect(healed.parts).toEqual([{ type: "tool_result", id: "u1", condition: "NOMINAL", product: { message: "house" } }]);
+    specimen.expect((await stored()).parts[0].output).toEqual({ message: "house" });
+
+    await reader.flush();
+    specimen.expect(await stored()).toEqual({ parts: healed.parts, meta: healed.meta });
+    const again = await em.fork().findOneOrFail(TurnEntity, { id: stale.id });
+    specimen.expect(again.meta).toEqual(healed.meta);
+  });
 });

@@ -5,6 +5,8 @@ const ACCESS_TTL = "1d";
 const REFRESH_TTL = "180d";
 const OPERATOR_TTL = "2m";
 
+const decoy = argon2.hash(crypto.randomUUID());
+
 const refuse = (ctx, code, message) => {
   ctx.response.status = 401;
   ctx.response.body = { status: "ERROR", error: { code, message } };
@@ -28,9 +30,9 @@ export function signer(secret) {
 export async function identify({ secret, users }, { username, password }) {
   if (!username || !password) return null;
   const user = await users.byUsername(username);
-  if (!user?.authentication?.credentials?.password) return null;
-  const valid = await argon2.verify(user.authentication.credentials.password, password);
-  return valid ? user : null;
+  const hash = user?.authentication?.credentials?.password ?? (await decoy);
+  const valid = await argon2.verify(hash, password);
+  return user && valid ? user : null;
 }
 
 export async function bearer({ secret, users }, refresh) {

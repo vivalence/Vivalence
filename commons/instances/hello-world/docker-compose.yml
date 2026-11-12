@@ -11,7 +11,7 @@ services:
     ports:
       - "2501:2501"
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:2501/status"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:2501/beacon/status"]
       interval: 10s
       timeout: 3s
       retries: 12

@@ -1,0 +1,312 @@
+#+title: scale — the tangle as landed 11-14
+# writer: agent · limit: 12000 chars · moved whole from done/scale.org
+
+* deliverables — the tangle
+
+Frame: =~/.viva/registry/education/domain/=, =ls= order.
+
+***** aperture/index.js
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/domain/aperture/index.js:48
+…
+-  });
++  })
++
++  .open("/scale/literal", (input, ctx) =>
++    ctx.entities.literal.scale(input.where, {
++      percent: input.percent,
++      direction: input.direction,
++    }),
++  );
+#+END_SRC
+
+***** retention/bayesian.js
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/domain/retention/bayesian.js:2
+ import { time } from "@vivalence/typology";
++import { PROFILE } from "../schematics.js";
+…
++const HOURS = [
++  [0, 1 / 60],
++  [10, 1],
++  [50, 24 * 30],
++  [100, 24 * 365],
++];
++
++const halflife = (percent) => {
++  const upper = HOURS.findIndex(([at]) => percent <= at) || 1;
++  const [from, low] = HOURS[upper - 1];
++  const [to, high] = HOURS[upper];
++  return low * (high / low) ** ((percent - from) / (to - from));
++};
++
++const percent = (hours) => {
++  if (hours <= HOURS[0][1]) return 0;
++  if (hours >= HOURS.at(-1)[1]) return 100;
++  const upper = HOURS.findIndex(([, at]) => hours <= at);
++  const [from, low] = HOURS[upper - 1];
++  const [to, high] = HOURS[upper];
++  return from + ((to - from) * Math.log(hours / low)) / Math.log(high / low);
++};
++
++const reached = (nextIn) => {
++  const at = Math.round(percent(nextIn) * 100) / 100;
++  const [status] = Object.entries(PROFILE).findLast(([, from]) => from <= at) ?? ["UNKNOWN"];
++  return status;
++};
++
+ const assess = ({ state }) => {
+   const nextIn = ebisu.modelToPercentileDecay(state, DECAY);
+   const nextAt = time.futureDatetime(nextIn);
+-  const status = !state
+-    ? "UNTOUCHED"
+-    : nextIn > 24 * 45
+-      ? "GRADUATED"
+-      : nextIn > 24 * 7
+-        ? "KNOWN"
+-        : nextIn >= 6
+-          ? "LEARNING"
+-          : "UNKNOWN";
++  const status = !state ? "UNTOUCHED" : reached(nextIn);
+   return { status, nextIn, nextAt };
+ };
++
++const scale = (percent) => {
++  const state = ebisu.defaultModel(halflife(percent), 4, 4);
++  return { state, ...assess({ state }) };
++};
+…
+   evolve,
++  scale,
+   assess,
+#+END_SRC
+
+***** retention/boolean.js
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/domain/retention/boolean.js:1
+ import { time } from "@vivalence/typology";
++import { PROFILE } from "../schematics.js";
+…
++const scale = (percent) => {
++  const state = percent >= PROFILE.KNOWN;
++  return { state, ...assess({ state }) };
++};
++
+ export default {
+   type: "BOOLEAN",
+   encode,
+   evolve,
++  scale,
+   assess,
+#+END_SRC
+
+***** retention/counter.js
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/domain/retention/counter.js:1
+ import { time } from "@vivalence/typology";
++import { PROFILE } from "../schematics.js";
+…
++const STREAK = [
++  [PROFILE.GRADUATED, 8],
++  [PROFILE.KNOWN, 5],
++  [PROFILE.LEARNING, 2],
++  [0, 0],
++];
++
++const scale = (percent) => {
++  const [, streak] = STREAK.find(([from]) => percent >= from);
++  const state = { streak, total: 0, successes: 0 };
++  return { state, ...assess({ state }) };
++};
++
+ export default {
+   type: "COUNTER",
+   encode,
+   evolve,
++  scale,
+   assess,
+#+END_SRC
+
+***** schematics.js
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/domain/schematics.js:6
+ export const SIGNAL = ["MASTERY", "SUCCESS", "NEUTRAL", "MISTAKE", "FAILURE"];
++export const PROFILE = { UNKNOWN: 3, LEARNING: 15, KNOWN: 36, GRADUATED: 60 };
+#+END_SRC
+
+***** tools/index.js
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/domain/tools/index.js:7
+ import { review } from "./review.js";
++import { scale } from "./scale.js";
+…
+   .graft(review)
++  .graft(scale)
+#+END_SRC
+
+***** tools/scale.js — new
+
+#+BEGIN_SRC js
+import { v, Vector } from "@vivalence/typology";
+import { PROFILE } from "../schematics.js";
+
+export const scale = new Vector().open(
+  {
+    nature: "/scale",
+    valence: [
+      "Move the memory strength of a whole set of literals at once, without reviewing each.",
+      "Use it when the learner already knows material, or wants a set back in rotation.",
+      "Pass exactly one of status or percent.",
+    ].join("\n"),
+    input: v
+      .object({
+        where: v
+          .record(v.string(), v.unknown())
+          .desc("The literal filter; symbols takes an array or { $all, $in, $none }.")
+          .example(
+            { symbols: ["proficiency.cefr.a1", "conjugation"] },
+            {
+              symbols: {
+                $all: ["conjugation"],
+                $in: ["word.lemma.ser", "word.lemma.estar", "word.lemma.ir"],
+              },
+            },
+            { slug: { $in: ["hola.interjection", "gracias.interjection"] } },
+          ),
+        status: v
+          .enum(["UNKNOWN", "LEARNING", "KNOWN", "GRADUATED"])
+          .optional()
+          .desc(
+            "The strength by name: UNKNOWN = back in minutes · LEARNING = two hours · " +
+              "KNOWN = three days · GRADUATED = seven weeks.",
+          )
+          .example("LEARNING"),
+        percent: v
+          .number({ minimum: 0, maximum: 100 })
+          .optional()
+          .desc(
+            "The strength as a number: 0 = forgotten in a minute · 10 = an hour · " +
+              "50 = a month · 100 = a year.",
+          )
+          .example(40),
+        direction: v
+          .enum(["advance", "drop", "set"], { default: "advance" })
+          .desc(
+            "advance = only raise, a stronger literal stays · drop = only lower, a weaker " +
+              "literal stays · set = every literal lands on the target.",
+          )
+          .example("advance"),
+      })
+      .example({ where: { symbols: ["proficiency.cefr.a1"] }, status: "LEARNING" }),
+  },
+  async (ctx) => {
+    if (!ctx.user?.id) {
+      return { condition: "ERROR", message: "scale needs an authorized caller" };
+    }
+    if ((ctx.input.status == null) === (ctx.input.percent == null)) {
+      return { condition: "ERROR", message: "scale takes exactly one of status or percent" };
+    }
+    const percent = ctx.input.status ? PROFILE[ctx.input.status] : ctx.input.percent;
+    const { scaled, kept } = await ctx.call["/scale/literal"]({
+      user: ctx.user,
+      mode: ctx.mode,
+      input: { where: ctx.input.where, percent, direction: ctx.input.direction },
+    });
+    return {
+      message: `${ctx.input.direction}: ${scaled.length} scaled · ${kept.length} kept`,
+    };
+  },
+);
+#+END_SRC
+
+***** traits/literal/retained.js
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/domain/traits/literal/retained.js:110
+       return note;
+     },
++
++    async scale(where, { percent, direction }) {
++      const notes = this.entities.note;
++      const literals = await this.find(this.constrain(where), { populate: ["notes"] });
++      const scaled = [];
++      const kept = [];
++      for (const literal of literals) {
++        const held = retained(literal);
++        if (!held && direction === "drop") {
++          kept.push(literal);
++          continue;
++        }
++        const note =
++          held ??
++          notes.create({
++            ...this.owner(),
++            literal,
++            slug: `retention.${literal.slug}`,
++            traits: ["RETAINED"],
++            trait: { RETAINED: {} },
++          });
++        (notes.scale(note, percent, direction) ? scaled : kept).push(literal);
++      }
++      await this.em.flush();
++      return { scaled, kept };
++    },
+#+END_SRC
+
+***** traits/note/retained.js
+
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/domain/traits/note/retained.js:14
+ const virgin = (held) => !held.status || held.status === "UNTOUCHED";
++
++const DIRECTION = {
++  advance: (current, target) => target > current,
++  drop: (current, target) => target < current,
++  set: () => true,
++};
+…
+       return note;
+     },
++    scale(note, percent, direction = "advance") {
++      const held = this.claim(note, "RETAINED");
++      const driver = retention.drivers[held.driver];
++      const scaled = driver.scale(percent);
++      const current = held.lastAt == null ? 0 : driver.assess(held).nextIn;
++      if (!DIRECTION[direction](current, scaled.nextIn)) return null;
++      note.trait = {
++        ...note.trait,
++        RETAINED: {
++          ...held,
++          ...scaled,
++          due: new Date(scaled.nextAt).toISOString(),
++          lastAt: Date.now(),
++        },
++      };
++      return note;
++    },
+#+END_SRC
+
+***** commons/fixtures/testing/data/seed.js — the rig's seed (found on the walk, 11-14)
+
+Its two retention notes carry =lastAt= with =state: {}=, a shape no product code writes: =review= throws =prior is not iterable= on them today, =scale= throws =model is not iterable=. Probed with =[4, 4, 168]= · =[4, 4, 24]=: the set scales.
+
+#+BEGIN_SRC diff
+// commons/fixtures/testing/data/seed.js:154
+-  const retained = (row, status, lastSignal, due) =>
++  const retained = (row, status, lastSignal, due, hours) =>
+…
+-      trait: { RETAINED: { driver: "BAYESIAN", status, lastSignal, state: {}, due: new Date(due).toISOString(), lastAt: now } },
++      trait: { RETAINED: { driver: "BAYESIAN", status, lastSignal, state: [4, 4, hours], due: new Date(due).toISOString(), lastAt: now } },
+…
+-    known: retained(hello, "KNOWN", "SUCCESS", now + 86_400_000),
+-    learning: retained(goodbye, "LEARNING", "MISTAKE", now - 86_400_000),
++    known: retained(hello, "KNOWN", "SUCCESS", now + 86_400_000, 168),
++    learning: retained(goodbye, "LEARNING", "MISTAKE", now - 86_400_000, 24),
+#+END_SRC
+

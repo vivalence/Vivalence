@@ -1,7 +1,7 @@
 import { specimen } from "@vivalence/typology";
 import { bench } from "../scenarios/bench.js";
 
-const emitted = (result) => result?.output?.buffer ?? [];
+const emitted = (result) => result.product.buffer;
 
 specimen.describe("srs/memo", { sanitizeOps: false, sanitizeResources: false }, () => {
   let scenario;

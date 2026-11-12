@@ -36,7 +36,7 @@ RULES
   · scoped <style> only. NEVER write utility classes (text-sm, flex, p-4) — they do not
     exist here and will do nothing.
   · colour, type and spacing come from the variables below. Never a hex, never a named
-    colour. They are already themed for light and dark both.
+    colour. Every theme already states them.
   · the root element must fill and scroll: height 100% + overflow-y auto. It is a pane
     inside an application, not a page in a browser.
   · imports allowed: "svelte", "nanostores", "@vivalence/typology", "@vivalence/drapes".

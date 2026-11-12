@@ -1,11 +1,13 @@
+import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { specimen, shape, soma, Cortex } from "@vivalence/typology";
 import { mountMode } from "@vivalence/runtime/scenarios";
+import { belt } from "@vivalence/ghost";
 import * as oracle from "../../../commons/playground/chaosmonkey/oracle/oracle.viva.js";
 
 const seer = () => ({
   type: "dialogue",
   id: "dialogue-1",
-  tune: [0.9, 1.0, 0.3],
+  tune: [0.9, 0.3, 0.5],
   context: 200000,
   channels: { in: ["text"], out: ["text"] },
   via: {
@@ -13,7 +15,7 @@ const seer = () => ({
       soma.drain({
         role: "assistant",
         parts: [{ type: "text", text: "the mist parts" }],
-        meta: { stop: "end_turn" },
+        meta: { state: "complete" },
       }),
   },
 });
@@ -22,7 +24,7 @@ let scenario;
 const MOUNT = "/mode/chaosmonkey/oracle";
 
 specimen.beforeAll(async () => {
-  scenario = await mountMode(oracle, { cortex: new Cortex().register([seer()]) });
+  scenario = await mountMode(oracle, { cortex: new Cortex(TIER_POINTS).register([seer()]) });
 });
 specimen.afterAll(async () => {
   await scenario.orm.close();
@@ -33,18 +35,35 @@ specimen.afterAll(async () => {
 // handshake": (1) stream leaves must carry `yields` so wire projects connection.stream
 // not a buffered .call; (2) /metadata/harness must strip the mounted /harness branch.
 specimen.describe("client harness wire — mode.harness.dialogue.stream streams over the wire", () => {
-  specimen.it("/metadata/harness is routes · primer · tools; the stream leaf carries yields in the routes strip", async () => {
+  specimen.it("/metadata/harness is references · primer · tools · home · index; the stream leaf carries yields in the references strip", async () => {
     const metadata = await scenario.authedConn.branch(MOUNT).call("/metadata/harness");
-    specimen.expect(Object.keys(metadata)).toEqual(["routes", "primer", "tools"]);
-    specimen.expect(metadata.routes).toEqual(shape.strip(scenario.mode.aperture.branch("/harness")));
-    specimen.expect(Object.keys(metadata.tools.branches)).toContain("fs");
-    const streamLeaf = metadata.routes.branches.dialogue.branches.stream;
+    specimen.expect(Object.keys(metadata)).toEqual(["references", "primer", "tools", "home", "index"]);
+    specimen.expect(metadata.references).toEqual(shape.strip(scenario.mode.aperture.branch("/harness")));
+    specimen.expect(Object.keys(metadata.tools.branches)).toEqual(["lookup", "modes", "tool", "primer"]);
+    const streamLeaf = metadata.references.branches.dialogue.branches.stream;
     specimen.expect(streamLeaf.effect?.yields).not.toBe(undefined);
+  });
+
+  specimen.it("the served map: the wired index × the thread's TOOLED · PRIMED × home, folded by ghost's belt", async () => {
+    const metadata = await scenario.authedConn.branch(MOUNT).call("/metadata/harness");
+    const lookup = `${metadata.home}/lookup`;
+    const thread = (TOOLED) => ({
+      mode: { implements: (trait) => trait === "HARNESSED", metadata: { harness: metadata } },
+      trait: { HARNESSED: { slugging: "deep" }, TOOLED, PRIMED: {} },
+    });
+    const offered = belt.harness.served(thread({}));
+    const pruned = belt.harness.served(thread({ [lookup]: "none" }));
+    console.log(JSON.stringify({ offered, pruned: pruned.TOOLED }, null, 2));
+    specimen.expect(offered.TOOLED).toEqual([
+      { reference: lookup, valence: metadata.index.TOOLED[0].valence, load: "eager", state: "eager", key: null, offered: "eager", name: "/lookup" },
+    ]);
+    specimen.expect(pruned.TOOLED[0]).toMatchObject({ state: "none", key: lookup });
+    specimen.expect(belt.harness.served(null)).toEqual({ home: null, TOOLED: [], PRIMED: [] });
   });
 
   specimen.it("wire projects an async-iterable that yields parsed packets", async () => {
     const metadata = await scenario.authedConn.branch(MOUNT).call("/metadata/harness");
-    const harness = shape.connection.wire(scenario.authedConn.branch(`${MOUNT}/harness`), metadata.routes);
+    const harness = shape.connection.wire(scenario.authedConn.branch(`${MOUNT}/harness`), metadata.references);
 
     const packets = await scenario.scoped(async () => {
       const stream = harness.dialogue.stream({
@@ -68,7 +87,7 @@ specimen.describe("client harness wire — mode.harness.dialogue.stream streams 
 
   specimen.it("persists user + assistant turns through the streamed wire path", async () => {
     const metadata = await scenario.authedConn.branch(MOUNT).call("/metadata/harness");
-    const harness = shape.connection.wire(scenario.authedConn.branch(`${MOUNT}/harness`), metadata.routes);
+    const harness = shape.connection.wire(scenario.authedConn.branch(`${MOUNT}/harness`), metadata.references);
 
     await scenario.scoped(async () => {
       const stream = harness.dialogue.stream({

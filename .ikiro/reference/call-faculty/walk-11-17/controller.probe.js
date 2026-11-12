@@ -1,0 +1,13 @@
+import { Controller, Span } from "@vivalence/typology";
+const session = new Controller({ stdout: new Span("verbatim") }).start();
+const provider = session.branch("elevenlabs").start();
+const signal = session.abort.signal;
+session.abort.abort("trash");
+await new Promise((resolve) => setTimeout(resolve, 0));
+console.log("signal         reason:", JSON.stringify(signal.reason));
+console.log("branch         reason:", JSON.stringify(provider.abort.signal.reason));
+console.log("branch         status:", JSON.stringify(provider.toJSON()));
+const shared = new Controller({ stdout: new Span("verbatim") }).start();
+shared.stop();
+shared.fault(new Error("socket 1006"));
+console.log("one controller, belt stops then provider faults:", JSON.stringify(shared.toJSON()));

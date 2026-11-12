@@ -1,0 +1,449 @@
+{
+  "ok": true,
+  "result": {
+    "output": {
+      "tools": [
+        {
+          "name": "modes_index",
+          "valence": "Lists the modes a reference covers: each mode, its tools and its primer sections, by absolute reference. A wider reference and a higher detail both return more text into this thread: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "reference",
+              "detail"
+            ],
+            "properties": {
+              "reference": {
+                "type": "string"
+              },
+              "detail": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": "modes"
+                  },
+                  {
+                    "type": "string",
+                    "const": "outline"
+                  },
+                  {
+                    "type": "string",
+                    "const": "signatures"
+                  }
+                ],
+                "default": "outline"
+              }
+            },
+            "examples": [
+              {
+                "reference": "/daemon/education/mode/tactic"
+              },
+              {
+                "reference": "/runtime",
+                "detail": "modes"
+              },
+              {
+                "reference": "/daemon/education",
+                "detail": "modes"
+              }
+            ]
+          },
+          "output": {
+            "type": "object",
+            "required": [
+              "modes"
+            ],
+            "properties": {
+              "modes": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "reference"
+                  ],
+                  "properties": {
+                    "reference": {
+                      "type": "string"
+                    },
+                    "valence": {
+                      "type": "string"
+                    },
+                    "tools": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "reference"
+                        ],
+                        "properties": {
+                          "reference": {
+                            "type": "string"
+                          },
+                          "valence": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "primers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "reference"
+                        ],
+                        "properties": {
+                          "reference": {
+                            "type": "string"
+                          },
+                          "valence": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "examples": [
+              {
+                "modes": [
+                  {
+                    "reference": "/daemon/education/mode/game/nyan",
+                    "valence": "A typing trainer.",
+                    "tools": [
+                      {
+                        "reference": "/daemon/education/mode/game/nyan/play",
+                        "valence": "Opens the trainer."
+                      }
+                    ],
+                    "primers": []
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "tool_load",
+          "valence": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/drain"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest",
+                  "/runtime/runtime/mode/harness/runtime/fs"
+                ]
+              }
+            ]
+          },
+          "output": {
+            "type": "object",
+            "required": [
+              "tools"
+            ],
+            "properties": {
+              "tools": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "name"
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "valence": {
+                      "type": "string"
+                    },
+                    "input": {}
+                  }
+                }
+              }
+            },
+            "examples": [
+              {
+                "tools": [
+                  {
+                    "name": "daemon_education_mode_tactic_harvest_drain",
+                    "valence": "Writes the daemon's truth back to the dataset files.",
+                    "input": {
+                      "type": "object",
+                      "properties": {
+                        "topography": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "primer_load",
+          "valence": "Loads primer sections into this thread in full: one section, or every section a reference covers. Each stays in the system prompt from the next request on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/archivist"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          },
+          "output": {
+            "type": "object",
+            "required": [
+              "primers"
+            ],
+            "properties": {
+              "primers": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "reference",
+                    "text"
+                  ],
+                  "properties": {
+                    "reference": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "examples": [
+              {
+                "primers": [
+                  {
+                    "reference": "/daemon/education/mode/tactic/harvest/archivist",
+                    "text": "You are the archivist."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "drill",
+          "valence": "Put a screen exercise in front of the learner from one of the three impara buckets — vocabolario (words), grammatica (conjugation paradigms), frasi (sentences). Pull first and steer with symbols from real items. Keep count small for fresh material — two or three items in tight rotation, not nine. Prompts, corrections and ambushes stay in chat.",
+          "input": {
+            "type": "object",
+            "required": [
+              "bucket",
+              "count"
+            ],
+            "properties": {
+              "bucket": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": "vocabolario"
+                  },
+                  {
+                    "type": "string",
+                    "const": "grammatica"
+                  },
+                  {
+                    "type": "string",
+                    "const": "frasi"
+                  }
+                ]
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 12,
+                "default": 3
+              },
+              "symbols": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "harvest_survey",
+          "valence": "The first move of every session: count and list the literals that still have no voice. Returns the working queue ordered by rank — slug, kind (word/sentence), rank, learning text. Scope with band (rank ceiling) when the operator names one.",
+          "input": {
+            "type": "object",
+            "required": [
+              "limit"
+            ],
+            "properties": {
+              "topography": {
+                "type": "string",
+                "description": "Topography slug. Omit to take the mounted one."
+              },
+              "band": {
+                "type": "number",
+                "description": "Only literals ranked at or under this."
+              },
+              "limit": {
+                "type": "number",
+                "default": 50
+              }
+            }
+          }
+        },
+        {
+          "name": "harvest_vocalize",
+          "valence": "Resolve and land audio for unvocalized literals: pick a source, fetch, normalize, receive into the topography's fileset, stamp VOCALIZED with attribution. Name the language every sweep. Run dry:true first and show the operator what would land; go wet only on their word. auto never synthesizes — tts must be named explicitly and its result is marked synthetic. Misses are honest: a literal no source can voice stays in the report, never papered over.",
+          "input": {
+            "type": "object",
+            "required": [
+              "language",
+              "source",
+              "limit",
+              "dry"
+            ],
+            "properties": {
+              "topography": {
+                "type": "string"
+              },
+              "language": {
+                "type": "string",
+                "description": "ISO 639-3 of the learning language — e.g. ita. Name it every sweep."
+              },
+              "source": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": "auto"
+                  },
+                  {
+                    "type": "string",
+                    "const": "tatoeba"
+                  },
+                  {
+                    "type": "string",
+                    "const": "commons"
+                  },
+                  {
+                    "type": "string",
+                    "const": "tts"
+                  }
+                ],
+                "default": "auto",
+                "description": "auto = tatoeba for sentences, commons for words — NEVER tts unless named explicitly."
+              },
+              "slugs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Exact literals. Omit to sweep the band."
+              },
+              "band": {
+                "type": "number"
+              },
+              "limit": {
+                "type": "number",
+                "default": 20
+              },
+              "dry": {
+                "type": "boolean",
+                "description": "Resolve and report without touching files or entities.",
+                "default": false
+              }
+            }
+          }
+        },
+        {
+          "name": "harvest_drain",
+          "valence": "Write the daemon's current truth back to the topography's dataset files through its datasink — the explicit flush of the katabolic loop. Returns the drain report verbatim.",
+          "input": {
+            "type": "object",
+            "properties": {
+              "topography": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "name": "nyan_play",
+          "valence": "Open the Nyan typing trainer. Pass `words` to drill that list now; omit to land on the setup screen. Default to plain.",
+          "input": {
+            "type": "object",
+            "required": [
+              "gameplay"
+            ],
+            "properties": {
+              "gameplay": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": "PLAIN"
+                  },
+                  {
+                    "type": "string",
+                    "const": "SUDDENDEATH"
+                  }
+                ],
+                "default": "PLAIN",
+                "description": "PLAIN: mistakes allowed. SUDDENDEATH: one wrong key ends the run."
+              },
+              "words": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Exact words to type, in order. Omit to choose in setup. Between 20-50 words."
+              }
+            }
+          },
+          "output": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      ]
+    }
+  }
+}

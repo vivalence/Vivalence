@@ -14,6 +14,7 @@ export enum ActivityTypeEnum {
 }
 
 const RING = 12;
+const LULL = 100;
 
 export class ActivityRepository extends VirtualRepository<ActivityEntity> {
   #taps = new Map<string, () => void>();
@@ -65,17 +66,38 @@ export class ActivityRepository extends VirtualRepository<ActivityEntity> {
     controller.stdout.log({ activity: activity.id, ...data });
     const steps: unknown[] = [...activity.steps];
     let writing: Promise<unknown> = Promise.resolve();
-    const untap = controller.stdout.pipe.tap((record) => {
+    let written = activity.status;
+    let lull: number | undefined;
+    let unwritten = 0;
+    const write = () => {
+      clearTimeout(lull);
+      lull = undefined;
+      unwritten = 0;
       const { code, error } = controller.status.reflection;
-      steps.push(record);
-      if (steps.length > RING) steps.splice(0, steps.length - RING);
       const ring = [...steps];
+      written = code;
       writing = writing.then(() =>
         this.updateOne({ id: activity.id }, { status: code, error: error ? faulted(error) : null, steps: ring }),
       );
+    };
+    const untap = controller.stdout.pipe.tap((record) => {
+      steps.push(record);
+      if (steps.length > RING) steps.splice(0, steps.length - RING);
+      unwritten += 1;
+      if (controller.status.reflection.code !== written || unwritten === RING) return write();
+      lull ??= setTimeout(write, LULL);
     });
-    this.#taps.set(activity.id, untap);
-    controller.settled.then(() => writing.then(() => this.remove({ id: activity.id })));
+    this.#taps.set(activity.id, () => {
+      clearTimeout(lull);
+      untap();
+    });
+    controller.settled.then(async () => {
+      await writing;
+      if (lull !== undefined) write();
+      await writing;
+      clearTimeout(lull);
+      await this.remove({ id: activity.id });
+    });
     return activity;
   }
 

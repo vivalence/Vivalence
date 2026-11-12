@@ -1,0 +1,11 @@
+<!-- writer: agent · limit: 2500 chars -->
+#+title: harness layout — pass 11-18, his screen
+
+* landed — amen 11-18
+- conversational: out of the entity widget into harness, a strip like primer · tools, closed (/"wrong widget. thats the harness widget"/ · /"incoherent"/)
+- a faulted turn: =! reply failed · <kind>= + =details ▸=, closed; copy takes both (/"too much detail by default"/); before, =turn.meta.fault= was never read (/"silent failure"/)
+- anthropic =translateTurns=: a thinking part without a signature (another provider's) drops; a turn left empty sends no message (=messages.58= = a gemini thinking block replayed as =signature: ""=)
+
+* owed — his go
+- a load · unload edits =system= · =tools= mid-thread: enforced models 400 /"bound to a different conversation"/. =drop_block= under =thinking-binding-controls-2026-08-01= in =buildParams=, or each load as an appended =role: system= message. Stored turns untouched either way. A paid probe.
+- tty twins: conversational in the thread popover; the tty dock shows no fault row

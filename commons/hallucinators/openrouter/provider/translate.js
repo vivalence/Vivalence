@@ -32,10 +32,11 @@ export function translateTurns(turns) {
 }
 
 function resultToMessage(part) {
+  const spoken = belt.hallucinate.speak(part.product);
   return {
     role: "tool",
     tool_call_id: part.id,
-    content: `${part.condition === "ERROR" ? "error: " : ""}${belt.hallucinate.speak(part.output)}`,
+    content: `${part.condition === "ERROR" ? "error: " : ""}${spoken}`,
   };
 }
 
@@ -152,6 +153,12 @@ export const fault = (error) => ({
   provider: { status: error.status, message: error.message },
 });
 
+const counted = (usage) => ({
+  input: usage.prompt_tokens,
+  output: usage.completion_tokens,
+  ...(usage.cost === undefined ? {} : { cost: usage.cost }),
+});
+
 export function translateResponse(response) {
   const choice = response.choices[0];
   const parts = [];
@@ -170,20 +177,33 @@ export function translateResponse(response) {
     parts,
     meta: {
       state: STATES[choice.finish_reason] ?? "error",
-      usage: response.usage,
-      provider: { finish_reason: choice.finish_reason, model: response.model },
+      usage: counted(response.usage),
+      provider: {
+        finish_reason: choice.finish_reason,
+        model: response.model,
+        usage: response.usage,
+      },
     },
   };
 }
 
 export function streamTranslator() {
-  let opened = false;
+  const opening = belt.fn.once((packets, role) => packets.push({ event: "/turn/open", turn: { role } }));
   let index = -1;
   let current = null;
   let closing = null;
+  let held = null;
+
+  function close(packets) {
+    if (held !== null) {
+      packets.push({ event: "/part/delta", index, part: { input: held ? JSON.parse(held) : {} } });
+      held = null;
+    }
+    packets.push({ event: "/part/close", index });
+  }
 
   function open(kind, part, packets) {
-    if (current !== null) packets.push({ event: "/part/close", index });
+    if (current !== null) close(packets);
     index += 1;
     current = kind;
     packets.push({ event: "/part/open", index, part });
@@ -194,48 +214,47 @@ export function streamTranslator() {
     const choice = chunk.choices?.[0];
     const delta = choice?.delta;
 
-    if (delta && !opened) {
-      opened = true;
-      packets.push({ event: "/turn/open", turn: { role: delta.role ?? "assistant" } });
-    }
+    if (delta) opening(packets, delta.role ?? "assistant");
 
     if (delta?.reasoning) {
       if (current !== "thinking") open("thinking", { type: "thinking", text: "" }, packets);
-      packets.push({ event: "/part/delta", index, delta: { text: delta.reasoning } });
+      packets.push({ event: "/part/delta", index, part: { text: delta.reasoning } });
     }
 
     if (delta?.content) {
       if (current !== "text") open("text", { type: "text", text: "" }, packets);
-      packets.push({ event: "/part/delta", index, delta: { text: delta.content } });
+      packets.push({ event: "/part/delta", index, part: { text: delta.content } });
     }
 
     for (const call of delta?.tool_calls ?? []) {
       const kind = `tool_use:${call.index}`;
       if (current !== kind) {
-        open(kind, { type: "tool_use", id: call.id, name: call.function?.name, input: "" }, packets);
+        const part = { type: "tool_use", id: call.id, name: call.function?.name, input: {} };
+        open(kind, part, packets);
+        held = "";
       }
-      if (call.function?.arguments) {
-        packets.push({ event: "/part/delta", index, delta: { input: call.function.arguments } });
-      }
+      if (call.function?.arguments) held += call.function.arguments;
     }
 
     if (choice?.finish_reason) {
       if (current !== null) {
-        packets.push({ event: "/part/close", index });
+        close(packets);
         current = null;
       }
       closing = {
         event: "/turn/close",
-        meta: {
-          state: STATES[choice.finish_reason] ?? "error",
-          usage: chunk.usage ?? null,
-          provider: { finish_reason: choice.finish_reason, model: chunk.model },
+        turn: {
+          meta: {
+            state: STATES[choice.finish_reason] ?? "error",
+            provider: { finish_reason: choice.finish_reason, model: chunk.model },
+          },
         },
       };
     }
 
     if (chunk.usage && closing) {
-      closing.meta.usage = chunk.usage;
+      closing.turn.meta.usage = counted(chunk.usage);
+      closing.turn.meta.provider.usage = chunk.usage;
       packets.push(closing);
       closing = null;
     }
@@ -301,6 +320,6 @@ export function buildPicture(model, request) {
 export function translatePicture(body) {
   return {
     images: body.data.map(({ b64_json, media_type }) => ({ type: "image", media: media_type, data: b64_json })),
-    ...(body.usage && { usage: body.usage }),
+    ...(body.usage && { meta: { usage: counted(body.usage), provider: { usage: body.usage } } }),
   };
 }

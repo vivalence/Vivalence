@@ -23,85 +23,51 @@ function frontier(ring, committed, tolerance) {
   return index;
 }
 
-export async function* harmonize(events, options = {}) {
+export async function* harmonize(packets, options = {}) {
   const { window, tolerance, tail } = { ...defaults, ...options };
   let committed = 0;
   let ring = [];
-  let segment = 0;
 
   const reset = () => {
     committed = 0;
     ring = [];
   };
 
-  for await (const event of events) {
-    switch (event.event) {
-      case "/turn/open": {
-        reset();
-        yield event;
-        break;
-      }
-      case "/verbatim/partial": {
-        const hypothesis = tokens(event.transcript);
-        ring = [...ring, hypothesis].slice(-window);
-        if (ring.length === window) {
-          const settled = frontier(ring, committed, tolerance);
-          if (settled > committed) {
-            yield { event: "/verbatim/commit", text: hypothesis.slice(committed, settled).join(" ") };
-            committed = settled;
-          }
-        }
-        yield { event: "/verbatim/partial", transcript: hypothesis.slice(committed).slice(-tail).join(" ") };
-        break;
-      }
-      case "/verbatim/final": {
-        const remainder = tokens(event.transcript).slice(committed);
-        if (remainder.length) yield { event: "/verbatim/commit", text: remainder.join(" ") };
-        yield { ...event, segment };
-        segment += 1;
-        reset();
-        break;
-      }
+  for await (const packet of packets) {
+    switch (packet.event) {
+      case "/turn/open":
       case "/turn/close": {
         reset();
-        yield event;
+        yield packet;
+        break;
+      }
+      case "/part/draft": {
+        const hypothesis = tokens(packet.part.text);
+        ring = [...ring, hypothesis].slice(-window);
+        const reached = ring.length === window ? frontier(ring, committed, tolerance) : committed;
+        if (reached > committed) {
+          yield {
+            event: "/part/delta",
+            index: packet.index,
+            part: { text: hypothesis.slice(committed, reached).join(" ") + " " },
+          };
+        }
+        committed = reached;
+        yield {
+          event: "/part/draft",
+          index: packet.index,
+          part: { text: hypothesis.slice(committed).slice(-tail).join(" ") },
+        };
+        break;
+      }
+      case "/part/delta": {
+        const remainder = tokens(packet.part.text).slice(committed);
+        if (remainder.length) yield { ...packet, part: { text: remainder.join(" ") + " " } };
+        reset();
         break;
       }
       default:
-        yield event;
+        yield packet;
     }
-  }
-}
-
-const join = (...parts) => parts.filter(Boolean).join(" ");
-
-export const empty = { settled: [], open: "", tail: "" };
-
-export const transcript = (state) => join(...state.settled.map((entry) => entry.text), state.open);
-
-export function fold(state = empty, event) {
-  switch (event.event) {
-    case "/turn/open":
-      return { ...state, tail: "" };
-    case "/verbatim/commit":
-      return { ...state, open: join(state.open, event.text), tail: "" };
-    case "/verbatim/partial":
-      return { ...state, tail: event.transcript };
-    case "/verbatim/final": {
-      const entry = { id: event.segment, text: event.transcript, ...(event.words && { words: event.words }) };
-      return { ...state, settled: [...state.settled, entry], open: "", tail: "" };
-    }
-    case "/verbatim/polish": {
-      let anchored = false;
-      const settled = state.settled.flatMap((entry) => {
-        if (!event.segments.includes(entry.id)) return [entry];
-        if (anchored) return [];
-        anchored = true;
-        return [{ id: entry.id, text: event.transcript }];
-      });
-      return anchored ? { ...state, settled } : state;
-    }
-    default:
-      return state;
   }
 }

@@ -17,7 +17,7 @@ export class Pattern extends Signature {
     [
       (s) => is.object(s) && is.string(s.nature) && !is.fn(s.filter),
       function (s) {
-        const { nature, ...valence } = s;
+        const { nature, trace, gauges, ...valence } = s;
         const segments = nature
           .split("/")
           .filter((s) => s.length > 0)

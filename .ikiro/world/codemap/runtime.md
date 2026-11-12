@@ -41,7 +41,7 @@ const { stagger } = gestalten.belt;
     gestalten.shard.host.cortex(daemon);
     daemon.aperture.branch("/metadata").open("/cortex", () => cortex.strip(daemon.cortex));
 ```
-**`gestalten/tools/` — `buffer · entity · mode · thread · primer · generative`; `gestalten/primer/` 14 + `entities`. The root armory is EMPTY (/"an entirely empty vessel"/ 11-12, `quests/empty-armory.org`): a mode grafts what it uses; GENERATIVE grafts `generative` over `mode.generator.bundle`.**
+**`gestalten/tools/` — `buffer · entity · mode · thread · primer · generative`; `gestalten/primer/` 14 + `entities`. A file exports tool Vectors ONLY (11-17). The root armory is EMPTY (/"an entirely empty vessel"/ 11-12, `quests/done/empty-armory.org`): a mode grafts what it uses; GENERATIVE grafts `generative` over `mode.generator.bundle`.**
 ```js
 // commons/harnesses/runtime/runtime-harness.viva.js:82
 export const tools = new Vector().graft(paladin.tools.fs, paladin.tools.shell, gestalten.tools.entity, …);

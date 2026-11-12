@@ -1,0 +1,35 @@
+#+title: eager reply — a cascaded call thinks on /turn/eager, holds the reply, releases it on /turn/close
+#+filetags: :typology:cortex:voice:
+#+status: ROADMAP 11-16, unnumbered — /"a. mark b for roadmap."/ (call-faculty Q6); nothing studied, nothing measured
+# writer: agent · limit: 3000 chars
+
+* intent
+
+/"a. mark b for roadmap."/ — call-faculty Q6 locked A (the reply starts on =/turn/close=); this is its B.
+
+* the shape — SKETCH, unrun
+
+=subsystems/typology/gestalten/belt/cascade.js= — the ear's packets, inside =cascade(ear, mind, mouth).via.stream=; additive: three =case= rows beside Q6's two, a provider without eager hints never reaches them
+#+BEGIN_SRC js
+switch (packet.event) {
+  case "/turn/open":
+    speaking?.abort("interrupted");
+    break;
+  case "/turn/eager":
+    early = answer([...history, soma.pour(structuredClone(heard), { event: "/turn/close" })], { held: true });
+    break;
+  case "/turn/resume":
+    early?.abort("resumed");
+    break;
+  case "/turn/close":
+    history = [...history, heard];
+    speaking = early?.matches(heard) ? early.release() : answer(history);
+    break;
+}
+#+END_SRC
+
+* owed
+
+- the saving, measured: flux =eot_threshold= vs =eager_eot_threshold= on a real voice
+- the cost: one extra dialogue render per =/turn/resume=
+- =answer(…, { held: true })= · =matches= · =release= — no code has them

@@ -1,0 +1,8 @@
+#+title: literal-rewrite — changelog, earlier rows moved whole 11-13
+# limit: 2000 chars
+
+- 11-13 /"graft entity update onto runtime and literal on the domain."/ · /"build the same pair for symbol"/ — LANDED =systems/runtime/gestalten/tools/{entity,literal,symbol}.js=; the domain grafted =gestalten.tools.literal · symbol= (=~/.viva/registry/education/domain/tools/index.js=) — Q0 replaces that graft. =ok | 3 passed (20 steps)= tools; =ok | 19 passed (64 steps)= hello-world; education domain =13 passed · 3 failed=, the base reds by name.
+- 11-13 /"exaples for differently!!"/ — the whole-call example moved onto each landed tool's =input=; =codestyle.md= rule rewritten; hello-world catalog snapshot regenerated.
+- 11-13 /"ok lan d the stdout"/ — LANDED a tap behind the detached one: a daemon's after-twitch fault → =die.daemon.controller.stdout.fault=. Departure, mine, reported: the approved =detached(datamap, stdout)= change to typology not made (24 one-argument mounts; 3 rigs mount with no controller). =ok | 23 passed (176 steps)=.
+
+- 11-13 /"ok. write belt/control and we absolutely need this .at in object. makes sense."/ — LANDED =belt/object.js= =at= (lifted from =belt/hallucinate.js=, now its caller) · =belt/control.js= =fault(controller = (die) => die.controller)=, a fn or a dotted key; the daemon binds itself onto its twitch (=shard.context.bind("daemon", die.daemon)=, as =repling.js:6= binds =mode=), the tap is his =control.fault((die) => die.daemon.controller)= (/"bad closure"/ · /"both are stupid"/ · /"youre being retarded."/). =ok | 24 passed (119 steps)= belt + hallucinate; =ok | 23 passed (176 steps)= runtime.

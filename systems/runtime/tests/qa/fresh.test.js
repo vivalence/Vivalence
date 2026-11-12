@@ -56,12 +56,12 @@ describe("T-fresh — a clean ledger, ghost's verbs, hello-world from the JSON r
     expect(effect.stratum).toBe("session");
   });
 
-  it("instance/doctor: zero faults, zero problems, two dormant hallucinators, no lighthouse organ", async () => {
+  it("instance/doctor: zero faults, zero problems, four dormant hallucinators, no lighthouse organ", async () => {
     const { effect, err } = await viva(world, ["instance/doctor"]);
     expect(effect?.manifest?.slug ?? err).toBe("hello-world");
     expect(effect.faults).toEqual([]);
     expect(effect.problems).toEqual([]);
-    expect(Object.keys(effect.dormant).sort()).toEqual(["hallucinators[0]", "hallucinators[1]"]);
+    expect(Object.keys(effect.dormant).sort()).toEqual(["hallucinators[0]", "hallucinators[1]", "hallucinators[2]", "hallucinators[3]"]);
     expect(Object.keys(effect.daemons)).toEqual(["hello"]);
     expect(effect.services).toEqual({});
     expect("lighthouse" in effect).toBe(false);
@@ -103,7 +103,7 @@ describe("T-fresh — a clean ledger, ghost's verbs, hello-world from the JSON r
   });
 
   it("entering hello: /metadata/daemons names it, the same user, no handshake, membership on first use", async () => {
-    const roster = await (await runtime.get("/metadata/daemons")).json();
+    const roster = await (await runtime.get("/metadata/daemons", finn.access)).json();
     expect(roster.map((row) => row.slug)).toEqual(["hello"]);
     expect(runtime.query("select * from User_daemons")).toEqual([]);
     const status = await runtime.get("/daemon/hello/status", finn.access);

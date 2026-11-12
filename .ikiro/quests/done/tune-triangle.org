@@ -1,0 +1,215 @@
+#+title: tune triangle — the tune is truth, three axes, set by hand in the harness widget
+#+filetags: :typology:cortex:anima:drapes:harness:
+#+status: LANDED 11-13 — three axes =intelligence · speed · thrift= on disk (/"land it"/): owner · five providers · surfaces · the local sql; prod measured, zero to rewrite; his look at the triangle owed; deferred 1 · 2 landed on my reading
+# writer: agent · limit: 14000 chars
+
+* intent
+
+/"also, i want to introduce tune. below mode, tune. tune is also toggleable and on toggle we can set it. tune is 3 or 4 variables? which are they? i see some sort of triangle i can set drag n drop. if 4 then another slider on the side."/
+
+/"i am thinking of tier to be a shortcut on top of tune. the [array] is truth, the capable tier is a pointer against that."/
+
+/"speed intelligence thrift. seems reasonable. why not three? why 4?"/
+
+* rulings
+
+| # | his words                                        | state  |
+|---+--------------------------------------------------+--------|
+| 1 | /"a."/                                           | LANDED |
+| 2 | /"t1 seems reasonable"/                          | LANDED |
+| 3 | /"the [array] is truth … tier is a pointer"/     | LANDED |
+| 4 | /"speed intelligence thrift. … why not three?"/  | LANDED |
+| 5 | /"i want a one-off rewrite on local and prod."/  | RULED  |
+
+Landed hunks 1 · 2 · 3 and the blast table: =.ikiro/reference/tune-triangle/four-axes-landed.md=.
+
+* terrain — measured 11-13
+
+The owner's old text is the minus side of =* deliverables=. Reasoning rides intelligence in five of six tiers; thinking depth has two other owners:
+
+=commons/hallucinators/openrouter/provider/translate.js:118=
+
+#+BEGIN_SRC js
+  params.reasoning = !model.thinking || settings.effort === "none"
+#+END_SRC
+
+Two lengths on disk today, two MEANINGS (grep =tune: [=, repo + =~/.viva/registry=):
+
+| length | literals | files | reads as                         | at three axes                 |
+|--------+----------+-------+----------------------------------+-------------------------------|
+|      4 |       50 |       | intelligence reasoning speed thrift | drop index 1                |
+|      3 |       40 |    18 | intelligence reasoning speed     | PASSES the schema, means wrong |
+
+Tier resolution, four axes vs three, probe over the five product providers' arrays: 30 pairs, 28 hold.
+
+| provider   | tier     | four    | three |
+|------------+----------+---------+-------|
+| elevenlabs | frugal   | leandro | luiza |
+| deepgram   | balanced | flux    | nova  |
+
+Dialogue (anthropic · openrouter) and picture: 18 of 18 hold. No two faculties of one type land on one point.
+
+Stored, local =~/.viva/instances/localhost/mountpoint/localhost.viva.db=: the only =.db= under the mountpoint; =Thread.trait= json, 15 threads, 1 holds a tune, four-long.
+
+* the law
+
+- The array is truth; a tier is a name for one array.
+- Three axes: =intelligence · speed · thrift=. Thinking depth is =effort= + the model's =thinking= flag, never a tune axis.
+- One length. A four-long array FAILS the schema; no pad, no compat read.
+- A drag ends in ONE repl signal.
+
+* deliverables — the cut to three (ruling 4, waits for go)
+
+** the owner
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/hallucination.js:143
+-export const axes = ["intelligence", "reasoning", "speed", "thrift"];
++export const axes = ["intelligence", "speed", "thrift"];
+
+ export const Tune = v
+-  .array(v.number({ minimum: 0, maximum: 1 }), { minItems: 3, maxItems: 4 })
++  .array(v.number({ minimum: 0, maximum: 1 }), { minItems: 3, maxItems: 3 })
+#+END_SRC
+
+   .desc(
+-    "Capability vector [intelligence, reasoning, speed, thrift] — each 0-1, 1 = maximal. Providers may omit thrift (cortex pads 0.5).",
++    "Capability vector [intelligence, speed, thrift] — each 0-1, 1 = maximal. Example: [0.6, 0.4, 0.4]",
+   );
+…
+-  tune: Tune.optional().desc("A point in tune-space; ranks what the exact keys leave. Example: [0.4, 0.3, 1.0, 0.8]"),
++  tune: Tune.optional().desc("A point in tune-space; ranks what the exact keys leave. Example: [0.4, 1.0, 0.8]"),
+#+END_SRC
+
+His comment block =hallucination.js:125-142= follows the code, same hunk at land: =4-axis= → =3-axis=, the =reasoning= entry cut, indices renumbered, the pad paragraph =:138-140= cut. His tier comments stay, =all four= → =all three=.
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/cortex.js:11
+-// [intelligence, reasoning, speed, thrift]  (each 0-1, 1 = max)
++// [intelligence, speed, thrift]  (each 0-1, 1 = max)
+ export const tiers = {
+-  frugal: [0.1, 0.3, 0.9, 1.0], // dumb but fast + cheapest
+-  fast: [0.4, 0.3, 1.0, 0.8], // speed above all, chat-capable, cheap-leaning
+-  balanced: [0.4, 0.6, 0.6, 0.6], // even trade across all four
+-  capable: [0.6, 0.8, 0.4, 0.4], // strong, moderate cost
+-  unleashed: [0.9, 1.0, 0.2, 0.2], // max capability, cost no object
+-  eager: [0.3, 0.5, 0.5, 0.1], // engagement-first, spend-tolerant
++  frugal: [0.1, 0.9, 1.0], // dumb but fast + cheapest
++  fast: [0.4, 1.0, 0.8], // speed above all, chat-capable, cheap-leaning
++  balanced: [0.4, 0.6, 0.6], // even trade across all three
++  capable: [0.6, 0.4, 0.4], // strong, moderate cost
++  unleashed: [0.9, 0.2, 0.2], // max capability, cost no object
++  eager: [0.3, 0.5, 0.1], // engagement-first, spend-tolerant
+ };
+…
+-      const tune = faculty.tune.length === 3 ? [...faculty.tune, 0.5] : faculty.tune;
+       const stored = this.faculties.get(faculty.type) ?? [];
+-      this.faculties.set(faculty.type, [...stored, { ...faculty, tune }]);
++      this.faculties.set(faculty.type, [...stored, faculty]);
+#+END_SRC
+
+** the providers — index 1 dropped, nothing else
+
+Landed; the 19-entry table: =.ikiro/reference/tune-triangle/four-axes-landed.md=.
+
+The 40 old three-long literals (tests · fixtures · registry rigs): =[a, b, c]= → =[a, c, 0.5]=, the value the pad gave. By hand per file, never a blind sed: the schema cannot tell old from new.
+
+** the surfaces
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/commands/intelligent.js:13
+-  reasoning: v.number({ minimum: 0, maximum: 1 }).desc("Deliberation depth, 1 = deepest. Example: 0.6"),
+…
+-      valence: "the seated thread's point in tune-space — INTELLIGENT.tune. Example: /tune 0.4 0.6 0.6 0.6",
++      valence: "the seated thread's point in tune-space — INTELLIGENT.tune. Example: /tune 0.4 0.6 0.6",
+…
+-      const INTELLIGENT = { tune: [tuned.intelligence, tuned.reasoning, tuned.speed, tuned.thrift] };
++      const INTELLIGENT = { tune: [tuned.intelligence, tuned.speed, tuned.thrift] };
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:273
+-const THRIFT = 0.5;
+ const pointed = (held) => {
+-  if (Array.isArray(held.tune)) return [...held.tune, THRIFT].slice(0, 4);
++  if (Array.isArray(held.tune)) return held.tune;
+#+END_SRC
+
+=subsystems/drapes/Tune.jsx=: cut =:35= (the rail ref) · =:42-45= (=railed=) · =:91-98= (the =side= block). =SPOKES= · =LABELS= · =RADAR= stand: thrift lands on the third spoke by index. =subsystems/drapes/parts.css=: cut =:408-411=. =srow.test.js= =tune= case re-pinned.
+
+** the stored arrays — ruling 5
+
+Ran on a =.backup= copy of the local db 11-13: 1 thread changed, =[0.47,0.8,1,0.57]= → =[0.47,1,0.57]=, 14 untouched.
+
+#+BEGIN_SRC sql
+update Thread
+set trait = json_set(trait, '$.INTELLIGENT.tune', json_array(
+  json_extract(trait, '$.INTELLIGENT.tune[0]'),
+  json_extract(trait, '$.INTELLIGENT.tune[2]'),
+  json_extract(trait, '$.INTELLIGENT.tune[3]')))
+where json_array_length(trait, '$.INTELLIGENT.tune') = 4;
+#+END_SRC
+
+Runs BEFORE the new code boots (a four-long stored array fails the cast at hydration). Prod: same statement, both hosts, db snapshot first (skill =ops=); prod unread.
+
+* milestones
+
+1. the owner — =axes= · =Tune= · =tiers= · the pad cut; typology suite green
+2. the providers — five product providers on three-long arrays, one pass
+3. the surfaces — =/tune= · the triangle · the sidebar entry
+4. the stored arrays — a one-off rewrite (ruling 5, no mikro migration): every thread's =INTELLIGENT.tune= three-long, local then prod; the sql is in deliverables, proven on a local copy; prod unread
+5. the snapshots and the registry
+
+* testing assessment
+
+- COVERAGE GAP: no case resolves a query carrying a tier AND a different tune. Ruling 2 landed on the existing cases only.
+- COVERAGE GAP: the mounted sidebar. =systems/anima/tests/sidebar.test.js= dies in its rig before any case (known issue =anima-tests-world-rig-dead=).
+- COVERAGE GAP: a drag. =srow.test.js= pins the markup, never a pointer.
+- Landed green 11-13: =srow.test.js= 19 steps · ghost =commands.test.js= 33 steps · =cortex.test.js= 5 · =cortex.hallucinators.test.js= 3 · runtime =cortex.integration= 24 · =cortex.stripwire= 11.
+- Red, not traced, not attributed: =systems/anima/tests/harness-wire.test.js= — the tools strip holds =lookup=, the case expects =fs=.
+
+* QA
+
+#+marker_qa: tune-triangle/T-radar-drag · held 11-17 /"tune triangle done."/ · I open =tune= under =model=, drag a knob, the value row follows and the model row may change
+#+marker_qa: tune-triangle/T-tier-snaps · held 11-17 /"tune triangle done."/ · I click a tier chip, the triangle jumps to that tier's array
+#+marker_qa: tune-triangle/T-primer-folds · held 11-17 /"tune triangle done."/ · I open =primer=, a nested entry shows a chevron and folds like =tools=
+
+* deferred — unruled
+
+1. =elevenlabs= · =deepgram= use the array as an opaque key. Measured (terrain): no two voices collide; 2 of 12 tier resolutions move (=frugal= speech leandro → luiza, =balanced= verbatim flux → nova). Accept the two moves, or nudge those arrays to hold the old picks?
+2. =/tier= writes =tune= today (ruling 3, my reading). Keep, or should =/tier= CLEAR =tune=?
+3. Callers passing both now resolve by tune: =systems/runtime/subjects/mode/traits/harnessed.js:62-67= (a request =tier= over a tuned thread), =subsystems/typology/gestalten/shard/hal.js:53=. Not walked.
+
+* the dialogue
+
+/"is reasoning aka token count for thinking or what?"/ — no: the axis picks the MODEL, =effort= sets how hard it thinks (=translate.js:118=, in terrain).
+
+/"what does reasoning vs intelligence mean? why two, not one?"/ — =hallucination.js:133-134=: raw capability vs deliberation depth; in the tiers they move together.
+
+/"for recrord: i want a one-off rewrite on local and prod."/ — ruling 5.
+
+* changelog
+
+Four-axis entries: =.ikiro/reference/tune-triangle/four-axes-landed.md=.
+
+- 11-13 /"blast map first."/ — the table above. No code.
+- 11-13 /"for recrord: i want a one-off rewrite on local and prod."/ — ruling 5; nothing written.
+- 11-13 /"go"/ on the DRAFTED quest — quest edits only: five providers and the local db read, every hunk written, the sql proven on a copy. No product code.
+- 11-13 /"land it"/ — the cut to three, all milestones bar prod. Local sql: 1 thread changed, backup =~/.viva/bak/tune-triangle/localhost-20261113/=. Green: typology 162 passed · hallucinators 7 · reader · darkroom · hello-world 19 · ghost =commands= 34 steps · =srow= 19 · runtime cortex batch 19 of 20 then the =harness.metadata= snapshot reheated. Departures, mine, reported: the comment guard refused his comments in two edits, so the tier comments are GONE and the block =hallucination.js:125-142= + =cortex.js:11= stand STALE (four axes); deferred 1 (two voice picks move) and 2 (=/tier= writes =tune=) landed unanswered; =deepgram/tests/provider.test.js:17= length 4 → 3; snapshots reheated: =cortex-contract= · =harness.metadata=. Reds, cause not tune: anima =bar= · =tele= (esbuild cannot resolve =./panes/index.js=) · =harness-wire= · memo snapshots (=reading 'call'=) · vdex snapshot (mikro unknown property).
+- 11-13 /"run the prod runtime migration"/ — measured on R000, read-only: =prod.viva.db= 9 threads, 0 hold a tune; both hosts' =instance.viva.jsonc= carry no =tune=. Zero to rewrite, the sql NOT run, nothing written on prod.
+
+* release
+
+- added =/tune <intelligence> <speed> <thrift>= — the seated thread's point in tune-space · migrate: none ⟨tune-triangle⟩
+- changed =cortex.findOne= — a query carrying =tier= and =tune= resolved by tier, now by tune · migrate: a caller wanting the tier drops =tune= ⟨tune-triangle⟩
+- changed =/tier= — also writes =INTELLIGENT.tune= · migrate: none ⟨tune-triangle⟩
+- changed =Tune= — four-long (or padded three-long) → exactly =[intelligence, speed, thrift]= · migrate: a four-long array drops index 1; an old three-long =[a, b, c]= becomes =[a, c, 0.5]=; stored threads by the sql in deliverables ⟨tune-triangle⟩
+- changed =/rounds= · =/set thread.rounds= · =INTELLIGENT.rounds= — maximum 50 → 100 · migrate: none ⟨unquested 11-13, same widget⟩
+
+* handoff
+
+- goal: the tune array is truth, three axes =intelligence · speed · thrift=, set by hand in the harness widget.
+- done: three axes on disk, local db rewritten; suites in the changelog.
+- next: his deploy; his word on the stale comments.
+- never: a pad or compat read for the old length; a mikro migration for the stored arrays (ruling 5).
+- owed: his look at the mounted triangle · a case for tier AND tune · deferred 3 unwalked.

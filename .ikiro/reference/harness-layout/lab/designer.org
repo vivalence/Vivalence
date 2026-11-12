@@ -1,0 +1,228 @@
+#+title: brief — the harness map: tools and primer, added and removed by reference
+# writer: agent · limit: 16000 chars · for: a designer, no repo access needed
+
+* what this is
+
+vivalence is a language-learning OS. A conversation with a model happens on a *thread*. The thread sits in a *mode* (a language tutor, a typing game, an operator console). Two things decide what the model can do and knows:
+
+- *tools* — functions the model may call (read a file, deal a drill, play a typing game)
+- *primer* — sections of system-prompt text (who the tutor is, grammar notes)
+
+Every tool and every primer section has an address, a *reference*: an absolute path.
+
+#+BEGIN_SRC text
+/runtime/runtime/mode/harness/runtime/fs/read
+└─host──────────┘    └─type──┘└slug──┘└path──┘
+/daemon/education/mode/teacher/francesca/drill
+#+END_SRC
+
+Each reference is in exactly ONE of three states:
+
+| state | glyph | means |
+|---+---+---|
+| eager | ● | in the request: the model has it now |
+| lazy | ◇ | listed by name and one sentence; the model can pull it in |
+| none | ○ | not there |
+
+The *mode* offers a default (its own tools eager, its own primer as authored). The *thread* stores only a *delta* on top: a small map of reference → state. The delta wins; a load never downgrades. The user AND the model edit the same delta — the model through its own tools, the user through this UI.
+
+Your component: let a person SEE the resolved map and ADD / REMOVE references to it, for tools and for primer, in four places. The hard part, in the owner's words: /"how do i navigate these tree*maps ? add and remove from maps via tree."/
+
+* the data — this is the spec
+
+** the tree of everything that can be referenced
+
+#+BEGIN_SRC text
+runtime                                   (host /runtime/runtime)
+  harness/runtime                         (mode)
+    fs/ tree · find · read · write · stat · move · delete      tools
+    thread/update · mode/find                                  tools
+  guide/editor
+    open                                                       tool
+daemon · education                        (host /daemon/education)
+  tactic/harvest
+    survey · vocalize · drain                                  tools
+    archivist                                                  primer
+  game/nyan
+    play                                                       tool
+  teacher/francesca                       ← the thread's home mode
+    drill                                                      tool
+    francesca                                                  primer, eager
+    grammar                                                    primer, lazy
+daemon · chess
+  teacher/francesca
+    drill                                                      tool
+#+END_SRC
+
+Real size: 3 hosts, ~10 modes, 10–40 tools a mode, 1–5 primer sections a mode. Any node is a valid reference: =/runtime= means every runtime tool; =/daemon/education/mode/tactic= means every tactic mode.
+
+** the thread's delta (what is stored)
+
+#+BEGIN_SRC json
+{
+  "TOOLED": {
+    "/runtime/runtime/mode/harness/runtime/fs": "eager",
+    "/runtime/runtime/mode/harness/runtime/fs/delete": "none",
+    "/daemon/education/mode/tactic/harvest": "lazy"
+  },
+  "PRIMED": {
+    "/daemon/education/mode/tactic/harvest/archivist": "eager"
+  }
+}
+#+END_SRC
+
+Read: all of =fs= is in, except =delete=; harvest's tools are listed but not loaded; the archivist primer is in. The rest comes from the home mode's default.
+
+** the resolved map (what the user sees as truth)
+
+| node | tools | primer |
+|---+---+---|
+| runtime | 6● 0◇ 4○ | — |
+| harness/runtime | 6● 0◇ 3○ | — |
+| tactic/harvest | 0● 3◇ 0○ | 1● |
+| teacher/francesca | 1● 0◇ 0○ | 1● 1◇ |
+| daemon · chess | 0● 0◇ 1○ | — |
+
+A branch is MIXED most of the time. A leaf is one glyph.
+
+** one tool, opened
+
+#+BEGIN_SRC json
+{
+  "reference": "/runtime/runtime/mode/harness/runtime/fs/read",
+  "name": "runtime_harness_runtime_fs_read",
+  "valence": "Read a file at an absolute path. Long files come back cut at 16 kB with a note — pass range (line numbers, 1-based) for the rest.",
+  "input": { "path": "string, required", "range": "{ from: integer ≥1, to: integer ≥1 }" },
+  "output": null,
+  "examples": [{ "path": "/home/operator/jdex/README.md", "range": { "from": 40, "to": 120 } }]
+}
+#+END_SRC
+
+=name= is what the model sees. It is SHORTENED from the thread's home: at home =francesca= the own =drill= is =drill=; harvest's is =tactic_harvest_drain=; a runtime tool is =runtime_harness_runtime_fs_read=; from the runtime harness, the same file tool is =fs_read=. Move the thread to another mode and every name changes; the references do not.
+
+** one primer section, opened
+
+#+BEGIN_SRC text
+/daemon/education/mode/tactic/harvest/archivist — eager
+# the archivist
+You are the harvest operator's counterpart — a careful archivist working a language corpus. …
+#+END_SRC
+
+** the cost
+
+Everything eager lands in every request. Width costs context: the next request in the sample is ~980 tokens; loading all of =/runtime= adds ~600. Show the cost of a change before it is made.
+
+* the commands — every gesture is one of these
+
+| command | does | to the delta |
+|---+---+---|
+| =/tool/load <ref> [<ref> …]= | load, eager | writes =eager= |
+| =/tool/preload <ref> …= | list, pullable | writes =lazy=; skipped where already eager |
+| =/tool/unload <ref> …= | remove | deletes the key and every key under it; if a parent key still brings it in, writes =none= |
+| =/primer/load <ref> …= | load a section in full | writes =eager= |
+| =/primer/preload= · =/primer/unload= | the same for primer | NOT RULED yet — design them, mark them |
+| =/mode <ref>= | move the thread to another mode | the delta stays; names change |
+
+Many references at once. A branch reference takes the whole subtree. An unknown reference is REFUSED with text: =matches nothing: /nowhere=. A change that changes nothing says so (=already so=). Every load is also written into the conversation as a turn — the journal shows it.
+
+The UI is domain-blind: every click, key and tick produces one of these commands as text, a *signal*. The pending signal IS the state of an edit in progress.
+
+* the panes — one sentence each: shows what, from where
+
+| pane | shows | from |
+|---+---+---|
+| sidebar · harness section | the RESOLVED tree, tools and primer, foldable; a picked node offers load · preload · unload | mode default + thread delta |
+| harness widget | the DELTA itself — the keys the thread stores, each removable; =+ load …= | thread delta |
+| inspector | tree · one node in depth (state · which key decides it · offered by the mode · the model's name · input · output · examples · primer text) · the journal entries that touched it | all three |
+| repl | a signal field with completion and pickers; a preview of what would change before Enter | the catalog of references |
+| ghost (terminal twin) | the same four, in a monospace terminal grid | same |
+
+** sidebar — exists today
+
+A 22rem column of sections. Each section = a stack of rows of fixed kinds; you compose from these, a new kind only if none fits:
+
+| row kind | looks like |
+|---+---|
+| =sub= | a sub-heading with a count, foldable |
+| =item= | mark glyph · label · quiet sub-text · status dot |
+| =keys= | a row of small key buttons, one may be lit |
+| =choice= | label + inline chips, one latched |
+| =chips= · =tags= | toggle chips |
+| =value= | dot · label · value, may fold |
+| =meter= | label · bar · text |
+| =stepper= | label · − value + |
+| =check= | ● / ○ · label · value |
+| =filter= · =more= · =note= | filter field · "more" link · quiet note |
+
+Today's harness section: tier (choice) · model (value, folds into items) · tune · effort · rounds (stepper) · context (meter) · then =primer= and =tools= sub-headings folding into the mode's DEFAULT tree with marks =● ◇ ◉(open)= and folders =▸ ▾=. It shows no delta and cannot edit.
+
+** harness widget — exists today as a popover
+
+The bottom modeline has segments (entity · activity · harness · display …). The harness segment shows =tier · effort · context %=; a click opens a 320px popover (max 2/3 viewport tall) holding a section of the same rows as the sidebar. The new segment needs the counts (e.g. =7● 3◇ · primer 2●=) and a popover on the delta.
+
+** inspector — exists today
+
+A floating panel, three columns: tree (filter field · lens tabs with counts · indented nodes: fold sign · name · quiet text · =!= flag) | entity (kind · title · reference · action buttons · breadcrumbs · key/value rows grouped in sections, rows may carry inline edits: choice · select · step · field) | trace (a timeline of spans). Narrow: the trace column hides.
+
+** repl — exists today, too simple
+
+A single field with a fuzzy list of commands below; a command with fixed options opens a chooser. No path completion, no multi-select, no tree. This is the open ground.
+
+* what the lab tried — =testament/prototypes/harness-ui/=
+
+A working playground with the sample data above, every pane, and three repl shapes writing ONE signal:
+
+| shape | gesture |
+|---+---|
+| A · the field | type a path; Tab completes ONE segment; ↑↓ pick; many references space-separated |
+| B · columns | Finder-like columns host → mode → path; click a name descends, a box ticks a reference; ▣ = covered by a ticked parent; ticked references collect as chips |
+| C · sift | fuzzy text over every path; matches shown WITH their ancestors as an indented tree; Space ticks |
+
+All three share a preview: =/tool/unload …/fs= → =would change · 5= with each leaf =● eager → ○ none=. Use it as behaviour reference, not as the look.
+
+* states that must ship
+
+- empty delta — only the mode's default; say "nothing changed from the mode"
+- a branch fully eager · fully none · MIXED (counts)
+- a leaf covered by a parent key vs decided by its own key (which key decides it must be visible)
+- a key whose state equals what the default gives (redundant)
+- pending edit: the preview, before → after, the cost delta
+- refused: unknown reference, with the text
+- no-op: =already so=
+- after =/mode=: same references, new names
+- a mode with no primer · with no tools · with 40 tools
+- unruled commands (=/primer/preload= · =/primer/unload=): visibly provisional
+- the model edited the delta (a journal turn arrives) while the user looks
+
+* tokens — use these names, never a raw colour
+
+Four themes (=northsea= · =parchment= · =porcelain= · =datasette=) × four zones (=0= chrome · =1= body · =2= island · =3= bench). Every colour is a variable:
+
+#+BEGIN_SRC text
+surfaces   --surface  --surface-sunk  --surface-lift  --boundary  --boundary-strong  --divider
+text       --text-ink  --text-strong  --text-muted  --text-light  --text-disabled  --text-link
+signal     --signal-{primary,positive,caution,negative}  + -ink  + -tint
+control    --control-selected  --control-focus  --control-field  --control-field-placeholder  --control-field-caret
+           --control-contrast  --control-contrast-pressed  --control-contrast-hover  --control-on  --control-on-pressed
+shape      --shape-radius-{key,card,field,pill}  --shape-lift  --shape-label-case  --shape-label-track
+size       --size-space-{2xs,xs,sm}  --size-type-{2xs,xs,sm}  --size-ring  --size-row
+fonts      --font-family-code (Victor Mono)  --font-family-sans-text (Inter)  --font-family-sans-heading (Poppins)  --font-family-brand (K2D)
+#+END_SRC
+
+The chrome is monospace, small (12px type, ~26px rows), dense, quiet. Glyphs in use: =● ◇ ○ ◉ ▸ ▾ › ⌕ ▣ ■ □=. A new token is fine — name its role, give a value per theme.
+
+* deliver
+
+1. the four panes (sidebar section · widget · inspector · repl), each in every state above, at one theme; one pane at all four themes
+2. the tree*map navigation: how a person finds, ticks and edits references in a tree of ~300 nodes, tools and primer together or apart
+3. the pending edit: preview, cost, confirm, refusal
+4. the terminal twin of the repl and the widget (a monospace grid, ~100 columns)
+
+* open — answer in the design, or mark as a question
+
+- one tree with two columns of state (tools · primer) — or two trees?
+- ticking a branch: the reference of the branch (one key, future tools included) — or its current leaves (many keys)? Both are valid commands; which does a tick mean?
+- where the DELTA is shown vs the RESOLVED map — the lab put the delta in the widget and the resolved map in the sidebar
+- how "which key decides this leaf" reads at a glance
+- how the model's own edits announce themselves
+- whether =lazy= needs its own control or is a step between ● and ○

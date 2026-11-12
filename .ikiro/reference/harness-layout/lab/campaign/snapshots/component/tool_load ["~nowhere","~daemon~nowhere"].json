@@ -1,0 +1,24 @@
+{
+  "input": {
+    "references": [
+      "/nowhere",
+      "/daemon/nowhere"
+    ]
+  },
+  "answer": {
+    "output": {
+      "tools": []
+    }
+  },
+  "trait": {
+    "TOOLED": {
+      "/daemon/education/mode/teacher/francesca/drill/deal": "eager",
+      "/daemon/education/mode/tactic/harvest/drain": "eager",
+      "/daemon/chess/mode/teacher/coach/whoami": "eager",
+      "/daemon/chess/mode/teacher/coach": "eager",
+      "/runtime/runtime/mode/harness/runtime": "eager"
+    },
+    "PRIMED": {}
+  },
+  "live": []
+}

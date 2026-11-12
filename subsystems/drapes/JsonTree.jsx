@@ -27,7 +27,7 @@ export const rows = (value, key = null, depth = 0) =>
 export const JsonTree = (props) => (
   <For each={rows(props.value)}>
     {(row) => (
-      <span style={{ "padding-left": `${row.depth * 14}px` }}>
+      <span style={{ "padding-left": `${row.depth * 0.875}rem` }}>
         <Show when={row.key !== null}>
           <span class="k">{row.key}</span>{" "}
         </Show>

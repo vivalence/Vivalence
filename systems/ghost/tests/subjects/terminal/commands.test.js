@@ -1,7 +1,11 @@
+import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { atom } from "nanostores";
-import { Controller, KeySignal, Path, ReplSignal, Span, Url, Vector, belt, mime, shape, specimen, steer, v } from "@vivalence/typology";
+import { useTestStorageEngine } from "@nanostores/persistent";
+import { Controller, Cortex, KeySignal, Path, ReplSignal, Span, Url, Vector, belt, mime, shape, specimen, steer, v } from "@vivalence/typology";
 import * as ghost from "@vivalence/ghost";
 import { chrome } from "../../../surfaces/index.js";
+
+useTestStorageEngine();
 
 const unranked = (commands) =>
   shape.repl.wire(shape.strip(commands), (path, declared) => [
@@ -62,19 +66,38 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
   const REPLY = [
     { event: "/turn/open", turn: { role: "assistant", id: "a9" } },
     { event: "/part/open", index: 0, part: { type: "text", text: "" } },
-    { event: "/part/delta", index: 0, delta: { text: "cia" } },
-    { event: "/part/delta", index: 0, delta: { text: "o!" } },
+    { event: "/part/delta", index: 0, part: { text: "cia" } },
+    { event: "/part/delta", index: 0, part: { text: "o!" } },
     { event: "/part/close", index: 0 },
-    { event: "/turn/close", meta: { state: "complete" } },
-    { event: "/response/close", meta: { state: "complete", rounds: 1 } },
+    { event: "/turn/close", turn: { meta: { state: "complete" } } },
+    { event: "/response/close", response: { meta: { state: "complete", rounds: 1 } } },
   ];
   const requests = [];
+  const loads = [];
+  const answering = (route, answer) => async (request) => {
+    loads.push([route, request]);
+    return answer(request);
+  };
+  const matched = (request) => ({ tools: [], missed: request.references.filter((reference) => reference.startsWith("/nowhere")) });
+  memo.metadata = { harness: { home: memo.reference.absolute, index: { TOOLED: [], PRIMED: [] } } };
   memo.harness = {
     dialogue: {
       stream: async function* (request) {
         requests.push(request);
         for (const packet of REPLY) yield structuredClone(packet);
       },
+    },
+    tool: {
+      load: answering("/tool/load", matched),
+      preload: answering("/tool/preload", matched),
+      unload: answering("/tool/unload", (request) => ({ unloaded: request.references, missed: [] })),
+      reset: answering("/tool/reset", (request) => ({ reset: request.references, missed: [] })),
+    },
+    primer: {
+      load: answering("/primer/load", (request) => ({ primers: {}, missed: [] })),
+      preload: answering("/primer/preload", (request) => ({ primers: [], missed: [] })),
+      unload: answering("/primer/unload", (request) => ({ unloaded: request.references, missed: [] })),
+      reset: answering("/primer/reset", (request) => ({ reset: request.references, missed: [] })),
     },
   };
 
@@ -124,7 +147,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
   thread.controller = terminal.controller.branch("thread/th1");
   client.app.bridge.$terminal.set(terminal.id);
 
-  const repl = new Vector().graft(...Object.values(ghost.client.commands), ...Object.values(ghost.app.commands), ...Object.values(ghost.terminal.commands));
+  const repl = new Vector().graft(...Object.values(ghost.commands.system), ...Object.values(ghost.commands.content), ...Object.values(ghost.commands.surface));
   const run = async (line) => {
     const signal = new ReplSignal(line);
     const replDie = { signal, client, runtime: client.runtime, terminal, controller: terminal.controller.branch(signal.pathname), repl: { commands: repl }, output: undefined };
@@ -175,6 +198,16 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     specimen.expect(client.app.telemetry.state.since).toBeGreaterThan(0);
     specimen.expect(client.app.telemetry.state.selection).toBe(null);
     specimen.expect(await fault("/telemetry window")).toBe("VALIDATION");
+    specimen.expect(await run("/telemetry off")).toBe("telemetry off");
+    specimen.expect(await run("/inspector harness")).toBeUndefined();
+    specimen.expect(client.app.telemetry.state).toMatchObject({ open: true, view: "inspector" });
+    specimen.expect(client.app.telemetry.state.point).toBe("harness");
+    await run("/telemetry off");
+    await run("/inspector");
+    specimen.expect(client.app.telemetry.state).toMatchObject({ open: true, view: "inspector", point: "harness" });
+    await run("/inspector thread");
+    specimen.expect(client.app.telemetry.state.point).toBe("thread");
+    specimen.expect(await fault("/inspector nowhere")).toBe("VALIDATION");
   });
 
   specimen.it("/sidebar/toggle flips the bridge's sidebar, twice is where it was; /sidebar open · closed sets it; a bare /sidebar is VALIDATION", async () => {
@@ -204,6 +237,15 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     specimen.expect([await run("/theme/set"), client.app.theme]).toEqual(["theme parchment", "parchment"]);
     specimen.expect(await fault("/theme/set plaid")).toBe("VALIDATION");
     client.app.bridge.$theme.set(null);
+  });
+
+  specimen.it("/font/set names a step of the root type ladder on the bridge; base until set; bare or not a step is VALIDATION", async () => {
+    specimen.expect(client.app.bridge.font).toBe("base");
+    specimen.expect([await run("/font/set lg"), client.app.bridge.font]).toEqual(["font lg", "lg"]);
+    specimen.expect(await fault("/font/set")).toBe("VALIDATION");
+    specimen.expect(await fault("/font/set huge")).toBe("VALIDATION");
+    specimen.expect(client.app.bridge.font).toBe("lg");
+    client.app.bridge.$font.set("base");
   });
 
   specimen.it("/widget/toggle/entity · display · system open their popover above the modeline and close it again — /popover <widget>; /widget/toggle/dock is /dock closed on an open dock, /dock <shown> on a closed one — one owner, the terminal's DOCKED; /widget/toggle/sidebar is /sidebar/toggle", async () => {
@@ -247,10 +289,10 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
   specimen.it("/filter <kind> [query] hands the keys to that list's search, the rest of the line its query; /filter/close clears a query, then hands the keys back; /filter/expand · /filter/pick · /filter/daemon · /filter/trait flip the bridge's sections; a kind outside thread · mode is VALIDATION", async () => {
     const before = { focus: client.app.bridge.focus, sections: client.app.bridge.sections };
     client.app.bridge.$sections.set({ filter: {}, expand: {}, pick: null, hostsOff: { thread: [], mode: [] }, traits: { thread: [], mode: ["VIEWABLE"] } });
-    specimen.expect([await run("/filter mode domain chess"), client.app.bridge.focus, client.app.bridge.sections.filter]).toEqual(["searching modes", "filter/mode", { mode: "domain chess" }]);
+    specimen.expect([await run("/filter mode domain chess"), client.app.bridge.focus, client.app.bridge.sections.filter]).toEqual(["searching modes", "sidebar.filter.mode", { mode: "domain chess" }]);
     specimen.expect([await run("/filter mode"), client.app.bridge.sections.filter]).toEqual(["searching modes", { mode: "domain chess" }]);
-    specimen.expect([await run("/filter/close"), client.app.bridge.focus, client.app.bridge.sections.filter]).toEqual(["modes unfiltered", "filter/mode", { mode: "" }]);
-    specimen.expect([await run("/filter/close"), client.app.bridge.focus, await run("/filter/close")]).toEqual(["search closed", "composer", "no search open"]);
+    specimen.expect([await run("/filter/close"), client.app.bridge.focus, client.app.bridge.sections.filter]).toEqual(["modes unfiltered", "sidebar.filter.mode", { mode: "" }]);
+    specimen.expect([await run("/filter/close"), client.app.bridge.focus, await run("/filter/close")]).toEqual(["search closed", "dock.input", "no search open"]);
     specimen.expect([await run("/filter/expand thread"), client.app.bridge.sections.expand, await run("/filter/expand thread"), client.app.bridge.sections.expand]).toEqual(["threads whole", { thread: true }, "threads cut", {}]);
     specimen.expect([await run("/filter/pick mode"), client.app.bridge.sections.pick, await run("/filter/pick mode"), client.app.bridge.sections.pick]).toEqual(["hosts of modes", "mode", "hosts hidden", null]);
     specimen.expect([await run("/filter/daemon mode /daemon/chess"), client.app.bridge.sections.hostsOff, await run("/filter/daemon mode /daemon/chess"), client.app.bridge.sections.hostsOff]).toEqual(["/daemon/chess hidden from modes", { thread: [], mode: ["/daemon/chess"] }, "/daemon/chess shown in modes", { thread: [], mode: [] }]);
@@ -260,43 +302,44 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     client.app.bridge.$sections.set(before.sections);
   });
 
-  specimen.it("/focus <panel> hands the keys to the frame or the composer; bare, it flips between them; another panel is VALIDATION", async () => {
+  specimen.it("/focus <panel> hands the keys to the frame or the dock; bare, it flips between them; another panel is VALIDATION", async () => {
     const before = client.app.bridge.focus;
-    specimen.expect([await run("/focus frame"), client.app.bridge.focus]).toEqual(["keys to the frame", "frame"]);
-    specimen.expect([await run("/focus"), client.app.bridge.focus, await run("/focus"), client.app.bridge.focus]).toEqual(["keys to the composer", "composer", "keys to the frame", "frame"]);
+    specimen.expect([await run("/focus frame"), client.app.bridge.focus]).toEqual(["keys to the frame", "frame.view"]);
+    specimen.expect([await run("/focus"), client.app.bridge.focus, await run("/focus"), client.app.bridge.focus]).toEqual(["keys to the dock", "dock.input", "keys to the frame", "frame.view"]);
     specimen.expect(await fault("/focus sidebar")).toBe("VALIDATION");
     client.app.bridge.$focus.set(before);
   });
 
-  specimen.it("/repl opens the catalog — every ghost command is rank hidden, so it lists none — with / prefilled, a draft that is a line kept; /repl/close drops it and the typed line; /legend/close flushes the held keys", async () => {
+  specimen.it("/repl opens the catalog — /inspector · /tier · /effort · /model · /tool/load · /tool/preload · /tool/unload · /primer/load · /primer/preload · /primer/unload · /modes · /mode are not rank hidden, so it lists those twelve, /inspector offering no chooser — with / prefilled, a draft that is a line kept; /repl/close drops it and the typed line; /legend/close flushes the held keys", async () => {
     client.app.bridge.$draft.set("hello");
-    specimen.expect(await run("/repl")).toBe("repl open");
-    specimen.expect([terminal.repl.catalog, client.app.bridge.draft, client.app.bridge.focus]).toEqual([[], "/", "composer"]);
+    client.app.bridge.$focus.set("frame.view");
+    specimen.expect(await run("/repl")).toBeUndefined();
+    specimen.expect(terminal.repl.catalog.map((command) => command.nature)).toEqual(["/inspector", "/tier", "/effort", "/model", "/tool/load", "/tool/preload", "/tool/unload", "/primer/load", "/primer/preload", "/primer/unload", "/modes", "/mode"]);
+    specimen.expect(terminal.repl.catalog[0]).toMatchObject({ args: false, options: [] });
+    specimen.expect([client.app.bridge.draft, client.app.bridge.focus]).toEqual(["/", "repl.input"]);
     client.app.bridge.$draft.set("/dock");
     await run("/repl");
     specimen.expect(client.app.bridge.draft).toBe("/dock");
-    specimen.expect([await run("/repl/close"), terminal.repl.catalog, client.app.bridge.draft]).toEqual(["repl closed", null, ""]);
+    specimen.expect([await run("/repl/close"), terminal.repl.catalog, client.app.bridge.draft, client.app.bridge.focus]).toEqual([undefined, null, "", "frame.view"]);
+    specimen.expect([await run("/repl/close"), client.app.bridge.focus]).toEqual([undefined, "frame.view"]);
     terminal.legend.presses.enqueue(new KeySignal("leader"));
     specimen.expect([await run("/legend/close"), terminal.legend.presses.backlog, terminal.legend.chord]).toEqual(["legend closed", [], null]);
     client.app.bridge.$draft.set("");
   });
 
-  specimen.it("/repl/next · /repl/previous move the selection over what the draft shows, held at both ends; /repl/complete fills the draft with the selected row — over the commands with their rank dropped", async () => {
+  specimen.it("/repl/complete fills the draft with the selected entry of what the draft shows — its command, or in a chooser the command and the selected word — over the commands with their rank dropped", async () => {
     client.app.bridge.$draft.set("/sidebar");
     await run("/repl");
     terminal.repl.$catalog.set(ghost.shard.keymap.catalog(unranked(terminal.repl.commands)));
-    specimen.expect([await run("/repl/previous"), await run("/repl/next"), await run("/repl/next"), await run("/repl/next"), await run("/repl/next")]).toEqual(["repl 0", "repl 1", "repl 2", "repl 3", "repl 3"]);
-    await run("/repl/previous");
-    await run("/repl/previous");
-    specimen.expect([await run("/repl/complete"), client.app.bridge.draft, client.app.bridge.selected]).toEqual(["/sidebar/toggle", "/sidebar/toggle", 0]);
+    client.app.bridge.$selected.set(1);
+    specimen.expect([await run("/repl/complete"), client.app.bridge.draft, client.app.bridge.selected]).toEqual(["/sidebar/width ", "/sidebar/width ", 0]);
     client.app.bridge.$draft.set("/zzz");
     specimen.expect(await run("/repl/complete")).toBe("nothing to complete");
     client.app.bridge.$draft.set("/theme/set ");
-    client.app.bridge.$selected.set(0);
-    specimen.expect([await run("/repl/next"), await run("/repl/next"), await run("/repl/next"), await run("/repl/next")]).toEqual(["repl 1", "repl 2", "repl 3", "repl 3"]);
+    client.app.bridge.$selected.set(3);
     specimen.expect([await run("/repl/complete"), client.app.bridge.draft]).toEqual(["/theme/set datasette", "/theme/set datasette"]);
     client.app.bridge.$draft.set("/theme/set par");
-    specimen.expect([await run("/repl/next"), await run("/repl/complete")]).toEqual(["repl 0", "/theme/set parchment"]);
+    specimen.expect(await run("/repl/complete")).toBe("/theme/set parchment");
     await run("/repl/close");
     client.app.bridge.$draft.set("");
   });
@@ -313,11 +356,21 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
   });
 
   specimen.it("/modes lists; /mode narrows and moves the seated thread onto the mode through the thread's write; no thread seated mints one", async () => {
-    specimen.expect((await run("/modes")).map((row) => row.reference)).toEqual(["/runtime/house/mode/srs/memo", "/runtime/house/mode/home/probe"]);
+    specimen.expect(await run("/modes")).toBe("/runtime/house\n/srs/memo\n/home/probe\n");
     specimen.expect(await run("/mode probe")).toBe("/runtime/house/mode/home/probe · thread #th1");
     specimen.expect(threads.writes.at(-1)).toEqual({ where: { id: "th1" }, data: { mode: "m2" } });
     specimen.expect(terminals.writes.at(-1)).toEqual({ where: { id: "t1" }, data: { daemon: null, thread: "th1" } });
-    specimen.expect(await run("/mode mode")).toEqual({ which: ["/runtime/house/mode/srs/memo", "/runtime/house/mode/home/probe"] });
+    specimen.expect(await run("/mode mode")).toBeUndefined();
+    specimen.expect(terminal.repl.catalog).toMatchObject([{ nature: "/mode", options: ["/runtime/house/mode/srs/memo", "/runtime/house/mode/home/probe"] }]);
+    specimen.expect([client.app.bridge.draft, client.app.bridge.selected]).toEqual(["/mode mode", 0]);
+    client.app.bridge.$selected.set(1);
+    specimen.expect(await terminal.repl.submit("/modes")).toBe("/runtime/house\n/srs/memo\n/home/probe\n");
+    specimen.expect([terminal.repl.catalog, client.app.bridge.draft, client.app.bridge.selected]).toEqual([null, "", 0]);
+    await terminal.repl.submit("/mode mode");
+    specimen.expect([terminal.repl.catalog.map((command) => command.nature), client.app.bridge.draft]).toEqual([["/mode"], "/mode mode"]);
+    specimen.expect(ghost.belt.catalog.listed(terminal.repl.catalog, "/mode house probe")).toEqual(["/mode /runtime/house/mode/home/probe"]);
+    specimen.expect(await run("/mode /runtime/house/mode/home/probe")).toBe("/runtime/house/mode/home/probe · thread #th1");
+    await run("/repl/close");
     terminal.$thread.set(null);
     specimen.expect(await run("/mode probe")).toBe("/runtime/house/mode/home/probe · thread #th3");
     specimen.expect(terminals.writes.at(-1)).toEqual({ where: { id: "t1" }, data: { daemon: null, thread: "th3" } });
@@ -389,16 +442,8 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     terminal.$buffer.set(buffer);
   });
 
-  specimen.it("/dictate answers that the wire has no dictation; it writes nothing", async () => {
-    const before = [client.app.bridge.draft, client.app.bridge.sidebar, client.app.bridge.hidden, client.app.bridge.popover];
-    specimen.expect(await run("/dictate")).toBe("no dictation on this wire");
-    specimen.expect([client.app.bridge.draft, client.app.bridge.sidebar, client.app.bridge.hidden, client.app.bridge.popover]).toEqual(before);
-  });
-
-  specimen.it("/attach · /detach fault loudly with the design's valence: the wire has no attachments; no name is VALIDATION", async () => {
-    specimen.expect(await run("/attach notes.md").catch((error) => error.message)).toBe("no attachments on this wire — /attach notes.md: attach a file to the next turn");
+  specimen.it("/detach faults loudly with the design's valence: the wire has no attachments; no name is VALIDATION", async () => {
     specimen.expect(await run("/detach my notes.md").catch((error) => error.message)).toBe("no attachments on this wire — /detach my notes.md: drop an attachment");
-    specimen.expect(await fault("/attach")).toBe("VALIDATION");
     specimen.expect(await fault("/detach")).toBe("VALIDATION");
   });
 
@@ -430,28 +475,83 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     ]);
   });
 
-  specimen.it("/tier · /effort · /rounds claim INTELLIGENT on the seated thread, field-wise; a value outside the schema is VALIDATION", async () => {
-    specimen.expect(await run("/tier fast")).toEqual({ INTELLIGENT: { tier: "fast" } });
-    specimen.expect(threads.writes.at(-1)).toMatchObject({ where: { id: "th1" }, data: { traits: ["LABELED", "INTELLIGENT"], trait: { LABELED: { name: "flamingo" }, INTELLIGENT: { tier: "fast" } } } });
-    specimen.expect(await run("/effort high")).toEqual({ INTELLIGENT: { effort: "high" } });
-    specimen.expect(await run("/rounds 12")).toEqual({ INTELLIGENT: { rounds: 12 } });
-    specimen.expect(await fault("/rounds 99")).toBe("VALIDATION");
+  specimen.it("/tier · /effort · /rounds claim HARNESSED on the seated thread, field-wise; a value outside the schema is VALIDATION", async () => {
+    client.runtime.cortex = new Cortex(TIER_POINTS);
+    specimen.expect(await run("/tier fast")).toEqual({ HARNESSED: { tier: "fast" } });
+    specimen.expect(threads.writes.at(-1)).toMatchObject({ where: { id: "th1" }, data: { traits: ["LABELED", "HARNESSED"], trait: { LABELED: { name: "flamingo" }, HARNESSED: { tier: "fast" } } } });
+    specimen.expect(threads.writes.at(-1).data.trait.HARNESSED.tune).toEqual(TIER_POINTS.fast);
+    specimen.expect(await run("/effort high")).toEqual({ HARNESSED: { effort: "high" } });
+    specimen.expect(await run("/rounds 12")).toEqual({ HARNESSED: { rounds: 12 } });
+    specimen.expect(await fault("/rounds 101")).toBe("VALIDATION");
+    specimen.expect(await run("/tune 0.4 0.6 0.6")).toEqual({ HARNESSED: { tune: [0.4, 0.6, 0.6] } });
+    specimen.expect(await fault("/tune 0.4 1.2 0.6")).toBe("VALIDATION");
+    specimen.expect(await fault("/tune 0.4 0.6")).toBe("VALIDATION");
     specimen.expect(await fault("/tier lazy")).toBe("VALIDATION");
   });
 
-  specimen.it("/model pins INTELLIGENT.provider · id on the seated thread; /tier unpins; no id is VALIDATION", async () => {
+  specimen.it("/tool/* · /primer/* — load · preload · unload · reset call the seated mode's harness with one or many references; nothing printed (adding is not a command's answer); all missed refuses, an unchanged trait is already so", async () => {
+    const FS = "/runtime/runtime/mode/harness/runtime/fs";
+    const last = () => loads.at(-1);
+    specimen.expect(await run(`/tool/load ${FS}`)).toBeUndefined();
+    specimen.expect(last()).toEqual(["/tool/load", { thread: "th1", references: [FS] }]);
+    specimen.expect(await run("/tool/preload /daemon/education/mode/tactic/harvest")).toBeUndefined();
+    specimen.expect(await run("/primer/load /tactic/harvest/archivist")).toBeUndefined();
+    specimen.expect(await run("/primer/preload /tactic/harvest")).toBeUndefined();
+    specimen.expect(last()).toEqual(["/primer/preload", { thread: "th1", references: ["/tactic/harvest"] }]);
+    const refused = (line) => run(line).then(() => null, (error) => error.message);
+    specimen.expect(await refused("/tool/load /nowhere")).toBe("/tool/load: matches nothing: /nowhere");
+    specimen.expect(await run(`/tool/load ${FS} /nowhere`)).toBeUndefined();
+    thread.trait.TOOLED = { [FS]: "eager" };
+    const written = loads.length;
+    specimen.expect(await refused(`/tool/load ${FS}`)).toBe(`/tool/load: already so: ${FS}`);
+    specimen.expect(loads.length).toBe(written);
+    specimen.expect(await run(`/tool/unload ${FS}/delete ${FS}/write`)).toBeUndefined();
+    specimen.expect(last()).toEqual(["/tool/unload", { thread: "th1", references: [`${FS}/delete`, `${FS}/write`] }]);
+    specimen.expect(await run(`/tool/reset ${FS}`)).toBeUndefined();
+    specimen.expect(last()).toEqual(["/tool/reset", { thread: "th1", references: [FS] }]);
+    thread.trait.TOOLED = {};
+    specimen.expect(await refused(`/tool/reset ${FS}`)).toBe(`/tool/reset: already so: ${FS}`);
+    specimen.expect(await refused(`/tool/unload ${FS}`)).toBe(`/tool/unload: already so: ${FS}`);
+    thread.trait.PRIMED = { "/tactic/harvest": "lazy" };
+    specimen.expect(await run("/primer/unload /tactic/harvest")).toBeUndefined();
+    specimen.expect(await run("/primer/reset /tactic/harvest")).toBeUndefined();
+    specimen.expect(last()).toEqual(["/primer/reset", { thread: "th1", references: ["/tactic/harvest"] }]);
+    thread.trait.PRIMED = {};
+    specimen.expect(await fault("/tool/load")).toBe("VALIDATION");
+  });
+
+  specimen.it("/model pins HARNESSED.provider · id on the seated thread; /tier unpins", async () => {
     const pin = { provider: "openrouter", id: "openai/gpt-5" };
-    specimen.expect(await run("/model openrouter openai/gpt-5")).toEqual({ INTELLIGENT: pin });
-    specimen.expect(threads.writes.at(-1).data.trait.INTELLIGENT).toMatchObject(pin);
+    client.runtime.cortex = new Cortex(TIER_POINTS).register([{ type: "dialogue", ...pin, tune: TIER_POINTS.fast, via: { stream: {} } }]);
+    specimen.expect(await run("/model openrouter openai/gpt-5")).toEqual({ HARNESSED: pin });
+    specimen.expect(threads.writes.at(-1).data.trait.HARNESSED).toMatchObject(pin);
     const seated = threads.$entities.get().find((thread) => thread.id === "th1");
-    seated.trait = { ...seated.trait, INTELLIGENT: { ...seated.trait.INTELLIGENT, ...pin } };
+    seated.trait = { ...seated.trait, HARNESSED: { ...seated.trait.HARNESSED, ...pin } };
     await run("/tier fast");
-    specimen.expect(threads.writes.at(-1).data.trait.INTELLIGENT.tier).toBe("fast");
-    specimen.expect("id" in threads.writes.at(-1).data.trait.INTELLIGENT).toBe(false);
-    specimen.expect("provider" in threads.writes.at(-1).data.trait.INTELLIGENT).toBe(false);
+    specimen.expect(threads.writes.at(-1).data.trait.HARNESSED.tier).toBe("fast");
+    specimen.expect("id" in threads.writes.at(-1).data.trait.HARNESSED).toBe(false);
+    specimen.expect("provider" in threads.writes.at(-1).data.trait.HARNESSED).toBe(false);
     await run("/set thread.tier capable");
-    specimen.expect("id" in threads.writes.at(-1).data.trait.INTELLIGENT).toBe(false);
-    specimen.expect(await fault("/model openrouter")).toBe("VALIDATION");
+    specimen.expect("id" in threads.writes.at(-1).data.trait.HARNESSED).toBe(false);
+  });
+
+  specimen.it("/model narrows the cortex's dialogue models: words that name one pin it; none or several open the chooser over all of them and write nothing; its catalog entry takes no argument, so Enter on it dispatches", async () => {
+    const faculty = (provider, id) => ({ type: "dialogue", provider, id, tune: TIER_POINTS.fast, via: { stream: {} } });
+    client.runtime.cortex = new Cortex(TIER_POINTS).register([faculty("openrouter", "openai/gpt-5"), faculty("openrouter", "openai/gpt-5-mini"), faculty("anthropic", "claude-opus")]);
+    const written = threads.writes.length;
+    specimen.expect(await run("/model opus")).toEqual({ HARNESSED: { provider: "anthropic", id: "claude-opus" } });
+    specimen.expect(await run("/model openrouter openai/gpt-5")).toEqual({ HARNESSED: { provider: "openrouter", id: "openai/gpt-5" } });
+    specimen.expect(threads.writes.length).toBe(written + 2);
+    specimen.expect(await run("/model openrouter")).toBeUndefined();
+    specimen.expect(terminal.repl.catalog).toMatchObject([{ nature: "/model", args: true, options: ["openrouter openai/gpt-5", "openrouter openai/gpt-5-mini", "anthropic claude-opus"] }]);
+    specimen.expect([client.app.bridge.draft, client.app.bridge.selected]).toEqual(["/model openrouter", 0]);
+    specimen.expect(ghost.belt.catalog.listed(terminal.repl.catalog, "/model openrouter mini")).toEqual(["/model openrouter openai/gpt-5-mini"]);
+    specimen.expect(await run("/model")).toBeUndefined();
+    specimen.expect(client.app.bridge.draft).toBe("/model ");
+    specimen.expect(ghost.shard.keymap.catalog(terminal.repl.commands).find((command) => command.nature === "/model")).toMatchObject({ args: false, options: [] });
+    specimen.expect(threads.writes.length).toBe(written + 2);
+    await run("/repl/close");
+    client.runtime.cortex = null;
   });
 
   specimen.it("/dock · /dock/lens · /split claim DOCKED on the terminal, field-wise — /dock routes a side to align, a view to view — through the terminal's updateOne; a bad word is VALIDATION", async () => {
@@ -460,19 +560,21 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     specimen.expect(await run("/dock closed")).toEqual({ DOCKED: { view: "closed" } });
     specimen.expect(await run("/dock docked")).toEqual({ DOCKED: { view: "docked", shown: "docked" } });
     specimen.expect(await run("/dock messenger")).toEqual({ DOCKED: { view: "messenger", shown: "messenger" } });
-    specimen.expect(await run("/dock/lens trace")).toEqual({ DOCKED: { lens: "trace" } });
-    specimen.expect(await run("/split 0.5")).toEqual({ DOCKED: { share: 0.5 } });
+    specimen.expect(await run("/dock/lens repl")).toEqual({ DOCKED: { lens: ["turns", "harness", "repl"] } });
+    specimen.expect(await run("/dock/lens turns")).toEqual({ DOCKED: { lens: ["harness"] } });
+    specimen.expect(await run("/split 0.5")).toBe(undefined);
+    specimen.expect(terminals.writes.at(-1)).toEqual({ where: { id: "t1" }, data: { traits: ["DOCKED"], trait: { DOCKED: { share: 0.5 } } } });
     specimen.expect(await fault("/dock up")).toBe("VALIDATION");
     specimen.expect(await fault("/split 5")).toBe("VALIDATION");
     specimen.expect(await fault("/dock/lens nope")).toBe("VALIDATION");
   });
 
-  specimen.it("/set <path> <value> writes one inspector path — DOCKED through the terminal's updateOne, INTELLIGENT · LABELED through the thread's updateOne, the bridge in place; a set toggles; an unknown path or a value outside its schema is loud", async () => {
+  specimen.it("/set <path> <value> writes one inspector path — DOCKED through the terminal's updateOne, HARNESSED · LABELED through the thread's updateOne, the bridge in place; a set toggles; an unknown path or a value outside its schema is loud", async () => {
     specimen.expect(await run("/set terminal.dock.view closed")).toEqual({ DOCKED: { view: "closed" } });
     specimen.expect(terminals.writes.at(-1)).toEqual({ where: { id: "t1" }, data: { traits: ["DOCKED"], trait: { DOCKED: { view: "closed" } } } });
     specimen.expect(await run("/set terminal.dock.share 0.5")).toEqual({ DOCKED: { share: 0.5 } });
-    specimen.expect(await run("/set thread.effort high")).toEqual({ INTELLIGENT: { effort: "high" } });
-    specimen.expect(await run("/set thread.rounds 12")).toEqual({ INTELLIGENT: { rounds: 12 } });
+    specimen.expect(await run("/set thread.effort high")).toEqual({ HARNESSED: { effort: "high" } });
+    specimen.expect(await run("/set thread.rounds 12")).toEqual({ HARNESSED: { rounds: 12 } });
     specimen.expect(await run("/set thread.label six species")).toEqual({ LABELED: { name: "six species" } });
     specimen.expect(threads.writes.at(-1)).toMatchObject({ where: { id: "th1" }, data: { traits: ["LABELED"], trait: { LABELED: { name: "six species" } } } });
     specimen.expect(await run("/set bridge.sidebar true")).toBe("bridge.sidebar true");
@@ -480,7 +582,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     specimen.expect(await run("/set bridge.hidden modes")).toBe("bridge.hidden none");
     specimen.expect(await run("/set bridge.hidden buffers")).toBe("bridge.hidden buffers");
     specimen.expect(await fault("/set terminal.dock.view up")).toBe("VALIDATION");
-    specimen.expect(await fault("/set thread.rounds 99")).toBe("VALIDATION");
+    specimen.expect(await fault("/set thread.rounds 101")).toBe("VALIDATION");
     const message = await run("/set terminal.dock.colour red").then(() => null, (error) => error.message);
     specimen.expect(message).toContain('"terminal.dock.colour" is not a writable path');
     specimen.expect(message).toContain("terminal.dock.view · terminal.dock.align");
@@ -524,9 +626,15 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
       "leader/a/s": "stop",
       "leader/a/k": "abort",
       "leader/a/a": "activity",
+      "leader/c/d": "dictate",
+      "leader/c/l": "call",
       "leader/h/t": "tier",
       "leader/h/e": "effort",
       "leader/h/r": "rounds",
+      "leader/h/l": "load",
+      "leader/h/p": "preload",
+      "leader/h/u": "unload",
+      "leader/h/m": "load",
       "leader/d/b": "toggle",
       "leader/d/t": "set",
       "leader/d/f": "focus",

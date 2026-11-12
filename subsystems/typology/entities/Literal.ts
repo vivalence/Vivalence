@@ -41,11 +41,12 @@ export class LiteralRepository extends DataRepository {
 
     const { $all, $in, $none } = spec;
 
-    if ($all?.length)
-      where.$and = [...(where.$and || []), ...$all.map((s) => ({ symbols: this.reference(s) }))];
-    if ($in?.length) where.symbols = { slug: { $in } };
-    if ($none?.length)
-      where.symbols = { ...(where.symbols || {}), $none: { slug: { $in: $none } } };
+    const joined = [
+      ...($all ?? []).map((s) => ({ symbols: this.reference(s) })),
+      ...($in?.length ? [{ symbols: { slug: { $in } } }] : []),
+      ...($none?.length ? [{ symbols: { $none: { slug: { $in: $none } } } }] : []),
+    ];
+    if (joined.length) where.$and = [...(where.$and || []), ...joined];
 
     return where;
   }

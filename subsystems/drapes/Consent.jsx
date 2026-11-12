@@ -1,4 +1,4 @@
-import { For } from "solid-js";
+import { createEffect, For } from "solid-js";
 
 export const KEYS = { y: "onApprove", n: "onSkip", e: "onEdit" };
 const ACTS = [
@@ -14,8 +14,19 @@ export const Consent = (props) => {
     event.preventDefault();
     act(KEYS[event.key])(event);
   };
+  let element;
+  createEffect(() => {
+    if (props.focus && document.activeElement !== element) element.focus({ preventScroll: true });
+  });
   return (
-    <div class="consent" role="group" aria-label="consent" tabindex="0" onKeyDown={keydown}>
+    <div
+      ref={element}
+      class="consent"
+      role="group"
+      aria-label="consent"
+      tabindex="0"
+      data-focus={props["data-focus"]}
+      onKeyDown={keydown}>
       <span class="q">?</span>
       <span>approve</span>
       <span class="call">

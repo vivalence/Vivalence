@@ -49,8 +49,8 @@ specimen.describe(
             },
             outer: {
               condition: spoken.condition,
-              keys: Object.keys(spoken.output).sort(),
-              buffer: spoken.output.buffer.map(({ data, mime, views, index }) => ({
+              keys: Object.keys(spoken.product).sort(),
+              buffer: spoken.product.buffer.map(({ data, mime, views, index }) => ({
                 data,
                 mime,
                 views,

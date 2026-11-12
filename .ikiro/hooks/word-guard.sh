@@ -53,7 +53,7 @@ esac
 reason="dead word in code: door · verb · place · line do not exist (codestyle names). Rename to the thing — the die's owner (shellDie), a route, a signal, an input. Hits: $(head -3 <<<"$hits" | tr '\n' ' ')"
 mode=${IKIRO_GUARD_MODE:-deny}
 printf '%s word-guard %s %s %s\n' "$(date +%s)" "$mode" "$session" "${event:-PreToolUse}" >> "$log" 2>/dev/null
-if [ "$mode" = "warn" ]; then echo "word-guard (warn): $reason" >&2; exit 0; fi
+if [ "$mode" = "warn" ]; then jq -n --arg reason "word-guard (warn): $reason" '{ hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: $reason } }'; exit 0; fi
 if [ "$event" = "Stop" ]; then jq -n --arg reason "$reason" '{decision:"block",reason:$reason}'; exit 0; fi
 jq -n --arg reason "$reason" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:$reason}}'
 exit 0

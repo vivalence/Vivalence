@@ -1,22 +1,13 @@
 import * as cast from "../gestalten/cast/index.js";
 import * as is from "../gestalten/is/index.js";
 import * as recipe from "../gestalten/belt/recipe.js";
+import { cascade } from "../gestalten/belt/cascade.js";
 import * as shape from "../gestalten/shape/index.js";
 import * as hallucinate from "../gestalten/shard/hallucinate.js";
 import * as steer from "../gestalten/steer/index.js";
 import { Vector } from "./vector.js";
 import { v } from "../schematics/index.js";
-import { FacultyType, Selector } from "../schematics/primitives/hallucination.js";
-
-// [intelligence, reasoning, speed, thrift]  (each 0-1, 1 = max)
-export const tiers = {
-  frugal: [0.1, 0.3, 0.9, 1.0], // dumb but fast + cheapest
-  fast: [0.4, 0.3, 1.0, 0.8], // speed above all, chat-capable, cheap-leaning
-  balanced: [0.4, 0.6, 0.6, 0.6], // even trade across all four
-  capable: [0.6, 0.8, 0.4, 0.4], // strong, moderate cost
-  unleashed: [0.9, 1.0, 0.2, 0.2], // max capability, cost no object
-  eager: [0.3, 0.5, 0.5, 0.1], // engagement-first, spend-tolerant
-};
+import { FacultyType, Selector, Tiers } from "../schematics/primitives/hallucination.js";
 
 export function nearest(faculties, target) {
   return recipe.nearest(faculties, target);
@@ -26,13 +17,16 @@ const WHERE = v.object({
   type: FacultyType.optional(),
   via: v.enum(["render", "stream"]).optional(),
   ...Selector,
+  hear: v.object({ ...Selector }).optional(),
+  mind: v.object({ ...Selector }).optional(),
+  speak: v.object({ ...Selector }).optional(),
 });
 
-const where = (supplied = {}) => {
+const where = (tiers, supplied = {}) => {
   const query = v.cast(WHERE, { ...supplied });
   const [fault] = v.faults(WHERE, query);
   if (fault) throw new Error(`[cortex] invalid query ${fault.at}: ${fault.reason}`);
-  return query.tier ? { ...query, tune: tiers[query.tier] } : query;
+  return query.tier && !query.tune ? { ...query, tune: tiers[query.tier] } : query;
 };
 
 export class Cortex {
@@ -40,21 +34,29 @@ export class Cortex {
   hallucinate = null;
   #hallucinator = new Vector();
 
-  constructor() {
-    const { Audio, Packet, Verbatim } = v.primitives.hallucination;
+  constructor(tiers) {
+    const [fault] = v.faults(Tiers, tiers);
+    if (fault) throw new Error(`[cortex] tiers${fault.at} ${fault.reason}`);
+    this.tiers = tiers;
+    const { Audio, Packet, Response } = v.primitives.hallucination;
     for (const avenue of ["dialogue", "object"]) {
       this.#hallucinator
         .branch(avenue)
         .use(hallucinate.lowering())
         .open({ nature: "stream", yields: Packet.Response }, hallucinate.streaming(this, avenue))
-        .open("render", hallucinate.rendering(this, avenue));
+        .open({ nature: "render", output: Response }, hallucinate.rendering(this, avenue));
     }
 
     this.#hallucinator
       .branch("/verbatim")
       .use(hallucinate.sourcing())
-      .open({ nature: "stream", feeds: Audio.Packet, yields: Verbatim.Any }, hallucinate.transcribing(this, "stream"))
+      .open({ nature: "stream", feeds: Audio.Packet, yields: Packet.Response }, hallucinate.transcribing(this, "stream"))
       .open("render", hallucinate.transcribing(this, "render"));
+
+    this.#hallucinator
+      .branch("/call")
+      .use(hallucinate.lowering())
+      .open({ nature: "stream", feeds: v.union([Audio.Packet, Audio.Played]), yields: Packet.Call }, hallucinate.calling(this));
 
     this.#hallucinator
       .branch("/speech")
@@ -80,21 +82,20 @@ export class Cortex {
     for (const faculty of cast.array(supplied)) {
       const [fault] = v.faults(v.primitives.hallucination.Faculty, faculty);
       if (fault) throw new Error(`[cortex] invalid faculty ${fault.at}: ${fault.reason}`);
-      const tune = faculty.tune.length === 3 ? [...faculty.tune, 0.5] : faculty.tune;
       const stored = this.faculties.get(faculty.type) ?? [];
-      this.faculties.set(faculty.type, [...stored, { ...faculty, tune }]);
+      this.faculties.set(faculty.type, [...stored, faculty]);
     }
     return this;
   }
 
   split(supplied) {
-    const cortex = new Cortex();
+    const cortex = new Cortex(this.tiers);
     for (const [type, held] of this.faculties) cortex.faculties.set(type, [...held]);
     return cortex.register(supplied);
   }
 
   find(supplied) {
-    const query = where(supplied);
+    const query = where(this.tiers, supplied);
     const stored = query.type
       ? (this.faculties.get(query.type) ?? [])
       : [...this.faculties.values()].flat();
@@ -107,7 +108,7 @@ export class Cortex {
   }
 
   findOne(supplied) {
-    const query = where(supplied);
+    const query = where(this.tiers, supplied);
     const found = this.find(query);
     if (query.tune) return nearest(found, query.tune) ?? DERIVATIONS[query.type]?.(this, query);
     if (found.length > 1) throw new Error(`[cortex] ${found.length} '${query.type}' faculties match — name a tier, a tune or an id`);
@@ -141,5 +142,11 @@ const DERIVATIONS = {
   verbatim: (cortex, query) => {
     if (query.via !== "render") return undefined;
     return cortex.findOne({ ...query, type: "verbatim", via: "stream" });
+  },
+  call: (cortex, query) => {
+    const ear = cortex.findOne({ ...query.hear, type: "verbatim", via: "stream" });
+    const mind = cortex.findOne({ ...query.mind, type: "dialogue", via: "stream" });
+    const mouth = cortex.findOne({ ...query.speak, type: "speech", via: "stream" });
+    return ear && mind && mouth ? cascade(ear, mind, mouth) : undefined;
   },
 };

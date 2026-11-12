@@ -41,7 +41,7 @@ specimen.describe("controller — one process, driven from stdin", () => {
       },
     );
     clock.release(1);
-    await until(() => out.includes("/tool/yield"));
+    await until(() => out.includes("/turn/full"));
     specimen.expect(root.toJSON().children).toEqual([]);
     clock.release(2);
     await until(() => deltas() === 2);

@@ -1,7 +1,9 @@
 import { children, createSignal, For, mergeProps, Show } from "solid-js";
+import { Dynamic } from "solid-js/web";
+import { Caret } from "./Caret.jsx";
 import { Markdown } from "./Markdown.jsx";
 import { Think } from "./Think.jsx";
-import { Tool } from "./Tool.jsx";
+import { Thought, Tool } from "./Tool.jsx";
 
 export const REGISTERS = { you: "<<", agent: ">>", cmd: "<<", msg: "·", fault: "!", trace: "·" };
 const HEADED = ["you", "agent"];
@@ -13,17 +15,61 @@ const register = (kind) => {
 
 const clip = (text) => (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject(new Error("no clipboard")));
 
+export const SEGMENTS = {
+  think: (props) => (
+    <div class="tools">
+      <For each={props.segment.items}>{(node) => <Thought node={node} />}</For>
+    </div>
+  ),
+  text: (props) => (
+    <div class="text">
+      <Show when={props.markdown === "pretty"} fallback={props.segment.items.join("\n\n")}>
+        <Markdown text={props.segment.items.join("\n\n")} />
+      </Show>
+      <Show when={props.segment.tail}>
+        <span class="tail">{props.segment.tail}</span>
+      </Show>
+      <Show when={props.cursor}>
+        <span class="cursor" />
+      </Show>
+    </div>
+  ),
+  tools: (props) => (
+    <div class="tools">
+      <For each={props.segment.items}>{(tool) => <Tool tool={tool} />}</For>
+    </div>
+  ),
+};
+
 export const Turn = (props) => {
-  const held = mergeProps({ who: "", meta: "", text: "", ts: "", path: "", lens: "chat", markdown: "plain", ans: "", tools: [], think: null, buffer: null, selected: false, streaming: false }, props);
-  const [folded, setFolded] = createSignal(false);
+  const held = mergeProps({ who: "", meta: "", text: "", ts: "", path: "", lens: ["turns"], markdown: "plain", ans: "", tools: [], think: null, segments: null, buffer: null, selected: false, streaming: false, tail: "", heard: "", detail: "" }, props);
+  const [tooled, setTooled] = createSignal(true);
   const [copied, setCopied] = createSignal(false);
+  const [detailed, setDetailed] = createSignal(false);
   const blocks = children(() => held.children);
   const headed = () => HEADED.includes(held.kind);
-  const thinking = () => held.think !== null && held.think.some((node) => node.status === "run");
+  const written = () => held.text !== "" || held.tail !== "" || held.streaming;
   const line = (text) => held.onLine && held.onLine(text);
-  const copy = () => clip(held.text).then(() => setCopied(true), () => setCopied(false));
+  const copy = () =>
+    clip([held.text, held.detail].filter((bit) => bit !== "").join("\n")).then(() => setCopied(true), () => setCopied(false));
   const retry = () => line(held.text);
-  const fold = () => setFolded(!folded());
+  const calls = () =>
+    held.segments === null
+      ? held.tools.length
+      : held.segments.filter((segment) => segment.type !== "text").reduce((sum, segment) => sum + segment.items.length, 0);
+  const tools = () =>
+    held.segments === null
+      ? held.tools.length
+      : held.segments.filter((segment) => segment.type === "tools").reduce((sum, segment) => sum + segment.items.length, 0);
+  const staged = () => (tooled() ? held.segments : held.segments.filter((segment) => segment.type === "text"));
+  const toggle = (event) => {
+    event.stopPropagation();
+    setTooled(!tooled());
+  };
+  const unfold = (event) => {
+    event.stopPropagation();
+    setDetailed(!detailed());
+  };
   const open = () => line(`/buffer "${held.buffer}"`);
   return (
     <div class={`entry ${held.kind}`} classList={{ headed: headed(), sel: held.selected }} onClick={(event) => held.onPick && held.onPick(event)}>
@@ -34,13 +80,21 @@ export const Turn = (props) => {
             <span class="who">{held.who}</span>
           </Show>
           <span class="meta">{held.meta}</span>
+          <Show when={calls() > 0}>
+            <button type="button" class="tc" classList={{ on: tooled() }} aria-expanded={tooled() ? "true" : "false"} title="show or hide the harness" onClick={toggle}>
+              <Caret open={tooled()} />
+              {[
+                tools() === 0 ? "" : `${tools()} ${tools() === 1 ? "tool" : "tools"}`,
+                calls() === tools() ? "" : `${calls() - tools()} thinking`,
+              ]
+                .filter((bit) => bit !== "")
+                .join(" · ")}
+            </button>
+          </Show>
           <span class="ops">
             <button onClick={copy}>{copied() ? "copied" : "copy"}</button>
             <Show when={held.kind === "you"}>
               <button onClick={retry}>retry</button>
-            </Show>
-            <Show when={held.kind === "agent"}>
-              <button onClick={fold}>{folded() ? "unfold" : "fold"}</button>
             </Show>
             <Show when={held.buffer !== null}>
               <button onClick={open}>frame</button>
@@ -49,40 +103,72 @@ export const Turn = (props) => {
         </div>
       </Show>
       <div class="body">
-        <Show when={held.think !== null && !folded()}>
+        <Show when={held.segments !== null}>
+          <For each={staged()}>
+            {(segment, index) => (
+              <Dynamic
+                component={SEGMENTS[segment.type]}
+                segment={segment}
+                markdown={held.markdown}
+                cursor={held.streaming && index() === staged().length - 1}
+              />
+            )}
+          </For>
+          <Show when={held.streaming && held.segments.length === 0}>
+            <div class="text">
+              <span class="cursor" />
+            </div>
+          </Show>
+        </Show>
+        <Show when={held.segments === null && held.think !== null}>
           <Think nodes={held.think} />
         </Show>
-        <Show when={held.text !== "" || (held.kind === "agent" && !thinking()) || folded()}>
+        <Show when={held.segments === null && written()}>
           <div class="text">
-            <Show when={!folded()} fallback="folded">
-              <Show
-                when={held.kind === "trace"}
-                fallback={
+            <Show
+              when={held.kind === "trace"}
+              fallback={
+                <>
                   <Show when={headed() && held.markdown === "pretty"} fallback={held.text}>
                     <Markdown text={held.text} />
                   </Show>
-                }>
-                <span class="ts">{held.ts}</span>
-                {held.text}
-                <Show when={held.lens === "trace" && held.path !== ""}>
-                  <span class="path">{held.path}</span>
-                </Show>
+                  <Show when={held.tail !== ""}>
+                    <span class="tail">{held.tail}</span>
+                  </Show>
+                </>
+              }>
+              <span class="ts">{held.ts}</span>
+              {held.text}
+              <Show when={!held.lens.includes("turns") && held.path !== ""}>
+                <span class="path">{held.path}</span>
               </Show>
             </Show>
-            <Show when={held.streaming && !folded()}>
+            <Show when={held.streaming}>
               <span class="cursor" />
+            </Show>
+            <Show when={held.detail !== ""}>
+              <button type="button" class="tc" classList={{ on: detailed() }} aria-expanded={detailed() ? "true" : "false"} title="show or hide the details" onClick={unfold}>
+                <Caret open={detailed()} />
+                details
+              </button>
             </Show>
           </div>
         </Show>
-        <Show when={held.ans !== "" && !folded()}>
+        <Show when={held.detail !== "" && detailed()}>
+          <div class="detail">{held.detail}</div>
+        </Show>
+        <Show when={held.heard !== ""}>
+          <div class="heard">{held.heard}</div>
+        </Show>
+        <Show when={held.ans !== ""}>
           <div class="ans">{held.ans}</div>
         </Show>
-        <Show when={held.tools.length > 0 && !folded()}>
+        <Show when={held.segments === null && held.tools.length > 0 && tooled()}>
           <div class="tools">
             <For each={held.tools}>{(tool) => <Tool tool={tool} />}</For>
           </div>
         </Show>
-        <Show when={blocks.toArray().length > 0 && !folded()}>
+        <Show when={blocks.toArray().length > 0}>
           <div class="blocks">{blocks()}</div>
         </Show>
         <Show when={!headed() && held.selected}>
@@ -99,12 +185,6 @@ export const Turn = (props) => {
             <Show when={held.buffer !== null}>
               <button onClick={open}>
                 <b>o</b>open
-              </button>
-            </Show>
-            <Show when={held.kind === "agent"}>
-              <button onClick={fold}>
-                <b>f</b>
-                {folded() ? "unfold" : "fold"}
               </button>
             </Show>
           </div>

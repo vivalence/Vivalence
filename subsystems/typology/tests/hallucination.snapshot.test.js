@@ -1,3 +1,4 @@
+import { TIER_POINTS } from "./scenarios/tiers.js";
 import { join } from "@std/path";
 import { specimen, v, Controller, Cortex, Vector } from "@vivalence/typology";
 
@@ -25,7 +26,7 @@ function sealedTurn(text) {
 
 function scriptedCortex(script, seen) {
   let cursor = 0;
-  return new Cortex().register([
+  return new Cortex(TIER_POINTS).register([
     {
       type: "dialogue",
       id: "dialogue-1",
@@ -92,7 +93,7 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
     specimen.it("an invalid policy throws at the call, named", async () => {
       let error = null;
       try {
-        await new Cortex().hallucinate.dialogue.render({ controller: new Controller(), policy: { rounds: 0 }, turns: [] });
+        await new Cortex(TIER_POINTS).hallucinate.dialogue.render({ controller: new Controller(), policy: { rounds: 0 }, turns: [] });
       } catch (thrown) { error = thrown; }
       specimen.expect(error.message).toContain("invalid dialogue hallucination");
     });
@@ -132,7 +133,7 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
           .open({ nature: "reflect" }, async (ctx) => ({ message: ctx.input }))
           .open({ nature: "plainString" }, async () => "a bare string reply")
           .open({ nature: "messageChannel" }, async () => ({ message: "a message reply" }))
-          .open({ nature: "entitiesChannel" }, async () => ({ output: { literal: [{ id: "literal-1" }] } }))
+          .open({ nature: "entitiesChannel" }, async () => ({ product: { literal: [{ id: "literal-1" }] } }))
           .open({ nature: "objectChannel" }, async () => ({ object: { grade: 1 } }));
         const folded = await cortex.hallucinate.dialogue.render({
           controller: new Controller(),
@@ -147,7 +148,7 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
 
   specimen.describe("stream", () => {
     specimen.it(
-      "response records across a tool round: call, yield, turn/full, response/close",
+      "response records across a tool round: the results ride turn/full once, then response/close",
       async () => {
         const scripts = [
           [
@@ -155,23 +156,22 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
             {
               event: "/part/open",
               index: 0,
-              part: { type: "tool_use", id: "use-1", name: "lookup", input: "" },
+              part: { type: "tool_use", id: "use-1", name: "lookup", input: {} },
             },
-            { event: "/part/delta", index: 0, delta: { input: '{"query":' } },
-            { event: "/part/delta", index: 0, delta: { input: '"casa"}' } },
+            { event: "/part/delta", index: 0, part: { input: { query: "casa" } } },
             { event: "/part/close", index: 0 },
-            { event: "/turn/close", meta: { state: "tools" } },
+            { event: "/turn/close", turn: { meta: { state: "tools" } } },
           ],
           [
             { event: "/turn/open", turn: { role: "assistant" } },
             { event: "/part/open", index: 0, part: { type: "text", text: "" } },
-            { event: "/part/delta", index: 0, delta: { text: "casa means house" } },
+            { event: "/part/delta", index: 0, part: { text: "casa means house" } },
             { event: "/part/close", index: 0 },
-            { event: "/turn/close", meta: { state: "complete" } },
+            { event: "/turn/close", turn: { meta: { state: "complete" } } },
           ],
         ];
         let cursor = 0;
-        const cortex = new Cortex().register([
+        const cortex = new Cortex(TIER_POINTS).register([
           {
             type: "dialogue",
             id: "dialogue-2",
@@ -210,7 +210,7 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
       "the request carries output.schema with no respond splice; the structured turn folds",
       async () => {
         const seen = [];
-        const cortex = new Cortex().register([
+        const cortex = new Cortex(TIER_POINTS).register([
           {
             type: "dialogue",
             id: "dialogue-3",
@@ -224,7 +224,6 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
                   role: "assistant",
                   parts: [{ type: "object", data }],
                   meta: { state: "complete" },
-                  object: data,
                 };
               },
             },
@@ -237,7 +236,7 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
           output: { schema: Verdict },
         });
 
-        specimen.expect(folded.output.object).toEqual({ verdict: "casa", grade: 0.5 });
+        specimen.expect(folded.product.object).toEqual({ verdict: "casa", grade: 0.5 });
         specimen.expect(seen[0].tools).toBe(undefined);
         pin({ request: seen[0], folded }, "hallucination-object-schema.snapshot.json");
       },

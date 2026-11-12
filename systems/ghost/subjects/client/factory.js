@@ -27,7 +27,7 @@ export const connected = async (clientDie) => {
   runtime.lighthouse.connection = runtime.connection;
   try {
     runtime.lighthouse.manifest = await runtime.connection.call("/lighthouse/metadata");
-    runtime.manifest = await runtime.connection.call("/metadata/manifest");
+    runtime.manifest = await runtime.connection.call("/beacon/manifest");
   } catch (error) {
     runtime.multiplex.close();
     throw error;

@@ -1,5 +1,5 @@
 import paladin from "@vivalence/paladin";
-import { contexts, Mode, shard, Twitch } from "@vivalence/typology";
+import { contexts, control, Mode, shard, Twitch } from "@vivalence/typology";
 import { sets, wrap } from "@vivalence/typology/entities";
 import { gather, mint, strike } from "../../../gestalten/belt/index.js";
 import * as traits from "../../mode/traits/index.js";
@@ -42,8 +42,12 @@ export const datamap = async (die, next) => {
 
   die.daemon.twitch = new Twitch()
     .use(shard.context.spread(contexts.daemonDie, die.daemon))
+    .use(shard.context.bind("daemon", die.daemon))
     .use(shard.datamap.owned());
-  die.daemon.twitch.branch("/after").use(shard.datamap.detached(die.daemon.datamap));
+  die.daemon.twitch
+    .branch("/after")
+    .use(shard.datamap.detached(die.daemon.datamap))
+    .use(control.fault((die) => die.daemon.controller));
   if (die.daemon.domain.twitch) die.daemon.twitch.graft(die.daemon.domain.twitch);
   die.daemon.datamap.registerSubscriber(die.daemon.twitch);
 

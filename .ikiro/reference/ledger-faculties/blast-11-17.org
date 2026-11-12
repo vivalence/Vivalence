@@ -1,0 +1,19 @@
+#+title: ledger faculties — blast table 11-17 (moved whole, cap; the landed list is =land/files.txt=)
+# writer: agent · limit: 2500 chars
+
+* blast table — =@commons/hallucinator/= rows · override keys (grep 11-17)
+
+| file | rows | breaks at land |
+|------+------+----------------|
+| =~/.viva/ledger.viva.json= | 3 | yes, his |
+| =~/.viva/registry/education/instances/{italian,spanish,brazilian}/instance.viva.json= | 4 · 3 · 3 | yes |
+| =~/.viva/registry/vcompany/instances/vcompany/instance.viva.json= | 1 | yes |
+| =~/.viva/registry/education/README.md= | 4 | doc |
+| =commons/ledger/ledger.viva.json= | 2 | yes |
+| =commons/instances/playground/instance.viva.json= | 1 | yes |
+| =subsystems/paladin/tests/settle.test.js= · =expand.test.js= | 10 · 2 | fixture |
+| =subsystems/typology/tests/schematics/instance.test.js= | 1 | fixture |
+| =systems/runtime/tests/stub.activity.test.js= · =systems/ghost/tests/scenarios/hello.js= | 1 · 1 | fixture |
+| =README.md= · =documentation/…/31.02_instance-from-scratch.mdx= | 2 · 1 | doc |
+| =statics.models · choosers · pictures= (openrouter provider · docs · test) | 3 · 1 · 1 | die |
+

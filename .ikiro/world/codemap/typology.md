@@ -74,23 +74,14 @@ export * from "./prototypes/index.client.js";
 export * from "./gestalten/index.client.js";
 export * from "./schematics/index.js";
 ```
-**`prototypes/` → `mod.ts`.** `vector.js`: `branch(sig, vector)` ATTACHES live, RETURNS the child; `graft` copies (/"always attach. but lets have one dedicated for deep copy."/ 10-01), `trie` = `Map<Pattern, Vector>`, by nature = `edge(nature)`; `seat` merges declared keys INTO the trie's OWN pattern; `trim("/a/b")` drops along a path; ONE effect per node. `signature.js:16`'s ctor RETURNS a same-class arg: subclasses declare no fields.
+**`prototypes/` → `mod.ts`.** `vector.js`: `branch(sig, vector)` ATTACHES live, RETURNS the child; `graft` copies (/"always attach. but lets have one dedicated for deep copy."/ 10-01), `trie` = `Map<Pattern, Vector>`, by nature = `edge(nature)`; `seat` merges declared keys INTO the trie's OWN pattern; `trim("/a/b")` drops along a path; ONE effect per node `signature.js:16`'s ctor RETURNS a same-class arg: subclasses declare no fields.
+**`dataspace.js` — ONE identity map per runtime**: `branch` mints a repository per route, one `em`; `literal:<id>` is one object whichever route loaded it. A load is one `/find`; a push needs an open `.subscribe(where)` on a route with `datamap.reactive`; mode routes have none (runtime `mode/lifecycle/1-population.js:36`). Probed 11-14.
 ```js
-// subsystems/typology/tests/datamap.test.js:1
-import { Datamap, Twitch, sleep, specimen } from "@vivalence/typology";
-import { EntitySchema, MikroORM } from "@mikro-orm/sqlite";
-// subsystems/typology/tests/gestalten/shape/http.test.js:80
-          const [effect, carry, steps] = steer.dispatch.traverse(target, signal);
-          if (!effect) throw new NotFound(signal);
+// subsystems/typology/prototypes/dataspace.js:43
+    return Object.fromEntries(kinds.map((name) => [name, new RemoteRepository(this.em.repositoryMap[name].kind).connect(connection.branch(`/entities/${name}`)).manage(this.em, name)]));
 ```
 **`prototypes/pipe.js` · `queue.js` · `span.js` — TELEMETRY's flow algebra.** Pipe fans out, Queue buffers, a nanostore holds; `fromm.sink` makes each a write, attaching is ONE act, `pipe.tap(sink)` → untap; `fold` · `for await` tap a nanostore · a Queue. A span's pipe taps its parent's, a record `{at, path, track, data}` climbs to the root, `$history` is its fold; eight STANDARD tracks (`start stop request response fault log entity status`) are a Vector `span.tracked`, each a span method; importance is an axis BESIDE a track; the Controller's `start() stop() fault(error)` move its status AND write the track. Ref: `documentation/content/40-49_reference/42_primitives/`.
-```js
-// subsystems/typology/prototypes/span.js:45
-  tracks(vector) {
-    this.tracked.graft(vector);
-    for (const nature of vector.trie.keys()) this[nature] ??= (data) => this.track(nature, data);
-```
-**`schematics/entities/`: `index.js` re-exports DataEntitySchema + 14 `*Schematic` spreading `base.js` `DataSchematic`·`VirtualSchematic`, `is`·`examples`, fields `.desc().examples()`; `traits/index.js` `names`.**
+**`schematics/entities/`: `index.js` re-exports DataEntitySchema + 14 `*Schematic` spreading `base.js` `DataSchematic`·`VirtualSchematic`, `is`·`examples`, fields `.desc().example()`; `traits/index.js` `names`.**
 ```js
 // subsystems/typology/tests/schematics.test.js:1
 import { specimen, v } from "@vivalence/typology";

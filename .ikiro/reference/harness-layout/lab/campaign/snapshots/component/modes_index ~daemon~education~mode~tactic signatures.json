@@ -1,0 +1,117 @@
+{
+  "output": {
+    "modes": [
+      {
+        "reference": "/daemon/education/mode/tactic/harvest",
+        "valence": "Operator mode that closes the katabolic loop: survey what has no voice, resolve recordings from web sources or synthesize via TTS, receive them into the topography's fileset, stamp VOCALIZED with attribution, and let the datasink write the mode content back to disk.",
+        "tools": [
+          {
+            "reference": "/daemon/education/mode/tactic/harvest/survey",
+            "valence": "The first move of every session: count and list the literals that still have no voice. Returns the working queue ordered by rank — slug, kind (word/sentence), rank, learning text. Scope with band (rank ceiling) when the operator names one.",
+            "input": {
+              "type": "object",
+              "required": [
+                "limit"
+              ],
+              "properties": {
+                "topography": {
+                  "type": "string",
+                  "description": "Topography slug. Omit to take the mounted one."
+                },
+                "band": {
+                  "type": "number",
+                  "description": "Only literals ranked at or under this."
+                },
+                "limit": {
+                  "type": "number",
+                  "default": 50
+                }
+              }
+            }
+          },
+          {
+            "reference": "/daemon/education/mode/tactic/harvest/vocalize",
+            "valence": "Resolve and land audio for unvocalized literals: pick a source, fetch, normalize, receive into the topography's fileset, stamp VOCALIZED with attribution. Name the language every sweep. Run dry:true first and show the operator what would land; go wet only on their word. auto never synthesizes — tts must be named explicitly and its result is marked synthetic. Misses are honest: a literal no source can voice stays in the report, never papered over.",
+            "input": {
+              "type": "object",
+              "required": [
+                "language",
+                "source",
+                "limit",
+                "dry"
+              ],
+              "properties": {
+                "topography": {
+                  "type": "string"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "ISO 639-3 of the learning language — e.g. ita. Name it every sweep."
+                },
+                "source": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "auto"
+                    },
+                    {
+                      "type": "string",
+                      "const": "tatoeba"
+                    },
+                    {
+                      "type": "string",
+                      "const": "commons"
+                    },
+                    {
+                      "type": "string",
+                      "const": "tts"
+                    }
+                  ],
+                  "default": "auto",
+                  "description": "auto = tatoeba for sentences, commons for words — NEVER tts unless named explicitly."
+                },
+                "slugs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Exact literals. Omit to sweep the band."
+                },
+                "band": {
+                  "type": "number"
+                },
+                "limit": {
+                  "type": "number",
+                  "default": 20
+                },
+                "dry": {
+                  "type": "boolean",
+                  "description": "Resolve and report without touching files or entities.",
+                  "default": false
+                }
+              }
+            }
+          },
+          {
+            "reference": "/daemon/education/mode/tactic/harvest/drain",
+            "valence": "Write the daemon's current truth back to the topography's dataset files through its datasink — the explicit flush of the katabolic loop. Returns the drain report verbatim.",
+            "input": {
+              "type": "object",
+              "properties": {
+                "topography": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "primers": [
+          {
+            "reference": "/daemon/education/mode/tactic/harvest/archivist",
+            "valence": "The archivist — the harvest operator's counterpart, working a language corpus"
+          }
+        ]
+      }
+    ]
+  }
+}

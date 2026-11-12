@@ -4,5 +4,5 @@ import { THEMES } from "../themes/index.js";
 
 export const design = async () => ({
   themes: THEMES,
-  output: { css: [scales(), ...Object.entries(THEMES).map(([name, held]) => emit(name, held))].join("\n") },
+  product: { css: [scales(), ...Object.entries(THEMES).map(([name, held]) => emit(name, held))].join("\n") },
 });

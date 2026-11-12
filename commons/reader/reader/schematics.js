@@ -31,7 +31,11 @@ export const EpubOptions = v.object({
 export const PdfOptions = v.object({
   kind: v.const("pdf").desc("Example: pdf"),
   flow: v.enum(["reflow", "pages"]).default("reflow").desc("Example: reflow"),
-  reader: v.enum(["text", "model"]).default("text").desc("Who reads the pages: pdf.js text, or the model. Example: text"),
+  reader: v
+    .enum(["text", "ocr", "model"])
+    .default("text")
+    .desc("Who reads the pages: pdf.js text, the ocr service, or the model. Example: text"),
+  scannable: v.boolean().default(false).desc("This mode consumes an ocr service: a scan can be read. Example: false"),
 });
 
 export const PageOptions = v.object({
@@ -82,6 +86,7 @@ export const Settings = v.object({
   chunk: v.integer().default(2).desc("Words per frame in chunk · pacer, 1–5. Example: 2"),
   pauses: v.enum(["off", "light", "strong"]).default("light").desc("Extra time at punctuation. Example: light"),
   context: v.boolean().default(true).desc("The sentence under the word. Example: true"),
+  rail: v.boolean().default(true).desc("The block rail beside the text. Example: true"),
 });
 
 export const Reading = v.object({

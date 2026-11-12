@@ -1,0 +1,40 @@
+# limit: 1800 chars · 11-18 polish with thinking off on the wire, as printed
+  sent {"model":"claude-haiku-5-5","thinking":{"type":"disabled"}}
+  fetch headers 1162 ms 200
+polish haiku · thinking disabled #1 {
+  ms: 1174,
+  usage: { input: 148, output: 24 },
+  model: undefined,
+  parts: [ "text:54" ],
+  message: "Hola, hoy quiero practicar español con durante 10 min.",
+}
+  sent {"model":"claude-haiku-5-5","thinking":{"type":"disabled"}}
+  fetch headers 749 ms 200
+polish haiku · thinking disabled #2 {
+  ms: 752,
+  usage: { input: 148, output: 24 },
+  model: undefined,
+  parts: [ "text:54" ],
+  message: "Hola, hoy quiero practicar español con durante 10 min.",
+}
+  sent {"model":"claude-haiku-5-5","thinking":{"type":"disabled"}}
+  fetch headers 804 ms 200
+polish haiku · thinking disabled #3 {
+  ms: 842,
+  usage: { input: 148, output: 24 },
+  model: undefined,
+  parts: [ "text:54" ],
+  message: "Hola, hoy quiero practicar español con durante 10 min.",
+}
+polish flash-lite · minimal {
+  ms: 3157,
+  usage: { input: 87, output: 13, cost: 0.0000586 },
+  model: undefined,
+  parts: [ "text:54" ],
+  message: "Hola, hoy quiero practicar español con durante 10 min.",
+}
+
+# journal.probe.js
+today       {"6 activity updates":{"mounts":240,"texts":240},"1 streamed delta":{"mounts":40,"texts":40},"1 turn appended":{"mounts":41,"texts":41}}
+memo        {"6 activity updates":{"mounts":0,"texts":0},"1 streamed delta":{"mounts":40,"texts":40},"1 turn appended":{"mounts":41,"texts":41}}
+memo+store  {"6 activity updates":{"mounts":0,"texts":0},"1 streamed delta":{"mounts":0,"texts":1},"1 turn appended":{"mounts":1,"texts":2}}

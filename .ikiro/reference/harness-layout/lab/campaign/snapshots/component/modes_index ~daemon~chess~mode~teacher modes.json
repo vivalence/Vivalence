@@ -1,0 +1,14 @@
+{
+  "output": {
+    "modes": [
+      {
+        "reference": "/daemon/chess/mode/teacher/coach",
+        "valence": "the chess coach"
+      },
+      {
+        "reference": "/daemon/chess/mode/teacher/francesca",
+        "valence": "the chess francesca"
+      }
+    ]
+  }
+}

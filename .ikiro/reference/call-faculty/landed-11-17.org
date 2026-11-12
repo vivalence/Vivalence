@@ -1,0 +1,39 @@
+#+title: call-faculty — milestones 2 · 3 · 4 · 5 · 6 · 7 landed 11-17 on /"go. and continue the quest."/ · /"land hte rest of the quest up and including ui"/
+# writer: agent · limit: 6000 chars
+
+* landed
+
+| m | what | where |
+|---|---|---|
+| ocr | self-contained (11-13 ruling): own =Block {text, words}= · =Word=, no typology verbatim | =commons/services/ocr/schematics.js= · =provider/index.js= · =tools/index.js= · =commons/reader/reader/aperture/pdf.js= |
+| 2 | =PartDraft= · =PartFull{turn?}= · =TurnEager= · =TurnResume=; =Verbatim.*= · =Word= die; =pour= draft · full, close drops the draft; =transcript= =/part/full= by turn; =harmonize= over drafts (S3); the belt stamps =/turn/open= ids; =polishing= emits =/part/full= to the sealed turn; Q13 polish ={...Selector, engaged}= healed at Thread onLoad | =hallucination.js= · =soma.js= · =verbatim.js= · =hallucinate.js= · =shard/hal.js= · =conversational.js= · =Thread.ts= |
+| 2 | providers in the grammar: scribe =scribe_v3_live= (docs: =commit_strategy=turn_prediction=, =xi-api-key=), deepgram nova · flux (Q4A), stub, =faculties.js= | =commons/hallucinators/{elevenlabs,deepgram}= · =commons/fixtures/testing= |
+| 3 | verbatim · speech faculties take =(request, { signal })= (Q1A · Q22) | belt =hallucinate.js= · every provider above |
+| 4 | =/verbatim= · =/call= grafted only when the cortex streams them; ghost grafts =/dictate= · =/polish= · =/call= · =/mic= only on a harness that has them | runtime =harnessed.js= · ghost =entities/mode/traits/harnessed.js= |
+| 5 | microphone =feed= · =frames()= · =release(exit)= both faces (tty = =recorder.js=, S12 form); =bridge.$dictation=; =/dictate= (+ =leader/c/d=) · exits; Esc stops (Q16 · Q16A); anima mic · Dictline · =<<= popover | ghost =box/device/microphone/= · =commands/content/dictate.js= · =keymap.js= · =legend.js=; anima =dock/textarea.jsx=; drapes =Dictline.jsx= |
+| 6 | =belt/cascade.js= (S7 re-cut to Q24 · Q25: answers ride =/turn/full=); =converse=; cortex =call= derivation + =WHERE= hear · mind · speak; =/call= branch; =hal.call=; runtime =/call= route; Q8 sealed rewrite in =recording= | typology =cascade.js= · =cortex.js= · =shard/hallucinate.js= · =hal.js=; runtime =harnessed.js= |
+| 7 | speaker =$played= · =play(packet)= · tty player; =bridge.$call=; =/call= · =/call/end= (=leader/c/l=); =/polish/engaged on/off=; =/mic on/mute= | ghost =speaker/= · =commands/content/{call,polish,mic}.js= |
+
+| ui | anima: mic (U1) · Dictline (U2) · =<<= popover (U3 · U4) · call line · caption draft tail · interrupted =heard m:ss= · bar process voice states · thread + box panels in =sections.js=; tty: the same on the cell grid, bar on two rows | anima =dock/= · =modeline/= · =sidebar/sections.js=; drapes =Dictline= · =Turn= · =Bar= · =Meter=; ghost =surfaces/chrome/panels/{dock,modeline}/= |
+
+* departures (each reported, none ruled)
+
+- render =transcript= folds TURNS with =soma.transcript= (S7: the scribe seals one turn per commit) — S2's single =soma.pour= kept only the last
+- =polishing= polishes =user= turns only (a call carries assistant turns)
+- =converse= closes its answers when the client feed ends — found deadlock: the merged feed never ended
+- =cascade=: a reply's fault closes the packets and rethrows; hang-up aborts the live reply; =await mind.via.stream= (a dialogue stream may be a promise)
+- =recording= keeps the belt's turn id (=packet.turn.id ?? v7()=): the polish addresses it
+- =/dictate= · =/call= refused a second start — CUT 11-17 (Q33): a typed exit is its route
+- tty speaker spawns a player (=ffplay=, data like Q17's recorder) — unruled
+- leader =c= "control · what do I add"; popover rows exist only if the repl resolves their command (attach · paste resolve nowhere → absent)
+
+* open
+
+- =heard= dies with =bridge.$call= at hang-up; where it lives on the turn (=Meta= · =provider=) unruled; the text cut is an estimate (=audio.align= dropped)
+- a segment click sets =bridge.$widget=, not a repl line; =/popover= knows no =box= — unruled shape
+- =/attach= · =/paste= resolve nowhere; both faces keep a · p (the comp), a pick faults unknown-command — 11-17 =design-pass-11-17.org=
+- sidebar =watched= does not subscribe the voice atoms; speaker has no =$level=
+
+- Q34 LANDED: =/dictate= · =/call= reach =ctx.terminal.mode= (the thread's); runtime modes enter the repl only there, a citizen has no =connection= (=entities/mode/prototype.js:18=) → no cross-wire; =bound= CUT
+- live 11-17: scribe PASSED (a 2 s clip); flash REFUSED by his account until his upgrade, its refusal faulted nowhere → fixed (=data.error= + the socket fault); then PASSED, its =flush= end idled the socket → a bare ={text: ""}= (test-first); a call turn PASSED on a rig (=live-11-17/runtime.probe.js=); flux unrun; tty =ffmpeg avfoundation= macOS only
+- =harness.metadata.snapshot= red: ours + m122's, m122 re-pins after its composer

@@ -1,0 +1,31 @@
+# limit: 1470 chars · 11-18 timing evidence, as printed
+polish fast · effort minimal {
+  ms: 4821,
+  usage: { input: 87, output: 13, cost: 0.000114 },
+  model: undefined,
+  parts: [ "text:54" ],
+  message: "Hola, hoy quiero practicar español con durante 10 min.",
+}
+polish fast · effort low {
+  ms: 4445,
+  usage: { input: 87, output: 13, cost: 0.000114 },
+  model: undefined,
+  parts: [ "text:54" ],
+  message: "Hola, hoy quiero practicar español con durante 10 min.",
+}
+  fetch headers 1538 ms 200
+polish haiku · effort none {
+  ms: 1581,
+  usage: { input: 149, output: 145 },
+  model: undefined,
+  parts: [ "thinking:0", "text:54" ],
+  message: "Hola, hoy quiero practicar español con durante 10 min.",
+}
+  fetch headers 813 ms 200
+polish haiku · effort low {
+  ms: 816,
+  usage: { input: 149, output: 24 },
+  model: undefined,
+  parts: [ "text:54" ],
+  message: "Hola, hoy quiero practicar español con durante 10 min.",
+}

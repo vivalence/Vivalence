@@ -1,0 +1,375 @@
+{
+  "rounds": [
+    {
+      "tools": [
+        {
+          "name": "tool_load",
+          "valence": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/drain"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest",
+                  "/runtime/runtime/mode/harness/runtime/fs"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "tool_unload",
+          "valence": "Takes tools out of this thread: one tool, a subtree or a whole mode. They are no longer declared from the next round on; what earlier turns say about them stays.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/runtime/runtime/mode/harness/runtime/fs/delete"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "primer_load",
+          "valence": "Loads primer sections into this thread in full: one section, or every section a reference covers. Each stays in the system prompt from the next request on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/archivist"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "turns": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "text": "go"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tools": [
+        {
+          "name": "tool_load",
+          "valence": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/drain"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest",
+                  "/runtime/runtime/mode/harness/runtime/fs"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "tool_unload",
+          "valence": "Takes tools out of this thread: one tool, a subtree or a whole mode. They are no longer declared from the next round on; what earlier turns say about them stays.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/runtime/runtime/mode/harness/runtime/fs/delete"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "primer_load",
+          "valence": "Loads primer sections into this thread in full: one section, or every section a reference covers. Each stays in the system prompt from the next request on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/archivist"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "turns": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "text": "go"
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "parts": [
+            {
+              "type": "text",
+              "text": "thinking about tool_load..."
+            },
+            {
+              "type": "tool_use",
+              "id": "c1",
+              "name": "tool_load",
+              "input": {
+                "references": [
+                  "/fs/read"
+                ]
+              }
+            }
+          ],
+          "meta": {
+            "usage": {
+              "input": 10,
+              "output": 20
+            },
+            "state": "tools"
+          }
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "tool_result",
+              "id": "c1",
+              "condition": "ERROR",
+              "output": {
+                "message": "Cannot read properties of undefined (reading 'reference')"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "packets": [
+    {
+      "event": "/tool/yield",
+      "id": "c1",
+      "result": {
+        "condition": "ERROR",
+        "output": {
+          "message": "Cannot read properties of undefined (reading 'reference')"
+        }
+      }
+    },
+    {
+      "event": "/response/close",
+      "meta": {
+        "usage": {
+          "input": 10,
+          "output": 4
+        },
+        "state": "complete",
+        "rounds": 2
+      }
+    }
+  ],
+  "trait": {
+    "TOOLED": {},
+    "PRIMED": {}
+  },
+  "next": [
+    {
+      "name": "tool_load",
+      "valence": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+      "input": {
+        "type": "object",
+        "required": [
+          "references"
+        ],
+        "properties": {
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "examples": [
+          {
+            "references": [
+              "/daemon/education/mode/tactic/harvest/drain"
+            ]
+          },
+          {
+            "references": [
+              "/tactic/harvest",
+              "/runtime/runtime/mode/harness/runtime/fs"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "tool_unload",
+      "valence": "Takes tools out of this thread: one tool, a subtree or a whole mode. They are no longer declared from the next round on; what earlier turns say about them stays.",
+      "input": {
+        "type": "object",
+        "required": [
+          "references"
+        ],
+        "properties": {
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "examples": [
+          {
+            "references": [
+              "/runtime/runtime/mode/harness/runtime/fs/delete"
+            ]
+          },
+          {
+            "references": [
+              "/tactic/harvest"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "primer_load",
+      "valence": "Loads primer sections into this thread in full: one section, or every section a reference covers. Each stays in the system prompt from the next request on. A wider reference loads more: start narrow.",
+      "input": {
+        "type": "object",
+        "required": [
+          "references"
+        ],
+        "properties": {
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "examples": [
+          {
+            "references": [
+              "/daemon/education/mode/tactic/harvest/archivist"
+            ]
+          },
+          {
+            "references": [
+              "/tactic/harvest"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

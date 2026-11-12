@@ -1,7 +1,7 @@
 import { from, Show } from "solid-js";
 import * as ambient from "../../ambient/index.js";
 import { Journal } from "./journal.jsx";
-import { Composer } from "./composer.jsx";
+import { Textarea } from "./textarea.jsx";
 
 export function Dock(props) {
   const terminal = ambient.terminal.consume();
@@ -17,7 +17,7 @@ export function Dock(props) {
         {(seated) => (
           <>
             <Journal palette={props.palette} thread={seated} lens={dock().lens} markdown={dock().markdown} />
-            <Composer palette={props.palette} thread={seated} />
+            <Textarea palette={props.palette} thread={seated} />
           </>
         )}
       </Show>

@@ -1,0 +1,8 @@
+#+title: call faculty — changelog, moved whole from the quest 11-16 (cap)
+# writer: agent · limit: 6000 chars
+
+- 11-16 /"go"/ — =commons/hallucinators/elevenlabs/provider/index.js:18 · :36= =eleven_turbo_v2_5= → =eleven_flash_v2_5=; =tests/provider.test.js= ok 2 steps
+- 11-16 /"2 you own service. fix."/ — elevenlabs yields =Audio.Packet=; whole entry in =reference/call-faculty/deliverables-11-16.org=
+- 11-16 /"rework the quest for this new upcoming task. new quest?"/ — no new quest, this one absorbs it; milestones 5 → 8 (services · the absent route · the client dictation born), "dictation transcripts stored" cut from milestone 1 (unruled, now ASKED); the Q3A hunk · the blast table moved whole to =reference/call-faculty/moved-11-16.org=; three claims of my first pass corrected in the bird terrain (mine, reported); zero product edits
+- 11-16 evening, the drill — Q10–Q17 on /"a"/ · /"b"/ · his reframes (=engaged= · three exits · Esc stops · the tty dictates); quest edits only, zero product files; the call's and the grammar's hunks moved whole to =reference/call-faculty/moved-11-16*.org= (cap)
+- 11-16 S1 /"do we need both"/ → Q18 /"lets just have one"/: elevenlabs alone; OpenRouter's audio is one-shot HTTP (no live drafts); milestone 1 rewritten

@@ -4,12 +4,12 @@ const { describe, it, expect, snapshot } = specimen;
 const base = new URL("./snapshots", import.meta.url).pathname;
 
 describe("snapshot: view-entity", () => {
-  it("captures view-entity — slug · mime · entry own, mode · files · buffers related", () => {
+  it("captures view-entity — slug · mime · mount · entry own, mode · files · buffers related", () => {
     const { pojo } = snapshot(v.view(), { base, locate: "view-entity.snapshot.json", parse: (schema) => schema });
     expect(pojo.$id).toBe("View");
     expect(Array.isArray(pojo.allOf)).toBe(true);
     const own = pojo.allOf[1].properties;
-    expect(Object.keys(own).sort()).toEqual(["entry", "mime", "slug", "trait", "traits"]);
+    expect(Object.keys(own).sort()).toEqual(["entry", "mime", "mount", "slug", "trait", "traits"]);
     expect(own.mime.title).toBe("RFC 6838 media type (type/[tree.]subtype[+suffix])");
     expect(Object.keys(pojo.allOf[2].properties).sort()).toEqual(["buffers", "files", "mode"]);
   });

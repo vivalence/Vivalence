@@ -1,4 +1,4 @@
-import { pcm, Queue } from "@vivalence/typology";
+import { pcm, Queue, v } from "@vivalence/typology";
 
 function line(url, protocols) {
   const ws = new WebSocket(url, protocols);
@@ -36,7 +36,7 @@ async function pump(ws, audioSource, close) {
   try {
     for await (const packet of audioSource) {
       if (ws.readyState !== WebSocket.OPEN) break;
-      ws.send(pcm.bytes(packet.audio));
+      ws.send(pcm.bytes(packet.audio.data));
     }
   } finally {
     if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(close));
@@ -49,8 +49,10 @@ export async function* transcribe(
   audioSource,
   translate,
   close,
+  signal,
 ) {
   const { ws, inbox, failed } = line(url, protocols);
+  signal.addEventListener("abort", () => ws.close(), { once: true });
   await opened(ws);
   let broken = null;
   const feeding = pump(ws, audioSource, close).catch((fault) => {
@@ -67,93 +69,115 @@ export async function* transcribe(
   }
 }
 
-const word = (entry) => ({
-  word: entry.word ?? entry.punctuated_word,
-  ...(entry.start !== undefined && { start: entry.start }),
-  ...(entry.end !== undefined && { end: entry.end }),
-  ...(entry.confidence !== undefined && { confidence: entry.confidence }),
-  ...(entry.language && { language: entry.language }),
-});
+const spoken = (languages = []) => (languages.length === 1 ? languages[0] : "multi");
 
-export function* nova(data) {
-  if (data.type === "SpeechStarted") {
+const hinted = (languages = []) => languages.map((language) => `&language_hint=${language}`).join("");
+
+export function nova() {
+  let speaking = false;
+  const onset = function* () {
+    if (speaking) return;
+    speaking = true;
     yield { event: "/turn/open", turn: { role: "user" } };
-  }
-  if (data.type === "UtteranceEnd") yield { event: "/turn/close" };
-  const alternative = data.channel?.alternatives?.[0];
-  if (!alternative?.transcript) return;
-  yield {
-    event: data.is_final ? "/verbatim/final" : "/verbatim/partial",
-    transcript: alternative.transcript,
-    ...(data.is_final && alternative.words?.length &&
-      { words: alternative.words.map(word) }),
+    yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
+  };
+  return function* (data) {
+    switch (data.type) {
+      case "SpeechStarted":
+        yield* onset();
+        return;
+      case "Results": {
+        const [alternative] = data.channel.alternatives;
+        if (!alternative.transcript) return;
+        yield* onset();
+        yield {
+          event: data.is_final ? "/part/delta" : "/part/draft",
+          index: 0,
+          part: { text: alternative.transcript },
+        };
+        return;
+      }
+      case "UtteranceEnd":
+        if (!speaking) return;
+        yield { event: "/part/close", index: 0 };
+        yield { event: "/turn/close", turn: {} };
+        speaking = false;
+        return;
+    }
   };
 }
 
 export function* flux(data) {
-  const kind = data.event ?? data.type;
-  const transcript = data.transcript ?? "";
-  switch (kind) {
+  switch (data.event ?? data.type) {
     case "StartOfTurn":
       yield { event: "/turn/open", turn: { role: "user" } };
-      if (transcript) yield { event: "/verbatim/partial", transcript };
+      yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
       return;
     case "Update":
-      if (transcript) yield { event: "/verbatim/partial", transcript };
+      yield { event: "/part/draft", index: 0, part: { text: data.transcript } };
       return;
     case "EagerEndOfTurn":
-      yield { event: "/verbatim/eager", transcript };
+      yield { event: "/turn/eager" };
       return;
     case "TurnResumed":
-      yield { event: "/verbatim/resume" };
+      yield { event: "/turn/resume" };
       return;
     case "EndOfTurn":
-      yield {
-        event: "/verbatim/final",
-        transcript,
-        ...(data.words?.length && { words: data.words.map(word) }),
-      };
-      yield { event: "/turn/close" };
+      yield { event: "/part/full", index: 0, part: { type: "text", text: data.transcript } };
+      yield { event: "/part/close", index: 0 };
+      yield { event: "/turn/close", turn: {} };
       return;
   }
 }
 
+const Verbatim = v.object({
+  type: v.const("verbatim"),
+  id: v.string(),
+  model: v.string(),
+  tune: v.primitives.hallucination.Tune,
+});
+
+const Faculties = v.array(Verbatim);
+
 export default async function provider(service) {
+  const [violation] = v.faults(Faculties, service.faculties);
+  if (violation) throw new Error(`[deepgram] faculties${violation.at} ${violation.reason}`);
   const apiKey = service.secrets.key;
   const protocols = ["token", apiKey];
 
-  const novaFaculty = () => ({
+  const novaFaculty = (entry) => ({
     type: "verbatim",
-    id: "nova-3",
-    tune: [0.5, 0.1, 0.9, 0.6],
+    id: entry.id,
+    tune: entry.tune,
     context: 0,
     channels: {
       in: [{ type: "audio", codec: "pcm_16000" }],
       out: [{ type: "event" }],
     },
-    config: { language: "multi" },
+    config: { language: [] },
     via: {
-      stream: (audioSource, config = {}) =>
+      stream: ({ source, settings = {} }, { signal } = {}) =>
         transcribe(
           `wss://api.deepgram.com/v1/listen?` +
-            `model=nova-3&encoding=linear16&sample_rate=16000&` +
-            `language=${config.language ?? "multi"}&` +
+            `model=${entry.model}&encoding=linear16&sample_rate=16000&` +
+            `language=${spoken(settings.language)}&` +
             `interim_results=true&punctuate=true&vad_events=true&` +
-            `utterance_end_ms=${config.utteranceEnd ?? 1000}&endpointing=${
-              config.endpointing ?? 100
+            `utterance_end_ms=${settings.utteranceEnd ?? 1000}&endpointing=${
+              settings.endpointing ?? 100
             }`,
           protocols,
-          audioSource,
-          nova,
+          source,
+          nova(),
           { type: "CloseStream" },
+          signal,
         ),
     },
   });
 
-  const fluxFaculty = () => ({
+  const fluxFaculty = (entry) => ({
     type: "verbatim",
-    id: "flux-general-multi",
-    tune: [0.6, 0.2, 0.8, 0.4],
+    id: entry.id,
+    tune: entry.tune,
     context: 0,
     channels: {
       in: [{ type: "audio", codec: "pcm_16000" }],
@@ -161,25 +185,31 @@ export default async function provider(service) {
     },
     config: { turns: true },
     via: {
-      stream: (audioSource, config = {}) =>
+      stream: ({ source, settings = {} }, { signal } = {}) =>
         transcribe(
           `wss://api.deepgram.com/v2/listen?` +
-            `model=flux-general-multi&encoding=linear16&sample_rate=16000&` +
-            `eot_threshold=${config.eotThreshold ?? 0.7}` +
-            (config.eagerThreshold
-              ? `&eager_eot_threshold=${config.eagerThreshold}`
+            `model=${entry.model}&encoding=linear16&sample_rate=16000&` +
+            `eot_threshold=${settings.eotThreshold ?? 0.7}` +
+            (settings.eagerThreshold
+              ? `&eager_eot_threshold=${settings.eagerThreshold}`
               : "") +
-            (config.eotTimeout ? `&eot_timeout_ms=${config.eotTimeout}` : "") +
-            (config.hints ?? []).map((hint) => `&language_hint=${hint}`).join(
-              "",
-            ),
+            (settings.eotTimeout ? `&eot_timeout_ms=${settings.eotTimeout}` : "") +
+            hinted(settings.language),
           protocols,
-          audioSource,
+          source,
           flux,
           { type: "CloseStream" },
+          signal,
         ),
     },
   });
 
-  return [novaFaculty(), fluxFaculty()];
+  const FAMILIES = [
+    [(entry) => entry.model.startsWith("flux"), fluxFaculty],
+    [() => true, novaFaculty],
+  ];
+
+  return service.faculties.map((entry) =>
+    FAMILIES.find(([matches]) => matches(entry))[1](entry)
+  );
 }

@@ -1,15 +1,11 @@
-// Anthropic faculty provider
-// Contract: provider(service) → Faculty[]
-// Exposes dialogue faculties at three tune points + object faculty.
-
 import Anthropic from "@anthropic-ai/sdk";
 import { v } from "@vivalence/typology";
 import {
   buildParams,
   fault,
   RESPOND,
+  streamTranslator,
   translateResponse,
-  translateStreamEvent,
 } from "./translate.js";
 
 function extractObject(turn, schema) {
@@ -22,32 +18,22 @@ function extractObject(turn, schema) {
     role: "assistant",
     parts: [{ type: "object", data }],
     meta: { ...turn.meta, state: "complete" },
-    object: data,
   };
 }
 
-const models = {
-  opus: {
-    id: "claude-opus-5-5",
-    tune: [0.95, 1.0, 0.15, 0.15],
-    context: 1000000,
-    thinking: true,
-  },
-  sonnet: {
-    id: "claude-sonnet-5-5",
-    tune: [0.6, 0.65, 0.6, 0.5],
-    context: 1000000,
-    thinking: true,
-  },
-  haiku: {
-    id: "claude-haiku-5-5",
-    tune: [0.25, 0.3, 0.95, 0.5],
-    context: 1000000,
-    thinking: true,
-  },
-};
+const Dialogue = v.object({
+  type: v.const("dialogue"),
+  id: v.string(),
+  tune: v.primitives.hallucination.Tune,
+  context: v.integer(),
+  thinking: v.boolean().optional(),
+});
+
+const Faculties = v.array(Dialogue);
 
 export default async function provider(service) {
+  const [violation] = v.faults(Faculties, service.faculties);
+  if (violation) throw new Error(`[anthropic] faculties${violation.at} ${violation.reason}`);
   const client = new Anthropic({ apiKey: service.secrets.key });
 
   function makeDialogue(model) {
@@ -72,9 +58,9 @@ export default async function provider(service) {
         throw fault(error);
       }
       return (async function* () {
+        const translator = streamTranslator();
         for await (const event of raw) {
-          const packet = translateStreamEvent(event);
-          if (packet) yield packet;
+          for (const packet of translator.translate(event)) yield packet;
         }
       })();
     };
@@ -82,11 +68,9 @@ export default async function provider(service) {
     return { render, stream };
   }
 
-  const faculties = [];
-
-  for (const [, model] of Object.entries(models)) {
+  const dialogue = (model) => {
     const { render, stream } = makeDialogue(model);
-    faculties.push({
+    return {
       type: "dialogue",
       id: model.id,
       tune: model.tune,
@@ -102,8 +86,10 @@ export default async function provider(service) {
         out: ["text", "tool_use", ...(model.thinking ? ["thinking"] : [])],
       },
       via: { render, stream },
-    });
-  }
+    };
+  };
 
-  return faculties;
+  const TYPES = { dialogue };
+
+  return service.faculties.map((entry) => TYPES[entry.type](entry));
 }

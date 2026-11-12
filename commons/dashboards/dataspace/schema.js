@@ -7,10 +7,10 @@ export const CHECKS = {
 export const ENUMS = {
   mode: [
     "BOOTED", "TOPOGRAPHICAL", "TOPOLOGICAL",
-    "DATASET", "DATASINK", "HARNESSED", "CONVERSATIONAL", "AGENTIC", "TOOLING",
+    "DATASET", "DATASINK", "HARNESSED", "CONVERSATIONAL", "TOOLING",
     "EMITTER", "GENERATIVE", "EXPOSED", "INTENTED", "FILESET", "FILESINK", "VIEWABLE",
   ],
-  thread: ["MASKED", "AIMED", "QUEUEING", "LABELED", "INTELLIGENT", "VOCAL"],
+  thread: ["MASKED", "AIMED", "QUEUEING", "LABELED", "HARNESSED", "CONVERSATIONAL", "TOOLED", "PRIMED"],
   buffer: ["LABELED"],
   intent: ["LABELED"],
   symbol: ["ONTOLOGICAL", "LABELED", "TOPOGRAPHICAL"],
@@ -51,17 +51,19 @@ export const TRAIT_SCHEMA = {
     { key: "images", kind: "json", optional: true },
   ],
   PREPARED: [{ key: "parts", kind: "json", optional: true }, { key: "tools", kind: "json", optional: true }],
-  INTELLIGENT: [
+  HARNESSED: [
     { key: "tier", kind: "string", optional: true },
     { key: "effort", kind: "enum", options: ["none", "low", "medium", "high"], optional: true },
     { key: "rounds", kind: "integer", optional: true },
     { key: "thinking", kind: "boolean", optional: true },
+    { key: "slugging", kind: "enum", options: ["deep", "nested"], optional: true },
   ],
-  VOCAL: [
-    { key: "language", kind: "string", optional: true }, { key: "tier", kind: "string", optional: true },
+  CONVERSATIONAL: [
+    { key: "language", kind: "json", optional: true }, { key: "hear", kind: "json", optional: true },
+    { key: "speak", kind: "json", optional: true }, { key: "call", kind: "json", optional: true },
     { key: "polish", kind: "boolean", optional: true },
   ],
-  ONTOLOGICAL: [], TOPOGRAPHICAL: [], MASKED: [], AIMED: [], QUEUEING: [],
+  ONTOLOGICAL: [], TOPOGRAPHICAL: [], MASKED: [], AIMED: [], QUEUEING: [], TOOLED: [], PRIMED: [],
 };
 
 export const OPS = ["$eq", "$ne", "$like", "$in", "$nin", "$gt", "$gte", "$lt", "$lte", "$null", "traits"];

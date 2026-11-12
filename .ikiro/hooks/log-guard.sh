@@ -22,6 +22,6 @@ hits=$(grep -nE 'console\.(log|dir|debug|info|warn|error)\([^)]*\b(mask|die|serv
 reason="never log a mask/die/service/register — a hydrated structure holds secrets in clear (ledger: the mask print that leaked a live key). Log the slot label and module, never the object. Hits: $(head -3 <<<"$hits" | tr '\n' ' ')"
 mode=${IKIRO_GUARD_MODE:-deny}
 printf '%s log-guard %s %s\n' "$(date +%s)" "$mode" "$session" >> "$log" 2>/dev/null
-if [ "$mode" = "warn" ]; then echo "log-guard (warn): $reason" >&2; exit 0; fi
+if [ "$mode" = "warn" ]; then jq -n --arg reason "log-guard (warn): $reason" '{ hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: $reason } }'; exit 0; fi
 jq -n --arg reason "$reason" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:$reason}}'
 exit 0

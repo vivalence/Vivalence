@@ -11,7 +11,7 @@ newer than the db: re-indexed on the next query.
 """
 import glob, os, sqlite3, sys
 
-ROOT = os.path.join(os.environ.get("CLAUDE_PROJECT_DIR", "."), ".ikiro")
+ROOT = os.path.join(os.environ.get("CLAUDE_PROJECT_DIR", os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), ".ikiro")
 BAK = os.path.expanduser("~/.viva/bak/ikiro")
 ROOTS = [ROOT, os.path.join(BAK, "corpus-20261005")]
 DB = os.path.join(BAK, ".fts.db")

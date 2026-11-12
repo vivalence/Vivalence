@@ -1,0 +1,1188 @@
+<!doctype html>
+<html lang="en" data-theme="northsea">
+<head>
+<meta charset="utf-8">
+<title>Inspector, ghost</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/vivalence/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:"Victor Mono";src:url("ds/vivalence/fonts/VictorMono-Regular.woff2") format("woff2");font-weight:400}
+@font-face{font-family:"Victor Mono";src:url("ds/vivalence/fonts/VictorMono-SemiBold.woff2") format("woff2");font-weight:600 700}
+@font-face{font-family:"IBM Plex Mono";src:url("ds/vivalence/fonts/IBMPlexMono-Regular.ttf") format("truetype");font-weight:400 700}
+@font-face{font-family:"Space Mono";src:url("ds/vivalence/fonts/SpaceMono-Regular.ttf") format("truetype");font-weight:400 700}
+body{margin:0}
+.tb{appearance:none;border:0;background:transparent;padding:0;margin:0;font:inherit;line-height:inherit;white-space:pre;cursor:pointer}
+.tb:hover{background:var(--control-selected)}
+</style>
+</helmet>
+<div class="kit-tty" data-zone="3" aria-label="telemetry, terminal face" style="width: 940px; height: 600px; box-sizing: border-box; padding: 12px 18px; overflow: hidden"><sc-for list="{{lines}}" as="ln" hint-placeholder-count="32"><div class="{{ln.c}}"><sc-for list="{{ln.segs}}" as="sg" hint-placeholder-count="4"><sc-if value="{{sg.btn}}" hint-placeholder-val="{{false}}"><button class="tb {{sg.c}}" onClick="{{sg.go}}">{{sg.t}}</button></sc-if><sc-if value="{{sg.txt}}" hint-placeholder-val="{{true}}"><span class="{{sg.c}}">{{sg.t}}</span></sc-if></sc-for></div></sc-for></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["northsea","parchment","porcelain","datasette"],"default":"northsea"},"$preview":{"width":940,"height":600}}'>
+const TIERS = ['frugal', 'fast', 'balanced', 'capable', 'unleashed', 'eager'];
+const EFFORTS = ['none', 'low', 'medium', 'high'];
+const VIEWS = ['docked', 'full', 'closed', 'messenger'];
+const SIDES = ['left', 'right', 'top', 'bottom'];
+const LENSES = ['turns', 'harness', 'repl'];
+const MARKDOWNS = ['pretty', 'plain'];
+const THEMES = ['northsea', 'parchment', 'porcelain', 'datasette'];
+const GROUPS = ['terminals', 'threads', 'modes', 'buffers', 'activity', 'harness', 'display', 'box',
+  'system', 'control'];
+const FILTERS = ['all', 'activity', 'repl', 'net', 'faults'];
+const MEMO = '/daemon/memo/mode/srs/memo';
+const SRS = '/daemon/memo/mode/domain/srs';
+const HELLO = '/daemon/hello/mode/demo/hello-world';
+const MAGISTER = 'You are Magister, a Roman schoolmaster of spaced repetition, living inside a vivalence daemon.\n\nYour learner studies the language named below from their own: the classical tongue and the church’s. Beside you sits a frame of flashcards; a grade given there or here moves the one schedule. Your job is to run review sessions in conversation: fetch what is due, quiz one card at a time, judge the answer honestly, grade the card so its schedule evolves, and teach where a card keeps failing.\n\nThe loop:\n1. Call review to pull cards. If nothing is due and nothing is untouched, say so and offer a rest.\n2. Present one card as a question: give the learning side only.\n3. The learner answers. Judge it: exact or clearly equivalent means GOOD, hesitant or partial means HARD, effortless and instant means EASY, wrong or blank means AGAIN.\n4. Call grade with the card’s slug and your judgment, then move to the next card.\n5. When the batch is done, summarize: how many, how they went, what is due next.\n\n…';
+const HELLO_TEXT = 'You are the vivalence hello-world demo, talking to the operator of this machine.\nTwo or three plain sentences unless the answer genuinely needs more.\n\nEvery reply is a budget: at most THREE tool calls, then answer. A call that returned nothing useful is an answer too — say so, do not call again with the same input.\n\nWork each reply in this order:\n1. LOOK. … viva_doctor, ONCE. … web_search ONCE, then web_read the one article …\n2. DECIDE. No tool. Is this an answer, a page, or research?\n3. ACT, one call. … generator_view_render … or the research tool in ONE call with the whole brief.\n4. CHANGE, only when asked. … ONE generator_view_revise on the same page …\n\n…';
+const FORMAT_TEXT = 'The dock renders markdown: # heading through ######, **bold**, *italic* or _italic_, `code`, [text](https://url), > quote, - bullet or 1. numbered, --- rule, ```lang fenced blocks, and | pipe | tables | above a |---|---| row.\nNothing else renders — no images, no HTML, no strikethrough, no footnotes, no task boxes — so reach for a list or a table only when the answer is genuinely shaped like one.';
+const SRS_TEXT = 'This daemon schedules its cards with SM-2, the scheduler Anki ships. A card’s status climbs untouched → unknown → learning → known → graduated … A grade is one of AGAIN · HARD · GOOD · EASY … Every grade is traced, so a card’s history is real. A suspended card is dealt by nothing until it is resumed; a leech is a card lapsed again and again.';
+
+const v = (k, value, more = {}) => ({ k, v: value, ...more });
+const to = (k, value, go, more = {}) => ({ k, v: value, go, ...more });
+const ed = (k, path, edit, more = {}) => ({ k, path, edit, ...more });
+const arg = (name, type, required, about = '') => v(required ? name : `${name}?`, type, { q: about });
+const rec = (t, k, value = '', c = '') => ({ t, k, v: value, c });
+const worn = (name, value = '') => v(`● ${name}`, value, { cls: 'is-worn' });
+const cast = (name, value = '') => v(`○ ${name}`, value, { cls: 'is-cast' });
+const n = (id, name, more = {}, kids = []) => ({ id, name, ...more, kids });
+const inputs = (args) => (args === null ? [cast('not captured')] : args.length ? args : [cast('none', '{}')]);
+const SEEN = { [`${MEMO}:srs/lookup`]: ['lookup', 'hallu', 'tool'] };
+
+const tool = (pre, owner, path, valence, args, more = {}) => n(`${pre}.t.${path}`, path.split('/').at(-1), {
+  leaf: true, kind: 'tool', as: path.replaceAll('/', '_'), title: path.replaceAll('/', '_'),
+  ref: `${owner}/harness/tools/${path}`, acts: ['copy'],
+  tr: SEEN[`${owner}:${path}`] ?? (owner === MEMO ? 'turns' : 'none'),
+  secs: [
+    ['effect', [v('valence', valence), v('load', 'eager')]],
+    ['input', inputs(args)],
+    ['address', [v('path', `${owner}/harness/tools/${path}`), v('as', path.replaceAll('/', '_'), { q: 'model sees' }),
+      ...(more.from ? [to('from', more.from[0], more.from[1])] : [])]],
+  ],
+});
+const branch = (pre, owner, path, kids) => n(`${pre}.t.${path}`, path.split('/').at(-1), {
+  quiet: String(kids.length), kind: 'branch', title: path, ref: `${owner}/harness/tools/${path}`, tr: 'none',
+}, kids);
+
+const primer = (pre, owner, name, text, rows = []) => n(`${pre}.p.${name}`, name, {
+  leaf: true, kind: 'primer', quiet: 'eager', title: name, ref: `${owner}/harness/primer/${name}`,
+  tr: owner === MEMO ? 'turns' : 'none', acts: ['read'], peek: text,
+  secs: [['own', [v('load', 'eager'), v('path', `/${name}`), ...rows]]],
+});
+
+const reference = (pre, owner, name, rows = []) => n(`${pre}.r.${name}`, name, {
+  leaf: true, quiet: 'faculty', kind: 'reference', title: name, ref: `${owner}/harness/${name}`,
+  tr: owner === MEMO && name === 'dialogue' ? 'turns' : 'none',
+  secs: [['own', [v('faculty', name), v('route', `${owner}/harness/${name}`), ...rows]]],
+});
+
+const route = (pre, owner, path, shapes, valence, args, out = []) => n(`${pre}.a.${path}`, path, {
+  leaf: true, quiet: shapes, kind: 'route', title: path, ref: `${owner}${path}`, tr: 'none', acts: ['copy'],
+  secs: [
+    ['effect', [v('valence', valence), v('shapes', shapes)]],
+    ['input', inputs(args)],
+    ...(out.length ? [['output', out]] : []),
+  ],
+});
+
+const trait = (pre, owner, name, quiet, rows) => n(`${pre}.x.${name}`, name, {
+  leaf: true, quiet, kind: 'trait', title: name, ref: `${owner}#${name}`, tr: 'none',
+  secs: [['brings', rows]],
+});
+
+const command = (id, nature, { rank = '', chord = '', valence = '', args = [], send = true }) => n(id, nature, {
+  leaf: true, quiet: chord || rank, kind: 'command', title: nature, ref: nature, tr: `cmd:${nature}`,
+  acts: send && args.every((a) => a.k.endsWith('?')) ? ['send'] : [],
+  secs: [
+    ['own', [v('nature', nature), v('rank', rank || 'listed'), v('chord', chord || '—')]],
+    ['effect', [valence ? v('valence', valence) : cast('valence', 'not captured')]],
+    ['input', args.length ? args : [cast('none', '{}')]],
+  ],
+});
+
+const mode = (id, name, title, ref, rows, { secs = [], ...more } = {}, kids = []) => n(id, name, {
+  sign: '◇', leaf: kids.length === 0, kind: 'mode', title, ref, tr: 'none', acts: ['attach'],
+  ...more, secs: [['own', rows], ...secs],
+}, kids);
+
+const FACULTIES = ['verbatim', 'dialogue', 'object', 'choice', 'picture'];
+
+const THREAD = [
+  ['own', [v('id', '01a1e526-970c-723d-81bd-f6d81c47d9ec'), v('phase', 'manual'), v('counter', '1'),
+    v('intent', 'null'), v('parent', 'null'), v('createdAt', '16:17:53.932'), { k: 'updatedAt', stamp: true }]],
+  ['traits', [
+    worn('INTELLIGENT'),
+    ed('tier', 'thread.tier', 'select', { opts: TIERS, cls: 'is-sub' }),
+    ed('effort', 'thread.effort', 'choice', { opts: EFFORTS, cls: 'is-sub' }),
+    ed('rounds', 'thread.rounds', 'step', { min: 1, max: 100, step: 1, q: '/ 100', cls: 'is-sub' }),
+    worn('VOCAL', '{}'),
+    ed('LABELED', 'thread.label', 'field', { trait: 'LABELED' }),
+    cast('QUEUEING', 'depth 1'),
+    cast('AIMED', '{}'),
+    cast('MASKED', '{}'),
+  ]],
+  ['relations', [
+    to('mode', '◇ srs/memo', 'srs-memo', { q: 'was home/probe · /mode moved it' }),
+    to('user', 'localhost', 'lighthouse', { q: 'whole user object' }),
+  ]],
+  ['stores', [
+    to('$turns', '8', 'turns', { bang: '!', q: 'computed · by createdAt' }),
+    to('$buffers', '1', 'buffers', { q: 'computed · by index' }),
+    to('$activities', '0', 'activities', { q: 'computed' }),
+    v('$children', '0'),
+    v('turns · buffers · children', '[] [] []', { q: 'mikro, stay empty', cls: 'is-cast' }),
+  ]],
+];
+
+
+const MEMO_TOOLS = [
+  tool('memo', MEMO, 'review', 'Pull the cards to quiz in the dock now: due first, then untouched by rank. Each carries its slug, both sides, an example, voice and picture, its status, lapses and the four horizons.', [
+    arg('limit', 'integer 1–20', false, 'five when left out'), arg('symbols', 'string[]', false, 'see srs_topics')]),
+  tool('memo', MEMO, 'grade', 'Grade the card the learner just answered — AGAIN wrong or blank, HARD right with struggle, GOOD right, EASY instant. Evolves its SM-2 schedule, traces the grade on this thread.', [
+    arg('card', 'string', true, 'amor.noun'), arg('signal', 'AGAIN · HARD · GOOD · EASY', true)]),
+  tool('memo', MEMO, 'progress', 'The learner report: cards, touched, untouched, due now, suspended, counts by status, the five weakest and the leeches.', []),
+  tool('memo', MEMO, 'add', 'Make a new card from the conversation — the learning side and its meaning. Look it up with srs_lookup first.', [
+    arg('learning', 'string', true, 'gratias ago'), arg('known', 'string', true, 'I give thanks'),
+    arg('ontology', 'word · sentence', true), arg('symbols', 'string[]', false, '[]')]),
+  tool('memo', MEMO, 'explain', 'A card laid open: both sides, its example, its facets, the sentences that hold its lemma, and every grade it was given.', [
+    arg('card', 'string', true, 'amor.noun')]),
+  tool('memo', MEMO, 'session', 'Deal a session into the frame beside the dock, where the learner flips and grades with the keys.', [
+    arg('limit', 'integer', false), arg('symbols', 'string[]', false), arg('thread', 'string', false)]),
+  branch('memo', MEMO, 'srs', [
+    tool('memo', MEMO, 'srs/lookup', 'Find cards by any text — the slug, the learning side or its meaning. Use it before /add to see whether a card already exists.', [
+      arg('search', 'string', true, 'love'), arg('limit', 'integer 1–20', false, 'five when left out')], { from: ['◇ domain/srs', 'domain-srs'] }),
+    tool('memo', MEMO, 'srs/sentences', 'The sentences that hold a word’s lemma — context for a word the learner keeps missing.', [
+      arg('card', 'string', true, 'amor.noun'), arg('limit', 'integer 1–10', false, 'three')], { from: ['◇ domain/srs', 'domain-srs'] }),
+    tool('memo', MEMO, 'srs/topics', 'Every topic and level of the deck with its card count — what a session can be narrowed to.', [], { from: ['◇ domain/srs', 'domain-srs'] }),
+    tool('memo', MEMO, 'srs/history', 'Every grade a card was given, oldest first, each with the status it left.', [
+      arg('card', 'string', true, 'amor.noun')], { from: ['◇ domain/srs', 'domain-srs'] }),
+    tool('memo', MEMO, 'srs/leeches', 'The cards the learner keeps lapsing on, weakest first — candidates to explain or suspend.', [
+      arg('lapses', 'integer', false, 'eight'), arg('limit', 'integer 1–20', false, 'five')], { from: ['◇ domain/srs', 'domain-srs'] }),
+    tool('memo', MEMO, 'srs/suspend', 'Take a card out of every deal until it is resumed — for a leech, or a card the learner asks to skip.', [
+      arg('card', 'string', true), arg('reason', 'string', true, 'leech')], { from: ['◇ domain/srs', 'domain-srs'] }),
+    tool('memo', MEMO, 'srs/resume', 'Deal a suspended card again.', [arg('card', 'string', true)], { from: ['◇ domain/srs', 'domain-srs'] }),
+  ]),
+];
+
+const HELLO_TOOLS = [
+  branch('hello', HELLO, 'viva', [
+    tool('hello', HELLO, 'viva/doctor', 'The live vivalence setup on this machine, as JSON — the same record viva instance/doctor prints, read straight off paladin.', []),
+  ]),
+  branch('hello', HELLO, 'web', [
+    tool('hello', HELLO, 'web/search', 'Search Wikipedia, the English encyclopedia. Every result is an article: its title, its address and a snippet.', [
+      arg('query', 'string', true, 'flamingo'), arg('count', 'integer 1–100', false, 'eight')]),
+    tool('hello', HELLO, 'web/read', 'Open one URL and read the article out of it — the body as markdown, the links inside it, and its images.', [
+      arg('url', 'url', true, 'http · https, public')]),
+  ]),
+  tool('hello', HELLO, 'research', 'Research a subject and leave a page about it on the operator’s screen. Searches Wikipedia, follows links, draws a report into a buffer.', [
+    arg('brief', 'string', true, 'the whole brief, in prose')]),
+  branch('hello', HELLO, 'generator', [
+    branch('hello', HELLO, 'generator/view', [
+      tool('hello', HELLO, 'generator/view/render', 'Draw a page. Submit a COMPLETE Svelte 5 component as source; it is compiled, content-addressed and mounted.', [
+        arg('source', 'svelte', true), arg('label', 'string', true), arg('data', 'any', false)]),
+      tool('hello', HELLO, 'generator/view/revise', 'Iterate a page you already drew: the SAME buffer gets new source, label and/or data and re-mounts in place.', [
+        arg('buffer', 'string', true, 'buffer id'), arg('source', 'svelte', false), arg('label', 'string', false), arg('data', 'any', false)]),
+      tool('hello', HELLO, 'generator/view/inspect', 'Read a page’s source back by its bundle hash.', null),
+      tool('hello', HELLO, 'generator/view/list', 'The pages on this thread.', null),
+    ]),
+  ]),
+];
+
+const harness = (pre, owner, tools, primers, refs, rows) => n(`${pre}.harness`, 'harness', {
+  quiet: '3 tries', kind: 'harness', title: owner.split('/').at(-1), ref: `${owner}/metadata/harness`, tr: owner === MEMO ? 'turns' : 'none',
+  secs: [['own', rows]],
+}, [
+  n(`${pre}.tools`, 'tools', { quiet: String(tools.flatMap(function leaves(t) { return t.kind === 'tool' ? [t] : t.kids.flatMap(leaves); }).length), kind: 'try', title: 'tools', ref: `${owner}/metadata/harness/tools`, tr: 'none' }, tools),
+  n(`${pre}.primer`, 'primer', { quiet: String(primers.length), kind: 'try', title: 'primer', ref: `${owner}/metadata/harness/primer`, tr: 'none' }, primers),
+  n(`${pre}.refs`, 'references', { quiet: String(refs.length), kind: 'try', title: 'references', ref: `${owner}/metadata/harness/references`, tr: 'none' }, refs),
+]);
+
+const SPEC = n('app', 'app', {
+  kind: 'app', title: 'app', ref: 'anima', tr: 'all',
+  secs: [
+    ['own', [ed('theme', 'app.theme', 'choice', { opts: THEMES, signal: (x) => `/theme ${x}`, q: 'bridge › mask › user' }),
+      v('surface', 'anima chrome', { q: 'solid · vite' }), v('controller', 'span app', { q: 'sibling of client · not logged' })]],
+    ['box', [v('drivers', 'audio'), v('device', 'microphone · speaker')]],
+  ],
+}, [
+  n('client', 'client', {
+    quiet: 'anima', kind: 'client', title: 'anima', ref: 'client', tr: 'b-client',
+    secs: [
+      ['own', [v('type', 'client'), v('slug', 'anima'), v('controller', 'span client', { q: 'the logger reads it' })]],
+      ['mask', [worn('HOME', '/runtime/house/mode/home/probe'), v('modes', '1', { q: 'register' })]],
+      ['aperture', [v('serves back', '/terminal/:terminal/repl · /metadata/repl', { q: 'armed by LOOPING' })]],
+      ['relations', [to('runtime', 'house', 'runtime'), to('user', 'localhost', 'lighthouse')]],
+    ],
+  }, [
+    n('runtime', 'runtime', {
+      quiet: 'house', dot: true, kind: 'runtime', title: 'house', ref: '/runtime/house', tr: 'b-runtime',
+      secs: [
+        ['own', [v('manifest', 'slug house'), v('reference', '/runtime/house'), v('remote', 'http://localhost:63750/'),
+          v('status', 'HEALTHY'), v('connection', 'IDLE', { q: 'one websocket' })]],
+        ['metadata', [v('statics', 'serve · remote'), v('aperture', 'mode entities metadata cortex status batch')]],
+        ['cortex', [v('faculties', 'dialogue object choice verbatim speech picture'),
+          v('dialogue', 'stub-deep · stub-middle · stub-quick', { q: 'provider stub' })]],
+        ['entities', [v('daemon', '2'), v('mode', '5', { q: '+1 local' }), v('terminal', '1'), v('thread', '1'), v('turn', '8'),
+          v('buffer', '1'), v('activity', '0', { q: 'settled ones leave' })]],
+      ],
+    }, [
+      n('lighthouse', 'lighthouse', {
+        quiet: 'localhost', dot: true, kind: 'lighthouse', title: 'localhost', ref: '/lighthouse', tr: 'b-lighthouse',
+        secs: [
+          ['own', [v('status', 'AUTHENTICATED', { q: 'sidebar reads VERIFIED' }), v('isAuthorized', 'true'), v('isIdentified', 'true'),
+            v('authority', 'access · refresh', { q: 'jwt' })]],
+          ['manifest', [worn('JOINABLE'), worn('AUTOLOGIN'), cast('INVITATIONAL')]],
+          ['user', [v('slug', 'localhost'), v('id', '01a1e526…df69'), cast('THEMED', 'porcelain'), cast('HOME', '{}'), cast('DOCKED', '{}')]],
+        ],
+      }),
+      mode('probe', 'home/probe', 'probe', '/runtime/house/mode/home/probe', [
+        v('type', 'home'), v('slug', 'probe'), v('name', 'null'), v('version', '0.0.1'), v('daemon', 'null', { q: 'the runtime\u2019s own' }),
+        v('traits', 'RUNTIME EXPOSED TOOLING DATASET'), v('metadata', 'aperture'), v('harness', 'null'), v('installed', '91a07b3c')], {
+        secs: [['seats', [v('HOME', 'every terminal with no thread', { q: 'client trait' })]]],
+      }),
+      n('memo', 'daemon', {
+        quiet: 'memo', dot: true, kind: 'daemon', title: 'memo', ref: '/daemon/memo', tr: 'b-memo',
+        secs: [
+          ['own', [v('id', 'memo', { q: '= slug' }), v('reference', '/daemon/memo'), v('version', '0.1.0'), v('status', 'HEALTHY'),
+            v('statics', 'known English · learning Latin')]],
+          ['mask', [v('modes', '@memo/domain/srs · @memo/topography/latin · @memo/srs/memo')]],
+          ['aperture', [v('routes', 'pick review preview history suspend resume mode datamap entities metadata cortex status batch')]],
+          ['stores', [v('$modes', '3'), v('$literals', '0'), v('$symbols', '0'), v('$notes', '0')]],
+        ],
+      }, [
+        mode('srs-memo', 'srs/memo', 'Memo', MEMO, [
+          v('type', 'srs'), v('slug', 'memo'), v('name', 'Memo'), v('version', '0.1.0'), v('installed', '91a07b3c'),
+          v('description', 'Spaced-repetition flashcards on SM-2: drill in the frame or in conversation with the Magister'),
+          v('module', 'null'), v('metadata', 'aperture · harness'), v('connection', 'IDLE')], {
+          tail: 'seated',
+          secs: [
+            ['faces', [v('repl', '1 pattern'), cast('keymap', '0 patterns'), v('call', 'metadata deck grade stats chat entities emit harness')]],
+            ['relations', [to('daemon', 'memo', 'memo'), to('thread', '[ memo ]', 'thread', { q: 'seated' })]],
+            ['stores', [to('$turns', '8', 'turns', { bang: '!' }), to('$buffers', '1', 'buffers'), v('$views', '2'),
+              v('$literals · $symbols · $notes · $files', '0 0 0 0')]],
+          ],
+        }, [
+          n('memo.traits', 'traits', { quiet: '7', kind: 'traits', title: '7 worn', ref: `${MEMO}#traits`, tr: 'none' }, [
+            trait('memo', MEMO, 'VIEWABLE', 'views', [v('$views', '2'), v('draws', 'frame · cell')]),
+            trait('memo', MEMO, 'EMITTER', 'buffers', [to('route', '/emit/session', 'memo.a./emit/session')]),
+            trait('memo', MEMO, 'EXPOSED', 'aperture', [v('metadata', 'aperture'), to('tree', 'aperture', 'memo.aperture')]),
+            trait('memo', MEMO, 'HARNESSED', 'harness', [v('metadata', 'harness'), to('tree', 'harness', 'memo.harness')]),
+            trait('memo', MEMO, 'CONVERSATIONAL', 'dialogue', [v('route', '/harness/dialogue/stream'), to('turns', '8', 'turns')]),
+            trait('memo', MEMO, 'TOOLING', 'tools', [to('tools', '13', 'memo.tools')]),
+            trait('memo', MEMO, 'PRIMER', 'primer', [to('primer', 'magister', 'memo.p.magister')]),
+          ]),
+          harness('memo', MEMO, MEMO_TOOLS,
+            [primer('memo', MEMO, 'magister', MAGISTER, [to('reads as', '[ memo ]', 'thread'), v('model', 'stub-middle')])],
+            FACULTIES.map((name) => reference('memo', MEMO, name, [v('branches', { verbatim: '1', dialogue: '2', object: '2', choice: '1', picture: '1 · render' }[name])])),
+            [v('landed with', 'HARNESSED', { q: 'metadata.harness' }), v('size', '129336 chars json', { q: '3441 rows' }),
+              v('counts', 'tools 13 · primer 1 · references 7', { q: 'leaves' }),
+              v('tune', 'fast', { q: 'repo · policy default' }), v('system keys', 'magister · language · today', { q: 'repo · per call' })]),
+          n('memo.aperture', 'aperture', {
+            quiet: 'routes', kind: 'aperture', title: 'memo', ref: `${MEMO}/metadata/aperture`, tr: 'none',
+            secs: [['own', [v('landed with', 'EXPOSED'), v('call', '8 verbs', { q: 'mode.call' })]]],
+          }, [
+            n('memo.a.meta', 'metadata', { quiet: '5', kind: 'branch', title: 'metadata', ref: `${MEMO}/metadata`, tr: 'none' }, [
+              route('memo', MEMO, '/metadata/status', '{}', 'the host’s status', []),
+              route('memo', MEMO, '/metadata/manifest', '{}', 'the mode’s manifest', []),
+              route('memo', MEMO, '/metadata/emitter', '{}', 'the emitter route', []),
+              route('memo', MEMO, '/metadata/aperture', '{}', 'this tree', []),
+              route('memo', MEMO, '/metadata/harness/primer/(.*)', 'input', 'one primer, as a thread’s model reads it', [arg('thread', 'string', true)]),
+            ]),
+            route('memo', MEMO, '/deck', 'input', 'the cards to review now — due first, then untouched by rank; suspended ones never', [
+              arg('limit', 'integer', false), arg('symbols', 'string[]', false)]),
+            route('memo', MEMO, '/grade', 'input', 'grade the card just answered; its SM-2 schedule evolves and the grade is traced', [
+              arg('card', 'string', true), arg('signal', 'AGAIN · HARD · GOOD · EASY', true)]),
+            route('memo', MEMO, '/stats', 'input', 'the learner report', []),
+            route('memo', MEMO, '/chat', 'input output', 'one answer from the Magister outside a thread', [arg('prompt', 'string', true, 'what is due today?')],
+              [arg('answer', 'string', true)]),
+            route('memo', MEMO, '/emit/session', 'input', 'deal a session as a buffer on the thread', [arg('thread', 'string', true), arg('limit', 'integer', false)]),
+            n('memo.a.entities', 'entities', {
+              leaf: true, quiet: '9', kind: 'branch', title: 'entities', ref: `${MEMO}/entities`, tr: 'none',
+              secs: [['kinds', ['literal', 'symbol', 'view', 'intent', 'file', 'note', 'thread', 'turn', 'buffer']
+                .map((kind) => v(kind, '12 verbs', { q: 'find · subscribe · …' }))]],
+            }),
+          ]),
+        ]),
+        mode('domain-srs', 'domain/srs', 'Spaced Repetition', SRS, [
+          v('type', 'domain'), v('slug', 'srs'), v('name', 'Spaced Repetition'), v('version', '0.1.0'), v('traits', 'EXPOSED TOOLING'),
+          v('description', 'Anki\u2019s SM-2 over the daemon\u2019s literals: retention and traced grades are notes, suspension too'),
+          v('metadata', 'aperture', { q: 'not HARNESSED · no harness' })], {
+          secs: [
+            ['tools', ['lookup', 'sentences', 'topics', 'history', 'leeches', 'suspend', 'resume']
+              .map((name) => to(name, `srs_${name}`, `memo.t.srs/${name}`, { q: 'in memo harness' }))],
+          ],
+        }),
+        mode('latin', 'topography/latin', 'Latin', '/daemon/memo/mode/topography/latin', [
+          v('type', 'topography'), v('slug', 'latin'), v('name', 'Latin'), v('version', '0.1.0'), v('traits', 'DATASET FILESET'),
+          v('description', '219 words and 50 sentences, English to Latin — classical and ecclesiastical'), v('metadata', 'none')]),
+      ]),
+      n('hello', 'daemon', {
+        quiet: 'hello', dot: true, kind: 'daemon', title: 'hello', ref: '/daemon/hello', tr: 'b-hello',
+        secs: [
+          ['own', [v('id', 'hello', { q: '= slug' }), v('reference', '/daemon/hello'), v('version', '0.0.1'), v('status', 'HEALTHY')]],
+          ['stores', [v('$modes', '1'), v('call', '7 verbs')]],
+        ],
+      }, [
+        mode('hello-world', 'demo/hello-world', 'hello-world', HELLO, [
+          v('type', 'demo'), v('slug', 'hello-world'), v('name', 'null'), v('version', 'null'), v('metadata', 'harness · aperture')], {
+          secs: [['harness defaults', [v('tune', 'capable', { q: 'repo' }), v('rounds', '10', { q: 'repo' }), v('effort', 'low', { q: 'repo' })]]],
+        }, [
+          n('hello.traits', 'traits', { quiet: '8', kind: 'traits', title: '8 worn', ref: `${HELLO}#traits`, tr: 'none' }, [
+            trait('hello', HELLO, 'HARNESSED', 'harness', [to('tree', 'harness', 'hello.harness')]),
+            trait('hello', HELLO, 'CONVERSATIONAL', 'dialogue', [v('route', '/harness/dialogue/stream')]),
+            trait('hello', HELLO, 'GENERATIVE', 'generator', [to('tools', 'generator/view', 'hello.t.generator/view')]),
+            trait('hello', HELLO, 'TOOLING', 'tools', [to('tools', '8', 'hello.tools')]),
+            trait('hello', HELLO, 'PRIMER', 'primer', [to('primer', '4', 'hello.primer')]),
+            trait('hello', HELLO, 'EMITTER', 'buffers', [to('route', '/article', 'hello.a./article')]),
+            trait('hello', HELLO, 'VIEWABLE', 'views', [v('draws', 'App.svelte')]),
+            trait('hello', HELLO, 'EXPOSED', 'aperture', [to('tree', 'aperture', 'hello.aperture')]),
+          ]),
+          harness('hello', HELLO, HELLO_TOOLS, [
+            primer('hello', HELLO, 'hello', HELLO_TEXT),
+            primer('hello', HELLO, 'machine', 'machine(standing(ctx)) — the instance, the daemon, the modes and their routes, rendered per call.'),
+            primer('hello', HELLO, 'render', 'RENDER — the HOUSE RULES for a drawn page: tokens, components, what a page may contain.'),
+            primer('hello', HELLO, 'format', FORMAT_TEXT, [v('only on', '/dialogue')]),
+          ], FACULTIES.map((name) => reference('hello', HELLO, name)), [
+            v('landed with', 'HARNESSED', { q: 'metadata.harness' }), v('captured', 'tools 18 · primer 5 · references 7', { q: 'live 11-16' }),
+            v('listed', 'tools 8 · primer 4', { q: 'repo 10-14' }), v('budget', '3 tool calls', { q: 'per reply, by primer' })]),
+          n('hello.aperture', 'aperture', {
+            quiet: 'routes', kind: 'aperture', title: 'hello-world', ref: `${HELLO}/metadata/aperture`, tr: 'none',
+            secs: [['own', [v('landed with', 'EXPOSED'), v('middleware', 'logs caller · mode')]]],
+          }, [
+            route('hello', HELLO, '/hello/bot', '{}', 'a fixed greeting', [], [v('greeting', 'Bot says high.')]),
+            route('hello', HELLO, '/hello/agent', 'input', 'the persona: one hallucinated answer', null),
+            route('hello', HELLO, '/hello/research', 'input', 'the research door — streams the records the tool folds', [arg('brief', 'string', true)]),
+            route('hello', HELLO, '/article', 'input', 'emitter: mint an article buffer', null),
+          ]),
+        ]),
+      ]),
+    ]),
+    n('locals', 'local modes', {
+      quiet: '1', kind: 'registry', title: 'local modes', ref: 'client.modes', tr: 'b-console',
+      secs: [['own', [v('source', 'register.modes'), v('hydrated', 'never', { q: 'connection null' })]]],
+    }, [
+      mode('console', 'home/console', 'Console', '/mode/home/console', [
+        v('type', 'home'), v('slug', 'console'), v('name', 'Console'), v('version', '0.0.1'), v('owner', '@commons'),
+        v('description', 'A mode the client hosts. Its verbs join the repl beside the client\u2019s own'),
+        v('daemon · connection · call · harness', 'null null null null', { cls: 'is-cast' }), v('metadata', '{}'),
+        to('repl', 'hello · whoami', 'c.local')]),
+    ]),
+    n('terminal', 'terminal', {
+      quiet: '1', kind: 'terminal', title: '1 of 1', ref: '01a1e526-9378-72b8-bc44-efbeea92ce23', acts: ['new'],
+      secs: [
+        ['own', [v('id', '01a1e526-9378-72b8-bc44-efbeea92ce23'), v('index', '0', { q: '1 of 1' }), v('daemon', 'memo'),
+          v('traits · trait', '[] {}', { q: 'DOCKED cast, not kept', cls: 'is-cast' }), v('createdAt', '16:17:53.016')]],
+        ['loop', [v('repl $catalog', 'null'), v('legend $chord', 'null'), v('stall $phase', 'manual')]],
+        ['dock', [
+          ed('view', 'terminal.dock.view', 'choice', { opts: VIEWS }),
+          ed('align', 'terminal.dock.align', 'choice', { opts: SIDES }),
+          ed('share', 'terminal.dock.share', 'step', { min: 0.1, max: 0.9, step: 0.05 }),
+          ed('lens', 'terminal.dock.lens', 'set', { opts: LENSES }),
+          ed('markdown', 'terminal.dock.markdown', 'choice', { opts: MARKDOWNS }),
+          v('shown', 'full', { q: 'DEFAULT ⊕ mask ⊕ user ⊕ terminal' }),
+        ]],
+        ['relations', [to('thread', '[ memo ]', 'thread'), to('buffer', '◆ memo #0', 'buffers')]],
+      ],
+    }, [
+      n('thread', 'thread', { kind: 'thread', ref: '01a1e526-970c-723d-81bd-f6d81c47d9ec', secs: THREAD }, [
+        n('t.harness', 'harness', {
+          leaf: true, quiet: 'stub-middle', kind: 'harness', title: 'resolved', ref: 'harness(runtime, thread)', tr: 'turns',
+          secs: [
+            ['intelligent', [
+              ed('tier', 'thread.tier', 'select', { opts: TIERS }),
+              ed('effort', 'thread.effort', 'choice', { opts: EFFORTS }),
+              ed('rounds', 'thread.rounds', 'step', { min: 1, max: 100, step: 1, q: '/ 100' }),
+            ]],
+            ['model', [v('id', 'stub-middle'), v('provider', 'stub'), v('tune', '.60 .60 .50'), v('context', '0 / 1000000'),
+              v('in', 'text image document tool_result'), v('out', 'text tool_use object')]],
+            ['models', [v('stub-deep', '.95 .15 .15', { q: '1M' }), v('stub-middle', '.60 .60 .50', { q: 'answers' }), v('stub-quick', '.25 .95 .50', { q: '200k' })]],
+            ['mode harness', [to('tools', '13', 'memo.tools'), to('primer', 'magister', 'memo.p.magister'), to('references', '5', 'memo.refs')]],
+          ],
+        }),
+        n('turns', 'turns', {
+          sign: '┴', bang: '!', count: '8', leaf: true, kind: 'turns', title: '8', ref: 'thread.$turns', tr: 'turns',
+          secs: [['chain', [
+            v('1 user', 'ciao'),
+            v('2 assistant', '[stub] ciao.', { q: '10 / 11' }),
+            v('3 user', 'lookup please --tool srs/lookup --deltas 3'),
+            to('4 assistant', 'tool_use srs_lookup', 'memo.t.srs/lookup', { q: 'tools' }),
+            v('5 user', 'tool_result ERROR', { cls: 'is-fault' }),
+            v('6 assistant', '[stub] lookup please', { q: '10 / 20' }),
+            v('7 user', 'break --fault fatal'),
+            v('8 assistant', 'parts [] · fault unknown: [stub] scripted fatal fault', { cls: 'is-fault', bang: '!', q: 'error · r1' }),
+          ]], ['ids', [v('user turns', 'uuid v4'), v('assistant turns', 'uuid v7')]]],
+        }),
+        n('buffers', 'buffers', {
+          sign: '◆', count: '1', leaf: true, kind: 'buffer', title: 'memo #0', ref: '01a1e526…0cd6', tr: 'none',
+          secs: [
+            ['own', [v('id', '01a1e526-9d80-73eb-adec-710370980cd6'), v('status', 'PENDING'), v('mime', 'application/json'),
+              v('index', '0'), v('context', 'null'), v('user', 'id string')]],
+            ['traits', [worn('LABELED', 'memo #0', { q: 'minted server-side' }), cast('RENDERED', '{}')]],
+            ['relations', [to('mode', '◇ srs/memo', 'srs-memo'), to('thread', '[ memo ]', 'thread')]],
+            ['stores', [v('$views', '0'), v('$files', '0'), v('$data', '{}'), v('$bundle', 'null'), v('$notes', '0')]],
+          ],
+        }),
+        n('activities', 'activities', {
+          count: '0', leaf: true, kind: 'activities', title: '0 running', ref: 'thread.$activities', tr: 'turns',
+          secs: [
+            ['store', [cast('running', 'none'), v('lifetime', '~0.2–0.5 s', { q: 'removed when its controller settles' })]],
+            ['seen', [v('ciao', 'DONE', { q: '6 steps' }), v('lookup please', 'DONE', { q: '12 steps', bang: '!' }),
+              v('break --fault fatal', 'FAILED', { cls: 'is-fault', q: '6 steps' })]],
+            ['shape', [v('steps', 'ring of the last 12 records'), v('status', 'getter on the controller'),
+              v('error', 'setter only · reads undefined', { cls: 'is-fault' }), v('buffer', 'undefined in every capture', { cls: 'is-cast' })]],
+          ],
+        }),
+      ]),
+      n('t.repl', 'repl', {
+        quiet: 'commands', kind: 'repl', title: 'commands', ref: 'terminal.repl.commands', tr: 'none',
+        secs: [['precedence', [v('1', 'system'), v('2', 'surface', { q: 'with an app' }), v('3', 'local modes'),
+          v('4', 'content'), v('5', 'seated mode', { q: 'later wins' })]]],
+      }, [
+        n('c.system', 'system', { quiet: '9', kind: 'group', title: 'system', ref: 'commands/system', tr: 'none' }, [
+          command('c.anima', '/anima', {}),
+          command('c.doctor', '/doctor', {}),
+          command('c.help', '/help', {}),
+          command('c.leader', '/leader', { send: false }),
+          command('c.logout', '/lighthouse/logout', { valence: 'sign out', send: false }),
+          command('c.quit', '/quit', { rank: 'tty only', send: false }),
+          command('c.repl', '/repl', { chord: 'leader leader', valence: 'fills the catalog: every listed command' }),
+          command('c.runtime', '/runtime', {}),
+          command('c.set', '/set', { rank: 'hidden', valence: 'inspector: write one path of the client’s state',
+            args: [arg('path', 'string', true, '11 writable'), arg('value', 'by path', true)] }),
+        ]),
+        n('c.surface', 'surface', { quiet: '14', kind: 'group', title: 'surface', ref: 'commands/surface', tr: 'none' }, [
+          command('c.cell', '/cell', {}),
+          command('c.dock', '/dock', {}),
+          command('c.split', '/split', { args: [arg('share', 'number 0.1–0.9', true)] }),
+          command('c.filter', '/filter', {}),
+          command('c.focus', '/focus', {}),
+          command('c.font', '/font', {}),
+          command('c.frame', '/frame', {}),
+          command('c.popover', '/popover', {}),
+          command('c.sidebar', '/sidebar/toggle', { rank: 'hidden', chord: 'leader/d/b', valence: 'the sidebar flipped' }),
+          command('c.telemetry', '/telemetry', { rank: 'hidden', chord: 'leader/s/t', valence: 'the telemetry window: a logger over spans and activities, an inspector over the client',
+            args: [arg('view', 'logger · inspector · off', false, 'absent toggles')] }),
+          command('c.inspector', '/inspector', { valence: 'open the inspector', args: [arg('point', 'string', false, 'where to start')] }),
+          command('c.clear', '/telemetry/clear', { rank: 'hidden', valence: 'drop every record the logger holds; live activities stay' }),
+          command('c.theme', '/theme', { args: [arg('name', THEMES.join(' · '), true)] }),
+          command('c.widget', '/widget', {}),
+        ]),
+        n('c.content', 'content', { quiet: '16', kind: 'group', title: 'content', ref: 'commands/content', tr: 'none' }, [
+          command('c.mode', '/mode', { valence: 'move the seated thread onto a mode', args: [arg('reference', 'path', true)] }),
+          command('c.modes', '/modes', { valence: 'every host and its modes' }),
+          command('c.tier', '/tier', { valence: 'the seated thread’s model tier — INTELLIGENT.tier', args: [arg('tier', TIERS.join(' · '), true)] }),
+          command('c.harness', '/harness', {}),
+          command('c.thread', '/thread', {}),
+          command('c.buffer', '/buffer', {}),
+          command('c.terminal.new', '/terminal/new', {}),
+          command('c.terminal.close', '/terminal/close', {}),
+          command('c.detach', '/detach', {}),
+          command('c.dictate', '/dictate', {}),
+          command('c.activity', '/activity', {}),
+          command('c.pause', '/pause', { chord: 'leader/a/p', valence: 'SIGSTOP to the thread’s activities' }),
+          command('c.resume', '/resume', { chord: 'leader/a/c', valence: 'SIGCONT to the thread’s activities' }),
+          command('c.stop', '/stop', { chord: 'leader/a/s', valence: 'SIGTERM to the thread’s activities' }),
+          command('c.abort', '/abort', { chord: 'leader/a/k', valence: 'SIGKILL to the thread’s activities' }),
+          command('c.turn', '*', { rank: 'hidden', valence: 'a bare line — a turn to the active terminal’s mode, streamed onto the thread’s span', send: false }),
+        ]),
+        n('c.local', 'home/console', { quiet: '2', kind: 'group', title: 'local mode', ref: '/mode/home/console', tr: 'none' }, [
+          command('c.hello', '/hello', {}),
+          command('c.whoami', '/whoami', {}),
+        ]),
+      ]),
+    ]),
+  ]),
+  n('bridge', 'bridge', {
+    quiet: '17', kind: 'bridge', title: '17 stores', ref: 'app.bridge', tr: 'none',
+    secs: [
+      ['screen', [v('$focus', 'dock.input'), v('$focusHistory', '[]', { q: 'last 6' }), v('$viewport', 'null × null · narrow false'),
+        ed('$sidebar', 'bridge.sidebar', 'choice', { opts: ['open', 'closed'], signal: (x) => `/set bridge.sidebar ${x === 'open'}`, q: 'width 39' }),
+        ed('$hidden', 'bridge.hidden', 'set', { opts: GROUPS }),
+        v('$draft · $selected', '"" 0'), v('$popover · $widget · $selection', 'null null null'), v('$phonePane', 'dock'),
+        v('$float', '{}'), v('$signin', 'user "" · pass ""'), v('$sections', 'filter expand peeks pick hostsOff traits')]],
+      ['persisted', [v('$terminal', 'null', { q: 'viva.bridge.terminal' }), v('$theme', 'null', { q: 'viva.bridge.theme' }),
+        v('$font', 'base', { q: 'viva.bridge.font' })]],
+    ],
+  }),
+  n('telemetry', 'telemetry', {
+    count: '45', kind: 'telemetry', title: 'telemetry', ref: 'viva.telemetry.state', tr: 'all', acts: ['clear'],
+    secs: [
+      ['state', [v('open · view', 'true · inspector'), v('filter · selection · since', 'all · null · 0'),
+        v('window', 'x 0 · y 48 · 600 × 420', { q: 'px · ghost uses cells' }), v('point · folds · picked · queries · peeks', 'seeded by anima mount'),
+        v('key', 'viva.telemetry.state', { q: 'persistentAtom' })]],
+      ['$logger', [v('source', 'client.controller.stdout.$history'), v('cap', '1000', { q: 'Span.limit' }), v('records', '45')]],
+      ['by track', [v('status', '18'), v('start', '11'), v('log', '9'), v('stop', '6'), v('fault', '1', { cls: 'is-fault' }),
+        v('request · response · entity', '0 0 0', { cls: 'is-cast', q: 'ctx carries no span' })]],
+    ],
+  }),
+]);
+
+
+const T = '01a1e526…ce23';
+const R = (at, track, value = '', tone = '') => [at, track, value, tone];
+const VALIDATION = 'Error: Validation failed: must have required properties search\n    at file:///Users/finn/vivalence/…';
+const FATAL = 'Error: [stub] scripted fatal fault\n    at fault (file:///Users/finn/vivalence/code/vival…';
+const NOTFOUND = 'Error: Not found\n    at /Users/finn/vivalence/code/vivalence/systems/ghost/gesta…';
+const MEMOISH = ['thread', 'turns', 'activities', 'srs-memo', 'memo.harness', 'memo.p.magister', 'memo.r.dialogue', 't.harness'];
+const LOOKUP = [...MEMOISH, 'memo.t.srs/lookup'];
+
+const BASE = [
+  { id: 'b-client', parent: null, name: 'client', path: ['anima', 'client'], t0: 0, t1: null, code: 'RUNNING',
+    on: ['client'], recs: [R(0, 'log', 'lighthouse http://localhost:63750/ · traits JOINABLE AUTOLOGIN'),
+      R(0.3, 'status', 'RUNNING', 'run'), R(0.4, 'start'), R(12.3, 'log'), R(15.5, 'log')] },
+  { id: 'b-console', parent: 'b-client', name: '/mode/home/console', path: ['anima', 'client', '/mode/home/console'],
+    t0: 1.6, t1: null, code: 'RUNNING', on: ['console'], recs: [R(1.6, 'start')] },
+  { id: 'b-lighthouse', parent: 'b-client', name: 'lighthouse', path: ['anima', 'client', 'lighthouse'],
+    t0: 2.1, t1: 12.1, nodur: true, code: 'AUTHENTICATED', on: ['lighthouse'],
+    note: 'status only · no start or stop · no timestamp',
+    recs: [R(2.1, 'status', 'AUTHENTICATING', 'run'), R(12.1, 'status', 'AUTHENTICATED', 'pos')] },
+  { id: 'b-runtime', parent: 'b-client', name: '/runtime/house', path: ['anima', 'client', '/runtime/house'],
+    t0: 40.8, t1: null, code: 'RUNNING', on: ['runtime', 'probe'], note: 'a host span is held, never stopped',
+    recs: [R(40.8, 'status'), R(40.9, 'start'), R(81.7, 'log')] },
+  { id: 'b-hello', parent: 'b-client', name: '/daemon/hello', path: ['anima', 'client', '/daemon/hello'],
+    t0: 41.1, t1: null, code: 'RUNNING', on: ['hello'], recs: [R(41.1, 'status'), R(41.1, 'start'), R(92.2, 'log')] },
+  { id: 'b-memo', parent: 'b-client', name: '/daemon/memo', path: ['anima', 'client', '/daemon/memo'],
+    t0: 41.2, t1: null, code: 'RUNNING', on: ['memo'], recs: [R(41.2, 'status'), R(41.2, 'start'), R(97.6, 'log')] },
+  { id: 'b-terminal', parent: 'b-client', name: `terminal/${T}`, path: ['anima', 'client', `terminal/${T}`],
+    t0: 95.3, t1: null, nodur: true, code: 'IDLE', on: ['terminal'], note: 'log only · no start',
+    recs: [R(95.3, 'log', 'home /runtime/house/mode/home/probe · thread 01a1e526…d9ec')] },
+  { id: 'mode', parent: 'b-terminal', name: '/mode', cmd: '/mode', path: ['…', `terminal/${T}`, '/mode'],
+    t0: 104.4, t1: 113.7, code: 'DONE', on: ['thread', 'srs-memo', 'probe'],
+    recs: [R(104.4, 'status', 'RUNNING', 'run'), R(104.5, 'start'),
+      R(113.5, 'log', '/daemon/memo/mode/srs/memo · thread #01a1e526…d9ec'), R(113.6, 'stop'), R(113.7, 'status', 'DONE', 'pos')] },
+  { id: 'star1', parent: 'b-terminal', name: '/*', q: '1 of 3', cmd: '*', path: ['…', `terminal/${T}`, '/*'],
+    t0: 113.9, t1: 645.2, code: 'DONE', on: ['thread', 'turns', 'srs-memo'], note: 'one path for every bare line',
+    recs: [R(113.9, 'status', 'RUNNING', 'run'), R(113.9, 'start'), R(645.1, 'stop'), R(645.2, 'status', 'DONE', 'pos')] },
+  { id: 'star2', parent: 'b-terminal', name: '/*', q: '2 of 3', cmd: '*', path: ['…', `terminal/${T}`, '/*'],
+    t0: 645.4, t1: 887.9, code: 'DONE', on: ['thread', 'turns', 'srs-memo'], note: 'one path for every bare line',
+    recs: [R(645.4, 'status', 'RUNNING', 'run'), R(645.4, 'start'), R(887.9, 'stop'), R(887.9, 'status', 'DONE', 'pos')] },
+  { id: 'star3', parent: 'b-terminal', name: '/*', q: '3 of 3', cmd: '*', path: ['…', `terminal/${T}`, '/*'],
+    t0: 888.1, t1: 907.2, code: 'DONE', on: ['thread', 'turns', 'srs-memo'],
+    note: 'closed DONE here · its activity went FAILED',
+    recs: [R(888.1, 'status', 'RUNNING', 'run'), R(888.1, 'start'), R(907.2, 'stop'), R(907.2, 'status', 'DONE', 'pos')] },
+  { id: 'modes', parent: 'b-terminal', name: '/modes', cmd: '/modes', path: ['…', `terminal/${T}`, '/modes'],
+    t0: 1710.0, t1: 1712.3, code: 'DONE', on: ['runtime', 'memo', 'hello'],
+    recs: [R(1710.0, 'status', 'RUNNING', 'run'), R(1710.4, 'start'),
+      R(1711.7, 'log', '/runtime/house /home/probe · /daemon/memo /domain/srs /topography/latin /srs/memo …'),
+      R(1712.3, 'stop'), R(1712.3, 'status', 'DONE', 'pos')] },
+  { id: 'nonsense', parent: 'b-terminal', name: '/nonsense', cmd: '/nonsense', path: ['…', `terminal/${T}`, '/nonsense'],
+    t0: 1712.4, t1: 1731.3, code: 'FAILED', on: ['terminal'],
+    fault: ['! NOT_FOUND · /nonsense', 'Not found'], stack: NOTFOUND,
+    recs: [R(1712.4, 'status', 'RUNNING', 'run'), R(1712.5, 'start'), R(1728.7, 'status', 'FAILED · NOT_FOUND', 'neg'),
+      R(1729.1, 'fault', 'Not found · NOT_FOUND', 'neg'), R(1731.3, 'stop')] },
+  { id: 'act1', parent: null, activity: true, name: 'hallucination', q: '01a1e526…582e', path: ['activity/01a1e526…582e'],
+    t0: 117.6, t1: 133.5, approx: true, code: 'DONE', on: MEMOISH, note: 'turn ciao · 6 steps · times from entity stamps',
+    recs: [R(117.6, 'status', 'RUNNING', 'run'), R(117.7, 'start'), R(117.8, 'log', 'stream · dialogue'),
+      R(133.3, 'log', 'round 1 · complete · 10 / 11'), R(133.4, 'stop'), R(133.5, 'status', 'DONE', 'pos')] },
+  { id: 'act1h', parent: 'act1', activity: true, name: 'hallucination', path: ['hallucination'],
+    t0: 117.7, t1: 133.4, approx: true, code: 'DONE', on: MEMOISH,
+    recs: [R(117.7, 'start'), R(117.8, 'log', 'stream · dialogue'), R(133.3, 'log', 'round 1 · complete · 10 / 11'), R(133.4, 'stop')] },
+  { id: 'act2', parent: null, activity: true, name: 'hallucination', q: '01a1e526…57ad', path: ['activity/01a1e526…57ad'],
+    t0: 663.6, t1: 885.1, code: 'DONE', on: LOOKUP, note: 'turn lookup please · 12 steps',
+    recs: [R(663.6, 'status', 'RUNNING', 'run'), R(663.8, 'start'), R(664.0, 'log', 'stream · dialogue'),
+      R(751.2, 'log', 'round 1 · tools'), R(884.8, 'log', 'round 2 · complete · 10 / 20'), R(885.1, 'stop'),
+      R(885.1, 'status', 'DONE', 'pos')] },
+  { id: 'act2h', parent: 'act2', activity: true, name: 'hallucination', path: ['hallucination'],
+    t0: 663.6, t1: 885.1, code: 'DONE', on: LOOKUP,
+    recs: [R(663.6, 'status', 'RUNNING', 'run'), R(663.8, 'start'), R(664.0, 'log', 'streamOrRender stream · faculty dialogue'),
+      R(751.2, 'log', 'round 1 · state tools'), R(884.8, 'log', 'round 2 · state complete · usage 10 / 20'),
+      R(885.1, 'stop'), R(885.1, 'status', 'DONE', 'pos')] },
+  { id: 'tool', parent: 'act2h', activity: true, name: 'srs_lookup/stub-0', path: ['hallucination', 'srs_lookup/stub-0'],
+    t0: 751.7, t1: 753.0, code: 'FAILED', on: LOOKUP, note: 'no stop · ends at its fault',
+    fault: ['! VALIDATION · srs_lookup · round 1', 'Validation failed: must have required properties search'], stack: VALIDATION,
+    input: '{ query: "lookup please --tool srs/lookup --deltas 3" }',
+    recs: [R(751.7, 'status', 'RUNNING', 'run'), R(751.8, 'start'), R(751.8, 'log', 'input { query }'),
+      R(752.8, 'status', 'FAILED · VALIDATION', 'neg'), R(753.0, 'fault', 'VALIDATION', 'neg')] },
+  { id: 'act3', parent: null, activity: true, name: 'hallucination', q: '01a1e526…efe2', path: ['activity/01a1e526…efe2'],
+    t0: 901.6, t1: 902.4, code: 'FAILED', on: MEMOISH, note: 'turn break --fault fatal · 6 steps · fault from controller.status',
+    fault: ['! unknown · hallucination · round 1', '[stub] scripted fatal fault'], stack: FATAL,
+    recs: [R(901.6, 'status', 'RUNNING', 'run'), R(901.7, 'start'), R(901.7, 'log', 'stream · dialogue'),
+      R(902.2, 'status', 'FAILED', 'neg'), R(902.3, 'fault', '[stub] scripted fatal fault', 'neg'), R(902.4, 'stop')] },
+  { id: 'act3h', parent: 'act3', activity: true, name: 'hallucination', path: ['hallucination'],
+    t0: 901.6, t1: 902.4, code: 'FAILED', on: MEMOISH,
+    fault: ['! unknown · hallucination · round 1', '[stub] scripted fatal fault'], stack: FATAL,
+    recs: [R(901.6, 'status', 'RUNNING', 'run'), R(901.7, 'start'), R(901.7, 'log', 'streamOrRender stream · faculty dialogue'),
+      R(902.2, 'status', 'FAILED', 'neg'), R(902.3, 'fault', '[stub] scripted fatal fault', 'neg'), R(902.4, 'stop')] },
+];
+
+const TARGETS = [
+  [/^\/set thread\./, ['thread', 't.harness']],
+  [/^\/set terminal\./, ['terminal']],
+  [/^\/set bridge\.|^\/sidebar/, ['bridge']],
+  [/^\/theme/, ['bridge']],
+  [/^\/mode /, ['thread', 'srs-memo']],
+  [/^\/telemetry|^\/inspector/, ['telemetry']],
+  [/^\/terminal/, ['terminal']],
+];
+const aimed = (text) => (TARGETS.find(([test]) => test.test(text)) ?? [null, []])[1];
+const flat = (node, up = null) => [{ ...node, up }, ...node.kids.flatMap((kid) => flat(kid, node.id))];
+const NODES = flat(SPEC);
+const BY = Object.fromEntries(NODES.map((node) => [node.id, node]));
+const KIDS = Object.fromEntries(NODES.map((node) => [node.id, NODES.filter((other) => other.up === node.id)]));
+const LINEAGE = Object.fromEntries(NODES.map((node) => {
+  const walk = (id) => (id === null ? [] : [...walk(BY[id].up), BY[id]]);
+  return [node.id, walk(node.up)];
+}));
+const INDEXES = [['tree', 'tree'], ['tool', 'tools'], ['primer', 'primers'], ['reference', 'refs'],
+  ['route', 'routes'], ['command', 'commands'], ['trait', 'traits'], ['mode', 'modes']];
+const OWNERS = { command: ['group'], mode: ['daemon', 'runtime', 'registry'] };
+const owner = (node) => LINEAGE[node.id].filter((above) => (OWNERS[node.kind] ?? ['mode']).includes(above.kind)).at(-1);
+const SAID = Object.fromEntries(NODES.map((node) => [node.id, [node.name, node.as, node.quiet, node.title,
+  ...(node.secs && typeof node.secs !== 'function' ? node.secs.flatMap(([, rows]) => rows.map((row) => `${row.k} ${row.v ?? ''}`)) : [])]
+  .filter(Boolean).join(' ').toLowerCase()]));
+
+const DESC = Object.fromEntries(NODES.map((node) => {
+  const under = (id) => [id, ...KIDS[id].flatMap((kid) => under(kid.id))];
+  return [node.id, new Set(under(node.id))];
+}));
+
+const EFFECTS = {
+  '/telemetry': (state, index, text) => {
+    const view = text.split(' ')[1];
+    return view === 'off' ? { open: false } : view === undefined ? { open: !state.open } : { open: true, tab: view };
+  },
+  '/telemetry/clear': (state, index) => ({ since: index }),
+  '/inspector': () => ({ tab: 'inspector' }),
+  '/sidebar/toggle': (state) => ({ vals: { ...state.vals,
+    'bridge.sidebar': state.vals['bridge.sidebar'] === 'open' ? 'closed' : 'open' } }),
+};
+
+const INITIAL = () => ({
+  open: true,
+  tab: 'inspector',
+  picked: 'memo.t.srs/lookup',
+  lens: 'tree',
+  folds: Object.fromEntries(['app', 'client', 'runtime', 'memo', 'srs-memo', 'memo.harness', 'memo.tools', 'memo.t.srs',
+    'terminal', 'thread'].map((id) => [id, true])),
+  query: '',
+  span: 'tool',
+  logSpan: 'nonsense',
+  only: 'all',
+  filter: 'all',
+  stack: false,
+  json: false,
+  peek: false,
+  copied: null,
+  touched: false,
+  stamp: '16:17:55.584',
+  since: -1,
+  sent: [],
+  changed: [],
+  drafts: {},
+  vals: {
+    'app.theme': 'porcelain',
+    'thread.tier': 'capable',
+    'thread.effort': 'low',
+    'thread.rounds': 12,
+    'thread.label': '',
+    'terminal.dock.view': 'full',
+    'terminal.dock.align': 'right',
+    'terminal.dock.share': 0.38,
+    'terminal.dock.lens': ['turns', 'harness'],
+    'terminal.dock.markdown': 'pretty',
+    'bridge.sidebar': 'closed',
+    'bridge.hidden': [],
+  },
+});
+
+const ms = (value) => (value === null ? '—' : value < 1 ? '<1ms' : value < 1000 ? `${Math.round(value)}ms`
+  : `${(value / 1000).toFixed(2)}s`);
+const decimals = (step) => (String(step).split('.')[1] ?? '').length;
+const touching = (node) => (node.tr === 'all' ? () => true
+  : (span) => span.on.some((id) => DESC[node.id].has(id)) || (node.kind === 'command' && span.cmd === node.name));
+const KEEP = {
+  all: () => true,
+  activity: (span) => Boolean(span.activity),
+  repl: (span) => !span.activity,
+  net: () => false,
+  faults: (span, faulty) => faulty.has(span.id),
+};
+const arrange = (list) => {
+  const ids = new Set(list.map((span) => span.id));
+  const ALL = Object.fromEntries(list.map((span) => [span.id, span]));
+  const up = (span) => {
+    let id = span.parent;
+    while (id !== null && id !== undefined && !ids.has(id)) id = PARENT[id] ?? null;
+    return id ?? null;
+  };
+  const kids = (id) => list.filter((span) => up(span) === id).sort((a, b) => a.t0 - b.t0);
+  const walk = (span, depth) => [{ ...span, depth }, ...kids(span.id).flatMap((kid) => walk(kid, depth + 1))];
+  return kids(null).flatMap((span) => walk(ALL[span.id], 0));
+};
+let PARENT = {};
+
+const derive = (self, fallback) => {
+  const state = self.state;
+  const put = (delta) => self.setState(delta);
+  const word = state.vals['thread.label'] === '' ? 'memo' : state.vals['thread.label'];
+  const named = (node) => (node.id === 'thread' ? `[ ${word} ]` : node.name);
+  const pick = (id) => put({
+    picked: id, peek: false, json: false,
+    folds: { ...state.folds, ...Object.fromEntries(LINEAGE[id].map((above) => [above.id, true])) },
+  });
+  const signal = (text, delta = {}) => {
+    const index = state.sent.length;
+    const id = `s${index}`;
+    const effect = EFFECTS[text.split(' ')[0]];
+    const merged = { ...state, ...delta };
+    put({ ...delta, ...(effect ? effect(merged, index, text) : {}), sent: [...state.sent, { id, text }], span: id, logSpan: id });
+  };
+  const write = (path, value, text, extra = {}) => signal(text, {
+    ...extra,
+    vals: { ...state.vals, [path]: value },
+    changed: state.changed.includes(path) ? state.changed : [...state.changed, path],
+    touched: true,
+    stamp: new Date().toISOString().slice(11, 23),
+  });
+
+  const now = 1731.3 + state.sent.length * 400 + 200;
+  const sent = state.sent.map((entry, index) => {
+    const t0 = 1731.3 + (index + 1) * 400;
+    const cmd = entry.text.split(' ')[0];
+    return { id: entry.id, parent: 'b-terminal', name: entry.text, cmd, path: ['…', `terminal/${T}`, cmd],
+      t0, t1: t0 + 2.4, code: 'DONE', on: aimed(entry.text),
+      recs: [R(t0, 'status', 'RUNNING', 'run'), R(t0 + 0.1, 'start'), R(t0 + 1.9, 'log', entry.text),
+        R(t0 + 2.3, 'stop'), R(t0 + 2.4, 'status', 'DONE', 'pos')] };
+  });
+  const live = [...(state.since < 0 ? BASE : []), ...sent.filter((_, index) => index >= state.since)]
+    .map((span) => ({ ...span, end: span.t1 === null ? now : span.t1 }));
+  PARENT = Object.fromEntries(live.map((span) => [span.id, span.parent]));
+  const faulty = new Set();
+  for (const span of live) {
+    if (!span.fault) continue;
+    let id = span.id;
+    while (id) { faulty.add(id); id = PARENT[id]; }
+  }
+  const owns = (span) => Boolean(span.fault);
+
+  const geo = (list, held, choose) => {
+    if (list.length === 0) return [];
+    const low = Math.min(...list.map((span) => span.t0));
+    const high = Math.max(...list.map((span) => span.end));
+    const width = Math.max(1, high - low);
+    return arrange(list).map((span) => ({
+      id: span.id,
+      depth: span.depth,
+      name: span.name,
+      quiet: span.q ?? '',
+      dot: owns(span) ? 'is-fault' : span.t1 === null ? 'is-running' : span.code === 'IDLE' ? '' : 'is-healthy',
+      tone: owns(span) ? 'N' : span.t1 === null ? 'P' : span.code === 'IDLE' ? 'm' : 'G',
+      bang: faulty.has(span.id) && !owns(span) ? '!' : '',
+      l: (((span.t0 - low) / width) * 100).toFixed(1),
+      w: Math.max(1.5, ((span.end - span.t0) / width) * 100).toFixed(1),
+      fault: owns(span),
+      ms: span.nodur ? '—' : span.t1 === null ? 'live' : `${span.approx ? '~' : ''}${ms(span.t1 - span.t0)}`,
+      slow: span.t1 !== null && !span.nodur && span.t1 - span.t0 > 500,
+      cur: span.id === held,
+      pick: () => choose(span.id),
+    }));
+  };
+  const detail = (span) => (span === undefined ? null : {
+    path: span.path.join(' › '),
+    meta: [span.code, span.nodur ? 'no duration' : span.t1 === null ? 'live' : `${span.approx ? '~' : ''}${ms(span.t1 - span.t0)}`,
+      span.note].filter(Boolean).join(' · '),
+    fault: span.fault ?? null,
+    input: span.input ?? '',
+    recs: span.recs.map(([at, k, value, c]) => ({ t: `+${(at - span.t0).toFixed(1)}`, k, v: value, c })),
+    stack: span.stack ?? '',
+  });
+
+  const query = state.query.trim().toLowerCase();
+  const lensed = state.lens !== 'tree';
+  const indexed = (kind) => {
+    const items = NODES.filter((node) => node.kind === kind && (query === '' || SAID[node.id].includes(query)));
+    const groups = [...new Set(items.map((node) => owner(node).id))];
+    return groups.flatMap((id) => {
+      const held = items.filter((node) => owner(node).id === id);
+      const head = BY[id];
+      return [
+        { id: `${id}:index`, depth: 0, hasKids: true, sign: '◇', name: head.kind === 'daemon' ? `daemon ${head.quiet}` : named(head),
+          strong: true, quiet: '', bang: '', tail: 'count', tailText: String(held.length), cur: head.id === state.picked,
+          pick: () => pick(head.id), fold: () => pick(head.id) },
+        ...held.map((node) => ({
+          id: node.id, depth: 1, hasKids: false, sign: '', name: node.as ?? named(node), strong: false,
+          quiet: node.as ? '' : node.kind === 'mode' ? node.title : (node.quiet ?? ''),
+          bang: node.bang ?? '', tail: '', tailText: '', cur: node.id === state.picked,
+          pick: () => pick(node.id), fold: () => pick(node.id),
+        })),
+      ];
+    });
+  };
+  const lenses = INDEXES.map(([id, label]) => ({
+    id, label, n: id === 'tree' ? '' : String(NODES.filter((node) => node.kind === id).length),
+    on: state.lens === id, pick: () => put({ lens: id }),
+  }));
+  const shown = query === ''
+    ? NODES.filter((node) => LINEAGE[node.id].every((above) => state.folds[above.id]))
+    : NODES.filter((node) => `${named(node)} ${node.quiet ?? ''} ${node.kind}`.toLowerCase().includes(query));
+  const treed = shown.map((node) => {
+    const hasKids = KIDS[node.id].length > 0;
+    const isOpen = Boolean(state.folds[node.id]);
+    return {
+      id: node.id,
+      depth: query === '' ? LINEAGE[node.id].length : 0,
+      hasKids,
+      sign: hasKids ? (isOpen ? '▾' : '▸') : (node.sign ?? ''),
+      name: named(node),
+      strong: hasKids,
+      quiet: query === '' ? (node.quiet ?? '') : LINEAGE[node.id].slice(-2).map(named).join(' › '),
+      bang: node.bang ?? '',
+      tail: node.dot ? 'dot' : node.tail ? 'live' : node.count ? 'count' : '',
+      tailText: node.tail ?? node.count ?? '',
+      cur: node.id === state.picked,
+      pick: () => pick(node.id),
+      fold: hasKids ? () => put({ folds: { ...state.folds, [node.id]: !isOpen } }) : () => pick(node.id),
+    };
+  });
+  const nodes = lensed ? indexed(state.lens) : treed;
+
+  const node = BY[state.picked];
+  const valueOf = (path) => (state.vals[path] ?? fallback[path]);
+  const shape = (row) => {
+    const base = { k: row.k, v: row.v ?? '', q: row.q ?? '', bang: row.bang ?? '', cls: row.cls ?? '',
+      type: 'text', opts: [], go: null, cells: [] };
+    if (row.go) return { ...base, type: 'link', go: () => pick(row.go) };
+    if (row.stamp) return { ...base, v: state.stamp, q: state.touched ? 'now' : '1.6s ago', cls: 'is-changed' };
+    if (!row.edit) return base;
+    const value = valueOf(row.path);
+    const said = (next) => (row.signal ? row.signal(next) : `/set ${row.path} ${next}`);
+    const send = (next) => write(row.path, next, said(next));
+    const marked = `${base.cls}${state.changed.includes(row.path) ? ' is-changed' : ''}`;
+    if (row.edit === 'choice') return { ...base, cls: marked, type: 'choice', v: value,
+      opts: row.opts.map((name) => ({ name, on: name === value, pick: () => send(name) })) };
+    if (row.edit === 'set') return { ...base, cls: `${marked} is-tall`, type: 'choice', v: value.join(' '),
+      opts: row.opts.map((name) => ({ name, on: value.includes(name), pick: () => write(row.path,
+        value.includes(name) ? value.filter((held) => held !== name) : [...value, name], `/set ${row.path} ${name}`) })) };
+    if (row.edit === 'select') {
+      const next = row.opts[(row.opts.indexOf(value) + 1) % row.opts.length];
+      return { ...base, cls: marked, type: 'select', v: value, opts: row.opts.map((name) => ({ name, on: name === value })),
+        change: (event) => send(event.target.value), cycle: () => send(next) };
+    }
+    if (row.edit === 'step') {
+      const places = decimals(row.step);
+      const moved = (by) => send(Number(Math.min(row.max, Math.max(row.min, value + by)).toFixed(places)));
+      const lit = Math.round(((value - row.min) / (row.max - row.min)) * 16);
+      return { ...base, cls: marked, type: 'step', v: value.toFixed(places),
+        less: (event) => moved(-row.step * (event && event.shiftKey ? 10 : 1)),
+        more: (event) => moved(row.step * (event && event.shiftKey ? 10 : 1)),
+        cells: Array.from({ length: 16 }, (_, index) => ({ c: index < lit ? 'on' : '' })), lit, of: 16 };
+    }
+    const draft = state.drafts[row.path];
+    const drafts = { ...state.drafts };
+    delete drafts[row.path];
+    const commit = () => (draft === undefined ? null : draft === value ? put({ drafts })
+      : write(row.path, draft, said(draft), { drafts }));
+    return { ...base, type: 'field', k: `${value === '' ? '○' : '●'} ${row.trait}`,
+      cls: `${marked} ${value === '' ? 'is-cast' : 'is-worn'}`, v: draft ?? value,
+      change: (event) => put({ drafts: { ...state.drafts, [row.path]: event.target.value } }),
+      commit, key: (event) => (event.key === 'Enter' ? commit() : null) };
+  };
+  const sections = [
+    ...(node.secs ?? []).map(([label, rows]) => ({ label, rows: rows.map(shape) })),
+    ...(KIDS[node.id].length ? [{ label: 'holds', rows: KIDS[node.id].map((kid) => ({
+      k: kid.kind === kid.name ? '' : kid.kind, v: named(kid), q: kid.quiet ?? kid.count ?? '', bang: kid.bang ?? '', cls: '',
+      type: 'link', opts: [], cells: [], go: () => pick(kid.id) })) }] : []),
+  ];
+  const ACTS = {
+    copy: () => null,
+    attach: () => ({ name: 'attach', on: false, run: () => signal(`/mode ${node.ref}`) }),
+    read: () => ({ name: 'read', on: state.peek, run: () => put({ peek: !state.peek }) }),
+    send: () => ({ name: 'send', on: false, run: () => signal(node.name) }),
+    clear: () => ({ name: 'clear', on: false, run: () => signal('/telemetry/clear') }),
+    new: () => ({ name: 'new', on: false, run: () => signal('/terminal/new') }),
+  };
+  const acts = [
+    { name: state.copied === node.id ? 'copied' : 'copy', on: state.copied === node.id, run: () => {
+      try { navigator.clipboard.writeText(node.ref).catch(() => null); } catch (error) { put({ copied: node.id }); return; }
+      put({ copied: node.id });
+    } },
+    { name: 'json', on: state.json, run: () => put({ json: !state.json }) },
+    ...(node.acts ?? []).map((name) => ACTS[name]()).filter(Boolean),
+  ];
+  const json = JSON.stringify(Object.fromEntries(sections.map((section) =>
+    [section.label, Object.fromEntries(section.rows.map((row) => [row.k, row.v]))])), null, 2);
+
+  const touched = live.filter(touching(node));
+  const listed = touched.filter((span) => state.only === 'all' || faulty.has(span.id));
+  const logged = live.filter((span) => KEEP[state.filter](span, faulty));
+  const faults = live.filter(owns).length;
+
+  return {
+    open: state.open,
+    reopen: () => signal('/telemetry inspector', { open: true }),
+    close: () => signal('/telemetry off', { open: false }),
+    tab: state.tab,
+    toTab: (tab) => put({ tab }),
+    records: live.length,
+    faults,
+    toFaults: () => (state.tab === 'logger' ? put({ filter: 'faults' })
+      : put({ picked: 'thread', lens: 'tree', only: 'faults', span: 'tool', folds: { ...state.folds, app: true, client: true, terminal: true } })),
+    lenses,
+    lens: state.lens,
+    query: state.query,
+    onQuery: (event) => put({ query: event.target.value }),
+    nodes,
+    node: {
+      kind: node.kind,
+      title: node.id === 'thread' ? word : node.title,
+      ref: node.ref,
+      crumbs: LINEAGE[node.id].map((above) => ({ name: named(above), pick: () => pick(above.id) })),
+      acts,
+      json: state.json ? json : '',
+      peek: state.peek && node.peek ? node.peek : '',
+      sections,
+    },
+    trace: {
+      only: state.only,
+      setOnly: (only) => put({ only }),
+      nAll: touched.length,
+      nFaults: touched.filter(owns).length,
+      spans: geo(listed, state.span, (id) => put({ span: id, stack: false })),
+      detail: detail(listed.find((span) => span.id === state.span)),
+    },
+    logger: {
+      filters: FILTERS.map((id) => ({ id, n: live.filter((span) => KEEP[id](span, faulty)).length, on: state.filter === id, pick: () => put({ filter: id }) })),
+      spans: geo(logged, state.logSpan, (id) => put({ logSpan: id, stack: false })),
+      detail: detail(logged.find((span) => span.id === state.logSpan)),
+    },
+    stack: state.stack,
+    toggleStack: () => put({ stack: !state.stack }),
+  };
+};
+
+const WIDE = 112;
+const BODY = 29;
+const COLS = [34, 44, 32];
+const LOG = [70, 41];
+const KEY = 15;
+const TONE = { run: 'P', pos: 'G', neg: 'N', '': 'i' };
+
+const seg = (c, t, go = null) => ({ c, t, go });
+const len = (segs) => segs.reduce((total, s) => total + [...s.t].length, 0);
+const blank = (w) => [seg('i', ' '.repeat(Math.max(0, w)))];
+const fit = (segs, w) => {
+  const out = [];
+  let used = 0;
+  for (const s of segs) {
+    const chars = [...s.t];
+    if (used + chars.length <= w) {
+      out.push(s);
+      used += chars.length;
+    } else {
+      const room = w - used;
+      if (room > 0) out.push({ ...s, t: `${chars.slice(0, room - 1).join('')}…` });
+      used = w;
+      break;
+    }
+  }
+  return used < w ? [...out, ...blank(w - used)] : out;
+};
+const row = (left, right, w) => [...fit(left, Math.max(0, w - len(right))), ...right];
+const inv = (segs) => segs.map((s) => ({ ...s, c: `${s.c} inv` }));
+const wrap = (text, w) => text.split('\n').flatMap((line) => {
+  const words = line.split(' ');
+  const lines = [''];
+  for (const word of words) {
+    const last = lines[lines.length - 1];
+    if (last === '') lines[lines.length - 1] = word;
+    else if ([...last].length + 1 + [...word].length <= w) lines[lines.length - 1] = `${last} ${word}`;
+    else lines.push(word);
+  }
+  return lines;
+});
+const pane = (rows, w, count) =>
+  Array.from({ length: count }, (_, index) => (index < rows.length ? fit(rows[index], w) : blank(w)));
+const around = (rows, cur, room) => {
+  if (rows.length <= room) return rows;
+  const start = Math.max(0, Math.min(cur - Math.floor(room / 3), rows.length - room));
+  return rows.slice(start, start + room);
+};
+const capped = (rows, room, w) => (rows.length <= room ? rows
+  : [...rows.slice(0, room - 1), row([seg('m', ` … ${rows.length - room + 1} more`)], [], w)]);
+
+const tree = (m, w) => {
+  const tokens = m.lenses.map((l) => seg(l.on ? 'inv' : 'm', ` ${l.label}${l.n ? ` ${l.n}` : ''} `, l.pick));
+  const strip = tokens.reduce((lines, token) => {
+    const last = lines[lines.length - 1];
+    return len(last) + len([token]) <= w - 1 ? [...lines.slice(0, -1), [...last, token]] : [...lines, [token]];
+  }, [[]]).map((line) => row([seg('i', ' '), ...line], [], w));
+  const head = [row([seg('m', ` ⌕ ${m.query === '' ? 'filter' : m.query}`)], [], w), ...strip];
+  const rows = m.nodes.map((node) => {
+    const left = [
+      seg('i', ' '.repeat(1 + (node.depth <= 3 ? node.depth * 2 : 3 + node.depth)), node.pick),
+      seg('m', node.sign === '' ? ' ' : node.sign, node.fold),
+      seg('i', ' ', node.pick),
+      seg(node.strong ? 's b' : 'i', node.name, node.pick),
+      ...(node.quiet ? [seg('m', ` ${node.quiet}`, node.pick)] : []),
+    ];
+    const right = [
+      ...(node.bang || node.tail ? [seg('i', ' ')] : []),
+      ...(node.bang ? [seg('N b', '! ')] : []),
+      ...(node.tail === 'dot' ? [seg('G', '●')] : node.tail === 'live' ? [seg('P', node.tailText)]
+        : node.tail === 'count' ? [seg('m', node.tailText)] : []),
+      seg('i', ' '),
+    ];
+    const built = row(left, right, w);
+    return node.cur ? inv(built) : built;
+  });
+  const cur = m.nodes.findIndex((node) => node.cur);
+  return [...head, ...around(rows, cur, BODY - head.length)];
+};
+
+const value = (r, w) => {
+  const tone = r.cls.includes('is-fault') ? 'N' : r.cls.includes('is-cast') ? 'm' : 's';
+  const TYPES = {
+    text: () => (r.v === '' ? [[]] : wrap(r.v, w).map((line) => [seg(tone, line)])),
+    link: () => [[seg('P', '→ '), seg('l', r.v, r.go)]],
+    select: () => [[seg('s', r.v, r.cycle), seg('m', ' ▾', r.cycle)]],
+    step: () => {
+      const lit = Math.round((r.lit / r.of) * 8);
+      return [[seg('P', '‹', r.less), seg('s', ` ${r.v} `), seg('P', '›', r.more), seg('i', ' '),
+        seg('i', '▰'.repeat(lit)), seg('m', '▱'.repeat(8 - lit))]];
+    },
+    field: () => [[seg(r.v === '' ? 'm' : 's', r.v === '' ? 'name' : r.v)]],
+    choice: () => r.opts.reduce((lines, o) => {
+      const token = seg(o.on ? 'inv' : 'm', ` ${o.name} `, o.pick);
+      const last = lines[lines.length - 1];
+      return len(last) + len([token]) <= w || last.length === 0
+        ? [...lines.slice(0, -1), [...last, token]] : [...lines, [token]];
+    }, [[]]),
+  };
+  return TYPES[r.type]();
+};
+
+const kv = (r, w) => {
+  const mark = r.cls.includes('is-changed') ? seg('P', '▎') : seg('i', ' ');
+  const sub = r.cls.includes('is-sub') ? '  ' : '';
+  const keyTone = r.cls.includes('is-worn') ? 's b' : r.cls.includes('is-cast') ? 'm' : 'i';
+  const key = `${sub}${r.k}`;
+  const keyText = [...key].length >= KEY ? `${[...key].slice(0, KEY - 2).join('')}… ` : key.padEnd(KEY);
+  const q = [...r.q].length > 18 ? `${[...r.q].slice(0, 17).join('')}…` : r.q;
+  const right = [...(q ? [seg('m', q)] : []), seg('i', ' ')];
+  const room = w - 1 - KEY - len(right);
+  const lines = value(r, room);
+  return lines.map((line, index) => (index === 0
+    ? row([mark, seg(keyTone, keyText), ...line, ...(r.bang ? [seg('N b', ' !')] : [])], right, w)
+    : row([seg('i', ' '.repeat(1 + KEY)), ...line], [], w)));
+};
+
+const object = (m, w) => {
+  const node = m.node;
+  const acts = node.acts.map((a) => seg(a.on ? 'inv' : 'P', ` ${a.name} `, a.run));
+  const head = [
+    row([seg('m', ` ${node.kind.toUpperCase()} `), seg('s b', node.title)], [...acts, seg('i', ' ')], w),
+    row([seg('i', ' '), ...node.crumbs.flatMap((c) => [seg('l', c.name, c.pick), seg('m', ' › ')]), seg('m', node.kind)], [], w),
+    row([seg('m', ` ${node.ref}`)], [], w),
+  ];
+  const peek = node.peek === '' ? [] : [...wrap(node.peek, w - 3).map((line) => row([seg('i', ` ${line}`)], [], w)), blank(w)];
+  const body = node.json !== ''
+    ? node.json.split('\n').map((line) => row([seg('m', ` ${line}`)], [], w))
+    : node.sections.flatMap((s) => [row([seg('m', ` ${s.label.toUpperCase()}`)], [], w), ...s.rows.flatMap((r) => kv(r, w))]);
+  return capped([...head, ...peek, ...body], BODY, w);
+};
+
+const told = (d, stack, toggle, w) => (d === null ? [] : [
+  blank(w),
+  row([seg('m', ` ${d.path}`)], [], w),
+  ...wrap(d.meta, w - 2).map((line) => row([seg('i', ` ${line}`)], [], w)),
+  ...(d.fault ? [
+    row([seg('N b', ` ${d.fault[0]}`)], [], w),
+    ...wrap(d.fault[1], w - 2).map((line) => row([seg('N', ` ${line}`)], [], w)),
+  ] : []),
+  ...(d.input ? [row([seg('m', ' input '), seg('i', d.input)], [], w)] : []),
+  ...d.recs.map((r) => row([seg('m', ` ${r.t.padEnd(6)}`), seg('i', r.k.padEnd(8)), seg(TONE[r.c], r.v)], [], w)),
+  ...(d.stack ? [row([seg('m', ` ${stack ? '▾' : '▸'} stack`, toggle)], [], w)] : []),
+  ...(d.stack && stack ? wrap(d.stack, w - 2).map((line) => row([seg('m', ` ${line}`)], [], w)) : []),
+]);
+
+const spanned = (s, w, bars) => {
+  const pick = s.pick;
+  const msTone = s.ms === 'live' ? 'P' : s.slow ? 'C' : 'm';
+  const bar = bars === 0 ? [] : (() => {
+    const from = Math.min(bars - 1, Math.round((Number(s.l) / 100) * bars));
+    const span = Math.max(1, Math.min(bars - from, Math.round((Number(s.w) / 100) * bars)));
+    return [seg('m', '·'.repeat(from), pick), seg(s.tone, '━'.repeat(span), pick),
+      seg('m', '·'.repeat(bars - from - span), pick), seg('i', ' ')];
+  })();
+  const built = row([
+    seg('i', ` ${'  '.repeat(Math.min(s.depth, 5))}`, pick), seg(s.tone, s.tone === 'm' ? '○' : '●', pick), seg('i', ' ', pick),
+    seg(s.depth === 0 ? 's' : 'i', s.name, pick), ...(s.quiet ? [seg('m', ` ${s.quiet}`, pick)] : []),
+    ...(s.bang ? [seg('N b', ' !', pick)] : []),
+  ], [...bar, seg(msTone, s.ms.padStart(5), pick), seg('i', ' ')], w);
+  return s.cur ? inv(built) : built;
+};
+
+const trace = (m, w) => {
+  const t = m.trace;
+  const head = row([seg('m', ' TRACE')], [
+    seg(t.only === 'all' ? 'inv' : 'm', ` all ${t.nAll} `, () => t.setOnly('all')),
+    seg(t.only === 'faults' ? 'inv' : 'N', ` ! ${t.nFaults} `, () => t.setOnly('faults')),
+    seg('i', ' '),
+  ], w);
+  const rows = t.spans.map((s) => spanned(s, w, 0));
+  const cur = t.spans.findIndex((s) => s.cur);
+  const listed = rows.length ? around(rows, cur, 10) : [row([seg('m', ' no span touches this')], [], w)];
+  return capped([head, ...listed, ...told(t.detail, m.stack, m.toggleStack, w)], BODY, w);
+};
+
+const logger = (m, w) => {
+  const head = row([seg('i', ' '), ...m.logger.filters.map((f) =>
+    seg(f.on ? 'inv' : f.id === 'faults' && f.n ? 'N' : 'm', ` ${f.id} ${f.n} `, f.pick))], [], w);
+  const rows = m.logger.spans.map((s) => spanned(s, w, 24));
+  const cur = m.logger.spans.findIndex((s) => s.cur);
+  return [head, ...(rows.length ? around(rows, cur, BODY - 1) : [row([seg('m', ' no spans · the watermark moved')], [], w)])];
+};
+
+const header = (m) => row([
+  seg('m', ' telemetry  '),
+  seg(m.tab === 'inspector' ? 'inv' : 'm', ' inspector ', () => m.toTab('inspector')),
+  seg('i', ' '),
+  seg(m.tab === 'logger' ? 'inv' : 'm', ` logger ${m.records} `, () => m.toTab('logger')),
+], [...(m.faults ? [seg('N b', ` ! ${m.faults} `, m.toFaults)] : []), seg('i', '  '), seg('m', 'esc', m.close), seg('i', ' ')], WIDE);
+
+const KEYS = row([seg('P b', ' j k'), seg('m', ' move   '), seg('P b', 'l'), seg('m', ' open   '), seg('P b', 'h'),
+  seg('m', ' back   '), seg('P b', 'tab'), seg('m', ' pane   '), seg('P b', '/'), seg('m', ' filter   '),
+  seg('P b', 'y'), seg('m', ' copy   '), seg('P b', 't'), seg('m', ' logger   '), seg('P b', 'esc'), seg('m', ' close')], [], WIDE);
+
+const joined = (panes, widths) => Array.from({ length: BODY }, (_, index) =>
+  panes.flatMap((rows, at) => [...(at ? [seg('bd', '│')] : []), ...pane(rows, widths[at], BODY)[index]]));
+
+const lines = (m) => {
+  if (!m.open) {
+    return [
+      { c: 'lf', segs: row([seg('m', ' telemetry closed   '), seg('P', ' open ', m.reopen)], [seg('m', 'leader s t ')], WIDE) },
+      ...Array.from({ length: BODY + 2 }, () => ({ c: '', segs: blank(WIDE) })),
+    ];
+  }
+  const body = m.tab === 'inspector'
+    ? joined([tree(m, COLS[0]), object(m, COLS[1]), trace(m, COLS[2])], COLS)
+    : joined([logger(m, LOG[0]), told(m.logger.detail, m.stack, m.toggleStack, LOG[1])], LOG);
+  return [
+    { c: 'lf', segs: header(m) },
+    ...body.map((segs) => ({ c: '', segs })),
+    { c: '', segs: [seg('bd', '─'.repeat(WIDE))] },
+    { c: '', segs: KEYS },
+  ];
+};
+
+class Component extends DCLogic {
+  state = INITIAL();
+  theme() { return this.state.changed.includes('app.theme') ? this.state.vals['app.theme'] : (this.props.theme ?? 'northsea'); }
+  themed() { document.documentElement.setAttribute('data-theme', this.theme()); }
+  componentDidMount() { this.themed(); }
+  componentDidUpdate() { this.themed(); }
+  renderVals() {
+    const m = derive(this, {});
+    return {
+      lines: lines(m).map((line) => ({
+        c: line.c,
+        segs: line.segs.map((s) => ({ c: s.c, t: s.t, go: s.go, btn: s.go !== null, txt: s.go === null })),
+      })),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -501,7 +501,7 @@ export const strip = (vector = new Vector(), pluck = edgeMeta) =>
   `meta.valence` of `branches`.
 - `catalog(repl)` `keymap.js:31-34` → entries `{nature, valence, chord, options, args, input}`;
   set on `terminal.repl.$catalog` (`ghost/subjects/app/commands/repl.js:16`); read by
-  `ghost/gestalten/belt/completions.js:24,38` and both repl panels.
+  `ghost/gestalten/belt/catalog.js:43,54` and both repl panels.
 
 ## (e) schematics
 

@@ -1,4 +1,4 @@
-import { createResource, createSignal, For, from, onCleanup, onMount, Show } from "solid-js";
+import { createEffect, createMemo, createResource, For, from, onCleanup, Show } from "solid-js";
 import { useRenderer } from "@opentui/solid";
 import { atom } from "@vivalence/typology";
 import * as ambient from "../../ambient/index.js";
@@ -9,11 +9,11 @@ import * as belt from "../../../../gestalten/belt/index.js";
 const named = (buffer) => buffer.trait.LABELED.name;
 
 export const KEYS = {
-  frame: { label: "⇥ keys to the dock", signal: "/focus composer" },
+  frame: { label: "⇥ keys to the dock", signal: "/focus dock" },
   elsewhere: { label: "⇥ keys to the frame", signal: "/focus frame" },
 };
 
-export const keyed = (focus) => (focus === "frame" ? KEYS.frame : KEYS.elsewhere);
+export const keyed = (focus) => (focus === "frame.view" ? KEYS.frame : KEYS.elsewhere);
 
 
 function Hint(props) {
@@ -97,22 +97,38 @@ export function Mounted(props) {
   const app = ambient.app.consume();
   const terminal = ambient.terminal.consume();
   const renderer = useRenderer();
-  const [fault, setFault] = createSignal(null);
+  const host = props.buffer.mode.daemon === null ? terminal.client.runtime : props.buffer.mode.daemon;
+  const status = from(host.$status);
+  const files = from(terminal.client.runtime.entities.file.$entities);
+  const fingerprint = () => {
+    files();
+    return props.view.files.find((file) => file.path === props.view.entry)?.integrity;
+  };
+  const [module] = createResource(
+    () => status().code === "HEALTHY" && [props.view, fingerprint()],
+    ([view]) => belt.view.load(view, terminal.client.runtime.attach),
+  );
+  const loaded = createMemo(() => (module.error === undefined ? module.latest : undefined));
   let element;
-  onMount(() => {
-    const mounted = belt.view
-      .load(props.view, terminal.client.runtime.attach)
-      .then((module) => module.default(element, { terminal, buffer: props.buffer, renderer, palette: props.palette, focused: props.focused, display: app.display }));
-    mounted.catch((error) => {
-      setFault(error.message);
-      terminal.controller.stdout.fault(error);
+  createEffect(() => {
+    if (module.error !== undefined) terminal.controller.stdout.fault(module.error);
+  });
+  createEffect(() => {
+    if (loaded() === undefined) return;
+    const handle = loaded().default(element, {
+      terminal,
+      buffer: props.buffer,
+      renderer,
+      palette: props.palette,
+      focused: props.focused,
+      display: app.display,
     });
-    onCleanup(() => mounted.then((handle) => handle.destroy(), () => undefined));
+    onCleanup(() => handle.destroy());
   });
   return (
     <box style={{ flexDirection: "column", flexGrow: 1, minHeight: 0, overflow: "hidden" }}>
-      <Show when={fault() !== null}>
-        <text fg={props.palette.signalNegativeInk} style={{ paddingLeft: 1 }}>{`✕ ${fault()}`}</text>
+      <Show when={module.error !== undefined}>
+        <text fg={props.palette.signalNegativeInk} style={{ paddingLeft: 1 }}>{`✕ ${module.error.message}`}</text>
       </Show>
       <box ref={element} style={{ flexDirection: "column", flexGrow: 1, minHeight: 0, overflow: "hidden" }} />
     </box>
@@ -152,7 +168,7 @@ function Framed(props) {
         <text fg={props.palette.signalNegativeInk} style={{ paddingLeft: 1 }}>{`✕ ${settled.error.message}`}</text>
       </Show>
       <Show when={view()} keyed fallback={<Floor palette={props.palette} buffer={props.buffer} />}>
-        {(held) => <Mounted palette={props.palette} buffer={props.buffer} view={held} focused={() => focus() === "frame"} />}
+        {(held) => <Mounted palette={props.palette} buffer={props.buffer} view={held} focused={() => focus() === "frame.view"} />}
       </Show>
     </>
   );

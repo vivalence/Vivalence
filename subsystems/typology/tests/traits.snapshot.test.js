@@ -19,10 +19,10 @@ describe("snapshot: thread traits", () => {
     expect(pojo.properties.depth.default).toBe(1);
   });
 
-  it("captures the thread vocabulary — six names, each defaulted", () => {
+  it("captures the thread vocabulary — eight names, each defaulted", () => {
     const { pojo } = snapshot(v.traits.thread, { base, locate: "trait-thread.snapshot.json", parse: (schema) => schema });
-    expect(Object.keys(pojo.properties)).toEqual(["LABELED", "INTELLIGENT", "VOCAL", "AIMED", "MASKED", "QUEUEING"]);
-    expect(pojo.properties.INTELLIGENT.properties.rounds.default).toBe(12);
+    expect(Object.keys(pojo.properties)).toEqual(["LABELED", "HARNESSED", "CONVERSATIONAL", "TOOLED", "PRIMED", "AIMED", "MASKED", "QUEUEING"]);
+    expect(pojo.properties.HARNESSED.properties.rounds.default).toBe(12);
   });
 });
 

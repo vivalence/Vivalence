@@ -1,0 +1,52 @@
+#+title: harness-layout — live cache measurements, 11-16
+# writer: agent · limit: 4000 chars
+
+* anthropic — two loads in one thread, =cache-loads.probe.js <model> <carrier>=
+
+Usage as returned; written · read per request (thread opens → first load → second load). Every run: the model called the freshly loaded tool.
+| model | carrier | opens | first load | second load |
+|-------+---------+-------+------------+-------------|
+| claude-haiku-5-5 | system | 15414 · 0 | 58 · 15414 | 267 · 15472 |
+| claude-haiku-5-5 | split | 15416 · 0 | 153 · 15416 | 243 · 15569 |
+| claude-sonnet-5-5 | system | 15416 · 0 | 58 · 15416 | 267 · 15474 |
+| claude-sonnet-5-5 | split | 15416 · 0 | 153 · 15416 | 243 · 15569 |
+| claude-opus-5-5 | system | 15416 · 0 | 58 · 15416 | 267 · 15474 |
+| claude-opus-5-5 | split | 15416 · 0 | 153 · 15416 | 243 · 15569 |
+
+- system = a =role: system= turn: primer text + =tool_addition=
+- split = the =load= call's =tool_result= holds ONLY ={ type: "tool_reference", tool_name }=; the primer is a text block beside it in the same user turn
+- primer text INSIDE the =tool_result= beside a =tool_reference=: 400 =Tool definitions/code execution functions cannot be mixed with other content=
+- ={ type: "tool_reference", name }= inside a =tool_result=: 400 =tool_name: Field required=
+
+* openrouter — =cache-openrouter.probe.js <model>=; no deferred tools there: the primer rides the tool result as text, the tool is ADDED to the list
+
+=prompt_tokens · cached_tokens= as returned
+| model | opens | opens again | load, list unchanged | load, tool added | again |
+|-------+-------+-------------+----------------------+------------------+-------|
+| google/gemini-3.5-flash-lite | 12674 · 12633 | 12674 · 12633 | 12718 · 12633 | 12741 · 12656 | 12741 · 12656 |
+| google/gemini-3.8-flash | 12674 · 12633 | 12674 · 12633 | 12718 · 12633 | 12741 · 12656 | 12741 · 12656 |
+| openai/gpt-6.1-sol | 10927 · 0 | 10927 · 10924 | 10984 · 10924 | 11005 · 0 | 11005 · 11002 |
+
+- gpt: an added tool is one full miss, cached again on the next request
+- gemini: reports cached on the FIRST request too — not understood, unverified
+- gemini-3.5-flash-lite called =modeB_search= while it was NOT declared (list unchanged); gpt-6.1-sol called =modeA_deal= there
+
+* after a compact — live, 11-16, haiku-5-5, =seam.probe.js=
+
+The tool list declares =modeB_search= normally (not deferred), the system prompt holds its primer, and a kept turn still holds the load (reference + primer). Accepted on both carriers; the model called =modeB_search=.
+
+| carrier | written | read |
+|---------+---------+------|
+| split   |   15616 |    0 |
+| system  |     182 | 15339 |
+
+The second run reads the first run's head: same system, same tools.
+
+* the summary, moved from the quest 11-17
+
+a load appended 67 written · 15266 read; the system prompt changed 15326 · 0
+
+* the probes, moved 11-17
+
+COVERAGE GAP, the probes: 17 die under an EMPTY HOME (=package @education not supplied=) · =is.test.js:10= writes =./undefined= without argv.
+BUILT 11-17, /"build this!!!!!"/: =system= from =PRIMED= — =system.test.js= =primed=, the twin of =rounds.test.js:7= =tooled=, green. COVERAGE GAP: old turns naming an undeclared tool: provider unprobed (paid) · the design's tools never over the wire.

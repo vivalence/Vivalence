@@ -1,0 +1,804 @@
+#+title: m122 harness-layout — the tangle, milestone by milestone
+# writer: agent · limit: 60000 chars
+
+* the thread words
+
+Moves (=mv= first, each block on the NEW path):
+
+| from | to | rides |
+|------|----|-------|
+| =subsystems/typology/schematics/traits/vocal.js= | =subsystems/typology/schematics/traits/conversational.js= | Q1A |
+| =subsystems/typology/schematics/traits/intelligent.js= | =subsystems/typology/schematics/traits/harnessed.js= | Q2A · Q19 · Q27 |
+| =systems/ghost/gestalten/belt/intelligent.js= | =systems/ghost/gestalten/belt/harnessed.js= | Q2A |
+
+Deletes:
+
+| path | rides |
+|------|-------|
+
+*** commons/dashboards
+**** dataspace
+***** schema.js
+#+BEGIN_SRC diff
+// commons/dashboards/dataspace/schema.js:12
+   ],
+-  thread: ["MASKED", "AIMED", "QUEUEING", "LABELED", "INTELLIGENT", "VOCAL"],
++  thread: ["MASKED", "AIMED", "QUEUEING", "LABELED", "HARNESSED", "CONVERSATIONAL"],
+   buffer: ["LABELED"],
+…
+// commons/dashboards/dataspace/schema.js:53
+   PREPARED: [{ key: "parts", kind: "json", optional: true }, { key: "tools", kind: "json", optional: true }],
+-  INTELLIGENT: [
++  HARNESSED: [
+     { key: "tier", kind: "string", optional: true },
+…
+// commons/dashboards/dataspace/schema.js:58
+     { key: "thinking", kind: "boolean", optional: true },
++    { key: "slugging", kind: "enum", options: ["deep", "nested"], optional: true },
+   ],
+-  VOCAL: [
+-    { key: "language", kind: "string", optional: true }, { key: "tier", kind: "string", optional: true },
++  CONVERSATIONAL: [
++    { key: "language", kind: "json", optional: true }, { key: "hear", kind: "json", optional: true },
++    { key: "speak", kind: "json", optional: true }, { key: "call", kind: "json", optional: true },
+     { key: "polish", kind: "boolean", optional: true },
+#+END_SRC
+*** commons/hallucinators
+**** deepgram/provider
+***** index.js — Q1A, mine (Q15)
+#+BEGIN_SRC diff
+// commons/hallucinators/deepgram/provider/index.js:69
++
++const spoken = (languages = []) => (languages.length === 1 ? languages[0] : "multi");
++
++const hinted = (languages = []) => languages.map((language) => `&language_hint=${language}`).join("");
+
+ const word = (entry) => ({
+…
+// commons/hallucinators/deepgram/provider/index.js:133
+     },
+-    config: { language: "multi" },
++    config: { language: [] },
+     via: {
+…
+// commons/hallucinators/deepgram/provider/index.js:139
+             `model=nova-3&encoding=linear16&sample_rate=16000&` +
+-            `language=${config.language ?? "multi"}&` +
++            `language=${spoken(config.language)}&` +
+             `interim_results=true&punctuate=true&vad_events=true&` +
+…
+// commons/hallucinators/deepgram/provider/index.js:172
+             (config.eotTimeout ? `&eot_timeout_ms=${config.eotTimeout}` : "") +
+-            (config.hints ?? []).map((hint) => `&language_hint=${hint}`).join(
+-              "",
+-            ),
++            hinted(config.language),
+           protocols,
+#+END_SRC
+**** deepgram/tests
+***** provider.test.js
+#+BEGIN_SRC diff
+// commons/hallucinators/deepgram/tests/provider.test.js:19
+       }
+-      specimen.expect(faculties[0].config.language).toBe("multi");
++      specimen.expect(faculties[0].config.language).toEqual([]);
+     },
+#+END_SRC
+*** commons/instances
+**** hello-world/tools
+***** research.js
+#+BEGIN_SRC diff
+// commons/instances/hello-world/tools/research.js:3
+
+-// the researcher's own budget — NOT the thread's INTELLIGENT.rounds, which is the OUTER
++// the researcher's own budget — NOT the thread's HARNESSED.rounds, which is the OUTER
+ // conversation's per-turn tool cap and would starve a research pass if it were dialed low.
+#+END_SRC
+*** subsystems/drapes
+**** tests/parts
+***** tele.test.js
+#+BEGIN_SRC diff
+// subsystems/drapes/tests/parts/tele.test.js:82
+       rows: [
+-        row("● INTELLIGENT", "tier capable", { cls: "is-worn" }),
++        row("● HARNESSED", "tier capable", { cls: "is-worn" }),
+         row("tier", "capable", { cls: "is-sub", edit: { nature: "/set", path: "thread.tier", kind: "select", opts: ["fast", "capable"], value: "capable" } }),
+#+END_SRC
+*** subsystems/typology
+**** entities
+***** Thread.ts — Q40
+#+BEGIN_SRC diff
+// subsystems/typology/entities/Thread.ts:66
+   hooks: {
++    onLoad: [
++      (args: any) => {
++        Object.assign(args.entity, belt.traits.heal(args.entity, v.thread.traits));
++      },
++    ],
+     beforeCreate: [
+…
+// subsystems/typology/entities/Thread.ts:81
+       (args: any) => {
+-        args.entity.traits = [...new Set([...args.entity.traits, "INTELLIGENT", "VOCAL"])];
++        args.entity.traits = [...new Set([...args.entity.traits, "HARNESSED", "CONVERSATIONAL"])];
+         args.entity.trait = belt.traits.cast(args.entity, v.thread.traits);
+#+END_SRC
+**** gestalten/belt
+***** traits.js — Q40
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/belt/traits.js:25
++
++export function heal(entity, vocabulary) {
++  if (!vocabulary.retired) return { traits: entity.traits, trait: entity.trait };
++  const heir = (name) => vocabulary.retired[name] ?? name;
++  return {
++    traits: entity.traits.map(heir),
++    trait: Object.fromEntries(Object.entries(entity.trait).map(([name, data]) => [heir(name), data])),
++  };
++}
+
+ export function cast(entity, vocabulary) {
+-  const undeclared = vocabulary.additionalProperties ? [] : entity.traits.filter((name) => !Object.hasOwn(vocabulary.properties, name));
++  const healed = heal(entity, vocabulary);
++  const undeclared = vocabulary.additionalProperties ? [] : healed.traits.filter((name) => !Object.hasOwn(vocabulary.properties, name));
+   if (undeclared.length) throw new Error(`[traits] ${entity.id}: no trait ${undeclared.join(" · ")} in a vocabulary of ${Object.keys(vocabulary.properties).join(" · ")}`);
+-  const trait = vocabulary.fill(entity.trait);
+-  const claimed = [...vocabulary.errors(trait)].filter((error) => entity.traits.includes(error.instancePath.split("/")[1]));
++  const trait = vocabulary.fill(healed.trait);
++  const claimed = [...vocabulary.errors(trait)].filter((error) => healed.traits.includes(error.instancePath.split("/")[1]));
+   if (claimed.length) throw new Error(`[traits] ${entity.id}: ${claimed.map((error) => `${error.instancePath} ${error.message}`).join(" · ")}`);
+#+END_SRC
+**** gestalten/shard
+***** hal.js — Q1A
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shard/hal.js:49
+ export const verbatim = ({ polish, tier } = {}) => async (ctx) => {
+-  const vocal = ctx.vocal;
++  const conversational = ctx.conversational;
+   const source = ctx.input.source ?? (ctx.request.raw?.body && ctx.request.subscribe());
+   if (!source) throw new Error("[hal.verbatim] no audio source — pass input.source or feed the request body");
+-  const picked = { provider: vocal.provider, id: vocal.id, tier: vocal.tier ?? tier, tune: vocal.tune };
++  const hear = conversational.hear;
++  const picked = { provider: hear.provider, id: hear.id, tier: hear.tier ?? tier, tune: hear.tune };
+   const controller = ctx.controller;
+…
+// subsystems/typology/gestalten/shard/hal.js:57
+     source,
+-    settings: { ...(vocal.language && { language: vocal.language }) },
+-    policy: { ...picked, ...(vocal.harmonize && { harmonize: vocal.harmonize }) },
++    settings: { language: conversational.language },
++    policy: { ...picked, ...(conversational.harmonize && { harmonize: conversational.harmonize }) },
+   });
+…
+// subsystems/typology/gestalten/shard/hal.js:69
+   };
+-  ctx.output = controlled(controller, !polish || vocal.polish === false ? events : polishing(events, repair));
++  ctx.output = controlled(controller, !polish || conversational.polish === false ? events : polishing(events, repair));
+ };
+#+END_SRC
+**** schematics/entities
+***** thread.js — Q1A · Q2A
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/thread.js:10
+     phase: v.enum(["inert", "manual", "continuous", "escort"]).default("manual").optional().desc("inert: the app manages itself · manual: cursor discipline, the app pulls · continuous: manual plus a queue kept at depth · escort: continuous, back to the launch buffer when the queue drains").example("manual"),
+-    traits: traits.names.thread.optional().desc("the trait names worn").example(["LABELED", "INTELLIGENT"]),
+-    trait: traits.thread.default({}).desc("trait data by name, the whole vocabulary filled").example({ LABELED: {}, INTELLIGENT: { effort: "low", rounds: 12, tier: "capable" }, VOCAL: {}, AIMED: {}, MASKED: {}, QUEUEING: { depth: 1 } }),
++    traits: traits.names.thread.optional().desc("the trait names worn").example(["LABELED", "HARNESSED"]),
++    trait: traits.thread.default({}).desc("trait data by name, the whole vocabulary filled").example({ LABELED: {}, HARNESSED: { effort: "low", rounds: 12, tier: "capable", slugging: "deep" }, CONVERSATIONAL: { language: [], hear: {}, speak: {}, call: {} }, AIMED: {}, MASKED: {}, QUEUEING: { depth: 1 } }),
+     counter: v.integer().default(0).optional().desc("buffers minted").example(3),
+…
+// subsystems/typology/schematics/entities/thread.js:25
+   narrowable: ["trait"],
+-  examples: [{ id: "01a1b609-5607-741b-98df-9899bdc62e02", user: "01a1b1c0-d3b4-724a-9452-32d250140280", mode: "01a1b1c0-f0c1-7559-a38c-d59d34854a75", intent: null, phase: "manual", traits: ["INTELLIGENT", "VOCAL"], trait: { LABELED: {}, INTELLIGENT: { effort: "low", rounds: 12, tier: "capable" }, VOCAL: {}, AIMED: {}, MASKED: {}, QUEUEING: { depth: 1 } }, counter: 3, parent: null }],
++  examples: [{ id: "01a1b609-5607-741b-98df-9899bdc62e02", user: "01a1b1c0-d3b4-724a-9452-32d250140280", mode: "01a1b1c0-f0c1-7559-a38c-d59d34854a75", intent: null, phase: "manual", traits: ["HARNESSED", "CONVERSATIONAL"], trait: { LABELED: {}, HARNESSED: { effort: "low", rounds: 12, tier: "capable", slugging: "deep" }, CONVERSATIONAL: { language: [], hear: {}, speak: {}, call: {} }, AIMED: {}, MASKED: {}, QUEUEING: { depth: 1 } }, counter: 3, parent: null }],
+ };
+#+END_SRC
+**** schematics/primitives
+***** contexts.js — Q1A · Q2A
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/contexts.js:36
+ export const tools = { tools: v.unknown().desc("The armed Vector the model may call, never domain.tools") };
+-export const intelligent = { intelligent: v.boolean().desc("The mode's harness.intelligent flag, lifted") };
+-export const vocal = { vocal: v.boolean().desc("The mode's harness.vocal flag, lifted") };
++export const harnessed = { harnessed: v.unknown().desc("The thread's HARNESSED, or null when it wears none") };
++export const conversational = { conversational: v.unknown().desc("The thread's CONVERSATIONAL, or null when it wears none") };
+ export const activity = { activity: v.unknown().desc("The Activity row this exchange is written to") };
+…
+// subsystems/typology/schematics/primitives/contexts.js:109
+ export const Tool = { ...vector, ...modeDie, ...user, ...optional(thread), ...optional(service) };
+-export const Harness = { ...vector, ...modeDie, ...user, ...thread, ...optional(turn), ...hallucination, ...tools, ...controller, ...intelligent, ...vocal, ...optional(activity), ...optional(screen) };
++export const Harness = { ...vector, ...modeDie, ...user, ...thread, ...optional(turn), ...hallucination, ...tools, ...controller, ...harnessed, ...conversational, ...optional(activity), ...optional(screen) };
+ export const Emitter = { ...vector, ...modeDie, ...pool, ...thread, ...optional(user) };
+#+END_SRC
+**** schematics/traits
+***** conversational.js — Q1A
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/traits/conversational.js:3
+
+-export const Vocal = v.object({
+-  language: v.string().optional(),
+-  ...Selector,
++export const Conversational = v.object({
++  language: v.array(v.string()).default([]),
++  hear: v.object({ ...Selector }).default({}),
++  speak: v.object({ ...Selector }).default({}),
++  call: v.object({ ...Selector }).default({}),
+   harmonize: v
+#+END_SRC
+***** harnessed.js — Q2A · Q19 · Q27
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/traits/harnessed.js:3
+
+-export const Intelligent = v.object({
++export const Harnessed = v.object({
+   ...Selector,
+…
+// subsystems/typology/schematics/traits/harnessed.js:9
+   thinking: v.boolean().optional(),
++  slugging: v
++    .enum(["deep", "nested"])
++    .default("deep")
++    .desc('How a tool or primer section is named: deep = its distance from this mode, nested = this mode\'s own behind its slug too. Example: "nested"'),
+ });
+#+END_SRC
+***** index.js — Q0 · Q1A · Q2A · Q40
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/traits/index.js:5
+ import { Themed } from "./themed.js";
+-import { Intelligent } from "./intelligent.js";
+-import { Vocal } from "./vocal.js";
++import { Harnessed } from "./harnessed.js";
++import { Conversational } from "./conversational.js";
+ import { Aimed } from "./aimed.js";
+…
+// subsystems/typology/schematics/traits/index.js:12
+
+-export { Docked, Themed, Intelligent, Vocal, Aimed, Masked, Queueing, Rendered };
++export { Docked, Themed, Harnessed, Conversational, Aimed, Masked, Queueing, Rendered };
+
+…
+// subsystems/typology/schematics/traits/index.js:22
+   HARNESSED: flag("runs under the daemon's harness: a model, a primer, tools"),
++  CONVERSATIONAL: flag("a human converses with it: typed, dictated, called"),
+   TOOLING: flag("brings tools the model can call"),
+…
+// subsystems/typology/schematics/traits/index.js:38
+   LABELED: Label.default({}).optional().desc("its name, read in the chrome").example({ name: "Q3 filings", description: "Third-quarter filings, due Friday" }),
+-  INTELLIGENT: Intelligent.default({}).optional().desc("which model answers its turns, with what budget").example({ provider: "anthropic", tier: "capable", effort: "low", rounds: 12, thinking: false }),
+-  VOCAL: Vocal.default({}).optional().desc("audio: its turns are spoken — language, voice, harmonizing, polish").example({ language: "it", provider: "openai", polish: true, harmonize: { window: 3, tolerance: 0.2, tail: 1 } }),
++  HARNESSED: Harnessed.default({})
++    .optional()
++    .desc("the model it talks to: which one, with what budget, how its tools are named")
++    .example({ provider: "anthropic", tier: "capable", effort: "low", rounds: 12, thinking: false, slugging: "deep" }),
++  CONVERSATIONAL: Conversational.default({})
++    .optional()
++    .desc("a human converses here: languages, the ear, the voice, the call")
++    .example({
++      language: ["it", "en"],
++      hear: { provider: "deepgram", id: "flux-general-multi" },
++      speak: { provider: "elevenlabs", tier: "fast" },
++      call: { provider: "openai" },
++      harmonize: { window: 3, tolerance: 0.2, tail: 1 },
++      polish: true,
++    }),
+   AIMED: Aimed.default({}).optional().desc("the emitter route it pulls buffers from").example({ mount: "/emitter/drill" }),
+…
+// subsystems/typology/schematics/traits/index.js:43
+   QUEUEING: Queueing.default({}).optional().desc("how many buffers it keeps queued ahead").example({ depth: 2 }),
+-});
++}, { retired: { INTELLIGENT: "HARNESSED", VOCAL: "CONVERSATIONAL" } });
+ export const buffer = v.object({
+#+END_SRC
+**** tests
+***** data-entity.test.js
+#+BEGIN_SRC diff
+// subsystems/typology/tests/data-entity.test.js:16
+     const em = orm.em.fork();
+-    em.persist(Object.assign(new Held(), { id: "th1", trait: { LABELED: { name: "hi" }, INTELLIGENT: { tier: "slow", effort: "low" } } }));
++    em.persist(Object.assign(new Held(), { id: "th1", trait: { LABELED: { name: "hi" }, HARNESSED: { tier: "slow", effort: "low" } } }));
+     await em.flush();
+-    const updated = await em.getRepository(Held).updateOne({ id: "th1" }, { trait: { INTELLIGENT: { tier: "fast" } } });
+-    specimen.expect(updated.trait).toEqual({ INTELLIGENT: { tier: "fast" } });
++    const updated = await em.getRepository(Held).updateOne({ id: "th1" }, { trait: { HARNESSED: { tier: "fast" } } });
++    specimen.expect(updated.trait).toEqual({ HARNESSED: { tier: "fast" } });
+
+#+END_SRC
+***** dictation.conversation.test.js
+#+BEGIN_SRC diff
+// subsystems/typology/tests/dictation.conversation.test.js:1
+-import { specimen, v, Controller, Cortex, Span, shard, sse, Context, sleep } from "@vivalence/typology";
++import { belt, specimen, v, Controller, Cortex, Span, shard, sse, Context, sleep } from "@vivalence/typology";
+ import { Verbatim, Audio } from "../schematics/primitives/hallucination.js";
+…
+// subsystems/typology/tests/dictation.conversation.test.js:4
+ const invalid = (schema, value) => [...v.errors(schema, value)].length > 0;
++const conversed = (conversational = {}) =>
++  belt.traits.cast({ id: "dictation", traits: ["CONVERSATIONAL"], trait: { CONVERSATIONAL: conversational } }, v.thread.traits).CONVERSATIONAL;
+
+…
+// subsystems/typology/tests/dictation.conversation.test.js:85
+
+-async function pipeline({ vocal = {}, hypotheses, final, correct, chunks = ["oi", "tudo", "bem"], polish = POLISH, delay }) {
++async function pipeline({ conversational = {}, hypotheses, final, correct, chunks = ["oi", "tudo", "bem"], polish = POLISH, delay }) {
+   const cortex = new Cortex().register([
+…
+// subsystems/typology/tests/dictation.conversation.test.js:93
+   ctx.controller = new Controller({ stdout: new Span("hallucination") });
+-  ctx.vocal = vocal;
++  ctx.conversational = conversed(conversational);
+   await shard.hal.verbatim({ polish })(ctx);
+…
+// subsystems/typology/tests/dictation.conversation.test.js:120
+       final: "so the plan is simple",
+-      vocal: { polish: false },
++      conversational: { polish: false },
+     });
+…
+// subsystems/typology/tests/dictation.conversation.test.js:135
+     ctx.controller = new Controller({ stdout: new Span("hallucination") });
+   ctx.controller = new Controller({ stdout: new Span("hallucination") });
+-    ctx.vocal = {};
++    ctx.conversational = conversed();
+     await shard.hal.verbatim({ polish: POLISH })(ctx);
+     const events = [];
+…
+// subsystems/typology/tests/dictation.conversation.test.js:160
+     ctx.controller = new Controller({ stdout: new Span("hallucination") });
+   ctx.controller = new Controller({ stdout: new Span("hallucination") });
+-    ctx.vocal = {};
++    ctx.conversational = conversed();
+     await shard.hal.verbatim({ polish: POLISH })(ctx);
+     const order = [];
+…
+// subsystems/typology/tests/dictation.conversation.test.js:170
+
+-  specimen.it("VOCAL harmonize options reach the harmonizer", async () => {
++  specimen.it("CONVERSATIONAL harmonize options reach the harmonizer", async () => {
+     const loose = await pipeline({
+…
+// subsystems/typology/tests/dictation.conversation.test.js:174
+       final: "one two three four five six",
+-      vocal: { polish: false, harmonize: { tail: 2 } },
++      conversational: { polish: false, harmonize: { tail: 2 } },
+     });
+#+END_SRC
+**** tests/gestalten/belt
+***** traits.patch.test.js
+#+BEGIN_SRC diff
+// subsystems/typology/tests/gestalten/belt/traits.patch.test.js:4
+   specimen.it("claims the new name once, sends every held trait with the touched one merged over its held fields; the entity is not mutated", () => {
+-    const thread = { traits: ["LABELED", "INTELLIGENT"], trait: { LABELED: { name: "flamingo" }, INTELLIGENT: { tier: "slow", effort: "low" } } };
+-    specimen.expect(traits.patch(thread, { INTELLIGENT: { tier: "fast" } })).toEqual({ traits: ["LABELED", "INTELLIGENT"], trait: { LABELED: { name: "flamingo" }, INTELLIGENT: { tier: "fast", effort: "low" } } });
+-    specimen.expect(traits.patch(thread, { DOCKED: { view: "closed" } })).toEqual({ traits: ["LABELED", "INTELLIGENT", "DOCKED"], trait: { LABELED: { name: "flamingo" }, INTELLIGENT: { tier: "slow", effort: "low" }, DOCKED: { view: "closed" } } });
+-    specimen.expect(thread.trait.INTELLIGENT).toEqual({ tier: "slow", effort: "low" });
++    const thread = { traits: ["LABELED", "HARNESSED"], trait: { LABELED: { name: "flamingo" }, HARNESSED: { tier: "slow", effort: "low" } } };
++    specimen.expect(traits.patch(thread, { HARNESSED: { tier: "fast" } })).toEqual({ traits: ["LABELED", "HARNESSED"], trait: { LABELED: { name: "flamingo" }, HARNESSED: { tier: "fast", effort: "low" } } });
++    specimen.expect(traits.patch(thread, { DOCKED: { view: "closed" } })).toEqual({ traits: ["LABELED", "HARNESSED", "DOCKED"], trait: { LABELED: { name: "flamingo" }, HARNESSED: { tier: "slow", effort: "low" }, DOCKED: { view: "closed" } } });
++    specimen.expect(thread.trait.HARNESSED).toEqual({ tier: "slow", effort: "low" });
+   });
+#+END_SRC
+**** tests
+***** traits.snapshot.test.js
+#+BEGIN_SRC diff
+// subsystems/typology/tests/traits.snapshot.test.js:23
+     const { pojo } = snapshot(v.traits.thread, { base, locate: "trait-thread.snapshot.json", parse: (schema) => schema });
+-    expect(Object.keys(pojo.properties)).toEqual(["LABELED", "INTELLIGENT", "VOCAL", "AIMED", "MASKED", "QUEUEING"]);
+-    expect(pojo.properties.INTELLIGENT.properties.rounds.default).toBe(12);
++    expect(Object.keys(pojo.properties)).toEqual(["LABELED", "HARNESSED", "CONVERSATIONAL", "AIMED", "MASKED", "QUEUEING"]);
++    expect(pojo.properties.HARNESSED.properties.rounds.default).toBe(12);
+   });
+#+END_SRC
+***** traits.test.js
+#+BEGIN_SRC diff
+// subsystems/typology/tests/traits.test.js:23
+     specimen.expect(Object.keys(v.traits.client.properties)).toEqual(["HOME", "DOCKED", "THEMED"]);
+-    specimen.expect(Object.keys(v.traits.thread.properties)).toEqual(["LABELED", "INTELLIGENT", "VOCAL", "AIMED", "MASKED", "QUEUEING"]);
++    specimen.expect(Object.keys(v.traits.thread.properties)).toEqual(["LABELED", "HARNESSED", "CONVERSATIONAL", "AIMED", "MASKED", "QUEUEING"]);
+     specimen.expect(Object.keys(v.traits.buffer.properties)).toEqual(["LABELED", "RENDERED"]);
+…
+// subsystems/typology/tests/traits.test.js:49
+   specimen.it("a claimed name is filled from its defaults and kept", () => {
+-    const thread = { id: "th-1", traits: ["QUEUEING", "INTELLIGENT"], trait: { QUEUEING: {}, INTELLIGENT: { tier: "fast" } } };
++    const thread = { id: "th-1", traits: ["QUEUEING", "HARNESSED"], trait: { QUEUEING: {}, HARNESSED: { tier: "fast" } } };
+     const trait = belt.traits.cast(thread, v.thread.traits);
+     specimen.expect(trait.QUEUEING).toEqual({ depth: 1 });
+-    specimen.expect(trait.INTELLIGENT).toEqual({ tier: "fast", effort: "low", rounds: 12 });
++    specimen.expect(trait.HARNESSED).toEqual({ tier: "fast", effort: "low", rounds: 12, slugging: "deep" });
+   });
+…
+// subsystems/typology/tests/traits.test.js:61
+     specimen.expect(trait.LABELED).toEqual({});
+-    specimen.expect(Object.keys(trait)).toEqual(["QUEUEING", "LABELED", "INTELLIGENT", "VOCAL", "AIMED", "MASKED"]);
++    specimen.expect(Object.keys(trait)).toEqual(["QUEUEING", "LABELED", "HARNESSED", "CONVERSATIONAL", "AIMED", "MASKED"]);
+   });
+…
+// subsystems/typology/tests/traits.test.js:67
+     specimen.expect(() => belt.traits.cast({ id: "th-1", traits: ["AIMED"], trait: {} }, v.thread.traits)).toThrow("/AIMED must have required properties mount");
+-    specimen.expect(() => belt.traits.cast({ id: "th-1", traits: ["INTELLIGENT"], trait: { INTELLIGENT: { rounds: 101 } } }, v.thread.traits)).toThrow("/INTELLIGENT/rounds");
++    specimen.expect(() => belt.traits.cast({ id: "th-1", traits: ["HARNESSED"], trait: { HARNESSED: { rounds: 101 } } }, v.thread.traits)).toThrow("/HARNESSED/rounds");
+   });
+…
+// subsystems/typology/tests/traits.test.js:71
+   specimen.it("an undeclared claimed name throws, the vocabulary named", () => {
+-    specimen.expect(() => belt.traits.cast({ id: "th-1", traits: ["RATED"], trait: {} }, v.thread.traits)).toThrow("[traits] th-1: no trait RATED in a vocabulary of LABELED · INTELLIGENT · VOCAL · AIMED · MASKED · QUEUEING");
++    specimen.expect(() => belt.traits.cast({ id: "th-1", traits: ["RATED"], trait: {} }, v.thread.traits)).toThrow("[traits] th-1: no trait RATED in a vocabulary of LABELED · HARNESSED · CONVERSATIONAL · AIMED · MASKED · QUEUEING");
+   });
+…
+// subsystems/typology/tests/traits.test.js:80
+     specimen.expect(() => belt.traits.cast({ id: "l-2", traits: ["LABELED"], trait: { LABELED: { name: 7 } } }, v.traits.literal)).toThrow("[traits] l-2: /LABELED/name");
+   });
++
++  specimen.it("Q40 — a retired name heals to its heir, names and data; a vocabulary without retired heals nothing", () => {
++    const stored = { id: "th-1", traits: ["INTELLIGENT", "VOCAL"], trait: { INTELLIGENT: { tier: "fast", rounds: 21 }, VOCAL: {} } };
++    const before = JSON.stringify(stored);
++    const healed = belt.traits.heal(stored, v.thread.traits);
++    const trait = belt.traits.cast(stored, v.thread.traits);
++    console.log(JSON.stringify({ healed, trait }, null, 2));
++    specimen.expect(healed).toEqual({
++      traits: ["HARNESSED", "CONVERSATIONAL"],
++      trait: { HARNESSED: { tier: "fast", rounds: 21 }, CONVERSATIONAL: {} },
++    });
++    specimen.expect(trait.HARNESSED).toEqual({ tier: "fast", effort: "low", rounds: 21, slugging: "deep" });
++    specimen.expect(trait.CONVERSATIONAL).toEqual({ language: [], hear: {}, speak: {}, call: {} });
++    specimen.expect(JSON.stringify(stored)).toBe(before);
++    const literal = { id: "l-1", traits: ["LABELED"], trait: { LABELED: { name: "ciao" } } };
++    specimen.expect(belt.traits.heal(literal, v.traits.literal)).toEqual({ traits: literal.traits, trait: literal.trait });
++  });
+#+END_SRC
+***** v.test.js
+#+BEGIN_SRC diff
+// subsystems/typology/tests/v.test.js:282
+   specimen.it("an entity's vocabulary is ONE schema — its names are its properties", () => {
+-    specimen.expect(Object.keys(v.thread.traits.properties)).toEqual(["LABELED", "INTELLIGENT", "VOCAL", "AIMED", "MASKED", "QUEUEING"]);
++    specimen.expect(Object.keys(v.thread.traits.properties)).toEqual(["LABELED", "HARNESSED", "CONVERSATIONAL", "AIMED", "MASKED", "QUEUEING"]);
+     specimen.expect(Object.keys(v.user.traits.properties)).toEqual(["HOME", "DOCKED", "THEMED"]);
+#+END_SRC
+*** systems/anima
+**** src/surfaces/chrome/panels/sidebar
+***** sections.js
+#+BEGIN_SRC diff
+// systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:42
+ export const harness = (runtime, thread) => {
+-  if (thread === null || !thread.traits.includes("INTELLIGENT")) return UNMINDED;
++  if (thread === null || !thread.traits.includes("HARNESSED")) return UNMINDED;
+   const { cortex, status } = thread.mode === null || thread.mode.daemon === null ? runtime : thread.mode.daemon;
+   if (status.code !== "HEALTHY") return UNMINDED;
+-  const { provider, id, tier, tune } = thread.trait.INTELLIGENT;
++  const { provider, id, tier, tune } = thread.trait.HARNESSED;
+   const model = cortex.findOne({ type: "dialogue", via: "stream", provider, id, tier, tune });
+…
+// systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:52
+     ...UNMINDED,
+-    ...thread.trait.INTELLIGENT,
++    ...thread.trait.HARNESSED,
+     tier: nearest === undefined ? UNCLAIMED : nearest,
+…
+// systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:127
+ export const SHARE = { floor: 0.2, ceiling: 0.8, step: 0.05 };
+-const BUDGET = v.thread.traits.properties.INTELLIGENT.properties.rounds;
++const BUDGET = v.thread.traits.properties.HARNESSED.properties.rounds;
+ export const ROUNDS = { min: BUDGET.minimum, max: BUDGET.maximum, step: 1 };
+…
+// systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:287
+
+-const intelligent = (world) => {
++const harnessed = (world) => {
+   const held = harness(world.runtime, world.thread);
+…
+// systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:409
+     ["activity", "activity", activity(world)],
+-    ["harness", "harness", intelligent(world)],
++    ["harness", "harness", harnessed(world)],
+     ["display", "display", display(world)],
+#+END_SRC
+**** src/surfaces/chrome/panels/telemetry
+***** entities.js
+#+BEGIN_SRC diff
+// systems/anima/src/surfaces/chrome/panels/telemetry/entities.js:354
+
+-const intelligent = (world) => {
++const harnessedTrait = (world) => {
+   const held = harness(world.app.client.runtime, world.thread);
+…
+// systems/anima/src/surfaces/chrome/panels/telemetry/entities.js:364
+ const minded = (world) => ({
+-  INTELLIGENT: (head) => [head, ...intelligent(world).map((held) => ({ ...held, cls: "is-sub" }))],
++  HARNESSED: (head) => [head, ...harnessedTrait(world).map((held) => ({ ...held, cls: "is-sub" }))],
+   LABELED: (head, value) => [{ ...edit(head.k, "name" in value ? value.name : "", { path: "thread.label", kind: "field" }), cls: head.cls }],
+…
+// systems/anima/src/surfaces/chrome/panels/telemetry/entities.js:412
+     secs: [
+-      ["intelligent", intelligent(world)],
++      ["harnessed", harnessedTrait(world)],
+       ["model", model === null ? [row("model", null, { q: "no cortex answers" })] : Object.entries(model).filter(([, value]) => scalar(value) || Array.isArray(value)).map(([key, value]) => row(key, value))],
+#+END_SRC
+**** tests
+***** world.js
+#+BEGIN_SRC diff
+// systems/anima/tests/world.js:59
+     mode: chat,
+-    traits: ["LABELED", "INTELLIGENT"],
+-    trait: { LABELED: { name: "first words" }, INTELLIGENT: { tier: "fast", effort: "low", rounds: 6 } },
++    traits: ["LABELED", "HARNESSED"],
++    trait: { LABELED: { name: "first words" }, HARNESSED: { tier: "fast", effort: "low", rounds: 6 } },
+     $buffers: atom([]),
+#+END_SRC
+*** systems/ghost
+**** gestalten/belt
+***** index.js
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/belt/index.js:6
+ export * as input from "./input.js";
+-export * as intelligent from "./intelligent.js";
++export * as harnessed from "./harnessed.js";
+ export * as journal from "./journal.js";
+#+END_SRC
+**** gestalten/commands/content
+***** harness.js
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/commands/content/harness.js:5
+ const Tiered = v.object({ tier: v.primitives.hallucination.Tier.desc('A tier. Example: "fast"') });
+-const Effortful = v.object({ effort: v.enum(belt.intelligent.EFFORTS).desc('Reasoning effort. Example: "high"') });
++const Effortful = v.object({ effort: v.enum(belt.harnessed.EFFORTS).desc('Reasoning effort. Example: "high"') });
+ const UNPINNED = { provider: null, id: null };
+…
+// systems/ghost/gestalten/commands/content/harness.js:17
+   valence:
+-    "pin the seated thread's model — INTELLIGENT.provider · id; words that narrow to one pin it, " +
++    "pin the seated thread's model — HARNESSED.provider · id; words that narrow to one pin it, " +
+     "else the repl narrows the models; /tier unpins. Example: /model openrouter openai/gpt-5",
+…
+// systems/ghost/gestalten/commands/content/harness.js:33
+   .open(
+-    { nature: "/tier", valence: "the seated thread's model tier — INTELLIGENT.tier. Example: /tier fast", input: Tiered, chord: "leader/h/t" },
++    { nature: "/tier", valence: "the seated thread's model tier — HARNESSED.tier. Example: /tier fast", input: Tiered, chord: "leader/h/t" },
+     async (ctx) => {
+-      const INTELLIGENT = belt.input.cast(Tiered, ctx.signal);
++      const HARNESSED = belt.input.cast(Tiered, ctx.signal);
+       await ctx.client.runtime.entities.thread.updateOne(
+         { id: ctx.terminal.thread.id },
+-        traits.patch(ctx.terminal.thread, { INTELLIGENT: { ...UNPINNED, ...INTELLIGENT, tune: tiers[INTELLIGENT.tier] } }),
++        traits.patch(ctx.terminal.thread, { HARNESSED: { ...UNPINNED, ...HARNESSED, tune: tiers[HARNESSED.tier] } }),
+       );
+-      return { INTELLIGENT };
++      return { HARNESSED };
+     },
+…
+// systems/ghost/gestalten/commands/content/harness.js:47
+       rank: "hidden",
+-      valence: "the seated thread's point in tune-space — INTELLIGENT.tune. Example: /tune 0.4 0.6 0.6",
++      valence: "the seated thread's point in tune-space — HARNESSED.tune. Example: /tune 0.4 0.6 0.6",
+       input: Tuned,
+…
+// systems/ghost/gestalten/commands/content/harness.js:52
+       const tuned = belt.input.cast(Tuned, ctx.signal);
+-      const INTELLIGENT = { tune: [tuned.intelligence, tuned.speed, tuned.thrift] };
++      const HARNESSED = { tune: [tuned.intelligence, tuned.speed, tuned.thrift] };
+       await ctx.client.runtime.entities.thread.updateOne(
+         { id: ctx.terminal.thread.id },
+-        traits.patch(ctx.terminal.thread, { INTELLIGENT }),
++        traits.patch(ctx.terminal.thread, { HARNESSED }),
+       );
+-      return { INTELLIGENT };
++      return { HARNESSED };
+     },
+…
+// systems/ghost/gestalten/commands/content/harness.js:61
+   .open(
+-    { nature: "/effort", valence: "the seated thread's reasoning effort — INTELLIGENT.effort. Example: /effort high", input: Effortful, chord: "leader/h/e" },
++    { nature: "/effort", valence: "the seated thread's reasoning effort — HARNESSED.effort. Example: /effort high", input: Effortful, chord: "leader/h/e" },
+     async (ctx) => {
+-      const INTELLIGENT = belt.input.cast(Effortful, ctx.signal);
+-      await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT }));
+-      return { INTELLIGENT };
++      const HARNESSED = belt.input.cast(Effortful, ctx.signal);
++      await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { HARNESSED }));
++      return { HARNESSED };
+     },
+…
+// systems/ghost/gestalten/commands/content/harness.js:69
+   .open(
+-    { nature: "/rounds", rank: "hidden", valence: "the seated thread's round budget — INTELLIGENT.rounds. Example: /rounds 12", input: Rounded, chord: "leader/h/r" },
++    { nature: "/rounds", rank: "hidden", valence: "the seated thread's round budget — HARNESSED.rounds. Example: /rounds 12", input: Rounded, chord: "leader/h/r" },
+     async (ctx) => {
+-      const INTELLIGENT = belt.input.cast(Rounded, ctx.signal);
+-      await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT }));
+-      return { INTELLIGENT };
++      const HARNESSED = belt.input.cast(Rounded, ctx.signal);
++      await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { HARNESSED }));
++      return { HARNESSED };
+     },
+…
+// systems/ghost/gestalten/commands/content/harness.js:83
+     const [provider, id] = belt.catalog.narrowed(models(ctx), words)[0].split(" ");
+-    const INTELLIGENT = { provider, id };
++    const HARNESSED = { provider, id };
+     await ctx.client.runtime.entities.thread.updateOne(
+       { id: ctx.terminal.thread.id },
+-      traits.patch(ctx.terminal.thread, { INTELLIGENT }),
++      traits.patch(ctx.terminal.thread, { HARNESSED }),
+     );
+-    return { INTELLIGENT };
++    return { HARNESSED };
+   });
+#+END_SRC
+**** gestalten/commands/system
+***** set.js
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/commands/system/set.js:32
+   at("thread.tier", v.primitives.hallucination.Tier.desc('A tier. Example: "fast"'), async (ctx, tier) => {
+-    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT: { provider: null, id: null, tier } }));
+-    return { INTELLIGENT: { tier } };
++    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { HARNESSED: { provider: null, id: null, tier } }));
++    return { HARNESSED: { tier } };
+   }),
+-  at("thread.effort", v.enum(belt.intelligent.EFFORTS).desc('Reasoning effort. Example: "high"'), async (ctx, effort) => {
+-    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT: { effort } }));
+-    return { INTELLIGENT: { effort } };
++  at("thread.effort", v.enum(belt.harnessed.EFFORTS).desc('Reasoning effort. Example: "high"'), async (ctx, effort) => {
++    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { HARNESSED: { effort } }));
++    return { HARNESSED: { effort } };
+   }),
+   at("thread.rounds", v.integer({ minimum: 1, maximum: 100 }).desc("The round budget. Example: 12"), async (ctx, rounds) => {
+-    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT: { rounds } }));
+-    return { INTELLIGENT: { rounds } };
++    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { HARNESSED: { rounds } }));
++    return { HARNESSED: { rounds } };
+   }),
+#+END_SRC
+**** tests/subjects/terminal
+***** commands.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/terminal/commands.test.js:463
+
+-  specimen.it("/tier · /effort · /rounds claim INTELLIGENT on the seated thread, field-wise; a value outside the schema is VALIDATION", async () => {
+-    specimen.expect(await run("/tier fast")).toEqual({ INTELLIGENT: { tier: "fast" } });
+-    specimen.expect(threads.writes.at(-1)).toMatchObject({ where: { id: "th1" }, data: { traits: ["LABELED", "INTELLIGENT"], trait: { LABELED: { name: "flamingo" }, INTELLIGENT: { tier: "fast" } } } });
+-    specimen.expect(threads.writes.at(-1).data.trait.INTELLIGENT.tune).toEqual(tiers.fast);
+-    specimen.expect(await run("/effort high")).toEqual({ INTELLIGENT: { effort: "high" } });
+-    specimen.expect(await run("/rounds 12")).toEqual({ INTELLIGENT: { rounds: 12 } });
++  specimen.it("/tier · /effort · /rounds claim HARNESSED on the seated thread, field-wise; a value outside the schema is VALIDATION", async () => {
++    specimen.expect(await run("/tier fast")).toEqual({ HARNESSED: { tier: "fast" } });
++    specimen.expect(threads.writes.at(-1)).toMatchObject({ where: { id: "th1" }, data: { traits: ["LABELED", "HARNESSED"], trait: { LABELED: { name: "flamingo" }, HARNESSED: { tier: "fast" } } } });
++    specimen.expect(threads.writes.at(-1).data.trait.HARNESSED.tune).toEqual(tiers.fast);
++    specimen.expect(await run("/effort high")).toEqual({ HARNESSED: { effort: "high" } });
++    specimen.expect(await run("/rounds 12")).toEqual({ HARNESSED: { rounds: 12 } });
+     specimen.expect(await fault("/rounds 101")).toBe("VALIDATION");
+-    specimen.expect(await run("/tune 0.4 0.6 0.6")).toEqual({ INTELLIGENT: { tune: [0.4, 0.6, 0.6] } });
++    specimen.expect(await run("/tune 0.4 0.6 0.6")).toEqual({ HARNESSED: { tune: [0.4, 0.6, 0.6] } });
+     specimen.expect(await fault("/tune 0.4 1.2 0.6")).toBe("VALIDATION");
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:476
+
+-  specimen.it("/model pins INTELLIGENT.provider · id on the seated thread; /tier unpins", async () => {
++  specimen.it("/model pins HARNESSED.provider · id on the seated thread; /tier unpins", async () => {
+     const pin = { provider: "openrouter", id: "openai/gpt-5" };
+     client.runtime.cortex = new Cortex().register([{ type: "dialogue", ...pin, tune: tiers.fast, via: { stream: {} } }]);
+-    specimen.expect(await run("/model openrouter openai/gpt-5")).toEqual({ INTELLIGENT: pin });
+-    specimen.expect(threads.writes.at(-1).data.trait.INTELLIGENT).toMatchObject(pin);
++    specimen.expect(await run("/model openrouter openai/gpt-5")).toEqual({ HARNESSED: pin });
++    specimen.expect(threads.writes.at(-1).data.trait.HARNESSED).toMatchObject(pin);
+     const seated = threads.$entities.get().find((thread) => thread.id === "th1");
+-    seated.trait = { ...seated.trait, INTELLIGENT: { ...seated.trait.INTELLIGENT, ...pin } };
++    seated.trait = { ...seated.trait, HARNESSED: { ...seated.trait.HARNESSED, ...pin } };
+     await run("/tier fast");
+-    specimen.expect(threads.writes.at(-1).data.trait.INTELLIGENT.tier).toBe("fast");
+-    specimen.expect("id" in threads.writes.at(-1).data.trait.INTELLIGENT).toBe(false);
+-    specimen.expect("provider" in threads.writes.at(-1).data.trait.INTELLIGENT).toBe(false);
++    specimen.expect(threads.writes.at(-1).data.trait.HARNESSED.tier).toBe("fast");
++    specimen.expect("id" in threads.writes.at(-1).data.trait.HARNESSED).toBe(false);
++    specimen.expect("provider" in threads.writes.at(-1).data.trait.HARNESSED).toBe(false);
+     await run("/set thread.tier capable");
+-    specimen.expect("id" in threads.writes.at(-1).data.trait.INTELLIGENT).toBe(false);
++    specimen.expect("id" in threads.writes.at(-1).data.trait.HARNESSED).toBe(false);
+   });
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:495
+     const written = threads.writes.length;
+-    specimen.expect(await run("/model opus")).toEqual({ INTELLIGENT: { provider: "anthropic", id: "claude-opus" } });
+-    specimen.expect(await run("/model openrouter openai/gpt-5")).toEqual({ INTELLIGENT: { provider: "openrouter", id: "openai/gpt-5" } });
++    specimen.expect(await run("/model opus")).toEqual({ HARNESSED: { provider: "anthropic", id: "claude-opus" } });
++    specimen.expect(await run("/model openrouter openai/gpt-5")).toEqual({ HARNESSED: { provider: "openrouter", id: "openai/gpt-5" } });
+     specimen.expect(threads.writes.length).toBe(written + 2);
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:525
+
+-  specimen.it("/set <path> <value> writes one inspector path — DOCKED through the terminal's updateOne, INTELLIGENT · LABELED through the thread's updateOne, the bridge in place; a set toggles; an unknown path or a value outside its schema is loud", async () => {
++  specimen.it("/set <path> <value> writes one inspector path — DOCKED through the terminal's updateOne, HARNESSED · LABELED through the thread's updateOne, the bridge in place; a set toggles; an unknown path or a value outside its schema is loud", async () => {
+     specimen.expect(await run("/set terminal.dock.view closed")).toEqual({ DOCKED: { view: "closed" } });
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:529
+     specimen.expect(await run("/set terminal.dock.share 0.5")).toEqual({ DOCKED: { share: 0.5 } });
+-    specimen.expect(await run("/set thread.effort high")).toEqual({ INTELLIGENT: { effort: "high" } });
+-    specimen.expect(await run("/set thread.rounds 12")).toEqual({ INTELLIGENT: { rounds: 12 } });
++    specimen.expect(await run("/set thread.effort high")).toEqual({ HARNESSED: { effort: "high" } });
++    specimen.expect(await run("/set thread.rounds 12")).toEqual({ HARNESSED: { rounds: 12 } });
+     specimen.expect(await run("/set thread.label six species")).toEqual({ LABELED: { name: "six species" } });
+#+END_SRC
+*** systems/runtime
+**** subjects/mode/traits
+***** harnessed.js — Q1A · Q2A
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/harnessed.js:28
+   ctx.user ??= ctx.thread.user;
+-  ctx.intelligent = ctx.thread.traits.includes("INTELLIGENT") ? ctx.thread.trait.INTELLIGENT : null;
+-  ctx.vocal = ctx.thread.traits.includes("VOCAL") ? ctx.thread.trait.VOCAL : null;
++  ctx.harnessed = ctx.thread.traits.includes("HARNESSED") ? ctx.thread.trait.HARNESSED : null;
++  ctx.conversational = ctx.thread.traits.includes("CONVERSATIONAL") ? ctx.thread.trait.CONVERSATIONAL : null;
+   await next();
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:61
+       ...config,
+-      ...(ctx.intelligent !== null && belt.object.pick(ctx.intelligent, ["provider", "id", "tier", "tune"])),
+-      ...(ctx.intelligent !== null && ctx.intelligent.rounds && { rounds: ctx.intelligent.rounds }),
++      ...(ctx.harnessed !== null && belt.object.pick(ctx.harnessed, ["provider", "id", "tier", "tune"])),
++      ...(ctx.harnessed !== null && ctx.harnessed.rounds && { rounds: ctx.harnessed.rounds }),
+       ...(provider && { provider }),
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:68
+     },
+-    ...(ctx.intelligent !== null && ctx.intelligent.effort && { settings: { effort: ctx.intelligent.effort } }),
++    ...(ctx.harnessed !== null && ctx.harnessed.effort && { settings: { effort: ctx.harnessed.effort } }),
+     primer,
+#+END_SRC
+**** tests
+***** dictation.integration.test.js
+#+BEGIN_SRC diff
+// systems/runtime/tests/dictation.integration.test.js:80
+
+-  specimen.it("thread.trait.VOCAL projects into the pipeline", async () => {
++  specimen.it("thread.trait.CONVERSATIONAL projects into the pipeline", async () => {
+     const thread = await scenario.createThread();
+-    thread.traits = ["VOCAL"];
+-    thread.trait = { VOCAL: { harmonize: { tail: 1 }, polish: false } };
++    thread.traits = ["CONVERSATIONAL"];
++    thread.trait = { CONVERSATIONAL: { harmonize: { tail: 1 }, polish: false } };
+     await scenario.em.flush();
+#+END_SRC
+***** thread.test.js
+#+BEGIN_SRC diff
+// systems/runtime/tests/thread.test.js:39
+
+-    specimen.expect(stamped.traits).toEqual(["MASKED", "AIMED", "QUEUEING", "INTELLIGENT", "VOCAL"]);
++    specimen.expect(stamped.traits).toEqual(["MASKED", "AIMED", "QUEUEING", "HARNESSED", "CONVERSATIONAL"]);
+     specimen.expect(stamped.trait.AIMED.mount).toBe("/emit/feed");
+…
+// systems/runtime/tests/thread.test.js:47
+
+-    specimen.expect(orphan.traits).toEqual(["INTELLIGENT", "VOCAL"]);
+-    specimen.expect(orphan.trait.INTELLIGENT).toEqual({ tier: "capable", effort: "low", rounds: 12 });
++    specimen.expect(orphan.traits).toEqual(["HARNESSED", "CONVERSATIONAL"]);
++    specimen.expect(orphan.trait.HARNESSED).toEqual({ tier: "capable", effort: "low", rounds: 12, slugging: "deep" });
+     specimen.expect(orphan.trait.QUEUEING).toEqual({ depth: 1 });
+…
+// systems/runtime/tests/thread.test.js:76
+
+-    specimen.expect(overriding.traits).toEqual(["MASKED", "AIMED", "QUEUEING", "INTELLIGENT", "VOCAL"]);
++    specimen.expect(overriding.traits).toEqual(["MASKED", "AIMED", "QUEUEING", "HARNESSED", "CONVERSATIONAL"]);
+     specimen.expect(overriding.trait.AIMED.mount).toBe("/emit/feed");
+…
+// systems/runtime/tests/thread.test.js:122
++  });
++
++  specimen.it("Q40 — a stored thread wearing INTELLIGENT · VOCAL heals at load; the next flush writes the heirs", async () => {
++    const stored = em.create(ThreadEntity, { user: fixtures.user, mode: fixtures.mode });
++    await em.flush();
++    const connection = em.getConnection();
++    await connection.execute(
++      `update thread set traits = '["INTELLIGENT","VOCAL"]', trait = '{"INTELLIGENT":{"tier":"fast","rounds":21},"VOCAL":{}}' where id = ?`,
++      [stored.id],
++    );
++    const loading = em.fork();
++    const loaded = await loading.findOneOrFail(ThreadEntity, { id: stored.id }, { filters: false });
++    const seen = { traits: loaded.traits, trait: loaded.trait };
++    await loading.flush();
++    const [row] = await connection.execute(`select traits, trait from thread where id = ?`, [stored.id]);
++    const written = { traits: JSON.parse(row.traits), trait: JSON.parse(row.trait) };
++    console.log(JSON.stringify({ seen, written }, null, 2));
++    specimen.expect(seen.traits).toEqual(["HARNESSED", "CONVERSATIONAL"]);
++    specimen.expect(written.traits).toEqual(["HARNESSED", "CONVERSATIONAL"]);
++    specimen.expect(written.trait.HARNESSED).toEqual({ tier: "fast", effort: "low", rounds: 21, slugging: "deep" });
++    specimen.expect(written.trait.CONVERSATIONAL).toEqual({ language: [], hear: {}, speak: {}, call: {} });
+   });
+ });
+#+END_SRC

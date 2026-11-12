@@ -14,11 +14,8 @@ export const RENDERERS = [
 
 export const renderer = (buffer, views) => RENDERERS.find(([test]) => test(buffer, views))[1];
 
-export const DARK = globalThis.matchMedia("(prefers-color-scheme: dark)").matches;
-
 export const surfaced = (app) => ({
   kind: "dom",
-  dark: DARK,
   get palette() {
     return tokens.kebab(app.theme, "2");
   },

@@ -5,7 +5,7 @@ import { parseHTML } from "linkedom";
 import { EpubOptions, PageOptions, PdfOptions, Reading } from "../schematics.js";
 import { epub, spine } from "./epub.js";
 import { bound, cleaned, normalized, offered, page } from "./parse.js";
-import { modeled, paged, pdf } from "./pdf.js";
+import { modeled, paged, pdf, scanned } from "./pdf.js";
 
 const Step = v.object({
   step: v.enum(["fetch", "read", "snapshot", "intake", "parse", "book"]).desc("Example: parse"),
@@ -25,7 +25,7 @@ const Parse = v.object({
   buffer: Buffered.properties.buffer,
   options: v
     .union([EpubOptions, PdfOptions, PageOptions])
-    .desc("The parsing screen's choices. Example: { kind: 'pdf', flow: 'reflow', reader: 'text' }"),
+    .desc("The parsing screen's choices. Example: { kind: 'pdf', flow: 'reflow', reader: 'text', scannable: false }"),
 });
 
 const KINDS = [
@@ -62,7 +62,7 @@ const stored = async (ctx, buffer, folder, extension, type, bytes) => {
 
 const OFFERS = {
   epub: (bytes) => ({ kind: "epub", files: spine(bytes).files }),
-  pdf: () => ({ kind: "pdf" }),
+  pdf: (bytes, url, ctx) => ({ kind: "pdf", scannable: ctx.providers.ocr !== undefined }),
   page: (bytes, url) => ({ kind: "page", ...offered(bytes, "text/html", url) }),
 };
 
@@ -78,7 +78,7 @@ async function* intaken(ctx, id, given) {
   const kept = original(given.bytes, given.type, given.url, given.name);
   const file = await stored(ctx, buffer, "originals", EXTENSIONS[kept.held], kept.type, kept.bytes);
   yield { step: "snapshot", value: `original · ${kept.held} · ${kB(kept.bytes)}` };
-  const options = OFFERS[kept.held](kept.bytes, given.url);
+  const options = OFFERS[kept.held](kept.bytes, given.url, ctx);
   buffer.data = Reading.cast({
     ...buffer.data,
     intake: { url: given.url, original: file.id, type: kept.type, options },
@@ -118,6 +118,7 @@ async function* converted(ctx, intake, bytes) {
   const options = intake.options;
   if (options.kind === "epub") return epub(bytes, options.files);
   if (options.kind === "pdf" && options.flow === "pages") return await paged(bytes);
+  if (options.kind === "pdf" && options.reader === "ocr") return yield* scanned(bytes, ctx);
   if (options.kind === "pdf" && options.reader === "model") return yield* modeled(bytes, ctx);
   if (options.kind === "pdf") return await pdf(bytes);
   if (options.read === "contents") return yield* crawled(options.contents, options.extract);
@@ -200,7 +201,7 @@ async function* reopened(ctx) {
   yield { step: "read", value: `${file.mime} · ${kB(bytes)}` };
   buffer.data = Reading.cast({
     ...buffer.data,
-    intake: { url: article.url, original: file.id, type: file.mime, options: OFFERS[kind(file.mime)](bytes, article.url) },
+    intake: { url: article.url, original: file.id, type: file.mime, options: OFFERS[kind(file.mime)](bytes, article.url, ctx) },
   });
   await ctx.entities.em.flush();
   yield { step: "intake", value: kind(file.mime) };

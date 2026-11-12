@@ -150,7 +150,8 @@ The lighthouse *remote* points into the runtime's own path tree. The whole syste
 
 `integration.serve`: `Deno.serve(port, shape.http(aperture))` — the entire HTTP server is the aperture folded into one handler function, shut down in the beat's own `finally`. Calling that same function in-process:
 
-- `GET /metadata/daemons` → `200` — the runtime knows its children.
+- `GET /beacon/manifest` → `200` — the one branch that answers without a token, `/beacon/status` beside it.
+- `GET /metadata/daemons` → `401 MISSING_TOKEN`; with a bearer `200` — the runtime knows its children.
 - `GET /daemon/standalone/metadata/modes` → `401 MISSING_TOKEN` — mounted, routing, locked. Identity comes from the lighthouse; in the booted system the client logs in and this returns the mode list.
 - `POST /attached/process/service/lighthouse/multiplayer/daemons/announce` → `200` — *announce*: each daemon's `Lighthouse` pushes `{ slug, remote, reported }` whenever its status moves, and the runtime beat after `serve` announces once more so a refused lighthouse surfaces at boot. The system describes itself in its own vocabulary.
 

@@ -1,9 +1,9 @@
 import { belt, contexts, fromm, shape, shard, soma, steer, ToolCall, v, Vector } from "@vivalence/typology";
 import { v7 } from "uuid";
 import { TurnEntity } from "@vivalence/runtime";
-import * as tools from "../../../gestalten/tools/index.js";
+import * as gestalten from "../../../gestalten/index.js";
 
-const { Packet, Verbatim, Audio } = v.primitives.hallucination;
+const { Packet, Audio } = v.primitives.hallucination;
 
 const POLISH = [
   "You repair the formatting of a machine transcription of dictated speech.",
@@ -26,8 +26,8 @@ const claiming = async (ctx, next) => {
     ? await ctx.entities.terminal.findOneOrFail({ id: ctx.input.terminal, thread: ctx.thread })
     : null;
   ctx.user ??= ctx.thread.user;
-  ctx.intelligent = ctx.thread.traits.includes("INTELLIGENT") ? ctx.thread.trait.INTELLIGENT : null;
-  ctx.vocal = ctx.thread.traits.includes("VOCAL") ? ctx.thread.trait.VOCAL : null;
+  ctx.harnessed = ctx.thread.traits.includes("HARNESSED") ? ctx.thread.trait.HARNESSED : null;
+  ctx.conversational = ctx.thread.traits.includes("CONVERSATIONAL") ? ctx.thread.trait.CONVERSATIONAL : null;
   await next();
 };
 
@@ -39,68 +39,100 @@ const activating = async (ctx, next) => {
   await next();
 };
 
-const siblings = (ctx) =>
-  fromm.modes(ctx.modes).flat.filter((sibling) => sibling !== ctx.mode && sibling.manifest.type !== "domain" && sibling.primer);
+const own = (ctx) => gestalten.reference.narrow(ctx, gestalten.reference.home(ctx));
 
-const priming = (ctx) => {
+const priming = (ctx, place) => {
   const primer = new Vector();
-  if (ctx.mode.primer) primer.graft(ctx.mode.primer);
+  if (ctx.mode.primer) primer.branch(place).graft(ctx.mode.primer);
   if (ctx.domain?.primer) primer.branch(ctx.domain.manifest.slug).graft(ctx.domain.primer);
-  if (ctx.mode.implements("AGENTIC"))
-    for (const sibling of siblings(ctx)) primer.branch({ nature: sibling.manifest.slug, load: "lazy" }).graft(sibling.primer);
   if (ctx.input.system) for (const [nature, effect] of Object.entries(ctx.input.system)) primer.open(nature, effect);
   return primer;
 };
 
 const requesting = async (ctx, next) => {
   const { prompt, turns, output, provider, id, tier, tune, config } = ctx.input;
-  const primer = priming(ctx);
   ctx.hallucination = {
     controller: ctx.controller,
     policy: {
       ...config,
-      ...(ctx.intelligent !== null && belt.object.pick(ctx.intelligent, ["provider", "id", "tier", "tune"])),
-      ...(ctx.intelligent !== null && ctx.intelligent.rounds && { rounds: ctx.intelligent.rounds }),
+      ...(ctx.harnessed !== null && belt.object.pick(ctx.harnessed, ["provider", "id", "tier", "tune"])),
+      ...(ctx.harnessed !== null && ctx.harnessed.rounds && { rounds: ctx.harnessed.rounds }),
       ...(provider && { provider }),
       ...(id && { id }),
       ...(tier && { tier }),
       ...(tune && { tune }),
     },
-    ...(ctx.intelligent !== null && ctx.intelligent.effort && { settings: { effort: ctx.intelligent.effort } }),
-    primer,
+    ...(ctx.harnessed !== null && ctx.harnessed.effort && { settings: { effort: ctx.harnessed.effort } }),
+    primer: priming(ctx, own(ctx)),
     turns: turns ?? (prompt ? [{ role: "user", parts: [{ type: "text", text: prompt }] }] : []),
-    tools: await arming(ctx, primer),
+    tools: await arming(ctx),
     ...(output && { output: { schema: output } }),
   };
   await next();
 };
 
-const armory = (ctx, primer) => {
-  const armed = new Vector();
+const armory = (ctx, place) => {
+  const tools = new Vector();
   for (const [slug, provider] of Object.entries(ctx.providers ?? {})) {
     if (provider.tools) {
-      armed.branch(`/service/${slug}`).use(shard.context.bind("service", provider)).graft(provider.tools);
+      tools.branch(`/service/${slug}`).use(shard.context.bind("service", provider)).graft(provider.tools);
     }
   }
-  if (ctx.domain?.tools) armed.branch(ctx.domain.manifest.slug, ctx.domain.tools);
-  if (ctx.mode.tools) armed.graft(ctx.mode.tools);
-  if (shape.primer.lazy(primer).length) armed.graft(tools.primer);
-  return armed;
+  if (ctx.domain?.tools) tools.branch(ctx.domain.manifest.slug, ctx.domain.tools);
+  if (ctx.mode.tools) tools.branch(place).graft(ctx.mode.tools);
+  return tools.graft(gestalten.tools.modes, gestalten.tools.tool, gestalten.tools.primer);
 };
 
-const arming = async (ctx, primer) => {
-  const armed = armory(ctx, primer);
-  if (ctx.mode.looping) armed.branch("/repl").graft(await ctx.mode.looping(ctx));
+const arming = async (ctx) => {
+  const tools = armory(ctx, own(ctx));
+  if (ctx.mode.looping) tools.branch("/repl").graft(await ctx.mode.looping(ctx));
   for (const [name, supplied] of Object.entries(ctx.input.tools ?? {})) {
     const { execute, ...edge } = typeof supplied === "function" ? { execute: supplied } : supplied;
-    armed.open({ nature: new ToolCall(name).signal.pathname, ...edge }, execute);
+    tools.open({ nature: belt.hallucinate.signalOf(name).pathname, ...edge }, execute);
   }
-  armed.use(shard.context.spread(contexts.modeDie, ctx));
-  armed.use(shard.context.bind("mode", ctx.mode));
-  armed.use(shard.context.bind("primer", primer));
-  if (ctx.user) armed.use(shard.context.bind("user", ctx.user)); //@beef both nonoptional in near future
-  armed.use(shard.context.bind("thread", ctx.input.thread));
-  return armed;
+  tools.use(shard.context.spread(contexts.modeDie, ctx));
+  tools.use(shard.context.bind("mode", ctx.mode));
+  if (ctx.user) tools.use(shard.context.bind("user", ctx.user)); //@beef both nonoptional in near future
+  tools.use(shard.context.bind("thread", ctx.input.thread));
+  return tools;
+};
+
+const Loading = v
+  .object({
+    thread: v.string().desc("The thread whose TOOLED · PRIMED the load writes."),
+    references: v.array(v.string()).desc("One or many references; a branch loads its whole tree."),
+  })
+  .eg({ thread: "01a09010-13aa-778b-bce7-19c38f835337", references: ["/runtime/runtime/mode/harness/runtime/fs"] });
+
+const depth = (reference) => gestalten.reference.natures(reference).length;
+
+const delta = (trait) => Object.entries(trait).sort(([a], [b]) => depth(a) - depth(b));
+
+const preloaded = (ctx) =>
+  delta(ctx.thread.trait.TOOLED)
+    .filter(([, load]) => load === "lazy")
+    .flatMap(([reference]) => gestalten.reference.found(ctx, reference).flatMap(gestalten.reference.outline))
+    .map((held) => `${held.reference}${held.valence ? ` — ${held.valence}` : ""}`);
+
+const composing = (ctx) => {
+  const { primer, tools } = ctx.hallucination;
+  for (const [reference, load] of delta(ctx.thread.trait.PRIMED)) {
+    if (load === "none") primer.trim(gestalten.reference.narrow(ctx, reference));
+    else
+      for (const entry of gestalten.reference.found(ctx, reference, (mode) => mode.primer))
+        gestalten.reference.section(ctx, primer, entry, load);
+  }
+  for (const [reference, load] of delta(ctx.thread.trait.TOOLED)) {
+    if (load === "eager")
+      for (const entry of gestalten.reference.found(ctx, reference)) gestalten.reference.seat(ctx, tools, entry);
+    if (load === "none") tools.trim(gestalten.reference.narrow(ctx, reference));
+  }
+  const listed = preloaded(ctx);
+  if (listed.length) primer.open("preloaded", `Load on demand with tool_load { references }:\n${listed.join("\n")}`);
+  tools.use(shard.context.bind("runtime", ctx.runtime));
+  tools.use(shard.context.bind("tools", tools));
+  tools.branch("/tool").use(shard.context.bind("thread", ctx.thread));
+  tools.branch("/primer").use(shard.context.bind("thread", ctx.thread));
 };
 
 const chaining = async (ctx, next) => {
@@ -118,6 +150,13 @@ const chaining = async (ctx, next) => {
   await next();
 };
 
+const attending = async (ctx, next) => {
+  ctx.hallucination.turns = await ctx.entities.turn.history({ thread: ctx.input.thread });
+  ctx.turn = ctx.hallucination.turns.at(-1) ?? null;
+  ctx.hallucination = await primed(ctx);
+  await next();
+};
+
 const persisting = async (ctx, next) => {
   await next();
   if (ctx.output?.[Symbol.asyncIterator]) ctx.output = recording(ctx, ctx.output);
@@ -130,12 +169,17 @@ const SEALING = ["/turn/close", "/turn/full"];
 async function* recording(ctx, packets) {
   const em = ctx.entities.em.fork();
   let folded = null;
-  let parent = em.getReference(TurnEntity, ctx.turn.id);
+  let parent = ctx.turn === null ? null : em.getReference(TurnEntity, ctx.turn.id);
   try {
     for await (const packet of packets) {
+      if (packet.event === "/part/full" && packet.turn) {
+        const sealed = await em.findOneOrFail(TurnEntity, packet.turn);
+        sealed.parts = sealed.parts.with(packet.index, packet.part);
+        await em.flush();
+      }
       if (OPENING.includes(packet.event)) {
         parent = em.create(TurnEntity, {
-          id: v7(),
+          id: packet.turn.id ?? v7(),
           role: packet.turn.role,
           parts: [],
           parent,
@@ -202,7 +246,25 @@ const marking = (system) => {
   return [...(volatile < 0 ? keys : keys.slice(0, volatile)).slice(-1), "tools"];
 };
 
+const resetting = (trait) => async (ctx) => {
+  const keyed = (reference) => Object.hasOwn(ctx.thread.trait[trait], reference);
+  const reset = ctx.input.references.filter(keyed);
+  ctx.thread.trait[trait] = reset.reduce(belt.reference.reset, ctx.thread.trait[trait]);
+  await ctx.entities.em.flush();
+  return { reset, missed: ctx.input.references.filter((reference) => !reset.includes(reference)) };
+};
+
+const loading = (name) => async (ctx) => {
+  composing(ctx);
+  const call = new ToolCall(name);
+  const answer = await steer.dispatch.invoke(ctx.hallucination.tools, call, steer.strategy.guarded)({
+    references: ctx.input.references,
+  });
+  return answer.output;
+};
+
 const primed = async (ctx) => {
+  composing(ctx);
   const { primer, ...hallucination } = ctx.hallucination;
   const system = await shape.primer.load(primer, ctx);
   hallucination.policy.cache = { marks: marking(system) };
@@ -222,17 +284,30 @@ export const HARNESSED = (mode, modeDie) => {
     .use(activating)
     .use(requesting);
 
-  harness
-    .branch("/verbatim")
-    .open(
-      { nature: "stream", feeds: Audio.Packet, yields: Verbatim.Any },
-      shard.hal.verbatim({ polish: POLISH, tier: "fast" }),
-    );
+  const streams = (type) => modeDie.cortex.find({ type, via: "stream" }).length > 0;
+
+  if (streams("verbatim"))
+    harness
+      .branch("/verbatim")
+      .open(
+        { nature: "stream", feeds: Audio.Packet, yields: Packet.Response },
+        shard.hal.verbatim({ polish: POLISH, tier: "fast" }),
+      );
+
+  if (streams("call") || (streams("verbatim") && streams("dialogue") && streams("speech")))
+    harness
+      .branch("/call")
+      .use(attending)
+      .use(persisting)
+      .open(
+        { nature: "stream", feeds: v.union([Audio.Packet, Audio.Played]), yields: Packet.Call },
+        shard.hal.call({ polish: POLISH, tier: "fast" }),
+      );
 
   harness.branch("/dialogue").use(chaining).use(persisting);
-  harness.branch("/dialogue").open({ nature: "render", input: v.primitives.harness.Request }, async (ctx) => ctx.cortex.hallucinate.dialogue.render(await primed(ctx)));
+  harness.branch("/dialogue").open({ nature: "render", input: v.primitives.harness.Request, output: v.primitives.hallucination.Response }, async (ctx) => ctx.cortex.hallucinate.dialogue.render(await primed(ctx)));
   harness.branch("/dialogue").open({ nature: "stream", input: v.primitives.harness.Request, yields: Packet.Response }, async (ctx) => ctx.cortex.hallucinate.dialogue.stream(await primed(ctx)));
-  harness.branch("/object").open({ nature: "render", input: v.primitives.harness.Request }, async (ctx) => ctx.cortex.hallucinate.object.render(await primed(ctx)));
+  harness.branch("/object").open({ nature: "render", input: v.primitives.harness.Request, output: v.primitives.hallucination.Response }, async (ctx) => ctx.cortex.hallucinate.object.render(await primed(ctx)));
   harness.branch("/object").open({ nature: "stream", input: v.primitives.harness.Request, yields: Packet.Response }, async (ctx) => ctx.cortex.hallucinate.object.stream(await primed(ctx)));
 
   if (modeDie.domain?.harness) harness.graft(modeDie.domain.harness);
@@ -260,16 +335,35 @@ export const HARNESSED = (mode, modeDie) => {
     }),
   );
 
+  harness.open({ nature: "/tool/load", input: Loading }, loading("tool_load"));
+  harness.open({ nature: "/tool/preload", input: Loading }, loading("tool_preload"));
+  harness.open({ nature: "/tool/unload", input: Loading }, loading("tool_unload"));
+  harness.open({ nature: "/tool/reset", input: Loading }, resetting("TOOLED"));
+  harness.open({ nature: "/primer/load", input: Loading }, loading("primer_load"));
+  harness.open({ nature: "/primer/preload", input: Loading }, loading("primer_preload"));
+  harness.open({ nature: "/primer/unload", input: Loading }, loading("primer_unload"));
+  harness.open({ nature: "/primer/reset", input: Loading }, resetting("PRIMED"));
+
   return () => {
     mode.harness = shape.object(harness, steer.strategy.echo);
     mode.aperture.branch("/harness", harness);
     mode.aperture.open("/metadata/harness", (ctx) => {
-      const primer = priming({ ...ctx, input: {} });
-      return { routes: shape.strip(harness), primer: shape.strip(primer), tools: shape.strip(armory(ctx, primer)) };
+      const primer = priming({ ...ctx, input: {} }, "/");
+      return {
+        references: shape.strip(harness),
+        primer: shape.strip(primer),
+        tools: shape.strip(armory(ctx, "/")),
+        home: gestalten.reference.home(ctx),
+        index: gestalten.reference.index(ctx),
+      };
     });
     mode.aperture.open({ nature: "/metadata/harness/primer/(.*)", input: v.object({ thread: v.string().desc('The thread whose harness is read. Example: "01a09010-13aa-778b-bce7-19c38f835337"') }) }, async (input, ctx) => {
-      const thread = await ctx.entities.thread.findOneOrFail({ id: input.thread });
-      return shape.primer.read(priming({ ...ctx, input: {} }), fromm.params(ctx.params).path.absolute, { ...ctx, thread });
+      ctx.thread = await ctx.entities.thread.findOneOrFail({ id: input.thread });
+      const name = fromm.params(ctx.params).path.absolute;
+      const loaded = new Vector();
+      for (const entry of gestalten.reference.found(ctx, name, (held) => held.primer))
+        gestalten.reference.section(ctx, loaded, entry, "eager");
+      return shape.primer.read(loaded, name, ctx);
     });
   };
 };

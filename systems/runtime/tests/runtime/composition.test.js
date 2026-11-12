@@ -15,8 +15,8 @@ specimen.describe("runtime composition", () => {
     scenario = await create();
 
     const runtime = new Aperture();
-    runtime.open("/status", () => ({ code: "RUNNING" }));
-    runtime.branch("/metadata").open("/manifest", () => ({ slug: "test-runtime" }));
+    runtime.open("/beacon/status", () => ({ code: "RUNNING" }));
+    runtime.open("/beacon/manifest", () => ({ slug: "test-runtime" }));
 
     runtime
       .branch(scenario.daemon.reference.nature)
@@ -34,7 +34,7 @@ specimen.describe("runtime composition", () => {
   specimen.it("the daemon branch refuses a bare request — the lighthouse sits on /daemon/*", async () => {
     const bare = new Connection(new Url("http://test"), shard.transmitter.inline(runtimeHandler));
     specimen.expect((await bare.fetch("/daemon/test-daemon/status")).status).toBe(401);
-    specimen.expect((await bare.fetch("/status")).status).toBe(200);
+    specimen.expect((await bare.fetch("/beacon/status")).status).toBe(200);
   });
 
   specimen.afterAll(async () => {
@@ -42,12 +42,12 @@ specimen.describe("runtime composition", () => {
   });
 
   specimen.it("runtime status", async () => {
-    const result = await runtimeConn.call("/status");
+    const result = await runtimeConn.call("/beacon/status");
     specimen.expect(result.code).toBe("RUNNING");
   });
 
   specimen.it("runtime manifest", async () => {
-    const result = await runtimeConn.call("/metadata/manifest");
+    const result = await runtimeConn.call("/beacon/manifest");
     specimen.expect(result.slug).toBe("test-runtime");
   });
 

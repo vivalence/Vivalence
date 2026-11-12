@@ -1,0 +1,310 @@
+#+title: literal rewrite — the language-learning domain edits and renames its own literals and symbols
+#+filetags: :education:domain:twitch:tools:runtime:
+#+status: DESIGNED 11-13 — drill Q0–Q11 locked; the runtime half LANDED (=entity_update= · =literal_update= · =symbol_update=, a daemon's after-twitch faults on its stdout); the domain half waits for go; =control.fault= · =object.at= LANDED
+# writer: agent · limit: 16000 chars
+
+* intent
+
+/"Model rewrote ANNOTATED.tokens itself on the second call … issue. i guess this is a tooling harness issue. a: we need to validate the trait integrity somewhere. and b: we need to tell the models what to do. tokens are needed. and c: slug update is needed. we want to update slugs. this is somehting for the harness. the domain needs to inform somewhere that the slug reference should be looked up in the following X places and updated too. the domain implments its own literal update!"/
+
+* rulings
+
+| Q | ruling | his words |
+|---|---|---|
+| 0 | the domain implements its own literal and symbol update; the runtime grafts leave the domain | /"the domain implments its own literal update!"/ · /"its own symbol too."/ |
+| 1 | C — the schematic written once, a twitch enforces it on every write, the tool input quotes it | /"c."/ |
+| 2 | B — a token may go without =literal=; a named one must be in the corpus | /"b"/ |
+| 3 | A — a text whose tokens no longer spell it is refused | /"amen"/ |
+| 4 | A — a slug change rewrites every place the domain declares, as its own twitch | /"amen"/ · /"two twitches"/ |
+| 5 | A — the rename twitch runs after the write; a failure is not answered | /"a"/ |
+| 6 | A — the link step sets =uses= to exactly what the traits name | /"a"/ |
+| 7 | B — two tools: =/literal/update= · =/literal/rename= | /"two."/ |
+| 8 | B — code leaves =VOCALIZED=; the update valence says the recording probably no longer matches | /"ignore. nothign changes"/ · /"just amrk it in the harness that this is a probable issue."/ |
+| 9 | B — =/symbol/update= (label) · =/symbol/rename= | /"q9 b"/ |
+| 10 | A — a symbol rename moves the slug only, no twitch | /"a"/ |
+| 11 | the reference check runs BEFORE the write; after-twitch faults go to the daemon's stdout | /"we at least whant that in the controller stdout tho"/ · /"ok lan d the stdout"/ |
+
+* terrain — moved whole to =reference/literal-rewrite/terrain.org=
+
+* as code
+
+Nothing below is on disk. Probed: =spelled= over all 354 stored sentences; =renamed= · =linked= (exact set) · =referenced= on a scratch copy; the update input JSON (0 errors on its own example). Unrun: =checked=, the symbol tools, =v.traits.symbol.properties.LABELED=.
+
+*** ~/.viva/registry/education/domain
+**** tools
+***** index.js — Q0
+#+BEGIN_SRC js
+import { Vector } from "@vivalence/typology";
+
+import { progress } from "./progress.js";
+import { lookup } from "./lookup.js";
+import { queue } from "./queue.js";
+import { review } from "./review.js";
+import { literal } from "./literal.js";
+import { symbol } from "./symbol.js";
+
+export const tools = new Vector()
+  .graft(progress)
+  .graft(lookup)
+  .graft(queue)
+  .graft(review)
+  .graft(literal)
+  .graft(symbol);
+#+END_SRC
+***** literal.js — Q1 · Q3 · Q7 · Q8
+#+BEGIN_SRC js
+import { traits, v, Vector } from "@vivalence/typology";
+import { ANNOTATED } from "../traits/literal/annotated.js";
+import { TRANSLATED } from "../traits/literal/claims.js";
+
+export const literal = new Vector()
+  .open(
+    {
+      nature: "/literal/update",
+      valence:
+        "Rewrite a literal's text and its tokens. Find it first with lookup. When you change " +
+        "TRANSLATED.learning of a sentence, send ANNOTATED.tokens for the new text in the same " +
+        "call: one token per word, each with the slug of its word when lookup finds one. " +
+        "A literal that wears VOCALIZED keeps its old recording: after a text change it " +
+        "probably no longer speaks the text, so say that to the user.",
+      input: v
+        .object({
+          slug: v.string().desc("its address inside the daemon").example("hola-como-estas"),
+          TRANSLATED: TRANSLATED.schematic.optional(),
+          ANNOTATED: ANNOTATED.schematic.optional(),
+        })
+        .example({
+          slug: "hola-como-estas",
+          TRANSLATED: { known: "Hi, how are you?", learning: "¡Hola! ¿Qué tal estás?" },
+          ANNOTATED: {
+            tokens: [
+              { index: 0, form: "Hola", gloss: "hi", deprel: "discourse", literal: "hola.interjection" },
+              { index: 1, form: "Qué", gloss: "what", deprel: "advmod", literal: "qué.pronoun" },
+              { index: 2, form: "tal", gloss: "such", deprel: "fixed" },
+              { index: 3, form: "estás", gloss: "you are", deprel: "root" },
+            ],
+          },
+        }),
+    },
+    async (ctx) => {
+      const { slug, ...trait } = ctx.input;
+      const held = await ctx.entities.literal.findOneOrFail({ slug });
+      const updated = await ctx.entities.literal.updateOne({ id: held.id }, traits.patch(held, trait));
+      return { message: `updated literal ${updated.slug}`, literal: [updated] };
+    },
+  )
+  .open(
+    {
+      nature: "/literal/rename",
+      valence:
+        "Give a literal a new slug. Every sentence, conjugation and retention note that names " +
+        "the old slug is moved to the new one shortly after this call returns.",
+      input: v
+        .object({
+          slug: v.string().desc("its address inside the daemon").example("hola-como-estas"),
+          to: v.string().desc("its new address").example("hola-que-tal-estas"),
+        })
+        .example({ slug: "hola-como-estas", to: "hola-que-tal-estas" }),
+    },
+    async (ctx) => {
+      const held = await ctx.entities.literal.findOneOrFail({ slug: ctx.input.slug });
+      const updated = await ctx.entities.literal.updateOne({ id: held.id }, { slug: ctx.input.to });
+      return { message: `renamed ${ctx.input.slug} → ${updated.slug}`, literal: [updated] };
+    },
+  );
+#+END_SRC
+***** symbol.js — Q9 · Q10
+#+BEGIN_SRC js
+import { traits, v, Vector } from "@vivalence/typology";
+
+export const symbol = new Vector()
+  .open(
+    {
+      nature: "/symbol/update",
+      valence: "Rewrite a symbol's label: its name and description.",
+      input: v
+        .object({
+          slug: v.string().desc("the word").example("domain.animals"),
+          LABELED: v.traits.symbol.properties.LABELED,
+        })
+        .example({ slug: "domain.animals", LABELED: { description: "Animals and pets." } }),
+    },
+    async (ctx) => {
+      const { slug, ...trait } = ctx.input;
+      const held = await ctx.entities.symbol.findOneOrFail({ slug });
+      const updated = await ctx.entities.symbol.updateOne({ id: held.id }, traits.patch(held, trait));
+      return { message: `updated symbol ${updated.slug}`, symbol: [updated] };
+    },
+  )
+  .open(
+    {
+      nature: "/symbol/rename",
+      valence:
+        "Give a symbol a new slug. Its links to literals hold. Mode code and dataset files " +
+        "that spell the old slug are not moved.",
+      input: v
+        .object({
+          slug: v.string().desc("the word").example("domain.animals"),
+          to: v.string().desc("its new word").example("domain.fauna"),
+        })
+        .example({ slug: "domain.animals", to: "domain.fauna" }),
+    },
+    async (ctx) => {
+      const held = await ctx.entities.symbol.findOneOrFail({ slug: ctx.input.slug });
+      const updated = await ctx.entities.symbol.updateOne({ id: held.id }, { slug: ctx.input.to });
+      return { message: `renamed ${ctx.input.slug} → ${updated.slug}`, symbol: [updated] };
+    },
+  );
+#+END_SRC
+**** traits/literal
+***** annotated.js — Q1 · Q2
+#+BEGIN_SRC js
+import { traits, v } from "@vivalence/typology";
+
+export const ANNOTATED = traits.define("ANNOTATED", {
+  schematic: v.object({
+    tokens: v.array(
+      v.object({
+        index: v.integer().desc("position in the sentence").example(1),
+        form: v.string({ minLength: 1 }).desc("the word as written").example("Qué"),
+        gloss: v.string().desc("its meaning here").example("what"),
+        deprel: v.string().desc("its dependency relation").example("advmod"),
+        literal: v.string().optional().desc("the slug of the word it is").example("qué.pronoun"),
+      }),
+    ),
+  }),
+});
+#+END_SRC
+**** twitch.js — Q1 · Q2 · Q3 · Q4 · Q5 · Q6 · Q11
+=ranked= = today's first body, named; =annotated= · =conjugated= unchanged.
+#+BEGIN_SRC js
+const REFERENCES = [
+  [
+    "ANNOTATED",
+    (payload, from, to) => ({
+      ...payload,
+      tokens: payload.tokens.map((token) => (token.literal === from ? { ...token, literal: to } : token)),
+    }),
+  ],
+  [
+    "CONJUGATED",
+    (payload, from, to) => ({
+      ...payload,
+      infinitive: payload.infinitive === from ? to : payload.infinitive,
+      paradigm: Object.fromEntries(
+        Object.entries(payload.paradigm ?? {}).map(([form, slug]) => [form, slug === from ? to : slug]),
+      ),
+    }),
+  ],
+];
+
+const checked = (ctx) => {
+  const { entity } = ctx.input;
+  for (const name of entity.traits) {
+    const errors = [...ctx.entities.literal.schematics[name].errors(entity.trait[name])];
+    if (!errors.length) continue;
+    const faults = errors.map((error) => `${error.instancePath} ${error.message}`).join(" · ");
+    throw new Error(`[${name}] ${entity.slug}: ${faults}`);
+  }
+};
+
+const spelled = (ctx) => {
+  const { entity } = ctx.input;
+  if (!entity.traits.includes("ANNOTATED")) return;
+  const text = entity.trait.TRANSLATED.learning;
+  const strays = entity.trait.ANNOTATED.tokens.filter(
+    (token) => !text.toLowerCase().includes(token.form.toLowerCase()),
+  );
+  if (!strays.length) return;
+  const named = strays.map((token) => `"${token.form}"`).join(" · ");
+  throw new Error(
+    `[ANNOTATED] ${entity.slug}: token ${named} is not in the text "${text}" — ` +
+      "send ANNOTATED.tokens for the new text in the same call",
+  );
+};
+
+const referenced = async (ctx) => {
+  const slugs = [...new Set([...annotated(ctx.input.entity), ...conjugated(ctx.input.entity)])];
+  if (!slugs.length) return;
+  const used = await ctx.entities.literal.find({ slug: { $in: slugs } });
+  const unknown = slugs.filter((slug) => !used.some((word) => word.slug === slug));
+  if (!unknown.length) return;
+  throw new Error(`[ANNOTATED] ${ctx.input.entity.slug}: ${unknown.join(" · ")} is not in the corpus`);
+};
+
+const linked = async (ctx) => {
+  const slugs = [...new Set([...annotated(ctx.input.entity), ...conjugated(ctx.input.entity)])];
+  const { literal } = ctx.entities;
+  const entity = await literal.findOneOrFail({ id: ctx.input.entity.id }, { populate: ["uses"] });
+  const used = await literal.find({ slug: { $in: slugs } });
+  entity.uses.set(used);
+  await literal.em.flush();
+};
+
+const renamed = async (ctx) => {
+  const from = ctx.input.changeSet.originalEntity.slug;
+  const to = ctx.input.entity.slug;
+  if (from === to) return;
+  const { literal, note } = ctx.entities;
+  const holders = await literal.find({ uses: ctx.input.entity.id });
+  for (const holder of holders) {
+    for (const [name, respell] of REFERENCES) {
+      if (!holder.traits.includes(name)) continue;
+      holder.trait = { ...holder.trait, [name]: respell(holder.trait[name], from, to) };
+    }
+  }
+  const retentions = await note.find({ literal: ctx.input.entity.id, slug: `retention.${from}` });
+  for (const retention of retentions) retention.slug = `retention.${to}`;
+  await literal.em.flush();
+};
+
+export const twitch = new Twitch();
+
+twitch.open("/before/literal/create", ranked);
+twitch.open("/before/literal/create", checked);
+twitch.open("/before/literal/create", spelled);
+twitch.open("/before/literal/create", referenced);
+twitch.open("/before/literal/update", ranked);
+twitch.open("/before/literal/update", checked);
+twitch.open("/before/literal/update", spelled);
+twitch.open("/before/literal/update", referenced);
+twitch.open("/after/literal/create", linked);
+twitch.open("/after/literal/update", renamed);
+twitch.open("/after/literal/update", linked);
+#+END_SRC
+*** commons/fixtures/testing/data
+***** seed.js — the seed tokens gain index · deprel
+#+BEGIN_SRC diff
+// commons/fixtures/testing/data/seed.js:111
+-          { form: "olá", gloss: "hello", literal: "hello" },
+-          { form: "e", gloss: "and" },
+-          { form: "tchau", gloss: "goodbye", literal: "goodbye" },
++          { index: 0, form: "olá", gloss: "hello", deprel: "discourse", literal: "hello" },
++          { index: 1, form: "e", gloss: "and", deprel: "cc" },
++          { index: 2, form: "tchau", gloss: "goodbye", deprel: "conj", literal: "goodbye" },
+#+END_SRC
+
+* deferred — unruled
+
+- symbol edits do not survive a dataset install: the topography's datasink writes literals only.
+- a sentence rename and =dataset/literals/words/*.js=: unprobed whether the drain rewrites those references.
+- the runtime's own after-twitch (=subjects/runtime/lifecycle/1-population.js:52=) still logs to the console.
+
+* changelog
+
+Earlier rows: =reference/literal-rewrite/changelog.org=.
+- 11-13 /"if twittch is from daemon, we add daemon. … same on mode."/ · /"ok. go done"/ — LANDED the owner =bind= (daemon aperture · domain aperture · seed rig · runtime twitch), =contexts.daemon= declared; =control.stderr= HIS shape (a locator → span, =.fault=); a mode's twitch is its OWN subscriber (spread · =bind("mode")= · =owned()= · =/after= =control.stderr=), =integration.twitch= cut. =ok | 35 passed (241 steps)= · =mode/twitch.test.js= 3 steps.
+
+* release
+
+- added `object.at` · `control.fault` (typology belt) — a dotted-path read · a middleware faulting a throw on a controller's stdout · migrate: none ⟨literal-rewrite⟩
+- added `entity_update` · `literal_update` · `symbol_update` (runtime tools) — a trait patch merged deep onto one entity · migrate: none ⟨literal-rewrite⟩
+- changed a daemon's =/after= twitch fault — =console.error("[twitch:detached]")= → a =fault= record on the daemon's controller stdout · migrate: none ⟨literal-rewrite⟩
+
+* handoff
+
+- goal :: a model edits a literal's text, tokens and slug, and a symbol's label and slug, through the domain's own tools; integrity held by twitches.
+- done :: drill Q0–Q11 locked; runtime tools · stdout tap · owner binds · mode twitch attach landed, green.
+- next :: his go on =* as code=.
+- never :: =Example:= prose in a valence or =.desc(=; a token without =literal= refused (Q2); code touching =VOCALIZED= (Q8).
+- owed :: his go · restart =:2501= (=systems/= unwatched) · his jj on the registry (graft, tests, =sentences.js= drained edit) · belt vs shard: codestyle puts =(ctx, next)= in =shard/=; =control.fault= is one, by his ruling.

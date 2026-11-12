@@ -186,5 +186,5 @@ export const doctor = new Vector().open(
       "the record, not a guess.",
     input: v.object({}),
   },
-  async (ctx) => ({ output: await report(ctx) }),
+  async (ctx) => ({ product: await report(ctx) }),
 );

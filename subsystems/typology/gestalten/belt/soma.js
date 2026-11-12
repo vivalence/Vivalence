@@ -1,41 +1,60 @@
 import { waiter } from "./promise.js";
+import { yield as yielded } from "../fromm/yield.js";
+
+const grown = (part, carried) => {
+  for (const [key, value] of Object.entries(carried))
+    part[key] = typeof value === "string" && typeof part[key] === "string" ? part[key] + value : value;
+  return part;
+};
+
+const TURN = {
+  open: (turn, carried) => ({ ...carried, parts: [] }),
+  eager: (turn) => turn,
+  resume: (turn) => turn,
+  close: (turn, carried) => ({ ...turn, ...carried }),
+  full: (turn, carried) => carried,
+};
+
+const PART = {
+  open: (part, carried) => ({ ...carried }),
+  delta: grown,
+  draft: (part, carried) => ({ ...part, draft: carried }),
+  full: (part, carried) => ({ ...carried }),
+  close: ({ draft, ...part }) => part,
+};
 
 export function pour(turn, packet) {
-  switch (packet.event) {
-    case "/turn/open":
-      return { ...packet.turn, parts: [] };
-    case "/part/open":
-      turn.parts[packet.index] = { ...packet.part };
-      break;
-    case "/part/delta": {
-      const part = turn.parts[packet.index];
-      for (const [key, value] of Object.entries(packet.delta)) {
-        part[key] =
-          typeof value === "string" && typeof part[key] === "string" ? part[key] + value : value;
-      }
-      break;
-    }
-    case "/part/close": {
-      const part = turn.parts[packet.index];
-      if (part?.type === "tool_use" && typeof part.input === "string")
-        part.input = part.input ? JSON.parse(part.input) : {};
-      break;
-    }
-    case "/turn/close":
-      turn.meta = packet.meta;
-      break;
-    case "/turn/full":
-      return packet.turn;
-  }
+  const [, noun, act] = packet.event.split("/");
+  if (noun === "turn") return TURN[act](turn, packet.turn);
+  if (noun === "part") turn.parts[packet.index] = PART[act](turn.parts[packet.index], packet.part);
   return turn;
 }
+
+const gathered = (product, yielded) => {
+  const next = { ...product };
+  for (const [key, value] of Object.entries(yielded)) {
+    if (key === "message" || key === "object") {
+      if (value != null) next[key] = value;
+      continue;
+    }
+    next[key] = [...(next[key] ?? []), ...(Array.isArray(value) ? value : [value])];
+  }
+  return next;
+};
+
+export const spoken = (transcript) =>
+  [...transcript.turns, ...(transcript.open ? [transcript.open] : [])]
+    .flatMap((turn) => turn.parts)
+    .map((part) => part.text.trim())
+    .filter(Boolean)
+    .join(" ");
 
 export function transcript(state, record) {
   const current = state ?? {
     open: null,
     condition: null,
     turns: [],
-    output: {},
+    product: {},
     meta: undefined,
   };
   switch (record.event) {
@@ -44,67 +63,54 @@ export function transcript(state, record) {
     case "/turn/close": {
       const sealed = pour(current.open, record);
       const next = { ...current, turns: [...current.turns, sealed], open: null };
-      if (sealed.role === "assistant") {
-        const text = sealed.parts
-          .filter((part) => part.type === "text")
-          .map((part) => part.text)
-          .join(" ");
-        const data = sealed.object ?? sealed.parts.find((part) => part.type === "object")?.data;
-        if (text || data !== undefined) next.output = { ...next.output };
-        if (text) next.output.message = text;
-        if (data !== undefined) next.output.object = data;
-      }
+      if (sealed.role === "assistant") next.product = { ...next.product, ...yielded(sealed).product };
       return next;
     }
-    case "/turn/full":
-      return { ...current, turns: [...current.turns, record.turn] };
-    case "/tool/yield": {
-      const output = { ...current.output };
-      for (const [key, value] of Object.entries(record.result.output ?? {})) {
-        if (key === "message" || key === "object") {
-          if (value != null) output[key] = value;
-          continue;
-        }
-        output[key] = [...(output[key] ?? []), ...(Array.isArray(value) ? value : [value])];
-      }
-      return { ...current, output };
+    case "/turn/full": {
+      const results = record.turn.parts.filter((part) => part.type === "tool_result");
+      return {
+        ...current,
+        turns: [...current.turns, record.turn],
+        product: results.reduce((product, part) => gathered(product, part.product), current.product),
+      };
     }
+    case "/part/full":
+      if (!record.turn) return { ...current, open: pour(current.open, record) };
+      return {
+        ...current,
+        turns: current.turns.map((turn) =>
+          turn.id === record.turn ? { ...turn, parts: turn.parts.with(record.index, record.part) } : turn,
+        ),
+      };
     case "/response/close":
       return {
         ...current,
-        meta: record.meta,
-        condition: record.meta?.state === "complete" ? "NOMINAL" : "ERROR",
+        meta: record.response.meta,
+        condition: record.response.meta.state === "complete" ? "NOMINAL" : "ERROR",
       };
-    case "/tool/call":
-      return current;
     default:
       return { ...current, open: pour(current.open, record) };
   }
 }
 
+const opened = (value) => {
+  if (typeof value === "string") return "";
+  if (value !== null && typeof value === "object" && !Array.isArray(value)) return {};
+  return value;
+};
+
 export function* drain(turn) {
   yield { event: "/turn/open", turn: { role: turn.role } };
   for (let index = 0; index < turn.parts.length; index++) {
-    const part = turn.parts[index];
-    const shell = {};
-    const delta = {};
-    for (const [key, value] of Object.entries(part)) {
-      if (key === "type") {
-        shell.type = value;
-        continue;
-      }
-      if (typeof value === "string") {
-        shell[key] = "";
-        delta[key] = value;
-      } else {
-        delta[key] = value;
-      }
-    }
+    const { type, ...fields } = turn.parts[index];
+    const entries = Object.entries(fields);
+    const shell = { type, ...Object.fromEntries(entries.map(([key, value]) => [key, opened(value)])) };
+    const part = Object.fromEntries(entries.filter(([, value]) => opened(value) !== value));
     yield { event: "/part/open", index, part: shell };
-    if (Object.keys(delta).length) yield { event: "/part/delta", index, delta };
+    if (Object.keys(part).length) yield { event: "/part/delta", index, part };
     yield { event: "/part/close", index };
   }
-  yield { event: "/turn/close", meta: turn.meta ?? {} };
+  yield { event: "/turn/close", turn: { meta: turn.meta ?? {} } };
 }
 
 export function attend(stream, onSealed) {
@@ -176,8 +182,8 @@ export function tee(source) {
 
 export async function* textFromPackets(packets) {
   for await (const packet of packets) {
-    if (packet.event === "/part/delta" && typeof packet.delta?.text === "string") {
-      yield packet.delta.text;
+    if (packet.event === "/part/delta" && typeof packet.part.text === "string") {
+      yield packet.part.text;
     }
   }
 }

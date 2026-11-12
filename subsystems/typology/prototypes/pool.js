@@ -8,9 +8,8 @@ export const Condition = Object.freeze({
 });
 
 export const Yield = Object.freeze({
-  NOMINAL: (buffers, meta) => ({ kind: "emission", condition: Condition.NOMINAL, output: { buffer: buffers }, ...meta }),
-  EXHAUSTED: (meta) => ({ kind: "emission", condition: Condition.EXHAUSTED, output: { buffer: [] }, ...meta }),
-  ERROR: (error, meta) => ({ kind: "emission", condition: Condition.ERROR, output: { buffer: [] }, error, ...meta }),
+  NOMINAL: (buffers) => ({ condition: Condition.NOMINAL, product: { buffer: buffers } }),
+  EXHAUSTED: () => ({ condition: Condition.EXHAUSTED, product: { buffer: [] } }),
 });
 
 // single source of truth for a value's pool-shape (patternmap form, like pattern.js's
@@ -30,8 +29,8 @@ const classify = (item) => SHAPES.find(([test]) => test(item))[1];
 async function resolve(item) {
   switch (classify(item)) {
     case "promise": return resolve(await item);
-    case "pool": return (await item.drain()).output?.buffer ?? [];
-    case "nominal": return item.output.buffer;
+    case "pool": return (await item.drain()).product.buffer;
+    case "nominal": return item.product.buffer;
     case "array": return (await Promise.all(item.map(resolve))).flat();
     case "buffer": return [item];
     default: return []; // empty | spent
@@ -54,7 +53,7 @@ export class Pool {
           this.items.push(arg);
           break;
         case "nominal":
-          this.add(...arg.output.buffer);
+          this.add(...arg.product.buffer);
           break;
         case "array":
           this.add(...arg);

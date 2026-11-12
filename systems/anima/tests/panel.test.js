@@ -21,7 +21,7 @@ const seated = async () => {
   held.seat();
   held.authorize();
   held.activate();
-  held.terminal.repl.commands = new Vector().graft(ghost.terminal.commands.dock);
+  held.terminal.repl.commands = new Vector().graft(ghost.commands.surface.dock);
   const rig = paint(() => surface.Panel({ client: held.client }));
   await settle();
   const close = () => rig.close();
@@ -48,7 +48,7 @@ specimen.describe("panel — Dom.panel: the chord walk under ctrl-v, the palette
     await close();
   });
 
-  specimen.it("the palette lists $catalog; the composer's draft narrows and lights the match, the crumb shows it; a row dispatches; nothing matching says so", async () => {
+  specimen.it("the palette lists $catalog; the dock textarea's draft narrows and lights the match, the crumb shows it; a row dispatches; nothing matching says so", async () => {
     const { rig, client, sent, close } = await seated();
     client.terminal.repl.$catalog.set([
       { nature: "/help", chord: "leader/?", options: [], args: false },
@@ -72,7 +72,7 @@ specimen.describe("panel — Dom.panel: the chord walk under ctrl-v, the palette
     specimen.expect(rig.target.querySelector("section.panel").hasAttribute("hidden")).toBe(true);
     await close();
   });
-  specimen.it("a typed /verb with options opens the chooser: .pb.chooser › .cf filter · count, a .crow per option; a pick fills the composer's draft; enter on an exact option runs it; enter on a verb wanting args fills it", async () => {
+  specimen.it("a typed /verb with options opens the chooser: .pb.chooser › .cf filter · count, a .crow per option; a pick fills the dock textarea's draft; enter on an exact option runs it; enter on a verb wanting args fills it", async () => {
     const { rig, client, sent, terminal, close } = await seated();
     client.terminal.repl.$catalog.set(ghost.shard.keymap.catalog(terminal.repl.commands));
     client.surface.$draft.set("/dock ");

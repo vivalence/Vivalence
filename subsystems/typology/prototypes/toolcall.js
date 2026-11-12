@@ -3,6 +3,8 @@ import { Signal } from "./signal.js";
 import * as hash from "../gestalten/belt/hash.js";
 import * as is from "../gestalten/is/index.js";
 
+const CAP = 64;
+
 export class ToolCall extends Signature {
   static coercions = [
     [
@@ -21,7 +23,11 @@ export class ToolCall extends Signature {
   }
 
   get name() {
-    return this.absolute.join("_");
+    const underscored = this.absolute.filter((nature) => nature.includes("_"));
+    if (underscored.length) throw new Error(`[toolcall] a tool step carries "_", it would not split back: ${underscored.join(" · ")}`);
+    const name = this.absolute.join("_");
+    if (name.length > CAP) throw new Error(`[toolcall] ${name}: ${name.length} chars, a provider caps a tool name at ${CAP}`);
+    return name;
   }
 
   get signal() {

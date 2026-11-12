@@ -1,0 +1,199 @@
+#+title: m121 wakaru — appendix: the teardown read, the viva terrain, the leads
+#+filetags: :m121:teardown:reference:
+
+Appendix to =quests/m121-wakaru.org=, on his /"your references and analysis and insigth into the quest or an appendix"/ (11-16).
+Their source stays in =~/code/teardowns/second-language= (law 2). Here: our reading, their numbers, pointers =[n:line]= = =src/module-<n>.js= line. Their code appears only in the block moved whole from the quest.
+
+* references
+
+| what | where |
+|---|---|
+| teardown root | =~/code/teardowns/second-language= |
+| annotated map | =SYSTEMS.md= · =## Read 11-16= is the long form of this file |
+| a module by export name | =index/modules.tsv=, column 8 |
+| routes → module | =index/routes.md= (68) |
+| as served | =raw/= · 2026-11-16 · app 1.1.0 · 19 MB main bundle + 10 chunks |
+| recovery | =tools/Dockerfile= · =tools/prlimit-relaxed= · REA 6.9.0 · Wakaru 1.14.0 · memory =rea-wakaru-docker= |
+| viva · the buffer row | =subsystems/typology/entities/Buffer.ts:40= · =:80= |
+| viva · the screen atom | =systems/ghost/entities/buffer/prototype.js:21= |
+| viva · the screen keeps a run | dojo =buffer/Dojo.svelte:328= · =aperture/index.js:77= keepQuietly · =:152= =/round= · =types.js:389= round |
+| viva · the daemon keeps a run | chess =~/.viva/registry/chess/modes/board/play/aperture/index.js:274= =/move= · =buffer/session.js:36= hold · =buffer/Play.svelte:16= =$data= |
+| viva · two-way buffer writes | =quests/benched/m54-buffer-file.org:45-85= |
+| viva · the domain | =~/.viva/registry/education/README.md= (its Retention = the tree's Note + RETAINED) |
+| viva · cortex call sites | riddler =emitter.js:60= · =aperture.js:23= · =:35= · dojo =emitter/generate.js:55= · =aperture/index.js:190= · =:245= |
+| viva · live row sizes | =~/.viva/instances/localhost/mountpoint/localhost.viva.db= Buffer.data: dojo 12,305 B · chess 617 B · reader 247 B |
+| not precedents | cocina (ruling 9) |
+
+* the shape
+
+| layer | theirs | pointer |
+|---|---|---|
+| beat | =resolveStep(state, dir, ctx, blocked)= · =applyAction(state, action, ctx)= | 2365:13 · 2344:8 |
+| result | ={state, effects, events, tileChanges}=, always | 2344:321 |
+| ctx | pack tables · =getMap= · =now= · =random= | 2833:88 |
+| state | assembled per action from course · session · world · ui; never stored whole | 2833:100 =snapshot= · :312 =applyState= |
+| dispatch | =dispatchAction= → queue if re-entered → snapshot → =applyAction= → =applyEngineResult= | 2833:672 · :635 · :1519 |
+| after the beat | events → quest engine · state → stores · tile changes · effects → screen, audio | 2833:1529-1560 |
+| learning actions | no-ops in the engine; the adapter writes course progress | 2344:91-104 · 2833:427-497 |
+| dead | =complete_challenge=: a case, no dispatcher | 2344:105 |
+
+* flags — the spine
+
+#+begin_src text
+addFlag(state, flag) → a Set grows, one game event out          2346:104 · flagToGameEvent 2346:73
+visited:<map>  opened:<chest>  challenge_done:<vocab>  quest_item:<item>  collected:<vocab>
+talked_to:<npc>  dialog_done:<npc>:<dialog>  guard_passed:<gate>  defeated:<monster>
+quest_done:<quest>  progress:*_eligible  unlocked:*                    2275:140 · 2368:17
+#+end_src
+
+| derived, never stored | from | pointer |
+|---|---|---|
+| a quest's step | the first step whose trigger flag is unset | 2275:244-278 |
+| a quest active · done | activation condition over flags · =quest_done:<id>= | 2275:56 |
+| inventory | =progressCounts[gainedKey] − Σ consumedKeys= | 2267:946 |
+| which dialog an NPC says | first =mapDialogs[map]= entry whose =allOf · noneOf · heldAtLeast · counterAtLeast= holds | 2275:62 |
+| a monster · a guard present | its placement condition, e.g. =noneOf: [gateFlag]= | 2339 |
+| player level | collected and mastered counts, never XP | 2244:56 |
+
+* the 6 minutes — the player
+
+#+begin_src text
+spawn       entrance_hall · quest entrance_hall_tutorial active (no condition)         2296:229 · 2283
+step        edge → darkness → push → water → blocked trigger → NPC → monster
+            → move → collectAtPosition → portal + guard → NPC proximity           2365:13-262 · :401
+tile kinds  vocab → open_flashcard · mastery → open_mastery_challenge · pedagogy · passage
+            languageNote · characterWriting · dialogueScene · fruit                2357
+a word      record_vocab_collection +5 XP, two successes → challenged → mastery queue → collect_vocab
+                                                                                    2833:438 · 2344:132
+an NPC      startNpcDialog → talked_to · postFlags · dialog_done · postEffects     2359:37 · 2368:11-552
+a monster   roams, aggro radius 7 · contact → battle · win 30 XP + 25–50 coin drop · loss = game over
+                                                                                    2404 · 3575:341 · :316
+quests      events drain after every action → planQuestEffects → rewards, idempotent by key
+                                                                                    2833:1525 · 2368:54-122
+gates       portal guards: guard_passed:*                                          2394
+            guardian: collected 10–150 or mastered 100 → voice riddle (LLM) or test 10–50 Qs, 4 HP a miss
+                                                                                    2189 · 2190 · 3569
+            exams: ≥ 0.8 of collected mastered → 50 Qs, 4 HP a miss, +1000 XP      2141 · 2241:1395
+chain       hall → hallway (3 words, a challenge, the goblin) → village → missing children
+            → cave rescue → wood delivery → river (teacher exam) → bamboo grove → unlocked:intro_expansion
+#+end_src
+
+* the 6 seconds — the interaction
+
+Two loops, no shared code.
+
+| | A · battle question | B · overlay challenge |
+|---|---|---|
+| where | a fight | practice · daily · mastery |
+| picks | =buildQuestionSet(…, 5)= over sentences, unseen first | =curateChallenge=: cooldown out, weighted, =collected= preferred |
+| clock | 3000 · 8000 · 5000 ms by type; paused while held | none |
+| tries | one: =first-try · correct · failed= | retry in place |
+| a miss | no HP; next fight harder: defense ↓ aggro ↑ | −2 HP, the clean flag lost |
+| timeout | = a miss | — |
+| a hit | +AP toward attack power | XP after wrongs |
+| memory | NEVER — imports neither 2133 nor 2135 | =recordChallengeAttempt= |
+| pointer | 2077:44 · 3579:357 · 3591:16 · 3592:32 | 2122 · 2133:172 · 3106:373 · 2135:50 |
+
+#+begin_src text
+battle      ROUND_POWER 40 · 60 · 60 · 80 · 80 × DIFFICULTY 1 · 1.2 · 1.4, ÷ 5 per answer
+            perfect × 2 · cap 200 · opening 60 · defense max(0.4, 1 − 0.15·misses) · aggro min(1, misses/4)
+fight       a hit drains the gauge 5 AP · empty → startCombo · 5 pairs in 15 s
+            COMBO_REWARDS by mistakes: 0 → 1 · 1 → 0.5 · 2 → 1/3 · ≥ 3 failed
+hp          4 per heart · battle base 20 · overlay miss 2
+curator     weight 0.5·recency + 0.5·max(0.2, 1 − successes/10) · last-3 type ×0.2
+            frequency off 0 · less 0.5 · normal 1 · more 2 · cooldown 300000 ms (practice, daily: 0)
+deferral    a miss reinserted 2..n ahead                                           2143
+mastery     5 rounds from a type-share deck (a type CAN repeat in its group) → complete_mastery
+            XP (rounds + 50) × 2 if perfect → mastered + challenge_done:<vocab>   2116 · 3571:99 · 2344:122
+#+end_src
+
+* the data model
+
+| entity | persisted | owner | pointer |
+|---|---|---|---|
+| CourseProgress, one per course | yes, localStorage =sl/save/v1=, 500 ms debounce | course store | 2135:321 · 2458 |
+| TermProgress =vocabId · status · successes · failures · skips · lastAttemptAt · completedTypes= | inside it | course | 2135:224 |
+| flags · reward keys · counters · hp · xp · coins · equipped | inside it | course | 2135:321 |
+| pose · NPC and monster instances · drops · placements | no — rebuilt on map entry from pack + flags | world | 2168 · 2371:198 |
+| dialog | no | ui | 2365:129 |
+| content catalog: vocab · sentences · passages · notes | no — loaded from the course artifact | gameplay | 2419:25 · 2664:310 |
+| the pack: maps · npcs · monsters · items · quests · guards · gates · fish | fetched per course from a CDN; only maps deep-validated | pack | 2905:102 · 2322:186 |
+
+#+begin_src text
+sync        per-actor G-counters (xp · pc:* · coins+ · coins−) · grow-only sets · term status by max rank
+            mergeRecords 2476:348 · record 2463:59 — CUT here, the shape kept
+terms       three bindings, no shared id: term_<n> vocab (2664:207) · TERM_GLOSSARY for dialog only (2183)
+            · inline surfaces on lines, items, map staticVocab (2175:91) · monsters bind no term
+#+end_src
+
+* moved whole from the quest 11-16 — =* work 4=
+
+** Second Language — what it is
+
+#+begin_src text
+stack     Expo Router → react-native-web · tiles are RN views, no canvas · Reanimated
+engine    applyAction(state, action) → state + effects      src/module-2344.js   (names only)
+movement  resolveStep · resolveClickTile                    src/module-2365.js · 2355   (names only)
+content   packs: MAPS · MONSTER_DEFS · NPC_DEFS             src/module-2426.js · 2169
+adapter   effect handlers · dispatchAction                  src/module-2833.js
+learning  one pure package behind a barrel                  src/module-2072.js
+stores    session · world · gameplay · course · settings · ui · save · audio
+#+end_src
+
+#+begin_src js
+// src/module-2135.js — the whole memory model; no intervals anywhere
+{ vocabId, status, successes, failures, skips, lastAttemptAt, completedTypes: [] }
+// status: collected → challenged (first success, enqueues mastery) → mastered
+// RECENCY_COOLDOWN_MS = 300000
+#+end_src
+
+#+begin_src js
+// src/module-2143.js — a miss comes back, the run goes on
+export const rollDeferGap = function(e, t = Math.random) {
+    const n = Math.min(2, e);
+    const o = Math.max(n, e);
+    return n + Math.floor(t() * (o - n + 1));
+};
+export const insertDeferred = function(e, t, n) {
+    const o = Math.max(1, Math.min(n, e.length));
+    return [...e.slice(0, o), t, ...e.slice(o)];
+};
+#+end_src
+
+#+begin_src js
+// src/module-3578.js — battle v3
+export const battleHpForHearts = function(n) {
+    const t = Math.max(0, Math.floor(n) - 1);
+    return Math.round(BATTLE_BASE_HP * (1 + BATTLE_HP_PER_EXTRA_HEART * t));   // 5 hearts · 0.25
+};
+export const QUESTION_CLOCK_MS = { word_match: 3000, word_match_reverse: 3000, character_order: 8000,
+    reading_comprehension: 5000, listening_comprehension: 5000, read_aloud: 5000 };
+export const ROUND_POWER = { word_match: 40, word_match_reverse: 40, character_order: 60,
+    reading_comprehension: 60, listening_comprehension: 80, read_aloud: 80 };
+export const DIFFICULTY_POWER = { easy: 1, medium: 1.2, hard: 1.4 };
+export const PERFECT_BONUS = 2;
+export const MAX_ATTACK_POWER = 200;
+// DEFAULT_V3_CONFIG.questionCount = 5
+#+end_src
+
+| loop | serialized |
+|---|---|
+| word | =collected= → =challenged= → =mastered= |
+| mastery run | =MASTERY_ROUND_COUNT= rounds · each a different challenge type · miss deferred 2..n |
+| battle | 5 questions · clock 3000 · 8000 · 5000 ms · power 40 · 60 · 80 · × 1 · 1.2 · 1.4 · perfect × 2 · cap 200 |
+| exam | 50 questions · pass ≥ 50 · 4 HP a miss · gate ≥ 0.8 of collected mastered |
+| daily | base 25 · step 5 · cap 50 · revival 3 days |
+
+* insights — mine, unruled; the quest's =* the steal= is the short form
+
+1. One beat, two callers. A pure step with =now= and =random= in =ctx= runs the same on the screen or the daemon, and replays from a seed. Q14 then decides only who calls it.
+2. Flags are the spine. A run persists a grow-only set, counters and a pose; quest progress, inventory, dialog choice and who stands where are derived. =data= stays small, and law 5 holds without a blob.
+3. Effects and events are separate outputs. Effects go to the screen; events (new flags) go to the quests. One reducer, two consumers, and no screen code in the rules.
+4. Their battle never writes memory and nothing is spaced. Ruling 3 makes every graded answer a =literal.review=, so every fight is practice — a gain over theirs, not a copy.
+5. Their memory model is a three-state ladder of counters. Here it is a reading of =literal.assess()= (law 3); their gates by count become gates by status over a symbol set.
+6. Their terms bind to content three ways with no shared id. Here one binding is enough: a literal slug or a symbol set on every line, item and encounter.
+7. Inventory is a difference of counters, so there is no inventory store to keep in sync.
+8. A quest is data: activation over flags, steps triggered by flag prefixes, rewards idempotent by key. Nothing about a quest is ever stored.
+9. The world is rebuilt on map entry from content + flags, so a buffer never holds NPC or monster instances.
+10. Their dialogue is pre-rendered (2.2 MB of captions); one guardian riddle is graded by an LLM. Here the cortex speaks (ruling 4), and the latency a beat tolerates is still owed (work 3).
+11. Their two question loops share no code: a clocked one with no memory, and an unclocked one with memory. One loop that is clocked AND reviews is the obvious steal, and Q10 rules the clock.

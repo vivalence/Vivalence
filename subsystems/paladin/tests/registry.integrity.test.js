@@ -28,7 +28,7 @@ describe("integrity — the fold over pairs", () => {
 
   it("a marker trait carries nothing and asks nothing", () => {
     const held = span();
-    probe(RULES)({ manifest: { type: "game", slug: "g", version: "0.0.1", traits: ["AGENTIC", "CONVERSATIONAL"] } }, held);
+    probe(RULES)({ manifest: { type: "game", slug: "g", version: "0.0.1", traits: ["HARNESSED", "CONVERSATIONAL"] } }, held);
     expect(said(held, "fault")).toEqual([]);
   });
 

@@ -1,0 +1,297 @@
+#+title: solid two (m124) — the clients' renderers on Solid 2.0: feasibility · workpackages
+#+filetags: :benched:anima:ghost:drapes:sheets:paladin:design:
+#+status: BENCHED 11-17 /"move to benched"/ — assessed: DOM half GO, tty half BLOCKED (=@opentui/solid= peers =solid-js ^1.9.12=; tty dead under Deno: =node:ffi=); Q1–Q3 unruled, nothing landed; reopen trigger: =@opentui/solid= on =solid-js ^2=, or the tty painting under Deno, or his word
+#+phase: benched
+# writer: agent · limit: 16000 chars
+
+* intent
+
+/"quest m124 two solid."/
+
+/"https://www.solidjs.com/blog/solid-2-0-the-long-hold/"/
+
+/"run an assessmentn of feasability and workpackage of migration to solid 2."/
+
+* verdict — measured 11-17
+
+| half | areas | files | rows | verdict | gate |
+|---|---|---|---|---|---|
+| DOM | =anima= · =drapes= · =commons= reader · darkroom | 60 | 7232 | GO | milestone =the probe= |
+| tty | =ghost= · =sheets= · paladin views · =commons= memo · registry | 53 | 4818 | BLOCKED | Q1 · =tty-chrome-opentui-node-ffi= |
+| split | DOM on 2.0 · tty on 1.9 | — | — | PROBE | one root =import_map.json= = one =solid-js= |
+
+| package | ours | npm =latest= 11-17 | peer on =solid-js= |
+|---|---|---|---|
+| =solid-js= | 1.9.12 | 2.0.0 (=v1-latest= 1.9.19) | — |
+| =@solidjs/web= | — | 2.0.0 | =^2.0.0= |
+| =@solidjs/universal= | — | 2.0.0 | =^2.0.0= |
+| =@solidjs/babel-plugin= | — | 2.0.0 | — |
+| =babel-preset-solid= | 1.9.12 | 1.9.19 (=next= 2.0.0-rc.2) | =^1.9.16= |
+| =@solidjs/vite-plugin= | — | 3.0.1 | =^2.0.0=; vite =^8 \vert\vert ^9= (ours 8.1.0) |
+| =vite-plugin-solid= | 2.11.16 | 2.11.16 | =^1.7.2= |
+| =@opentui/solid= | 0.5.17 | 0.9.2 (11-16) | =^1.9.12= |
+| =@opentui/core= | 0.5.17 | 0.9.2 | engines node =>=26.4.0= · bun |
+
+| 2.0 rule | files | hits | kind |
+|---|---|---|---|
+| =from= takes an observer, returns an AsyncIterable | 42 | 221 | semantic |
+| =mergeProps= → =merge= (=undefined= overrides) | 31 | 33 | semantic |
+| =classList= → =class= object | 19 | 44 | mechanical |
+| =Context.Provider= → =<Ctx value>= | 15 | 26 | mechanical |
+| =createEffect= one-arg → =(compute, apply)= | 15 | 21 | semantic |
+| =onMount= → =onSettled= | 12 | 15 | mechanical |
+| =solid-js/web= → =@solidjs/web= | 12 | 12 | mechanical |
+| =Dynamic= → =dynamic()= | 11 | 15 | mechanical |
+| =on= removed | 8 | 16 | semantic |
+| =createResource= → async memo + =Loading= | 4 | 9 | semantic |
+| =Index= → =For keyed={false}= | 4 | 7 | mechanical |
+| =ErrorBoundary= → =Errored= | 2 | 5 | mechanical |
+| staged writes · owned-scope writes | ? | ? | semantic, dev diagnostics only |
+
+Every site: =reference/solid-two/terrain.org=. Not in the blast: stores (0 =createStore=), SSR, router, =batch=, =createRoot=.
+
+* the dialogue
+
+| Q | ruling | his words |
+|---|---|---|
+| Q1 | the tty renderer on 2.0: hold for upstream · own a port | unruled 11-17 |
+| Q2 | the atom bridge: one function, its home · name | unruled 11-17 |
+| Q3 | one flag day · DOM first | unruled 11-17 |
+
+** as code
+
+Q1 — =@opentui/solid@0.9.2= =index.js:229= vendors Solid 1's universal renderer; 2.0's takes the same ten node ops, OpenTUI's two extras do not exist there.
+
+#+BEGIN_SRC js
+// @opentui/solid@0.9.2 index.js:229
+function createRenderer({
+  createElement,
+  createTextNode,
+  createDynamicTextNode,
+  createSlotNode,
+  isTextNode,
+  …
+// @solidjs/universal@2.0.0 dist/universal.js:19
+function createRenderer({
+  createElement,
+  createTextNode,
+  createSentinel = () => createTextNode(""),
+  isTextNode,
+  replaceText,
+  insertNode,
+  removeNode,
+  cleanupNodes,
+  setProperty,
+  getParentNode,
+  getFirstChild,
+  getNextSibling
+}) {
+#+END_SRC
+
+- a. hold: the flag day waits on upstream; GitHub =anomalyco/opentui= 11-17: /"solid 2.0"/ 0 issues, no branch.
+- b. port: =@opentui/solid='s 1545-row =index.js= rebuilt on =@solidjs/universal=; =createSlotNode= → =createSentinel=, =createDynamicTextNode= ours.
+- mine: a. A port cannot be walked while the tty does not paint under Deno (=tty-chrome-opentui-node-ffi=).
+
+Q2 — Solid 2 calls =subscribe({ next, error, complete })=; a nanostore calls its listener as a function.
+
+#+BEGIN_SRC js
+// @solidjs/signals@2.0.0 dist/dev.js:10370
+function toSubscribe(source) {
+  if (typeof source === "function") return source;
+  …
+  if (obs && typeof obs.subscribe === "function")
+    return (next, error, complete) => obs.subscribe({ next, error, complete });
+// systems/ghost/surfaces/chrome/panels/repl/repl.jsx:94
+  const catalog = from(terminal.repl.$catalog);
+// subsystems/typology/gestalten/belt/atom.js:25
+export function chain(root, ...path) {
+  return { subscribe(run) { return bind(root, path, run); } };
+}
+#+END_SRC
+
+Before (1.9, 221 hits) · after (2.0, the bridge):
+
+#+BEGIN_SRC js
+const catalog = from(terminal.repl.$catalog);
+#+END_SRC
+
+#+BEGIN_SRC js
+export const follow = (store) =>
+  createMemo(() => from((next) => store.subscribe(next)));
+#+END_SRC
+
+- home, mine: =systems/ghost/gestalten/= beside =ambient.js=, the Solid glue anima already imports (=anima/src/surfaces/chrome/mount.jsx:5=).
+- name: his. =follow= is a placeholder.
+- it lands on 1.9 first (body =from(store)=); the 2.0 flip rewrites one body.
+
+Q3 — =import_map.json:86= maps ONE =solid-js= for every process; a tty view is imported from a blob, which no path scope reaches (probe =split=).
+
+#+BEGIN_SRC js
+// import_map.json:86
+    "solid-js": "npm:solid-js@1.9.12/dist/solid.js",
+// commons/fixtures/memo/tests/memo.test.js — its test name
+the memo view — compiled by paladin's tty.solid row, imported from a blob as ghost does, driven by keys
+#+END_SRC
+
+- a. one flag day: pins · compilers · sweep in one change, after Q1's gate.
+- b. DOM first: an import-map scope pins the tty paths to 1.9; probe =split= decides.
+- mine: a. Two reactive cores in one tree is the one-way law broken.
+
+* terrain — measured 11-17
+
+The tty is dead under Deno before Solid 2 touches it:
+
+#+BEGIN_SRC sh
+# @opentui/core@0.9.2 chunk-node-mcdre3zn.js
+2755:var FFI_UNAVAILABLE = "OpenTUI native FFI is not available for this runtime yet";
+2805:    const nodeFfi = requireModule("node:ffi");
+# deno --version
+deno 2.9.7 (stable, release, aarch64-apple-darwin)
+#+END_SRC
+
+The dual-core trap under Deno: =@solidjs/universal= imports bare =solid-js=, whose =deno= condition is the SERVER build; ours is pinned to the client file.
+
+#+BEGIN_SRC sh
+# @solidjs/universal@2.0.0 dist/universal.js:1
+import { createComponent, merge, createRoot, flush, … } from 'solid-js';
+import { hasStaticKeys, viewOf, … } from 'solid-js/internal';
+# solid-js@2.0.0 package.json exports "."
+"browser": { … "default": "./dist/solid.js" }, "deno": { … "default": "./dist/server.js" }
+# import_map.json:86
+"solid-js": "npm:solid-js@1.9.12/dist/solid.js",
+#+END_SRC
+
+Six names we import from =solid-js= are gone from its 2.0 export list: =ErrorBoundary= · =Index= · =createResource= · =mergeProps= · =on= · =onMount=; =Dynamic= moves to =@solidjs/web=, deprecated.
+
+The compiler seams, five:
+
+#+BEGIN_SRC sh
+subsystems/paladin/gestalten/belt/bundler.js:29   import("babel-preset-solid")
+subsystems/paladin/gestalten/belt/bundler.js:40   { generate: "universal", moduleName: "@opentui/solid" }
+subsystems/paladin/gestalten/belt/bundler.js:41   { generate: "dom" }
+systems/ghost/surfaces/chrome/bundle.js:18        { generate: "universal", moduleName: "@opentui/solid" }
+subsystems/sheets/tests/scenarios/index.js:45     { generate: "universal", moduleName: "@opentui/solid" }
+subsystems/drapes/tests/scenarios/index.js:51     { generate: "dom" }
+systems/anima/vite.config.mjs:1 · :190            import solid from "vite-plugin-solid" · solid()
+#+END_SRC
+
+=@solidjs/babel-plugin@2.0.0= README:113 keeps =generate: 'dom' | 'ssr' | 'universal' | 'dynamic'= and =moduleName=; README:312 /"those components must exist in =moduleName="/ — which built-ins the tty renderer must export is probe =emit=.
+
+* the law
+
+1. one =solid-js= per process, one module instance: the client build, everywhere.
+2. a renderer module owns every helper its compiler emits.
+3. a nanostore enters Solid through one bridge.
+
+* deliverables
+
+- =testament/prototypes/solid-two/run.js= — the probe, throwaway.
+- the atom bridge on 1.9 (Q2).
+- =import_map.json= pins · =deno.lock= relock.
+- five compiler seams on =@solidjs/babel-plugin= · =@solidjs/vite-plugin=.
+- the sweep: 13 rules × the terrain.
+- registry views: chess =play= · education =cocina= · =comando= · =dojo= (his jj tree).
+
+* milestones
+
+0. *the probe* — =testament/prototypes/solid-two/run.js=, on a free port, each check able to fail:
+   - =single= — =npm:solid-js@2.0.0/dist/solid.js= and =@solidjs/universal='s =solid-js= are one module; without, then with =--conditions=browser=.
+   - =follow= — =createMemo(() => from((next) => $atom.subscribe(next)))= reads the atom on the first pass, no =Loading= frame, unsubscribes on dispose.
+   - =emit= — the helper names =@solidjs/babel-plugin= =generate: "universal"= imports from =moduleName=.
+   - =vite= — =@solidjs/vite-plugin@3.0.1= build + dev under Deno, OXC (=@solidjs/compiler= napi) then babel.
+   - =bytes= — a paladin =dom= row bundle, 1.9.12 vs 2.0.0.
+   - =split= — an import-map scope reaching a blob-imported module.
+1. *the atom bridge* — every =from($store)= site through one function, on 1.9 (Q2). Green: anima + ghost suites as base.
+2. *the tty renderer* — =@opentui/solid= on 2.0 (Q1); gated on the tty painting under Deno.
+3. *the pins* — =import_map.json:43 · :86 · :88 · :89=; =deno.lock:49 · :50 · :65 · :85 · :102=.
+4. *the compilers* — the five seams; =bundler.test.js= green.
+5. *the sweep* — mechanical rules by regex, semantic rules by hand: effects split · =createResource= → async memo · =merge= =undefined= callers · set-then-read in one tick.
+6. *the registry views* — four =.jsx=, three =tty.render.test.js=.
+7. *the walk* — anima on a free port: zero dev diagnostics (=STRICT_READ_UNTRACKED= · owned-scope writes); the tty walk after the gate.
+
+#+BEGIN_SRC diff
+// import_map.json:43
+-    "vite-plugin-solid": "npm:vite-plugin-solid@2.11.16",
++    "@solidjs/vite-plugin": "npm:@solidjs/vite-plugin@3.0.1",
+…
+// import_map.json:86
+-    "solid-js": "npm:solid-js@1.9.12/dist/solid.js",
++    "solid-js": "npm:solid-js@2.0.0/dist/solid.js",
++    "@solidjs/web": "npm:@solidjs/web@2.0.0",
++    "@solidjs/universal": "npm:@solidjs/universal@2.0.0",
+…
+-    "babel-preset-solid": "npm:babel-preset-solid@1.9.12",
++    "@solidjs/babel-plugin": "npm:@solidjs/babel-plugin@2.0.0",
+#+END_SRC
+
+=:88= =@opentui/solid= moves with Q1. The =solid-js= row's shape follows probe =single=.
+
+#+BEGIN_SRC diff
+// subsystems/paladin/gestalten/belt/bundler.js:29
+-      const [{ transformAsync }, { default: preset }] = await Promise.all([import("@babel/core"), import("babel-preset-solid")]);
++      const [{ transformAsync }, { default: plugin }] = await Promise.all([import("@babel/core"), import("@solidjs/babel-plugin")]);
+…
+-        presets: [[preset, options]],
++        plugins: [[plugin, options]],
+#+END_SRC
+
+* blast table
+
+| area | renderer | files | rows | BREAKS now | at land |
+|---|---|---|---|---|---|
+| =systems/anima= | dom | 21 | 3593 | — | every =from= · effect · =classList= |
+| =subsystems/drapes= | dom | 37 | 2437 | — | =mergeProps= 18 · =classList= 13 · =Index= 3 |
+| =commons= reader · darkroom | dom | 2 | 1202 | — | =classList= 16 · =createResource= 3 · =solid-js/web= |
+| =systems/ghost= | tty | 19 | 2969 | tty paints nothing | =from= 18 · =ErrorBoundary= · =Dynamic= |
+| =subsystems/sheets= | tty | 20 | 754 | tests red: FFI | =mergeProps= 12 |
+| =subsystems/paladin= views · bundler | tty · dom | 4 | 351 | — | three compiler rows |
+| =commons/fixtures/memo= | tty | 3 | 99 | test red: FFI | =from= · =createEffect= · =.Provider= |
+| =~/.viva/registry= | tty | 8 | 833 | — | =from= 3 · =.Provider= 4 |
+
+- =anima-suite-aborts-on-two-files= — its cause (=solid-js/web= has no exact entry) dies at land: =@solidjs/web= enters exact.
+- =systems/ghost/gestalten/ambient.js:7= hand-throws on a missing Provider; 2.0's default-less context throws =ContextNotFoundError= itself.
+
+* testing assessment
+
+Baseline 11-17, one-shot from the root:
+
+#+BEGIN_SRC sh
+subsystems/paladin/tests/bundler.test.js            ok | 1 passed (7 steps)
+systems/ghost/tests/surfaces/chrome/mount.test.js   ok | 1 passed (1 step)
+subsystems/drapes/tests/parts/journal.test.js       ok | 1 passed (7 steps)
+subsystems/sheets/tests/field.test.js               FAILED | 1 failed (2 steps)
+systems/ghost/tests/surfaces/chrome/voice.test.js   FAILED | 4 failed (15 steps)
+commons/fixtures/memo/tests/memo.test.js            FAILED | 1 failed (2 steps)
+# each red: Error: Failed to initialize OpenTUI render library:
+#   OpenTUI native FFI is not available for this runtime yet  → tty-chrome-opentui-node-ffi
+#+END_SRC
+
+- COVERAGE GAP: every tty paint test is red under Deno; the tty half cannot be proven until FFI loads.
+- COVERAGE GAP: staged writes (=set(v); read()= returns the old value till the microtask) — no test asserts a same-tick read.
+- COVERAGE GAP: =merge= with an explicit =undefined= prop — no drapes · sheets test passes one.
+- 2.0 tests =flush()= after a setter before asserting; every DOM test that sets then asserts gains one.
+
+* QA
+
+#+marker_qa: solid-two/P-probe · pending · six probe checks print PASS | FAIL each
+#+marker_qa: solid-two/T-anima · pending · I open anima, I see the chrome as on 1.9, the console shows zero Solid diagnostics
+#+marker_qa: solid-two/T-tty · pending · I run =viva=, I see the chrome paint (after the FFI gate)
+
+* deferred
+
+- Q1 · Q2 · Q3 — unruled.
+- the OXC compiler for paladin's rows (=@solidjs/compiler= napi under Deno) — after probe =vite=.
+- =@opentui/solid= 0.5.17 → 0.9.x on 1.9 — its own bump, under =tty-chrome-opentui-node-ffi=.
+
+* changelog
+
+- 11-17 /"move to benched"/ — =mv= to =benched/=.
+- 11-17 /"quest m124 two solid."/ — assessed: npm registry · solid-js 2.0.0 · @solidjs/* · @opentui/* tarballs read; census over the repo + =~/.viva/registry=; baseline 3 ok · 3 red (FFI). Nothing landed.
+
+* handoff
+
+- goal: the clients on Solid 2.0, one =solid-js=.
+- done: the assessment; =reference/solid-two/terrain.org=.
+- next: his Q1 · Q2 · Q3; then milestone =the probe=.
+- never: a second =solid-js= in one process; a tty port walked on a tty that does not paint.
+- owed: —

@@ -2,7 +2,7 @@ import { createSignal } from "solid-js";
 import { specimen } from "@vivalence/typology";
 import { frame, palette, parts, screen, settle } from "./scenarios/index.js";
 
-specimen.describe("Field — the composer, the repl line, the filter", () => {
+specimen.describe("Field — the dock textarea, the repl line, the filter", () => {
   specimen.it("› for a turn with its placeholder, << for a line; the keys sit right", async () => {
     const { Field } = await parts;
     specimen.expect(await frame(() => Field({ palette: palette(), value: "", placeholder: "say it, or / for a command", keys: "⏎" }), { width: 40, height: 1 })).toMatch(/^ › ▌say it, or \/ for a command\s+⏎ $/);

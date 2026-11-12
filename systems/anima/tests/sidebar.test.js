@@ -61,8 +61,8 @@ specimen.describe("sidebar — Dom.sidebar: .sbhead · .sbbody of sections · .s
     fire(rig.target.querySelector("[data-line='/tier capable']"), "click");
     fire(rig.target.querySelector(".dset [data-line='/dock full']"), "click");
     fire(rig.target.querySelector(".dset [aria-label='more']"), "click");
-    fire(rig.target.querySelector("[data-line='/dock/lens chat']"), "click");
-    specimen.expect(sent).toEqual(["/terminal 1", "/tier capable", "/dock full", "/split 0.43", "/dock/lens chat"]);
+    fire(rig.target.querySelector("[data-line='/dock/lens repl']"), "click");
+    specimen.expect(sent).toEqual(["/terminal 1", "/tier capable", "/dock full", "/split 0.43", "/dock/lens repl"]);
     fire(rig.target.querySelector("[data-line='/sidebar/width 296']"), "click");
     fire(rig.target.querySelector("[data-line='/telemetry']"), "click");
     await settle();

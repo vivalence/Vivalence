@@ -1,5 +1,5 @@
 import { wrap } from "@mikro-orm/core";
-import { Aperture, contexts, shard, Vector } from "@vivalence/typology";
+import { Aperture, contexts, control, shard, Vector } from "@vivalence/typology";
 
 export const stdout = async (modeDie, next) => {
   try {
@@ -39,6 +39,16 @@ export const core = async (modeDie, next) => {
   modeDie.mode.tools = new Vector()
     .use(shard.context.spread(contexts.modeDie, modeDie))
     .use(shard.context.bind("mode", modeDie.mode));
+
+  modeDie.mode.twitch
+    .use(shard.context.spread(contexts.modeDie, modeDie))
+    .use(shard.context.bind("mode", modeDie.mode))
+    .use(shard.datamap.owned());
+  modeDie.mode.twitch
+    .branch("/after")
+    .use(shard.datamap.detached(modeDie.datamap))
+    .use(control.stderr((die) => die.mode.stdout));
+  modeDie.datamap.registerSubscriber(modeDie.mode.twitch);
 
   await modeDie.datamap.shard.scope(async () => {
     const entity = await modeDie.entities.mode.ensure({

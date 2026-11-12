@@ -1,0 +1,230 @@
+#+title: harness-layout — the ui, planned from the comp into ghost and anima, 11-17
+# writer: agent · limit: 15000 chars
+
+* intent — his, verbatim
+
+/"this is the anima side. not yet integrated."/
+
+/"i wanted you to take the design artifaces, analyze them, and plan their integration into ghost and anima. aka chop up the work, define deliverables, draw cross conenctions, orient the execution agent. work the artifact into the quest"/
+
+/"note! important. the design is considered best effort but insuficient."/ · /"quest reigns design"/ · /"design is sketch"/
+
+* the comp — a SKETCH: the quest reigns; silent quest → live code stays; the comp fills the rest
+
+| board | px | pane | lab twin |
+|---+---+---+---|
+| =Main.dc.html= | 352 × 1040 | sidebar · harness section | =sidebar.jsx= · =map.jsx= |
+| =Inspector.dc.html= | 1280 × 780 | inspector · harness | =inspector.jsx= |
+| =Repl.dc.html= | 760 × 1480 | repl · 8 states | =signal.jsx= |
+| =Themes.dc.html= | 1440 × 560 | widget · 4 themes | =widget.jsx= |
+
+- artifact =9a931ad8-1049-4d25-91b5-864bf3f8b65a= · version =1794929323-a8b7= · read: =design/reading.org=
+- HANDOFF.md: ABSENT (=* open= 2)
+- the lab =testament/prototypes/harness-ui/= = the comp ported over fixtures, 11-17: the BEHAVIOUR reference, never copied into a client
+
+#+BEGIN_SRC sh
+deno run -A /Users/finn/vivalence/code/vivalence/testament/prototypes/harness-ui/run.js
+#+END_SRC
+
+* the comp against the quest — replayed 11-17
+
+| the comp | the quest · live | stands |
+|---+---+---|
+| × on a carried leaf, the parent key SPLIT into its siblings | Q16 · Q35: unload deletes the keyed reference | × only on a row holding a key |
+| a set on a branch | Q21 · Q35 | the branch's key, its future leaves too |
+| =you= in the journal | Q9 · Q9A | none: a user load writes the trait only (11-17) |
+| cost: meter cells · ±preview · inspector =cost= · =used / window= | =* deferred= the load's character count | out of the ui milestones |
+| =invoke= in the inspector | Q24: grafted, never an aperture | out |
+| lazy ○ · none blank | silent · live ◇ (=sections.js:73=) | ● ◇ ○ |
+| the inspector's 3 boards | silent · live =parts.Inspector= tree · entity · trace | live; journal = trace |
+| the widget = the delta | silent · live =Wid= = the sidebar section (=modeline.jsx:130=) | live; the delta panel his |
+| =/primer/preload · /primer/unload= | RULED 11-18 | as tools |
+
+* the milestones — ui, after the five code milestones, each green before the next
+
+| milestone | runtime · typology | ghost | anima | after |
+|---+---+---+---+---|
+| the served map | =gestalten/belt/= fold · =harnessed.js:266= | — | =sections.js:61= | the composer |
+| the commands | the five tools | =commands/content/harness.js:32= | rides ghost | the served map |
+| the anima surfaces | — | — | =sections.js:288= · =modeline.jsx:106 · :125= · =entities.js:5 · :150= | the commands |
+| the repl shapes | — | =belt/catalog.js:43= | =repl.jsx:10 · :24= | the commands |
+| the ghost twins | — | =sidebar.jsx:36= · =modeline.jsx:28= · =popover.jsx:15= · =repl.jsx= | — | the repl shapes |
+
+| milestone | boards | comp states | suites |
+|---+---+---+---|
+| the served map | all 4 | 0 | 1 new · 3 homes |
+| the commands | Repl | 5 · 6 · 7 | ghost =commands.test.js= + 1 runtime |
+| the anima surfaces | Main · Inspector · Themes | 11 | =sidebar.test.js= · =tele.test.js= · =bar.test.js= |
+| the repl shapes | Repl | 8 | ghost =catalog.test.js= · anima 1 new |
+| the ghost twins | Main · Themes · Repl | 8 | ghost =mount.test.js= · =look= |
+
+* cross connections
+
+** one fold, three readers — the composer, anima, ghost
+
+The comp resolves every glyph, tally and preview from ONE fold over default × delta. The runtime composer resolves the same to build the request (law 5). Ghost and anima import typology, never runtime: the PURE half of the reference milestone lands in typology =gestalten/belt/=; the ctx-bound half (=found= · =seat= · =reached=) stays in runtime =gestalten/=. Departure from =milestones.org= =** the reference= (/home: mine, at the tangle/), mine.
+
+#+BEGIN_SRC js
+// testament/prototypes/harness-ui/harness.js:35
+export const covering = (delta, reference) =>
+  Object.keys(delta)
+    .filter((key) => covers(key, reference))
+    .sort((a, b) => b.length - a.length)[0];
+// testament/prototypes/harness-ui/harness.js:45
+export const resolved = (thread, trait, leaf) => {
+  const key = covering(thread.trait[trait], leaf.reference);
+  if (key === undefined) return offered(thread.home, trait, leaf);
+  return thread.trait[trait][key];
+};
+#+END_SRC
+
+** one writer — a gesture is a signal, the signal reaches the tool
+
+Every click in the comp (set ● ○ ×, acts, widget ×, + load, the field's enter) is ONE repl signal: =/tool/load <ref>…=. Today a harness command patches the trait straight:
+
+#+BEGIN_SRC js
+// systems/ghost/gestalten/commands/content/harness.js:36
+      await ctx.client.runtime.entities.thread.updateOne(
+        { id: ctx.terminal.thread.id },
+        traits.patch(ctx.terminal.thread, { INTELLIGENT: { ...UNPINNED, ...INTELLIGENT, tune: tiers[INTELLIGENT.tier] } }),
+      );
+#+END_SRC
+
+Q9 · Q9A: user and model share the trait; the command calls the runtime's =tool/load=, one writer for both; a USER load, like =/tier=, writes the trait only — /"printed a turn. very stupid. not wanted"/ (11-17).
+
+** one index — every tree reads it
+
+The sidebar map, the inspector tree, the widget counts and the completer span runtime + every daemon (comp: 3 hosts, 9 modes). =/metadata/harness= serves ONE mode's default, no thread:
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/harnessed.js:266
+    mode.aperture.open("/metadata/harness", (ctx) => {
+      const primer = priming({ ...ctx, input: {} });
+      return { references: shape.strip(harness), primer: shape.strip(primer), tools: shape.strip(armory(ctx, primer)) };
+    });
+#+END_SRC
+
+The index = =/modes/index= (Q20 · Q24B, the five tools), fetched per home, re-fetched on =/mode=. Resolution needs no route: the client folds index × =thread.trait.TOOLED · PRIMED= (the thread entity already syncs) × home.
+
+** one unit — DEFERRED
+
+The comp prints cost in four places; the quest defers the load's character count (/"we will do something about that once the system runs"/). The ui milestones ship no cost; the live context meter stays (=sections.js:317=, =context: 0= at =:37=).
+
+** one widget, two places — or two
+
+#+BEGIN_SRC js
+// systems/anima/src/surfaces/chrome/panels/modeline/modeline.jsx:130
+  const section = () => sections(world()).find((candidate) => candidate.id === widget().id);
+#+END_SRC
+
+Today the harness widget IS the sidebar section in a =parts.Wid=. The comp splits them: sidebar = the RESOLVED map, widget = the DELTA (keys · × · + load). The quest is silent: live stays, the split his (=* open= 1).
+
+** one completer, two renderers
+
+=ghost/gestalten/belt/catalog.js= =completions · choosing= feed anima =repl.jsx:10 · :24= and ghost =repl.jsx=. The comp's field completes a REFERENCE segment-wise, filters by a word, ticks many: one belt extension, both repls render it.
+
+** the host's CSS
+
+The comp scopes under =.h=; drapes =parts.css= rules are global and hit it. Measured in the lab: =.tools= (margin · flex column) hits the meter cell =i.tools=; =.seg= adds a margin. Unmeasured, same names in =parts.css=: =.field= · =.meter= · =.row= · =.sub= · =.more= · =.keys= · =.choice=. A part's class is grepped in =parts.css= first (codemap design).
+
+** the tokens
+
+The comp reads dapper names only; every variable its CSS reads is defined (lab probe, 33 names). northsea zone 0: =--divider= = =--surface-lift= = =#1A2A38=; a divider on a lift vanishes.
+
+* the milestones in depth
+
+** the served map
+
+- typology =gestalten/belt/=: =covers · covering · resolved · changes · tally · narrow= (the pure half, lab =harness.js=)
+- the index entry: =reference · valence · input · output · examples · load=
+- a client fold: per trait, per node → ={ state, key, offered, name }=; the delta whole
+- anima =sections.js:61= =given= reads the fold, not =mode.metadata.harness=
+- suites: the fold over the lab fixtures, whole-object snapshot per home (francesca · harvest · harness/runtime); =changes= before → after for each comp preview line
+- QA: /"I move home to tactic/harvest, I see every name re-narrowed, no state changed"/
+
+** the commands
+
+- =ghost/gestalten/commands/content/harness.js=: =/tool/load · /tool/preload · /tool/unload · /primer/load=, input =references= a list (Q21), chord =leader/h/…=
+- =/primer/preload · /primer/unload=: ruled 11-18, as tools
+- refused: =matches nothing: <ref>= (Q33 =missed=) · no-op: =already so=
+- suites: ghost =commands.test.js= — each command's signal · its answer; runtime — a user load writes the trait AND a turn
+- QA: /"I type /tool/unload …/harness/runtime/fs, I see 6 tools leave the map and a turn in the journal"/
+
+** the anima surfaces
+
+the sidebar — =sections.js:288-322= =intelligent=:
+
+- tier · model · tune · effort · rounds · context as live, then =primer= · =tools= strips (tally · loaded/all · fold) over the map
+- =tune= · the model list STAY (=sections.js:296 · :302=, the comp omits them)
+- a map row: glyph · label · host or =home= · tally when shut · hover set =● load · ◇ preload=, =× unload= where a key sits · a carried row dim + the rail at its carrier's depth
+- =Srow.jsx:49= =ROWS= has no row with an inline set: a drapes part, its classes grepped first
+
+the widget — =modeline.jsx:106= · =drapes/Bar.jsx:76=:
+
+- the segment: ={ tier · pct% · n● n◇ }=
+- the panel: live (=Wid= = the section); the comp's delta panel waits on =* open= 1
+
+the inspector — =telemetry/entities.js:5= =LENSES= =tool · primer= today read the default (=:150= =harnessed=):
+
+- the tree lens over the map: strips · loaded/all · set
+- the entity: reference · state · decided by (=its own key= · =carried with <node>= · =mode default=) · model sees =name n/64= (Q28); acts load · preload · unload through =SIGNALS= (=:631=)
+- parts: valence · input · output · examples (tool) · text (primer, the existing =read= act) · members (branch)
+- the trace column = the turns touching the reference (Q9A); =you= and the model
+
+- suites: =sidebar.test.js= · =tele.test.js= · =bar.test.js=; the walk: every comp state per pane in Chrome, a free-port runtime
+- QA: /"I hover fs in the sidebar, click ×, I see fs leave tools, its key leave the trait, the inspector's trace gain the turn"/
+
+** the repl shapes
+
+- the comp's ONE field, 8 states (=Repl.dc.html=): complete a segment · filter and tick · preview · many references · refused · no-op · unruled · =/mode= names
+- the preview: =changes= from the fold, per mode → branch → leaf, before → after, =enter <verb> n= · =esc back=
+- =belt/catalog.js=: a command taking =references= completes paths — Tab one segment · ↑↓ · Space ticks · a word filters
+- the lab's A · C fold into the field; B columns: his
+- suites: ghost =catalog.test.js= (segment · filter · tick); anima: the 8 states, whole rendered rows
+- QA: /"I type /tool/load /daemon/education/mode/ta, Tab, I see tactic/ complete and harvest listed"/
+
+** the ghost twins
+
+- the comp has NO tty board; the brief asked one (repl + widget, ~100 cols): the twins carry the comp's data and states on =@vivalence/sheets=
+- sidebar: =widgets/harness/= beside =entity · display · system= (=sidebar.jsx:36=)
+- modeline: =harness={null}= (=modeline.jsx:28=) → the segment; popover =harness: placeholder= (=popover.jsx:15=) → the widget
+- repl: the completer's rows
+- inspector: ghost telemetry is a swatch (=telemetry.jsx=) → =* deferred=
+- suites: ghost =mount.test.js= · =look= cells
+- QA: /"I run viva, open the harness popover, I see the same keys anima shows"/
+
+* open — his; unruled → the quest's =* deferred=
+
+1. the widget: the DELTA (comp) or the sidebar section (live, =modeline.jsx:130=)
+2. HANDOFF.md — absent; read on its arrival, the quest reigns it too
+
+* lacks — marked, not stubbed
+
+- one leaf out of a loaded branch: Q4A add-only · Q16 deletes keys — not expressible
+- cost anywhere: the deferred character count
+- widening (Q27 reverse): the comp types =/tactic/harvest/drain=
+- the model list in the model fold: =cortex= (sidebar has it today, =sections.js:296=)
+- four themes side by side: =emit.js= scopes a theme to =:root=
+
+* orientation — the execution agent
+
+- the QUEST reigns, the comp is a sketch: a comp line against a ruling dies (=* the comp against the quest=); a silent quest keeps live code
+- read: the quest → this file → =design/reading.org= → the boards → the lab → codemap =design= · =ghost=
+- a milestone opens with its suite red, closes green + the walk; the comp states listed per milestone are the walk's checklist
+- every gesture = ONE repl signal; a client stays domain-blind
+- tokens only, never a hex; a class grepped in =parts.css= before it is named
+- live chrome the comp omits STAYS (=tune=, the model list); a datum without a source is DROPPED and written down, never faked
+- the lab ports the SKETCH verbatim (○ lazy · unload =none= · cost): a reference only where this file keeps it
+- ports: a free one; never =:2501= · =:1794=; VCS read-only
+
+* landed — 11-17, on /"land the rest of the quest up and including ui"/
+
+| milestone | suites green | not proven |
+|---|---|---|
+| the served map | =harness.map.test.js= 3 (fold per home · re-home · =changes=; red with shortest-key wins) · =harness.metadata.snapshot= (=home= · =index=) · anima =harness-wire= 5 | — |
+| the commands | runtime =harness.compose= Q9 step (a user load = the trait, no turn; all missed writes nothing) · ghost =commands.test.js= 35 (red without =already=) | — |
+| the anima surfaces | anima =harness.surfaces.test.js= (sidebar rows · acts · inspector map · bar tally; red without the unload rule) · drapes =bar.test.js= | the walk; =sidebar= · =tele= · =bar= anima suites abort (=world.js:13=) |
+| the repl shapes | ghost =catalog.test.js= 7 (segment · word · tick; red without the segment filter) · anima repl step (=previewed=) | the walk |
+| the ghost twins | ghost =mount.test.js= (the chrome bundles) | every tty render: OpenTUI FFI, known-issues:2341 |
+
+departures, mine: typology =belt/reference.js= = the pure half (=natures · within · narrow · covering · offered · resolved · fold · tally · changes=); runtime =reading.js= narrows through it · the index carries =reference · valence · load= only — no =input= · =output= · =examples= (weight: each HARNESSED mode's metadata ships it) · the domain's primer is outside the map · =/metadata/harness/primer/*= reads through =found= (a foreign section opens) · =/harness/tool/load · preload · unload · /primer/load= run the model's tool, land a user TEXT turn · no Tab (=Field.jsx= has no key hook, m123's): the chooser lists the next segment live, Enter loads the branch (Q21) · the comp's hover set → acts inside an opened row (=sections.js= =acts=) · no dim, rail, trace column · ghost: =widgets/harness/= lists loaded rows, × where a key sits

@@ -50,7 +50,7 @@ describe("T-demo — a clean ledger, ghost's verbs, the memo demo instance: the 
     expect(effect?.manifest?.slug ?? err).toBe("memo");
     expect([effect.faults, effect.problems]).toEqual([[], []]);
     expect(Object.keys(effect.daemons)).toEqual(["memo"]);
-    expect(Object.keys(effect.dormant).sort()).toEqual(["hallucinators[0]", "hallucinators[1]"]);
+    expect(Object.keys(effect.dormant).sort()).toEqual(["hallucinators[0]", "hallucinators[1]", "hallucinators[2]", "hallucinators[3]"]);
   });
 
   it("run.js on the shelf installs the Latin core — 269 literals, 242 symbols, every literal a word or a sentence", async () => {

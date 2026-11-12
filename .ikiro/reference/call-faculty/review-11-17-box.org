@@ -1,0 +1,8 @@
+#+title: call-faculty, S14 of the show-me walk 11-17 — skipped, his words whole
+# writer: agent · limit: 1500 chars
+
+* S14 — box configuration: SKIPPED 11-17, his plane, out of scope
+
+/"the idea of recorder as data exists on anothe rplane here. the idea is that any clietn can have many ways and systems to wire things into the system. like f.e. midi controls later, microphone settings and wiring, usb access, or or or and we want to be able to control this. adding devices to a client. shit like that. but thats out of scope today. lets skip it."/
+
+Parked whole, never a target: =walk-11-17/recorder.s14.js= · =microphone.s14.js= (a table by operating system, =native(os)=, =rate= on the recorder, =recorder = null=). Without it the tty's form = S12's one literal + the two faults fixed (=walk-11-17/microphone.tty.fixed.js= · =recorder.fixed.js=, run by =recorder.probe.js tty.fixed=): an absent command rejects the claim; a dead recorder tears down and says why. Shown 11-17, no amen yet.

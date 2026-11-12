@@ -28,6 +28,6 @@ done < <(grep -oE "(from|import)[[:space:]]*\(?[[:space:]]*[\"'](\.\./)+[^\"']*[
 reason="no leaving the mode (relative-import-reflex ×2): $hits climbs past commons/${inside%%/*}/$(cut -d/ -f2 <<<"$inside")/. Reach another module at runtime (daemon.domain.*, @commons/<type>/<slug>) or own the value here."
 mode=${IKIRO_GUARD_MODE:-deny}
 printf '%s import-guard %s %s\n' "$(date +%s)" "$mode" "$session" >> "$log" 2>/dev/null
-if [ "$mode" = "warn" ]; then echo "import-guard (warn): $reason" >&2; exit 0; fi
+if [ "$mode" = "warn" ]; then jq -n --arg reason "import-guard (warn): $reason" '{ hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: $reason } }'; exit 0; fi
 jq -n --arg reason "$reason" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:$reason}}'
 exit 0

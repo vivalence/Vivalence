@@ -1,0 +1,143 @@
+# limit: 12500 chars · 11-18 anima dictation timing, ms from the first mark; marks = page hooks (instrument.js), SERVER = the Activity's own steps, PERF = Event Timing · LoAF
+# r4 zero=2026-11-18T13:52:47.808Z ws.sent=0 ws.bytes=0 ws.first=0 ws.last=0
+## marks
+     0 $draft 
+     0 repl.dispatch:start /polish/engaged on
+     5 ws.send 1090 {"frame":"cf52dc60-c197-4720-86e3-966267302ade","signal":"/userspace/entities/thread/updateOne","input":{"where":{"id":"01a1d1b0-7ac7-750c-b99d-2943dbf3ab96"},"
+     6 draft:painted raf 1795009967814
+   128 ws.recv 843 {"frame":"8a0310be-e104-4e1b-981e-8ff34423fc83","output":{"op":"update","entity":{"id":"01a1d1b0-7ac7-750c-b99d-2943dbf3ab96","createdAt":"2026-11-12T21:36:06.3
+   196 repl.dispatch:done /polish/engaged on
+   196 ws.recv 818 {"frame":"cf52dc60-c197-4720-86e3-966267302ade","output":{"id":"01a1d1b0-7ac7-750c-b99d-2943dbf3ab96","createdAt":"2026-11-12T21:36:06.343Z","updatedAt":"2026-1
+   196 ws.recv 61 {"frame":"cf52dc60-c197-4720-86e3-966267302ade","close":true}
+   196 timer.stall 115ms late
+   466 ws.send 15 {"type":"ping"}
+   663 dom.pointerdown BUTTON.mic dictate ts=1795009968471
+   664 dom.pointerup BUTTON.mic dictate ts=1795009968472
+   664 dom.click BUTTON.mic dictate ts=1795009968472
+   664 repl.dispatch:start /dictate
+   665 mic.claim:start
+   665 gum:start
+   863 gum:real-granted
+   867 gum:end fake stream, clip 3.94s lead 0.4s
+   867 worklet.addModule:start
+   867 worklet.addModule:end
+   867 mic.$claimed true
+   867 mic.claim:end
+   868 $dictation turns=0 open=- last=-
+   868 verbatim.stream:call
+   868 ws.send 648 {"frame":"cb94c28f-605a-4f6c-ab82-cb7213e67add","signal":"/daemon/spanish/mode/game/dojo/harness/verbatim/stream","input":{"thread":"01a1d1b0-7ac7-750c-b99d-294
+   872 card.shown:painted raf 1795009968680
+   924 mic.frame:first rate 16000 b64 2732
+   924 ws.send:first-big 2843 <binary>
+  1044 ws.recv 409 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"create","entity":{"id":"01a1eeee-7a65-71bd-81e1-b1dc091548cd","createdAt":"2026-11-18T13:52:48.7
+  1051 ws.recv 60 {"frame":"cb94c28f-605a-4f6c-ab82-cb7213e67add","open":true}
+  1153 ws.recv 544 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eeee-7a65-71bd-81e1-b1dc091548cd","createdAt":"2026-11-18T13:52:48.7
+  1228 ws.recv 622 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eeee-7a65-71bd-81e1-b1dc091548cd","createdAt":"2026-11-18T13:52:48.7
+  1293 ws.recv 766 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eeee-7a65-71bd-81e1-b1dc091548cd","createdAt":"2026-11-18T13:52:48.7
+  1366 ws.recv 856 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eeee-7a65-71bd-81e1-b1dc091548cd","createdAt":"2026-11-18T13:52:48.7
+  1438 ws.recv 962 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eeee-7a65-71bd-81e1-b1dc091548cd","createdAt":"2026-11-18T13:52:48.7
+  1445 timer.stall 463ms late
+  1446 clip:start
+  2277 packet /turn/open
+  2278 $dictation turns=0 open=[] last=-
+  2278 packet /part/open ""
+  2278 $dictation turns=0 open=[""] last=-
+  2278 packet /part/draft "Hola."
+  2472 packet /part/delta "Hola, "
+  2473 packet /part/draft "hoy"
+  2861 packet /part/delta "hoy "
+  2861 packet /part/draft "quiero"
+  3078 packet /part/delta "quiero "
+  3078 packet /part/draft "practicar."
+  3462 packet /part/delta "practicar "
+  3462 packet /part/draft "\"spelling\"."
+  3676 packet /part/draft "español con-"
+  4064 packet /part/delta "español con "
+  4064 packet /part/draft "G"
+  4481 packet /part/draft "durante-"
+  4687 packet /part/delta "durante "
+  4687 packet /part/draft "10 min."
+  5079 packet /part/delta "10 min. "
+  5079 packet /part/draft ""
+  5248 clip:end
+  5272 packet /part/draft ""
+  5331 dom.pointerdown BUTTON.mic live stop dictation ts=1795009973139
+  5333 dom.pointerup BUTTON.mic live stop dictation ts=1795009973141
+  5333 dom.click BUTTON.mic live stop dictation ts=1795009973141
+  5333 repl.dispatch:start /dictate/stop
+  5334 mic.release:start stop
+  5334 mic.$claimed false
+  5334 mic.release:end
+  5334 mic.frames:end 69
+  5334 ws.send 60 {"frame":"cb94c28f-605a-4f6c-ab82-cb7213e67add","done":true}
+  5334 repl.dispatch:done /dictate/stop
+  5712 packet /part/close
+  5712 $dictation turns=0 open=["Hola, hoy quiero practicar español con durante 10 min. "] last=-
+  5712 packet /turn/close
+  5712 $dictation turns=1 open=- last=["Hola, hoy quiero practicar español con durante 10 min. "]
+  5808 ws.recv 1106 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eeee-7a65-71bd-81e1-b1dc091548cd","createdAt":"2026-11-18T13:52:48.7
+  5878 ws.recv 1196 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eeee-7a65-71bd-81e1-b1dc091548cd","createdAt":"2026-11-18T13:52:48.7
+  5953 ws.recv 1328 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eeee-7a65-71bd-81e1-b1dc091548cd","createdAt":"2026-11-18T13:52:48.7
+  5953 timer.stall 221ms late
+  6025 ws.recv 1417 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eeee-7a65-71bd-81e1-b1dc091548cd","createdAt":"2026-11-18T13:52:48.7
+  6090 ws.recv 1558 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eeee-7a65-71bd-81e1-b1dc091548cd","createdAt":"2026-11-18T13:52:48.7
+  6100 timer.stall 98ms late
+ 18351 repl.dispatch:start /polish/engaged off
+ 18352 ws.send 1091 {"frame":"39ebb3a9-4566-48a0-ab37-d50867f47d84","signal":"/userspace/entities/thread/updateOne","input":{"where":{"id":"01a1d1b0-7ac7-750c-b99d-2943dbf3ab96"},"
+ 18430 ws.recv 844 {"frame":"8a0310be-e104-4e1b-981e-8ff34423fc83","output":{"op":"update","entity":{"id":"01a1d1b0-7ac7-750c-b99d-2943dbf3ab96","createdAt":"2026-11-12T21:36:06.3
+ 18487 repl.dispatch:done /polish/engaged off
+ 18487 ws.recv 819 {"frame":"39ebb3a9-4566-48a0-ab37-d50867f47d84","output":{"id":"01a1d1b0-7ac7-750c-b99d-2943dbf3ab96","createdAt":"2026-11-12T21:36:06.343Z","updatedAt":"2026-1
+ 18488 ws.recv 61 {"frame":"39ebb3a9-4566-48a0-ab37-d50867f47d84","close":true}
+ 18488 timer.stall 105ms late
+ 25276 verbatim.stream:end
+ 25276 mic.release:start stop
+ 25279 $dictation null
+ 25279 $draft Hola, hoy quiero practicar español con durante 10 min.
+ 25279 mic.release:end
+ 25280 repl.dispatch:done /dictate
+ 25280 ws.recv 61 {"frame":"cb94c28f-605a-4f6c-ab82-cb7213e67add","close":true}
+ 25356 ws.recv 1724 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eeee-7a65-71bd-81e1-b1dc091548cd","createdAt":"2026-11-18T13:52:48.7
+ 25424 ws.recv 1813 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eeee-7a65-71bd-81e1-b1dc091548cd","createdAt":"2026-11-18T13:52:48.7
+ 25528 ws.recv 1820 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eeee-7a65-71bd-81e1-b1dc091548cd","createdAt":"2026-11-18T13:52:48.7
+ 25595 ws.recv 1819 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eeee-7a65-71bd-81e1-b1dc091548cd","createdAt":"2026-11-18T13:52:48.7
+ 25666 ws.recv 1802 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eeee-7a65-71bd-81e1-b1dc091548cd","createdAt":"2026-11-18T13:52:48.7
+ 25730 ws.recv 1802 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"delete","entity":{"id":"01a1eeee-7a65-71bd-81e1-b1dc091548cd","createdAt":"2026-11-18T13:52:48.7
+ 25736 card.gone:painted raf 1795009993089
+ 25736 draft:painted raf 1795009993089
+ 25736 timer.stall 454ms late
+ 30466 ws.send 15 {"type":"ping"}
+## server activity steps
+   932 SERVER HALLUCINATION hallucination > verbatim start null
+   932 SERVER HALLUCINATION hallucination > verbatim log {"faculty":"verbatim"}
+  5679 SERVER HALLUCINATION hallucination > dialogue status {"timestamp":"2026-11-18T13:52:53.506Z","code":"RUNNING"}
+  5679 SERVER HALLUCINATION hallucination > dialogue start null
+  5680 SERVER HALLUCINATION hallucination > dialogue log {"streamOrRender":"render","faculty":"dialogue"}
+  5867 SERVER HALLUCINATION hallucination > verbatim stop null
+  5868 SERVER HALLUCINATION hallucination > verbatim status {"timestamp":"2026-11-18T13:52:53.696Z","code":"DONE"}
+ 25245 SERVER HALLUCINATION hallucination > dialogue log {"round":1,"state":"complete","usage":{"input":87,"output":2071,"cost":0.0078315}}
+ 25248 SERVER HALLUCINATION hallucination > dialogue stop null
+ 25249 SERVER HALLUCINATION hallucination > dialogue status {"timestamp":"2026-11-18T13:53:13.076Z","code":"DONE"}
+ 25250 SERVER HALLUCINATION hallucination stop null
+ 25251 SERVER HALLUCINATION hallucination status {"timestamp":"2026-11-18T13:53:13.078Z","code":"DONE"}
+## perf
+    46 PERF long-animation-frame dur=83 {"block":26,"render":0,"scripts":["DOMWebSocket.onmessage 76ms prototypes/socket.js?t=1794959157803:"]}
+   129 PERF long-animation-frame dur=68 {"block":17,"render":0,"scripts":["DOMWebSocket.onmessage 67ms prototypes/socket.js?t=1794959157803:"]}
+   663 PERF event dur=24 {"name":"pointerdown","input":0,"handler":0,"target":"BUTTON.mic dictate","id":7752}
+   664 PERF event dur=24 {"name":"pointerup","input":0,"handler":0,"target":"BUTTON.mic dictate","id":7752}
+   664 PERF event dur=24 {"name":"click","input":0,"handler":1,"target":"BUTTON.mic dictate","id":7752}
+   954 PERF long-animation-frame dur=95 {"block":39,"render":1,"scripts":["DOMWebSocket.onmessage 88ms prototypes/socket.js?t=1794959157803:"]}
+  1051 PERF long-animation-frame dur=107 {"block":53,"render":1,"scripts":["DOMWebSocket.onmessage 102ms prototypes/socket.js?t=1794959157803:"]}
+  1159 PERF long-animation-frame dur=139 {"block":34,"render":1,"scripts":["DOMWebSocket.onmessage 69ms prototypes/socket.js?t=1794959157803:","DOMWebSocket.onmessage 65ms prototypes/socket.js?t=1794959157803:"]}
+  1299 PERF long-animation-frame dur=145 {"block":40,"render":1,"scripts":["DOMWebSocket.onmessage 67ms prototypes/socket.js?t=1794959157803:","DOMWebSocket.onmessage 72ms prototypes/socket.js?t=1794959157803:"]}
+  5331 PERF event dur=24 {"name":"pointerdown","input":1,"handler":0,"target":"BUTTON.mic live stop dictation","id":7759}
+  5332 PERF event dur=24 {"name":"pointerup","input":0,"handler":0,"target":"BUTTON.mic live stop dictation","id":7759}
+  5332 PERF event dur=24 {"name":"click","input":0,"handler":2,"target":"BUTTON.mic live stop dictation","id":7759}
+  5712 PERF long-animation-frame dur=173 {"block":67,"render":1,"scripts":["DOMWebSocket.onmessage 96ms prototypes/socket.js?t=1794959157803:","DOMWebSocket.onmessage 70ms prototypes/socket.js?t=1794959157803:"]}
+  5886 PERF long-animation-frame dur=72 {"block":18,"render":1,"scripts":["DOMWebSocket.onmessage 67ms prototypes/socket.js?t=1794959157803:"]}
+  5959 PERF long-animation-frame dur=140 {"block":33,"render":2,"scripts":["DOMWebSocket.onmessage 66ms prototypes/socket.js?t=1794959157803:","DOMWebSocket.onmessage 65ms prototypes/socket.js?t=1794959157803:"]}
+ 18363 PERF long-animation-frame dur=67 {"block":15,"render":0,"scripts":["DOMWebSocket.onmessage 65ms prototypes/socket.js?t=1794959157803:"]}
+ 18430 PERF long-animation-frame dur=58 {"block":7,"render":0,"scripts":["DOMWebSocket.onmessage 57ms prototypes/socket.js?t=1794959157803:"]}
+ 25282 PERF long-animation-frame dur=149 {"block":43,"render":1,"scripts":["DOMWebSocket.onmessage 74ms prototypes/socket.js?t=1794959157803:","DOMWebSocket.onmessage 68ms prototypes/socket.js?t=1794959157803:"]}
+ 25432 PERF long-animation-frame dur=168 {"block":64,"render":1,"scripts":["DOMWebSocket.onmessage 96ms prototypes/socket.js?t=1794959157803:","DOMWebSocket.onmessage 67ms prototypes/socket.js?t=1794959157803:"]}
+ 25601 PERF long-animation-frame dur=134 {"block":30,"render":1,"scripts":["DOMWebSocket.onmessage 64ms prototypes/socket.js?t=1794959157803:","DOMWebSocket.onmessage 65ms prototypes/socket.js?t=1794959157803:"]}
+ 26658 PERF long-animation-frame dur=69 {"block":11,"render":59,"scripts":["DOMWindow.onresize 55ms chrome/mount.jsx?t=1795008834139:resized"]}

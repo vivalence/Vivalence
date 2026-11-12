@@ -1,0 +1,261 @@
+#+title: solid two — terrain: every 1.x site a 2.0 rule touches
+# writer: agent · limit: 12000 chars · drained from =quests/benched/m124-solid-two.org= · measured 11-17
+
+Census = a regex per rule over =systems/anima= · =systems/ghost= · =subsystems/drapes= · =subsystems/sheets= · =subsystems/paladin= · =commons= · =~/.viva/registry=; =bak/= · =tests/= · =.vite/= · =node_modules/= skipped. Hits are regex hits (an import row counts), never verified call sites.
+
+** from — a nanostore read as an accessor; 2.0 calls subscribe({next,error,complete}) and returns an AsyncIterable
+
+#+BEGIN_SRC sh
+# 42 files · 221 hits
+systems/anima/build/assets/index-BzFz0Tts.js:1,8
+systems/anima/src/surfaces/chrome/layout.jsx:78,79,91,92,93,94,95,134,135
+systems/anima/src/surfaces/chrome/panels/authentication/signin.jsx:8,9,10
+systems/anima/src/surfaces/chrome/panels/booting/booting.jsx:28,29
+systems/anima/src/surfaces/chrome/panels/cover/cover.jsx:32,33,34,35,36,37,38,39
+systems/anima/src/surfaces/chrome/panels/dock/dock.jsx:84,178,179,180
+systems/anima/src/surfaces/chrome/panels/dock/journal.jsx:281,282,283,284,285,286,287,328,329
+systems/anima/src/surfaces/chrome/panels/dock/textarea.jsx:141,142,143,181,182,183,184,185,186,187
+systems/anima/src/surfaces/chrome/panels/frame/frame.jsx:28,29,104,105,107
+systems/anima/src/surfaces/chrome/panels/frame/view.jsx:11,36,37
+systems/anima/src/surfaces/chrome/panels/headline/headline.jsx:10,34,35
+systems/anima/src/surfaces/chrome/panels/legend/legend.jsx:57
+systems/anima/src/surfaces/chrome/panels/modeline/modeline.jsx:123,125,126,127,128,129,130,131,132,133,134,135,204,205,206,223,224
+systems/anima/src/surfaces/chrome/panels/repl/repl.jsx:80,81,82,115
+systems/anima/src/surfaces/chrome/panels/sidebar/sidebar.jsx:62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,81,82,100
+systems/anima/src/surfaces/chrome/panels/telemetry/telemetry.jsx:18,19,20,21,22,23,24,25,26,27,28,50,51,52,53
+systems/anima/src/surfaces/chrome/widgets/buffer/painters.jsx:15,21,54,98
+systems/ghost/surfaces/chrome/layout.jsx:97,98,99,100,107,108
+systems/ghost/surfaces/chrome/mount.jsx:33,34,35,36
+systems/ghost/surfaces/chrome/bundle/app.mjs:1139
+systems/ghost/surfaces/chrome/panels/dock/dock.jsx:8,9
+systems/ghost/surfaces/chrome/panels/dock/journal.jsx:81,82,181,182,270,271,272,273
+systems/ghost/surfaces/chrome/panels/dock/textarea.jsx:226,227,228,271,272,273,274,275,276,277
+systems/ghost/surfaces/chrome/panels/frame/frame.jsx:33,40,51,52,88,101,102,141,142,178
+systems/ghost/surfaces/chrome/panels/headline/headline.jsx:40
+systems/ghost/surfaces/chrome/panels/legend/legend.jsx:100,101
+systems/ghost/surfaces/chrome/panels/modeline/modeline.jsx:53,54,55,56,93,94,95,96
+systems/ghost/surfaces/chrome/panels/modeline/popover.jsx:85,86,144,147,148,149,150,153,154,155,237
+systems/ghost/surfaces/chrome/panels/repl/repl.jsx:94,96,97,98
+systems/ghost/surfaces/chrome/panels/sidebar/sidebar.jsx:12
+systems/ghost/surfaces/chrome/panels/telemetry/telemetry.jsx:6
+systems/ghost/surfaces/chrome/widgets/display/display.jsx:91
+systems/ghost/surfaces/chrome/widgets/entity/entity.jsx:90,91,168,208,209,210,211,212,255
+systems/ghost/surfaces/chrome/widgets/harness/harness.jsx:49
+systems/ghost/surfaces/chrome/widgets/system/system.jsx:98,99,100,101,102,103,104,113
+commons/editors/darkroom/buffer/Darkroom.jsx:20,38
+commons/fixtures/memo/mode/buffer/memo.jsx:16
+commons/reader/reader/buffer/Reader.jsx:166,168,169,966
+~/.viva/registry/chess/modes/board/play/buffer/play.jsx:32,34,35
+~/.viva/registry/education/modes/games/cocina/buffer/cocina.jsx:9
+~/.viva/registry/education/modes/games/comando/buffer/comando.jsx:9
+~/.viva/registry/education/modes/games/dojo/bundle/f715d978f7140c46.dom.svelte.mjs:7270
+#+END_SRC
+
+** mergeProps — removed; merge takes undefined as a value
+
+#+BEGIN_SRC sh
+# 31 files · 33 hits
+systems/ghost/surfaces/chrome/bundle/app.mjs:288
+subsystems/drapes/Bar.jsx:89
+subsystems/drapes/Catalog.jsx:14,50
+subsystems/drapes/Choice.jsx:4
+subsystems/drapes/Dot.jsx:8
+subsystems/drapes/Field.jsx:6
+subsystems/drapes/Html.jsx:4
+subsystems/drapes/Icon.jsx:36
+subsystems/drapes/Image.jsx:4
+subsystems/drapes/Legend.jsx:6
+subsystems/drapes/Mark.jsx:9
+subsystems/drapes/Markdown.jsx:85
+subsystems/drapes/Meter.jsx:8
+subsystems/drapes/Panel.jsx:4
+subsystems/drapes/Row.jsx:4
+subsystems/drapes/Segment.jsx:5
+subsystems/drapes/Tab.jsx:12
+subsystems/drapes/Toggles.jsx:4
+subsystems/drapes/Turn.jsx:45
+subsystems/sheets/Bar.jsx:24
+subsystems/sheets/Choice.jsx:4
+subsystems/sheets/Field.jsx:25
+subsystems/sheets/Line.jsx:4
+subsystems/sheets/Mark.jsx:6
+subsystems/sheets/Meter.jsx:12
+subsystems/sheets/Panel.jsx:4
+subsystems/sheets/Row.jsx:6
+subsystems/sheets/Segment.jsx:14
+subsystems/sheets/Split.jsx:21
+subsystems/sheets/Tab.jsx:9
+subsystems/sheets/Turn.jsx:28,45
+#+END_SRC
+
+** classList — a compile error on native elements; class takes the object
+
+#+BEGIN_SRC sh
+# 19 files · 44 hits
+systems/anima/src/surfaces/chrome/layout.jsx:73
+systems/anima/src/surfaces/chrome/panels/cover/cover.jsx:58
+systems/anima/src/surfaces/chrome/panels/dock/dock.jsx:108,118,129,133,207
+systems/anima/src/surfaces/chrome/panels/dock/textarea.jsx:121,152,161,262
+subsystems/drapes/Artcard.jsx:5
+subsystems/drapes/Bench.jsx:11
+subsystems/drapes/Caret.jsx:2
+subsystems/drapes/Drill.jsx:25
+subsystems/drapes/Field.jsx:21,27
+subsystems/drapes/Pop.jsx:126
+subsystems/drapes/Prog.jsx:7
+subsystems/drapes/Split.jsx:49
+subsystems/drapes/Think.jsx:25
+subsystems/drapes/Toggles.jsx:11
+subsystems/drapes/Tool.jsx:23,36,75
+subsystems/drapes/Turn.jsx:69,78
+subsystems/drapes/design/index.jsx:34
+commons/editors/darkroom/buffer/Darkroom.jsx:124,146,159,186
+commons/reader/reader/buffer/Reader.jsx:539,622,634,654,660,665,678,768,783,829,836,878
+#+END_SRC
+
+** Context.Provider — the context IS the provider
+
+#+BEGIN_SRC sh
+# 15 files · 26 hits
+systems/anima/build/assets/index-BzFz0Tts.js:12,50,51
+systems/anima/src/surfaces/chrome/layout.jsx:144,146
+systems/anima/src/surfaces/chrome/mount.jsx:27,29
+systems/ghost/gestalten/ambient.js:10
+systems/ghost/surfaces/chrome/layout.jsx:115,146
+systems/ghost/surfaces/chrome/mount.jsx:89,90,92,93
+systems/ghost/surfaces/chrome/bundle/app.mjs:739,4966,5263,5266
+subsystems/paladin/gestalten/commands/views/confirm.jsx:23
+subsystems/paladin/gestalten/commands/views/form.jsx:58
+subsystems/paladin/gestalten/commands/views/picker.jsx:40
+commons/fixtures/memo/mode/buffer/memo.jsx:84
+~/.viva/registry/chess/modes/board/play/buffer/play.jsx:391
+~/.viva/registry/education/modes/games/cocina/buffer/cocina.jsx:46
+~/.viva/registry/education/modes/games/comando/buffer/comando.jsx:48
+~/.viva/registry/education/modes/games/dojo/buffer/dojo.jsx:292
+#+END_SRC
+
+** createEffect — the one-argument form is an error
+
+#+BEGIN_SRC sh
+# 15 files · 21 hits
+systems/anima/src/surfaces/chrome/panels/cover/cover.jsx:48,54
+systems/anima/src/surfaces/chrome/panels/dock/dock.jsx:185
+systems/anima/src/surfaces/chrome/panels/dock/textarea.jsx:41
+systems/anima/src/surfaces/chrome/panels/frame/frame.jsx:110
+systems/anima/src/surfaces/chrome/panels/telemetry/telemetry.jsx:110
+systems/anima/src/surfaces/chrome/widgets/buffer/painters.jsx:34
+systems/ghost/surfaces/chrome/mount.jsx:43
+systems/ghost/surfaces/chrome/bundle/app.mjs:2529,2532
+systems/ghost/surfaces/chrome/panels/frame/frame.jsx:113,116
+systems/ghost/surfaces/chrome/panels/repl/repl.jsx:111
+subsystems/drapes/Consent.jsx:18
+subsystems/drapes/Field.jsx:8
+commons/fixtures/memo/mode/buffer/memo.jsx:40
+commons/reader/reader/buffer/Reader.jsx:191,196,372,475
+~/.viva/registry/chess/modes/board/play/buffer/play.jsx:184
+#+END_SRC
+
+** on — removed; the compute phase names the deps
+
+#+BEGIN_SRC sh
+# 8 files · 16 hits
+systems/anima/build/assets/index-BzFz0Tts.js:4,6,7
+systems/anima/src/surfaces/chrome/panels/dock/dock.jsx:185
+systems/anima/src/surfaces/chrome/panels/dock/textarea.jsx:188
+systems/anima/src/surfaces/chrome/panels/telemetry/telemetry.jsx:111
+systems/ghost/surfaces/chrome/panels/dock/textarea.jsx:278
+systems/ghost/surfaces/chrome/panels/modeline/popover.jsx:87,145
+commons/fixtures/memo/mode/buffer/memo.jsx:40
+~/.viva/registry/education/modes/games/dojo/bundle/f715d978f7140c46.dom.svelte.mjs:6681,6743,6833,31099,31163,31253
+#+END_SRC
+
+** onMount — removed; onSettled
+
+#+BEGIN_SRC sh
+# 12 files · 15 hits
+systems/anima/src/surfaces/chrome/panels/dock/dock.jsx:183
+systems/anima/src/surfaces/chrome/panels/dock/textarea.jsx:73
+systems/anima/src/surfaces/chrome/panels/frame/frame.jsx:266
+systems/anima/src/surfaces/chrome/widgets/buffer/painters.jsx:32
+subsystems/paladin/gestalten/commands/views/confirm.jsx:10
+subsystems/paladin/gestalten/commands/views/form.jsx:36
+subsystems/paladin/gestalten/commands/views/picker.jsx:23
+commons/editors/darkroom/buffer/Darkroom.jsx:34
+commons/reader/reader/buffer/Reader.jsx:274
+~/.viva/registry/chess/modes/board/play/buffer/play.jsx:194
+~/.viva/registry/education/modes/games/dojo/buffer/dojo.jsx:224
+~/.viva/registry/education/modes/games/dojo/bundle/f715d978f7140c46.dom.svelte.mjs:6967,6987,24412,33962
+#+END_SRC
+
+** createResource — removed; an async memo under Loading
+
+#+BEGIN_SRC sh
+# 4 files · 9 hits
+systems/anima/src/surfaces/chrome/widgets/buffer/painters.jsx:26,73
+systems/ghost/surfaces/chrome/bundle/app.mjs:2526,2583
+systems/ghost/surfaces/chrome/panels/frame/frame.jsx:107,143
+commons/reader/reader/buffer/Reader.jsx:213,260,460
+#+END_SRC
+
+** Index — removed; For keyed={false}
+
+#+BEGIN_SRC sh
+# 4 files · 7 hits
+systems/anima/src/surfaces/chrome/panels/sidebar/sidebar.jsx:110
+subsystems/drapes/Inspector.jsx:130,193,199
+subsystems/drapes/Logger.jsx:19,66
+subsystems/drapes/Srow.jsx:188
+#+END_SRC
+
+** ErrorBoundary — removed; Errored
+
+#+BEGIN_SRC sh
+# 2 files · 5 hits
+systems/ghost/surfaces/chrome/layout.jsx:1,30,42
+systems/ghost/surfaces/chrome/bundle/app.mjs:4781,4813
+#+END_SRC
+
+** Dynamic — deprecated; dynamic() from @solidjs/web
+
+#+BEGIN_SRC sh
+# 11 files · 15 hits
+systems/anima/src/surfaces/chrome/panels/frame/view.jsx:14
+systems/anima/src/surfaces/chrome/panels/telemetry/telemetry.jsx:173
+systems/ghost/surfaces/chrome/mount.jsx:56
+systems/ghost/surfaces/chrome/panels/dock/journal.jsx:216,278
+systems/ghost/surfaces/chrome/panels/modeline/popover.jsx:255
+subsystems/drapes/Block.jsx:61
+subsystems/drapes/Inspector.jsx:95
+subsystems/drapes/Markdown.jsx:26,36
+subsystems/drapes/Pop.jsx:103
+subsystems/drapes/Srow.jsx:51,100,178
+subsystems/drapes/Turn.jsx:103
+#+END_SRC
+
+** solid-js/web — moved to @solidjs/web
+
+#+BEGIN_SRC sh
+# 12 files · 12 hits
+systems/anima/src/surfaces/chrome/mount.jsx:1
+systems/anima/src/surfaces/chrome/panels/frame/view.jsx:2
+systems/anima/src/surfaces/chrome/panels/telemetry/telemetry.jsx:3
+subsystems/drapes/Block.jsx:2
+subsystems/drapes/Inspector.jsx:2
+subsystems/drapes/Markdown.jsx:2
+subsystems/drapes/Pop.jsx:2
+subsystems/drapes/Srow.jsx:2
+subsystems/drapes/Turn.jsx:2
+subsystems/drapes/design/index.jsx:2
+commons/editors/darkroom/buffer/Darkroom.jsx:2
+commons/reader/reader/buffer/Reader.jsx:12
+#+END_SRC
+
+** babel-preset-solid · vite-plugin-solid — replaced by @solidjs/babel-plugin · @solidjs/vite-plugin
+
+#+BEGIN_SRC sh
+# 3 files · 3 hits
+systems/anima/vite.config.mjs:1
+systems/ghost/surfaces/chrome/bundle.js:3
+subsystems/paladin/gestalten/belt/bundler.js:29
+#+END_SRC
+

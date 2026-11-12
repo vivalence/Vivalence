@@ -1,0 +1,61 @@
+#+title: call-faculty — the layout law's meta and yield hunks, the S13 drill 11-17
+# writer: agent · limit: 4000 chars
+
+* Q27 /"a. the stored turn rewrite should happen automatically during use via schematic coercion"/
+
+Stored (localhost, read-only 11-17): 30 of 60 turns carry =meta= = =state= · =usage= · =provider=; =usage= in two dialects (28 openrouter, 2 anthropic); telemetry (=anima/…/telemetry/entities.js:444=) paints "undefined / undefined" for all 30 (=walk-11-17/meta.probe.js=). The heal, run on =:memory:= sqlite by =walk-11-17/coerce.probe.js=: =onLoad= decodes, the row is untouched until the next flush of that em, then written back; a second read decodes nothing. The runtime's =chaining= reads a thread's history, then =chain= flushes: a thread heals the first time anyone speaks in it. The dialect arms are vendor words in typology, alive while an unread row exists.
+#+BEGIN_SRC js
+// subsystems/typology/schematics/primitives/hallucination.js:119
+export const Usage = v.object(
+  {
+    input: v.integer(),
+    output: v.integer(),
+    cost: v.number().optional(),
+  },
+  { additionalProperties: false },
+);
+export const Meta = v.object(
+  {
+    state: State.optional(),
+    usage: Usage.optional(),
+    rounds: v.integer().optional(),
+    fault: v.object({ kind: v.string(), message: v.union([v.string(), v.null()]) }).optional(),
+    provider: v.record(v.string(), v.unknown()).optional(),
+  },
+  { additionalProperties: false },
+);
+const DIALECTS = [
+  [(usage) => "input" in usage, (usage) => usage],
+  [(usage) => "prompt_tokens" in usage, (usage) => ({ input: usage.prompt_tokens, output: usage.completion_tokens, cost: usage.cost })],
+  [(usage) => "input_tokens" in usage, (usage) => ({ input: usage.input_tokens, output: usage.output_tokens })],
+];
+// subsystems/typology/entities/Turn.ts:62 — a hook as Thread's casts (Thread.ts:66)
+hooks: {
+  onLoad: [(args) => { args.entity.meta = v.primitives.hallucination.Meta.decode(args.entity.meta); }],
+},
+#+END_SRC
+Unwritten: the codec's wire (=Usage= or a dialect, the vendor record moved under =provider.usage=) as =signatures.js:23= builds one · =meta: null= · both translators writing =usage= in our words · =Picture.Response='s =usage= under =meta=. Unruled: what =input= counts (anthropic reports cached input apart: =cache_creation_input_tokens=).
+
+* Q28 — a LOOKUP (zero callers cut, codestyle "absence IS the signal"), shown 11-17
+The pool's yield is the ruled envelope: =kind= dies (only the pool sets it; =fromm.yield= reads it the same without), =Yield.ERROR= dies (no caller outside tests), the =meta= parameter dies (no caller passes it) (=walk-11-17/answer.probe.js=).
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/pool.js:10
+export const Yield = Object.freeze({
+  NOMINAL: (buffers) => ({ condition: Condition.NOMINAL, product: { buffer: buffers } }),
+  EXHAUSTED: () => ({ condition: Condition.EXHAUSTED, product: { buffer: [] } }),
+});
+#+END_SRC
+
+* Q30 /"ctx.output.product.object"/ — the bag is =product=; =ctx.output= stays the carrier's
+Every seam: a tool's return · =Part.ToolResult= · the pool's yield (above) · =fromm.yield= · S2's =Response= · Q25's =output= keys. Not renamed: a signature's =output= (a schema) · the object request's =output: { schema }=. Blast ~115 source sites, ~50 files (24 registry), ~290 test sites.
+#+BEGIN_SRC js
+// subsystems/typology/schematics/prototypes/yield.js:5
+export const Yield = v.object(
+  {
+    condition: Condition,
+    product: v.object({ buffer: v.array(v.object({}, { additionalProperties: true })) }, { additionalProperties: true }),
+    error: v.unknown().optional(),
+  },
+  { additionalProperties: true },
+);
+#+END_SRC

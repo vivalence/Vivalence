@@ -11,7 +11,7 @@ specimen.describe("bundle", { sanitizeResources: false, sanitizeOps: false }, ()
 
   specimen.it("a svelte entry bundles with auto-pack", async () => {
     const entry = join(fixturesPath, "test-component.svelte");
-    const outputFiles = await bundle.svelte(entry, { prod: false });
+    const { outputFiles } = await bundle.svelte(entry, { prod: false });
     specimen.expect(outputFiles.length).toBe(1);
     specimen.expect(outputFiles[0].text.length).toBeGreaterThan(0);
     specimen.expect(outputFiles[0].text).toContain("as default");

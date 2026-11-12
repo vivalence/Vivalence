@@ -1,7 +1,7 @@
 import { specimen } from "@vivalence/typology";
 import { frame, palette, parts, screen, settle } from "./scenarios/index.js";
 
-specimen.describe("Consent — replaces the composer; y · n · e are bindings", () => {
+specimen.describe("Consent — replaces the dock textarea; y · n · e are bindings", () => {
   specimen.it("? approve, the call, the three keys", async () => {
     const { Consent } = await parts;
     specimen.expect(await frame(() => Consent({ palette: palette(), name: "match_move", argument: "e2e4", onApprove: () => {}, onSkip: () => {}, onEdit: () => {} }), { width: 60, height: 1 })).toMatch(/^ \? approve match_move e2e4  y approve  n skip  e edit/);

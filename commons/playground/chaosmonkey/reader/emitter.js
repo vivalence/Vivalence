@@ -20,12 +20,12 @@ export const emitter = new Vector().open(
     });
     const bundle = await ctx.mode.generator.bundle({
       mime: mime.dom.svelte,
-      source: response.output.message,
+      source: response.product.message,
     });
     const buffer = await ctx.entities.buffer.create({
       mode: ctx.mode.entity.id,
       bundle: bundle.json,
     });
-    return { condition: "NOMINAL", output: { buffer: [buffer] } };
+    return { condition: "NOMINAL", product: { buffer: [buffer] } };
   },
 );

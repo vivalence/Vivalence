@@ -1,0 +1,87 @@
+{
+  "model": "stub-model",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "hi"
+        }
+      ]
+    }
+  ],
+  "max_tokens": 8192,
+  "reasoning": {
+    "enabled": false
+  },
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "tool_load",
+        "description": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+        "parameters": {
+          "type": "object",
+          "required": [
+            "references"
+          ],
+          "properties": {
+            "references": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "examples": [
+            {
+              "references": [
+                "/daemon/education/mode/tactic/harvest/drain"
+              ]
+            },
+            {
+              "references": [
+                "/tactic/harvest",
+                "/runtime/runtime/mode/harness/runtime/fs"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "tool_unload",
+        "description": "Takes tools out of this thread: one tool, a subtree or a whole mode. They are no longer declared from the next round on; what earlier turns say about them stays.",
+        "parameters": {
+          "type": "object",
+          "required": [
+            "references"
+          ],
+          "properties": {
+            "references": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "examples": [
+            {
+              "references": [
+                "/runtime/runtime/mode/harness/runtime/fs/delete"
+              ]
+            },
+            {
+              "references": [
+                "/tactic/harvest"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

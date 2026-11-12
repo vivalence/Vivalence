@@ -32,43 +32,43 @@ specimen.describe("fromm.params", () => {
 });
 
 Deno.test("fromm.yield", async (t) => {
-  await t.step("emission — sniffed from condition + output", () => {
+  await t.step("emission — sniffed from condition + product", () => {
     const buffers = [{ id: "b1" }, { id: "b2" }];
     const emission = Yield.NOMINAL(buffers);
     const read = fromm.yield(emission);
     specimen.expect(read.kind).toBe("emission");
     specimen.expect(read.condition).toBe("NOMINAL");
-    specimen.expect(read.output.buffer).toHaveLength(2);
-    specimen.expect(read.output.message).toBe(undefined);
-    specimen.expect(read.output.object).toBe(undefined);
+    specimen.expect(read.product.buffer).toHaveLength(2);
+    specimen.expect(read.product.message).toBe(undefined);
+    specimen.expect(read.product.object).toBe(undefined);
   });
 
   await t.step("emission — exhausted", () => {
     const read = fromm.yield(Yield.EXHAUSTED());
     specimen.expect(read.kind).toBe("emission");
     specimen.expect(read.condition).toBe("EXHAUSTED");
-    specimen.expect(read.output.buffer).toHaveLength(0);
+    specimen.expect(read.product.buffer).toHaveLength(0);
   });
 
-  await t.step("turn — message joins text parts, object passes through", () => {
+  await t.step("turn — message joins text parts, the object part is the object's one home", () => {
     const turn = {
       role: "assistant",
       parts: [
         { type: "text", text: "two words." },
         { type: "tool_use", id: "t1", name: "lookup", input: {} },
         { type: "text", text: "then more." },
+        { type: "object", data: { answer: 42 } },
       ],
-      meta: { stop: "end_turn" },
-      object: { answer: 42 },
+      meta: { state: "complete" },
     };
     const read = fromm.yield(turn);
     specimen.expect(read.kind).toBe("turn");
     specimen.expect(read.condition).toBe("NOMINAL");
-    specimen.expect(read.output.message).toBe("two words. then more.");
-    specimen.expect(read.output.object.answer).toBe(42);
+    specimen.expect(read.product.message).toBe("two words. then more.");
+    specimen.expect(read.product.object.answer).toBe(42);
   });
 
-  await t.step("turn — object falls back to the object part, abort is ERROR", () => {
+  await t.step("turn — an object part alone, abort is ERROR", () => {
     const turn = {
       role: "assistant",
       parts: [{ type: "object", data: { answer: 7 } }],
@@ -76,21 +76,21 @@ Deno.test("fromm.yield", async (t) => {
     };
     const read = fromm.yield(turn);
     specimen.expect(read.condition).toBe("ERROR");
-    specimen.expect(read.output.object.answer).toBe(7);
-    specimen.expect(read.output.message).toBe(undefined);
+    specimen.expect(read.product.object.answer).toBe(7);
+    specimen.expect(read.product.message).toBe(undefined);
   });
 
   await t.step("result — the part carries the whole bag", () => {
     const result = {
       type: "tool_result",
       id: "t1",
-      output: { message: "Drill started: 3 exercises.", buffer: [{ id: "b1" }] },
+      product: { message: "Drill started: 3 exercises.", buffer: [{ id: "b1" }] },
     };
     const read = fromm.yield(result);
     specimen.expect(read.kind).toBe("result");
     specimen.expect(read.condition).toBe("NOMINAL");
-    specimen.expect(read.output.message).toBe("Drill started: 3 exercises.");
-    specimen.expect(read.output.buffer).toHaveLength(1);
+    specimen.expect(read.product.message).toBe("Drill started: 3 exercises.");
+    specimen.expect(read.product.buffer).toHaveLength(1);
   });
 
   await t.step("result — an error message is ERROR", () => {
@@ -98,54 +98,47 @@ Deno.test("fromm.yield", async (t) => {
       type: "tool_result",
       id: "t2",
       condition: "ERROR",
-      output: { message: "unknown tool: x" },
+      product: { message: "unknown tool: x" },
     });
     specimen.expect(read.condition).toBe("ERROR");
   });
 
-  await t.step("utterance — a bare string rides output.message, model-visible", () => {
+  await t.step("utterance — a bare string rides product.message, model-visible", () => {
     const read = fromm.yield("casa means house");
     specimen.expect(read.kind).toBe("utterance");
     specimen.expect(read.condition).toBe("NOMINAL");
-    specimen.expect(read.output.message).toBe("casa means house");
-    specimen.expect(read.output.object).toBe(undefined);
+    specimen.expect(read.product.message).toBe("casa means house");
+    specimen.expect(read.product.object).toBe(undefined);
   });
 
   await t.step("spoken — a flat payload folds message and entity keys into the bag", () => {
     const read = fromm.yield({ message: "12 on screen.", buffer: [{ id: "b1" }] });
     specimen.expect(read.kind).toBe("spoken");
     specimen.expect(read.condition).toBe("NOMINAL");
-    specimen.expect(read.output.message).toBe("12 on screen.");
-    specimen.expect(read.output.buffer).toHaveLength(1);
+    specimen.expect(read.product.message).toBe("12 on screen.");
+    specimen.expect(read.product.buffer).toHaveLength(1);
   });
 
-  await t.step("spoken — an explicit output passes through whole", () => {
-    const read = fromm.yield({ output: { buffer: [{ id: "b1" }] } });
+  await t.step("spoken — an explicit product passes through whole", () => {
+    const read = fromm.yield({ product: { buffer: [{ id: "b1" }] } });
     specimen.expect(read.kind).toBe("spoken");
-    specimen.expect(read.output.buffer).toHaveLength(1);
-    specimen.expect(read.output.message).toBe(undefined);
+    specimen.expect(read.product.buffer).toHaveLength(1);
+    specimen.expect(read.product.message).toBe(undefined);
   });
 
-  await t.step("opaque — anything else lands in output.object", () => {
+  await t.step("opaque — anything else lands in product.object", () => {
     const read = fromm.yield({ slug: "casa", known: "house" });
     specimen.expect(read.kind).toBe("opaque");
-    specimen.expect(read.output.object.slug).toBe("casa");
-    specimen.expect(read.output.message).toBe(undefined);
-    specimen.expect(fromm.yield(null).output).toEqual({});
-  });
-
-  await t.step("declared kind forces perspective over the sniff", () => {
-    const ambiguous = { kind: "opaque", condition: "NOMINAL", output: { buffer: [{ id: "b1" }] } };
-    const read = fromm.yield(ambiguous);
-    specimen.expect(read.kind).toBe("opaque");
-    specimen.expect(read.output.object.output.buffer).toHaveLength(1);
+    specimen.expect(read.product.object.slug).toBe("casa");
+    specimen.expect(read.product.message).toBe(undefined);
+    specimen.expect(fromm.yield(null).product).toEqual({});
   });
 
   await t.step("reading never mutates the source", () => {
     const emission = Yield.NOMINAL([{ id: "b1" }]);
     const snapshot = JSON.stringify(emission);
     const read = fromm.yield(emission);
-    read.kind, read.condition, read.output;
+    read.kind, read.condition, read.product;
     specimen.expect(JSON.stringify(emission)).toBe(snapshot);
   });
 });

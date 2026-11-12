@@ -1,0 +1,20 @@
+#+title: call-faculty deliverables, moved whole from the quest 11-16 (cap)
+# writer: agent · limit: 2500 chars
+
+* deliverables
+
+| layer | path | change |
+|---|---|---|
+| schematics | =subsystems/typology/schematics/primitives/hallucination.js= | =PartDraft · PartFull · TurnEager · TurnResume · Audio.Played=; =interrupted=; =Verbatim.*= dies |
+| fold | =subsystems/typology/gestalten/belt/soma.js= | =pour= · =transcript=: =/part/draft · /part/full= |
+| belt | =subsystems/typology/gestalten/belt/hallucinate.js= | =converse=; Q1A signatures |
+| belt | =subsystems/typology/gestalten/belt/verbatim.js= | =harmonize= over drafts; =fold= dies |
+| shard | =subsystems/typology/gestalten/shard/hal.js= | =polishing= emits =/part/full= |
+| cortex | =subsystems/typology/prototypes/cortex.js= | =/call= branch · =call= derivation |
+| providers | =commons/hallucinators/deepgram= · =elevenlabs= | grammar · Q1A |
+| runtime | =systems/runtime/subjects/mode/traits/harnessed.js= | =/call= route · =/verbatim= gains =recording= |
+| client | =systems/ghost/subjects/app/prototypes/box/device/speaker/= | =$played= |
+
+* changelog entry, moved 11-16 evening (cap), whole
+
+- 11-16 /"2 you own service. fix."/ — elevenlabs yields =Audio.Packet= (=event · rate · codec · pts= by samples), a string source sends whole; =service.viva.js:14= Flash v2.5, "pt-BR" dropped (mine, reported); =tests/provider.test.js= ok 3 steps, a faked socket; =systems/runtime/gestalten/shard/host.js:31= left (Q1A makes it right)

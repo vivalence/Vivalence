@@ -23,14 +23,14 @@ Deno.test("paladin tools — fs + shell", async (t) => {
 
   await t.step("fs_tree lists an absolute directory and skips bak", async () => {
     const spoken = await invoke(armed, "fs_tree", { path: root });
-    assert(spoken.output.message.includes("dataset/"));
-    assert(spoken.output.message.includes("readme.md"));
-    assert(!spoken.output.message.includes("bak"));
+    assert(spoken.product.message.includes("dataset/"));
+    assert(spoken.product.message.includes("readme.md"));
+    assert(!spoken.product.message.includes("bak"));
   });
 
   await t.step("fs_find matches by name and answers absolute paths", async () => {
     const spoken = await invoke(armed, "fs_find", { path: root, pattern: "\\.json$" });
-    assertEquals(spoken.output.files, [`${root}/dataset/rows.json`]);
+    assertEquals(spoken.product.files, [`${root}/dataset/rows.json`]);
   });
 
   await t.step("fs_read slices by range", async () => {
@@ -38,12 +38,12 @@ Deno.test("paladin tools — fs + shell", async (t) => {
       path: `${root}/readme.md`,
       range: { from: 2, to: 2 },
     });
-    assertEquals(spoken.output.message, "line two");
+    assertEquals(spoken.product.message, "line two");
   });
 
   await t.step("fs_read of an empty file says so", async () => {
     const spoken = await invoke(armed, "fs_read", { path: `${root}/empty.txt` });
-    assertEquals(spoken.output.message, "(empty)");
+    assertEquals(spoken.product.message, "(empty)");
   });
 
   await t.step("a relative path is refused, naming where the places are", async () => {
@@ -70,15 +70,15 @@ Deno.test("paladin tools — fs + shell", async (t) => {
       path: `${root}/deep/nested/note.txt`,
       content: "hello",
     });
-    assert(spoken.output.message.includes("5 bytes"));
+    assert(spoken.product.message.includes("5 bytes"));
     assertEquals(await Deno.readTextFile(`${root}/deep/nested/note.txt`), "hello");
   });
 
   await t.step("fs_stat describes a file", async () => {
     const spoken = await invoke(armed, "fs_stat", { path: `${root}/readme.md` });
-    assertEquals(spoken.output.format, "md");
-    assertEquals(spoken.output.directory, false);
-    assert(spoken.output.bytes > 0);
+    assertEquals(spoken.product.format, "md");
+    assertEquals(spoken.product.directory, false);
+    assert(spoken.product.bytes > 0);
   });
 
   await t.step("fs_move renames and creates the parent", async () => {
@@ -96,16 +96,16 @@ Deno.test("paladin tools — fs + shell", async (t) => {
   await t.step("fs_tree skips the house list when nothing is bound, files included", async () => {
     await Deno.writeTextFile(`${root}/.DS_Store`, "");
     const spoken = await invoke(armed, "fs_tree", { path: root });
-    assert(!spoken.output.message.includes(".DS_Store"));
+    assert(!spoken.product.message.includes(".DS_Store"));
   });
 
   await t.step("shell_run runs in the given cwd, returns the tail and exit code, nonzero stays NOMINAL", async () => {
     const ok = await invoke(armed, "shell_run", { command: "ls", cwd: `${root}/dataset` });
-    assertEquals(ok.output.message, "rows.json");
-    assertEquals(ok.output.code, 0);
+    assertEquals(ok.product.message, "rows.json");
+    assertEquals(ok.product.code, 0);
 
     const nonzero = await invoke(armed, "shell_run", { command: "exit 3", cwd: root });
-    assertEquals(nonzero.output.code, 3);
+    assertEquals(nonzero.product.code, 3);
     assertEquals(nonzero.condition, undefined);
   });
 

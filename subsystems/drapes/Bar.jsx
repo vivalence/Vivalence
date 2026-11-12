@@ -27,6 +27,39 @@ export const ACTIVITY = {
   muted: { cls: "mut", dot: "" },
 };
 
+const VOICES = {
+  dictate: { icon: "mic", dot: null, metered: true },
+  listening: { icon: "mic", dot: null, metered: true },
+  muted: { icon: null, dot: "", metered: true },
+  thinking: { icon: null, dot: "pri live", metered: false },
+  speaking: { icon: "speaker", dot: null, metered: true },
+};
+
+const HUSHED = { state: "idle", level: 0, text: "" };
+
+const voiced = (state) => {
+  if (Object.hasOwn(VOICES, state)) return VOICES[state];
+  const known = Object.keys(VOICES).join(" · ");
+  throw new Error(`[drapes] not a voice state: ${JSON.stringify(state)} · ${known}`);
+};
+
+const Voice = (props) => (
+  <>
+    <Show when={voiced(props.voice.state).icon !== null}>
+      <span class={voiced(props.voice.state).icon}>
+        <Icon name={voiced(props.voice.state).icon} size={13} />
+      </span>
+    </Show>
+    <Show when={voiced(props.voice.state).dot !== null}>
+      <Dot tone={voiced(props.voice.state).dot} />
+    </Show>
+    <Show when={voiced(props.voice.state).metered}>
+      <Meter pct={props.voice.level} rings={4} label={props.voice.state} caution={false} />
+    </Show>
+    <span class="lab">{props.voice.text}</span>
+  </>
+);
+
 const MIC = { off: "light", muted: "cau", live: "neg" };
 
 const STANDING = [
@@ -44,7 +77,7 @@ const SOLID = {
   messenger: (align) => (align === "left" ? [4, 6.5, 9, 4.5] : [15, 6.5, 9, 4.5]),
 };
 export const Glyph = (props) => (
-  <svg class="dispg" width="28" height="16" viewBox="0 0 28 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+  <svg class="dispg" viewBox="0 0 28 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
     <rect x="1.5" y="2.5" width="25" height="11" />
     <Show when={SOLID[props.view](props.align)} keyed>
       {([x, y, width, height]) => <rect x={x} y={y} width={width} height={height} fill="currentColor" />}
@@ -53,7 +86,7 @@ export const Glyph = (props) => (
 );
 
 export const Bar = (props) => {
-  const held = mergeProps({ open: null, keys: false, fault: false, live: false, phone: false, delay: 500 }, props);
+  const held = mergeProps({ open: null, keys: false, fault: false, live: false, phone: false, delay: 500, voice: HUSHED }, props);
   const activity = () => ACTIVITY[held.activity.tone];
   const pick = (subject, event) => held.onPick && held.onPick(subject, event);
   const segment = (subject, cls, children, extra = {}) => (
@@ -106,6 +139,14 @@ export const Bar = (props) => {
           <span class="q">·</span>
           <span class="v">{held.harness.effort}</span>
           <Meter pct={held.harness.pct} rings={6} />
+          <span class="pair">
+            <span class="g eager">●</span>
+            <span class="v">{held.harness.eager}</span>
+          </span>
+          <span class="pair">
+            <span class="g lazy">○</span>
+            <span class="v">{held.harness.lazy}</span>
+          </span>
           <span class="q">
             <Icon name="bracer" size={14} />
           </span>
@@ -113,11 +154,17 @@ export const Bar = (props) => {
       )}
       {segment(
         "activity",
-        `proc ${activity().cls}`,
-        <>
-          <Dot tone={activity().dot} dim={activity().dot === ""} />
-          <span class="lab">{spoken() ? held.activity.text : "idle"}</span>
-        </>,
+        held.voice.state === "idle" ? `proc ${activity().cls}` : `proc voice ${held.voice.state}`,
+        <Show
+          when={held.voice.state !== "idle"}
+          fallback={
+            <>
+              <Dot tone={activity().dot} dim={activity().dot === ""} />
+              <span class="lab">{spoken() ? held.activity.text : "idle"}</span>
+            </>
+          }>
+          <Voice voice={held.voice} />
+        </Show>,
       )}
       {segment(
         "display",

@@ -25,7 +25,7 @@ const TRACE = (time, path) =>
   `<div class="entry trace  sel" data-fn="jsel" data-arg="2"><div class="reg">·</div><div class="body"><div class="text"><span class="ts">${time}</span>terminal/terminal-1 hello from the span<span class="path">${path}</span></div><div class="verbs"><button data-fn="copy" data-arg="2"><b>c</b>copy</button></div></div></div>`;
 
 const OBJECT = (time, path) =>
-  `<div class="entry trace  " data-fn="jsel" data-arg="3"><div class="reg">·</div><div class="body"><div class="text"><span class="ts">${time}</span>terminal/terminal-1<span class="path">${path}</span></div><div class="blocks"><div class="block"><div class="yield" style="padding:8px 12px 10px"><span style="padding-left:0px"><span class="k">home</span> <span class="s">"thread-1"</span></span></div></div></div></div></div>`;
+  `<div class="entry trace  " data-fn="jsel" data-arg="3"><div class="reg">·</div><div class="body"><div class="text"><span class="ts">${time}</span>terminal/terminal-1<span class="path">${path}</span></div><div class="blocks"><div class="block"><div class="yield" style="padding:8px 12px 10px"><span style="padding-left:0rem"><span class="k">home</span> <span class="s">"thread-1"</span></span></div></div></div></div></div>`;
 
 const FAULT = `<div class="entry fault  " data-fn="jsel" data-arg="4"><div class="reg">!</div><div class="body"><div class="text">no such command /hepl</div></div></div>`;
 
@@ -36,7 +36,7 @@ specimen.describe("anima journal — the design's journal (dom.js:272) folded fr
     rig.close();
   });
 
-  specimen.it("records on the terminal's span: a string is a trace, an object a json block, a fault is !; the chat lens hides them, trace drops the turns", async () => {
+  specimen.it("records on the terminal's span: a string is a trace, an object a json block, a fault is !; a lens without repl hides them, one without turns drops the turns", async () => {
     const { rig, terminal, client, entities } = await seated();
     terminal.controller.stdout.log("hello from the span");
     terminal.controller.stdout.log({ home: "thread-1" });
@@ -49,16 +49,16 @@ specimen.describe("anima journal — the design's journal (dom.js:272) folded fr
       terminal.dock = { ...terminal.dock, lens };
       entities.terminal.$entities.set([...entities.terminal.$entities.get()]);
     };
-    lensed("trace");
+    lensed(["repl"]);
     await settle();
     fire(rig.target.querySelectorAll(".entry")[0], "click");
     await settle();
     specimen.expect(client.surface.jsel).toBe(0);
     specimen.expect(shape(rig.target)).toBe(oracle(TRACE(said, trace.pathname(terminal.controller.stdout.absolute)).replace('data-arg="2"', 'data-arg="0"') + OBJECT(homed, trace.pathname(terminal.controller.stdout.absolute)) + FAULT));
-    lensed("chat");
+    lensed(["turns", "harness"]);
     await settle();
     specimen.expect([...rig.target.querySelectorAll(".entry")].map((entry) => entry.className.split(" ")[1])).toEqual(["you", "agent"]);
-    lensed("repl");
+    lensed(["turns", "harness", "repl"]);
     await settle();
     specimen.expect([...rig.target.querySelectorAll(".entry")].map((entry) => entry.className.split(" ")[1])).toEqual(["you", "agent", "trace", "trace", "fault"]);
     rig.close();
@@ -137,7 +137,7 @@ specimen.describe("anima journal — the design's journal (dom.js:272) folded fr
     const card = rig.target.querySelector(".artcard");
     specimen.expect(shape(card.parentNode)).toBe(
       oracle(
-        `<div class="artcard inframe"><div class="ah"><span class="sign">◆</span><span class="al">artifact</span><span>chess/chess</span><label class="asel" title=""><select aria-label="artifact"></select><svg><path/></svg></label><button class="iconbtn full" aria-label="fullscreen" title="fullscreen · /buffer/full board"><svg><path/></svg></button></div><div class="yield" style="padding:8px 12px 10px"><span style="padding-left:0px"><span class="k">turn</span> <span class="s">"w"</span></span></div></div>`,
+        `<div class="artcard inframe"><div class="ah"><span class="sign">◆</span><span class="al">artifact</span><span>chess/chess</span><label class="asel" title=""><select aria-label="artifact"></select><svg><path/></svg></label><button class="iconbtn full" aria-label="fullscreen" title="fullscreen · /buffer/full board"><svg><path/></svg></button></div><div class="yield" style="padding:8px 12px 10px"><span style="padding-left:0rem"><span class="k">turn</span> <span class="s">"w"</span></span></div></div>`,
       ),
     );
     specimen.expect(words(rig.target.querySelector(".entry.agent .meta")).endsWith("1 call · 1 artifact")).toBe(true);

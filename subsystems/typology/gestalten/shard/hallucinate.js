@@ -1,19 +1,11 @@
 import { Vector } from "../../prototypes/vector.js";
 import * as hallucinate from "../belt/hallucinate.js";
 import * as is from "../is/index.js";
-import * as steer from "../steer/index.js";
 
 export const routing = (steps) => {
   const [avenue, via] = steps.slice(-2).map((step) => step.nature);
   return { avenue, via };
 };
-
-export const declarations = (tools) =>
-  steer.trie.leaves(tools).map(({ pattern, steps }) => ({
-    name: hallucinate.nameOf(steps),
-    ...(pattern.valence && { valence: pattern.valence }),
-    ...(pattern.input && { input: pattern.input }),
-  }));
 
 export const policyOf = (ctx) => ({ ...ctx.policy, tools: ctx.tools, controller: ctx.controller });
 
@@ -26,7 +18,7 @@ const faculty = (cortex, type, via, { provider, id, tier, tune }) => {
 export const lowering = () => async (ctx, next) => {
   const request = ctx.input ?? {};
   const tools = is.Vector(request.tools) ? request.tools : new Vector();
-  const catalog = is.Vector(request.tools) ? declarations(tools) : (request.tools ?? []);
+  const catalog = is.Vector(request.tools) ? hallucinate.declarations(tools) : (request.tools ?? []);
   const marks = ctx.policy.cache?.marks ?? [
     ...(request.system && Object.keys(request.system).length ? ["context"] : []),
     ...(catalog.length ? ["tools"] : []),
@@ -40,6 +32,7 @@ export const lowering = () => async (ctx, next) => {
     ...(marks.length && { cache: { marks } }),
     ...(request.settings && { settings: request.settings }),
     ...(request.output && { output: request.output }),
+    ...(request.source && { source: request.source }),
   };
   await next();
 };
@@ -59,8 +52,15 @@ export const streaming = (cortex, type) => (ctx) => {
 };
 
 export const transcribing = (cortex, via = "stream") => (ctx) => {
-  const verb = via === "render" ? "transcript" : "transcribe";
-  ctx.output = hallucinate[verb](faculty(cortex, "verbatim", via, ctx.policy), ctx.input, policyOf(ctx));
+  const transcriber = via === "render" ? hallucinate.transcript : hallucinate.transcribe;
+  ctx.output = transcriber(faculty(cortex, "verbatim", via, ctx.policy), ctx.input, policyOf(ctx));
+};
+
+export const calling = (cortex) => (ctx) => {
+  const { provider, id, tier, tune, hear, mind, speak } = ctx.policy;
+  const found = cortex.findOne({ type: "call", via: "stream", provider, id, tier, tune, hear, mind, speak });
+  if (!found) throw new Error("[hallucination] no 'call' resolves: a native call, or an ear, a mind and a mouth that stream");
+  ctx.output = hallucinate.converse(found, ctx.input, policyOf(ctx));
 };
 
 export const synthesizing = (cortex) => (ctx) => {

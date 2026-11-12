@@ -81,3 +81,67 @@ specimen.describe("control.hold — the wait for a controller to leave its live 
     specimen.expect(aborted.status.is("ABORTED")).toBe(true);
   });
 });
+
+specimen.describe("control.fault — a step that throws faults on a controller's stdout", () => {
+  const faults = (controller) => controller.stdout.$history.get().filter((record) => record.track === "fault");
+  const thrown = new Error("the step failed");
+  const throwing = async () => {
+    throw thrown;
+  };
+
+  specimen.it("defaults to the die's own controller", async () => {
+    const die = { controller: mint() };
+    await control.fault()(die, throwing);
+    specimen.expect(faults(die.controller).map((record) => record.data.message)).toEqual([thrown.message]);
+  });
+
+  specimen.it("takes a function that finds the controller", async () => {
+    const controller = mint();
+    await control.fault(() => controller)({}, throwing);
+    specimen.expect(faults(controller)).toHaveLength(1);
+  });
+
+  specimen.it("takes a dotted key, walked with object.at", async () => {
+    const die = { daemon: { controller: mint() } };
+    await control.fault("daemon.controller")(die, throwing);
+    specimen.expect(faults(die.daemon.controller)).toHaveLength(1);
+  });
+
+  specimen.it("a step that passes faults nothing", async () => {
+    const die = { controller: mint() };
+    await control.fault()(die, async () => {});
+    specimen.expect(faults(die.controller)).toEqual([]);
+  });
+});
+
+specimen.describe("control.stderr — a step that throws faults on the span it locates", () => {
+  const faults = (span) => span.$history.get().filter((record) => record.track === "fault");
+  const thrown = new Error("the step failed");
+  const throwing = async () => {
+    throw thrown;
+  };
+
+  specimen.it("defaults to the die's own controller's stdout", async () => {
+    const die = { controller: mint() };
+    await control.stderr()(die, throwing);
+    specimen.expect(faults(die.controller.stdout).map((record) => record.data.message)).toEqual([thrown.message]);
+  });
+
+  specimen.it("takes a function that finds the span", async () => {
+    const mode = { stdout: new Span("mode") };
+    await control.stderr((die) => die.mode.stdout)({ mode }, throwing);
+    specimen.expect(faults(mode.stdout)).toHaveLength(1);
+  });
+
+  specimen.it("takes a dotted key, walked with object.at", async () => {
+    const die = { daemon: { controller: mint() } };
+    await control.stderr("daemon.controller.stdout")(die, throwing);
+    specimen.expect(faults(die.daemon.controller.stdout)).toHaveLength(1);
+  });
+
+  specimen.it("a step that passes faults nothing", async () => {
+    const die = { controller: mint() };
+    await control.stderr()(die, async () => {});
+    specimen.expect(faults(die.controller.stdout)).toEqual([]);
+  });
+});

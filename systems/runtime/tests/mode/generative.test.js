@@ -160,16 +160,16 @@ specimen.describe("GENERATIVE — the capability and its tools", {
 
       const first = await invoke(vector, "view_create", { slug: "pulse", mime: mime.dom.svelte, source: SOURCE });
       specimen.expect(first.condition).toBe("NOMINAL");
-      specimen.expect(first.output.message).toBe('wrote view "pulse"');
-      specimen.expect(first.output.view).toEqual([{ id: "view-1", slug: "pulse", mime: mime.dom.svelte, entry: daemon.views[0].entry }]);
+      specimen.expect(first.product.message).toBe('wrote view "pulse"');
+      specimen.expect(first.product.view).toEqual([{ id: "view-1", slug: "pulse", mime: mime.dom.svelte, entry: daemon.views[0].entry }]);
 
       const again = await invoke(vector, "view_create", { slug: "pulse", mime: mime.dom.svelte, source: SOURCE + " " });
-      specimen.expect(again.output.view[0].id).toBe("view-1");
-      specimen.expect(again.output.view[0].entry).not.toBe(first.output.view[0].entry);
+      specimen.expect(again.product.view[0].id).toBe("view-1");
+      specimen.expect(again.product.view[0].entry).not.toBe(first.product.view[0].entry);
       specimen.expect(daemon.views).toHaveLength(1);
 
       const tty = await invoke(vector, "view_create", { slug: "pulse", mime: mime.tty.solid, source: SOURCE });
-      specimen.expect(tty.output.view[0].id).toBe("view-2");
+      specimen.expect(tty.product.view[0].id).toBe("view-2");
       specimen.expect(daemon.views).toHaveLength(2);
     },
   );
@@ -184,15 +184,15 @@ specimen.describe("GENERATIVE — the capability and its tools", {
       const vector = armed(mode, daemon);
       await invoke(vector, "view_create", { slug: "pulse", mime: mime.dom.svelte, source: SOURCE });
 
-      const { condition, output } = await invoke(vector, "buffer_create", {
+      const { condition, product } = await invoke(vector, "buffer_create", {
         mime: mime.json,
         label: { name: "Spawned", description: "a test page" },
         data: { title: "Spawned" },
         views: ["pulse"],
       });
       specimen.expect(condition).toBe("NOMINAL");
-      specimen.expect(output.buffer).toHaveLength(1);
-      const [row] = output.buffer;
+      specimen.expect(product.buffer).toHaveLength(1);
+      const [row] = product.buffer;
       specimen.expect(row.mime).toBe(mime.json);
       specimen.expect(row.views).toEqual(["view-1"]);
       specimen.expect(row.traits).toEqual(["LABELED"]);
@@ -200,8 +200,8 @@ specimen.describe("GENERATIVE — the capability and its tools", {
       specimen.expect(row.thread).toBe(daemon.thread);
       specimen.expect(row.index).toBe(0);
       specimen.expect(daemon.thread.counter).toBe(1);
-      specimen.expect(output.message).toBe('opened "Spawned"');
-      const [line, json] = belt.hallucinate.speak(output).split("\n");
+      specimen.expect(product.message).toBe('opened "Spawned"');
+      const [line, json] = belt.hallucinate.speak(product).split("\n");
       specimen.expect(line).toBe('opened "Spawned"');
       specimen.expect(JSON.parse(json)).toEqual({
         buffer: [{ id: row.id, index: 0, mime: mime.json, mode: "mode-1", thread: "thread-1", traits: ["LABELED"], trait: { LABELED: { name: "Spawned", description: "a test page" } } }],
@@ -217,9 +217,9 @@ specimen.describe("GENERATIVE — the capability and its tools", {
       await GENERATIVE(mode, daemon);
       const vector = armed(mode, daemon);
 
-      const { condition, output } = await invoke(vector, "buffer_create", { mime: mime.markdown, source: "# Q3\n\nRevenue …", turn: "turn-9" });
+      const { condition, product } = await invoke(vector, "buffer_create", { mime: mime.markdown, source: "# Q3\n\nRevenue …", turn: "turn-9" });
       specimen.expect(condition).toBe("NOMINAL");
-      const [row] = output.buffer;
+      const [row] = product.buffer;
       specimen.expect(row.turns).toEqual(["turn-9"]);
       specimen.expect(row.thread).toBe(null);
       specimen.expect(daemon.thread.counter).toBe(0);
@@ -244,29 +244,29 @@ specimen.describe("GENERATIVE — the capability and its tools", {
       stub(mode, daemon);
       const vector = armed(mode, daemon);
 
-      specimen.expect((await invoke(vector, "view_list", {})).output.message).toBe("no views written yet.");
+      specimen.expect((await invoke(vector, "view_list", {})).product.message).toBe("no views written yet.");
       await invoke(vector, "view_create", { slug: "one", mime: mime.dom.svelte, source: SOURCE });
       await invoke(vector, "view_create", { slug: "two", mime: mime.tty.solid, source: SOURCE + " " });
-      const listed = (await invoke(vector, "view_list", {})).output;
+      const listed = (await invoke(vector, "view_list", {})).product;
       specimen.expect(listed.message).toBe("2 views on this mode");
       specimen.expect(listed.view.map((row) => [row.slug, row.mime])).toEqual([["one", mime.dom.svelte], ["two", mime.tty.solid]]);
-      specimen.expect((await invoke(vector, "view_list", { mime: mime.tty.solid })).output.view.map((row) => row.slug)).toEqual(["two"]);
+      specimen.expect((await invoke(vector, "view_list", { mime: mime.tty.solid })).product.view.map((row) => row.slug)).toEqual(["two"]);
 
       const before = daemon.views[0].entry;
       const updated = await invoke(vector, "view_update", { slug: "one", source: SOURCE + "  " });
       specimen.expect(updated.condition).toBe("NOMINAL");
-      specimen.expect(updated.output.view[0].id).toBe("view-1");
+      specimen.expect(updated.product.view[0].id).toBe("view-1");
       specimen.expect(daemon.views[0].entry).not.toBe(before);
       specimen.expect(daemon.views).toHaveLength(2);
 
       const read = await invoke(vector, "view_read", { slug: "one" });
       specimen.expect(read.condition).toBe("NOMINAL");
-      specimen.expect(read.output.object).toEqual({ id: "view-1", slug: "one", mime: mime.dom.svelte, entry: daemon.views[0].entry, files: [], source: null });
+      specimen.expect(read.product.object).toEqual({ id: "view-1", slug: "one", mime: mime.dom.svelte, entry: daemon.views[0].entry, files: [], source: null });
 
       const missing = await invoke(vector, "view_update", { slug: "nine", source: SOURCE });
       specimen.expect(missing.condition).toBe("ERROR");
-      specimen.expect(missing.output.message).toContain("view_update failed");
-      specimen.expect(missing.output.message).toContain("Not the source");
+      specimen.expect(missing.product.message).toContain("view_update failed");
+      specimen.expect(missing.product.message).toContain("Not the source");
     },
   );
 
@@ -280,8 +280,8 @@ specimen.describe("GENERATIVE — the capability and its tools", {
 
       const refused = await invoke(armed(mode, daemon), "view_create", { slug: "empty", mime: mime.dom.svelte, source: "   " });
       specimen.expect(refused.condition).toBe("ERROR");
-      specimen.expect(refused.output.message).toContain("view_create refused");
-      specimen.expect(refused.output.message).toContain("do not retry it unchanged");
+      specimen.expect(refused.product.message).toContain("view_create refused");
+      specimen.expect(refused.product.message).toContain("do not retry it unchanged");
       specimen.expect(daemon.views).toHaveLength(0);
     },
   );
@@ -326,7 +326,7 @@ specimen.describe("GENERATIVE — the capability and its tools", {
       specimen.expect(Object.keys(create.pattern.input.properties)).toEqual(["slug", "mime", "source"]);
 
       const drawn = await invoke(vector, "view_create", { slug: "steered", mime: mime.dom.svelte, source: SOURCE });
-      specimen.expect(drawn.output.view).toHaveLength(1);
+      specimen.expect(drawn.product.view).toHaveLength(1);
 
       const refused = await invoke(vector, "view_create", {
         slug: "refused",
@@ -334,7 +334,7 @@ specimen.describe("GENERATIVE — the capability and its tools", {
         source: `<script>import x from "https://esm.sh/x"</script>`,
       });
       specimen.expect(refused.condition).toBe("ERROR");
-      specimen.expect(refused.output.message).toContain("may not import from a URL");
+      specimen.expect(refused.product.message).toContain("may not import from a URL");
       specimen.expect(daemon.views).toHaveLength(1);
       specimen.expect(seen).toEqual([
         SOURCE,

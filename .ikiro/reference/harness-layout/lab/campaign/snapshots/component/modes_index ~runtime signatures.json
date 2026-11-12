@@ -1,0 +1,548 @@
+{
+  "output": {
+    "modes": [
+      {
+        "reference": "/runtime/runtime/mode/harness/runtime",
+        "valence": "default runtime harness",
+        "tools": [
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/fs/tree",
+            "valence": "The directory tree under an absolute path. Ground here before reading: every mode's paths (source · mountpoint · files) come from mode_find. Example: { path: \"/home/operator/jdex\", depth: 2 }.",
+            "input": {
+              "type": "object",
+              "required": [
+                "path",
+                "depth"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Absolute path to a directory. Example: \"/home/operator/jdex/20-29 company\""
+                },
+                "depth": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 5,
+                  "default": 2
+                }
+              }
+            }
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/fs/find",
+            "valence": "Files matching a regex over the file name, searched under an absolute path; answers absolute paths. Example: { pattern: \"\\\\.md$\", path: \"/home/operator/jdex\" }.",
+            "input": {
+              "type": "object",
+              "required": [
+                "pattern",
+                "path",
+                "limit"
+              ],
+              "properties": {
+                "pattern": {
+                  "type": "string",
+                  "description": "JavaScript regex matched against file names. Example: \"\\\\.md$\""
+                },
+                "path": {
+                  "type": "string",
+                  "description": "Absolute path to the directory to search. Example: \"/home/operator/jdex/20-29 company\""
+                },
+                "limit": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100,
+                  "default": 50
+                }
+              }
+            }
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/fs/read",
+            "valence": "Read a file at an absolute path. Long files come back cut at 16 kB with a note — pass range (line numbers, 1-based) for the rest. Example: { path: \"/home/operator/jdex/README.md\", range: { from: 40, to: 120 } }.",
+            "input": {
+              "type": "object",
+              "required": [
+                "path"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Absolute path to the file. Example: \"/home/operator/jdex/20-29 company\""
+                },
+                "range": {
+                  "type": "object",
+                  "required": [
+                    "from",
+                    "to"
+                  ],
+                  "properties": {
+                    "from": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "to": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/fs/write",
+            "valence": "Write or append a file at an absolute path. Parent directories are created. Example: { path: \"/home/operator/jdex/22 finance/22.04 notes.md\", content: \"# notes\" }.",
+            "input": {
+              "type": "object",
+              "required": [
+                "path",
+                "content",
+                "append"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Absolute path to the file. Example: \"/home/operator/jdex/20-29 company\""
+                },
+                "content": {
+                  "type": "string",
+                  "description": "The whole text to write, or the text to append. Example: \"# notes\""
+                },
+                "append": {
+                  "type": "boolean",
+                  "default": false
+                }
+              }
+            }
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/fs/stat",
+            "valence": "Size, modification time and format of one file at an absolute path. Example: { path: \"/home/operator/jdex/README.md\" }.",
+            "input": {
+              "type": "object",
+              "required": [
+                "path"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Absolute path to the file. Example: \"/home/operator/jdex/20-29 company\""
+                }
+              }
+            }
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/fs/move",
+            "valence": "Move or rename a file, both ends absolute; parent directories are created. Example: { from: \"/home/operator/jdex/draft.md\", to: \"/home/operator/jdex/22 finance/22.04 draft.md\" }.",
+            "input": {
+              "type": "object",
+              "required": [
+                "from",
+                "to"
+              ],
+              "properties": {
+                "from": {
+                  "type": "string",
+                  "description": "Absolute path to the file as it is. Example: \"/home/operator/jdex/20-29 company\""
+                },
+                "to": {
+                  "type": "string",
+                  "description": "Absolute path to where it goes. Example: \"/home/operator/jdex/20-29 company\""
+                }
+              }
+            }
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/fs/delete",
+            "valence": "Delete one file at an absolute path. Directories are refused. Example: { path: \"/home/operator/jdex/draft.md\" }.",
+            "input": {
+              "type": "object",
+              "required": [
+                "path"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Absolute path to the file. Example: \"/home/operator/jdex/20-29 company\""
+                }
+              }
+            }
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/shell/run",
+            "valence": "One-shot shell command in an absolute working directory. The output tail and the exit code come back; a nonzero code is information, not failure. Example: { command: \"ls | head\", cwd: \"/home/operator/jdex\" }.",
+            "input": {
+              "type": "object",
+              "required": [
+                "command",
+                "cwd",
+                "timeout"
+              ],
+              "properties": {
+                "command": {
+                  "type": "string",
+                  "description": "The command, run through the shell. Example: \"ls | head\""
+                },
+                "cwd": {
+                  "type": "string",
+                  "description": "Absolute working directory. Example: \"/home/operator/jdex\""
+                },
+                "timeout": {
+                  "type": "integer",
+                  "minimum": 1000,
+                  "maximum": 120000,
+                  "default": 30000
+                }
+              }
+            }
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/schema",
+            "valence": "Ground yourself before querying. No arguments: every entity on this daemon with row counts and card fields — buffer, thread, turn, literal, symbol and whatever else it opened. With entity: its columns, relations, filter operators, repository extensions and the card projection. Returns { entities: [{ type, rows, card }] } without an argument, { schema: { entity, rows, columns, relations, operators, extensions, card } } with one. Example: { entity: \"buffer\" }",
+            "input": {
+              "type": "object",
+              "properties": {
+                "entity": {
+                  "type": "string",
+                  "description": "Entity type from the no-argument listing. Example: \"buffer\""
+                }
+              }
+            }
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/find",
+            "valence": "Query any entity on this daemon — the buffers on a thread, a thread's turns, literals by slug. Rows come back as cards — the lean agent projection; fields full only when a card lacks something you need. Columns, operators and extensions via entity_schema. Page by passing next.offset back as offset. Returns { <entity>: [rows], total, next?: { offset } }. Example: { entity: \"buffer\", where: { thread: \"01a09010-13aa-778b-bce7-19c38f835337\" }, fields: \"full\" }",
+            "input": {
+              "type": "object",
+              "required": [
+                "entity",
+                "fields",
+                "limit",
+                "offset"
+              ],
+              "properties": {
+                "entity": {
+                  "type": "string",
+                  "description": "Entity type — list them via entity_schema. Example: \"buffer\""
+                },
+                "where": {
+                  "type": "object",
+                  "patternProperties": {
+                    "^.*$": {}
+                  },
+                  "description": "MikroORM filter over the entity's columns and relations; operators $eq $ne $in $nin $like $gt $gte $lt $lte $and $or $not. Example: { thread: \"01a09010-13aa-778b-bce7-19c38f835337\", status: { $in: [\"PENDING\", \"ACTIVE\"] } }"
+                },
+                "fields": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "card"
+                    },
+                    {
+                      "type": "string",
+                      "const": "full"
+                    }
+                  ],
+                  "default": "card",
+                  "description": "card: the repository's lean projection (id, slug, traits unless it declares its own); full: every column. Example: \"full\""
+                },
+                "order": {
+                  "type": "object",
+                  "patternProperties": {
+                    "^.*$": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "const": "ASC"
+                        },
+                        {
+                          "type": "string",
+                          "const": "DESC"
+                        }
+                      ]
+                    }
+                  },
+                  "description": "Sort by column. Example: { index: \"ASC\" }"
+                },
+                "limit": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 50,
+                  "default": 12,
+                  "description": "Rows per page. Example: 20"
+                },
+                "offset": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 0,
+                  "description": "Rows to skip — pass next.offset back. Example: 12"
+                }
+              }
+            }
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/count",
+            "valence": "Count matching rows without loading them — cheap grounding before a find. Returns { count }. Example: { entity: \"buffer\", where: { thread: \"01a09010-13aa-778b-bce7-19c38f835337\" } }",
+            "input": {
+              "type": "object",
+              "required": [
+                "entity"
+              ],
+              "properties": {
+                "entity": {
+                  "type": "string",
+                  "description": "Entity type — list them via entity_schema. Example: \"buffer\""
+                },
+                "where": {
+                  "type": "object",
+                  "patternProperties": {
+                    "^.*$": {}
+                  },
+                  "description": "MikroORM filter, the same shape entity_find takes. Example: { thread: \"01a09010-13aa-778b-bce7-19c38f835337\" }"
+                }
+              }
+            }
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/update",
+            "valence": "Write trait data on one entity of this daemon — a literal's translation, a buffer's label. Pass the entity type, a where naming the one entity, and a trait patch keyed by trait name; the patch merges deep over the held data, a new name joins its traits. Find the entity first via entity_find. Returns { message, <entity>: [the entity] }.",
+            "input": {
+              "type": "object",
+              "required": [
+                "entity",
+                "where",
+                "trait"
+              ],
+              "properties": {
+                "entity": {
+                  "type": "string",
+                  "description": "Entity type — list them via entity_schema.",
+                  "examples": [
+                    "literal"
+                  ]
+                },
+                "where": {
+                  "type": "object",
+                  "patternProperties": {
+                    "^.*$": {}
+                  },
+                  "description": "MikroORM filter naming the one entity, the shape entity_find takes.",
+                  "examples": [
+                    {
+                      "slug": "flamingo"
+                    }
+                  ]
+                },
+                "trait": {
+                  "type": "object",
+                  "patternProperties": {
+                    "^.*$": {}
+                  },
+                  "description": "trait data by name, merged deep over what the entity holds",
+                  "examples": [
+                    {
+                      "LABELED": {
+                        "name": "Flamingo — six species"
+                      }
+                    }
+                  ]
+                }
+              },
+              "examples": [
+                {
+                  "entity": "literal",
+                  "where": {
+                    "slug": "flamingo"
+                  },
+                  "trait": {
+                    "LABELED": {
+                      "name": "Flamingo — six species"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/buffer/update",
+            "valence": "Write a buffer — the shared working surface between you and the user. Pass the buffer id and a data patch; the patch merges over the existing data keys. For a content buffer pass `source` instead: the file it loads is rewritten, same row, new hash. This thread's id is in the runtime row of your context; its buffer ids come from entity_find { entity: \"buffer\", where: { thread } }, or from the thread section when your primer carries one. Returns { message, buffer: [{ id, index, status, mime, data, trait }] }. Example: { id: \"01a09010-18e0-736f-ad3f-a65b44d3fa43\", data: { summary: \"Six species on four continents.\" } }",
+            "input": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "The buffer id. Example: \"01a0856f-425f-72b8-b36f-decc1bb2050e\""
+                },
+                "data": {
+                  "type": "object",
+                  "patternProperties": {
+                    "^.*$": {}
+                  },
+                  "description": "Data keys to merge over buffer.data; keys you omit stay. Example: { summary: \"Six species on four continents.\" }"
+                },
+                "source": {
+                  "type": "string",
+                  "description": "New content for the file this buffer loads, whole. Example: \"# Q3 · final\n\nRevenue …\""
+                }
+              }
+            }
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/buffer/label",
+            "valence": "Name a buffer. The label is what the operator reads on the buffer's line in the chat and in the buffer list — set it when a buffer's subject is clearer than its name, or when the operator asks. Returns { message, buffer: [{ id, index, status, data, view, trait }] }. Example: { id: \"01a0856f-425f-72b8-b36f-decc1bb2050e\", label: { name: \"Flamingo\", description: \"Six species, range and diet\" } }",
+            "input": {
+              "type": "object",
+              "required": [
+                "id",
+                "label"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "The buffer id. Example: \"01a0856f-425f-72b8-b36f-decc1bb2050e\""
+                },
+                "label": {
+                  "type": "object",
+                  "required": [
+                    "name"
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "The short display name the operator reads on the line — a subject, not a sentence. Example: \"Flamingo — six species\""
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "One sentence on what the thing holds, for the tooltip and the list. Example: \"Range, diet and the six species, from Wikipedia and two field guides.\""
+                    }
+                  },
+                  "$id": "Label"
+                }
+              }
+            }
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/thread/update",
+            "valence": "Write a thread's trait data — its configuration surface. Pass the thread id and a trait patch keyed by trait name (e.g. MASKED query data); each named trait's data merges over the existing value. This thread's id is in the runtime row of your context. Returns { message, thread: [{ id, phase, traits, trait, counter }] }. Example: { id: \"01a09010-13aa-778b-bce7-19c38f835337\", trait: { LABELED: { name: \"Q3 filings\" } } }",
+            "input": {
+              "type": "object",
+              "required": [
+                "id",
+                "trait"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "The thread id. Example: \"01a09010-13aa-778b-bce7-19c38f835337\""
+                },
+                "trait": {
+                  "type": "object",
+                  "patternProperties": {
+                    "^.*$": {}
+                  },
+                  "description": "Trait data to merge, keyed by trait name. Example: { LABELED: { name: \"Q3 filings\", description: \"the filings correspondence\" } }"
+                }
+              }
+            }
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/mode/find",
+            "valence": "Every mode of this daemon with its paths on disk — source, mountpoint, files — as rows: the absolute paths fs_* and shell_run take. The first row is the daemon and its mountpoint. Narrow by type or slug. Returns { message }. Example: { type: \"office\" }",
+            "input": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "A mode type. Example: \"office\""
+                },
+                "slug": {
+                  "type": "string",
+                  "description": "A mode slug. Example: \"vdex\""
+                }
+              }
+            }
+          }
+        ],
+        "primers": [
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/identity"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/world"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/runtime"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/daemons"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/modes"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/threads"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/thread",
+            "valence": "one conversation: a user, in a mode, as turns; it holds buffers and its configuration in traits"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/buffer",
+            "valence": "one screen on a thread: data a view draws, in a mime the renderers key on"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/turn",
+            "valence": "one utterance of a thread: a role, its parts, provider metadata; the thread is the chain by createdAt"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/mode",
+            "valence": "one program on a daemon: a type and slug, a manifest of traits, the buffers it mints; the runtime's own carry no daemon"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/daemon",
+            "valence": "one installed package running on the runtime: its slug is its id; it owns modes, a dataset of symbols and literals, notes, users"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/user",
+            "valence": "one person on the lighthouse: a slug, how they authenticate, their home and dock in traits"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/terminal",
+            "valence": "one seat of a user: where they sit (a daemon, a thread) and how the chrome is docked"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/note",
+            "valence": "a remark hung on something — a literal, a buffer, a turn, a mode — by a user or a daemon; notes nest"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/view",
+            "valence": "one compiled component of a mode: a slug, a mime, the file the client imports; a buffer pins views"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/file",
+            "valence": "one file a mode serves: a path inside the mode, bytes on disk, their hash and integrity"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/intent",
+            "valence": "what a user wants from a mode: a named aim threads are opened for"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/literal",
+            "valence": "one concrete thing of a daemon's dataset — a word, a card, a position — addressed by slug, described by its symbol"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/symbol",
+            "valence": "one word of a daemon's vocabulary: a slug the literals are described with"
+          },
+          {
+            "reference": "/runtime/runtime/mode/harness/runtime/entity/activity",
+            "valence": "one running act — a hallucination — on a thread: its controller's status, its steps; never stored, dies with the process"
+          }
+        ]
+      }
+    ]
+  }
+}

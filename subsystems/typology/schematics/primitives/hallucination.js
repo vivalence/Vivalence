@@ -1,4 +1,6 @@
-import { v } from "../v.js";
+import { Type } from "typebox";
+import { enhance, v } from "../v.js";
+import { Condition } from "../prototypes/yield.js";
 
 export const Channel = v.union([
   v.const("text"),
@@ -77,7 +79,7 @@ Part.ToolResult = v.object({
   type: v.const("tool_result"),
   id: v.string(),
   condition: v.string().optional(),
-  output: v.record(v.string(), v.unknown()),
+  product: v.record(v.string(), v.unknown()),
 });
 
 Part.Thinking = v.object({
@@ -114,12 +116,77 @@ export const State = v.union([
   v.const("abort"),
   v.const("error"),
   v.const("filter"),
+  v.const("interrupted"),
 ]);
+
+export const Usage = v.object(
+  {
+    input: v.integer(),
+    output: v.integer(),
+    cost: v.number().optional(),
+  },
+  { additionalProperties: false },
+);
+
+const DIALECTS = [
+  [(usage) => "input" in usage, (usage) => usage],
+  [
+    (usage) => "prompt_tokens" in usage,
+    (usage) => ({
+      input: usage.prompt_tokens,
+      output: usage.completion_tokens,
+      ...(usage.cost === undefined ? {} : { cost: usage.cost }),
+    }),
+  ],
+  [
+    (usage) => "input_tokens" in usage,
+    (usage) => ({ input: usage.input_tokens, output: usage.output_tokens }),
+  ],
+];
+
+const healed = (meta) => {
+  if (meta.usage === undefined || "input" in meta.usage) return meta;
+  const [, translate] = DIALECTS.find(([dialect]) => dialect(meta.usage));
+  return {
+    ...meta,
+    usage: translate(meta.usage),
+    provider: { ...meta.provider, usage: meta.usage },
+  };
+};
+
+export const Meta = enhance(
+  Type.Codec(
+    v.object(
+      {
+        state: State.optional(),
+        usage: v.union([Usage, v.record(v.string(), v.unknown())]).optional(),
+        rounds: v.integer().optional(),
+        fault: v.object({ kind: v.string(), message: v.union([v.string(), v.null()]) }).optional(),
+        provider: v.record(v.string(), v.unknown()).optional(),
+      },
+      { additionalProperties: false },
+    ),
+  )
+    .Decode(healed)
+    .Encode((meta) => meta),
+);
+
+const stored = (part) => {
+  if (part.type !== "tool_result" || !("output" in part)) return part;
+  const { output, ...healed } = part;
+  return { ...healed, product: output };
+};
+
+export const Parts = enhance(
+  Type.Codec(v.array(v.record(v.string(), v.unknown())))
+    .Decode((parts) => parts.map(stored))
+    .Encode((parts) => parts),
+);
 
 export const Turn = v.object({
   role: Role,
   parts: v.array(Part.Any),
-  meta: v.union([v.record(v.string(), v.unknown()), v.null()]).optional(),
+  meta: v.union([Meta, v.null()]).optional(),
 });
 
 // ── tune · a faculty's position in capability space ───────────────────────
@@ -140,13 +207,11 @@ export const Turn = v.object({
 // DESIRE's length, a 3-axis query ignores thrift entirely. The axis names
 // describe the dialogue case; for speech/verbatim faculties the same vector is
 // an opaque positioning key that just distinguishes variants by proximity.
-export const axes = ["intelligence", "reasoning", "speed", "thrift"];
+export const axes = ["intelligence", "speed", "thrift"];
 
 export const Tune = v
-  .array(v.number({ minimum: 0, maximum: 1 }), { minItems: 3, maxItems: 4 })
-  .desc(
-    "Capability vector [intelligence, reasoning, speed, thrift] — each 0-1, 1 = maximal. Providers may omit thrift (cortex pads 0.5).",
-  );
+  .array(v.number({ minimum: 0, maximum: 1 }), { minItems: 3, maxItems: 3 })
+  .desc("Capability vector [intelligence, speed, thrift] — each 0-1, 1 = maximal. Example: [0.6, 0.4, 0.4]");
 
 // named points in tune-space (the `tiers` table on the cortex realizes them).
 export const Tier = v
@@ -156,11 +221,20 @@ export const Tier = v
     v.const("balanced"),
     v.const("capable"),
     v.const("unleashed"),
-    v.const("eager"),
   ])
   .desc(
-    "A named desire in tune-space: frugal=cheap+fast, balanced=even trade, capable=strong+moderate cost, unleashed=max capability cost-no-object, eager=engagement-first.",
+    "A named desire in tune-space: frugal=cheap+fast, balanced=even trade, capable=slow+smart+fair price, unleashed=fast+smart+expensive.",
   );
+
+export const Tiers = v
+  .object({
+    frugal: Tune,
+    fast: Tune,
+    balanced: Tune,
+    capable: Tune,
+    unleashed: Tune,
+  })
+  .desc("Each tier's point in tune-space, declared by the ledger. Example: { \"fast\": [0.4, 1.0, 0.8] }");
 
 export const Channels = v.object({
   in: v.array(Channel),
@@ -171,6 +245,7 @@ export const Tool = v.object({
   name: v.string(),
   valence: v.string().optional(),
   input: v.unknown().optional(),
+  output: v.unknown().optional(),
 });
 
 export const Settings = v.object(
@@ -263,7 +338,25 @@ Packet.PartOpen = v.object({
 Packet.PartDelta = v.object({
   event: v.const("/part/delta"),
   index: v.integer(),
-  delta: v.record(v.string(), v.unknown()),
+  part: v.record(v.string(), v.unknown()),
+});
+
+Packet.PartDraft = v.object({
+  event: v.const("/part/draft"),
+  index: v.integer(),
+  part: v
+    .record(v.string(), v.unknown())
+    .desc('The part\'s provisional fields, replaced by the next draft. Example: { text: "vado al mer" }'),
+});
+
+Packet.PartFull = v.object({
+  event: v.const("/part/full"),
+  index: v.integer(),
+  part: Part.Any.desc("The part, rewritten whole: a polish, a correction."),
+  turn: v
+    .string()
+    .optional()
+    .desc('A sealed turn this rewrites; absent → the open one. Example: "0199f3a2-7c1e-7b40-9d2a-5e6f8a1b2c3d"'),
 });
 
 Packet.PartClose = v.object({
@@ -273,8 +366,12 @@ Packet.PartClose = v.object({
 
 Packet.TurnClose = v.object({
   event: v.const("/turn/close"),
-  meta: v.record(v.string(), v.unknown()).optional(),
+  turn: v.object({ meta: Meta.optional() }),
 });
+
+Packet.TurnEager = v.object({ event: v.const("/turn/eager") });
+
+Packet.TurnResume = v.object({ event: v.const("/turn/resume") });
 
 Packet.Any = v.union([
   Packet.TurnOpen,
@@ -284,22 +381,6 @@ Packet.Any = v.union([
   Packet.TurnClose,
 ]);
 
-Packet.ToolCall = v.object({
-  event: v.const("/tool/call"),
-  id: v.string(),
-  name: v.string(), // @beef name? tool name? signature! rename to toolcall.signature or toolcall.nature
-  input: v.record(v.string(), v.unknown()),
-});
-
-Packet.ToolYield = v.object({
-  event: v.const("/tool/yield"),
-  id: v.string(),
-  result: v.object({
-    condition: v.string(),
-    output: v.record(v.string(), v.unknown()),
-  }),
-});
-
 Packet.TurnFull = v.object({
   event: v.const("/turn/full"),
   turn: Turn,
@@ -307,112 +388,76 @@ Packet.TurnFull = v.object({
 
 Packet.ResponseClose = v.object({
   event: v.const("/response/close"),
-  meta: v.object(
-    {
-      state: State,
-      rounds: v.integer(),
-    },
-    { additionalProperties: true },
-  ),
-});
-
-export const Word = v.object({
-  word: v.string(),
-  start: v.number().optional(),
-  end: v.number().optional(),
-  confidence: v.number().optional(),
-  language: v.string().optional(),
+  response: v.object({ meta: Meta }),
 });
 
 export const Audio = {};
 
 Audio.Packet = v.object({
   event: v.const("/audio/packet"),
-  audio: v.string(),
-  rate: v.integer(),
-  codec: v.string().optional(),
   pts: v.number().optional(),
-  align: v
-    .array(
-      v.object({
-        text: v.string().optional(),
-        offset: v.integer().optional(),
-        start: v.number().optional(),
-        end: v.number().optional(),
-      }),
-    )
-    .optional(),
+  audio: v.object({
+    data: v.string(),
+    rate: v.integer(),
+    codec: v.string().optional(),
+    align: v
+      .array(
+        v.object({
+          text: v.string().optional(),
+          offset: v.integer().optional(),
+          start: v.number().optional(),
+          end: v.number().optional(),
+        }),
+      )
+      .optional(),
+  }),
 });
 
 Audio.Close = v.object({
   event: v.const("/audio/close"),
-  meta: v.record(v.string(), v.unknown()).optional(),
+  audio: v.object({ meta: Meta.optional() }),
+});
+
+Audio.Played = v.object({
+  event: v.const("/audio/played"),
+  pts: v.number().desc("Seconds of the reply the speaker has played, from its first packet. Example: 2.4"),
 });
 
 Audio.Any = v.union([Audio.Packet, Audio.Close]);
 
-export const Verbatim = {};
-
-Verbatim.Commit = v.object({
-  event: v.const("/verbatim/commit"),
-  text: v.string(),
-});
-
-Verbatim.Partial = v.object({
-  event: v.const("/verbatim/partial"),
-  transcript: v.string(),
-});
-
-Verbatim.Eager = v.object({
-  event: v.const("/verbatim/eager"),
-  transcript: v.string(),
-});
-
-Verbatim.Resume = v.object({
-  event: v.const("/verbatim/resume"),
-});
-
-Verbatim.Final = v.object({
-  event: v.const("/verbatim/final"),
-  transcript: v.string(),
-  segment: v.integer().optional(),
-  words: v.array(Word).optional(),
-});
-
-Verbatim.Polish = v.object({
-  event: v.const("/verbatim/polish"),
-  transcript: v.string(),
-  segments: v.array(v.integer()),
-});
-
-Verbatim.Any = v.union([
-  Packet.TurnOpen,
-  Packet.TurnClose,
-  Verbatim.Commit,
-  Verbatim.Partial,
-  Verbatim.Eager,
-  Verbatim.Resume,
-  Verbatim.Final,
-  Verbatim.Polish,
-]);
-
 Packet.Response = v.union([
   Packet.TurnOpen,
+  Packet.TurnEager,
+  Packet.TurnResume,
   Packet.PartOpen,
   Packet.PartDelta,
+  Packet.PartDraft,
+  Packet.PartFull,
   Packet.PartClose,
   Packet.TurnClose,
-  Packet.ToolCall,
-  Packet.ToolYield,
   Packet.TurnFull,
   Packet.ResponseClose,
 ]);
+
+Packet.Call = v.union([Packet.Response, Audio.Packet, Audio.Close]);
+
+export const Response = v.object(
+  {
+    condition: Condition.desc('How the request ended. Example: "NOMINAL"'),
+    product: v
+      .record(v.string(), v.unknown())
+      .desc('What the request made: message, object, entities by type. Example: { message: "ciao means hello" }'),
+    turns: v.array(Turn).desc("The turns this request produced, in order."),
+    meta: Meta.desc('Why and how it stopped. Example: { state: "complete", rounds: 1 }'),
+  },
+  { additionalProperties: false },
+);
 
 export const Selector = {
   provider: v.string().optional().desc('A provider slug, exact. Example: "openrouter"'),
   id: v.string().optional().desc('A faculty id, exact. Example: "openai/gpt-image-2"'),
   tier: Tier.optional().desc('A named point in tune-space; ranks what the exact keys leave. Example: "fast"'),
-  tune: Tune.optional().desc("A point in tune-space; ranks what the exact keys leave. Example: [0.4, 0.3, 1.0, 0.8]"),
+  tune: Tune.optional().desc("A point in tune-space; ranks what the exact keys leave. Example: [0.4, 1.0, 0.8]"),
 };
 const shared = Selector;
 
@@ -429,6 +474,13 @@ Policy.verbatim = v.object({
   harmonize: v.object({ window: v.integer().optional(), tolerance: v.number().optional(), tail: v.integer().optional() }).optional().desc("belt.verbatim.harmonize options, applied over the faculty's stream. Example: { window: 2 }"),
 }, { default: {} });
 Policy.speech = v.object({ ...shared }, { default: {} });
+Policy.call = v.object({
+  ...shared,
+  hear: v.object({ ...shared }).optional().desc('The ear a cascade hears with. Example: { provider: "elevenlabs" }'),
+  mind: v.object({ ...shared }).optional().desc('The mind a cascade thinks with. Example: { tier: "fast" }'),
+  speak: v.object({ ...shared }).optional().desc('The mouth a cascade speaks with. Example: { id: "21m00Tcm4TlvDq8ikWAM" }'),
+  rounds: v.integer({ minimum: 1, default: 10 }).desc("Tool rounds per turn. Example: 3"),
+}, { default: {} });
 Policy.choice = v.object({ ...shared }, { default: {} });
 Policy.picture = v.object({ ...shared }, { default: {} });
 
@@ -459,6 +511,15 @@ Hallucination.speech = v.object({
   ...controlled(Policy.speech),
   source: v.unknown().desc('Text, or an async iterable of text. Example: "buongiorno"'),
   settings: Settings.optional().desc('Provider knobs, opaque. Example: { voice: "aria" }'),
+});
+
+Hallucination.call = v.object({
+  ...controlled(Policy.call),
+  source: v.unknown().desc("An async iterable of Audio.Packet · Audio.Played. Example: request.subscribe()"),
+  system: v.record(v.string(), v.unknown()).optional(),
+  turns: v.array(Turn, { default: [] }),
+  tools: v.unknown().optional().desc("A tools Vector, or an already-lowered catalog. Example: new Vector()"),
+  settings: Settings.optional(),
 });
 
 Hallucination.choice = v.object({
@@ -492,7 +553,7 @@ Picture.Response = v.object({
   revised: v.string().optional().desc('The prompt the provider actually painted from, when it rewrote ours. Example: "A red fox rendered in loose watercolor…"'),
   provider: v.string().optional().desc('The hallucinator that painted it, stamped by the belt. Example: "openrouter"'),
   id: v.string().optional().desc('The faculty that painted it, stamped by the belt. Example: "openai/gpt-image-2"'),
-  usage: v.record(v.string(), v.unknown()).optional().desc("The provider's usage record, opaque. Example: { input_tokens: 120 }"),
+  meta: Meta.optional().desc('Usage in our words, the receipt under provider. Example: { usage: { input: 120, output: 0 } }'),
 });
 Hallucination.picture = v.object({
   ...controlled(Policy.picture),

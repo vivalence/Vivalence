@@ -1,0 +1,42 @@
+{
+  "output": {
+    "modes": [
+      {
+        "reference": "/daemon/chess/mode/teacher/coach",
+        "valence": "the chess coach",
+        "tools": [
+          {
+            "reference": "/daemon/chess/mode/teacher/coach/whoami",
+            "valence": "chess·coach /whoami"
+          },
+          {
+            "reference": "/daemon/chess/mode/teacher/coach/position/analyse",
+            "valence": "chess·coach /position/analyse"
+          }
+        ],
+        "primers": [
+          {
+            "reference": "/daemon/chess/mode/teacher/coach/role",
+            "valence": "section role"
+          }
+        ]
+      },
+      {
+        "reference": "/daemon/chess/mode/teacher/francesca",
+        "valence": "the chess francesca",
+        "tools": [
+          {
+            "reference": "/daemon/chess/mode/teacher/francesca/drill/deal",
+            "valence": "chess·francesca /drill/deal"
+          }
+        ],
+        "primers": [
+          {
+            "reference": "/daemon/chess/mode/teacher/francesca/role",
+            "valence": "section role"
+          }
+        ]
+      }
+    ]
+  }
+}

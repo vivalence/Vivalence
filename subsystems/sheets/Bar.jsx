@@ -42,7 +42,7 @@ export const Bar = (props) => {
           <Segment palette={held.palette} id="segment-harness" open={opened("harness")} onPick={pick("harness")}>
             <text fg={held.harness.context >= CONTEXT ? held.palette.signalCautionInk : held.palette.textInk}>{`{${held.harness.tier} `}</text>
             <Meter palette={held.palette} value={held.harness.context} />
-            <text fg={held.harness.context >= CONTEXT ? held.palette.signalCautionInk : held.palette.textInk}>{"}"}</text>
+            <text fg={held.harness.context >= CONTEXT ? held.palette.signalCautionInk : held.palette.textInk}>{` ${held.harness.eager}● ${held.harness.lazy}◇}`}</text>
           </Segment>
         </Show>
         <Show when={held.activity.signal !== "off"}>

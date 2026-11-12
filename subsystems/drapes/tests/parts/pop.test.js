@@ -7,7 +7,7 @@ specimen.describe("Pop — dom.js:108 pop(w): .scrim + .pop[role=dialog] over ds
   specimen.it("the design's tree; placed above the pointer in the lower half, below it in the upper", () => {
     const acted = [];
     const closed = [];
-    const rig = screen(() => parts.Pop({ dset: DSET, at: { x: 900, y: 780 }, viewport: { width: 1280, height: 800 }, onClose: () => closed.push(true), onAct: (entry) => acted.push(entry.signal) }));
+    const rig = screen(() => parts.Pop({ set: "display", dset: DSET, at: { x: 900, y: 780 }, viewport: { width: 1280, height: 800 }, onClose: () => closed.push(true), onAct: (entry) => acted.push(entry.signal) }));
     specimen.expect(shaped(rig.target)).toBe(oracle(`<div class="scrim" data-fn="popclose"></div><div class="pop" data-zone="0" role="dialog" aria-label="display"><div class="dset"><div class="views"><button class="cur"><svg class="dispg"></svg></button><button class=""><svg class="dispg"></svg></button><button class=""><svg class="dispg"></svg></button><button class=""><svg class="dispg"></svg></button></div><div class="aligns"><button class="">←</button><button class="cur">→</button><button class="">↑</button><button class="">↓</button></div><div class="shrow"><button aria-label="less">−</button><span class="track slider"><span class="fill"></span><span class="sv">42 %</span></span><button aria-label="more">+</button></div></div></div>`));
     specimen.expect(rig.target.querySelector(".pop").getAttribute("style")).toBe("left:760px;top:612px");
     specimen.expect([...rig.target.querySelectorAll(".views button")].map((button) => [button.getAttribute("aria-label"), button.getAttribute("title")])).toEqual([["docked", "/dock docked"], ["full", "/dock full"], ["closed", "/dock closed"], ["messenger", "/dock messenger"]]);
@@ -18,7 +18,7 @@ specimen.describe("Pop — dom.js:108 pop(w): .scrim + .pop[role=dialog] over ds
     specimen.expect(acted).toEqual(["/dock left", "/split 0.37"]);
     specimen.expect(closed).toEqual([true]);
     rig.close();
-    const high = screen(() => parts.Pop({ dset: DSET, at: { x: 40, y: 100 }, viewport: { width: 1280, height: 800 }, onClose: () => {}, onAct: () => {} }));
+    const high = screen(() => parts.Pop({ set: "display", dset: DSET, at: { x: 40, y: 100 }, viewport: { width: 1280, height: 800 }, onClose: () => {}, onAct: () => {} }));
     specimen.expect(high.target.querySelector(".pop").getAttribute("style")).toBe("left:8px;top:114px");
     high.close();
   });
@@ -34,5 +34,16 @@ specimen.describe("Pop — dom.js:108 pop(w): .scrim + .pop[role=dialog] over ds
     specimen.expect(rects("docked", "right")).toEqual(["1.5,2.5,25,11", "14,2.5,12.5,11"]);
     specimen.expect(rects("closed", "right")).toEqual(["1.5,2.5,25,11"]);
     specimen.expect(rects("messenger", "left")).toEqual(["1.5,2.5,25,11", "4,6.5,9,4.5"]);
+  });
+
+  specimen.it("the lens set: a strip of toggles, one per stream; a pick acts with its line", () => {
+    const acted = [];
+    const rig = screen(() => parts.Pop({ set: "lens", dset: DSET, at: { x: 900, y: 40 }, viewport: { width: 1280, height: 800 }, onClose: () => {}, onAct: (entry) => acted.push(entry.signal) }));
+    specimen.expect(rig.target.querySelector(".pop").className).toBe("pop strip");
+    const streams = [...rig.target.querySelectorAll(".pop .tg button")];
+    specimen.expect(streams.map((stream) => [stream.textContent, stream.getAttribute("aria-pressed")])).toEqual([["turns", "true"], ["harness", "true"], ["repl", "false"]]);
+    fire(streams[2], "click");
+    specimen.expect(acted).toEqual(["/dock/lens repl"]);
+    rig.close();
   });
 });

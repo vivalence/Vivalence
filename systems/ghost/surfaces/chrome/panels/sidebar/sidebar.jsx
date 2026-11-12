@@ -32,6 +32,7 @@ export function Sidebar(props) {
         </box>
         <scrollbox style={{ flexGrow: 1 }}>
           <widgets.entity.Entity palette={props.palette} />
+          <widgets.harness.Harness palette={props.palette} />
           <widgets.display.Display palette={props.palette} />
           <widgets.system.System palette={props.palette} />
         </scrollbox>

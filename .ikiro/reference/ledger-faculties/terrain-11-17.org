@@ -1,0 +1,45 @@
+#+title: ledger faculties — terrain measured 11-17 (moved whole from the quest, cap)
+# writer: agent · limit: 3000 chars
+
+* terrain — measured 11-17
+
+The runtime hands the WHOLE row to the provider; the provider's code says what exists:
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/runtime/lifecycle/1-population.js:87
+(die.runtime.instance.hallucinators ?? []).map((query) => paladin.ledger.registry.accio(query)),
+…
+const faculties = await citizen.provider(citizen);
+// systems/runtime/subjects/daemon/lifecycle/1-population.js:72
+die.daemon.cortex = die.runtime.cortex.split(faculties);
+#+END_SRC
+
+#+BEGIN_SRC js
+// commons/hallucinators/anthropic/provider/index.js:28
+const models = {
+  opus: { id: "claude-opus-5-5", tune: [0.95, 0.15, 0.15], … },
+// commons/hallucinators/openrouter/provider/index.js:85
+  const table = service.statics?.models ?? models;
+  const choosing = service.statics?.choosers ?? choosers;
+  const pictures = service.statics?.pictures ?? painters;
+// commons/hallucinators/elevenlabs/provider/index.js:110
+    luiza: { id: "21m00Tcm4TlvDq8ikWAM", tune: [0.3, 0.4, 0.1] },
+// :142
+        `?model_id=eleven_flash_v2_5&output_format=pcm_16000`;
+// commons/hallucinators/deepgram/provider/index.js:140
+    tune: [0.5, 0.9, 0.6],
+#+END_SRC
+
+A tier is a typology point; a thread's selector picks the nearest:
+
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/cortex.js:13
+export const tiers = {
+  frugal: [0.1, 0.9, 1.0],
+  fast: [0.4, 1.0, 0.8],
+// systems/runtime/subjects/mode/traits/harnessed.js:58
+      ...(ctx.harnessed !== null && belt.object.pick(ctx.harnessed, ["provider", "id", "tier", "tune"])),
+// :298 · :308
+        shard.hal.verbatim({ polish: POLISH, tier: "fast" }),
+#+END_SRC
+

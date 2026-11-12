@@ -1,12 +1,6 @@
-import { For, Show } from "solid-js";
-import { Icon } from "./Icon.jsx";
+import { For, Index, Show } from "solid-js";
 
-export const INDENT = 14;
-export const SLOW = 500;
-export const DEEPEST = 4;
-export const TONES = { RUNNING: "pri", PAUSED: "cau", STOPPING: "cau", DONE: "pos", STOPPED: "mut", FAILED: "neg", ABORTED: "neg", IDLE: "mut" };
-
-export const tone = (code) => (Object.hasOwn(TONES, code) ? TONES[code] : "mut");
+export const DOTS = { fault: "is-fault", live: "is-running", idle: "", done: "is-healthy" };
 
 const SPANS = [
   [(value) => value === null, () => "—"],
@@ -17,139 +11,108 @@ const SPANS = [
 ];
 export const ms = (value) => SPANS.find(([test]) => test(value))[1](value);
 
+const timed = (row) => (row.live ? "live" : ms(row.dur));
+
 const classed = (...names) => names.filter(Boolean).join(" ");
 
-const Bar = (props) => (
-  <span class="tbar">
-    <i class={tone(props.code)} style={{ left: `${props.l.toFixed(1)}%`, width: `${Math.min(100 - props.l, props.w).toFixed(1)}%` }} />
-  </span>
-);
-
-const Trow = (props) => (
-  <div
-    class={classed("trow", props.row.sel && "sel", props.row.fault && "neg", `d${Math.min(props.row.depth, DEEPEST)}`)}
-    role="treeitem"
-    aria-selected={String(props.row.sel)}
-    title={props.row.path}
-    onClick={() => props.onSelect(props.row.id)}>
-    <span class="tw" style={{ "padding-left": `${props.row.depth * INDENT}px` }}>
-      <Show when={props.row.kids} fallback={<span class="tfold" />}>
-        <button
-          class="tfold"
-          aria-label={props.row.open ? "fold" : "unfold"}
-          onClick={(event) => {
-            event.stopPropagation();
-            props.onFold(props.row.id, !props.row.open);
-          }}>
-          {props.row.open ? "▾" : "▸"}
-        </button>
-      </Show>
-      <span class={classed("tc", tone(props.row.code), props.row.live && "live")} title={props.row.code.toLowerCase()} />
-      <span class="tn">{props.row.nature}</span>
-      <Show when={props.row.sub}>
-        <span class="tbad">!</span>
-      </Show>
-      <Show when={props.row.kids && !props.row.open}>
-        <span class="tk">{props.row.kids}</span>
-      </Show>
-    </span>
-    <Bar code={props.row.code} l={props.row.l} w={props.row.w} />
-    <span class={classed("tms", props.row.dur !== null && props.row.dur > SLOW && "cau")}>{ms(props.row.dur)}</span>
-  </div>
-);
-
-const Detail = (props) => (
-  <div class="td">
-    <div class="tdh">
-      <span class={classed("tc", tone(props.detail.code), props.detail.live && "live")} />
-      <b>{props.detail.nature}</b>
-      <span class={classed("chip", tone(props.detail.code))}>{props.detail.code.toLowerCase()}</span>
-      <span class="sp" />
-      <span class="mut">{ms(props.detail.dur)}</span>
-      <button class="iconbtn" aria-label="close the detail" onClick={() => props.onSelect(null)}>
-        <Icon name="x" size={14} />
+export const Spans = (props) => (
+  <Index each={props.rows}>
+    {(row) => (
+      <button class="ins-span" aria-current={String(row().cur)} onClick={() => props.onPick(row().id)}>
+        <span class="n" style={{ "padding-left": `${row().depth * 1.5}ch` }}>
+          <span class={classed("kit-dot", DOTS[row().tone])} />
+          <span class="nm">{row().name}</span>
+          <span class="kit-quiet">{row().quiet}</span>
+          <span class="ins-bang">{row().bang ? "!" : ""}</span>
+        </span>
+        <span class="ins-bar">
+          <i
+            class={row().tone === "fault" ? "is-fault" : row().live ? "is-live" : ""}
+            style={{ left: `${row().l.toFixed(1)}%`, width: `${Math.min(row().w, 100 - row().l).toFixed(1)}%` }}
+          />
+        </span>
+        <span class={classed("ms", row().live && "is-live", row().slow && "is-slow")}>{timed(row())}</span>
       </button>
-    </div>
-    <div class="tkv">
-      <span>path</span>
-      <code>{props.detail.path}</code>
-      <span>span</span>
-      <code>{`${props.detail.id}${props.detail.trace !== "" ? ` · trace ${props.detail.trace}` : ""}`}</code>
-      <Show when={props.detail.fault !== null}>
-        <span class="neg">fault</span>
-        <code class="neg">{[props.detail.fault.code, props.detail.fault.message].filter(Boolean).join(" · ")}</code>
-      </Show>
-    </div>
+    )}
+  </Index>
+);
+
+const said = (fault) => `! ${fault.code === undefined ? fault.type : fault.code}`;
+
+export const Told = (props) => (
+  <div class="ins-scroll">
+    <div class="ins-path">{props.detail.path}</div>
+    <div class="ins-meta">{[props.detail.code, props.detail.live ? "live" : props.detail.dur === null ? "no duration" : ms(props.detail.dur)].join(" · ")}</div>
+    <Show when={props.detail.fault}>
+      {(fault) => (
+        <div class="ins-fault">
+          {`${said(fault())} · ${props.detail.nature}`}
+          <br />
+          {fault().message}
+        </div>
+      )}
+    </Show>
     <Show when={props.detail.signals.length}>
-      <div class="tsig">
+      <div class="ins-th">
         <For each={props.detail.signals}>
-          {(signal) => (
-            <button
-              disabled={signal.off}
-              class={signal.sig === "SIGKILL" || signal.sig === "SIGTERM" ? "neg" : ""}
-              onClick={() => props.onLine(signal.signal)}>
-              {signal.sig}
+          {(held) => (
+            <button class="ins-act" disabled={held.off} onClick={() => props.onLine(held.signal)}>
+              {held.sig}
             </button>
           )}
         </For>
       </div>
     </Show>
-    <Show when={props.detail.entries.length}>
-      <div class="tsec">records</div>
-      <div class="tents">
-        <For each={props.detail.entries}>
-          {(entry) => (
-            <div class="tent">
-              <span class="v">{entry.track}</span>
-              <span class="t">+{ms(entry.rel)}</span>
-              <code title={entry.data}>{entry.data}</code>
-            </div>
-          )}
-        </For>
+    <Index each={props.detail.entries}>
+      {(entry) => (
+        <div class="ins-rec">
+          <span class="t">{`+${entry().rel.toFixed(1)}`}</span>
+          <span>{entry().track}</span>
+          <span class={entry().track === "fault" ? "neg" : ""} title={entry().data}>
+            {entry().data}
+          </span>
+        </div>
+      )}
+    </Index>
+    <Show when={props.detail.fault !== null && props.detail.fault.stack !== undefined}>
+      <div class="ins-th">
+        <button class="ins-act" aria-expanded={String(props.stack)} onClick={() => props.onStack(!props.stack)}>
+          {`${props.stack ? "▾" : "▸"} stack`}
+        </button>
       </div>
-    </Show>
-    <Show when={props.detail.kids.length}>
-      <div class="tsec">children · {props.detail.kids.length}</div>
-      <div class="twf">
-        <For each={props.detail.kids}>
-          {(kid) => (
-            <div class="twr" onClick={() => props.onSelect(kid.id)}>
-              <span class="tn">{kid.nature}</span>
-              <Bar code={kid.code} l={kid.l} w={kid.w} />
-              <span class="tms">{ms(kid.dur)}</span>
-            </div>
-          )}
-        </For>
-      </div>
+      <Show when={props.stack}>
+        <pre class="ins-pre">{props.detail.fault.stack}</pre>
+      </Show>
     </Show>
   </div>
 );
 
 export const Logger = (props) => (
-  <>
-    <div class="tfil">
-      <For each={props.filters}>
-        {(filter) => (
-          <button class={classed(filter.cur && "cur", filter.id === "faults" && filter.n && "neg")} onClick={() => props.onFilter(filter.id)}>
-            {filter.id}
-            <span>{filter.n}</span>
-          </button>
-        )}
-      </For>
-      <span class="sp" />
-      <button class="ghost" onClick={() => props.onLine("/telemetry/clear")}>
-        clear
-      </button>
-    </div>
-    <div class={classed("tsplit", props.detail !== null && "has")}>
-      <div class="tl" role="tree">
-        <Show when={props.rows.length} fallback={<div class="tempty">no spans</div>}>
-          <For each={props.rows}>{(row) => <Trow row={row} onSelect={props.onSelect} onFold={props.onFold} />}</For>
+  <div class="ins-log">
+    <div class="ins-col">
+      <div class="ins-th">
+        <span class="kit-choice" role="tablist" aria-label="filter">
+          <For each={props.filters}>
+            {(filter) => (
+              <button role="tab" aria-pressed={String(filter.cur)} aria-selected={String(filter.cur)} onClick={() => props.onFilter(filter.id)}>
+                {`${filter.id} ${filter.n}`}
+              </button>
+            )}
+          </For>
+        </span>
+      </div>
+      <div class="ins-spans">
+        <Spans rows={props.rows} onPick={props.onSelect} />
+        <Show when={props.rows.length === 0}>
+          <div class="ins-empty">no spans · /telemetry/clear moved the watermark</div>
         </Show>
       </div>
-      <Show when={props.detail} keyed>
-        {(detail) => <Detail detail={detail} onSelect={props.onSelect} onLine={props.onLine} />}
+    </div>
+    <div class="ins-div" />
+    <div class="ins-col">
+      <Show when={props.detail} fallback={<div class="ins-empty">pick a span</div>}>
+        {(detail) => <Told detail={detail()} stack={props.stack} onStack={props.onStack} onLine={props.onLine} />}
       </Show>
     </div>
-  </>
+  </div>
 );

@@ -1,0 +1,63 @@
+#+title: call-faculty, the grammar hunk moved 11-16 evening for the cap — whole, unchanged; milestone 2
+# writer: agent · limit: 3000 chars
+
+Q5 — =subsystems/typology/gestalten/belt/verbatim.js:26=, wraps every verbatim and call stream (the =if= → a =switch=, mine)
+#+BEGIN_SRC js
+// S3 11-17 /"amenamen"/ — the first cut settled a lone draft and passed an upstream delta whole ("vado al vado al mercato"); the fix = today's =/verbatim/final= arm moved onto =/part/delta=, the window check and the 8-word tail kept (=walk-11-17/harmonize.probe.js=)
+      case "/part/draft": {
+        const hypothesis = tokens(packet.part.text);
+        ring = [...ring, hypothesis].slice(-window);
+        const reached = ring.length === window ? frontier(ring, committed, tolerance) : committed;
+        if (reached > committed) yield { event: "/part/delta", index: packet.index, part: { text: hypothesis.slice(committed, reached).join(" ") + " " } };
+        committed = reached;
+        yield { event: "/part/draft", index: packet.index, part: { text: hypothesis.slice(committed).slice(-tail).join(" ") } };
+        break;
+      }
+      case "/part/delta": {
+        const remainder = tokens(packet.part.text).slice(committed);
+        if (remainder.length) yield { ...packet, part: { text: remainder.join(" ") + " " } };
+        reset();
+        break;
+      }
+#+END_SRC
+
+* Q4A, second block
+
+flux — =commons/hallucinators/deepgram/provider/index.js:93= (/"yessssssssssss nice"/)
+#+BEGIN_SRC js
+export function* flux(data) {
+  switch (data.event ?? data.type) {
+    case "StartOfTurn":
+      yield { event: "/turn/open", turn: { role: "user" } };
+      yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
+      return;
+    case "Update":
+      yield { event: "/part/draft", index: 0, text: data.transcript };
+      return;
+    case "EagerEndOfTurn":
+      yield { event: "/turn/eager" };
+      return;
+    case "TurnResumed":
+      yield { event: "/turn/resume" };
+      return;
+    case "EndOfTurn":
+      yield { event: "/part/full", index: 0, part: { type: "text", text: data.transcript } };
+      yield { event: "/part/close", index: 0 };
+      yield { event: "/turn/close" };
+      return;
+  }
+}
+#+END_SRC
+
+* Q18 — the scribe faculty, moved from the quest 11-17 (cap), whole
+
+Q18 — =commons/hallucinators/elevenlabs/provider/index.js=, a verbatim faculty beside the voices; =wss://api.elevenlabs.io/v1/speech-to-text/realtime?model_id=scribe_v3_live= (docs 11-16: =partial_transcript= → draft · =committed_transcript= → delta)
+#+BEGIN_SRC js
+{
+  type: "verbatim",
+  id: "scribe_v3_live",
+  tune: [0.8, 0.9, 0.7],
+  channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
+  via: { stream: transcribe },
+}
+#+END_SRC

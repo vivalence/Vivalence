@@ -1,3 +1,4 @@
+import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { join } from "@std/path";
 import { specimen, Controller, v, Url, Connection, Cortex, Aperture, Vector, cortex, shard, shape } from "@vivalence/typology";
 import { gestalten } from "@vivalence/runtime";
@@ -19,7 +20,7 @@ function contractFaculty() {
   return {
     type: "dialogue",
     id: "dialogue-1",
-    tune: [0.9, 1.0, 0.3],
+    tune: [0.9, 0.3, 0.5],
     context: 200000,
     channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
     via: {
@@ -54,7 +55,7 @@ specimen.describe("cortex contract snapshot — what actually crosses the daemon
   let sealed;
 
   specimen.beforeAll(async () => {
-    const daemon = { type: "daemon", aperture: new Aperture(), cortex: new Cortex().register([contractFaculty()]) };
+    const daemon = { type: "daemon", aperture: new Aperture(), cortex: new Cortex(TIER_POINTS).register([contractFaculty()]) };
     gestalten.shard.host.cortex(daemon);
     daemon.aperture.branch("/metadata").open("/cortex", () => cortex.strip(daemon.cortex));
 
@@ -75,7 +76,7 @@ specimen.describe("cortex contract snapshot — what actually crosses the daemon
       shard.transmitter.inline(recordingHandler),
     );
     strip = await connection.call("/metadata/cortex");
-    const remote = new Cortex().register(cortex.wire(connection.branch("/cortex"), strip));
+    const remote = new Cortex(TIER_POINTS).register(cortex.wire(connection.branch("/cortex"), strip));
 
     const tools = new Vector()
       .open({ nature: "lookup" }, async (ctx) => ({ message: `${ctx.input.query} means house` }))
@@ -103,7 +104,7 @@ specimen.describe("cortex contract snapshot — what actually crosses the daemon
     specimen.expect(rounds).toHaveLength(2);
     specimen.expect(rounds[0].body.tools.find((tool) => tool.name === "lookup")).toEqual({ name: "lookup" });
     specimen.expect(rounds[0].body.tools.find((tool) => tool.name === "grade").execute).toBe(undefined);
-    specimen.expect(sealed.output.message).toBe("casa means house");
+    specimen.expect(sealed.product.message).toBe("casa means house");
     pin(rounds, "cortex-contract-render.snapshot.json");
   });
 });

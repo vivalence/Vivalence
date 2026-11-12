@@ -6,7 +6,7 @@ export const GENERATIVE = (mode, modeDie) => {
   const bundler = paladin.bundler(new Path(mode.mountpoint).absolute);
 
   mode.generator = {
-    bundle: (data) => modeDie.entities.view.bundle({ mode: mode.entity.id, ...data }, { bundler }),
+    bundle: (data) => modeDie.entities.view.generate({ mode: mode.entity.id, ...data }, { bundler }),
   };
   mode.tools.graft(generative);
 };

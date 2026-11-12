@@ -1,0 +1,14 @@
+#+title: call-faculty milestones 0–8 and their order, moved whole from the quest 11-17 (cap)
+# writer: agent · limit: 2000 chars
+
+0. primitive coherence — one layout law over packets · parts · turns · yield · pool, the S13 drill (Q24 →, =reference/call-faculty/drill-11-17-layout.org=): every packet carries its noun (Q24, =layout-11-17.org=); Q21's rename rides here: =hallucination.js:264= · =soma.js:12 · :104 · :179= · the anthropic · openrouter translators · the stub · =faculties.js= · =Oracle.svelte=, then the tests; the biggest blast, measured at landing
+1. the consumed ear and mouth — the ledger's =hallucinators= name elevenlabs alone (Q18); its =scribe_v3_live= faculty hears
+2. one content grammar — schematics · fold · =harmonize= · the =scribe= translator (Q18), on milestone 0's layout
+3. signatures — verbatim · speech on =(request, { signal })=
+4. the absent route — =/verbatim= · =/call= graft only when the cortex resolves them; no ear, no route, no control (=review-11-17.org=)
+5. the client dictation — frames from =microphone.in=, =mode.harness.verbatim.stream=, =/dictate= on =mode.repl=, =Dictline= mounted, words at the caret
+6. the cascaded call — =converse= · =call= derivation (a named ear, the probe) · =/call= route
+7. the client call — mic → =/audio/packet=, packets → speaker, captions from drafts; the box signals (=/mic= · =/speaker=) routed, the modeline reads the device
+8. a native call provider
+
+Order: 0 first, every later milestone writes packets in its layout (/"mileston 0. the whole primitive coherence thing now. all milestone 0."/) · 1 is his file and stands alone · 2 · 3 before 5 (the client pours ONE grammar, never a second =verbatim.fold=) · 5 · 6 · 7 mount under =harness-layout='s =CONVERSATIONAL=.

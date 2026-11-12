@@ -5,7 +5,7 @@ import "@vivalence/drapes/parts.css";
 import * as ambient from "./ambient/index.js";
 import { Cover } from "./panels/cover/cover.jsx";
 import { SIDEBAR } from "./panels/sidebar/sidebar.jsx";
-import { WINDOW } from "./panels/telemetry/telemetry.jsx";
+import { SEED } from "./panels/telemetry/telemetry.jsx";
 
 const dressed = (document) => {
   const style = document.createElement("style");
@@ -47,8 +47,25 @@ export const mount = (appDie) => {
   resized();
   globalThis.addEventListener("resize", resized);
   narrow.addEventListener("change", resized);
+  const held = (event) => {
+    const holder = event.target.closest("[data-focus]");
+    appDie.bridge.$focus.set(holder === null ? null : holder.dataset.focus);
+  };
+  const dropped = (event) => {
+    if (event.relatedTarget === null) appDie.bridge.$focus.set(null);
+  };
+  globalThis.document.addEventListener("focusin", held);
+  globalThis.document.addEventListener("focusout", dropped);
   appDie.bridge.$sidebar.set({ ...appDie.bridge.sidebar, width: SIDEBAR.width });
-  appDie.telemetry.$state.set({ ...appDie.telemetry.state, window: WINDOW, folds: {}, tables: {} });
+  const seated = Object.hasOwn(appDie.telemetry.state, "lens") ? {} : SEED;
+  appDie.telemetry.$state.set({
+    ...appDie.telemetry.state,
+    ...seated,
+    peeks: {},
+    since: 0,
+    selection: null,
+    trace: null,
+  });
   const forget = appDie.client.runtime.lighthouse.$status.subscribe((status) => {
     if (status.code === "LOGGED_OUT")
       appDie.bridge.$signin.set({ user: appDie.bridge.signin.user, pass: "" });
@@ -59,6 +76,8 @@ export const mount = (appDie) => {
     erase();
     style.remove();
     forget();
+    globalThis.document.removeEventListener("focusout", dropped);
+    globalThis.document.removeEventListener("focusin", held);
     narrow.removeEventListener("change", resized);
     globalThis.removeEventListener("resize", resized);
   };

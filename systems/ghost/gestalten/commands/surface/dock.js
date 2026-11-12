@@ -1,0 +1,43 @@
+import { Vector, traits, v } from "@vivalence/typology";
+import * as belt from "../../belt/index.js";
+
+const Docking = v.object({ word: v.enum([...belt.dock.SIDES, ...belt.dock.VIEWS]).desc('A side the dock sits, or how it shows. Example: "closed"') });
+const Lensed = v.object({
+  lens: v.enum(belt.dock.LENSES).desc("A stream the dock paints; naming it toggles it").example("harness"),
+});
+const Shared = v.object({ share: v.number({ minimum: 0.1, maximum: 0.9 }).desc("The dock's width as a share of the chrome. Example: 0.38") });
+
+const DOCKINGS = [
+  [(word) => belt.dock.SIDES.includes(word), (word) => ({ align: word })],
+  [(word) => word === "closed", () => ({ view: "closed" })],
+  [(word) => belt.dock.VIEWS.includes(word), (word) => ({ view: word, shown: word })],
+];
+
+const docking = (word) => DOCKINGS.find(([test]) => test(word))[1](word);
+
+export const dock = new Vector()
+  .open(
+    { nature: "/dock", rank: "hidden", valence: "the dock: its side, or how it shows — docked · full · closed · messenger. Example: /dock closed", input: Docking, chord: "leader/d/d" },
+    async (ctx) => {
+      const { word } = belt.input.cast(Docking, ctx.signal);
+      const DOCKED = docking(word);
+      await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED }));
+      return { DOCKED };
+    },
+  )
+  .open(
+    { nature: "/dock/lens", rank: "hidden", valence: "what the dock lists — turns · harness (tools and thinking) · repl; a word toggles its stream. Example: /dock/lens harness", input: Lensed, chord: "leader/d/j" },
+    async (ctx) => {
+      const { lens } = belt.input.cast(Lensed, ctx.signal);
+      const DOCKED = { lens: belt.dock.toggled(ctx.terminal.dock.lens, lens) };
+      await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED }));
+      return { DOCKED };
+    },
+  )
+  .open(
+    { nature: "/split", rank: "hidden", valence: "the divider — the dock's share of the chrome. Example: /split 0.5", input: Shared, chord: "leader/d/s" },
+    async (ctx) => {
+      const DOCKED = belt.input.cast(Shared, ctx.signal);
+      await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED }));
+    },
+  );

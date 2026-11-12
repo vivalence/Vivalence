@@ -41,6 +41,7 @@ export class Legend {
       ...(this.terminal.client.app === null ? [] : [app.keymap]),
       ...fromm.modes(this.terminal.client.modes).flat.map((mode) => mode.keymap),
       ...(is.object(this.terminal.mode) ? [this.terminal.mode.keymap] : []),
+      ...(this.terminal.client.app === null || this.terminal.client.app.bridge.dictation === null ? [] : [app.dictating]),
       ...(this.terminal.repl.catalog === null ? [] : [app.closing, app.selecting]),
     );
   }

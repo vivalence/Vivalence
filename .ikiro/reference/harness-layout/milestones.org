@@ -1,0 +1,69 @@
+#+title: harness-layout — the milestones in depth, cut 11-17
+# writer: agent · limit: 9000 chars
+
+Each milestone: the files it touches, the probes it turns into =specimen= suites (whole-object snapshots, /"heavy on testing and snapshotting throughout!"/), its green. Terrain grepped 11-17; the tangle re-measures.
+
+* landed — 11-17, on /"quest harness layout go. land."/
+
+| milestone | suites green | reds, not mine |
+|---|---|---|
+| the thread words | traits · traits.snapshot · v · data-entity · traits.patch · deepgram provider · drapes tele · runtime thread (Q40 fails without =onLoad=) · dictation.integration | dictation.conversation 3 · ghost commands =*= 1 at base, both green by 17:46 (a sibling session) · anima tele · sidebar abort (=world.js:10=, known) → =sections.js= probed |
+| the tool contract | toolcall (R8 · R4 fail without the guard) · hallucination =declarations= · anthropic · openrouter translate · modes Q36A (B: root · daemon · internal carry =ctx.runtime=, fails without the daemon bind) · =runtime/hello= live boot · cortex.hallucinators · providers · harness.primer · tools.coverage · daemon smoke · integration | — |
+| the reference | =runtime/tests/reference.test.js= 5: Q27 · R7 (red, farthest kept) · R1 · R13 · Q32 · R14 | — |
+| the five tools | =runtime/tests/harness.load.test.js= 7, a real mikro thread: 5 tools · Q33 · R14 (4 red without the TOOLED write); vocabulary · dataspace · thread example gain TOOLED · PRIMED | — |
+| the composer | =harness.compose.test.js= 5 (rounds · exclude · preloaded · compose · none; 7 red without =composing=) · =harness.primer= 5 · modes Q36A + a harness called direct (red without its bind) · thread Q40 + =TOOLED= · =PRIMED= filled at load · metadata snapshot re-pinned · =runtime/hello= live | anima =sidebar= · =tele= · =bar= abort (=world.js:13=, known) · ghost =/dictate= 2 · chess P-render (svelte 5.57 vs 5.39) |
+
+departures, mine: the composer — the delta composes at the EFFECT (=harnessed.js= =composing=), the mode's offer in =requesting=; =expose= binds =runtime= onto each harness too (24 direct =mode.harness.*= callers skip the host); a load is callable next round, declared next REQUEST (the catalog lowers once, =shard/hallucinate.js:28=, Q29), valences say so; the five tools ride every request, =/tool= · =/primer= see the thread ENTITY (tool =ctx.thread= is the id, =contexts.js:32= says the entity: a defect, unfixed); =Thread.ts= onLoad casts whole; =/primer/read= died, the listing says =primer_load= with =/= references; francesca: =AGENTIC= off, =dojo_*= → =game_dojo_*= + one sentence =tool_load /game/dojo= (his prose); chess =play= · runtime harness off =AGENTIC=; residue: anima =harness-wire= =routes= · =fs= · the five tools — =TOOLED= · =PRIMED= (=traits/tooled.js= · =primed.js=) enter HERE, the load tools write them; off the named =v.traits= re-export (=runtime/gestalten/belt/traits.js:9= reads =properties=); =/primer/load= lands BESIDE =/primer/read=, the read and its =primer_read= listing (=shape/primer.js:58=) die with the composer; the owed examples · outputs sweep (16 tools) NOT done · the reference — home =systems/runtime/gestalten/reference/= (=reading.js= · =seating.js=), host references are =Path=, read =.absolute= at the string boundary; =harvest= stubbed (=@education= is this machine's, a census has none); Q38's commented =console.log= denied by comment-guard, written past it on /"bypass the console log limiter"/ (=reading.js:67=) · Q36A → B, /"amen"/ 11-17 (the =get runtime()= self-reference /"stpid"/): =modeDie= carries no =runtime=; =expose= binds it on the runtime's and each daemon's aperture (=runtime/lifecycle/2-resolution.js:45 · :50=, internal calls skip the root), =harnessed.js:99= binds it onto the tools, unproven · Q15 — anthropic · openrouter take no output field (docs): the translators keep dropping it, pinned · residue: =~/.viva/registry/education/README.md:722= still says =INTELLIGENT= (his package)
+
+* code
+
+** the thread words
+
+- typology: =schematics/traits/vocal.js= → =conversational.js= · =intelligent.js= → =harnessed.js=, both hunks in =moved.org= (Q1A · Q2A); =Harnessed= gains =slugging=, the enum Q27 left: =deep= (default) · =nested=
+- the catalog =schematics/traits/index.js:39-40=: thread =HARNESSED= · =CONVERSATIONAL= for =INTELLIGENT= · =VOCAL=; mode gains =CONVERSATIONAL=
+- =primitives/contexts.js:105= =Harness=: =...intelligent, ...vocal= → the two new contracts
+- =entities/Thread.ts:82= stamps every new thread =["INTELLIGENT", "VOCAL"]= → the two new words
+- consumers: =runtime/subjects/mode/traits/harnessed.js:29-30= (=claiming=) · =shard/hal.js= =vocal= readers · deepgram =provider/index.js:134-173= (=language= a list) · ghost =commands/content/harness.js= · =commands/system/set.js:33-42= · anima =sidebar/sections.js:43 · :46 · :53 · :128= · =telemetry/entities.js:365= · =commons/dashboards/dataspace/schema.js:13 · :54 · :60= · =thread.js:11 · :26= examples · 8 test files
+- stored threads: every one wears =INTELLIGENT= · =VOCAL= (=Thread.ts:82=); =belt/traits.js:28= THROWS on an undeclared name → Q40: =belt.traits.cast= heals a retired name to its heir at hydration (=INTELLIGENT= → =HARNESSED=, =VOCAL= → =CONVERSATIONAL=), no migration; the retired table lives in typology; suite: a stored thread wearing the old names casts whole
+- NOT here: =/verbatim= · =/speech= · =/call= under the mode's =CONVERSATIONAL= = m123 milestones 5 – 7
+- suites: =thread.test.js= probe → the cast thread, whole · =conversational.probe.js= · =harnessed.probe.js= → typology traits suite
+- green: =traits.snapshot.test.js= · =traits.test.js= · =runtime/tests/thread.test.js= · =dictation.integration.test.js= · =dictation.conversation.test.js= · ghost =commands.test.js= · anima =tele.test.js=
+
+** the tool contract
+
+- =primitives/hallucination.js= =Tool= gains =output=, optional (Q15, R2)
+- =gestalten/shard/hallucinate.js:11= =declarations= keeps =output= (R3); what anthropic · openrouter make of it is mine (Q15) — =declared-output.test.js= prints today's drop
+- =prototypes/toolcall.js= =name=: a step carrying =_= refuses, loud (Q39A, R8, =r8.test.js=); a name past 64 chars refuses, loud, never cut (Q28, R4)
+- =primitives/contexts.js:103= =modeDie= gains =...runtime= (Q36A, =q36.test.js= answer A)
+- suites: =r8= · =q36= · =declared-output= → specimen; a =toolcall= suite: =_= refused · 64 refused · round trip
+- green: =hallucination.test.js= · =cortex.hallucinators.test.js= · anthropic · openrouter =provider.test.js=
+
+** the reference
+
+- new, a runtime =gestalten/= directory with its barrel (home: mine, at the tangle); whole from =load.test.js:5-104=: =natures · within · located · narrow · readings · modes · covered · reached · found · keyed · missed · seat · section=
+- one reader for all five tools (R9): =found(ctx, reference, tree)=, =tree= picks =mode.tools= or =mode.primer=; a mode lacking the tree is skipped (R10 · R11 · R12)
+- =ctx.reference= is the owner, daemon OR runtime (Q34B, R15); =seat= binds the owner through =OWNED= (Q22, R14)
+- one name, two tools → the nearest, the duplicate a commented =console.log= (Q38, R7)
+- keys rooted, the reference ADDED (=keyed=, Q35 · Q37, R1); a reference matching nothing = =missed= (Q33, R13)
+- suites: =narrow= · =distance= · =r7= · =r1= → specimen: every home, names unique, each widens back
+- green: the suites above; no consumer yet
+
+** the five tools
+
+- =systems/runtime/gestalten/tools/=: =modes.js= =/modes/index= (Q20 · Q24B · Q32, =resolve.test.js=) · =tool.js= =/tool/load= · =/tool/preload= · =/tool/unload= (Q14 · Q16 · Q21 · Q26, =load.test.js= · =preload.test.js=) · =primer.js= =/primer/load= REPLACES =/primer/read= (=primer.js:5=; Q30 · Q31, =primer-reference.test.js=)
+- outputs: ={ modes }= · ={ tools, missed }= ×2 · ={ unloaded, missed }= · ={ primers, missed }=; each signature input · output · =.eg= (Q13A · Q25A)
+- the handoff's owed: examples · outputs out of valence prose into the signatures, 16 of 17 tools
+- suites: one per tool, the WHOLE output snapshotted · =missed= · =owner= · =tree-load=
+- green: the five suites over real daemon objects (=accio= harvest · nyan)
+
+** the composer — LANDED, =* landed=
+
+* ui — planned from the comp 11-17: =ui.org=
+
+* Q40 — the stored threads, RULED 11-17
+
+asked: =Thread.ts:82= · =belt/traits.js:28=, the rename throws on every stored thread; m123 Q16C heals a FIELD, a renamed KEY is none. Offered: a mikro migration · the cast heals the name · wipe. His pick: /"cast heals the name"/.
+
+* moved — from the quest 11-17
+
+=AGENTIC= dies with the composer, not the words — mine, a departure from =moved.org= =* milestones=: its siblings' tools stay reachable until =TOOLED= lands. R5 · R6 =* deferred=. The campaign: =lab/campaign/=, =lab/index.org=.

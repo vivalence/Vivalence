@@ -11,7 +11,11 @@ phases
 phases
   .branch({ nature: "/manual", valence: "an empty thread gets one blank buffer; the frame holds the thread's oldest buffer until it leaves. Example: /manual" })
   .use(async (stallCtx, next) => {
-    if (stallCtx.terminal.thread.mode.traits.includes("VIEWABLE") && stallCtx.terminal.stall.$buffers.get().length === 0)
+    if (
+      stallCtx.terminal.thread.mode !== null &&
+      stallCtx.terminal.thread.mode.traits.includes("VIEWABLE") &&
+      stallCtx.terminal.stall.$buffers.get().length === 0
+    )
       await stallCtx.terminal.client.runtime.entities.buffer.ensure({ mode: stallCtx.terminal.thread.mode.id, thread: stallCtx.terminal.thread.id, data: {} });
     await next();
   })
@@ -32,7 +36,7 @@ phases
   .use(async (stallCtx, next) => {
     if (stallCtx.terminal.stall.$buffers.get().length < stallCtx.terminal.thread.trait.QUEUEING.depth) {
       const emission = await stallCtx.terminal.thread.mode.connection.call(stallCtx.terminal.thread.trait.AIMED.mount, { thread: stallCtx.terminal.thread.id, ...stallCtx.terminal.thread.trait.MASKED });
-      for (const buffer of emission.output.buffer) await stallCtx.terminal.client.runtime.entities.buffer.merge(buffer);
+      for (const buffer of emission.product.buffer) await stallCtx.terminal.client.runtime.entities.buffer.merge(buffer);
     }
     await next();
   })

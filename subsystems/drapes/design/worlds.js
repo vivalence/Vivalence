@@ -18,8 +18,8 @@ const looped = turn("agent", "", { who: "chess · board/play", meta: "r4/10", to
 const base = (name, held) => ({
   name,
   entity: { label: "e4 openings", mode: "board/play" },
-  harness: { tier: "capable", effort: "low", pct: 34 },
-  display: { view: "docked", align: "right", lens: "chat" },
+  harness: { tier: "capable", effort: "low", pct: 34, eager: 7, lazy: 1 },
+  display: { view: "docked", align: "right", lens: "turns · harness" },
   box: { mic: "off", voice: false },
   system: { standing: "VERIFIED", health: "HEALTHY" },
   fault: false,
@@ -81,7 +81,7 @@ export const WORLDS = {
     system: { standing: "VERIFIED", health: "DEGRADED" },
     terminals: [{ index: 1, label: "e4 openings", current: true, mirrored: false, dot: "negative" }],
     journal: [you, agent("err", false), turn("fault", "provider timeout · r3 · fs_write")],
-    field: { kind: "line", value: "/resume", placeholder: "", dictating: false },
+    field: { kind: "repl", value: "/resume", placeholder: "", dictating: false },
   }),
 };
 

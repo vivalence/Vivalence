@@ -1,0 +1,46 @@
+#+title: call-faculty terrain, measured 11-16 — moved whole from the quest 11-16 (cap)
+# writer: agent · limit: 5000 chars
+
+* terrain — measured 11-16
+
+#+BEGIN_SRC js
+// systems/ghost/gestalten/commands/content/dictate.js:3 — both clients
+export const dictate = new Vector().open(
+  { nature: "/dictate", rank: "hidden", valence: "dictation on or off — /harness/verbatim/stream. Example: /dictate" },
+  () => "no dictation on this wire",
+);
+// systems/ghost/subjects/app/prototypes/box/device/microphone/microphone.js:79 — microphone.in: one writer, zero readers
+microphone.worklet.port.onmessage = (event) => {
+  if (!microphone.$claimed.get()) return;
+  microphone.in.send(event.data);
+};
+// systems/runtime/subjects/mode/traits/conversational.js:1
+export const CONVERSATIONAL = () => {};
+// systems/runtime/subjects/mode/traits/harnessed.js:30 → subsystems/typology/gestalten/shard/hal.js:53 — VOCAL-less thread throws
+ctx.vocal = ctx.thread.traits.includes("VOCAL") ? ctx.thread.trait.VOCAL : null;
+const picked = { provider: vocal.provider, id: vocal.id, tier: vocal.tier ?? tier, tune: vocal.tune };
+// subsystems/typology/schematics/primitives/contexts.js:38 — boolean, holds the trait object
+export const vocal = { vocal: v.boolean().desc("The mode's harness.vocal flag, lifted") };
+// subsystems/typology/schematics/primitives/hallucination.js:20 — the placeholder
+  v.const("call"),
+#+END_SRC
+
+| belt call site | faculty | shape today | signal |
+|---|---|---|---|
+| =belt/hallucinate.js:116= | dialogue stream | =(request, { signal })= | yes |
+| =:117= | dialogue render | =(request, { signal })= | yes |
+| =:257= | picture render | =(request, { signal })= | yes |
+| =:272= | choice render | =(round, { signal })= | yes |
+| =:209= | verbatim stream | =(source, settings)= | no |
+| =:229= | speech stream | =(source, settings)= | no |
+| =:243= | speech render | =(source, settings)= | no |
+
+| old svelte (=~/.viva/bak/anima/src-20261024/=) | today |
+|---|---|
+| =src/prototypes/dictation.js= | ABSENT |
+| =Dictaphone.svelte= | ABSENT; =composer.jsx:37= sends =/dictate= |
+| =widgets/dictate.js= =spliceAt= | ABSENT |
+| =src/prototypes/conversation.js= | ABSENT (never called in svelte either) |
+| microphone · speaker · audio driver | =systems/ghost/subjects/app/prototypes/box/= |
+| drapes =Dictline.jsx= | built, zero importers in =systems/= |
+

@@ -2,7 +2,9 @@ import { Aperture, contexts, shard } from "@vivalence/typology";
 
 export class Daemon {
   type = "daemon";
-  aperture = new Aperture().use(shard.context.spread(contexts.daemonDie, this));
+  aperture = new Aperture()
+    .use(shard.context.spread(contexts.daemonDie, this))
+    .use(shard.context.bind("daemon", this));
   slug = null;
   mask = null;
   controller = null;

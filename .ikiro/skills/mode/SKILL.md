@@ -75,7 +75,7 @@ Topology ⇒ `traits: ["DATASET"]`; topography ⇒ `DATASET` (+ `FRAUGHT`/`DATAS
 
 ## After the first edit on a shelved mode
 
-`~/.viva/instances/<slug>/` is a COPY `instance/create` made once; the runtime bundles the shelf. `diff -q` every touched file, sync by hand, verify by bundling the SHELF entry → `debug`. Hexes in a view: one palette block till the theme is ordered → `design`. An `$effect` fix is proven mounted, not compiled → `change`.
+`~/.viva/instances/<slug>/` is a COPY `instance/create` made once; the runtime bundles the shelf → `mountpoint/daemon_<d>/mode_<t>_<s>/bundle/`, newest. `diff -q` every touched file, sync by hand, verify by bundling the SHELF entry → `debug`. Hexes in a view: one palette block till the theme is ordered → `design`. An `$effect` fix is proven mounted, not compiled → `change`.
 
 ## Landing on a watched tree
 

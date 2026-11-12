@@ -92,7 +92,7 @@ specimen.describe("the door against a world — boot passes a reachable runtime,
     world.child.kill("SIGKILL");
     await world.child.status;
     const remote = new Url(instance.runtime.statics.remote);
-    const reached = () => new Connection(remote).call("/status").then(() => true, () => false);
+    const reached = () => new Connection(remote).call("/beacon/status").then(() => true, () => false);
     specimen.expect(await reached()).toBe(false);
     for (const [key, value] of Object.entries(world.env)) Deno.env.set(key, value);
     const listed = Object.create(instance, { home: { value: new Path(await Deno.realPath(instance.home.absolute)) } });

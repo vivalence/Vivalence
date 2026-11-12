@@ -1,0 +1,69 @@
+# limit: none (quest content)
+#+title: mode lineage — a renamed mode keeps its entity: the manifest names what it was
+#+filetags: :roadmap:mode:manifest:rename:migration:prune:
+#+status: ROADMAP 11-13, unnumbered — his to number. Q0 locked, the rest SKETCH; dropped the same hour (/"lets drop that for now."/ · /"mark formerly in our roadmap tho"/).
+#+phase: roadmap
+#+next: beef — number it or leave it; first step is the study under =* open=.
+
+* the ruling
+beef, 11-13, after the prod deploy died on the assembly rename: /"a is fine but we will run into this problem all the time. whats the vivalence way to handle this? mode changes name. how to migrate?"/
+
+Locked Q0: /"a  formerly: [\"editor:assembly\"], but use the reference."/ — lineage declared in the manifest, each former name written as the mode's reference. Read as =mode.reference= (=/mode/<type>/<slug>=), NOT the recipe identifier (=@assembly/editor/assembly=); unconfirmed.
+
+#+BEGIN_SRC js
+// ~/.viva/registry/assembly/modes/model/editor/editor.viva.js
+export const manifest = {
+  type: "model",
+  slug: "editor",
+  formerly: ["/mode/editor/assembly"],
+};
+#+END_SRC
+
+REJECTED (his pick of A over it): a fixed =manifest.id= as the entity's identity — a flag day over every package and every db.
+
+* measured
+A Mode entity's only identity is its name; a rename mints a stranger and deletes the old entity.
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/belt/modes.js:20
+const typeSlug = (item) => `${item.type}:${item.slug}`;
+// systems/runtime/gestalten/belt/modes.js:30
+export const prune = async (context, daemon) => {
+  await context.datamap.shard.scope(async () => {
+    const modes = fromm.modes(context.modes).flat;
+    const installed = new Set(modes.map((mode) => typeSlug(mode.manifest)));
+    orphans(context.entities.em, await context.entities.mode.find({ daemon }), installed, typeSlug, "mode");
+#+END_SRC
+
+The relation dies silent: =Buffer_mode_foreign … on delete set null=. Prod 11-13, =assembly= =54def81b= (four modes renamed): 2 of 11 Buffers and 1 of 9 Threads went =mode = null=; he accepted (/"a is fine"/). Localhost 11-12 the same (=done/assembly-mode-rename.org=).
+
+Two failures, one to keep: the recipe's =Module 404= on an old identifier is LOUD and right — the instance's recipe is renamed by hand; the nulled relation is the defect.
+
+* SKETCH — a beat before prune
+#+BEGIN_SRC js
+// systems/runtime/gestalten/belt/modes.js
+export const succeed = async (context, daemon) => {
+  await context.datamap.shard.scope(async () => {
+    for (const mode of fromm.modes(context.modes).flat) {
+      for (const former of mode.manifest.formerly) {
+        const [, , type, slug] = former.split("/");
+        const entity = await context.entities.mode.findOne({ daemon, type, slug });
+        if (!entity) continue;
+        wrap(entity).assign({ type: mode.manifest.type, slug: mode.manifest.slug });
+      }
+    }
+    await context.entities.em.flush();
+  });
+};
+// systems/runtime/subjects/daemon/lifecycle/index.js:25
+  .use(integration.succeed)
+  .use(integration.prune);
+#+END_SRC
+
+=succeed= is mine (0 hits); =inherit= · =rename= beside it.
+
+* open
+- mint order, unread: where the new entity is minted. Mint first = both names present = =uniques: ["daemon", "slug", "type"]= (=subsystems/typology/entities/Mode.ts:47=) refuses; the beat runs before mint or folds into it.
+- the schema: =formerly= in the mode manifest schematic (typology), default =[]=, read straight.
+- a split or a merge of modes: lineage does not cover it.
+- the already-pruned (prod's 3, localhost's) are past healing.

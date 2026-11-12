@@ -1,7 +1,7 @@
 import { For, Show } from "solid-js";
 import { JsonTree } from "./JsonTree.jsx";
 
-export const INSET = { padding: "8px 12px 10px" };
+export const INSET = { padding: ".5rem .75rem .625rem" };
 
 export const Yield = (props) => (
   <div class="yield" style={props.style}>

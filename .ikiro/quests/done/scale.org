@@ -1,0 +1,139 @@
+#+title: scale — the language-learning domain moves the memory strength of a whole literal set
+#+filetags: :education:domain:retention:tools:typology:
+#+status: DONE 11-14 — landed on /"land the quest"/, closed on /"move to done when done"/ · /"tested!"/; tool =/scale= over route =/scale/literal=, one percent scale, statuses begin at their own percent (=PROFILE= 3 · 15 · 36 · 60); 7 walk stops amen; QA held at tool level on the rig, the live tutor-thread walk NOT run
+# writer: agent · limit: 18000 chars
+
+* intent
+
+/"the language learning domain needs a tool to adjust the learning level of a learner. f.e. i know some spanish and dont want to have to keep repeating words i know."/
+
+/"i want to advance symbolic sets like everything in a1, or all conjugations of the following n verbs, shit like that. also sets of literals."/
+
+/"we should take the classifications of the memory strengths as guides - learning knwon etc - and have some preset memory strength profiles for each. such that i can say advance all a1 to learning."/
+
+/"or also the ability to scale by percentage. where 100% is something like once a year ~ round a bout and 0% is 1 minute. 10% is an hour. 50% is month."/
+
+* rulings
+
+| #   | his words                                                                                   | state  |
+|-----+---------------------------------------------------------------------------------------------+--------|
+| Q0  | /"a"/                                                                                       | LOCKED |
+| Q1  | /"that should be part of the function signature. we can do drop, advance, and set. advance default"/ | LOCKED |
+| Q1A | /"b. call it scale."/ · /"call it scale."/                                                  | LOCKED |
+| Q2  | /"a. we do have richer capabilities on symbol selection on the query that can take the job of b. important for hte harness."/ | LOCKED |
+| Q3  | /"this belongs onto percent description. status needs one too. direction must be explained too. either or is good."/ | LOCKED |
+| Q4  | /"none. a"/                                                                                 | LOCKED |
+| Q5  | /"b"/                                                                                       | LOCKED |
+| Q6  | /"unknown 3% learning 15% known 45% graduated 90%"/ → /"make known 30% and graduated 60^"/ → /"make known 3 days."/ | LOCKED |
+| Q6A | /"no. wrong. move the learning scale instaed. 6h is too long."/                             | LOCKED |
+| Q7  | /"lets unify this. they should really be the same scale."/ · /"a."/                         | LOCKED |
+| Q8  | /"bool and counter must handle this too. heuristics."/ · /"q8 a"/                           | LOCKED |
+| Q9  | /"a"/                                                                                       | LOCKED |
+| —   | /"more advanced example. can we add 2 examples?"/ · /"give this another example with simple symbols array."/ | LOCKED |
+| —   | /"write the quest. script around it. we use scale"/                                         | LOCKED |
+
+* the law
+
+1. Percent is the one scale: 0 = 1 minute · 10 = 1 hour · 50 = 30 days · 100 = 365 days, log-interpolated between anchors.
+2. A status begins at its own percent. =PROFILE= is the preset AND the threshold; no second table.
+3. =scale= is the name at every layer: driver function, note method, literal method, route, tool.
+4. Direction rides the signature: =advance= (default) only raises, =drop= only lowers, =set= does both.
+5. One set per call; the repository's =symbols= grammar carries unions.
+6. A scale writes the retention note only: no trace, no invented history.
+7. The answer tells moved from kept.
+
+* terrain — measured 11-14
+
+Status was hours inside the driver, =~/.viva/registry/education/domain/retention/bayesian.js:16=: under 6 h =UNKNOWN= · to 7 d =LEARNING= · to 45 d =KNOWN= · above =GRADUATED=. Only =/review= moved a halflife, one signal at a time.
+
+The curve and =PROFILE=, each percent scaled and read back through ebisu (probe, scratchpad):
+
+| status    | percent | halflife | reads back |
+|-----------+---------+----------+------------|
+| UNKNOWN   |       3 | 3.4 min  | UNKNOWN    |
+| LEARNING  |      15 | 2.3 h    | LEARNING   |
+| —         |    35.9 | 2.95 d   | LEARNING   |
+| KNOWN     |      36 | 3.0 d    | KNOWN      |
+| GRADUATED |      60 | 49.5 d   | GRADUATED  |
+
+ebisu reads a 15% state back as 14.99989%: without the two-decimal rounding in =reached= every preset reads one status too low.
+
+Spanish dataset: 1,195 literals carry =proficiency.cefr.a1=; 53 of them are conjugations. No product code writes =BOOLEAN= or =COUNTER=.
+
+=populate: ["notes"]= answers only the caller's notes (probed with a second user; tested, =domain/tests/aperture/aperture.test.js:113=).
+
+* deliverables
+
+LANDED 11-14, ten files; the tangle moved whole to =.ikiro/reference/scale/tangle.org=. Tree: =~/.viva/registry/education/domain/= =aperture/index.js= · =retention/{bayesian,boolean,counter}.js= · =schematics.js= · =tools/{index,scale}.js= · =traits/{literal,note}/retained.js=; =commons/fixtures/testing/data/seed.js=.
+
+* blast table
+
+| surface                                   | consumers                                                              | BREAKS  |
+|-------------------------------------------+------------------------------------------------------------------------+---------|
+| =bayesian.assess= thresholds              | every review · =literal.sample= by status · =assess().is= · the aprende board | at land |
+| =schematics.PROFILE=                      | three drivers · =tools/scale.js=                                       | —       |
+| =tools= vector gains =/scale=             | =tests/tools/tools.test.js:17= pins the branch list                    | at land |
+| =resolveSymbols= (LANDED)                 | =Literal.ts= =find · findOne= · =dojo/set/picks.js:11= (no-op after its own compile) | — |
+
+At land, reviews classify on =PROFILE=: =LEARNING= from 2.3 h (was 6 h) · =KNOWN= from 3 d (was 7 d) · =GRADUATED= from 49.5 d (was 45 d). Stored notes keep their status until next written.
+
+* testing assessment
+
+Landed and green: =systems/runtime/tests/daemon/symbols-query.test.js:99= (three composition cases, red on the old code first) · =domain/tests/aperture/aperture.test.js:113=.
+
+Coverage gap CLOSED 11-14: =tests/retention/bayesian.test.js= (anchors · presets read back · 1,000 random percents rise) · =tests/retention/drivers.test.js= (=BOOLEAN= · =COUNTER= · directions) · =tests/tools/scale.test.js= (refusals · drop · advance · composed set · no trace).
+
+Base reds, already in =known-issues.org=: =domain/tests/kernel/literal.test.js= · =domain/tests/userspace/scoping.test.js= · =modes/games/dojo/tests/= (3) · =commons/fixtures/memo/tests/= (3, OpenTUI ffi).
+
+* QA
+
+#+marker_qa: scale/T-a1-learning · revised · tool level on the rig, =tests/tools/scale.test.js= held (4 scaled, the queue stops offering them novel); live thread unwalked · "advance all a1 to learning" in a tutor thread answers =advance: N scaled · M kept=; the queue stops offering those literals as novel
+#+marker_qa: scale/T-three-verbs · revised · tool level on the rig held (=$all= with =$in=, 2 scaled); live thread unwalked · "set all conjugations of ser, estar, ir to 50%" scales only those conjugations
+#+marker_qa: scale/T-drop · revised · tool level on the rig held (2 scaled · 2 kept, both still novel); live thread unwalked · "drop a1 to unknown" lowers reviewed literals and leaves never-reviewed ones novel
+
+* deferred
+
+- dojo's =branches= (=modes/games/dojo/set/where.js:4=) now copies what the repository does — his to rule.
+- An undo: Q4 ruled no trace, so a wrong =set= is repaired only by another scale.
+- The =percent= function shares its name with the =percent= parameter of =halflife= · =scale= in =bayesian.js=.
+- The word-guard denies a trait repository method it finds on no entity class (=scale=, the quoted =review=); this file went in by shell on his word.
+
+* changelog
+
+- 11-14 drill, Q0–Q9 locked. Mine, reported: the =ctx.user?.id= check in the tool (copies =tools/review.js:27=); the =2= · =24= thresholds of two intermediate turns, both gone under Q7; the valence's first sentence kept as first written, on my reading of /"better."/.
+- 11-14 /"i want youto fix the sysmbols query issue."/ — =subsystems/typology/entities/Literal.ts:44= landed; =symbols-query.test.js= =ok | 1 passed (11 steps)=, =systems/runtime/tests/daemon/= =ok | 8 passed (71 steps)=; dojo and memo reds same by name before and after.
+
+- 11-14 /"land the quest"/ · /"move to done when done"/ · /"tested!"/ — ten files landed by script, each anchor once. After: =domain/tests/= =FAILED | 16 passed (108 steps) | 3 failed= (before =13 passed (92 steps) | 3 failed=), the 3 reds same by name, all in =known-issues.org=; cocina · comando · dojo reds same by name; aprende · harvest green; =systems/runtime/tests= =ok | 102 passed (662 steps) | 0 failed | 1 ignored= before and after. Mine, reported: the seed fix (found on the walk); =tools.test.js= =learning 1= → =learning 2= (a =SUCCESS= review at 3.4 h now reads =LEARNING=, the ruled threshold change); =domain.test.js:30= pins the route and tool lists, missed by the blast table; the tool tests in their own =tools/scale.test.js=, since =tools.test.js= shares one scenario with the progress count.
+
+- 11-16 fold: =tests/tools/scale.test.js= gains the harness's guarded call (=direction= omitted fills =advance= · =percent: 150= refused); it failed once on a wrong count. Domain =FAILED | 16 passed (109 steps) | 3 failed=, the same three by name.
+
+* release — LIFTED 11-14 into =.ikiro/release.md=
+
+### api
+
+- fixed =literal.find({ symbols })= — =$all= with =$in= answered nothing, =$in= with =$none= threw; each operator now joins on its own · migrate: none ⟨scale⟩ — LANDED
+- added tool =/scale= on the language-learning domain — moves a literal set's memory strength by =status= or =percent=, =direction= advance · drop · set · migrate: none ⟨scale⟩
+- added route =/scale/literal= · migrate: none ⟨scale⟩
+- changed retention statuses — thresholds follow =PROFILE= (3 · 15 · 36 · 60 percent): =LEARNING= from 2.3 h, =KNOWN= from 3 d, =GRADUATED= from 49.5 d · migrate: none, a note re-reads at its next write ⟨scale⟩
+
+* review — 11-14
+
+| S | stop                                              | rides         | verdict | his words                                       |
+|---+---------------------------------------------------+---------------+---------+-------------------------------------------------|
+| 1 | symbols query composes =$all · $in · $none=       | Q2            | amen    | /"amen"/                                        |
+| 2 | percent curve: =HOURS= · =halflife=               | Q0 · Q6A      | amen    | /"amen"/                                        |
+| 3 | =PROFILE= is the preset AND the threshold         | Q6 · Q7       | amen    | /"random number valid result"/ → /"good. amen"/ |
+| 4 | =BOOLEAN= · =COUNTER= scale by heuristic          | Q8            | amen    | /"amen"/                                        |
+| 5 | the note's =scale= and =DIRECTION=                | Q1 · Q1A · Q4 | amen    | /"amen"/                                        |
+| 6 | the literal's =scale= moves a whole set           | Q2 · Q9       | amen    | /"amen"/                                        |
+| 7 | the tool =/scale=                                 | Q3 · Q5       | amen    | /"amen."/                                       |
+
+Shown on S7, unruled: the schema lists =direction= as required beside its default · an empty set answers =advance: 0 scaled · 0 kept= · =where: {}= selects every literal.
+
+* handoff
+
+- goal: one tool call moves a literal set's memory strength, by status or percent.
+- done: landed, tested, walked (7 amen), release lifted.
+- next: none.
+- never: a second threshold table beside =PROFILE=; a trace or an invented history on a scale.
+- owed: his live tutor-thread walk of the three QA sentences (it rewrites real retention notes, so not mine to run on =:2501=); dojo's =branches= ruling; the three S7 facts above.

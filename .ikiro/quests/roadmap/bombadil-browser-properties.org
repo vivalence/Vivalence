@@ -1,0 +1,56 @@
+# limit: none (quest content)
+#+title: bombadil browser properties — anima's UI checked by temporal properties, fuzzed and shrunk
+#+filetags: :roadmap:testing:anima:browser:properties:fuzz:
+#+status: ROADMAP 11-16, unnumbered — his to number. Nothing studied against our tree, nothing ruled.
+#+phase: roadmap
+#+next: beef — number it or leave it; first step is the study under =* open=.
+
+* the ruling
+beef, 11-16: /"mark it for our testing roadmap"/ over https://antithesishq.github.io/bombadil/browser/3.7.2-sliding-window-constant-notification-count.html
+
+* what it is
+Bombadil (Antithesis, github.com/antithesishq/bombadil, manual v0.7.10). A CLI: =bombadil browser test · fuzz · shrink · inspect=, plus a terminal track. A spec is a TypeScript file that imports =@antithesishq/bombadil= and re-exports the browser defaults. Properties use temporal operators =now · always · extract=.
+
+The marked example (3.7.2), from the manual:
+
+#+begin_src ts
+import { extract, always, now, time } from "@antithesishq/bombadil";
+export * from "@antithesishq/bombadil/browser/defaults";
+
+const notificationCount = extract((state) =>
+  state.document.body.querySelectorAll(".notification").length,
+);
+
+export const constantNotificationCount = now(() => {
+  const initial = notificationCount.current;
+  return always(() =>
+    notificationCount.current === initial,
+  );
+});
+#+end_src
+
+Neighbours: 3.7.1 max notification count invariant · 3.7.3 error disappears guarantee.
+
+* a first walk in its shape — the view bundle route (11-16)
+beef, 11-16: /"mark your walk in the bombadil roadmap."/ · /"test to your best ability. anticipate the roadmap's intent"/
+
+Not bombadil itself: our own rig, written the way a bombadil spec is cut, so the route suite ports when the tool lands. Subject: =/attached/view/:id=, the read-through view bundle (drill 11-16: a view is built on its first fetch, rebuilt when =view.sources= no longer match the disk, =ETag= · =If-None-Match= → 304).
+
+| bombadil | the walk |
+|---|---|
+| extractors | served fingerprint · served bytes · =view.sources= · the File entity · artifacts on disk · builds counted |
+| properties over time | the fingerprint holds while the sources hold (3.7.2, the marked example) · after an edit an open serves the new content (3.7.3, a guarantee) |
+| a model beside the system | three states: unbuilt · built · stale; the system agrees after every move (its "state machine: counter" example) |
+| action generators | open · open holding a fingerprint · edit the mount file · edit an imported file · restart · remove the artifact · two opens at once |
+| shrinking | a failing walk is cut to the shortest move list that still fails; the seed replays it |
+
+Files (sketch, unlanded): =systems/runtime/tests/runtime/view.lifecycle.test.js= (six named cases) · =systems/runtime/tests/runtime/view.walk.test.js= (the seeded walk).
+
+Browser side, for bombadil proper against anima — candidates, unruled:
+- an open view's fault box never stays (3.7.3) — the =[view] /attached/file/<id>: 404= of 11-16.
+- the mounted view survives a runtime restart.
+
+* open
+- study: read the manual end to end — runtime deps (Node? its own browser?), license, how a spec reaches the page.
+- where it sits beside =codemap/testing.md= (scenarios = rigs, specimen = toolbox): a rig boots anima on a FREE port, bombadil drives it.
+- first property candidates: the two browser-side rows above, unruled.

@@ -1,0 +1,77 @@
+#+title: call-faculty, how the old anima landed a live dictation in the dock — read 11-16 on /"check the old viva client anima for how the live verbatim lands inthe dock"/
+# writer: agent · limit: 5000 chars
+
+His words: /"it was very nice"/ · /"very fance"/ · /"there was some process also to make the whole thing coherent across sets of words and post processing for punctuation and goodies"/ · /"composer - dont call it composer. its the dock.input"/
+
+* the screen — a strip above the field, the field sealed
+
+#+BEGIN_SRC svelte
+<!-- ~/.viva/bak/anima/src-20261024/src/app/panels/a/widgets/Composer.svelte:72 -->
+{#if listening}
+  <div class="composer-dictation">
+    <Status tone="negative" size={8} pulse />
+    <span>{$committed}</span>
+    {#if $tail}<span class="composer-tail">{$tail}</span>{/if}
+  </div>
+{/if}
+<!-- :49 — typing while it listens reverts -->
+function write(event) {
+  if (sealed) return void (event.currentTarget.value = draft);
+  draft = event.currentTarget.value;
+}
+<!-- :189 -->
+.composer-tail { font-style: italic; color: var(--text-light); }
+#+END_SRC
+
+* the landing — ONE splice at stop, at the caret taken at start
+
+#+BEGIN_SRC js
+// ~/.viva/bak/ikiro/m80-campaign-20261007/rig/systems/anima/src/app/panels/a/widgets/Dock.svelte:131
+function dictate() {
+  anchor = textareaEl?.selectionStart ?? draft.length;
+  recorder.start();
+}
+async function settle() {
+  recorder.stop();
+  await recorder.settled();
+  const text = recorder.$committed.get();
+  if (!text) return;
+  const spliced = spliceAt(draft, anchor, text);
+  draft = spliced.draft;
+  requestAnimationFrame(() => {
+    textareaEl?.focus();
+    if (textareaEl) textareaEl.selectionStart = textareaEl.selectionEnd = spliced.caret;
+  });
+}
+// :150 — a thread switch cancels
+const unswitch = chain(terminals, "$active", "$thread").subscribe(() => recorder.cancel());
+#+END_SRC
+
+* the coherence — both ALIVE runtime-side today
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/belt/verbatim.js:44 — two hypotheses in a row agree on a word → it is settled; the rest is the tail, 8 words
+if (ring.length === window) {
+  const settled = frontier(ring, committed, tolerance);
+  if (settled > committed) {
+    yield { event: "/verbatim/commit", text: hypothesis.slice(committed, settled).join(" ") };
+    committed = settled;
+  }
+}
+yield { event: "/verbatim/partial", transcript: hypothesis.slice(committed).slice(-tail).join(" ") };
+// systems/runtime/subjects/mode/traits/harnessed.js:8 — after each pause a fast model repairs the settled words
+const POLISH = [
+  "You repair the formatting of a machine transcription of dictated speech.",
+  "Fix punctuation and casing; normalize numbers, dates and units the way a careful typist would.",
+// subsystems/typology/gestalten/belt/verbatim.js:95 — the repair REPLACES settled segments, late
+case "/verbatim/polish": {
+  let anchored = false;
+  const settled = state.settled.flatMap((entry) => {
+    if (!event.segments.includes(entry.id)) return [entry];
+    if (anchored) return [];
+    anchored = true;
+    return [{ id: entry.id, text: event.transcript }];
+  });
+#+END_SRC
+
+m33's intent, never built as written: /"words land in the draft as you talk — stable prefix solid, a volatile 4-5 word tail ghosted"/ — the old client drew that in the strip, not in the field.

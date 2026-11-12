@@ -1,3 +1,4 @@
+import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { decodeBase64 } from "@std/encoding/base64";
 import { Cortex, Path, specimen, v } from "@vivalence/typology";
 import { mountMode } from "@vivalence/runtime/scenarios";
@@ -8,7 +9,7 @@ const seen = [];
 const painter = () => ({
   type: "picture",
   id: "scripted-picture",
-  tune: [0.5, 0.5, 0.5, 0.5],
+  tune: [0.5, 0.5, 0.5],
   channels: { in: ["text", "image"], out: ["image"] },
   via: {
     render: async (request) => {
@@ -20,7 +21,7 @@ const painter = () => ({
 
 let scenario;
 specimen.beforeAll(async () => {
-  scenario = await mountMode(darkroom, { cortex: new Cortex().register([painter()]) });
+  scenario = await mountMode(darkroom, { cortex: new Cortex(TIER_POINTS).register([painter()]) });
   scenario.mode.mountpoint = new Path(await Deno.makeTempDir({ prefix: "darkroom-" }));
 });
 specimen.afterAll(async () => {
@@ -35,8 +36,8 @@ specimen.describe("darkroom — the runtime harness leaf /picture/render, called
 
   specimen.it("/metadata/harness lists the picture leaf; a render answers Picture.Response with the faculty stamped", async () => {
     const metadata = await scenario.authedConn.branch("/mode/editor/darkroom").call("/metadata/harness");
-    specimen.expect(Object.keys(metadata.routes.branches.picture.branches)).toEqual(["render"]);
-    specimen.expect(Object.keys(metadata.routes.branches.picture.branches.render.effect)).toEqual(["input", "output"]);
+    specimen.expect(Object.keys(metadata.references.branches.picture.branches)).toEqual(["render"]);
+    specimen.expect(Object.keys(metadata.references.branches.picture.branches.render.effect)).toEqual(["input", "output"]);
     const rendered = await scenario.mode.harness.picture.render({
       thread: scenario.fixtures.thread.id,
       id: "scripted-picture",

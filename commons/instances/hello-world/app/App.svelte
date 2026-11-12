@@ -118,9 +118,14 @@
         const record of mode.call.hello.research({ brief: asked, thread: thread?.id })
       ) {
         folded = soma.transcript(folded, record);
-        if (record.event === "/tool/call") trace = [...trace, record.name];
+        if (record.event === "/turn/close") {
+          trace = folded.turns
+            .flatMap((turn) => turn.parts)
+            .filter((part) => part.type === "tool_use")
+            .map((part) => part.name);
+        }
       }
-      const { message, buffer = [] } = folded?.output ?? {};
+      const { message, buffer = [] } = folded?.product ?? {};
       pages = buffer;
       if (folded?.condition === "NOMINAL") {
         reportMessage = message ??

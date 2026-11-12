@@ -1,4 +1,4 @@
-import { Aperture, Twitch } from "@vivalence/typology";
+import { Aperture, Twitch, Vector } from "@vivalence/typology";
 
 export class Runtime {
   type = "runtime";
@@ -24,6 +24,7 @@ export class Runtime {
   domain = null;
   aperture = new Aperture();
   twitch = new Twitch();
+  attachment = new Vector();
 
   constructor(fields) {
     Object.assign(this, fields);

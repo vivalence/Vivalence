@@ -1,0 +1,98 @@
+#+title: call-faculty terrain, the bird census of 11-16 evening — read first-hand, five suites run, one probe
+# writer: agent · limit: 6500 chars
+
+* the dictation chain, end to end — four cuts, the middle carries audio today
+
+#+BEGIN_SRC js
+// 1 · systems/ghost/subjects/app/prototypes/box/device/microphone/microphone.js:79 — CUT, zero readers
+microphone.in.send(event.data);
+// 2 · systems/ghost/entities/mode/traits/harnessed.js:29 — every harnessed mode, read from code (live: 401 without a token)
+mode.harness = shape.connection.wire(harness, mode.metadata.harness.references);
+// 3 · subsystems/typology/gestalten/shape/connection.js:35 — a feeding route is a (source, options) function
+return (source, options = {}) => connection.converse("", source, options);
+// 4 · systems/runtime/subjects/mode/traits/harnessed.js:225 — open on EVERY harnessed mode, ear or no ear
+harness.branch("/verbatim").open({ nature: "stream", feeds: Audio.Packet, yields: Verbatim.Any }, shard.hal.verbatim({ polish: POLISH, tier: "fast" }));
+// 5 · subsystems/typology/gestalten/shard/hallucinate.js:22 — CUT, the ledger holds no ear: the route answers by throwing
+if (!found) throw new Error(`[hallucination] no '${type}' faculty resolves a '${via}' avenue`);
+// 6 · subsystems/typology/gestalten/belt/hallucinate.js:209
+yield* verbatim.harmonize(faculty.via.stream(source, settings), policy.harmonize);
+// 7 · systems/ghost/gestalten/commands/content/dictate.js:5 — CUT, nobody calls station 2
+() => "no dictation on this wire",
+// 8 · systems/anima/src/surfaces/chrome/panels/dock/textarea.jsx:53 — CUT, where words must land; Dictline has zero importers
+const draft = from(app.bridge.$draft);
+// the old call — ~/.viva/bak/anima/src-20261024/src/prototypes/dictation.js:74
+const events = thread.mode.harness.verbatim.stream(frames(feed.signal), { input: { thread: thread.id }, signal: link.signal });
+#+END_SRC
+
+* the services — two of four consumed
+
+#+BEGIN_SRC jsonc
+// ~/.viva/ledger.viva.json:32 · :38 — today
+"hallucinators": [{ "module": "@commons/hallucinator/anthropic" }, { "module": "@commons/hallucinator/openrouter" }]
+// ~/.viva/instances/bak/language-learning/instance.viva.json:30 · :36 — the old instance
+{ "module": "@commons/hallucinator/elevenlabs" }, { "module": "@commons/hallucinator/deepgram" }
+// ~/.viva/environment.json — SECRET_VIVA_DEEPGRAM_API_KEY · SECRET_VIVA_ELEVENLABS_API_KEY declared; their values NOT measured
+#+END_SRC
+
+* the ear the cortex picks — =reference/call-faculty/ear.probe.js=, run 11-16
+
+#+BEGIN_SRC text
+{"type":"verbatim","via":"stream","tier":"fast"}  → deepgram/nova-3
+{"type":"verbatim","via":"stream"}                → THROWS [cortex] 2 'verbatim' faculties match — name a tier, a tune or an id
+{"type":"verbatim","via":"stream","tier":"eager"} → deepgram/flux-general-multi
+{"type":"verbatim","via":"stream","id":"flux-general-multi"} → deepgram/flux-general-multi
+{"type":"speech","via":"stream","tier":"fast"}    → elevenlabs/EXAVITQu4vr4xnSDxMaL
+{"type":"speech","via":"stream"}                  → THROWS [cortex] 2 'speech' faculties match — name a tier, a tune or an id
+{"type":"call","via":"stream"}                    → undefined
+no ear held                                       → undefined
+#+END_SRC
+
+The quest's law 6 hunk (=cortex.findOne({ type: "verbatim", via: "stream" })=, no selector) THROWS on this cortex: two ears, two mouths.
+
+* who wears the voice
+
+#+BEGIN_SRC js
+// subsystems/typology/entities/Thread.ts:82 — every NEW thread wears VOCAL; the terrain's "VOCAL-less thread throws" holds only for an older stored thread
+args.entity.traits = [...new Set([...args.entity.traits, "INTELLIGENT", "VOCAL"])];
+// subsystems/typology/schematics/primitives/contexts.js:38 — says boolean, holds the trait object
+export const vocal = { vocal: v.boolean().desc("The mode's harness.vocal flag, lifted") };
+// subsystems/typology/gestalten/shard/hal.js:88 — the only channel tag; zero readers, nothing emits "speech"
+ctx.output = soma.channel(ctx.output, "dialogue");
+// systems/runtime/gestalten/shard/host.js:37 — the mouth's only route, on the daemon; no harness route
+for (const type of ["dialogue", "object", "choice", "verbatim", "speech", "picture"]) {
+#+END_SRC
+
+* anima — three hand lists, no route behind any
+
+#+BEGIN_SRC js
+// systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:347 · :351 · :384
+{ label: "mic on", signal: "/mic on" }, { label: "mute", signal: "/mic mute", off: true }, { label: "tone", signal: "/speaker tone" },
+check("voice", false, "/voice on", "off"),
+{ label: "dictate", signal: "/dictate" },
+// systems/anima/src/surfaces/chrome/panels/dock/textarea.jsx:37
+<button role="menuitem" onClick={() => props.onLine("/dictate")}>
+// systems/anima/src/surfaces/chrome/panels/modeline/modeline.jsx:109 · sidebar/sections.js:399
+box={{ mic: "off", voice: false }}
+box: ["mic off", ""],
+// subsystems/drapes/Dictline.jsx:6 — props level · tail · onStop; subsystems/drapes/Field.jsx:6 — dictating: false
+#+END_SRC
+
+* blast rows this census adds
+
+| consumer | path | BREAKS |
+|---|---|---|
+| =VOCAL= worn by hook | =subsystems/typology/entities/Thread.ts:82= | at land |
+| =vocal= context key | =subsystems/typology/schematics/primitives/contexts.js:38 · :110= | at land |
+| the ledger's =hallucinators= | =~/.viva/ledger.viva.json:30= · =commons/ledger/ledger.viva.json= | now |
+| =/dictate= stub's assertion | =systems/ghost/tests/subjects/terminal/commands.test.js:412= | at land |
+| =/mic= · =/speaker= · =/voice= signals | =systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:347-351= | now |
+
+* baseline — 11-16, HOME empty, one-shot
+
+#+BEGIN_SRC text
+subsystems/typology/tests/dictation.conversation.test.js   ok | 2 passed (8 steps)
+subsystems/typology/tests/voice.conversation.test.js       ok | 1 passed (2 steps)
+systems/runtime/tests/dictation.integration.test.js        ok | 1 passed (3 steps)
+commons/hallucinators/deepgram/tests                       ok | 2 passed (7 steps)
+commons/hallucinators/elevenlabs/tests                     ok | 1 passed (3 steps)
+#+END_SRC

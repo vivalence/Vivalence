@@ -1,151 +1,134 @@
-import { specimen, verbatim } from "@vivalence/typology";
+import { soma, specimen, verbatim } from "@vivalence/typology";
 
-async function* script(events) {
-  yield* events;
+async function* script(packets) {
+  yield* packets;
 }
 
 async function collect(stream) {
   const out = [];
-  for await (const event of stream) out.push(event);
+  for await (const packet of stream) out.push(packet);
   return out;
 }
 
-const partial = (transcript) => ({ event: "/verbatim/partial", transcript });
-const final = (transcript) => ({ event: "/verbatim/final", transcript });
-const commits = (events) => events.filter((e) => e.event === "/verbatim/commit").map((e) => e.text);
-const partials = (events) => events.filter((e) => e.event === "/verbatim/partial").map((e) => e.transcript);
+const draft = (text) => ({ event: "/part/draft", index: 0, part: { text } });
+const commit = (text) => ({ event: "/part/delta", index: 0, part: { text } });
+const deltas = (packets) => packets.filter((p) => p.event === "/part/delta").map((p) => p.part.text.trim());
+const drafts = (packets) => packets.filter((p) => p.event === "/part/draft").map((p) => p.part.text);
 
-specimen.describe("belt.verbatim.harmonize — LocalAgreement with tolerance", () => {
-  specimen.it("commits the agreed prefix across the window, tail shrinks", async () => {
-    const events = await collect(
-      verbatim.harmonize(script([partial("the"), partial("the quick"), partial("the quick brown")]), { window: 2 }),
+specimen.describe("belt.verbatim.harmonize — LocalAgreement with tolerance, over drafts", () => {
+  specimen.it("settles the agreed prefix across the window as deltas, the draft tail shrinks", async () => {
+    const packets = await collect(
+      verbatim.harmonize(script([draft("the"), draft("the quick"), draft("the quick brown")]), { window: 2 }),
     );
-    specimen.expect(commits(events)).toEqual(["the", "quick"]);
-    specimen.expect(partials(events)).toEqual(["the", "quick", "brown"]);
+    specimen.expect(deltas(packets)).toEqual(["the", "quick"]);
+    specimen.expect(drafts(packets)).toEqual(["the", "quick", "brown"]);
   });
 
-  specimen.it("never commits a flickering word", async () => {
-    const events = await collect(
-      verbatim.harmonize(script([partial("the quick brawn"), partial("the quick brown fox")]), { window: 2, tolerance: 1 }),
+  specimen.it("never settles a flickering word", async () => {
+    const packets = await collect(
+      verbatim.harmonize(script([draft("the quick brawn"), draft("the quick brown fox")]), { window: 2, tolerance: 1 }),
     );
-    specimen.expect(commits(events)).toEqual(["the quick"]);
+    specimen.expect(deltas(packets)).toEqual(["the quick"]);
   });
 
   specimen.it("tolerates near-identical spellings", async () => {
-    const events = await collect(
-      verbatim.harmonize(script([partial("vivalance rocks"), partial("vivalence rocks hard")]), { window: 2, tolerance: 0.8 }),
+    const packets = await collect(
+      verbatim.harmonize(script([draft("vivalance rocks"), draft("vivalence rocks hard")]), { window: 2, tolerance: 0.8 }),
     );
-    specimen.expect(commits(events)[0]).toBe("vivalence rocks");
+    specimen.expect(deltas(packets)[0]).toBe("vivalence rocks");
   });
 
-  specimen.it("final flushes the remainder as one commit, passes through with a minted segment id", async () => {
-    const events = await collect(
-      verbatim.harmonize(script([partial("count to"), partial("count to three"), final("count to three now")]), { window: 2 }),
+  specimen.it("an upstream commit passes only the words not yet settled", async () => {
+    const packets = await collect(
+      verbatim.harmonize(script([draft("count to"), draft("count to three"), commit("count to three now")]), { window: 2 }),
     );
-    specimen.expect(commits(events)).toEqual(["count to", "three now"]);
-    specimen.expect(events.at(-1)).toEqual({ event: "/verbatim/final", transcript: "count to three now", segment: 0 });
+    specimen.expect(deltas(packets)).toEqual(["count to", "three now"]);
+    specimen.expect(packets.at(-1)).toEqual({ event: "/part/delta", index: 0, part: { text: "three now " } });
   });
 
-  specimen.it("segment ids climb across finals; state resets across turns on one stream", async () => {
-    const events = await collect(
+  specimen.it("state resets across turns on one stream", async () => {
+    const packets = await collect(
       verbatim.harmonize(
         script([
           { event: "/turn/open", turn: { role: "user" } },
-          partial("first utterance"),
-          final("first utterance"),
-          { event: "/turn/close" },
+          draft("first utterance"),
+          commit("first utterance"),
+          { event: "/turn/close", turn: {} },
           { event: "/turn/open", turn: { role: "user" } },
-          partial("second"),
-          partial("second thought"),
-          final("second thought"),
-          { event: "/turn/close" },
+          draft("second"),
+          draft("second thought"),
+          commit("second thought"),
+          { event: "/turn/close", turn: {} },
         ]),
         { window: 2 },
       ),
     );
-    specimen.expect(commits(events)).toEqual(["first utterance", "second", "thought"]);
-    specimen.expect(events.filter((e) => e.event === "/verbatim/final").map((e) => e.segment)).toEqual([0, 1]);
-    specimen.expect(events.filter((e) => e.event === "/turn/close").length).toBe(2);
+    specimen.expect(deltas(packets)).toEqual(["first utterance", "second", "thought"]);
+    specimen.expect(packets.filter((p) => p.event === "/turn/close").length).toBe(2);
   });
 
   specimen.it("caps the volatile tail", async () => {
     const long = "one two three four five six seven eight nine ten";
-    const events = await collect(verbatim.harmonize(script([partial(long)]), { window: 2, tail: 3 }));
-    specimen.expect(partials(events)[0]).toBe("eight nine ten");
+    const packets = await collect(verbatim.harmonize(script([draft(long)]), { window: 2, tail: 3 }));
+    specimen.expect(drafts(packets)[0]).toBe("eight nine ten");
   });
 
-  specimen.it("passes eager, resume, and polish through untouched", async () => {
-    const events = await collect(
-      verbatim.harmonize(
-        script([
-          { event: "/verbatim/eager", transcript: "hello there" },
-          { event: "/verbatim/resume" },
-          { event: "/verbatim/polish", transcript: "Hello there.", segments: [0] },
-        ]),
-      ),
-    );
-    specimen.expect(events.map((e) => e.event)).toEqual(["/verbatim/eager", "/verbatim/resume", "/verbatim/polish"]);
+  specimen.it("passes eager, resume, full and close through untouched", async () => {
+    const through = [
+      { event: "/turn/eager" },
+      { event: "/turn/resume" },
+      { event: "/part/full", index: 0, part: { type: "text", text: "Hello there." } },
+      { event: "/part/close", index: 0 },
+    ];
+    specimen.expect(await collect(verbatim.harmonize(script(through)))).toEqual(through);
   });
 
-  specimen.it("commits plus final stay consistent", async () => {
+  specimen.it("settled deltas plus the commit spell the utterance once", async () => {
     const hypotheses = ["so", "so the", "so the plan", "so the plan is", "so the plan is simple"];
-    const events = await collect(
-      verbatim.harmonize(script([...hypotheses.map(partial), final("so the plan is simple")]), { window: 2 }),
+    const packets = await collect(
+      verbatim.harmonize(script([...hypotheses.map(draft), commit("so the plan is simple")]), { window: 2 }),
     );
-    specimen.expect(commits(events).join(" ")).toBe("so the plan is simple");
+    specimen.expect(deltas(packets).join(" ")).toBe("so the plan is simple");
   });
 });
 
-specimen.describe("belt.verbatim.fold — the client reduction over addressable segments", () => {
-  const view = (state) => ({ committed: verbatim.transcript(state), tail: state.tail });
+specimen.describe("soma.transcript — a dictation folds in the one grammar", () => {
+  const spoken = (folded) =>
+    [...folded.turns, ...(folded.open ? [folded.open] : [])]
+      .flatMap((turn) => turn.parts)
+      .map((part) => part.text.trim())
+      .filter(Boolean)
+      .join(" ");
+  const tail = (folded) => (folded.open ? folded.open.parts.map((part) => part.draft?.text ?? "").join(" ") : "");
+  const heard = (id) => [
+    { event: "/turn/open", turn: { role: "user", id } },
+    { event: "/part/open", index: 0, part: { type: "text", text: "" } },
+  ];
+  const sealed = [{ event: "/part/close", index: 0 }, { event: "/turn/close", turn: {} }];
 
-  specimen.it("folds commit, partial, final, polish", () => {
-    let state = verbatim.fold(undefined, { event: "/turn/open", turn: { role: "user" } });
-    state = verbatim.fold(state, { event: "/verbatim/commit", text: "hello" });
-    state = verbatim.fold(state, { event: "/verbatim/partial", transcript: "wor" });
-    specimen.expect(view(state)).toEqual({ committed: "hello", tail: "wor" });
-    state = verbatim.fold(state, { event: "/verbatim/commit", text: "world" });
-    specimen.expect(view(state)).toEqual({ committed: "hello world", tail: "" });
-    state = verbatim.fold(state, { event: "/verbatim/final", transcript: "hello world", segment: 0 });
-    specimen.expect(view(state)).toEqual({ committed: "hello world", tail: "" });
-    state = verbatim.fold(state, { event: "/verbatim/polish", transcript: "Hello, world.", segments: [0] });
-    specimen.expect(verbatim.transcript(state)).toBe("Hello, world.");
+  specimen.it("settled words solid, the draft beside them, the draft gone at close", () => {
+    let folded = [...heard("t1"), commit("hello "), draft("wor")].reduce(soma.transcript, null);
+    specimen.expect({ spoken: spoken(folded), tail: tail(folded) }).toEqual({ spoken: "hello", tail: "wor" });
+    folded = [commit("world "), ...sealed].reduce(soma.transcript, folded);
+    specimen.expect({ spoken: spoken(folded), tail: tail(folded) }).toEqual({ spoken: "hello world", tail: "" });
+    specimen.expect(folded.turns[0].parts[0]).toEqual({ type: "text", text: "hello world " });
   });
 
-  specimen.it("keeps every settled segment; a polish addresses its segments by id no matter when it lands", () => {
-    let state = verbatim.fold(undefined, { event: "/verbatim/commit", text: "the quick" });
-    state = verbatim.fold(state, { event: "/verbatim/final", transcript: "the quick fox", segment: 0 });
-    state = verbatim.fold(state, { event: "/verbatim/commit", text: "jumps" });
-    state = verbatim.fold(state, { event: "/verbatim/partial", transcript: "over the" });
-    specimen.expect(view(state)).toEqual({ committed: "the quick fox jumps", tail: "over the" });
-    state = verbatim.fold(state, { event: "/verbatim/final", transcript: "jumps over the dog", segment: 1 });
-    state = verbatim.fold(state, { event: "/turn/close" });
-    state = verbatim.fold(state, { event: "/turn/open", turn: { role: "user" } });
-    state = verbatim.fold(state, { event: "/verbatim/partial", transcript: "and" });
-    specimen.expect(view(state)).toEqual({ committed: "the quick fox jumps over the dog", tail: "and" });
-    state = verbatim.fold(state, { event: "/verbatim/polish", transcript: "The quick fox jumps over the dog.", segments: [0, 1] });
-    specimen.expect(view(state)).toEqual({ committed: "The quick fox jumps over the dog.", tail: "and" });
-    state = verbatim.fold(state, { event: "/verbatim/final", transcript: "and then", segment: 2 });
-    specimen.expect(verbatim.transcript(state)).toBe("The quick fox jumps over the dog. and then");
-    state = verbatim.fold(state, { event: "/verbatim/polish", transcript: "And then.", segments: [2] });
-    specimen.expect(verbatim.transcript(state)).toBe("The quick fox jumps over the dog. And then.");
-  });
-
-  specimen.it("a final carries its words into the settled entry; polish sheds them", () => {
-    let state = verbatim.fold(undefined, {
-      event: "/verbatim/final",
-      transcript: "ciao",
-      segment: 0,
-      words: [{ word: "ciao", confidence: 0.97 }],
+  specimen.it("a polish addresses its sealed turn by id, whenever it lands, the open turn untouched", () => {
+    let folded = [...heard("t1"), commit("the quick fox "), ...sealed, ...heard("t2"), draft("and")].reduce(soma.transcript, null);
+    folded = soma.transcript(folded, {
+      event: "/part/full",
+      index: 0,
+      part: { type: "text", text: "The quick fox." },
+      turn: "t1",
     });
-    specimen.expect(state.settled[0].words).toEqual([{ word: "ciao", confidence: 0.97 }]);
-    state = verbatim.fold(state, { event: "/verbatim/polish", transcript: "Ciao.", segments: [0] });
-    specimen.expect(state.settled[0]).toEqual({ id: 0, text: "Ciao." });
+    specimen.expect({ spoken: spoken(folded), tail: tail(folded) }).toEqual({ spoken: "The quick fox.", tail: "and" });
+    specimen.expect(folded.open.parts[0]).toEqual({ type: "text", text: "", draft: { text: "and" } });
   });
 
-  specimen.it("ignores a polish for segments it never settled", () => {
-    let state = verbatim.fold(undefined, { event: "/verbatim/final", transcript: "one", segment: 0 });
-    state = verbatim.fold(state, { event: "/verbatim/polish", transcript: "Two.", segments: [7] });
-    specimen.expect(verbatim.transcript(state)).toBe("one");
+  specimen.it("a polish for a turn it never sealed changes nothing", () => {
+    const folded = [...heard("t1"), commit("one "), ...sealed].reduce(soma.transcript, null);
+    const polished = soma.transcript(folded, { event: "/part/full", index: 0, part: { type: "text", text: "Two." }, turn: "t7" });
+    specimen.expect(spoken(polished)).toBe("one");
   });
 });

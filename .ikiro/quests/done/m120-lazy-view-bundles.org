@@ -1,0 +1,467 @@
+#+title: m120 lazy view bundles — a view is built when it is fetched, rebuilt when its sources changed
+#+filetags: :runtime:typology:paladin:ghost:anima:view:file:bundle:boot:
+#+status: LANDED 11-16 milestones 1–5 (/"ok land m120"/ · /"run mstn 5"/) — mountpoint 1.0 G → 23 M; QA =T-boot-builds-nothing= · =T-open-view-reloads= pending his walk; 26 orphan File rows his call; written views → =roadmap/written-views.org=
+# writer: agent · limit: 31000 chars
+
+* intent
+
+/"this is very slow. run a timing assessment of runtime boot. find worst offenders."/
+
+/"this we attack first. a: we should do that only on demand really. possible? b: do we just spam a bunch of files or are they at least overwritten?"/
+
+/"wait. if views dont spam thne why dont we use the view-file relationship to facilitate lazy? view without file -> unbuilt. view with file -> built. then we need ot figure out how to rebulid on change. can we use some filesystem data reads for integrity checks? if those miss we update file by bundling view. no?"/
+
+/"high level. birdseye. if we had nothing, what would be the right way to think about this problem?"/
+
+* rulings
+
+| Q | ruling | his words |
+|---|---|---|
+| 0 | View keeps =entry=, regains =mount=; the bundle is named by slug + mime | /"i'd keep the mount to facilliate cata/ana inteh future. ruling overturned. keep entry too. it might be reasonable and useful. and i like the coherent naming of slug and mime"/ |
+| 1 | the sweep = the existing belt tool + =viva instance/cleanup=, rule fixed | /"a"/ |
+| 2 | the list is entity data, not a side file | /"b. but lets use more filesystem like terminology than inputs and maybe keep em on the file directly."/ |
+| 3 | =sources= on the View | /"in that case i feel like thats a property of view, no? one file one file. makes sense. view file from files. makes sense."/ · /"very good. sources on view. amen"/ |
+| 4B | read-through: one fetch by view, check + build inside, boot only seats | /"ok. amen to this perspective"/ · /"fine. accepted."/ · /"ok."/ · /"ok. accepted. also we could always just build earlier for this check."/ |
+| 5 | conditional fetch, =ETag= · =If-None-Match= → 304 | /"b. is if-none-match industry standard or yours?"/ |
+| 6 · 6B | six named cases AND a seeded walk in bombadil's shape; tests mine | /"both"/ · /"test to your best ability. anticipate the roadmap's intent"/ |
+| 7 | an open view reloads on a new fingerprint | /"b"/ |
+| 8 | a view is a candidate with or without its File; =compiled= and its sort DIE (every entry is a bundle) | /"a."/ · /"+const compiled = (view) => view.entry.endsWith(".mjs"); seems iffy."/ |
+| 9 | a generated view is files on disk in the mode's mountpoint, like any view: one build arm | /"generated views are interesting … now is the time."/ · /"a"/ |
+| 10B | the endpoint = one verb (written views, =roadmap/written-views.org=); for now two: =bundle(view, { bundler })= on fetch · =generate(data, { bundler })= at write; =paladin.bundler(directory, origin)= | /"why entry??? i dont like. it mixes shit."/ · /"b."/ · /"Let's mark this in our roadmap as the endpoint, and for now go with the two function solution. Kind of temporarily."/ · /"bundle generare . ginore third"/ |
+
+Overturned: m87 ruling 38's /"no upstream on views"/, the =mount= half (Q0). Refused: /"your lazy solution requires a unbuilt trait i dont want."/ — unbuilt is a View without a File at its =entry=, never a trait.
+
+* terrain — measured 11-16
+
+Prior record, drained here 11-16: =reference/m120/known-issues.org= (=bundler-spams-the-mountpoint= · =bundle-store-never-prunes=). His 09-19 words: /"why do we store the same bundles under different hashes??? should be equal, no?!"/ · /"i want the fact of persistence questioned. maybe graceful shutdown includes cleanup? for sure we want cleanup commands in ghost. maybe cleanup hooks in runtime + manual? same tooling in paladin."/ — Q1 keeps that one paladin primitive.
+
+Boot, port down → RUNNING, his instance: 10.0 s. Medians over 36 boots (=~/.viva/logs/localhost/spans.jsonl=):
+
+| segment | ms |
+|---|---|
+| port down → listen | 1824 |
+| listen → first runtime mode | 2745 |
+| runtime modes | 550 |
+| three daemons → RUNNING | 4560 |
+
+View bundling: 21 views, 4839 ms a first pass, 4424 ms a second — no reuse (=reference/boot-timing/bundle.probe.js=).
+
+#+BEGIN_SRC js
+// subsystems/paladin/gestalten/belt/bundler.js:86
+      if (text === null) {
+        text = await rows[type](entry);
+        hash ??= await crypto.digest(text);
+        await paladin.state.text(at(`${hash.slice(0, 16)}.${name}.mjs`), text);
+      }
+#+END_SRC
+
+The declared =mount= goes in as =entry=, the output's path comes out as =entry=:
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/viewable.js:27
+        { mode: mode.entity.id, slug: declared.slug, mime: declared.mime, traits: declared.traits, entry: join(mode.module.source.dirname, declared.mount) },
+// subsystems/typology/entities/View.ts:33
+    const view = await this.ensure({ mode: data.mode, slug: data.slug, mime: data.mime, traits: data.traits ?? ["FRAME"], entry: `bundle/${stem}` });
+#+END_SRC
+
+| fact | value | probe |
+|---|---|---|
+| View entities · their File entities | 23 · 23 | sqlite, read-only |
+| artifacts on disk · size | 289 · 987 MB of a 1.0 GB mountpoint | =find= |
+| =bundler.prune= dry run: removed · live among them | 266 (931 MB) · 4 | =prune.probe.js= |
+| bundle dirs no File points into | 4, 299 MB (=daemon_droneaid/mode_{editor_import,editor_assembly,editor_guide,player_guide}=) | =comm= |
+| dojo svelte: files esbuild read · in =node_modules= | 1667 · 1393 | =metafile.probe.js= |
+| =aprende=: modules in the bundle · stat all · as JSON | 552 · 7.5 ms · 94 KB | =sources.probe.js= |
+| dojo tty: sources · stat all | 6 · 0.34 ms | =inputs.probe.js= |
+| generated-view sources kept on disk | 0 | =find= |
+
+Other boot offenders, measured, NOT this quest: =registry.supply= 1.4–1.9 s (=@commons= 1384 ms, 35 modules imported serially) · imports before listen ≈0.8 s of 1.8 s.
+
+* proven 11-16 — =reference/boot-timing/=
+
+| fact | verdict | probe |
+|---|---|---|
+| =lazy: true= keeps =sources= off the wire | NO alone: a plain find omits it, the push after a write carries it. =lazy: true, hidden: true= omits it on find, on populate and on the push; the server still reads it | =lazy.probe.js= |
+| =compiler.svelte= can hand back esbuild's input list | YES with =metafile: true=; names are cwd-relative, two ride a =repoloader:file://= prefix | =metafile.probe.js= |
+| a route answers a bare 304 | YES by returning a =Response=; =ctx.response.status = 304= with a null body THROWS in =shape/http.js:75= | =notmodified.probe.js= |
+| the preflight for =If-None-Match= passes | YES: probe 204 =allow-headers: if-none-match=; live =:2501= the same; Chrome 157 from =http://localhost:1794= read a cross-origin answer carrying the header | =notmodified.probe.js= · curl · browser |
+| =/userspace/entities/view/bundle= has a product caller | NO: three test files and =RemoteRepository.bundle= (=remote-repository.js:127=, itself uncalled) | full grep |
+
+Found on the way: a route reads a request header as =ctx.request.headers.get(name)= (a map, not an object). The metafile list is three times the module count in the bundle (1667 against 552-class), since it holds every file read, tree-shaken ones too.
+
+* the law
+
+1. A bundle is a cache of its view's sources; the consumer asks for the VIEW, never for the cache's state.
+2. Computed and checked at the fetch. Boot seats views and builds nothing.
+3. Unbuilt = no File at =view.entry=. No trait, no flag.
+4. One name per view: =bundle/<slug>.<mime stem>.mjs=. A build overwrites; the File keeps its id.
+5. =mount= is the declared string, verbatim and relative; =entry= only ever names the built file; =sources= is every file the build read, =path · bytes · mtime=, never sent to a client.
+6. The File entity is the announcement of a build; a client holding the view reloads on its new fingerprint.
+7. The fingerprint travels as =ETag= (RFC 9110) and as =x-viva-integrity=.
+
+* as code — the final set, SKETCH, =ls= order
+
+** subsystems/paladin/gestalten/belt/bundler.js
+
+The three esbuild rows ask for the input list and hand it back beside the text; =bundle= takes the artifact's name instead of hashing one; =prune= keeps no hash-named compiled artifact (Q1).
+
+#+BEGIN_SRC js
+// subsystems/paladin/gestalten/belt/bundler.js — a row, the tty one shown
+    [mime.tty.solid]: async (entry) => {
+      const built = await esbuild.build({
+        entryPoints: [entry],
+        bundle: true,
+        format: "esm",
+        platform: "neutral",
+        packages: "external",
+        write: false,
+        metafile: true,
+        plugins: [universal],
+        logLevel: "silent",
+      });
+      return { text: built.outputFiles[0].text, read: Object.keys(built.metafile.inputs) };
+    },
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/paladin/gestalten/belt/bundler.js — beside the rows
+  const located = (name) => resolve(name.replace(/^[a-z]+:file:\/\//, ""));
+  const stamped = async (path) => {
+    const held = await Deno.stat(path);
+    return { path, bytes: held.size, mtime: held.mtime.toISOString() };
+  };
+  const fresh = async (sources) => {
+    if (!sources.length) return false;
+    const now = await Promise.all(sources.map((held) => stamped(held.path).catch(missing)));
+    return now.every(
+      (held, index) => held !== null && held.bytes === sources[index].bytes && held.mtime === sources[index].mtime,
+    );
+  };
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/paladin/gestalten/belt/bundler.js — bundle, the declared-view arm
+      const built = await rows[type](entry);
+      await paladin.state.text(`${directory}/${name}`, built.text);
+      const sources = await Promise.all(built.read.filter(onDisk).map(located).map(stamped));
+      const integrity = await crypto.digest(built.text);
+      return new Bundle({
+        entries: [{ mime: type, hash: integrity, mount: `/${name}`, integrity, bytes: built.text.length }],
+        sources,
+      });
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/paladin/gestalten/belt/bundler.js:128 — Q1
+      const removed = described.filter((held) => !held.sourced);
+#+END_SRC
+
+** subsystems/typology/entities/View.ts
+
+#+BEGIN_SRC ts
+// subsystems/typology/entities/View.ts — fields — Q0 · Q3
+  slug!: string;
+  mime!: string;
+  mount?: string;
+  entry!: string;
+  sources: { path: string; bytes: number; mtime: string }[] & Opt = [];
+#+END_SRC
+
+#+BEGIN_SRC ts
+// subsystems/typology/entities/View.ts — schema
+    mount: { type: types.string, nullable: true },
+    entry: { type: types.string },
+    sources: { type: types.json, defaultRaw: `'[]'`, lazy: true, hidden: true },
+#+END_SRC
+
+=bundle= is the ONE way to a view's bundle: the File when the sources hold, a build otherwise.
+
+#+BEGIN_SRC ts
+// subsystems/typology/entities/View.ts — bundle, called by the /attached/view/:id route
+  async bundle(view, { bundler, source }) {
+    const held = this.em.getRepository(FileEntity);
+    const file = await held.findOne({ view: view.id, path: view.entry });
+    if (file && (await bundler.fresh(view.sources))) return file;
+    const built = await bundler.bundle({ mime: view.mime, entry: source, name: view.entry });
+    const [compiled] = built.entries;
+    view.sources = built.sources;
+    const written = await held.ensure({
+      mode: view.mode.id,
+      view: view.id,
+      path: view.entry,
+      mime: mime.javascript,
+      mount: `${bundler.directory}/${view.entry}`,
+      hash: compiled.integrity,
+      integrity: `sha256-${compiled.integrity}`,
+      bytes: compiled.bytes,
+    });
+    await this.em.flush();
+    return written;
+  }
+#+END_SRC
+
+** subsystems/typology/gestalten/bundle/svelte.js
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/bundle/svelte.js:39
+     write: false,
++    metafile: true,
+…
+-  return bundle.outputFiles;
++  return bundle;
+#+END_SRC
+
+** systems/ghost/gestalten/belt/view.js
+
+#+BEGIN_SRC js
+// systems/ghost/gestalten/belt/view.js — load — Q5
+export const load = async (view, attach) => {
+  const known = verified.get(view.id);
+  const response = await fetch(attach.url.branch(`/view/${view.id}`).absolute, {
+    headers: known ? { "if-none-match": `"${known.integrity}"` } : {},
+  });
+  if (response.status === 304) return known.module;
+  const text = await verify(response);
+  const module = await evaluate(text);
+  verified.set(view.id, { integrity: response.headers.get("x-viva-integrity"), module });
+  return module;
+};
+#+END_SRC
+
+=verify= = today's digest-against-header check (=view.js:27-36=) minus the entity comparison; =evaluate= = today's blob import (=view.js:43-51=).
+
+** systems/ghost · systems/anima — a view without its File is a candidate — Q8
+
+Probe =reference/boot-timing/unheld.probe.js=, one unbuilt view + one built: today kept =["play"]=, =pick= THROWS =[view] dojo: no file at its entry=; after kept =["dojo","play"]=, =pick= = =dojo=.
+
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/belt/view.js:13
+-export const held = (view) => view.files.some((file) => file.path === view.entry);
+-
+…
+-const compiled = (view) => entry(view).mime === mime.javascript;
+-
+-const compiledFirst = (left, right) => compiled(right) - compiled(left);
+-
+-export const pick = (views) => views.toSorted(compiledFirst)[0];
++export const pick = (views) => views[0];
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/widgets/buffer/renderers.js:9
+ export const candidates = (buffer, files) =>
+-  computed([belt.view.candidates(buffer.$views, buffer.mode.$views), files], (views) =>
+-    views.filter(belt.view.held),
+-  );
++  computed([belt.view.candidates(buffer.$views, buffer.mode.$views), files], (views) => views);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/anima/src/surfaces/chrome/widgets/buffer/view.js:9
+ export const candidates = (buffer, files) =>
+-  computed([belt.view.candidates(buffer.$views, buffer.mode.$views), files], (views) =>
+-    views.filter(belt.view.held),
+-  );
++  computed([belt.view.candidates(buffer.$views, buffer.mode.$views), files], (views) => views);
+…
+-const compiled = (view) => belt.view.entry(view).mime === mime.javascript;
+-
+-const compiledFirstThenLatest = (left, right) => compiled(right) - compiled(left) || new Date(right.updatedAt) - new Date(left.updatedAt);
++const latest = (left, right) => new Date(right.updatedAt) - new Date(left.updatedAt);
+#+END_SRC
+
+=held= has no reader after this (grep 11-16: only these two sites) → cut. =files= stays an input of =candidates=: a pushed File re-runs it (Q7). Test: =systems/ghost/tests/gestalten/belt/view.test.js:56= gains a fileless view in =pick=.
+
+** generated views — Q9, birds-eye 11-16, SKETCH
+
+His questions: /"how do we wire this? how do models itterate a view? how do we go from an existing to a customized view for a thread or buffer? how do we persist gernerated views?"/
+
+Is: =tools/generative.js:165= → =traits/generative.js:9= → =View.ts:17= compiles TEXT now, keeps two hash-named Files (source =View.ts:23=, compiled =:31=). Epicycles: two build arms · =kept= (=generative.js:59=) hands a declared view's 5 MB bundle back as "source" · a hash-named pair per revision · a generated view is offered by its mode to every buffer · the client's =compiled= sort · whole-source rewrite is the only edit · dead caller =commons/playground/chaosmonkey/reader/emitter.js:21=.
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/tools/generative.js — view write: the file, then the same read-through the fetch route runs
+const mount = `view/${ctx.input.slug}/${ctx.input.path}`;
+await paladin.state.text(join(ctx.mode.mountpoint, mount), ctx.input.source);
+const view = await ctx.entities.view.ensure({ mode, slug, mime, mount, entry: `bundle/${slug}.${stem(mime)}.mjs` });
+await ctx.entities.view.bundle(view, { bundler });
+#+END_SRC
+
+Iterate: =view_read= reads the mount file (declared views too); =view_edit {slug, old, new}= replaces a string in it. Customize: =view_fork {from, slug}= copies the mount's files into the mountpoint as a new view. Persist: stable names, overwritten; =sources= covers freshness. DIES: the text arm of =View.bundle= · =kept= · the source File entity · =compiled=. OPEN: who is offered a generated view (Q10) · the two bases of =mount=.
+
+** systems/anima · systems/ghost — the two load sites
+
+#+BEGIN_SRC js
+// systems/anima/src/surfaces/chrome/widgets/buffer/painters.jsx:21 · systems/ghost/surfaces/chrome/panels/frame/frame.jsx:104 — Q7
+    const fingerprint = () => props.view.files.find((file) => file.path === props.view.entry)?.integrity;
+    const [module] = createResource(
+      () => settled() && [props.view, fingerprint()],
+      ([view]) => load(view, props.terminal.client.runtime.attach),
+    );
+#+END_SRC
+
+** systems/runtime/subjects/mode/traits/viewable.js
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/viewable.js — per declared view — Q4B
+  for (const declared of mode.module.views) {
+    mode.views.push(
+      await modeDie.entities.view.ensure({
+        mode: mode.entity.id,
+        slug: declared.slug,
+        mime: declared.mime,
+        mount: declared.mount,
+        traits: declared.traits ?? ["FRAME"],
+        entry: `bundle/${declared.slug}.${stem(declared.mime)}.mjs`,
+      }),
+    );
+  }
+#+END_SRC
+
+** systems/runtime/subjects/runtime/attachment.js
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/runtime/attachment.js — beside /file/:id — Q4B · Q5
+const bundled = fn.inflight.by((runtime, view) => view.id, async (runtime, view) => {
+  const mode = seated(runtime, view.mode.id);
+  return await runtime.entities.view.bundle(view, {
+    bundler: paladin.bundler(new Path(mode.mountpoint).absolute),
+    source: join(mode.module.source.dirname, view.mount),
+  });
+});
+
+attachment.branch("/view/:id").use(shard.datamap.errors()).do(async (input, ctx) => {
+  const view = await ctx.runtime.entities.view.findOneOrFail(
+    { id: ctx.params.id },
+    { populate: ["sources"] },
+  );
+  const file = await bundled(ctx.runtime, view);
+  ctx.response.headers.set("etag", `"${file.integrity}"`);
+  ctx.response.headers.set("x-viva-integrity", file.integrity);
+  if (ctx.request.headers.get("if-none-match") === `"${file.integrity}"`)
+    return new Response(null, { status: 304, headers: Object.fromEntries(ctx.response.headers) });
+  ctx.response.type = file.mime;
+  return await paladin.read.bytes(file.mount);
+});
+#+END_SRC
+
+=seated= = today's =seat= (=3-integration.js:106=) moved beside its second reader. =fn.inflight.by= does not exist: =belt.fn.inflight= memoizes one promise, a per-key form is a second consumer's lift, written at the tangle.
+
+** systems/runtime/tests/runtime
+
+#+BEGIN_SRC js
+// systems/runtime/tests/runtime/view.lifecycle.test.js — Q6
+  specimen.it("builds on first open", …);
+  specimen.it("answers 304 to a client holding the fingerprint", …);
+  specimen.it("rebuilds after the mount file changes", …);
+  specimen.it("rebuilds after an imported file changes", …);
+  specimen.it("survives a restart without building", …);
+  specimen.it("two opens at once share one build", …);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/tests/runtime/view.walk.test.js — Q6 · Q6B
+const MOVES = [open, openHolding, editMount, editImport, restart, removeArtifact, openTwice];
+const PROPERTIES = [fingerprintHoldsWhileSourcesHold, editIsEventuallyServed, agreesWithModel, oneArtifactPerView];
+for (const move of walk(seed, 300)) {
+  await move(world);
+  for (const property of PROPERTIES) await property(world);
+}
+#+END_SRC
+
+* milestones
+
+1. LANDED · The naming: =mount= · =entry= · =sources= on the View, the stable name, the migration.
+2. LANDED · The read-through route and =view.bundle= as the one way.
+3. LANDED · Both clients: conditional load, reload on a new fingerprint.
+4. LANDED · The suite: six named cases, the seeded walk.
+5. LANDED · AFTER (/"mark for after. yes."/): the sweep — =bundler.prune= fixed, =viva instance/cleanup= on his instance once every view rebuilt under its new name; 931 MB.
+
+* blast table — full, 11-16 (13 symbols · repo + =~/.viva/instances= + =~/.viva/registry=, uncut; greps in the session scratchpad)
+
+BREAKS AT LAND, not in =* as code= yet:
+- RULED Q8 · *the =held= filter starves an unbuilt view* — =systems/anima/src/surfaces/chrome/widgets/buffer/view.js:11= · =systems/ghost/surfaces/chrome/widgets/buffer/renderers.js:11= keep only views with a File; =belt/view.js:23= =compiled= → =entry(view)= THROWS with none (=pick= · anima =view.js:18 · :20=). No File → never a candidate → never fetched → never built. Every view is fileless the boot the names change.
+- *generated views* — 4 callers of =mode.generator.bundle({…source})=: =traits/generative.js:9= · =tools/generative.js:165 · :205= · =commons/playground/chaosmonkey/reader/emitter.js:21= · =commons/instances/hello-world/page/index.js:48=; =tools/generative.js:54 · :59= read =view.entry=. The new =bundle(view, { bundler, source })= breaks all four.
+- *the typology contract* — =subsystems/typology/schematics/entities/view.js=: =own= lacks =mount=; its example =entry= is hash-named; snapshots =tests/snapshots/{view,file,mode}-entity.snapshot.json= · =view-entity.snapshot.test.js=.
+- *the noun =sources= is taken twice* — =subsystems/typology/prototypes/app.js:8= (=App.sources= = declared ={mime, mount}=) · =prototypes/dataset.js:29=. =View.sources= = ={path, bytes, mtime}=. His lock stands; the clash is his to see.
+- *tests pinning the hash name* — =systems/runtime/tests/mode/filetraits.coverage.test.js:136= · =runtime/userspace.bundle.test.js:43= · =mode/generative.test.js:88 · :168= · =bundle.spawn.test.js= ×5 · =subsystems/paladin/tests/bundler.test.js= ×9 · stubs =commons/instances/hello-world/tests/{rig.js:66,emitter.test.js:43}=.
+- *the bundler's entry arm* — =systems/ghost/subjects/shell/lifecycle/3-integration.js:22= · 12 registry tests (=~/.viva/registry/{education,chess}/**/tests=) · =commons/fixtures/memo/tests/*= · =testament/m86…/flashcard.test.js=.
+- *a shipped copy of the loader* — =systems/ghost/surfaces/chrome/bundle/app.mjs= (11-13, 188 KB) carries =belt/view.js=; rebuilt or stale (=ghost-panes-bundle-stale=).
+- *route users* — =/attached/file/:id= stays: =systems/ghost/entities/file/hydration.js:5= · registry =vcompany/modes/office/files.js= · =media/modes/editor/media/files.js=. Docs: =documentation/content/20-29_tutorials/20.01_slowstart.mdx:386= lists the routes. Stale: =testament/_bruno/system/attached/view/*.bru=.
+- =bundler.prune= — only =commands/instance/cleanup.js= · =bundler.test.js:151=. =compiler.svelte= — only =bundler.js=, =systems/ghost/surfaces/chrome/bundle.js=, =hello-world/page/draw.js=.
+- UNPROVEN: how mikro lands the two columns on his db (no migrations dir found in the tree).
+
+Baseline 11-16, pre-edit, each file one-shot, =HOME= empty, serial — 18 green · 4 red:
+#+begin_example
+ok | 1 passed (7 steps) | 0 failed    subsystems/paladin/tests/bundler.test.js
+ok | 1 passed (3 steps) | 0 failed    subsystems/typology/tests/view-entity.snapshot.test.js
+ok | 3 passed (6 steps) | 0 failed    subsystems/typology/tests/bundle.test.js
+ok | 1 passed (5 steps) | 0 failed    subsystems/typology/tests/schematics/bundle.test.js
+ok | 1 passed (1 step) | 0 failed     systems/runtime/tests/view.bundle.route.test.js
+ok | 1 passed (3 steps) | 0 failed    systems/runtime/tests/bundle.spawn.test.js
+ok | 1 passed (1 step) | 0 failed     systems/runtime/tests/runtime/userspace.bundle.test.js
+ok | 1 passed (10 steps) | 0 failed   systems/runtime/tests/runtime/beats.coverage.test.js
+ok | 3 passed (25 steps) | 0 failed   systems/runtime/tests/runtime/hello.test.js
+ok | 1 passed (7 steps) | 0 failed    systems/runtime/tests/mode/filetraits.coverage.test.js
+ok | 1 passed (7 steps) | 0 failed    systems/runtime/tests/mode/generative.test.js
+ok | 1 passed (8 steps) | 0 failed    systems/runtime/tests/entities/view.test.js
+ok | 1 passed (5 steps) | 0 failed    systems/ghost/tests/gestalten/belt/view.test.js
+ok | 1 passed (1 step) | 0 failed     systems/ghost/tests/entities/file/file.test.js
+ok | 1 passed (4 steps) | 0 failed    systems/ghost/tests/subjects/client/client.test.js
+ok | 1 passed (5 steps) | 0 failed    commons/instances/hello-world/tests/emitter.test.js
+ok | 6 passed (17 steps) | 0 failed   commons/instances/hello-world/tests/catalog.test.js
+ok | 2 passed (5 steps) | 0 failed    commons/instances/hello-world/tests/draw.snapshot.test.js
+FAILED | 0 passed | 1 failed            systems/anima/tests/painters.test.js              esbuild: 5 unresolved (anima rig red)
+FAILED | 2 passed | 1 failed (2 steps)  commons/fixtures/memo/tests/memo.test.js           tty-chrome-opentui-node-ffi
+FAILED | 3 passed | 1 failed (1 step)   commons/fixtures/memo/tests/memo.snapshot.test.js  tty-chrome-opentui-node-ffi
+FAILED | 0 passed | 1 failed (2 steps)  commons/fixtures/memo/tests/tablet.snapshot.test.js  UNTRACED: handler undefined at :58 + a calls diff
+#+end_example
+
+* testing assessment
+
+The walk in bombadil's parts: =roadmap/bombadil-browser-properties.org:34=. COVERAGE GAP: the browser side (a fault box never stays · the mounted view survives a restart) waits for bombadil.
+
+* QA
+
+/"I save a file under commons, the runtime restarts, my open view shows the new code; boot no longer waits on bundles"/
+#+marker_qa: m120-lazy-view-bundles/T-boot-builds-nothing · held · his walk 11-16 /"walk passed"/; restart 5.8 s against 10.8–18.7 s
+#+marker_qa: m120-lazy-view-bundles/T-open-view-reloads · held · his walk 11-16 /"walk passed"/
+#+marker_qa: m120-lazy-view-bundles/T-sweep · held · =viva instance/cleanup localhost --force= 11-16: 293 removed, mountpoint 1.0 G → 23 M; named bundles kept, rebuilt on fetch (=play= · =dojo= · =aprende= 200)
+
+* deferred
+
+- *who is offered a generated view (Q10, OPEN 11-16)* — his words: /"why either. this seems like we need a coherent approach. we might want either or any. view trait is good. … another thread of that mode might pull a generated view into scope. … maybe simple for now. per thread plus shared' or shipped' or so trait to make available elsewhere."/ REFUSED: a =thread= m:1 on the View (/"no this is odd."/). Unsolved: how "per thread" is held without that relation. Trait names free in the tree: =SHARED= · =SHIPPED=. Parked by him: /"lets step back from generated views for a second."/
+
+- An early build on purpose, to surface build errors before anyone opens a view (his note, Q4B).
+- The name's ONE home: =bundle/<slug>.<mime stem>.mjs= is spelled in the trait above; a repository method for it was stopped by the word-guard (a method no entity declares). His naming.
+- Generated views (=traits/generative.js=): same name rule (my reading of Q0); their call hands =source= text, not a =mount= — the arm's shape at the tangle.
+- =sources= size: 1667 entries for one svelte view, 1393 of them =node_modules=. One stamp for the whole of =node_modules= (the lockfile) would cut it; unruled.
+- =/userspace/entities/view/bundle= + =RemoteRepository.bundle=: no product caller (proven); cut with their three tests, or kept — his.
+- =registry.supply= and the import graph: the next boot offenders, a quest of their own.
+
+* changelog
+
+- 11-16 his /"run mstn 5"/: =bundler.prune= keeps only a hash-named build WITH its source (Q1); the newest-kept =slice(1)= and =mtime= died; =cleanup= valence says so; =bundler.test.js= case rewritten, red under the old rule. Dry plan (=reference/m120/sweep.dry.probe.js=): 23 dirs · 293 builds · 1060 MB · 0 kept; 0 generated Views. Captured as APFS clones + =manifest.txt= at =~/.viva/bak/instances/localhost-20261116/m120-sweep/=. Ran =viva instance/cleanup localhost --force=: 1.0 G → 23 M. Live after: =play= 0.34 s · =dojo= 0.92 s · =aprende= 0.52 s, each built on fetch. Left: 26 File rows on hash paths, artifacts gone; the patrol marks them =MISSING= (=3-integration.js:24=); drop or keep — his.
+
+- 11-16 his /"cut"/: =/userspace/entities/view/bundle= · =RemoteRepository.bundle= · =view.bundle.route.test.js= · =userspace.bundle.test.js= · two =beats.coverage= rows gone; =seated= unexported, its fault reads =[attached/view]=. Then Q10B landed (sandbox → patch): the =entry= option dies; =origin= = =mode.module.source.dirname=, the route's only filler; a written view (=mount= null) → its File by the route. 14 suites green on his tree; live =analysis= 200 · 304. ("generare" read as =generate=; "ginore third" = =origin= kept.)
+
+- 11-16 his =ok land m120=: milestones 1–4 landed, sandbox first, then his tree as a patch (a live sibling had renamed composer → dock at 15:53; its =frame.jsx:12= kept). Migration on a =.backup= copy first: two =add column=, no rebuild; on his db =Migration20261116145538=, 23/23 views =mount= + stable =entry=. Backup =~/.viva/bak/instances/localhost-20261116/m120-pre/= (db · migrations · =app.mjs=). =deno task ghost/bundle= rebuilt =app.mjs=. Restart STOPPING → RUNNING 5.8 s (today before: 10.8–18.7 s, one sample). Live =/attached/view/:id=: 200 in 105 ms, held =ETag= 304 in 2 ms. Census: 23 green · the 4 baseline reds, same error text; registry =dojo/tty= · =play/app= · =play/tty= green; ledger md5 unchanged. Each new test failed once under its mutation (never fresh · no shared build · import unstamped · artifact unstamped).
+  Departures, mine, reported: (1) the named build returns ={ bundle, sources }=, =Bundle= keeps no =sources= (typology prototype untouched). (2) =sources= stamps the built artifact too: a removed or edited artifact rebuilds (the walk's =removeArtifact= caught it). (3) =View.bundle(view, { bundler, entry })=: =source= is already the generated arm's text in the same method. (4) no =fn.inflight.by=: a per-view =Map= in =attachment.js=, thin first. (5) the fingerprint reads the file store first (=files();=): the sketch's bare =props.view.files= never reloaded — a File push mutates the view in place (control probe: mount stuck on =first=). (6) =stem= spelled in =viewable.js= beside the bundler's (the name's home stays deferred). (7) =seat= → =seated(runtime, id)= in =attachment.js=. (8) =/userspace/entities/view/bundle= now reaches the read-through arm with plain data; tests only (deferred, his).
+
+- 11-16 his =z. land after compact.= ("z" read as =a=, the key beside it): land the declared-view half now; generated views keep build-at-write as a second arm inside =View.bundle=; their redesign (Q9 locked · Q10 open) leaves for its own quest. Asked: /"high level,where are we?"/ → A · B; A leaned.
+
+- 11-16 timing assessment. No product code changed.
+- 11-16 drill Q0–Q7 locked. Departures, mine, reported: I leaned lazy, then cache, then a client-called build route; his birdseye ask turned Q4 into the read-through shape. I claimed =bundler.prune= had callers only in =bak/= off a =| head=-cut grep; =viva instance/cleanup= is live. My Q3 lock said =lazy: true= alone; the probe refuted it, the block carries =hidden: true=. My Q5 sketch set a bare status; it throws, the block returns a =Response=.
+- 11-16 five facts proven. Probes: =bundle · beats · supply · commons · prune · inputs · sources · lazy · metafile · notmodified=.
+
+* release
+
+LIFTED 11-16 into =release.md= ## unreleased. Was: entity =View= — added =mount= · =sources=, changed =entry= (output hash name → =bundle/<slug>.<mime stem>.mjs=) · route — added =/attached/view/:id= (=ETag=, 304) · cli — changed =viva instance/cleanup= (keeps no hash-named compiled artifact).
+
+* handoff
+
+- goal: boot builds no view; a declared view builds at its fetch and rebuilds when its =sources= changed.
+- done: measurement · drill Q0–Q9 · five proofs + =unheld.probe.js= · full blast + baseline (=* blast table=).
+- done 11-16: milestones 1–4 LANDED (=* changelog=); the generated arm untouched.
+- next: his walk — QA =T-boot-builds-nothing= · =T-open-view-reloads= (anima AND tty); then milestone 5, the sweep (old hash-named Files + 266 artifacts stay till then).
+- never: an =UNBUILT= trait · a side file for the sources · a client-called build · =lazy= without =hidden= · a bare 304 status · =bundler.prune= as it stands · =compiled= by file name (/"seems iffy"/) · a =thread= relation on the View (/"no this is odd."/).
+- owed: his walk (QA) · 26 orphan File rows (his: drop or keep) · the 931 MB bak capture, his to delete · generated views → a new quest (Q9 · Q10, =* deferred=) · =tablet.snapshot.test.js= red (known issues).

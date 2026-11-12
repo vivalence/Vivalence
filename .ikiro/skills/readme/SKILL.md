@@ -35,7 +35,7 @@ Defects live between verbs, where no test looks.
 1. stock image (`ubuntu:24.04`), pid 1 `bash` on a pty, each step `tee /proc/1/fd/1`; beef joins by `docker exec -it <name> bash` — `exit` in `docker attach` kills pid 1. Alpine: no musl Deno ≥2.7, the installer exits 0 on a dead binary.
 2. scripts `Write` to the scratchpad → `docker cp`; macOS tar `COPYFILE_DISABLE=1`, archive measured first (no freight).
 3. each README step verbatim; a fence = what PRINTED; a listing ≡ the file on disk, byte-equal, no `...` (/"NOT A FUCKING ABBREVIATION"/ 08-26) — his listing edit rewrites the FILE.
-4. hit it from OUTSIDE (`curl` the alt port, `/status` at three tiers, a real bearer, `/metadata/*`), then the ghost verbs.
+4. hit it from OUTSIDE (`curl` the alt port, `/beacon/status`, gated `/status`, a real bearer, `/metadata/*`), then the ghost verbs.
 5. per step: `step · command · printed · verdict · defect` — defects to skill `quest`; doc drift fixed in the docs, /"slop up the docs for both of us"/. A doc line claims its source: READ every file it touches (/"READ! EVERY! SINGLE! FILE! THIS! TOUCHES!"/); a lie fixes the CODE.
 6. **kill the bodies** — `docker rm -f <names>`, listed in the report. REJECTED: `docker builder prune` on the HOST.
 
@@ -48,11 +48,11 @@ Scratch variant: `viva instance/create <scratch> --init` → walk → `viva inst
 1. **versioned?** `git -C <dir> rev-parse --show-toplevel 2>/dev/null || echo NO-VCS` — versioned is read-only for me.
 2. **running?** `ps aux | grep deno` · `viva ledger/doctor` (`locks/`) · `lsof <db>`. A schema change under `--watch` IS a deployment.
 3. **capture** to `~/.viva/bak/<scope>/<slug>-<YYYYMMDD>/`: a db with its migrations and the `instance.viva.json` that mounted it; a recipe whole. Say what you kept: /"19 literals, 19 symbol links, 18 uses rows, captured to … first. 69 symbols kept."/
-4. REJECTED: a scratchpad copy as the only copy — `cleanup` destroys it.
+4. REJECTED: a scratchpad as the only copy (`cleanup` wipes it).
 5. cut by entry, never by line.
 6. a hunk bound for `~/.viva/instances` is complete and reverse-appliable — no `…`.
 7. mikro half-applies an FK change: restore db + migrations from backup, never retry.
 8. price the asset before building a recovery harness.
-9. the wipe is HIS: I capture + measure on a copy, he runs the rm/rsync (/"i do the whipe once youre done."/ 10-22).
+9. the wipe is HIS (/"i do the whipe"/): I capture (`cp -c`: free APFS clone) + measure; his `run` naming it = mine (11-16).
 
 Never swept, even under `cleanup`: beef's `// …` lines, his `console.log`s, `bak/`, `*.bak` beside in-flight work.

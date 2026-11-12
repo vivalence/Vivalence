@@ -2,3 +2,4 @@ export * as belt from "./belt/index.js";
 export * as shard from "./shard/index.js";
 export * as tools from "./tools/index.js";
 export * as primer from "./primer/index.js";
+export * as reference from "./reference/index.js";

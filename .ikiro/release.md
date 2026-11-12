@@ -5,6 +5,8 @@
 
 ### client
 
+- changed `belt.view.load(view, attach)` — fetches `/attached/view/:id`, sends `if-none-match`, a 304 keeps the module; a view without its File is a candidate, `pick` takes the first (`held` · `compiled` sort removed) · migrate: none ⟨m120⟩
+
 - fixed anima · ghost frame after a reload — view list is a store, was a one-shot fetch landing empty · migrate: none ⟨11-11⟩
 - removed `/attached/view/:id` · `belt.view.row` · migrate: `/userspace/entities/{view,file}/find` ⟨11-11⟩
 - changed `belt.view.candidates(...pools)` — a store merging view stores; was `(buffer, attach)` · migrate: `candidates(buffer.$views, buffer.mode.$views)` ⟨11-11⟩
@@ -21,6 +23,10 @@
 
 ### cli
 
+- changed `viva instance/cleanup` — removes every hash-named build without its source; a view's `bundle/<slug>.<mime stem>.mjs` stays; was newest-per-mode kept · migrate: none ⟨m120⟩
+
+- renamed root task `deno task dependencies` → `deno task install`; the old `install` (deps + `ghost/install`) → `deno task embed` · migrate: `deno task embed` where `deno task install` ran ⟨prod-deploy⟩
+- changed image `vivalence/anima:alpine` — built on `denoland/deno:debian` (vite 8 · rolldown needs glibc), nginx site at `/etc/nginx/conf.d/default.conf`; the tag keeps its name · migrate: none ⟨prod-deploy⟩
 - fixed `viva chrome` — waits for a booting runtime (`/status` IDLE), never spawns a twin; a spawned one's `start · stop · fault` print as `[runtime] <elapsed> /daemon/<slug> start` · migrate: none ⟨m114⟩
 - renamed `/buffer/artifact <n> [name]` → `/frame/set <slug>`, chord `leader/e/a` kept · migrate: a slug, not an index ⟨m111⟩
 - added `/cell/set <slug> <name>` ⟨m111⟩
@@ -42,6 +48,12 @@
 - changed `viva help` — the flags row derives from the declarations: `--instance=<slug|path>` (was `<path>`), `--verbose` listed; an exact nature also prints the flags every nature carries; `instance/create --slug=<slug>` and `instances/tap --slug=<slug>` show as flags (they were read, never declared) · migrate: none ⟨flags-declare-themselves⟩
 
 ### route
+
+- added `/attached/view/:id` — a view's bundle, built at its first fetch, rebuilt when its `sources` changed; `ETag` + `x-viva-integrity`, `If-None-Match` → 304 · migrate: none ⟨m120⟩
+- removed `/userspace/entities/view/bundle` — no product caller · migrate: none ⟨m120⟩
+
+- moved the runtime's `/status` · `/metadata/manifest` → `/beacon/status` · `/beacon/manifest`, the one tokenless branch; `/metadata/{aperture,datamap,daemons,services}` now `401` without a bearer · migrate: healthchecks + reach probes read `/beacon/status`; a client reads `/beacon/manifest` before sign-in ⟨11-13 security⟩
+- fixed `/lighthouse/login` — an unknown name costs the same argon2 verify as a known one · migrate: none ⟨11-13 security⟩
 
 - added `/mode/editor/darkroom/picture/{settle,hallucinate,upload/:buffer}` — the desk aperture writes `buffer.data`, files pictures and references onto the buffer · migrate: none ⟨m118⟩
 - changed a mode's `/metadata/harness` — `{ routes, primer, tools }`, nested strips (was the `/harness` strip alone); added `/metadata/harness/primer/(.*)` body `{ thread }`, one primer section as read · migrate: wire `.routes` ⟨harness-metadata⟩
@@ -76,6 +88,15 @@
 - renamed the runtime's stdout readiness line `Status:ALIVE` → `Status:RUNNING` — `viva instance/run` and `paladin.ledger.boot` wait for it · migrate: a supervisor matching `^Status:ALIVE$` matches `^Status:RUNNING$` ⟨m74 M5⟩
 ### api
 
+- changed `paladin.bundler(directory, origin)` — `bundle({ mime, mount, name })` builds a declared view to its stable name and returns `{ bundle, sources }`; rows hand back the input list · migrate: none ⟨m120⟩
+- changed `View` repository — `bundle(view, { bundler })` builds on fetch and returns the File; the generated arm is `generate(data, { bundler })` · migrate: `view.bundle(data)` with `source` → `view.generate(data)` ⟨m120⟩
+- removed `RemoteRepository.bundle` · migrate: none ⟨m120⟩
+- changed `bundle.svelte(entry, opts)` — returns the whole esbuild result (`metafile` on); was `outputFiles` · migrate: `.outputFiles` ⟨m120⟩
+
+- added tool `/scale` + route `/scale/literal` on the language-learning domain — moves a literal set's memory strength by `status` or `percent` (0–100), `direction` advance · drop · set; answers `<direction>: N scaled · M kept` · migrate: none ⟨scale⟩
+- changed retention statuses — thresholds follow `PROFILE` (3 · 15 · 36 · 60 percent): `LEARNING` from 2.3 h (was 6 h), `KNOWN` from 3 d (was 7 d), `GRADUATED` from 49.5 d (was 45 d) · migrate: none, a note re-reads at its next write ⟨scale⟩
+- fixed `literal.find({ symbols })` — `$all` with `$in` answered nothing, `$in` with `$none` threw; each operator now joins on its own · migrate: none ⟨scale⟩
+- renamed typology `v` setter `.examples(…)` → `.example(...examples)`; the stored key stays `examples` · migrate: rename the call ⟨11-13⟩
 - changed `vector.trie` — `Map<nature, { pattern, trajectory }>` → `Map<Pattern, Vector>` · migrate: `vector.edge(nature)` → `[pattern, trajectory]` ⟨vector-trie⟩
 - changed `Vector.do` — a second effect was dropped, now replaces · migrate: none ⟨vector-trie⟩
 - changed `paladin.tools.fs.resolve` · `.absolute` → `paladin.tools.resolve` · `.absolute` · migrate: drop `.fs` ⟨vector-trie⟩
@@ -240,6 +261,8 @@
 - removed `Terminal.write` — `terminal.repository.updateOne({ id }, data)` · migrate: the same call ⟨m98⟩
 
 ### entity
+
+- changed `View` — added `mount` (declared, relative; null on a generated view) · `sources` (`path · bytes · mtime`, lazy + hidden); `entry` = `bundle/<slug>.<mime stem>.mjs`, was a content hash; boot seats views, builds none · migrate: automatic (mikro adds two columns) ⟨m120⟩
 
 - added `Mode.files` (1:m, inverse of `File.mode`, hidden); `Buffer.files` eager · migrate: none, a snapshot regen ⟨m118⟩
 - changed ghost `Buffer.files` — a `$files` store with a getter · migrate: a view reads `from(buffer.$files)` ⟨m118⟩

@@ -2,7 +2,7 @@ const sample = (fn) => {
   const world = {
     name: "idle",
     entity: { label: "e4 openings", mode: "board/play" },
-    harness: { tier: "capable", context: 0.34, effort: "low", rounds: 10 },
+    harness: { tier: "capable", context: 0.34, effort: "low", rounds: 10, eager: 7, lazy: 1 },
     activity: { signal: "off", text: "idle", tool: null },
     display: { view: "docked", align: "right" },
     system: { standing: "VERIFIED", host: "ghost" },
@@ -39,7 +39,7 @@ const sample = (fn) => {
       { register: "cmd", text: "/tier fast", answer: "tier fast" },
       { register: "trace", text: "09:14:02  activity · board/play · capable · low" },
     ],
-    composer: { kind: "field", prompt: "turn", value: "", placeholder: "say it, or / for a command", keys: "+ attach  ◉ dictate  ⏎" },
+    textarea: { kind: "field", prompt: "turn", value: "", placeholder: "say it, or / for a command", keys: "+ attach  ◉ dictate  ⏎" },
     split: { align: "right", share: 55, dragging: false },
     meters: [0.12, 0.34, 0.71, 0.92],
     dots: ["positive", "primary", "caution", "negative", "paused", "off"],
@@ -66,7 +66,7 @@ const running = (world) => {
       ],
     },
   ];
-  world.composer = { kind: "field", prompt: "turn", value: "and if black plays c5?", placeholder: "", keys: "■ stop" };
+  world.textarea = { kind: "field", prompt: "turn", value: "and if black plays c5?", placeholder: "", keys: "■ stop" };
 };
 
 const consent = (world) => {
@@ -75,14 +75,14 @@ const consent = (world) => {
   world.activity = { signal: "caution", text: "approve match_move", tool: "match_move" };
   world.tabs[0].signal = "caution";
   world.journal[1].calls[1].status = "wait";
-  world.composer = { kind: "consent", name: "match_move", argument: "e2e4" };
+  world.textarea = { kind: "consent", name: "match_move", argument: "e2e4" };
 };
 
 const paused = (world) => {
   running(world);
   world.name = "paused";
   world.activity = { signal: "paused", text: "paused · r3/10", tool: null };
-  world.composer = { kind: "field", prompt: "line", value: "/tier fa", placeholder: "", keys: "tab completes · enter runs" };
+  world.textarea = { kind: "field", prompt: "line", value: "/tier fa", placeholder: "", keys: "tab completes · enter runs" };
   world.chord = true;
   world.hint = "ctrl-v h …";
   world.open = "harness";

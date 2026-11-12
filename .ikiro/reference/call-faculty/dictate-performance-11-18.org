@@ -1,0 +1,179 @@
+#+title: dictate performance — every step timed, 11-18
+# writer: agent · limit: 9500 chars · trigger: /"there are massive delays with teh newly built dictation. everything takes time. every click."/ · /"run timing tests on every interaction and step of dictation. server and clietn side. buttons, repl, harenss, hallucinator, and back."/
+
+* verdict
+
+Two causes carry the delay; every other step stays under 0.5 s.
+
+1. polish: the repair render reasons uncapped, 5–20 s; the card and the text wait for it
+2. the journal: each Activity message rebuilds every journal entry, 57–136 ms a message, ~12 messages a dictation
+
+* how it was measured
+
+- his =:1794= anima, espanol (=game/dojo=), thread =01a1d1b0=, in my own tab; no product file edited
+- page hooks, injected (=timing-11-18/instrument.js=): =Repl.prototype.dispatch= · the microphone's =claim · release · pause · resume= · =harness.verbatim.stream= (frames in, packets out) · =WebSocket.prototype.send= + its =message= · =bridge.$dictation · $draft= · Event Timing · long-animation-frame · longtask
+- the mic: =getUserMedia= opened for real (timed, dropped), then a 3.94 s clip (=say= Eddy es_ES → 16 kHz wav) played into a =MediaStreamDestination=, silence after
+- the server: the Activity's own =steps= (server clock, same machine), read off the socket
+- the hallucinators alone: =timing-11-18/hallucinators.probe.js= · =polish.probe.js=, each run ONCE, teed
+- one sample a cell; polish alone ran 5 → 20 s
+
+* every step, ms
+
+R2 · R3: polish off. R4: polish on. R5: the journal not on screen (reader seated, narrow), ends on trash.
+
+| step | R2 | R3 | R4 | R5 |
+|---+---+---+---+---|
+| click → repl dispatch | 1 | 1 | 1 | – |
+| =getUserMedia= | 232 | 278 | 198 | 310 |
+| mic claimed → card painted | 8 | 9 | 4 | 4 |
+| request sent → server =hallucination start= | 79 | 85 | 64 | 164 |
+| page blocked after start | 528 | 575 | 486 | 8 |
+| speech onset → first word on the card | 830 | 850 | 1011 | 720 |
+| stop click → =done= on the wire | 5 | 4 | 3 | 2 |
+| =done= → =/turn/close= (Scribe commit) | 433 | 237 | 378 | 268 |
+| =/turn/close= → stream end | 198 | 200 | 19564 | 200 |
+| stop click → text in the input | 639 | 443 | 19948 | – |
+| page blocked after end | 385 | 380 | 456 | 8 |
+
+| act | ms |
+|---+---|
+| =/mic mute= | 6 |
+| =/mic on= | 1 |
+| =/dictate/trash= → card gone | 470 |
+| =/polish/engaged on= | 196 |
+| =/polish/engaged off= | 136 |
+| worklet =addModule=, first · later | 20 · 0 |
+| Scribe socket handshake (direct) | 665 |
+| Scribe first partial after first audio (direct) | 646 |
+| Scribe commit after audio end (direct) | 295 |
+
+Mic frames: 16 kHz, ~15.6 a second, 2843 bytes each.
+
+* cause 1 — polish holds the card 5–20 s
+
+He clicks stop; the card stays and the text lands only when the repair returns.
+
+#+BEGIN_SRC text
+// .ikiro/reference/call-faculty/timing-11-18/r4.txt
+  5333 dom.click BUTTON.mic live stop dictation
+  5679 SERVER HALLUCINATION hallucination > dialogue start null
+  5712 packet /turn/close
+ 25245 SERVER HALLUCINATION hallucination > dialogue log {"round":1,"state":"complete","usage":{"input":87,"output":2071,"cost":0.0078315}}
+ 25279 $draft Hola, hoy quiero practicar español con durante 10 min.
+#+END_SRC
+
+2071 output tokens for a 13-token sentence is reasoning; the text came back unchanged, so no =/part/full= was sent.
+
+The repair passes no =settings=:
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shard/hal.js:55
+    const rendered = await ctx.cortex.hallucinate.dialogue.render({
+      controller: controller.branch("dialogue"),
+      system: { polish },
+      turns: [{ role: "user", parts: [{ type: "text", text }] }],
+      policy: { tier: "fast", ...selector, rounds: 1 },
+    });
+#+END_SRC
+
+So the provider turns reasoning on, uncapped (=fast= → =google/gemini-3.8-flash=, =thinking: true= in his ledger):
+
+#+BEGIN_SRC js
+// commons/hallucinators/openrouter/provider/translate.js:119
+  params.reasoning = !model.thinking || settings.effort === "none"
+    ? { enabled: false }
+    : settings.effort ? { effort: settings.effort } : { enabled: true };
+#+END_SRC
+
+The stream stays open until every repair settles:
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shard/hal.js:49
+  yield* soma.merge(upstream, polishes.drain());
+#+END_SRC
+
+And the client lands nothing before the stream ends:
+
+#+BEGIN_SRC js
+// systems/ghost/gestalten/commands/content/dictate.js:38
+        for await (const packet of heard) {
+          dictation = soma.transcript(dictation, packet);
+          ctx.client.app.bridge.$dictation.set(dictation);
+        }
+      } finally {
+        ctx.client.app.box.device.microphone.release("stop");
+        ctx.client.app.bridge.$dictation.set(null);
+        await EXITS[feed.reason](ctx, belt.dictation.spoken(dictation));
+#+END_SRC
+
+Control: the same sentence, one variable.
+
+| polish render | ms | output tokens | cost $ |
+|---+---+---+---|
+| in app, his paste 13:39 | 5222 | 238 | 0.00096 |
+| in app, R4 | 19566 | 2071 | 0.00783 |
+| probe, as shipped | 16365 | 1669 | 0.00632 |
+| probe, effort =minimal= | 4821 | 13 | 0.00011 |
+| probe, effort =low= | 4445 | 13 | 0.00011 |
+| probe, effort =none= | 400 | – | – |
+| probe, =claude-haiku-5-5= effort =low= | 816 | 24 | – |
+| probe, =claude-haiku-5-5= effort =none= | 1581 | 145 | – |
+
+11-18 later (=timing-11-18/none.txt=): haiku with =thinking: {type: "disabled"}= on the wire 752 · 842 · 1174 ms, 24 tokens; anthropic's =effort: none= only OMITS =thinking=, haiku 5.5 then thinks (the 1581 row). Journal: =journal.probe.js=, remounts today 240 · memo 0 · memo + reconciled store 0, a streamed delta 40 → 0.
+
+=none= is refused by both Gemini models (=400 Reasoning is mandatory for this endpoint and cannot be disabled.=). Gemini stays ~4.5 s at 13 tokens: the wait is the endpoint's, not the tokens'.
+
+* cause 2 — each Activity message rebuilds the journal
+
+A dictation sends 6 Activity messages after start (create + 5 updates) and 5–6 after end (updates + delete). Each one blocks the page 57–136 ms in =DOMWebSocket.onmessage= (=prototypes/socket.js=). A thread update costs the same (=/polish/engaged=: two messages, 67 + 76 ms). That is the lag on every click that reaches the server.
+
+#+BEGIN_SRC text
+// .ikiro/reference/call-faculty/timing-11-18/r2.txt
+   552 PERF long-animation-frame dur=177 {"block":70,"render":1,"scripts":["DOMWebSocket.onmessage 69ms prototypes/socket.js?t=1794959157803:","DOMWebSocket.onmessage 100ms prototypes/socket.js?t=1794959157803:"]}
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/anima/src/surfaces/chrome/panels/dock/journal.jsx:314
+  const waiting = () => parts.listing(activities).some((activity) => … activity.status === "PAUSED");
+// systems/anima/src/surfaces/chrome/panels/dock/journal.jsx:318
+  const listed = (turns, buffers) =>
+    entries(
+      lens().includes("turns") ? turns : [],
+      lens().includes("repl") ? parts.listing(records) : [],
+      user().slug,
+      waiting(),
+      buffers,
+      heard(),
+    );
+// systems/anima/src/surfaces/chrome/panels/dock/journal.jsx:329
+    <For each={rows.entries}>
+#+END_SRC
+
+=waiting()= reads the activity store, so =listed= reruns on any Activity change; =entries()= returns new objects; =<For>= keys by identity, drops and rebuilds every entry (markdown and all).
+
+Proof, two ways:
+
+- a no-op set of the activity store (empty → empty), journal mounted: 65 · 68 · 87 ms synchronous; 74 =childList= mutations, 38 nodes out, 38 in, all under =[data-r=journal]=
+- R5, journal not mounted: 6 messages handled in 8 ms, no long frame; the same 6 cost 486–575 ms with it mounted
+
+The store's other readers (=headline.jsx:35= · =dock.jsx:179= · =textarea.jsx:182= · =sidebar.jsx:73= · =telemetry.jsx:53=) left no mutation bar 9 on =nav.modebar=; R5 bounds them at ~1 ms a message in that layout, not timed one by one.
+
+* small
+
+- =getUserMedia= 198–310 ms each start (=systems/ghost/subjects/app/prototypes/box/device/microphone/microphone.js:93=)
+- the first word shows 0.7–1.0 s after speech: Scribe's handshake 665 ms + its partial ~650 ms
+- the first draft is sometimes another script (=어.= · =हम्म।=): the thread's =language: []=
+- trash and stop both keep the card until the server closes the stream (=dictate.js:38=); with polish on, trash waits for polish too (read, not run)
+- =systems/ghost/gestalten/commands/content/polish.js:10= — its example =/polish engaged off= returns in 4 ms, sends nothing, faults nothing; the signal is =/polish/engaged off=
+- a muted mic still shows drafts for ~250 ms: audio already sent
+
+* not measured
+
+- =/dictate/send= (it writes a turn into his thread) · the tty · a call
+- the server chain inside its 64–164 ms (=claiming · activating · requesting=): whole only
+
+* run it again — moved whole to =timing-11-18/rerun.org= (cap)
+
+* evidence — =reference/call-faculty/timing-11-18/=
+
+=r2.txt= (polish off) · =r4.txt= (polish on) · =r5.txt= (mute · trash, no journal) · =hallucinators.txt= · =polish.txt= · =instrument.js= · =hallucinators.probe.js= · =polish.probe.js= · =serve.py= · =sink.py=

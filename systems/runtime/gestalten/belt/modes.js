@@ -6,7 +6,7 @@ export const resolve = async (context, factory, traits) => {
   }
   await context.datamap.shard.scope(() => Promise.all(fromm.modes(context.modes).flat.flatMap((mode) => mode.finalizers).map((finalize) => finalize())));
   for (const mode of fromm.modes(context.modes).flat) {
-    context.aperture.branch(mode.reference.nature, mode.aperture);
+    context.aperture.branch(mode.reference, mode.aperture);
   }
 };
 

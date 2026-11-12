@@ -143,7 +143,7 @@ describe("paladin.bundler", { sanitizeResources: false, sanitizeOps: false }, ()
     expect(served.text).toContain("innerHTML");
   });
 
-  it("prune keeps the newest compiled view and every sourced page", async () => {
+  it("prune removes every hash-named build without its source; a view's named bundle and every sourced page stay", async () => {
     const root = await Deno.makeTempDir({ dir: directory, prefix: "prune-" });
     const pruning = paladin.bundler(`${root}/bundles/game/board`);
     const entry = `${root}/Board.svelte`;
@@ -154,20 +154,22 @@ describe("paladin.bundler", { sanitizeResources: false, sanitizeOps: false }, ()
     const current = (await pruning.bundle({ mime: mime.dom.svelte, entry })).entries[0];
     const page = (await pruning.bundle({ mime: mime.dom.html, source: "<h1>page</h1>" })).entries[0];
     await Deno.utime(`${pruning.directory}/bundle${page.mount}`, 1, 1);
+    const named = (await paladin.bundler(pruning.directory, root).bundle({ mime: mime.dom.svelte, mount: "Board.svelte", name: "bundle/board.dom.svelte.mjs" })).bundle.entries[0];
 
     expect((await paladin.bundler.under(root)).map((held) => held.directory)).toEqual([pruning.directory]);
 
     const dry = await pruning.prune({ dry: true });
-    expect(dry.kept).toBe(2);
-    expect(dry.removed.map((held) => held.name)).toEqual([stale.mount.slice(1)]);
+    expect(dry.kept).toBe(1);
+    expect(dry.removed.map((held) => held.name).sort()).toEqual([stale.mount.slice(1), current.mount.slice(1)].sort());
     expect(await pruning.serve(stale.mount)).not.toBe(null);
 
     const pruned = await pruning.prune();
     expect(pruned.removed).toEqual(dry.removed);
-    expect(pruned.bytes).toBe(dry.removed[0].bytes);
+    expect(pruned.bytes).toBe(dry.removed.reduce((sum, held) => sum + held.bytes, 0));
     expect(await pruning.serve(stale.mount)).toBe(null);
-    expect(await pruning.serve(current.mount)).not.toBe(null);
+    expect(await pruning.serve(current.mount)).toBe(null);
     expect(await pruning.serve(page.mount)).not.toBe(null);
+    expect((await Deno.stat(`${pruning.directory}${named.mount}`)).isFile).toBe(true);
     expect((await pruning.prune()).removed).toEqual([]);
     expect((await paladin.bundler(`${root}/absent`).prune()).kept).toBe(0);
   });

@@ -37,12 +37,12 @@ specimen.describe(
         const spoken = fromm.yield(await invoke(rigged, ASK));
 
         specimen.expect(spoken.condition).toBe("NOMINAL");
-        specimen.expect(Object.keys(spoken.output).sort()).toEqual([
+        specimen.expect(Object.keys(spoken.product).sort()).toEqual([
           "buffer",
           "message",
         ]);
-        specimen.expect(spoken.output.buffer.length).toBe(1);
-        specimen.expect(spoken.output.message).toBe(
+        specimen.expect(spoken.product.buffer.length).toBe(1);
+        specimen.expect(spoken.product.message).toBe(
           "Flamingos are pink from what they eat.",
         );
         specimen.expect(rigged.seen.length).toBe(4);
@@ -54,8 +54,8 @@ specimen.describe(
       async () => {
         const rigged = await rig([DRAW, PAGE, saying("done")]);
         const spoken = fromm.yield(await invoke(rigged, ASK));
-        specimen.expect(spoken.output.buffer[0].thread).toBe(rigged.row);
-        specimen.expect(spoken.output.buffer[0].index).toBe(0);
+        specimen.expect(spoken.product.buffer[0].thread).toBe(rigged.row);
+        specimen.expect(spoken.product.buffer[0].index).toBe(0);
         specimen.expect(rigged.row.counter).toBe(1);
       },
     );
@@ -83,12 +83,12 @@ specimen.describe(
         const spoken = fromm.yield(await invoke(rigged, ASK));
 
         specimen.expect(spoken.condition).toBe("ERROR");
-        specimen.expect(spoken.output.buffer.length).toBe(1);
-        specimen.expect(spoken.output.message).toContain("stopped early");
-        specimen.expect(spoken.output.message).toContain(
+        specimen.expect(spoken.product.buffer.length).toBe(1);
+        specimen.expect(spoken.product.message).toContain("stopped early");
+        specimen.expect(spoken.product.message).toContain(
           `length after ${ROUNDS} rounds`,
         );
-        specimen.expect(spoken.output.message).toContain(
+        specimen.expect(spoken.product.message).toContain(
           "answer from what is on screen",
         );
         specimen.expect(rigged.seen.length).toBe(ROUNDS);
@@ -103,19 +103,19 @@ specimen.describe(
         const spoken = fromm.yield(await invoke(rigged, ASK));
 
         specimen.expect(spoken.condition).toBe("ERROR");
-        specimen.expect(spoken.output.buffer.length).toBe(1);
-        specimen.expect(spoken.output.message).toContain(
+        specimen.expect(spoken.product.buffer.length).toBe(1);
+        specimen.expect(spoken.product.message).toContain(
           "error after 3 rounds",
         );
-        specimen.expect(spoken.output.message).toContain("upstream 529");
+        specimen.expect(spoken.product.message).toContain("upstream 529");
       },
     );
 
     specimen.it("P-early: stopping before any draw says so", async () => {
       const rigged = await rig([new Error("upstream 529")]);
       const spoken = fromm.yield(await invoke(rigged, ASK));
-      specimen.expect(spoken.output.buffer).toEqual([]);
-      specimen.expect(spoken.output.message).toContain("drew nothing");
+      specimen.expect(spoken.product.buffer).toEqual([]);
+      specimen.expect(spoken.product.message).toContain("drew nothing");
     });
 
     specimen.it(
@@ -148,8 +148,8 @@ specimen.describe(
         specimen.expect(minted).toBe(0);
         specimen.expect(rigged.seen.length < ROUNDS).toBe(true);
         specimen.expect(spoken.condition).toBe("ERROR");
-        specimen.expect(spoken.output.message).toContain("stopped early — abort");
-        specimen.expect(spoken.output.buffer.length).toBe(1);
+        specimen.expect(spoken.product.message).toContain("stopped early — abort");
+        specimen.expect(spoken.product.buffer.length).toBe(1);
         specimen.expect(turn.stdout.history.some((record) => belt.trace.key(record.path) === belt.trace.key(["hallucination", "research", "dialogue"]) && record.track === "start")).toBe(true);
       },
     );

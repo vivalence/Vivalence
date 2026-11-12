@@ -31,8 +31,6 @@ docker exec $C sh -c 'ls $VIVA_INSTANCE_MOUNT; cat $VIVA_INSTANCE_MOUNT/*.viva.j
 docker run --rm -it -v $V:/m:ro registry.vivalence.org/beef/viva/vivalence/viva:alpine bash
 ```
 
-Inside the sidecar:
-
 ```bash
 du -sh /m/*
 sqlite3 -readonly /m/<instance>.viva.db "select slug, traits from Mode order by slug; select name from _mikro_migrations order by id;
@@ -42,9 +40,11 @@ sqlite3 -readonly /m/<instance>.viva.db "select slug, traits from Mode order by 
 SQL rides stdin, never nested quotes.
 
 - `_mikro_migrations`, not `mikro_orm_migrations`; tables Capitalised, as queried above.
-- **a recipe module is checked in the IMAGE first** (`docker exec $C ls /viva/repository/commons/<dir>`): absent = `Module 404`, exit 1 (11-11). `docker run --env-file` KEEPS a value's quotes, compose strips them.
-- **prod's trait data is cast on HEAD before a deploy** — `reference/prod-deploy/cast.probe.js` (11-12 `tune` → `tier`: anima grey).
-- **Coolify's env table is the SOURCE, `.env` its output** (11-11); its deploy KEEPS anima's anon `build/` volume: `-V`. `Restart` KEEPS the container (11-06): env · healthcheck land by `docker compose up -d --force-recreate <svc>` in the service dir (`--no-build`). Healthcheck host `127.0.0.1`, never `localhost` (`::1`, 503). Anima compose sets `VIVA_MOUNTPOINT_MOUNT`.
+- **a recipe module is checked in the IMAGE first** (`docker exec $C ls /viva/repository/commons/<dir>`): absent = `Module 404`, exit 1. A REBUILT image re-taps registry HEAD: boot it on a CLONE before `up` (REJECTED 11-13: 3 min down).
+- **an outside probe = the hosts he NAMED** (11-13 /"no. vivalence.com and the runtime!"/).
+- **prod's trait data is cast on HEAD before a deploy** — `reference/prod-deploy/cast.probe.js` (11-12).
+- **Coolify's env table is the SOURCE, `.env` its output**; its deploy KEEPS anima's anon `build/` volume: `-V`. `Restart` KEEPS the container: env · healthcheck land by `docker compose up -d --force-recreate <svc>` in the service dir (`--no-build`). Healthcheck host `127.0.0.1`, never `localhost` (`::1`, 503). Anima compose sets `VIVA_MOUNTPOINT_MOUNT`.
+- the HOSTS (root ssh · patch · reboot · sshd · rkhunter): skill `servers`.
 - **a hand-inserted row skips its entity's twitches** (11-06: User by SQL → no Terminal → anima boots forever): insert each twitch-minted sibling too (`typology/entities/*.ts` `/after/<entity>/create`).
 
 ### Phase 1 — server snapshot (host, not container)
@@ -89,14 +89,14 @@ A deploy plan leads with the step beef is AT and names each image's ROLE — the
 
 **DBeaver closed before any write** (`pgrep -fl dbeaver` empty) — it rewrites the file from memory on exit. Wrote while open → never save from the UI; **F5 on the project node** (`DBNProject.refreshNode()`), the only reload.
 
-File: `~/Library/DBeaverData/workspace6/General/.dbeaver/data-sources.json` — tab-indented, no trailing newline; of `folders` · `connections` · `virtual-models` · `connection-types` the script touches `connections` only, never `credentials-config.json` (SQLite needs none).
+File: `~/Library/DBeaverData/workspace6/General/.dbeaver/data-sources.json` — tab-indented, no trailing newline; the script touches `connections` only, never `credentials-config.json`.
 
 ```json
 "viva-italian": { "provider": "sqlite", "driver": "sqlite_jdbc", "name": "viva italian", "save-password": true,
   "configuration": { "type": "dev", "database": "<abs path>.viva.db", "url": "jdbc:sqlite:<abs path>.viva.db" } }
 ```
 
-`database` is load-bearing: absent `configurationType` = `MANUAL`, which **ignores `url`** and regenerates it from `configuration.database`. Write both.
+`database` is load-bearing: `MANUAL` (the default) **ignores `url`**, regenerates it from `configuration.database`. Write both.
 
 ```sh
 alias D='deno run -A .claude/skills/ops/dbeaver.js'; M=~/.viva/instances/italian/mountpoint
@@ -105,6 +105,6 @@ D create viva-italian $M/daemon_italian/italian.viva.db --name "viva italian"
 D update viva-italian --name "italian daemon" --path $M/service_multiplayer/lighthouse.viva.db
 ```
 
-Refusals exit 1; `--file <path>` rehearses on a copy; `create-instance` mints `viva-<slug>-<stem>` from `~/.viva/instances.json`, `--dry` writes nothing. Repo root.
+Refusals exit 1; `--file <path>` rehearses on a copy; `create-instance` mints `viva-<slug>-<stem>` from `~/.viva/instances.json`, `--dry` writes nothing.
 
 First write copies `data-sources.json.bak` once (delete to re-arm). REJECTED: the CLI `-con` (launches the GUI) · GraphQL (CloudBeaver only).

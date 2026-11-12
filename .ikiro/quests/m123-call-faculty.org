@@ -1,0 +1,153 @@
+#+title: call faculty — two-way speech on one content grammar; verbatim · speech · call speak turns and parts, audio is medium
+#+filetags: :typology:cortex:hallucinators:ghost:runtime:voice:
+#+status: TANGLING 11-17 — Q0–Q32 LOCKED; milestones 0 · 2–7 LANDED 11-17 (=reference/call-faculty/milestone0-11-17.org= · =landed-11-17.org=); next: live QA · milestone 8
+# writer: agent · limit: 16000 chars
+
+* intent
+
+/"read up on our current clients audio speech dialogue dictation capabilities. find their equivalences in hte old anima svelte client, read up on the hallucinators we have, and research the current meta for those services"/
+
+/"call is the placeholder put in place for this. 2 way speech."/
+
+/"look at this holistically and step away from current wiriing and reason through what it should have been from the start. first principles architecture view from interfaces prototypes and schematics to routines and processes"/
+
+/"i want the system overall to work without it, its something tagged on like a convenience. but it should work 99.999 but not be an issue if not. that just a question of propper wiriing really. i dont want guards or wiring for this  if else. just - it works."/
+
+* the dialogue
+
+| Q | ruling | his words |
+|---|---|---|
+| Q0 | the belt owns a call's tool loop | /"a"/ |
+| Q1 | a call provider takes =({ source, system, turns, tools, settings }, { signal })= | /"b is nicer"/ |
+| Q1A | verbatim · speech move to =(request, { signal })= | /"a"/ |
+| Q2 | an interrupted turn closes =interrupted= | /"a"/ |
+| Q3A | heard position rides =/audio/played=, optional by wiring | /"a. … i dont want guards or wiring for this  if else. just - it works."/ |
+| law 1 | two packet families, content · medium | /"yes. amen."/ |
+| laws 2–4 | faculty by modality · one grammar · a caption is a draft | /"amen"/ |
+| laws 5–6 | medium never stored · combination is the cortex's | /"amen"/ |
+| Q4A | content is one grammar; =Verbatim.Any= dissolves | /"a"/ |
+| Q5 | the belt settles words (=harmonize= over drafts) | /"a"/ |
+| Q6 | a cascaded reply starts on =/turn/close=; eager → =roadmap/eager-reply.org= | /"a. mark b for roadmap."/ |
+| Q7 | =VOCAL= is the thread's voice: =hear= · =speak= · =call=; =INTELLIGENT= the mind | /"a"/ |
+| Q8 | a polish lands after the seal; =/part/full= names its =turn= | /"b"/ |
+| Q10 | a dictation is a draft: words land in =dock.input= at the caret, nothing stored; the stored spoken turn is the call's | /"a"/ |
+| Q11 | no dictation object: the microphone is the switch, one bridge store holds the words | /"b looks very pretty and functoinal. nice"/ |
+| Q12 | while speaking the words stand in the line above =dock.input=, settled solid · tail muted; one splice at stop (=old-dock-11-16.org=) | /"q12:a"/ · /"it was very nice"/ |
+| Q13 | the polish model is the thread's: a slot on =CONVERSATIONAL= beside =hear= · =speak= · =call= | /"a looks correct. but the schematic might need revisit"/ · /"either default, set off, or cunstimized"/ |
+| Q13A | =polish= = the =Selector= + one on/off key | /"neither. add another key next to the selector. something like engaged true false or active or so. that way we can set custom, and then toggle on/off w/o having to resset."/ |
+| Q13B | the key is =engaged= | /"a"/ |
+| Q14 | DEAD by Q23 — the caret rode the command: =/dictate <caret>= | /"b"/ |
+| Q15 | a dictation has three exits: stop ends and keeps · send ends and sends · trash ends and discards; no pause | /"ok so stop, send, trash. … no pause."/ |
+| Q15A | stop · trash sit on the line; send is =dock.input='s own button and Enter, which end the dictation and send | /"b"/ |
+| Q16 | Esc stops: the dictation ends, the words stay | /"esc stops. so keep"/ |
+| Q16A | the repl open: Esc closes the repl; else it stops the dictation | /"wen repl is open then esc repl/close wins. when not the dictateion/stop."/ |
+| Q16B | a dictation the runtime ends is a stop | /"thats stop. yes."/ |
+| Q16C | a stored trait heals by the schema's own repair, as =DOCKED= | /"needs a autocomplete/heal/v cast - there is a tool for exactly this . make coherent."/ |
+| Q17 · Q17A | the tty dictates too: it spawns a recorder on the machine; a recorder is DATA, settable per client in ledger · instance later (=reference/call-faculty/microphone.sketch.js=) | /"nope. we absolutely want to dictate in terminal."/ · /"a. … settable per client in ledger/instance. later tho. just build it scalable and flexible."/ |
+| Q9 | a mode trait carries voice (=/call= · =/dictate= on =mode.repl=), never a subject, never =box.converse=; the word → mode-traits cleanup | /"ok mode it is. conversational used to be  the marker for this. that was the idea. but conversation became a faculty and its kinda not clean rn."/ |
+| Q18 | one voice provider: elevenlabs hears (=scribe_v3_live=) and speaks; deepgram leaves the ledger | /"elevenlabs new faculty is a win. lets just have one. simpler faster not multiple keys to manage."/ |
+| Q19 | a draft lives on its part (=part.draft=): =pour= holds it, a delta · a full replaces it, =/part/close= deletes it; =Packet.Any= cut, zero readers | /"a."/ |
+| Q20 | a draft carries the part's provisional fields, a bag as the delta's; text ={ text }=, an image ={ data, media }= | /"b. but i dont like draft.draft nesting on name level"/ |
+| Q21 | every =/part/*= packet carries =part=, the event names how =pour= applies it; =delta:= → =part:= renamed whole: typology · runtime · providers | /"b. full rename. full runtime and typology"/ · /"and providers"/ |
+| Q22 | a voice provider takes the signal, never the controller: the belt owns the session; a branch renames the exit's reason (=controller.js:28=) | /"why not pass a controller tho?"/ · /"a"/ |
+| Q23 | no caret: a dictation's words append to =dock.input=; Q14 dies, Q10 · Q12 land at the end | /"i dont like this caret systmem. rip it out. we just append for now. today -> simple and working. trim and slim"/ |
+| Q24 | every packet carries the thing its event names, under that noun: =turn= · =part= · =tool= · =audio= · =response=; =pour= is one fold, the noun picks the target, the act how (=reference/call-faculty/layout-11-17.org=); re-cuts =Audio.Packet= · S8's =frames()= | /"q24 a"/ |
+| Q25 | a tool round sends its results once, as the =tool_result= parts of =/turn/full=; =/tool/call= · =/tool/yield= die, their readers read the turn (=layout-11-17.org=) | /"b"/ |
+| Q26 | every part on the wire is valid: the translator parses a tool's input, a tool opens with =input: {}=, =pour= has no tool case; m20's parse-at-close dies (=layout-11-17-parts.org=) | /"b"/ |
+| Q27 | one closed =Meta= on every carrier (=state= · =usage= · =rounds= · =fault= · =provider=), in our words; a stored dialect heals on load by coercion, written back at the next flush (=layout-11-17-meta.org=) | /"a. the stored turn rewrite should happen automatically during use via schematic coercion"/ |
+| Q29 | a LOOKUP: a render answers m26's record =condition · output · turns · meta= (=done/m26-hallucinate-contract.org:473=), =open= read off, minted as =Response= (=drill-11-17-layout.org=) | S1 /"amen"/ · S2 /"amne"/ |
+| Q30 | the yield's bag is =product= at every seam, =ctx.output.product.object=; =ctx.output= stays the carrier's (=layout-11-17-meta.org=) | /"ctx.output.product.object"/ |
+| Q31 | =meta.provider= is the open bag: the vendor's words we have no word for, the receipt too; =Meta= stays closed (=layout-11-17-meta.org= Q27) | /"ill still want some open bag on top."/ · /"a"/ |
+| Q32 | a LOOKUP: =turn.object= dies, the object part is its one home (trigger 17; =walk-11-17/object.probe.js=); a tool's flat return stays (m26 sniff-never-stamp) | /"amen"/ |
+| Q33 | a typed exit is its route (=/dictate/stop= · =/call/end=); =/dictate= · =/call= carry no live-guard; LANDED 11-17 | /"just call /dictate/stop directly. no?"/ · /"1 land."/ |
+| Q34 | voice is the THREAD's mode's (=ctx.terminal.mode.harness=), absent without its ear; =bound= CUT, keys read =ctx.terminal=; LANDED 11-17 | /"bound seems shit"/ · /"We don't want to crosswire. If the threads mode doesn't feature the proper harness, then we don't offer the feature."/ · /"Get this function out of there."/ |
+| Q35 | no ear: the mic greys, its hover says why; =<<= keeps a · p | /"ah. then i need that info. maybe show the icon as inactive and a tooltip on hover"/ |
+
+** as code
+
+Q18 — the scribe faculty's declaration: moved whole to =reference/call-faculty/moved-11-16-grammar.org= (cap)
+
+Q0 · Q3A · law 6 · Q6 — the call's hunks (=converse= · the feed =switch= · the =call= derivation · =cascade=): moved whole to =reference/call-faculty/moved-11-16.org= (cap), Q1 · Q1A · Q2 · Q7 · Q8 too (=moved-11-16-call.org=; Q7's =Vocal= is =harness-layout= Q1A's =Conversational=); S7 re-cut three of them (=review-11-17-call.org=)
+
+Q4A · Q19 · Q20 — the grammar's new packets, =pour='s two cases, the union diff: moved whole to =reference/call-faculty/moved-11-17-grammar.org= (cap); milestone 0 re-cuts them under Q24
+Q5 — the =harmonize= hunk: moved whole to =reference/call-faculty/moved-11-16-grammar.org= (cap)
+
+Q10 · Q11 · Q12 — the microphone's =frames()= · =feed= and =Dictline=: moved whole to =reference/call-faculty/moved-11-17-client.org= (cap).
+
+Q13 · Q13A · Q13B — the =polish= hunk and its heal: moved whole to =reference/call-faculty/review-11-17.org= (cap, S6 /"amen."/)
+
+Q15 — the exit's name rides the feed's abort (=signal.reason=), =EXITS= in =dictate.sketch.js=; Q16A · Q16B — =reference/call-faculty/esc.probe.js= — the keymap hunk moved whole to =reference/call-faculty/moved-11-17-client.org= (cap)
+* terrain — measured 11-16
+
+Moved whole: =terrain-11-16.org= · =terrain-11-16-bird.org= · =meta-11-16.md= (all =reference/call-faculty/=).
+
+* the law
+
+1. two packet families: content (=/turn/*= · =/part/*=), medium (=/audio/*=); no family per faculty
+2. a faculty is named by modality: dialogue content → content · verbatim medium → content · speech content → medium · call medium → content + medium
+3. one content grammar: turn open · part open · delta (append) · draft (provisional tail) · full (replace) · part close · turn close
+4. a live caption is a draft; dialogue never drafts
+5. medium is never stored; =recording= has no =/audio/*= case
+6. combination is the cortex's (=DERIVATIONS=), never the packets'
+
+* deliverables
+
+Moved whole to =reference/call-faculty/deliverables-11-16.org= (cap): nine files by layer.
+
+* milestones
+
+0–7 and the order moved whole to =reference/call-faculty/milestones-11-17.org= (cap): 0 · 2–7 LANDED 11-17; 1 = his elevenlabs row (campaign C3).
+
+8. a native call provider
+
+* blast table
+
+Moved whole to =reference/call-faculty/moved-11-16.org= (cap); the rows the 11-16 census added sit in =terrain-11-16-bird.org=.
+
+* testing assessment — the live campaign (11-17, /"dont overdo it. credits are expensive."/)
+
+One provider proven by a probe before any walk; each run the fewest seconds · chars that can fail; the probe =reference/call-faculty/live-11-17/elevenlabs.probe.js= (=say= → =afconvert -d LEI16@16000 -c 1= makes the clip, free).
+
+| C | what | spend | pass | state |
+|---|---|---|---|---|
+| 0 | key · account, free endpoints + the socket's first message | 0 | =missing_permissions= ≠ =invalid_api_key=; no refusal | PASSED 11-17 after his upgrade (refused 1008 before) |
+| 1 | Scribe, a 2 s clip | ~2 s | drafts grow, one commit seals | PASSED 11-17 /"Vado al mercato."/ |
+| 2 | Flash, 16 chars | 16 chars | pcm_16000 packets, pts by samples, =/audio/close= | PASSED 11-17: 16 chars → 2 packets · =/audio/close=; FOUND =flush= idles the socket, a bare empty text ends it (probed, fixed test-first) |
+| 3 | runtime =/verbatim= on the eared ledger, the clip | ~2 s + a polish | law 4 grafts the route; a caption + its polish | PASSED 11-17 on a rig (=live-11-17/runtime.probe.js=, free port, stub mind): commits · one polish · stored none; his =:2501= after his row |
+| 4 | runtime =/call=, one turn, a 1-line reply | ~2 s + ≤200 chars | hear › mind › speak; =/turn/full= stored | PASSED 11-17 on the rig: sealed 2.8 s · spoken · =/audio/close= +0.3 s · both turns stored; a mic sending NO frames never commits |
+| 5 | his anima walk, his mic | ≤60 s | T-dictate · T-dictate-exits · T-call + one barge-in | after 4 |
+| 6 | the tty | ≤30 s | the same, recorder · player | BLOCKED: =tty-chrome-opentui-node-ffi= |
+| 7 | deepgram flux (no key) | ~2 s | as 1 | his key, optional |
+
+* QA
+
+/"I press dictate, I speak, I see my words grow at =dock.input=; I stop, they sit at my caret."/ · /"No ear in the ledger: no dictate control, nothing throws."/ · /"I call, I speak, it answers aloud; I talk over it, it stops."/ (mine, from the old client and his intent; his to correct)
+
+#+marker_qa: call-faculty/P-grammar · passed 11-17 · a dictation folds into ONE content grammar (=soma.pour=); never stored (Q10)
+#+marker_qa: call-faculty/P-elevenlabs-live · passed 11-17: scribe · flash · both through the harness (rig) · flash v2.5 speaks over stream-input with a live key
+#+marker_qa: call-faculty/P-deepgram-live · pending · flux hears a live mic with a live key, =language_hint= set
+#+marker_qa: call-faculty/T-dictate · suites 11-17, live pending · anima: dictate, speak, stop — the words land at the caret
+#+marker_qa: call-faculty/T-dictate-exits · passed 11-17 · Enter sends the spoken words as a turn; trash drops them; Esc keeps them
+#+marker_qa: call-faculty/T-polish-engaged · passed 11-17 · a thread with =polish.engaged: false= gets no repair, its custom model still stored
+#+marker_qa: call-faculty/T-absent · passed 11-17 · a ledger without an ear: no =/dictate=, no control, no 500
+#+marker_qa: call-faculty/T-call · suites 11-17, live pending · anima: a call answers aloud and stops when spoken over
+
+* deferred
+
+Moved whole to =reference/call-faculty/deferred-11-16.org= (cap): seven items, law 6's throw first.
+
+* changelog
+
+Moved whole to =reference/call-faculty/changelog.org= (cap); newest: 11-16 S1 → Q18, elevenlabs alone.
+
+* review — 11-16
+
+S1–S14 moved whole to =reference/call-faculty/review-11-17-ledger.org= (cap).
+
+* handoff
+
+- goal: dictation and a call work in anima AND the tty; the system is whole without an ear
+- done: Q0–Q35 · six laws; milestones 0 · 2–7 · ui LANDED 11-17 (=milestone0-11-17.org= · =landed-11-17.org=); design pass (=design-pass-11-17.org=); 11-18 his screen: one stop, the mic · the card trash only · send while dictating; the input's commands re-key on the host =$status= (/"why cant i dictate? i could two seconds ago"/: a reload built them before HARNESSED grafted =/dictate=); the deaf tooltip names the mechanism
+- next: the live campaign (=* testing assessment=): C3 on =:2501= (elevenlabs row in 11-17, runtime restarted on it 11-18) · C5 his walk · Q35 tty · panels strip|widget · milestone 8
+- never: a second fold beside =soma.pour= · a guard for a missing ear (the route is absent) · a subject for voice · =CONVERSATIONAL= as a voice marker · =VOCAL= as living · =composer= · a migration for a stored trait (Q16C) · a client without dictation · a dictation object · pause · a controller to a provider (Q22) · a caret for a dictation (Q23)
+- owed: tty capture (his mic, his go) · the tty's live words · level · a client's devices plane (his, S14) · the tty's recorder faults (=microphone.sketch.js=, shown, no amen) · the sketch's unprobed names · prod threads storing =polish= (stored =false= heals ON) · Q8's =:memory:= probe · scribe live (no key read) · =/metadata/harness= live (401) · =soma.drain='s =/part/open= for a =tool_use= fails =Packet.PartOpen= (no =input=, =walk-11-17/packets.probe.js=) · a named native call absent cascades silently (=where.probe.js=) · the mic stop live: the card stays till the server closes its stream, unverified · /"daemon.mode.slug is weird"/: where? (asked 11-18) · tty twins of 11-18 unverified (known-issues:2332) · timing 11-18 (=dictate-performance-11-18.org=): journal rebuilt per Activity · polish 5–20 s holds the card

@@ -51,7 +51,7 @@ export const tools = new Vector().open(
     if (ctx.input.text.length > 1000) {
       return {
         condition: "ERROR",
-        output: {
+        product: {
           message:
             `text is ${ctx.input.text.length} chars — the service takes 1000 max, send less`,
         },
@@ -59,7 +59,7 @@ export const tools = new Vector().open(
     }
     const sentences = await ctx.service({ text: ctx.input.text });
     return {
-      output: { sentences: sentences.map((tokens) => tokens.map(annotate)) },
+      product: { sentences: sentences.map((tokens) => tokens.map(annotate)) },
     };
   },
 );

@@ -1,0 +1,14 @@
+#+title: ledger faculties — the /show-me walk 11-17 (moved whole, cap)
+# writer: agent · limit: 1500 chars
+
+* review — 11-17, the tier code as it stands (/show-me)
+
+| S | stop | rides | verdict | his words |
+|---+------+-------+---------+-----------|
+| 1 | six names and six points | tiers (asked) | amen | /"no change here"/ |
+| 2 | a pick turns a tier into a tune; nearest wins | tiers (asked) | skipped | /"different skill. /drill-me"/ |
+| 3 | a thread stores its tier; =/tier= copies the point in | tiers (asked) | skipped | /"different skill. /drill-me"/ |
+| 4 | the clients read the points from typology | tiers (asked) | skipped | /"different skill. /drill-me"/ |
+| 5 | the runtime asks by name when a thread names none | tiers (asked) | skipped | /"different skill. /drill-me"/ |
+| 6 | the modes name tiers in their own code | tiers (asked) | skipped | /"different skill. /drill-me"/ |
+

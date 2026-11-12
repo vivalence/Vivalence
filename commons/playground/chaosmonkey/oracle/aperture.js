@@ -18,7 +18,7 @@ export const aperture = new Vector().open(
         output: v.object({ answer: v.string() }),
       });
       span.branch("render").log(render);
-      const object = render.output.object;
+      const object = render.product.object;
 
       const userTurn = await ctx.entities.turn.chain({
         role: "user",

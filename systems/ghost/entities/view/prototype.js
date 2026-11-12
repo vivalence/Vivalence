@@ -3,6 +3,7 @@ import { Entity } from "@vivalence/typology";
 export class View extends Entity {
   slug = null;
   mime = null;
+  mount = null;
   entry = null;
   traits = [];
   trait = {};

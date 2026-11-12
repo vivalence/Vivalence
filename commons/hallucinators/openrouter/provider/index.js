@@ -25,67 +25,48 @@ function extractObject(turn, schema) {
     role: "assistant",
     parts: [{ type: "object", data }],
     meta: { ...turn.meta, state: "complete" },
-    object: data,
   };
 }
 
-const models = {
-  strong: {
-    id: "openai/gpt-6.1-sol",
-    tune: [0.8, 0.85, 0.35, 0.3],
-    context: 1050000,
-    thinking: true,
-  },
-  standard: {
-    id: "google/gemini-3.8-flash",
-    tune: [0.45, 0.5, 0.85, 0.7],
-    context: 1048576,
-    thinking: true,
-  },
-  light: {
-    id: "google/gemini-3.5-flash-lite",
-    tune: [0.1, 0.1, 1.0, 0.95],
-    context: 1048576,
-    thinking: true,
-  },
-};
+const Tune = v.primitives.hallucination.Tune;
 
-const choosers = {
-  standard: {
-    id: "typesafe/jev-1.13",
-    tune: [0.4, 0.3, 1.0, 0.95],
-    context: 32000,
-    options: 255,
-    choices: null,
-  },
-};
+const Dialogue = v.object({
+  type: v.const("dialogue"),
+  id: v.string(),
+  tune: Tune,
+  context: v.integer(),
+  thinking: v.boolean().optional(),
+});
 
-const painters = {
-  capable: {
-    id: "openai/gpt-image-2.6-sunburst",
-    tune: [0.8, 0.6, 0.4, 0.4],
-    limits: { references: 16, mask: false, aspects: ["1:1", "3:2", "2:3"] },
-  },
-  balanced: {
-    id: "black-forest-labs/flux-3-image",
-    tune: [0.6, 0.5, 0.6, 0.6],
-    limits: { references: 10, mask: false, aspects: ["1:1", "3:2", "2:3", "4:3", "3:4", "16:9", "9:16"] },
-  },
-  fast: {
-    id: "google/gemini-nano-banana-2.1",
-    tune: [0.4, 0.3, 0.9, 0.9],
-    limits: { references: 14, mask: false, aspects: ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"] },
-  },
-};
+const Choice = v.object({
+  type: v.const("choice"),
+  id: v.string(),
+  tune: Tune,
+  context: v.integer(),
+  options: v.integer({ minimum: 2 }),
+  choices: v.union([v.integer({ minimum: 1 }), v.null()]),
+});
+
+const Picture = v.object({
+  type: v.const("picture"),
+  id: v.string(),
+  tune: Tune,
+  limits: v.object({
+    references: v.integer(),
+    mask: v.boolean(),
+    aspects: v.array(v.string()),
+  }),
+});
+
+const Faculties = v.array(v.union([Dialogue, Choice, Picture]));
 
 export default async function provider(service) {
+  const [violation] = v.faults(Faculties, service.faculties);
+  if (violation) throw new Error(`[openrouter] faculties${violation.at} ${violation.reason}`);
   const client = new OpenAI({
     apiKey: service.secrets.key,
     baseURL: "https://openrouter.ai/api/v1",
   });
-  const table = service.statics?.models ?? models;
-  const choosing = service.statics?.choosers ?? choosers;
-  const pictures = service.statics?.pictures ?? painters;
 
   function makeDialogue(model) {
     const render = async (request, { signal } = {}) => {
@@ -160,11 +141,9 @@ export default async function provider(service) {
     return { render };
   }
 
-  const faculties = [];
-
-  for (const [, model] of Object.entries(table)) {
+  const dialogue = (model) => {
     const { render, stream } = makeDialogue(model);
-    faculties.push({
+    return {
       type: "dialogue",
       id: model.id,
       tune: model.tune,
@@ -180,33 +159,31 @@ export default async function provider(service) {
         out: ["text", "tool_use", ...(model.thinking ? ["thinking"] : [])],
       },
       via: { render, stream },
-    });
-  }
+    };
+  };
 
-  for (const [, model] of Object.entries(choosing)) {
-    faculties.push({
-      type: "choice",
-      id: model.id,
-      tune: model.tune,
-      context: model.context,
-      options: model.options,
-      choices: model.choices,
-      channels: { in: ["text", "object"], out: ["object"] },
-      via: makeChoice(model),
-    });
-  }
+  const choice = (model) => ({
+    type: "choice",
+    id: model.id,
+    tune: model.tune,
+    context: model.context,
+    options: model.options,
+    choices: model.choices,
+    channels: { in: ["text", "object"], out: ["object"] },
+    via: makeChoice(model),
+  });
 
-  for (const [, model] of Object.entries(pictures)) {
-    faculties.push({
-      type: "picture",
-      id: model.id,
-      tune: model.tune,
-      context: 0,
-      channels: { in: ["text", "image"], out: ["image"] },
-      limits: model.limits,
-      via: makePicture(model),
-    });
-  }
+  const picture = (model) => ({
+    type: "picture",
+    id: model.id,
+    tune: model.tune,
+    context: 0,
+    channels: { in: ["text", "image"], out: ["image"] },
+    limits: model.limits,
+    via: makePicture(model),
+  });
 
-  return faculties;
+  const TYPES = { dialogue, choice, picture };
+
+  return service.faculties.map((entry) => TYPES[entry.type](entry));
 }

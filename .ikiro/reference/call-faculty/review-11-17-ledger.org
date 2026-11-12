@@ -1,0 +1,19 @@
+#+title: call-faculty, the show-me ledger S1–S12, moved whole from the quest 11-17 (cap)
+# writer: agent · limit: 2500 chars
+
+| S | stop | rides | verdict | his words |
+|---|---|---|---|---|
+| 1 | the ledger consumes the ear and the mouth | milestone 1 · Q18 | amen | /"s1 amen"/ |
+| 2 | one content grammar: draft · full · eager · resume | law 3 · 4 · Q4A · Q8 · Q19–Q21 | amen | /"amen"/ |
+| 3 | the belt settles words over drafts | Q5 | amen, MISWIRE fixed | /"amenamen"/ |
+| 4 | verbatim · speech take =(request, { signal })= | Q1A · Q22 | amen | /"amen"/ |
+| 5 | no ear, no route | milestone 4 | amen | /"amen"/ |
+| 6 | polish: a Selector + =engaged= on =CONVERSATIONAL= | Q13 · Q13A · Q13B · Q16C | amen | /"amen."/ |
+| 7 | the cascaded call | Q0 · Q1 · Q2 · Q6 · law 6 | amen, 3 MISWIREs fixed | /"amen"/ |
+| 8 | the microphone ends its own feed | Q10 · Q11 | amen, 2 MISWIREs fixed | /"s8 amen"/ |
+| 9 | =/dictate=, three exits, the words append | Q15 · Q15A · Q23 | drilled → Q23, amen | /"amen"/ |
+| 10 | the line above =dock.input= | Q12 | amen | /"amen"/ |
+| 11 | Esc stops, the repl's close wins | Q16 · Q16A · Q16B | amen, MISWIRE fixed | /"amen"/ |
+| 12 | the tty dictates | Q17 | amen, MISWIRE fixed | /"amen"/ · /"these two are separate issues. tty dication is one thing. box configuration aka recorders as data is another."/ |
+| 13 | packets · parts · turns shown again: flat spread vs nested keys (=meta=), inconsistent | his, 11-17 | drilled → Q24–Q27 · Q30 · Q31 locked, Q28 · Q29 · Q32 lookups | /"some objects seem flatter and just dump ...properties into the container but other scope and nest deeper with keys like meta. but thats done inconsistently."/ |
+| 14 | box configuration: a recorder is data | Q17A | skipped | /"thats out of scope today. lets skip it."/ (whole: =review-11-17-box.org=) |

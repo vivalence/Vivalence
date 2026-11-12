@@ -1,0 +1,92 @@
+# limit: 12000 chars · 11-18 anima dictation timing, ms from the first mark; marks = page hooks (instrument.js), SERVER = the Activity's own steps, PERF = Event Timing · LoAF
+# r5 zero=2026-11-18T13:56:43.687Z ws.sent=54 ws.bytes=154307 ws.first=391 ws.last=4477
+## marks
+     0 repl.dispatch:start /dictate
+     4 mic.claim:start
+     4 gum:start
+     9 draft:painted raf 1795010203696
+   314 gum:real-granted
+   327 gum:end fake stream, clip 3.94s lead 0.4s
+   328 worklet.addModule:start
+   329 worklet.addModule:end
+   331 mic.$claimed true
+   331 mic.claim:end
+   331 $dictation turns=0 open=- last=-
+   331 verbatim.stream:call
+   332 ws.send 648 {"frame":"50b95d29-8417-447a-9cf8-15714ed99615","signal":"/daemon/spanish/mode/game/dojo/harness/verbatim/stream","input":{"thread":"01a1d1b0-7ac7-750c-b99d-294
+   335 card.shown:painted raf 1795010204022
+   391 mic.frame:first rate 16000 b64 2732
+   391 ws.send:first-big 2843 <binary>
+   548 ws.recv 409 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"create","entity":{"id":"01a1eef2-1220-76ba-829b-a4acb396883d","createdAt":"2026-11-18T13:56:44.1
+   549 ws.recv 60 {"frame":"50b95d29-8417-447a-9cf8-15714ed99615","open":true}
+   550 ws.recv 543 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eef2-1220-76ba-829b-a4acb396883d","createdAt":"2026-11-18T13:56:44.1
+   552 ws.recv 621 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eef2-1220-76ba-829b-a4acb396883d","createdAt":"2026-11-18T13:56:44.1
+   553 ws.recv 764 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eef2-1220-76ba-829b-a4acb396883d","createdAt":"2026-11-18T13:56:44.1
+   555 ws.recv 854 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eef2-1220-76ba-829b-a4acb396883d","createdAt":"2026-11-18T13:56:44.1
+   556 ws.recv 959 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eef2-1220-76ba-829b-a4acb396883d","createdAt":"2026-11-18T13:56:44.1
+   727 clip:start
+  1447 packet /turn/open
+  1447 $dictation turns=0 open=[] last=-
+  1448 packet /part/open ""
+  1448 $dictation turns=0 open=[""] last=-
+  1448 packet /part/draft "हम्म।"
+  1619 packet /part/draft "Hola."
+  2021 packet /part/delta "Hola, "
+  2021 packet /part/draft "hoy"
+  2227 packet /part/delta "hoy "
+  2227 packet /part/draft "quiero"
+  2609 repl.dispatch:start /mic mute
+  2612 mic.pause:start
+  2612 mic.$paused true
+  2613 mic.pause:end
+  2615 repl.dispatch:done /mic mute
+  2663 packet /part/delta "quiero "
+  2663 packet /part/draft "practicar."
+  2839 packet /part/delta "practicar "
+  2839 packet /part/draft "\"spelling\"."
+  3315 repl.dispatch:start /mic on
+  3315 mic.resume:start
+  3316 mic.$paused false
+  3316 mic.resume:end
+  3316 repl.dispatch:done /mic on
+  3962 packet /part/draft "español."
+  4184 packet /part/delta "español. "
+  4184 packet /part/draft "Dale 10."
+  4516 repl.dispatch:start /dictate/trash
+  4517 mic.release:start trash
+  4518 mic.$claimed false
+  4518 mic.release:end
+  4518 mic.frames:end 54
+  4518 ws.send 60 {"frame":"50b95d29-8417-447a-9cf8-15714ed99615","done":true}
+  4518 repl.dispatch:done /dictate/trash
+  4569 packet /part/draft "de 10 min."
+  4586 ws.send 15 {"type":"ping"}
+  4722 clip:end
+  4785 packet /part/delta "de 10 minutos. "
+  4786 packet /part/close
+  4786 $dictation turns=0 open=["Hola, hoy quiero practicar español. de 10 minutos. "] last=-
+  4786 packet /turn/close
+  4786 $dictation turns=1 open=- last=["Hola, hoy quiero practicar español. de 10 minutos. "]
+  4986 verbatim.stream:end
+  4986 mic.release:start stop
+  4986 $dictation null
+  4986 mic.release:end
+  4986 repl.dispatch:done /dictate
+  4986 ws.recv 61 {"frame":"50b95d29-8417-447a-9cf8-15714ed99615","close":true}
+  4988 ws.recv 1048 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eef2-1220-76ba-829b-a4acb396883d","createdAt":"2026-11-18T13:56:44.1
+  4989 ws.recv 1189 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eef2-1220-76ba-829b-a4acb396883d","createdAt":"2026-11-18T13:56:44.1
+  4991 ws.recv 1267 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eef2-1220-76ba-829b-a4acb396883d","createdAt":"2026-11-18T13:56:44.1
+  4993 ws.recv 1394 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"update","entity":{"id":"01a1eef2-1220-76ba-829b-a4acb396883d","createdAt":"2026-11-18T13:56:44.1
+  4994 ws.recv 1394 {"frame":"7b82c281-075f-45d4-8589-fc3b42bc0bcf","output":{"op":"delete","entity":{"id":"01a1eef2-1220-76ba-829b-a4acb396883d","createdAt":"2026-11-18T13:56:44.1
+  4994 card.gone:painted raf 1795010208681
+## server activity steps
+   496 SERVER HALLUCINATION hallucination status {"timestamp":"2026-11-18T13:56:44.204Z","code":"RUNNING"}
+   496 SERVER HALLUCINATION hallucination start null
+   496 SERVER HALLUCINATION hallucination > verbatim status {"timestamp":"2026-11-18T13:56:44.204Z","code":"RUNNING"}
+   496 SERVER HALLUCINATION hallucination > verbatim start null
+   496 SERVER HALLUCINATION hallucination > verbatim log {"faculty":"verbatim"}
+  4953 SERVER HALLUCINATION hallucination > verbatim stop null
+  4955 SERVER HALLUCINATION hallucination > verbatim status {"timestamp":"2026-11-18T13:56:48.663Z","code":"DONE"}
+  4956 SERVER HALLUCINATION hallucination stop null
+  4956 SERVER HALLUCINATION hallucination status {"timestamp":"2026-11-18T13:56:48.664Z","code":"DONE"}
+## perf

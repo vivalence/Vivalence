@@ -1,3 +1,4 @@
+import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { compile, fire, screen, settle, words } from "@vivalence/drapes/scenarios";
 import * as esbuild from "esbuild";
 import { atom } from "nanostores";
@@ -49,23 +50,23 @@ export const world = () => {
   const client = new ghost.client.Client({
     controller,
     mask: { manifest: { slug: "anima", type: "client" }, trait: {} },
-    surface: surface.screen({ kind: "dom", places: ["cell", "frame"], dark: true, narrow: false, width: 1280, height: 800, palette: () => tokens.kebab("northsea", "2") }),
+    surface: surface.screen({ kind: "dom", places: ["cell", "frame"], narrow: false, width: 1280, height: 800, palette: () => tokens.kebab("northsea", "2") }),
   });
   client.surface.$sidebar.set(true);
   const lighthouse = Object.assign(new ghost.entities.lighthouse.Lighthouse(), { stdout: controller.stdout.branch("lighthouse"), manifest: { type: "lighthouse", slug: "lighthouse", traits: ["AUTOLOGIN"] } });
-  const chat = { type: "chat", slug: "chat", traits: ["HARNESSED"], repl: new Vector(), keymap: new Vector(), daemon: null, reference: { absolute: "/runtime/stub/mode/chat/chat" }, implements: (trait) => trait === "HARNESSED", metadata: { harness: { routes: { branches: {} }, primer: { branches: { identity: { effect: {} }, hello: { meta: { load: "lazy" }, branches: { greet: { effect: {} } } } } }, tools: { branches: { fs: { branches: { tree: { effect: {} } } }, shell: { branches: { run: { effect: {} } } } } } } } };
+  const chat = { type: "chat", slug: "chat", traits: ["HARNESSED"], repl: new Vector(), keymap: new Vector(), daemon: null, reference: { absolute: "/runtime/stub/mode/chat/chat" }, implements: (trait) => trait === "HARNESSED", metadata: { harness: { references: { branches: {} }, primer: { branches: { identity: { effect: {} }, hello: { meta: { load: "lazy" }, branches: { greet: { effect: {} } } } } }, tools: { branches: { fs: { branches: { tree: { effect: {} } } }, shell: { branches: { run: { effect: {} } } } } }, home: "/runtime/stub/mode/chat/chat", index: { TOOLED: [{ reference: "/runtime/stub/mode/chat/chat/fs/tree", load: "eager" }, { reference: "/runtime/stub/mode/chat/chat/shell/run", load: "eager" }], PRIMED: [{ reference: "/runtime/stub/mode/chat/chat/identity", load: "eager" }, { reference: "/runtime/stub/mode/chat/chat/hello/greet", load: "lazy" }] } } } };
   const thread = Object.assign(new ghost.entities.thread.Thread(), {
     id: "thread-1",
     mode: chat,
-    traits: ["LABELED", "INTELLIGENT"],
-    trait: { LABELED: { name: "first words" }, INTELLIGENT: { tier: "fast", effort: "low", rounds: 6 } },
+    traits: ["LABELED", "HARNESSED"],
+    trait: { LABELED: { name: "first words" }, HARNESSED: { tier: "fast", effort: "low", rounds: 6, slugging: "deep" }, TOOLED: {}, PRIMED: {} },
     $buffers: atom([]),
     $turns: atom([
       turned("user", "2026-10-21T10:00:00.000Z", [{ type: "text", text: "ciao, come stai?" }]),
       turned("assistant", "2026-10-21T10:00:05.000Z", [
         { type: "text", text: "bene, grazie" },
         { type: "tool_use", id: "call-1", name: "lookup", input: { word: "bene" } },
-        { type: "tool_result", id: "call-1", condition: "NOMINAL", output: "well" },
+        { type: "tool_result", id: "call-1", condition: "NOMINAL", product: "well" },
       ]),
     ]),
   });
@@ -115,7 +116,7 @@ export const world = () => {
     client.runtime = {
       lighthouse,
       entities,
-      cortex: new Cortex().register([{ type: "dialogue", provider: "stub", id: "seer", tune: [0.4, 0.3, 1.0, 0.8], via: { stream: () => {}, render: () => {} } }]),
+      cortex: new Cortex(TIER_POINTS).register([{ type: "dialogue", provider: "stub", id: "seer", tune: [0.4, 1.0, 0.8], via: { stream: () => {}, render: () => {} } }]),
       reference: { absolute: "/runtime/stub" },
       $status: atom({ code: "HEALTHY" }),
       get status() {

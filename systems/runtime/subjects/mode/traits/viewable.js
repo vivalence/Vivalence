@@ -1,6 +1,6 @@
-import { join } from "@std/path";
-import paladin from "@vivalence/paladin";
-import { mime, Path } from "@vivalence/typology";
+import { mime } from "@vivalence/typology";
+
+const stem = (type) => type.replace(`${mime.VENDOR}.`, "").replace(/\+javascript$/, "");
 
 export const VIEWABLE = async (mode, modeDie) => {
   if (mode.module.buffer) {
@@ -20,14 +20,18 @@ export const VIEWABLE = async (mode, modeDie) => {
     );
   }
   if (!mode.module.views) return;
-  const bundler = paladin.bundler(new Path(mode.mountpoint).absolute);
   mode.views = [];
   for (const declared of mode.module.views) {
     mode.views.push(
-      await modeDie.entities.view.bundle(
-        { mode: mode.entity.id, slug: declared.slug, mime: declared.mime, traits: declared.traits, entry: join(mode.module.source.dirname, declared.mount) },
-        { bundler },
-      ),
+      await modeDie.entities.view.ensure({
+        mode: mode.entity.id,
+        slug: declared.slug,
+        mime: declared.mime,
+        mount: declared.mount,
+        traits: declared.traits ?? ["FRAME"],
+        entry: `bundle/${declared.slug}.${stem(declared.mime)}.mjs`,
+      }),
     );
   }
+  await modeDie.entities.view.em.flush();
 };

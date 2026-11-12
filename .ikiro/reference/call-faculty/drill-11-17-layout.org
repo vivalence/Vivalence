@@ -1,0 +1,24 @@
+#+title: call-faculty S13 — the layout of packets · parts · turns · yield · pool, drilled 11-17
+# writer: agent · limit: 3000 chars
+
+His words: /"some objects seem flatter and just dump ...properties into the container but other scope and nest deeper with keys like meta. but thats done inconsistently."/ · /"are we consisent in our layout of these schematic primitives here??"/ · /"pull yield and pool.js into this too … try to formulate a coherent rule and /drill-me with design choices and what they look like applied and what changes this needs in the system."/
+
+Ruled before: Q21 (every =/part/*= packet carries =part=) · Q4A (=Verbatim.Any= dissolves into the content grammar) · m26 (an effect returns ={condition, output}=, =output= ONE bag) · m20 (=meta.state=, never =condition=; =Part.ToolUse.input= parsed once at =/part/close=).
+
+Probes (=walk-11-17/=): =faculties.probe.js= (every faculty's packets, whole: =faculties.snapshot.md=) · =layout.probe.js= (three of three streams send an INVALID tool =/part/open=) · =law.probe.js= (yield · pool as minted; options A · B over the recorded tool round, both fold to the tree's three turns; their changed schematics hold).
+
+* locked — Q24 /"q24 a"/: every packet carries the thing its event names; hunks in =layout-11-17.org=
+
+* locked — Q25 /"b"/: a tool round sends its results once, in =/turn/full=; hunks in =layout-11-17.org=
+
+* locked — Q26 /"b"/: the translator parses; every part on the wire is valid; hunks in =layout-11-17-parts.org=
+
+* locked — Q27 /"a. … via schematic coercion"/; Q28 a lookup; hunks in =layout-11-17-meta.org=
+
+* Q29 — NOT a question, a LOOKUP (the bird, 11-17): =done/m26-hallucinate-contract.org:473= ruled the record, four keys =condition · output · turns · meta=, and REJECTED by name both pieces of my option A (=output= flattened · =turns= inside =output=); his /"i dont like this yet"/ stood on a ruling I never read past =:157=
+Measured (=walk-11-17/render.probe.js=, six renders at the caller): dialogue · object hold the four keys + =open: null= (the fold's raw state; its sibling =hallucinate.js:218= answers =verbatim.transcript(state)=, read OFF the state); picture =Picture.Response= (m118) · choice a bare =Choice.Verdict= · speech bytes · verbatim a string, each read by =fromm.yield= (m26 sniff-never-stamp). No =Response= schematic on the tree (m26 named it). =open='s one reader: =runtime/…/harnessed.js:154=. The walk: four stops, S1 shown.
+
+* walk: S1 /"amen"/ · S2 /"amne"/ (two =Response=s, no overlap: =walk-11-17/responses.probe.js=) · Q30 locked =product= · S3 amen (MISWIRE: Q24's =pour= + =if (noun === "part")=) · Q31 locked A · S4 re-shown
+
+* the question list, kept
+- after Q29: =turn.object= beside its object part (=openrouter/provider/index.js:28=) · a tool's flat return (m26's =fromm= wrap)

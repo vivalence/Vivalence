@@ -23,7 +23,7 @@ const seated = async () => {
   held.activate();
   held.entities.mode.$entities.get()[0].repl = new Vector();
   held.entities.mode.$entities.get()[0].daemon = null;
-  held.terminal.repl.commands = new Vector().graft(ghost.terminal.commands.dock, ghost.terminal.commands.intelligent);
+  held.terminal.repl.commands = new Vector().graft(ghost.commands.surface.dock, ghost.commands.content.harness);
   const rig = paint(() => [surface.Bar({ client: held.client }), surface.Panel({ client: held.client }), surface.Wid({ client: held.client }), surface.Pop({ client: held.client })]);
   await settle();
   const close = () => rig.close();

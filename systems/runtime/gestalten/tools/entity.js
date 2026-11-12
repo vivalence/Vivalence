@@ -1,4 +1,4 @@
-import { v, Vector } from "@vivalence/typology";
+import { traits, v, Vector } from "@vivalence/typology";
 
 const BUDGET = 10_000;
 const OPERATORS = [
@@ -37,7 +37,7 @@ const cardOf = (repository) => repository.card ?? CARD;
 
 const unknown = (daemon, name) => ({
   condition: "ERROR",
-  output: {
+  product: {
     message: `unknown entity '${name}' — this daemon has: ${
       Object.keys(repositories(daemon)).join(", ")
     }`,
@@ -71,7 +71,7 @@ export const entity = new Vector()
             card: cardOf(repository).fields,
           })),
         );
-        return { output: { entities } };
+        return { product: { entities } };
       }
       const repository = repos[ctx.input.entity];
       if (!repository) return unknown(ctx, ctx.input.entity);
@@ -83,7 +83,7 @@ export const entity = new Vector()
         else relations[property.name] = `${property.kind} ${property.type}`;
       }
       return {
-        output: {
+        product: {
           schema: {
             entity: ctx.input.entity,
             rows: await repository.count({}),
@@ -147,7 +147,7 @@ export const entity = new Vector()
       while (projected.length > 1 && JSON.stringify(projected).length > BUDGET) projected.pop();
       const served = offset + projected.length;
       return {
-        output: {
+        product: {
           [ctx.input.entity]: projected,
           total,
           ...(projected.length < rows.length && {
@@ -174,6 +174,49 @@ export const entity = new Vector()
     async (ctx) => {
       const repository = repositories(ctx)[ctx.input.entity];
       if (!repository) return unknown(ctx, ctx.input.entity);
-      return { output: { count: await repository.count(ctx.input.where ?? {}) } };
+      return { product: { count: await repository.count(ctx.input.where ?? {}) } };
+    },
+  )
+  .open(
+    {
+      nature: "/entity/update",
+      valence:
+        "Write trait data on one entity of this daemon — a literal's translation, a buffer's " +
+        "label. Pass the entity type, a where naming the one entity, and a trait patch keyed " +
+        "by trait name; the patch merges deep over the held data, a new name joins its traits. " +
+        "Find the entity first via entity_find. Returns { message, <entity>: [the entity] }.",
+      input: v.object({
+        entity: v
+          .string()
+          .desc("Entity type — list them via entity_schema.")
+          .example("literal"),
+        where: v
+          .record(v.string(), v.unknown())
+          .desc("MikroORM filter naming the one entity, the shape entity_find takes.")
+          .example({ slug: "flamingo" }),
+        trait: v
+          .record(v.string(), v.unknown())
+          .desc("trait data by name, merged deep over what the entity holds")
+          .example({ LABELED: { name: "Flamingo — six species" } }),
+      }).example({
+        entity: "literal",
+        where: { slug: "flamingo" },
+        trait: { LABELED: { name: "Flamingo — six species" } },
+      }),
+    },
+    async (ctx) => {
+      const repository = repositories(ctx)[ctx.input.entity];
+      if (!repository) return unknown(ctx, ctx.input.entity);
+      const held = await repository.findOneOrFail(ctx.input.where);
+      const updated = await repository.updateOne(
+        { id: held.id },
+        traits.patch(held, ctx.input.trait),
+      );
+      return {
+        product: {
+          message: `updated ${ctx.input.entity} ${updated.slug ?? updated.id}`,
+          [ctx.input.entity]: [updated.toJSON?.() ?? updated],
+        },
+      };
     },
   );

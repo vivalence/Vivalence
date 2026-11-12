@@ -3,20 +3,24 @@ import { belt } from "@vivalence/typology";
 
 // --- outbound: turns/parts → Anthropic format ---
 
+const signed = (part) => part.type !== "thinking" || part.signature !== undefined;
+
 export function translateTurns(turns) {
   const system = [];
   const messages = [];
 
   for (const turn of turns) {
+    const parts = turn.parts.filter(signed);
     if (turn.role === "system") {
-      for (const part of turn.parts) {
+      for (const part of parts) {
         system.push(partToAnthropic(part));
       }
       continue;
     }
-    if (turn.role === "assistant" && turn.parts.some((part) => part.type === "tool_result")) {
-      const results = turn.parts.filter((part) => part.type === "tool_result");
-      const remainder = turn.parts.filter((part) => part.type !== "tool_result");
+    if (parts.length === 0) continue;
+    if (turn.role === "assistant" && parts.some((part) => part.type === "tool_result")) {
+      const results = parts.filter((part) => part.type === "tool_result");
+      const remainder = parts.filter((part) => part.type !== "tool_result");
       if (remainder.length)
         messages.push({ role: "assistant", content: remainder.map(partToAnthropic) });
       messages.push({ role: "user", content: results.map(partToAnthropic) });
@@ -24,7 +28,7 @@ export function translateTurns(turns) {
     }
     messages.push({
       role: turn.role,
-      content: turn.parts.map(partToAnthropic),
+      content: parts.map(partToAnthropic),
     });
   }
 
@@ -46,7 +50,7 @@ function partToAnthropic(part) {
     case "text":
       return { type: "text", text: part.text };
     case "thinking":
-      return { type: "thinking", thinking: part.text, signature: part.signature ?? "" };
+      return { type: "thinking", thinking: part.text, signature: part.signature };
     case "image":
       return {
         type: "image",
@@ -68,7 +72,7 @@ function partToAnthropic(part) {
       return {
         type: "tool_result",
         tool_use_id: part.id,
-        content: belt.hallucinate.speak(part.output),
+        content: belt.hallucinate.speak(part.product),
         ...(part.condition === "ERROR" && { is_error: true }),
       };
     default:
@@ -105,7 +109,8 @@ export function buildParams(model, request, stream = false) {
     if (marks.has(section.key)) section.block.cache_control = { type: "ephemeral" };
   if (marks.has("context") && system.length) system.at(-1).cache_control = { type: "ephemeral" };
   if (stream) params.stream = true;
-  if (model.thinking && settings.effort !== "none") {
+  if (model.thinking && settings.effort === "none") params.thinking = { type: "disabled" };
+  else if (model.thinking) {
     params.thinking = { type: "adaptive", display: "summarized" };
     if (settings.effort) params.output_config = { effort: settings.effort };
   }
@@ -148,14 +153,16 @@ export const fault = (error) =>
 
 // --- inbound: Anthropic response → turn ---
 
+const counted = (usage) => ({ input: usage.input_tokens, output: usage.output_tokens });
+
 export function translateResponse(response) {
   return {
     role: response.role,
     parts: response.content.map(blockToPart),
     meta: {
       state: STATES[response.stop_reason] ?? "error",
-      usage: response.usage,
-      provider: { stop_reason: response.stop_reason, model: response.model },
+      usage: counted(response.usage),
+      provider: { stop_reason: response.stop_reason, model: response.model, usage: response.usage },
     },
   };
 }
@@ -180,43 +187,66 @@ function blockToPart(block) {
 
 // --- inbound: Anthropic stream events → packets ---
 
-export function translateStreamEvent(event) {
-  switch (event.type) {
-    case "message_start":
-      return { event: "/turn/open", turn: { role: event.message.role } };
+export function streamTranslator() {
+  const held = new Map();
+  let started = null;
 
-    case "content_block_start": {
-      const part = blockToPart(event.content_block);
-      if (part.type === "tool_use") part.input = ""; // stream fills via input_json_delta
-      return { event: "/part/open", index: event.index, part };
+  function translate(event) {
+    switch (event.type) {
+      case "message_start":
+        started = event.message.usage;
+        return [{ event: "/turn/open", turn: { role: event.message.role } }];
+
+      case "content_block_start": {
+        const part = blockToPart(event.content_block);
+        if (part.type === "tool_use") {
+          part.input = {}; // stream fills via input_json_delta
+          held.set(event.index, "");
+        }
+        return [{ event: "/part/open", index: event.index, part }];
+      }
+
+      case "content_block_delta": {
+        if (event.delta.type === "input_json_delta") {
+          held.set(event.index, held.get(event.index) + event.delta.partial_json);
+          return [];
+        }
+        const part = {};
+        if (event.delta.type === "text_delta") part.text = event.delta.text;
+        else if (event.delta.type === "thinking_delta") part.text = event.delta.thinking;
+        else if (event.delta.type === "signature_delta") part.signature = event.delta.signature;
+        return [{ event: "/part/delta", index: event.index, part }];
+      }
+
+      case "content_block_stop": {
+        if (!held.has(event.index)) return [{ event: "/part/close", index: event.index }];
+        const text = held.get(event.index);
+        held.delete(event.index);
+        const input = text ? JSON.parse(text) : {};
+        return [
+          { event: "/part/delta", index: event.index, part: { input } },
+          { event: "/part/close", index: event.index },
+        ];
+      }
+
+      case "message_delta": {
+        const usage = { ...started, ...event.usage };
+        return [{
+          event: "/turn/close",
+          turn: {
+            meta: {
+              state: STATES[event.delta.stop_reason] ?? "error",
+              usage: counted(usage),
+              provider: { stop_reason: event.delta.stop_reason, usage },
+            },
+          },
+        }];
+      }
+
+      default:
+        return []; // ping, etc — skip
     }
-
-    case "content_block_delta": {
-      const delta = {};
-      if (event.delta.type === "text_delta") delta.text = event.delta.text;
-      else if (event.delta.type === "thinking_delta") delta.text = event.delta.thinking;
-      else if (event.delta.type === "input_json_delta") delta.input = event.delta.partial_json;
-      else if (event.delta.type === "signature_delta") delta.signature = event.delta.signature;
-      return { event: "/part/delta", index: event.index, delta };
-    }
-
-    case "content_block_stop":
-      return { event: "/part/close", index: event.index };
-
-    case "message_delta":
-      return {
-        event: "/turn/close",
-        meta: {
-          state: STATES[event.delta.stop_reason] ?? "error",
-          usage: event.usage,
-          provider: { stop_reason: event.delta.stop_reason },
-        },
-      };
-
-    case "message_stop":
-      return null; // /turn/close already emitted on message_delta
-
-    default:
-      return null; // ping, etc — skip
   }
+
+  return { translate };
 }

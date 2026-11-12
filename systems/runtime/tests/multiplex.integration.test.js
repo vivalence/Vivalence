@@ -51,7 +51,7 @@ specimen.describe("multiplex integration — dewey harness over one socket", () 
     });
 
     specimen.expect(folded.meta.state).toBe("complete");
-    specimen.expect(folded.output.message).toContain("render ping");
+    specimen.expect(folded.product.message).toContain("render ping");
   });
 
   specimen.it("dialogue streams through one frame with full turn grammar", async () => {
@@ -127,6 +127,6 @@ specimen.describe("multiplex integration — dewey harness over one socket", () 
 
     const second = await pending;
     specimen.expect(second.meta.state).toBe("complete");
-    specimen.expect(second.output.message).toContain("after restart");
+    specimen.expect(second.product.message).toContain("after restart");
   });
 });

@@ -1,4 +1,5 @@
 import { EntitySchema, EntityRepositoryType, Collection, types, type Opt, type Rel } from "@mikro-orm/core";
+import { v } from "../schematics/index.js";
 
 import { DataRepository, DataEntity, DataSchema } from "./index.ts";
 import { ModeEntity } from "./index.ts";
@@ -71,6 +72,15 @@ export const TurnSchema = new EntitySchema<TurnEntity, DataEntity>({
     },
     mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
     thread: { cond: (args: any) => (args?.thread ? { thread: args.thread } : {}), default: true, args: false },
+  },
+  hooks: {
+    onLoad: [
+      (args: any) => {
+        args.entity.parts = v.primitives.hallucination.Parts.decode(args.entity.parts);
+        if (args.entity.meta === null || args.entity.meta === undefined) return;
+        args.entity.meta = v.primitives.hallucination.Meta.decode(args.entity.meta);
+      },
+    ],
   },
   properties: {
     role: { type: types.string },

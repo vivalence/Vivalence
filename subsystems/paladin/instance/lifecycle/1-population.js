@@ -91,6 +91,7 @@ export async function recipe(instance) {
     : undefined;
   instance.datamap = at("datamap")(module.datamap);
   instance.hallucinators = at("hallucinators")(module.hallucinators);
+  instance.tiers = at("tiers")(module.tiers);
   instance.clients = (module.clients ?? []).map((declaration) => dressed(`client[${slug(declaration)}]`)(declaration));
   instance.services = (module.services ?? []).map((declaration) => at(`service[${slug(declaration)}]`)(declaration));
   instance.daemons = (module.daemons ?? []).map((declaration) => dressed(`daemon[${slug(declaration)}]`)(declaration));

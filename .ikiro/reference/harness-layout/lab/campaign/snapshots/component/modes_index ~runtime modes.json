@@ -1,0 +1,10 @@
+{
+  "output": {
+    "modes": [
+      {
+        "reference": "/runtime/runtime/mode/harness/runtime",
+        "valence": "default runtime harness"
+      }
+    ]
+  }
+}

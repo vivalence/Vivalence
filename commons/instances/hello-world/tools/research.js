@@ -1,7 +1,7 @@
 import { soma, v, Vector } from "@vivalence/typology";
 import { BRIEF } from "./brief.js";
 
-// the researcher's own budget — NOT the thread's INTELLIGENT.rounds, which is the OUTER
+// the researcher's own budget — NOT the thread's HARNESSED.rounds, which is the OUTER
 // conversation's per-turn tool cap and would starve a research pass if it were dialed low.
 // two searches, six reads, a draw, a redraw, slack. the thread's tier IS inherited.
 export const ROUNDS = 30;
@@ -51,7 +51,7 @@ export const research = new Vector().open(
 
     // PROJECT. the fold concats EVERY non-message key of every tool result — url[], title[],
     // chars[], markdown[], links[], results[] — and only message + buffer leave.
-    const { message, buffer = [] } = folded.output;
+    const { message, buffer = [] } = folded.product;
     const { state, rounds, fault } = folded.meta ?? {};
     if (folded.condition === "NOMINAL") {
       return {

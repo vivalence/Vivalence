@@ -1,0 +1,27 @@
+#+title: written views — a generated view is a file in the mode's mountpoint, built by the one read-through
+#+filetags: :runtime:typology:view:generative:
+#+status: ROADMAP 11-16, unnumbered — the ENDPOINT of m120's View verbs; m120 lands two verbs for now (/"for now go with the two function solution. Kind of temporarily."/)
+# writer: agent · limit: 3000 chars
+
+* intent
+
+/"b. All it means is that we, when we generate a view, or when we hallucinate a view, that in order to get it to work, we need to write the file and then bundle that file into a view. Correct?"/ · /"Let's mark this in our roadmap as the endpoint"/
+
+* the shape — m120 Q9 (locked) · its birds-eye 11-16
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/tools/generative.js — view_create / view_update
+const mount = `view/${ctx.input.slug}/${ctx.input.path}`;
+await paladin.state.text(join(ctx.mode.mountpoint, mount), ctx.input.source);
+const view = await ctx.entities.view.ensure({ mode, slug, mime, mount, entry: `bundle/${slug}.${stem(mime)}.mjs` });
+#+END_SRC
+
+Probed 11-16 (sandbox): a file under the mountpoint, =bundle(view, { bundler })=, an edit rebuilds the SAME File, one artifact on disk.
+
+DIES: the write-time verb · the source File · hash names · =kept= (=tools/generative.js:59=) · the route's =mount === null= arm.
+
+* open
+
+- Q11 — which folder a =mount= is relative to: declared → the mode's folder, written → the mountpoint (that folder is under =runtime/watch=). Leaned: a View trait marking a written view; never an absolute =mount= (a machine path in the db).
+- m120 Q10 — who is offered a written view (per thread · =SHARED= · =SHIPPED=).
+- Build at write, on purpose, so the model hears a compile error (Q4B /"we could always just build earlier for this check"/).

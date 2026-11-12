@@ -1,0 +1,43 @@
+#+title: call-faculty, the grammar hunks moved 11-17 for the cap — whole, unchanged; milestone 0 re-cuts them under Q24
+# writer: agent · limit: 2000 chars
+
+grammar — =subsystems/typology/schematics/primitives/hallucination.js=
+#+BEGIN_SRC js
+Packet.PartDraft = v.object({
+  event: v.const("/part/draft"),
+  index: v.integer(),
+  part: v.record(v.string(), v.unknown()).desc('the part\'s provisional fields, replaced by the next draft (Q20). Example: { text: "vado al mer" }'),
+});
+Packet.PartFull = v.object({
+  event: v.const("/part/full"),
+  index: v.integer(),
+  part: Part.Any.desc("the part, rewritten whole: a polish, a correction"),
+});
+Packet.TurnEager = v.object({ event: v.const("/turn/eager") });
+Packet.TurnResume = v.object({ event: v.const("/turn/resume") });
+#+END_SRC
+
+Q19 — =subsystems/typology/gestalten/belt/soma.js= =pour= (probe: today drops both)
+#+BEGIN_SRC js
+case "/part/draft":
+  turn.parts[packet.index].draft = packet.part;
+  break;
+case "/part/full":
+  turn.parts[packet.index] = { ...packet.part };
+  break;
+#+END_SRC
+
+Q4A — =subsystems/typology/schematics/primitives/hallucination.js:397= (S2: the first cut dropped the four tool · close packets, a MISWIRE)
+#+BEGIN_SRC diff
+ Packet.Response = v.union([
+   Packet.TurnOpen,
++  Packet.TurnEager,
++  Packet.TurnResume,
+   Packet.PartOpen,
+   Packet.PartDelta,
++  Packet.PartDraft,
++  Packet.PartFull,
+   Packet.PartClose,
+   …the nine stand
+#+END_SRC
+Q4A's second block (deepgram speaks the grammar): =moved-11-16-grammar.org=

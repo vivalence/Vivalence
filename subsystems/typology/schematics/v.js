@@ -60,10 +60,8 @@ function enhance(schema) {
         if ("group" in target) return target.group;
         return (name) => enhance(derive(target, { group: name }));
       }
-      if (prop === "examples") {
-        if ("examples" in target) return target.examples;
-        return (...held) => enhance(derive(target, { examples: held }));
-      }
+      if (prop === "example") return (...examples) => enhance(derive(target, { examples }));
+      if (prop === "eg") return (...examples) => enhance(derive(target, { examples }));
       if (prop === "check") return (value) => Value.Check(target, value);
       if (prop === "decode") return (value) => Value.Decode(target, value);
       if (prop === "encode") return (value) => Value.Encode(target, value);
@@ -75,6 +73,7 @@ function enhance(schema) {
       if (prop === "compile") return () => Compile(target);
       if (prop === "fill") return (value) => Value.Default(target, fresh(target, value));
       if (prop === "cast") return (value) => Value.Convert(target, Value.Default(target, fresh(target, value)));
+      if (prop === "repair") return (value) => Value.Repair(target, value);
       return Reflect.get(target, prop, receiver);
     },
   });

@@ -19,6 +19,35 @@ specimen.describe("Catalog — dom.js:142: .pb of .prow (nat · args · val · c
     rig.close();
   });
 
+  specimen.it("a chooser carrying changes draws them below its options: a mode head, each reference before → after; a refusal says why", () => {
+    const M = "/runtime/stub/mode/harness/stub";
+    const changes = {
+      said: "",
+      fault: false,
+      count: 1,
+      head: "would change 1",
+      rows: [
+        { head: true, reference: M, mark: "", label: "harness/stub", sub: "runtime" },
+        { head: false, reference: `${M}/fs`, mark: "○", label: "fs", sub: "● → ○" },
+      ],
+    };
+    const items = [{ label: `${M}/fs`, signal: `/tool/unload ${M}/fs`, sub: "", cur: false, parts: [{ t: `${M}/fs`, h: false }] }];
+    const drawn = screen(() => parts.Chooser({ filter: `${M}/fs`, items, changes, onPick: () => {} }));
+    specimen.expect([...drawn.target.querySelectorAll(".crow.chg")].map((row) => [row.className, row.textContent])).toEqual([
+      ["crow chg head", "harness/stubruntime"],
+      ["crow chg", "○fs● → ○"],
+    ]);
+    specimen.expect(drawn.target.querySelector(".cf.chg").textContent).toBe("would change 1");
+    drawn.close();
+    const refused = screen(() => parts.Chooser({ filter: "/nowhere", items: [], changes: { ...changes, said: "matches nothing: /nowhere", fault: true, rows: [] }, onPick: () => {} }));
+    specimen.expect([...refused.target.querySelectorAll(".crow.chg")].map((row) => [row.className, row.textContent])).toEqual([["crow chg fault", "matches nothing: /nowhere"]]);
+    specimen.expect(refused.target.querySelector(".cf.chg")).toBe(null);
+    refused.close();
+    const plain = screen(() => parts.Chooser({ filter: "", items, onPick: () => {} }));
+    specimen.expect(plain.target.querySelectorAll(".chg").length).toBe(0);
+    plain.close();
+  });
+
   specimen.it("lit splits the match out as the highlighted part", () => {
     specimen.expect(parts.lit("ode", "mode")).toEqual([{ t: "m", h: false }, { t: "ode", h: true }]);
     specimen.expect(parts.lit("", "mode")).toEqual([{ t: "mode", h: false }]);

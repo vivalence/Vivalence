@@ -53,10 +53,10 @@ export const EMITTER = async (mode, modeDie) => {
     } else if (!is.nill(ctx.output)) output = ctx.output;
 
     const result = await ctx.pool.drain();
-    if (output !== undefined) result.output.object = output;
+    if (output !== undefined) result.product.object = output;
 
     if (result.condition === "NOMINAL") {
-      for (const buffer of result.output.buffer) ctx.thread.bindBuffer(buffer);
+      for (const buffer of result.product.buffer) ctx.thread.bindBuffer(buffer);
     }
 
     await modeDie.entities.em.flush();

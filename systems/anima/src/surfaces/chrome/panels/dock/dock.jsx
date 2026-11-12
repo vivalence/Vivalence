@@ -1,10 +1,10 @@
-import { createEffect, from, on, onCleanup, onMount, Show } from "solid-js";
+import { createEffect, For, from, on, onCleanup, onMount, Show } from "solid-js";
 import * as parts from "@vivalence/drapes/parts";
+import { belt } from "@vivalence/ghost";
 import * as ambient from "../../ambient/index.js";
-import { LENSES } from "../sidebar/sections.js";
-import { Select } from "../../widgets/select.jsx";
+import { ALIGNS } from "../sidebar/sections.js";
 import { Journal } from "./journal.jsx";
-import { Composer } from "./composer.jsx";
+import { Textarea } from "./textarea.jsx";
 
 export const HOLD = 420;
 
@@ -63,7 +63,7 @@ export const popping = (app, terminal, signal) => {
   const hold = parts.holding(() => {
     held = true;
     app.bridge.$widget.set(null);
-    app.bridge.$popover.set(at);
+    app.bridge.$popover.set({ set: "display", ...at });
   }, HOLD);
   return {
     onPointerDown: (event) => {
@@ -81,6 +81,18 @@ export const popping = (app, terminal, signal) => {
 const Head = (props) => {
   const app = ambient.app.consume();
   const terminal = ambient.terminal.consume();
+  const popover = from(app.bridge.$popover);
+  const picking = () => (popover() === null ? null : popover().set);
+  const pick = (event, set) => {
+    const room = event.currentTarget.closest(".client").getBoundingClientRect();
+    const key = event.currentTarget.getBoundingClientRect();
+    app.bridge.$widget.set(null);
+    app.bridge.$popover.set({
+      set,
+      x: key.left + key.width / 2 - room.left,
+      y: key.bottom - room.top,
+    });
+  };
   return (
     <>
       <Show when={props.min}>
@@ -89,15 +101,37 @@ const Head = (props) => {
           <span class="dot pri live" />
         </Show>
       </Show>
-      <Select
-        label="lens"
-        entries={Object.keys(LENSES).map((lens) => ({
-          label: lens,
-          current: lens === props.dock.lens,
-          signal: `/dock/lens ${lens}`,
-          title: `${lens} · /dock/lens ${lens}`,
-        }))}
-      />
+      <Show when={!props.min}>
+        <button
+          type="button"
+          class="iconbtn view"
+          classList={{ open: picking() === "views" }}
+          aria-label="dock view"
+          title={`view · ${props.dock.view}`}
+          onClick={(event) => pick(event, "views")}>
+          <parts.Glyph view={props.dock.view} align={props.dock.align} />
+        </button>
+        <Show when={props.dock.view === "docked"}>
+          <button
+            type="button"
+            class="iconbtn align"
+            classList={{ open: picking() === "aligns" }}
+            aria-label="dock align"
+            title={`align · ${props.dock.align}`}
+            onClick={(event) => pick(event, "aligns")}>
+            {ALIGNS.find(([align]) => align === props.dock.align)[1]}
+          </button>
+        </Show>
+      </Show>
+      <button
+        type="button"
+        class="iconbtn lens"
+        classList={{ open: picking() === "lens" }}
+        aria-label="dock lens"
+        title={`lens · ${props.dock.lens.join(" · ")}`}
+        onClick={(event) => pick(event, "lens")}>
+        <For each={belt.dock.LENSES}>{(stream) => <i class="tk" classList={{ on: props.dock.lens.includes(stream) }} />}</For>
+      </button>
       <Show when={props.dock.view !== "messenger"}>
         <button
           type="button"
@@ -117,6 +151,18 @@ const Head = (props) => {
           title={`${props.min ? "restore" : "minimise"} · /dock/min`}
           onClick={() => refloat(app.bridge, terminal, { min: !props.min })}>
           <parts.Icon name={props.min ? "restore" : "minimize"} size={14} />
+        </button>
+        <button
+          type="button"
+          class="iconbtn"
+          aria-label="maximise to split"
+          title="split · /dock docked"
+          onClick={() =>
+            terminal.repl
+              .dispatch("/dock docked")
+              .catch((error) => terminal.controller.stdout.fault(error))
+          }>
+          <parts.Icon name="expand" size={14} />
         </button>
         <button type="button" class="iconbtn" aria-label="close the dock" title="close the dock · /dock closed" onClick={() => terminal.repl.dispatch("/dock closed").catch((error) => terminal.controller.stdout.fault(error))}>
           <parts.Icon name="x" size={14} />
@@ -171,8 +217,8 @@ export function Dock(props) {
       <div ref={journal} class="journal" data-r="journal" role="log">
         <Journal />
       </div>
-      <div class="composer" data-r="composer">
-        <Composer />
+      <div class="textarea" data-r="textarea">
+        <Textarea />
       </div>
       <Show when={props.floating}>
         <parts.Grip onGrip={(event) => carried(event, "resize")} />

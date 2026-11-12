@@ -30,13 +30,13 @@ export const emitter = new Vector().open(
     span.log({ render }).stop();
 
     const buffer = await vision.buffer({
-      data: { prompt: ctx.input.prompt, ...render.output.object },
+      data: { prompt: ctx.input.prompt, ...render.product.object },
     });
 
     ctx.pool.add(buffer);
 
     console.log({ render, span: span.history, buffer });
 
-    return { span: span.history, object: render.output.object };
+    return { span: span.history, object: render.product.object };
   },
 );

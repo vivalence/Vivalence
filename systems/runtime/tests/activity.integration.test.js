@@ -18,7 +18,7 @@ const drain = async (stream) => {
   return events;
 };
 async function* frames(chunks) {
-  for (const chunk of chunks) yield { event: "/audio/packet", audio: chunk, rate: 16000 };
+  for (const chunk of chunks) yield { event: "/audio/packet", audio: { data: chunk, rate: 16000 } };
 }
 
 specimen.describe("activity — the row follows the controller", () => {
@@ -43,8 +43,8 @@ specimen.describe("activity — the row follows the controller", () => {
     const stamped = row.updatedAt;
 
     clock.release(2);
-    await until(() => events.includes("/tool/yield"));
-    specimen.expect(row.steps.some((step) => trace.key(step.path) === trace.key(["hallucination", "lookup/c1", "object"]) && step.track === "stop")).toBe(true);
+    await until(() => events.includes("/turn/full"));
+    await until(() => row.steps.some((step) => trace.key(step.path) === trace.key(["hallucination", "lookup/c1", "object"]) && step.track === "stop"));
     specimen.expect(row.steps.map((step) => step.path)).toContainEqual(["hallucination", "lookup/c1"]);
     specimen.expect(row.updatedAt > stamped).toBe(true);
     specimen.expect(row.controller.toJSON().children).toEqual([]);
@@ -114,13 +114,14 @@ specimen.describe("activity — the row follows the controller", () => {
     const [born] = roster.rows;
     const row = await daemon.entities.activity.findOneOrFail({ id: born.id });
     specimen.expect(row.controller.stdout.absolute).toEqual(["hallucination"]);
-    spoken.release(4);
+    spoken.release(6);
     const events = await streaming;
-    specimen.expect(events).toContain("/verbatim/final");
-    specimen.expect(events).toContain("/verbatim/polish");
+    specimen.expect(events).toContain("/part/delta");
+    specimen.expect(events).toContain("/part/full");
     await until(() => !held().some((entry) => entry.id === row.id));
 
     specimen.expect(roster.walk(row.id)).toEqual(["create", "RUNNING", "DONE", "delete"]);
+    specimen.expect(roster.rows.filter((entry) => entry.id === row.id && entry.op === "update").length).toBeLessThanOrEqual(3);
     const paths = row.steps.map((step) => `${step.path.join(" › ")} ${step.track}`);
     specimen.expect(paths).toContain("hallucination › verbatim stop");
     specimen.expect(paths).toContain("hallucination › dialogue stop");

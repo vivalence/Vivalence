@@ -19,7 +19,6 @@ export const TRAITS = {
   REPLING: "repl",
   GENERATIVE: null,
   FILESINK: null,
-  AGENTIC: null,
   SELFEVIDENT: null,
   CONVERSATIONAL: null,
 };

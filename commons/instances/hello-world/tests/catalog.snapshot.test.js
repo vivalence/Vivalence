@@ -57,7 +57,7 @@ specimen.describe(
           "hello-world-catalog.snapshot.json",
         );
         // five from the trait first (GENERATIVE precedes TOOLING), then four of its own and
-        // seven imported from the runtime; buffer_update · buffer_label join the trait's buffer.
+        // eight imported from the runtime; buffer_update · buffer_label join the trait's buffer.
         specimen.expect(pinned.map(({ name }) => name)).toEqual([
           "buffer_create",
           "buffer_update",
@@ -73,6 +73,7 @@ specimen.describe(
           "entity_schema",
           "entity_find",
           "entity_count",
+          "entity_update",
           "thread_update",
           "mode_find",
         ]);

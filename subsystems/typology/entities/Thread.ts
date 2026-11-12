@@ -64,6 +64,18 @@ export const ThreadSchema = new EntitySchema<ThreadEntity, DataEntity>({
     },
   },
   hooks: {
+    onLoad: [
+      (args: any) => {
+        Object.assign(args.entity, belt.traits.heal(args.entity, v.thread.traits));
+        if (!args.entity.traits.includes("CONVERSATIONAL")) return;
+        const { Conversational } = v.traits;
+        const stored = Conversational.cast(args.entity.trait.CONVERSATIONAL);
+        args.entity.trait.CONVERSATIONAL = Conversational.cast(Conversational.repair(stored));
+      },
+      (args: any) => {
+        args.entity.trait = belt.traits.cast(args.entity, v.thread.traits);
+      },
+    ],
     beforeCreate: [
       async (args: any) => {
         const thread = args.entity;
@@ -79,7 +91,7 @@ export const ThreadSchema = new EntitySchema<ThreadEntity, DataEntity>({
         // labeled trait
       },
       (args: any) => {
-        args.entity.traits = [...new Set([...args.entity.traits, "INTELLIGENT", "VOCAL"])];
+        Object.assign(args.entity, belt.traits.patch(args.entity, { HARNESSED: {}, CONVERSATIONAL: {} }));
         args.entity.trait = belt.traits.cast(args.entity, v.thread.traits);
       },
     ],

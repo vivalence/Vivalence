@@ -7,9 +7,9 @@ const joined = (prefix, steps) => [prefix, ...steps.map((step) => step.nature)].
 
 const loading = (steps, inherited) => steps.findLast((step) => step.load)?.load ?? inherited;
 
-const nodes = (primer, prefix = "", inherited = "eager") =>
+export const nodes = (primer, prefix = "", inherited = "eager") =>
   steer.trie.leaves(primer).flatMap(({ pattern, steps, effect }) => {
-    const node = { nature: joined(prefix, steps), valence: pattern.valence, load: loading(steps, inherited), effect };
+    const node = { nature: joined(prefix, steps), valence: pattern.valence, load: loading(steps, inherited), effect, pattern };
     return effect instanceof Vector ? nodes(effect, node.nature, node.load) : [node];
   });
 
@@ -26,7 +26,7 @@ const body = async (node, ctx) => {
   return { kind: found[1], value };
 };
 
-const listing = (lazy) => lazy.map((node) => `${node.nature}${node.valence ? ` — ${node.valence}` : ""}`).join("\n");
+const listing = (lazy) => lazy.map((node) => `/${node.nature}${node.valence ? ` — ${node.valence}` : ""}`).join("\n");
 
 export const lazy = (primer) => nodes(primer).filter((node) => node.load === "lazy");
 
@@ -55,7 +55,7 @@ const gather = async (primer, ctx, prefix, inherited, record) => {
 export async function load(primer, ctx = {}) {
   const record = { sections: {}, lazy: [] };
   await gather(primer, ctx, "", "eager", record);
-  if (record.lazy.length) record.sections.primer = `Read on demand with primer_read { nature }:\n${listing(record.lazy)}`;
+  if (record.lazy.length) record.sections.primer = `Load on demand with primer_load { references }:\n${listing(record.lazy)}`;
   return record.sections;
 }
 

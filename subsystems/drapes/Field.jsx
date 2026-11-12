@@ -1,10 +1,13 @@
-import { mergeProps } from "solid-js";
+import { createEffect, mergeProps } from "solid-js";
 
-export const LABELS = { turn: "composer", line: "repl line", filter: "filter" };
+export const LABELS = { turn: "dock textarea", repl: "repl input", filter: "filter" };
 
 export const Field = (props) => {
-  const held = mergeProps({ value: "", placeholder: "", kind: "turn", dictating: false, rows: 1 }, props);
+  const held = mergeProps({ value: "", placeholder: "", kind: "turn", focus: false, dictating: false, rows: 1 }, props);
   let element;
+  createEffect(() => {
+    if (held.focus && document.activeElement !== element) element.focus({ preventScroll: true });
+  });
   const repl = () => held.value.startsWith("/");
   const keydown = (event) => {
     if (event.key !== "Enter" || event.shiftKey) return;
@@ -15,11 +18,12 @@ export const Field = (props) => {
     if (held.onInput) held.onInput(event.target.value);
   };
   return (
-    <div class="field" classList={{ dict: held.dictating, repl: repl() }}>
+    <div class="field" classList={{ focus: held.focus, dict: held.dictating, repl: repl() }}>
       <span class="pcw">{held.lead}</span>
       <textarea
         ref={element}
         id={held.id}
+        data-focus={held["data-focus"]}
         classList={{ repl: repl() }}
         rows={held.rows}
         spellcheck={false}

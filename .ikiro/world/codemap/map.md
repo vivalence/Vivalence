@@ -18,12 +18,12 @@ export async function accio(identifier) {
   await supplied;
   return await paladin.ledger.registry.accio(identifier);
 ```
-- **`runtime/watch` watches `commons` + `~/.viva/registry` minus `**/dataset/**`; a save under a watcher IS a deploy** (`lsof -nP -iTCP:2501 -sTCP:LISTEN` first); `--watch` restarts IN-PROCESS: read `Restarting!`, never `ps`.
+- **a save under `runtime/watch` IS a deploy**, vite `:1794` too (`lsof` first, `watch-guard.sh`); IN-PROCESS: read `Restarting!`, never `ps`; a land: ONE `touch` last, done = a NEW route answers (11-18).
 ```jsonc
 // systems/runtime/deno.jsonc
 "watch": "deno run -A --watch=../../commons,$HOME/.viva/registry --watch-exclude=**/dataset/** run.js",
 ```
-- **ports from the ledger recipe**: runtime `:2501`, anima `:1794`; `:2501/` 404 ≠ down. `viva --help` rc 0, HOME empty: `seat` runs after `help`; a shell verb is `.open`ed (`traverse` skips a leaf branch's steps, m96 #22). Ready = the `start` track (`process.js:6`); bind at beat 4, `/status` `IDLE` till then.
+- **ports from the ledger recipe**: runtime `:2501`, anima `:1794`; `:2501/` 404 ≠ down. `viva --help` rc 0, HOME empty: `seat` runs after `help`; a shell verb is `.open`ed (`traverse` skips a leaf branch's steps, m96 #22). Ready = the `start` track (`process.js:6`); bind beat 4, `/beacon/status` `IDLE` before.
 - **VCS = jj colocated over git** — READ only, subcommand FIRST, cite CHANGE ids; `@` IS a commit, no staging; bookmarks only to push.
 ```sh
 jj log -n 8 --no-graph
@@ -33,7 +33,7 @@ git show <id>:<path>          # pre-edit text: <id> from jj evolog, HEAD is @-
 - **`import_map.json` is the ROOT's only**: a repo dep enters HERE, exact, never a prefix-map or inline `npm:` — bar a `commons/` mode's server, pinned (11-12); registry by URL; a twin runs `--no-lock --reload=<origin>` or `deno.lock` eats localhost. REJECTED `node-gyp` to hush a warning: relocks vite 8.
 - **mikro 7.2.3 owns the db**: migrations off `.snapshot-*.json`, never by hand; relation targets `() => X`; `pivotTable` · `joinColumns` on every m:n owner; auto-flush only on a queued persist of THAT type; `lazy` props populate BY NAME; a hook cannot flush; filters skip `$none/$some`; **a rebuild copies an ADDED column as `null`** → `nullable: true`; a faulted `up()` lands half (`transactional: false`) and the snapshot hides the diff; `loadStrategy` declared ONCE (`libsql.viva.js:15`).
 - **a trait is CAST once, loud, at hydration** (m105 Q4′); reads `entity.trait.NAME`. Client domain-blind: domain words are DATA; mode UI only via View rows (m87 Q10′).
-- **one dispatch shape everywhere**, every effect returns `{condition, output}`, ctx is FLAT (`contexts.host` words, never `ctx.daemon`).
+- **one dispatch shape everywhere**, every effect returns `{condition, output}`, ctx FLAT + owner `bind` (`.mode` `.daemon` `.runtime`).
 ```js
 // subsystems/typology/gestalten/belt/hallucinate.js:92
 steer.dispatch.invoke(armed, new ToolCall(call.name).signal, steer.strategy.guarded)(call.input),

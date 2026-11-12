@@ -1,3 +1,4 @@
+import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { join } from "@std/path";
 import { Cortex, specimen } from "@vivalence/typology";
 import { mountMode } from "@vivalence/runtime/scenarios";
@@ -11,26 +12,27 @@ const MOUNT = "/mode/chaosmonkey/oracle";
 let scenario;
 
 specimen.beforeAll(async () => {
-  scenario = await mountMode(oracle, { cortex: new Cortex() });
+  scenario = await mountMode(oracle, { cortex: new Cortex(TIER_POINTS) });
 });
 specimen.afterAll(async () => {
   await scenario.orm.close();
 });
 
-specimen.describe("harness — /metadata/harness is the strip a client wires: routes · primer · tools, nested, schematics whole", () => {
+specimen.describe("harness — /metadata/harness is the strip a client wires: references · primer · tools, nested, schematics whole", () => {
   specimen.it("the strip pins", async () => {
     const pojo = JSON.parse(JSON.stringify(await scenario.authedConn.branch(MOUNT).call("/metadata/harness")));
     if (HOT) specimen.snapshot(pojo, { base: SNAPSHOTS, locate: "harness-metadata.snapshot.json", parse: (value) => value });
     specimen.expect(pojo).toEqual(JSON.parse(Deno.readTextFileSync(join(SNAPSHOTS, "harness-metadata.snapshot.json"))));
-    specimen.expect(Object.keys(pojo)).toEqual(["routes", "primer", "tools"]);
-    specimen.expect(Object.keys(pojo.tools.branches)).toEqual(["lookup"]);
+    specimen.expect(Object.keys(pojo)).toEqual(["references", "primer", "tools", "home", "index"]);
+    specimen.expect(pojo.home).toBe("/daemon/test-daemon/mode/chaosmonkey/oracle");
+    specimen.expect(Object.keys(pojo.tools.branches)).toEqual(["lookup", "modes", "tool", "primer"]);
   });
 });
 
 specimen.describe("harness — /metadata/harness/primer/* reads one primer section as the model reads it", () => {
   let held;
   specimen.beforeAll(async () => {
-    held = await mountMode(root, { cortex: new Cortex() });
+    held = await mountMode(root, { cortex: new Cortex(TIER_POINTS) });
   });
   specimen.afterAll(async () => {
     await held.orm.close();

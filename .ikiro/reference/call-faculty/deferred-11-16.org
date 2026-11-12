@@ -1,0 +1,12 @@
+#+title: call faculty — deferred, moved whole from the quest 11-16 (cap)
+# writer: agent · limit: 4000 chars
+
+
+- law 6's hunk throws on the real cortex (two ears, two mouths): the derivation names its ear · mouth from the thread's =hear= · =speak=, or the tier — unwritten
+- DEAD by Q18 (one ear, =scribe_v3_live=): the =nova-3= · =flux= tier split
+- =heard= cuts stored text only with output timings — which provider gives them
+- Q8's =recording= write on =:memory:= — the probe owed before land
+- the voice trait's word → =quests/m122-harness-layout.org= Q0 · Q1A: =CONVERSATIONAL= on mode AND thread; Q7's =Vocal= moves whole into =Conversational=, =language= a list; =INTELLIGENT= → thread =HARNESSED= (Q2A) · =mode.call= taken by =EXPOSED= (=systems/ghost/entities/mode/traits/exposed.js:5=)
+- =VOCAL= null crash (terrain) — an older stored thread only (=Thread.ts:82= wears it on create); dies with the straight read of =thread.trait.CONVERSATIONAL=
+- =call= on a function node: =Object.assign(aim(…), api)= shadows =Function.prototype.call= (=subsystems/typology/gestalten/shape/connection.js=)
+

@@ -72,7 +72,7 @@ export const emitter = new Vector()
       ]
         .filter(Boolean)
         .join("\n");
-      const { output } = await ctx.mode.harness.object.render({
+      const { product } = await ctx.mode.harness.object.render({
         thread: ctx.input.thread,
         turns: [
           { role: "system", parts: [{ type: "text", text: context }] },
@@ -82,7 +82,7 @@ export const emitter = new Vector()
         tier: "frugal",
       });
       for (
-        const face of (output.object?.faces ?? []).filter((f) =>
+        const face of (product.object?.faces ?? []).filter((f) =>
           DECK.includes(f)
         )
       ) {

@@ -2,6 +2,7 @@ import { specimen } from "@vivalence/typology";
 import { TurnEntity } from "@vivalence/runtime";
 import stub from "../../../commons/fixtures/testing/hal/stub/provider/index.js";
 import { create } from "./scenarios/cortex.js";
+import { STUB_FACULTIES } from "./scenarios/fixtures.js";
 
 // m95 Q33: harnessed.js creates each turn's row at /turn/open on a forked em and saves it at its
 // /turn/close — a tool running mid-response already reads the sealed tool_use turn, and a consumer
@@ -131,7 +132,7 @@ specimen.describe("turn persistence — a response with no answer persists its v
   specimen.beforeAll(async () => {
     world = await create();
     world.cortex.faculties.clear();
-    world.cortex.register(await stub({ statics: {} }));
+    world.cortex.register(await stub({ statics: {}, faculties: STUB_FACULTIES }));
   });
   specimen.afterAll(async () => {
     await world.daemon.entities.activity.remove({});

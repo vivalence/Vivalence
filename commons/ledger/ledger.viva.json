@@ -8,9 +8,53 @@
   },
   "lighthouse": { "secrets": { "jwt": "${SECRET_VIVA_JWT}" }, "traits": ["JOINABLE", "AUTOLOGIN"] },
   "datamap": { "module": "@commons/datamap/libsql" },
+  "tiers": {
+    "frugal": [0.1, 0.9, 1.0],
+    "fast": [0.4, 1.0, 0.8],
+    "balanced": [0.5, 0.5, 0.5],
+    "capable": [0.9, 0.2, 0.5],
+    "unleashed": [1.0, 0.9, 0.1]
+  },
   "hallucinators": [
-    { "module": "@commons/hallucinator/anthropic", "secrets": { "key": "${SECRET_VIVA_ANTHROPIC_API_KEY}" } },
-    { "module": "@commons/hallucinator/openrouter", "secrets": { "key": "${SECRET_VIVA_OPENROUTER_API_KEY}" } }
+    {
+      "module": "@commons/hallucinator/anthropic",
+      "secrets": { "key": "${SECRET_VIVA_ANTHROPIC_API_KEY}" },
+      "faculties": [
+        { "type": "dialogue", "id": "claude-opus-5-5", "tune": [1.0, 0.8, 0.1], "context": 1000000, "thinking": true },
+        { "type": "dialogue", "id": "claude-sonnet-5-5", "tune": [0.6, 0.6, 0.5], "context": 1000000, "thinking": true },
+        { "type": "dialogue", "id": "claude-haiku-5-5", "tune": [0.25, 0.95, 0.5], "context": 1000000, "thinking": true }
+      ]
+    },
+    {
+      "module": "@commons/hallucinator/openrouter",
+      "secrets": { "key": "${SECRET_VIVA_OPENROUTER_API_KEY}" },
+      "faculties": [
+        { "type": "dialogue", "id": "openai/gpt-6.1-sol", "tune": [0.8, 0.35, 0.3], "context": 1050000, "thinking": true },
+        { "type": "dialogue", "id": "google/gemini-3.8-flash", "tune": [0.45, 0.85, 0.7], "context": 1048576, "thinking": true },
+        { "type": "dialogue", "id": "google/gemini-3.5-flash-lite", "tune": [0.1, 1.0, 0.95], "context": 1048576, "thinking": true },
+        { "type": "choice", "id": "typesafe/jev-1.13", "tune": [0.4, 1.0, 0.95], "context": 32000, "options": 255, "choices": null },
+        { "type": "picture", "id": "openai/gpt-image-2.6-sunburst", "tune": [0.8, 0.4, 0.4], "limits": {"references": 16, "mask": false, "aspects": ["1:1", "3:2", "2:3"]} },
+        { "type": "picture", "id": "black-forest-labs/flux-3-image", "tune": [0.6, 0.6, 0.6], "limits": {"references": 10, "mask": false, "aspects": ["1:1", "3:2", "2:3", "4:3", "3:4", "16:9", "9:16"]} },
+        { "type": "picture", "id": "google/gemini-nano-banana-2.1", "tune": [0.4, 0.9, 0.9], "limits": {"references": 14, "mask": false, "aspects": ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"]} }
+      ]
+    },
+    {
+      "module": "@commons/hallucinator/elevenlabs",
+      "secrets": { "key": "${SECRET_VIVA_ELEVENLABS_API_KEY}" },
+      "faculties": [
+        { "type": "speech", "id": "luiza", "model": "eleven_flash_v2_5", "voice": "21m00Tcm4TlvDq8ikWAM", "tune": [0.3, 0.4, 0.1] },
+        { "type": "speech", "id": "leandro", "model": "eleven_flash_v2_5", "voice": "EXAVITQu4vr4xnSDxMaL", "tune": [0.5, 0.5, 0.1] },
+        { "type": "verbatim", "id": "scribe_v3_live", "model": "scribe_v3_live", "tune": [0.8, 0.9, 0.7] }
+      ]
+    },
+    {
+      "module": "@commons/hallucinator/deepgram",
+      "secrets": { "key": "${SECRET_VIVA_DEEPGRAM_API_KEY}" },
+      "faculties": [
+        { "type": "verbatim", "id": "nova-3", "model": "nova-3", "tune": [0.5, 0.9, 0.6] },
+        { "type": "verbatim", "id": "flux-general-multi", "model": "flux-general-multi", "tune": [0.6, 0.8, 0.4] }
+      ]
+    }
   ],
   "clients": [
     { "manifest": { "type": "client", "slug": "anima" }, "statics": { "serve": "${VIVA_CLIENT_ANIMA_SERVE}" } },

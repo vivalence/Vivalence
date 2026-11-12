@@ -1,6 +1,7 @@
-import { specimen, Controller, Vector, Span, NotFound, belt, steer, trace } from "@vivalence/typology";
+import { specimen, Controller, Vector, Span, NotFound, belt, steer, trace, v } from "@vivalence/typology";
 
 const { state, deliver, dispatch, respond, render, signalOf, nameOf } = belt.hallucinate;
+const { Packet, Response } = v.primitives.hallucination;
 
 function userTurn(text) {
   return { role: "user", parts: [{ type: "text", text }] };
@@ -146,7 +147,7 @@ specimen.describe("belt.hallucinate", () => {
       const controller = new Controller({ stdout: new Span("/test") });
       const settled = await dispatch({ tools, controller }, [{ type: "tool_use", id: "u1", name: "lookup", input: { query: "casa" } }] );
       specimen.expect(settled).toHaveLength(1);
-      specimen.expect(settled[0].result.output.message).toBe("casa means house");
+      specimen.expect(settled[0].result.product.message).toBe("casa means house");
       specimen.expect(settled[0].result.condition).toBe("NOMINAL");
     });
 
@@ -155,7 +156,7 @@ specimen.describe("belt.hallucinate", () => {
       const controller = new Controller({ stdout: new Span("/test") });
       const settled = await dispatch({ tools, controller }, [{ type: "tool_use", id: "u1", name: "ghost", input: {} }] );
       specimen.expect(settled[0].result.condition).toBe("ERROR");
-      specimen.expect(settled[0].result.output.message).toContain("unknown tool: ghost");
+      specimen.expect(settled[0].result.product.message).toContain("unknown tool: ghost");
     });
 
     specimen.it("runs tool calls one at a time, in the model's order — the second sees what the first wrote", async () => {
@@ -175,7 +176,7 @@ specimen.describe("belt.hallucinate", () => {
           { type: "tool_use", id: "u2", name: "b", input: {} },
         ],
       );
-      specimen.expect(settled.map((entry) => entry.result.output.message)).toEqual(["A", "A"]);
+      specimen.expect(settled.map((entry) => entry.result.product.message)).toEqual(["A", "A"]);
     });
 
     specimen.it("marks a span branch per tool", async () => {
@@ -196,11 +197,12 @@ specimen.describe("belt.hallucinate", () => {
         events.push(event);
       const closes = events.filter((event) => event.event === "/response/close");
       specimen.expect(closes).toHaveLength(1);
-      specimen.expect(closes[0].meta.state).toBe("complete");
-      specimen.expect(closes[0].meta.rounds).toBe(1);
+      specimen.expect(closes[0].response.meta.state).toBe("complete");
+      specimen.expect(closes[0].response.meta.rounds).toBe(1);
+      for (const event of events) specimen.expect(event).matches(Packet.Response);
     });
 
-    specimen.it("runs a tool round: call→yield→turn/full then closes complete", async () => {
+    specimen.it("runs a tool round: its results ride /turn/full once, then closes complete", async () => {
       const { faculty } = scriptedFaculty([
         toolTurn("u1", "lookup", { query: "casa" }),
         sealed("casa means house"),
@@ -208,11 +210,14 @@ specimen.describe("belt.hallucinate", () => {
       const tools = toolVector("lookup", async () => ({ message: "house" }));
       const events = [];
       for await (const event of respond(faculty, "render", { turns: [userTurn("what is casa")] }, { rounds: 5, backoff: [], tools, controller: new Controller() }))
-        events.push(event.event);
-      specimen.expect(events).toContain("/tool/call");
-      specimen.expect(events).toContain("/tool/yield");
-      specimen.expect(events).toContain("/turn/full");
-      specimen.expect(events.at(-1)).toBe("/response/close");
+        events.push(event);
+      for (const event of events) specimen.expect(event).matches(Packet.Response);
+      const full = events.filter((event) => event.event === "/turn/full");
+      specimen.expect(full).toHaveLength(1);
+      specimen.expect(full[0].turn.parts).toEqual([
+        { type: "tool_result", id: "u1", condition: "NOMINAL", product: { message: "house" } },
+      ]);
+      specimen.expect(events.at(-1).event).toBe("/response/close");
     });
 
     specimen.it("closes length when the loop never settles", async () => {
@@ -225,8 +230,8 @@ specimen.describe("belt.hallucinate", () => {
       let close = null;
       for await (const event of respond(faculty, "render", { turns: [userTurn("go")] }, { rounds: 2, backoff: [], tools, controller: new Controller() }))
         if (event.event === "/response/close") close = event;
-      specimen.expect(close.meta.state).toBe("length");
-      specimen.expect(close.meta.rounds).toBe(2);
+      specimen.expect(close.response.meta.state).toBe("length");
+      specimen.expect(close.response.meta.rounds).toBe(2);
     });
 
     specimen.it("closes error when the faculty faults unrecoverably", async () => {
@@ -241,21 +246,23 @@ specimen.describe("belt.hallucinate", () => {
       let close = null;
       for await (const event of respond(faculty, "render", { turns: [userTurn("hi")] }, { rounds: 3, backoff: [], tools: new Vector(), controller: new Controller() }))
         if (event.event === "/response/close") close = event;
-      specimen.expect(close.meta.state).toBe("error");
+      specimen.expect(close.response.meta.state).toBe("error");
     });
   });
 
   specimen.describe("render", () => {
-    specimen.it("folds the response into a yield object", async () => {
+    specimen.it("folds the response into a Response: condition · product · turns · meta, no open", async () => {
       const { faculty } = scriptedFaculty([
         toolTurn("u1", "lookup", { query: "casa" }),
         sealed("casa means house"),
       ]);
       const tools = toolVector("lookup", async () => ({ message: "house", buffer: [{ id: "b1" }] }));
       const folded = await render(faculty, { turns: [userTurn("what is casa")] }, { rounds: 5, backoff: [], tools, controller: new Controller() });
+      specimen.expect(folded).matches(Response);
+      specimen.expect(Object.keys(folded).sort()).toEqual(["condition", "meta", "product", "turns"]);
       specimen.expect(folded.meta.state).toBe("complete");
-      specimen.expect(folded.output.message).toBe("casa means house");
-      specimen.expect(folded.output.buffer).toHaveLength(1);
+      specimen.expect(folded.product.message).toBe("casa means house");
+      specimen.expect(folded.product.buffer).toHaveLength(1);
       specimen.expect(folded.turns.length).toBe(3);
     });
 

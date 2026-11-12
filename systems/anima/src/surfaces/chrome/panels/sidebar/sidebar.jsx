@@ -8,6 +8,8 @@ export const SIDEBAR = { width: 272, floor: 220, ceiling: 480 };
 
 const toggled = (list, item) => (list.includes(item) ? list.filter((held) => held !== item) : [...list, item]);
 const patched = (app, delta) => app.bridge.$sections.set({ ...app.bridge.sections, ...delta });
+const flipped = (expand, kind) =>
+  kind in expand ? Object.fromEntries(Object.entries(expand).filter(([held]) => held !== kind)) : { ...expand, [kind]: true };
 const keyed = (app, field, word) => {
   const [kind, value] = word.split(" ");
   return patched(app, { [field]: { ...app.bridge.sections[field], [kind]: toggled(app.bridge.sections[field][kind], value) } });
@@ -17,6 +19,10 @@ export const SURFACE = {
   "/sidebar": (app) => (app.bridge.viewport.narrow ? app.bridge.$phonePane.set(app.bridge.phonePane === "sidebar" ? "dock" : "sidebar") : app.bridge.$sidebar.set({ ...app.bridge.sidebar, open: !app.bridge.sidebar.open })),
   "/sidebar/width": (app, terminal, word) => app.bridge.$sidebar.set({ ...app.bridge.sidebar, width: Math.max(SIDEBAR.floor, Math.min(SIDEBAR.ceiling, Number(word))) }),
   "/sidebar/show": (app, terminal, word) => app.bridge.$hidden.set(word === "all" ? [] : toggled(app.bridge.hidden, word)),
+  "/harness/view": (app, terminal, word) => {
+    const [root, view] = word.split(" ");
+    return patched(app, { views: { ...app.bridge.sections.views, [root]: view } });
+  },
   "/filter/daemon": (app, terminal, word) => keyed(app, "hostsOff", word),
   "/filter/trait": (app, terminal, word) => keyed(app, "traits", word),
   "/telemetry": (app) => app.telemetry.$state.set({ ...app.telemetry.state, open: !app.telemetry.state.open }),
@@ -28,15 +34,16 @@ export const FNS = {
     terminal.legend.dispatch("leader");
     terminal.legend.dispatch("leader");
   },
-  expand: (app, terminal, kind) => patched(app, { expand: kind in app.bridge.sections.expand ? Object.fromEntries(Object.entries(app.bridge.sections.expand).filter(([held]) => held !== kind)) : { ...app.bridge.sections.expand, [kind]: true } }),
-  peek: async (app, terminal, key) => {
-    FNS.expand(app, terminal, key);
-    if (key in app.bridge.sections.peeks) return;
-    const text = await terminal.mode.connection.call(`/metadata/harness/primer/${key.replace(/^primer\//, "")}`, { thread: terminal.thread.id }).catch((error) => error.message);
-    patched(app, { peeks: { ...app.bridge.sections.peeks, [key]: text } });
+  expand: (app, terminal, kind) => patched(app, { expand: flipped(app.bridge.sections.expand, kind) }),
+  pick: (app, terminal, key) => patched(app, { current: key, expand: flipped(app.bridge.sections.expand, key) }),
+  peek: async (app, terminal, held) => {
+    FNS.pick(app, terminal, held.key);
+    if (held.key in app.bridge.sections.peeks) return;
+    const text = await terminal.mode.connection.call(`/metadata/harness/primer${held.name}`, { thread: terminal.thread.id }).catch((error) => error.message);
+    patched(app, { peeks: { ...app.bridge.sections.peeks, [held.key]: text } });
   },
   dpick: (app, terminal, kind) => patched(app, { pick: app.bridge.sections.pick === kind ? null : kind }),
-  attach: (app, terminal) => terminal.controller.stdout.fault(new Error("attach: this client has no upload yet — the composer owns it")),
+  attach: (app, terminal) => terminal.controller.stdout.fault(new Error("attach: this client has no upload yet — the dock textarea owns it")),
   none: () => undefined,
 };
 
@@ -58,6 +65,7 @@ export const watched = (app, terminal) => {
     from(terminal.$thread),
     from(terminal.$buffer),
     from(belt.atom.chain(terminal.$thread, "$buffers")),
+    from(belt.atom.chain(terminal.$thread, "$turns")),
     from(app.client.runtime.entities.terminal.$entities),
     from(app.client.runtime.entities.thread.$entities),
     from(app.client.runtime.entities.mode.$entities),
@@ -71,6 +79,7 @@ export const watched = (app, terminal) => {
     from(app.bridge.$sidebar),
     from(app.bridge.$viewport),
     from(app.bridge.$theme),
+    from(app.bridge.$font),
     from(app.telemetry.$state),
   ];
   const daemons = from(app.client.runtime.entities.daemon.$entities);

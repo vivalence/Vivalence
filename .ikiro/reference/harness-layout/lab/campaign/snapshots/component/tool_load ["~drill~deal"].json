@@ -1,0 +1,29 @@
+{
+  "input": {
+    "references": [
+      "/drill/deal"
+    ]
+  },
+  "answer": {
+    "output": {
+      "tools": [
+        {
+          "name": "drill_deal",
+          "valence": "education·francesca /drill/deal"
+        }
+      ]
+    }
+  },
+  "trait": {
+    "TOOLED": {
+      "/daemon/education/mode/teacher/francesca/drill/deal": "eager"
+    },
+    "PRIMED": {}
+  },
+  "live": [
+    {
+      "name": "drill_deal",
+      "valence": "education·francesca /drill/deal"
+    }
+  ]
+}

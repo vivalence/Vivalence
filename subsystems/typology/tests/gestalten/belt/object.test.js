@@ -82,3 +82,13 @@ specimen.describe("object.merge", () => {
     specimen.expect(trait.PLACED.rotation).toEqual([1, 0, 0, 0]);
   });
 });
+
+specimen.describe("object.at", () => {
+  specimen.it("walks a dotted path to its value; a gap on the way answers it, never throws", () => {
+    const die = { daemon: { controller: { slug: "spanish" } }, gone: null };
+    specimen.expect(object.at(die, "daemon.controller.slug")).toBe("spanish");
+    specimen.expect(object.at(die, "daemon")).toBe(die.daemon);
+    specimen.expect(object.at(die, "daemon.missing.slug")).toBeUndefined();
+    specimen.expect(object.at(die, "gone.slug")).toBeNull();
+  });
+});

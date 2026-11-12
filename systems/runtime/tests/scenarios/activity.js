@@ -1,7 +1,7 @@
 import { Url, Connection, Vector, Aperture, shape, shard, sleep, v } from "@vivalence/typology";
 import { metronome } from "@vivalence/typology/scenarios";
 import { create as harnessed } from "./cortex.js";
-import { tiers } from "./fixtures.js";
+import { tiers, TIER_POINTS } from "./fixtures.js";
 import { lighthouseOf, SECRET } from "./daemon.js";
 import { signer } from "../../subjects/lighthouse/signer.js";
 import { userspace } from "../../subjects/runtime/lifecycle/3-integration.js";
@@ -10,15 +10,17 @@ export const TOOL = { tool: { id: "c1", name: "lookup", input: { query: "x" } } 
 export const OBJECT = {
   packets: [{
     event: "/turn/full",
-    turn: { role: "assistant", parts: [{ type: "object", data: { answer: "42" } }], meta: { state: "complete" }, object: { answer: "42" } },
+    turn: { role: "assistant", parts: [{ type: "object", data: { answer: "42" } }], meta: { state: "complete" } },
   }],
 };
 export const SPOKEN = {
   packets: [
     { event: "/turn/open", turn: { role: "user" } },
-    { event: "/verbatim/partial", transcript: "buon" },
-    { event: "/verbatim/final", transcript: "buongiorno", segment: 0 },
-    { event: "/turn/close" },
+    { event: "/part/open", index: 0, part: { type: "text", text: "" } },
+    { event: "/part/draft", index: 0, part: { text: "buon" } },
+    { event: "/part/delta", index: 0, part: { text: "buongiorno" } },
+    { event: "/part/close", index: 0 },
+    { event: "/turn/close", turn: {} },
   ],
 };
 
@@ -29,16 +31,14 @@ const lookup = async (ctx) => {
     turns: [{ role: "user", parts: [{ type: "text", text: ctx.input.query }] }],
     output: v.object({ answer: v.string() }),
   });
-  return { message: found.output.object.answer };
+  return { message: found.product.object.answer };
 };
 
 export async function create({ port = 0, script = (index) => [TOOL, OBJECT, { deltas: 6 }][index % 3] } = {}) {
-  const world = await harnessed();
-  const { daemon, dewey, cortex, em, datamap, runtime: kernel, twitch, fixtures } = world;
-
   const clock = metronome.metronome(script);
   const spoken = metronome.metronome(() => SPOKEN, "verbatim");
-  cortex.register([clock.faculty, spoken.faculty]);
+  const world = await harnessed({ faculties: [{ ...clock.faculty, tune: TIER_POINTS.capable }, spoken.faculty] });
+  const { daemon, dewey, cortex, em, datamap, runtime: kernel, twitch, fixtures } = world;
   dewey.tools = new Vector().open({ nature: "lookup", input: v.object({ query: v.string() }) }, lookup);
 
   const stranger = em.create(tiers.user.entity, { slug: "stranger" });

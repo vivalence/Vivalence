@@ -1,4 +1,4 @@
-import { specimen, steer, v, Signal, Vector } from "@vivalence/typology";
+import { Path, shape, specimen, steer, v, Signal, Vector } from "@vivalence/typology";
 
 specimen.describe("Vector", () => {
   specimen.it("a vector grows its trie and merges by nature", () => {
@@ -312,6 +312,17 @@ specimen.describe("Vector", () => {
     const [leaf] = copy.branch("deep").edge("keep");
     specimen.expect([leaf.valence, leaf.rank]).toEqual(["kept", "hidden"]);
     specimen.expect([deep.heir, deep.trace, leaf.trace]).toEqual([undefined, null, null]);
+  });
+
+  specimen.it("a branched Path mounts and trims at its own nature — identity, never linkage", () => {
+    const reference = new Path("/runtime/house");
+    reference.branch("/mode/reader/reader");
+    const root = new Vector();
+    root.branch(reference, new Vector().open("/status", () => "up"));
+    specimen.expect(Object.keys(shape.strip(root).branches.runtime.branches.house.branches)).toEqual(["status"]);
+    specimen.expect(reference.heir.nature).toBe("/mode/reader/reader");
+    root.trim(reference);
+    specimen.expect(Object.keys(shape.strip(root).branches.runtime.branches)).toEqual([]);
   });
 
   specimen.it("a key nobody listed still rides", () => {

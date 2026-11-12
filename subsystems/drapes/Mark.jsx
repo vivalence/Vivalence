@@ -3,7 +3,7 @@ import { holding } from "./hold.js";
 
 export const VIKET = import.meta.resolve("@vivalence/dapper/assets/viket/pic-vinca-viket_white.svg");
 
-export const Viket = (props) => <span class={props.live ? "viket live" : "viket"} style={`width:${props.size}px;height:${props.size}px`} aria-hidden="true" />;
+export const Viket = (props) => <span class={props.live ? "viket live" : "viket"} style={`width:${props.size / 16}rem;height:${props.size / 16}rem`} aria-hidden="true" />;
 
 export const Mark = (props) => {
   const held = mergeProps({ size: 20, live: false, fault: false, open: false, delay: 500 }, props);

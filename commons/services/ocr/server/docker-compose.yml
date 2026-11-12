@@ -1,0 +1,23 @@
+name: ocr-tesseract
+
+services:
+  tesseract-ocr:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: vivalence-service_ocr-tesseract
+    command: ["deno", "run", "--allow-net", "--allow-env", "--allow-read", "--allow-write", "--allow-run=tesseract", "server.js"]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:${SERVICE_PORT}/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 6
+    ports:
+      - "${SERVICE_PORT}:${SERVICE_PORT}"
+    volumes:
+      - "${SERVICE_MOUNT}/mnt:/app/mnt"
+    environment:
+      - TESSDATA_PREFIX=/app/mnt/tessdata
+      - TESSDATA_SHELF=${TESSDATA_SHELF}
+      - SERVICE_KEY=${SERVICE_KEY}
+      - SERVICE_PORT=${SERVICE_PORT}

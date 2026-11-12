@@ -1,4 +1,5 @@
-import { Controller, Cortex, Path, Span, soma, Vector, mime } from "@vivalence/typology";
+import { TIER_POINTS } from "@vivalence/typology/scenarios";
+import { belt, Controller, Cortex, Path, Span, soma, v, Vector, mime } from "@vivalence/typology";
 import { traits } from "@vivalence/runtime";
 const { EMITTER, GENERATIVE, HARNESSED } = traits.mode;
 import { drawing, emitter } from "../page/index.js";
@@ -87,7 +88,7 @@ export const rig = async (script) => {
     counter: 0,
     phase: "CONVERSATION",
     traits: [],
-    trait: {},
+    trait: belt.traits.cast({ traits: [], trait: {} }, v.thread.traits),
     user: { id: "user-1" },
     bindBuffer(buffer) {
       buffer.thread = this;
@@ -100,7 +101,7 @@ export const rig = async (script) => {
   const held = views();
   const daemon = {
     type: "daemon",
-    cortex: new Cortex().register([scripted.faculty]),
+    cortex: new Cortex(TIER_POINTS).register([scripted.faculty]),
     entities: {
       thread: threads,
       // the harness stamps the dock's turn id onto the row after chaining, so the stub takes the patch too.

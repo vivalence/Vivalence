@@ -41,6 +41,6 @@ export async function until(check, deadline, every = 200) {
   return null;
 }
 
-export const reached = (remote) => new Connection(remote).call("/status").then(() => true, () => false);
+export const reached = (remote) => new Connection(remote).call("/beacon/status").then(() => true, () => false);
 
 export const standing = { good: { processes: [] }, integrate: async () => {}, disintegrate: async () => {} };

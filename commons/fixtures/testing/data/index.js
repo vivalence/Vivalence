@@ -12,3 +12,5 @@ export {
   verbatimFaculty,
 } from "./faculties.js";
 export { BASE, CREDENTIALS, live } from "./live.js";
+export { TIER_POINTS } from "@vivalence/typology/scenarios";
+export { STUB_FACULTIES } from "./stub.js";

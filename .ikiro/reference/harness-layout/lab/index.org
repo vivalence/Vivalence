@@ -1,0 +1,151 @@
+#+title: harness-layout lab — the ui · the system · the intent · the quest, bundled 11-17
+# writer: agent · limit: 16000 chars
+
+* intent — his, verbatim, 11-17
+
+/"run a thorough testing campaign against this via subagent opus. test all levels of integration. standalone scratchpad"/
+
+/"and while that happens we go over ui. this needs a bit of a fingerprint in ghost and anima. i want you to build a standalone html page with all the anima stuff bundled where i can try components. then we need a few things. i want to be able to add and remove references to both toosl and primer in different places. the harness widget for sure. the inspector. hte sidebar. those get classical ui. then i need commands to run. preload load unload. plus some custom repl ui's for all that."/
+
+/"this is interesting ui wise. challanging too. how do i navigate these tree*maps ? add and remove from maps via tree. interesting."/
+
+/"study the old anima dock, study the repl, study how vivalence constructs ai. then run a little demo server with ui for me to try. either attached to anima or as a standalone server/html. maybe inside anima makes sense. under some /path/to/dev/testing/ui-design"/
+
+/"bundle this into a reference. the ui. the system. the intent. the quest"/
+
+* the quest
+
+=quests/m122-harness-layout.org= — DESIGNED, Q0 – Q27 locked and walked; the tangle waits on his word. The law the lab enacts: a path has ONE state =eager · lazy · none=, tools AND primer; the thread stores a DELTA over the mode's default, the delta wins, add-only (law 4 · 5, Q3A · Q4A); =TOOLED= · =PRIMED= keep the complete absolute reference (Q24A), a name is NARROWED from the thread's home (Q27); =tool/load · preload · unload= · =primer/load= (Q12 · Q14 · Q16 · Q21 · Q26).
+
+* the ui — =testament/prototypes/harness-ui/=
+
+the designer's brief, standalone: =lab/designer.org=
+
+#+BEGIN_SRC sh
+deno run -A testament/prototypes/harness-ui/run.js     # prints http://127.0.0.1:<free port>/, rebuilds + reloads on save
+#+END_SRC
+
+Placed under =testament/prototypes/= (his rule: a new mechanism is a blunt prototype first), NOT =anima/dev/ui-design= — outside his vite =:1794= watch. A move is cheap; HIS call. esbuild + babel-preset-solid, like =subsystems/drapes/design/build.js=; =@vivalence/drapes/parts= aliased; tokens via dapper =scales()= + =emit()=. No runtime: fixtures.
+
+| file | holds |
+|---+---|
+| =fixtures.js= | real references · valences · input schemas (harvest · nyan · francesca · runtime fs), the thread entity as Q1A · Q2A cast it |
+| =harness.js= | =narrow= (Q27) · =resolved= (longest covering key, else the mode's offer) · =OPS= load/preload/unload · =pour= · =request= · =changes= |
+| =tree.js= | the reference trie (host → type/slug → path, the =mode= step folded), =walk= · =sift= (subsequence) |
+| =store.js= | =thread = replay(events)=; the ONE repl line; a preview = =changes(thread, replay([...events, read(line)]))= |
+| =harness.css= | the comp's, verbatim (=../design/reading.org=) |
+| =map.jsx= | the comp's tree: strip · rows · set ● ○ × · the carried rail |
+| =sidebar.jsx= · =widget.jsx= · =inspector.jsx= · =signal.jsx= | the comp's four boards over the store; =signal.jsx= = the ONE field, its 8 states |
+| =repl.jsx= | B · columns, kept for his ruling (A · C folded into the field 11-17) |
+
+regions:
+- sidebar — the RESOLVED map (default + delta), folded per trait; a picked node grows a =keys= row: load · preload · unload, the current one lit
+- harness widget — the modeline segment =harness 7● 3◇ · primer 2●= opens a =Wid= on the DELTA itself (what the trait stores); a key click = =/tool/unload <key>=; =+ /tool/load …= prefills the line
+- inspector — drapes =Inspector=: lenses tools · primer; tree with =!= where a delta key sits; entity = resolved · delta key · offered · narrowed name · declaration (input names + types · output · examples) or the leaves under a branch; acts load · preload · unload · read; trace = the journal turns touching it
+- repl — ONE line, three shapes writing it: A segment completion (Tab one segment, many refs space-separated) · B columns (Miller walk, box ticks a reference, ▣ = covered by a ticked parent) · C sift (subsequence over the path, the tree kept, Space ticks); the preview diffs every affected leaf =before → after= before Enter
+- next request (=system=: eager primer + the lazy listing · =tools=: eager, narrowed) · the thread entity whole · the journal (Q9A double load)
+- header: home switch (=/mode <ref>=, journaled — names re-narrow), theme, undo, reset
+
+walked in Chrome 11-17, 0 console errors:
+
+#+BEGIN_SRC text
+/tool/load …/game/nyan/                       nyan/play none → eager
+/tool/preload /runtime/runtime/mode/guide     editor/open none → lazy
+/tool/unload …/harness/runtime/fs/read        eager → none (under the kept fs key)
+/primer/load …/francesca/grammar              lazy → eager
+/tool/unload …/harness/runtime/fs             5 → none; keys fs · fs/delete · fs/read deleted
+/tool/load /nowhere                           refused: matches nothing: /nowhere
+/mode …/harness/runtime                       names → fs_read · daemon_education_game_nyan_play
+#+END_SRC
+
+fixed on the walk: completion left a trailing =/= → the reference matched nothing; =read= strips it.
+
+open — the ui:
+- =/primer/preload= · =/primer/unload= are SKETCH (italic, =?=): no ruling; Q16 rules =tool/unload= only
+- the tree*map question stands: B · C tick references, but a tick of a branch vs its leaves is one gesture with two meanings (Q21 loads the whole tree under a branch) — unruled which the UI prefers
+- the ghost fingerprint: NOT built — the tty twin of sidebar · widget · repl
+- B's columns stop at the first level below a ticked trail when kids are empty
+- anima has no TOOLED/PRIMED surface: =sections.js:60-104= folds the mode's =metadata.harness= (default only)
+
+* the system — studied 11-17
+
+how a hallucination is built today:
+- =ghost/gestalten/belt/harness.js:5= → =mode.harness.dialogue.stream=
+- =runtime/subjects/mode/traits/harnessed.js:216-223= chain: normalizing · claiming (reads =INTELLIGENT= · =VOCAL=) · activating · requesting
+- =harnessed.js:45= =priming=: own primer · domain under its slug · =AGENTIC= siblings =load: "lazy"=; frontmatter sets =load= (=paladin/gestalten/belt/prime.js:4-18=)
+- =harnessed.js:78-89= =armory=: =/service/:slug= · domain · =mode.tools= · =primer_read= when a section is lazy; =:91-104= =arming= (=/repl=, input tools, binds)
+- =shard/hallucinate.js:11-16= =declarations= ={ name, valence, input }= — =output= dropped; =prototypes/toolcall.js:24= name = steps joined =_=
+- =belt/hallucinate.js:120= =respond=: deliver → =dispatch= → settle per round
+- in the tree: NO =TOOLED= · =PRIMED= (grep 0), none of the five tools; probes only
+
+anima chrome:
+- =panels/sidebar/sections.js:288-323= =intelligent=: tier · model · tune · effort · rounds · context + primer/tools subtrees, marks =● ◇ ◉=
+- harness widget = the sidebar's section through =modeline.jsx:104-137= → =parts.Wid=
+- inspector = =telemetry.jsx:99-156= → =parts.Inspector= (tree · entity · trace)
+- the old dock: the Svelte app deleted in =ntzuzkmyoxow=; =panels/c/cards/Harness.svelte= had meter · knobs · rounds — never a tool or primer list
+- =tests/world.js:46-133= is a stub world, STALE (=../src/surface/= gone)
+
+repl:
+- anima =panels/repl/repl.jsx= — fuzzy over natures (=belt/catalog.js=), =parts.Chooser= for =anyOf const= options or an =offered(ctx)= list (=shard/chooser.js:3-13=); no history, no list or tree argument, no path completion
+- =commands/content/harness.js:32-90= =/tier · /tune · /effort · /model= write =traits.patch(thread, …)= — the template for a TOOLED write
+- =runtime/subjects/mode/traits/repling.js= serves =/metadata/repl= = =shape.strip=; =strip= drops =chord=
+
+* the campaign — =campaign/=
+
+an opus agent, 11-17, isolated from his tree: zero repo edits bar ONE (=is.test.js:10= wrote =./undefined= with no argv; moved out, the stat restored). Re-run, from the root:
+
+#+BEGIN_SRC sh
+CAMPAIGN_HOME=<dir> bash .ikiro/reference/harness-layout/lab/campaign/run.sh unit/narrow.test.js
+#+END_SRC
+
+=<dir>= = a HOME holding =.viva/registry/{commons,education}= + =registry.json=: with an EMPTY HOME 17 probes die on =package @education not supplied=. Re-run from here 11-17: narrow 1 ok · 6 red, tools 4 ok · 6 red, loop 2 ok · 2 red — the agent's counts.
+
+| level | file | ok | red |
+|---+---+---+---|
+| baseline | 43 probe files + 2 suites | all | 0 |
+| unit | =unit/schemas.test.js= | 2 | 3 |
+| unit | =unit/narrow.test.js= | 3 | 6 |
+| component | =component/tools.test.js= | 4 | 6 |
+| integration | =integration/loop.test.js= | 2 | 2 |
+| integration | =integration/translators.test.js= | 1 | 2 |
+| system | =system/boot.test.js= | 3 | 0 |
+| system | =system/bench.test.js= | 1 | 1 |
+
+reds — none in =known-issues.org=:
+- R1 Q24A — =Tooled= takes a non-absolute key (=/tactic/harvest= · =""=)
+- R2 · R3 Q15 · Q25A — =Tool= has no =output= (=hallucination.js:168=); lowering + both translators drop it (=shard/hallucinate.js:11-16=)
+- R4 Q27 — no 64-char · provider-grammar throw; a real cross-daemon name = 92 chars
+- R5 · R6 Q27 — a mode TYPED =runtime= · =daemon= collides with the host marker
+- R7 Q27 — a tool path shadows a sibling's type/slug (=tactic_harvest_drain= names two)
+- R8 Q27 — an =_= in a slug or path breaks the round trip (=toolcall.js:12=)
+- R9 Q24 — =modes/index= · =tool/load= · =primer/load= read one reference three ways
+- R10 — =primer/load= refuses the narrowed forms
+- R11 — =primer/load= crashes on a mode with no primer (real daemon: nyan)
+- R12 — a module with no =tools= crashes =tool/load= half-written (raw-module form only)
+- R13 law 10 — an unknown reference loads nothing, silently (the lab refuses it)
+- R14 Q22 — a foreign daemon's tool sees the HOME daemon as =ctx.daemon= (=load.test.js:36=; the sibling =daemon/prototype.js:6-7= binds it)
+- R15 — a runtime-mode home crashes =tool_load= on the live ctx (no =ctx.daemon=)
+- R16 Q8 — the tool list is not append-only: round 4 inserts at index 4, the cache prefix breaks
+- R17 Q8 — no history cache mark
+
+the handoff's MISSING, each: primer keys through narrow RED (R10) · runtime-mode home RED on the live ctx (R15) · type =runtime=/=daemon= RED (R5 · R6) · shadowing RED (R7) · undeclared old tool turns: translators pass them through, provider acceptance UNTESTED (paid) · =ctx.runtime= correct, =ctx.daemon= wrong (R14) · 64 chars RED (R4) · the =PRIMED= half: no composer in the tree or the probes · =output= RED (R3) · =examples= forwarded · history cache mark RED (R17).
+
+gaps: the paid probes (cache · cache-loads · cache-openrouter · seam) skipped; the booted runtime runs the OLD harness — the design's tools ran in-process against real daemon objects (=bench=), never over the wire.
+
+seen on the tree, not the lab's: a sibling session saved =systems/runtime/run.js= at 12:49Z (his =:2501= restarted); his runtime writes =systems/runtime/vectors.count= = =undefined=.
+
+* review — the campaign, 11-17
+
+the lab tour cut after S1 (amen): /"i only care for testing thing. i already reviewed the quest"/
+
+| S | stop | rides | verdict | his words |
+|---+---+---+---+---|
+| 1 | R1 a TOOLED key is any string | Q24A | — | |
+| 2 | R2 · R3 output dropped twice | Q15 · Q25A | — | |
+| 3 | R4 a name past 64 chars | Q27 | — | |
+| 4 | R5 – R8 two tools, one name | Q27 | — | |
+| 5 | R9 · R10 · R13 three readers, silent unknown | Q24 · law 10 | — | |
+| 6 | R11 · R12 · R15 crashes | — | — | |
+| 7 | R14 a foreign tool's daemon | Q22 | — | |
+| 8 | R16 · R17 the cache prefix | Q8 | — | |
+| 9 | the gaps: PRIMED composer · the wire · the probes | Q9A | — | |

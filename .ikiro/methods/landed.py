@@ -20,6 +20,8 @@ SPECS = [
     ("done/m96-client-mothership.org", "* as code — m96's own hunks"),
     ("done/m95-depincered-client.org", "* as code — the rulings as the hunks they build; =***= system · =****= file"),
 ]
+if ONLY and not any(ONLY in quest for quest, _ in SPECS):
+    sys.exit(f"landed: --quest {ONLY} names no SPECS entry — it measures only the m96 constituents; grep the hunk's NEW text instead")
 
 def section(quest, heading):
     text = open(Q + quest, encoding="utf-8").read().split("\n")

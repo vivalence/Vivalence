@@ -1,3 +1,4 @@
+import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { Cortex, Path, shape, specimen, steer, ToolCall } from "@vivalence/typology";
 import { strToU8, zipSync } from "npm:fflate@0.8.3";
 import { parseHTML } from "linkedom";
@@ -67,13 +68,13 @@ const seen = [];
 const writer = () => ({
   type: "dialogue",
   id: "scripted-writer",
-  tune: [0.9, 1.0, 0.3],
+  tune: [0.9, 0.3, 0.5],
   channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
   via: {
     render: async (request) => {
       seen.push(request);
       const data = { html: '<h1 data-block="b1">Tides</h1>' };
-      return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" }, object: data };
+      return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" } };
     },
   },
 });
@@ -82,7 +83,7 @@ const read = [];
 const transcriber = () => ({
   type: "dialogue",
   id: "scripted-transcriber",
-  tune: [0.7, 0.8, 0.4],
+  tune: [0.7, 0.4, 0.5],
   channels: { in: ["text", "document"], out: ["text"] },
   via: {
     render: async (request) => {
@@ -98,7 +99,7 @@ const transcriber = () => ({
         ]
         : [{ kind: "heading", level: 2, text: "Gauges" }, { kind: "figure", page: 10, caption: "Fig. 3. A gauge." }];
       const data = { blocks };
-      return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" }, object: data };
+      return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" } };
     },
   },
 });
@@ -108,7 +109,7 @@ let site;
 let buffer;
 let call;
 specimen.beforeAll(async () => {
-  scenario = await mountMode(reader, { cortex: new Cortex().register([writer(), transcriber()]) });
+  scenario = await mountMode(reader, { cortex: new Cortex(TIER_POINTS).register([writer(), transcriber()]) });
   scenario.mode.mountpoint = new Path(await Deno.makeTempDir({ prefix: "reader-" }));
   site = Deno.serve({ port: 0, onListen() {} }, (request) => {
     const path = new URL(request.url).pathname;
@@ -175,6 +176,7 @@ specimen.describe("reader — the mode as declared", () => {
       chunk: 2,
       pauses: "light",
       context: true,
+      rail: true,
     });
   });
 });
@@ -335,7 +337,7 @@ specimen.describe("reader — a pdf: its screen picks reflowed text or the pages
   specimen.it("reflow · text: the pdf's own title, its text typeset", async () => {
     const id = (await fresh()).id;
     await put(id, "tides.pdf", "application/pdf", PDF);
-    specimen.expect((await held(id)).data.intake.options).toEqual({ kind: "pdf", flow: "reflow", reader: "text" });
+    specimen.expect((await held(id)).data.intake.options).toEqual({ kind: "pdf", flow: "reflow", reader: "text", scannable: false });
     await drained(call.parse({ buffer: id, options: { kind: "pdf", flow: "reflow", reader: "text" } }));
     const stored = await held(id);
     specimen.expect(stored.data.article.title).toBe("Tide Tables");
@@ -348,6 +350,64 @@ specimen.describe("reader — a pdf: its screen picks reflowed text or the pages
     await drained(call.parse({ buffer: id, options: { kind: "pdf", flow: "pages", reader: "text" } }));
     specimen.expect((await book(await held(id))).body.innerHTML).toBe(
       '<section data-chapter="c1" data-title="Tide Tables"><figure data-block="b1" data-page="1"></figure></section>',
+    );
+  });
+});
+
+specimen.describe("reader — a scanned pdf read by the ocr service the mode consumes", () => {
+  const asked = [];
+  let offered;
+  let packets;
+  let stored;
+
+  specimen.beforeAll(async () => {
+    scenario.daemon.providers.ocr = async function* (source) {
+      asked.push(source);
+      yield { text: "Tide Tables", words: [{ word: "Tide", page: 1 }, { word: "Tables", page: 1 }] };
+      yield { text: "The tide rises twice a day.", words: [{ word: "The", page: 2 }] };
+    };
+    const id = (await fresh()).id;
+    await put(id, "scan.pdf", "application/pdf", PDF);
+    offered = (await held(id)).data.intake.options;
+    packets = await drained(call.parse({ buffer: id, options: { ...offered, reader: "ocr" } }));
+    stored = await held(id);
+  });
+
+  specimen.afterAll(() => {
+    delete scenario.daemon.providers.ocr;
+  });
+
+  specimen.it("the pdf screen is offered the scan", () => {
+    specimen.expect(offered).toEqual({ kind: "pdf", flow: "reflow", reader: "text", scannable: true });
+  });
+
+  specimen.it("the service is handed the pdf whole, as a document part", () => {
+    specimen.expect(asked.length).toBe(1);
+    specimen.expect(asked[0].type).toBe("document");
+    specimen.expect(asked[0].media).toBe("application/pdf");
+    specimen.expect(atob(asked[0].data).startsWith("%PDF-")).toBe(true);
+  });
+
+  specimen.it("every page streams a read step counting the blocks so far", () => {
+    const steps = packets.filter((packet) => packet.step === "read").map((packet) => packet.value);
+    specimen.expect(steps.slice(1)).toEqual(["page 1 · 1 blocks", "page 2 · 2 blocks"]);
+  });
+
+  specimen.it("every ocr block is a block of the book, the pdf's own title kept", async () => {
+    specimen.expect(stored.data.article.title).toBe("Tide Tables");
+    specimen.expect([...(await book(stored)).querySelectorAll("[data-block]")].map((block) => block.textContent)).toEqual([
+      "Tide Tables",
+      "The tide rises twice a day.",
+    ]);
+  });
+});
+
+specimen.describe("reader — a mode that consumes no ocr service", () => {
+  specimen.it("refuses the ocr reader in a sentence", async () => {
+    const id = (await fresh()).id;
+    await put(id, "scan.pdf", "application/pdf", PDF);
+    await specimen.expect(drained(call.parse({ buffer: id, options: { kind: "pdf", flow: "reflow", reader: "ocr" } }))).rejects.toThrow(
+      "reader: this mode consumes no ocr service",
     );
   });
 });

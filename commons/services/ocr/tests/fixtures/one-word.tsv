@@ -1,0 +1,6 @@
+level	page_num	block_num	par_num	line_num	word_num	left	top	width	height	conf	text
+1	1	0	0	0	0	0	0	300	100	-1	
+2	1	1	0	0	0	31	37	93	28	-1	
+3	1	1	1	0	0	31	37	93	28	-1	
+4	1	1	1	1	0	31	37	93	28	-1	
+5	1	1	1	1	1	31	37	93	28	96.877258	Tides

@@ -1,0 +1,37 @@
+#+title: call-faculty milestone 0 — Q24–Q32 by file (11-17); hunks in =layout-11-17*.org=
+# writer: agent · limit: 4000 chars
+
+| file | locks |
+|---|---|
+| =commons/fixtures/testing/data/faculties.js= | Q32 |
+| =commons/fixtures/testing/hal/stub/provider/index.js= | Q24 nouns · Q32 |
+| =commons/hallucinators/anthropic/provider/index.js= | Q32 |
+| =commons/hallucinators/anthropic/provider/translate.js= | Q24 nouns · Q26 stateful, parses a tool's input · Q27 =usage= ours, receipt in =meta.provider= (Q31) · Q30 =speak(part.product)= |
+| =commons/hallucinators/openrouter/provider/index.js= | Q32 |
+| =commons/hallucinators/openrouter/provider/translate.js= | Q24 · Q26 · Q27 · Q30 · S4 =translatePicture= |
+| =commons/instances/hello-world/app/App.svelte:121= | Q25 names off the turn · Q30 |
+| =subsystems/typology/entities/Turn.ts= | Q27 =onLoad= heal |
+| =subsystems/typology/gestalten/belt/hallucinate.js= | Q25 =/turn/full= only · Q24 =response= (6 yields) · Q29 =open= read off · Q30 |
+| =subsystems/typology/gestalten/belt/soma.js= | Q24 =pour= tables + =if (noun === "part")= · Q25 · Q26 no tool case · Q24 =/response/close= · Q30 · Q32 |
+| =subsystems/typology/gestalten/fromm/yield.js= | Q30 · Q32 |
+| =subsystems/typology/gestalten/is/prototypes.js:78= | Q30 =yieldish= reads =product= |
+| =subsystems/typology/gestalten/shard/hal.js:68= | Q30 =rendered.product.message= |
+| =subsystems/typology/prototypes/cortex.js:46= | Q29 render =output: Response= |
+| =subsystems/typology/prototypes/pool.js= | Q28 · Q30 |
+| =subsystems/typology/schematics/primitives/hallucination.js= | Q24 =TurnClose= · =ResponseClose= · =Audio.Packet= · Q25 =ToolCall= · =ToolYield= die · Q27 =Usage= · =Meta= · Q29 =Response= · Q30 =Part.ToolResult= · S4 =Picture.Response= =meta= |
+| =subsystems/typology/schematics/prototypes/yield.js= | Q30 |
+| =systems/anima/…/telemetry/entities.js:444= | Q27 paints =usage.input= · =output= |
+| =systems/ghost/entities/mode/traits/harnessed.js:20= | Q25 |
+| =systems/runtime/subjects/mode/traits/emitter.js:56= | Q30 |
+| =systems/runtime/subjects/mode/traits/harnessed.js:233= | Q29 =output: Response= (dialogue · object) |
+| Q30's callers | ~115 source sites · ~50 files (24 =~/.viva/registry=) · ~290 test sites, regex-counted |
+
+Rides too: Q21's rename (the quest's milestone 0 row). Snapshots re-pinned: =hallucination-object-schema= · =hallucination-tool-loop= · both translators'. Unwritten under the locks: Q24's =align= · the stub · the walk's microphone copies; Q27's codec wire · =meta: null= · what =input= counts.
+
+* landed 11-17 /"go land the quest"/ (watcher stopped first)
+- his ruling 11-17, asked at the touch: a stored =tool_result='s =output= heals to =product= in Q27's =onLoad= (=Parts= codec beside =Meta=, =Turn.ts=) /"Same onLoad heal"/
+- typology: =hallucination.js= (=Usage= · =Meta= codec, receipt → =provider.usage= · =Parts= · =Response= · nouns · tool packets die) · =soma.js= tables · =hallucinate.js= · =fromm/yield.js= (declared =kind= cut) · =pool.js= · =is= · =hal.js= · =cortex.js= · =Turn.ts=
+- providers: anthropic stateful =streamTranslator= · openrouter =close()= parse · elevenlabs · deepgram · stub · =faculties.js=; registry 28 files · commons · paladin · dapper (=design()= → =product=); runtime · anima =journal.jsx=; ghost =harnessed.js= · =stall.js=
+- snapshots re-pinned, each diff read: =hallucination-{tool-loop,stream,object-schema}= · both translators' · =stub-runs= · =cortex-contract-render= · =harness-metadata=
+- proof: 29 baseline suites green; the heal step (=turn.coverage.test.js=) fails without the hook; =emitters.test.js= was vacuous, fixed
+- left: =Meta.usage= wire takes any record (the heal's price) · anthropic cache tokens only in =provider.usage= (unruled) · =francesca/harness.js:38= reads =meta.appraise= (closed =Meta=) · =telemetry/entities.js:424= reads =part.isError= · 2 stale bundles (dojo · reader) · stale comments naming =output=: =hallucination.js:72= · =fromm/yield.js:3=

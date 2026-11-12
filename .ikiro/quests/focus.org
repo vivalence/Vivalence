@@ -1,0 +1,148 @@
+#+title: focus — =$focus= is the one truth; the browser binds =document.activeElement= to it
+#+filetags: :ghost:anima:drapes:focus:
+#+status: PARTIAL 11-16 — the dock textarea holds the caret on =ctrl-v ctrl-v=, proven on his =:1794= (/"fix autofocus"/); =composer= renamed, 28 files (/"FUCKING RENAME RIGHT FUCKING NOW"/); frame · consent · route leaves locked, unlanded; filter · view =focused= · phone unruled
+# writer: agent · limit: 9000 chars · UNNUMBERED
+
+* intent
+
+/"when i open repl by ctrl-v 2x i dont have an autofocus on the repl. bad"/
+
+/"is controlling focus smart/wise? … is it a concept that scales? will we need it long term? just a hack?"/
+
+/"focus as a vector is nice. question. per app/client or per terminal? whats in the effect of the vector? do we still have an $atom as source of truth? aka push or pull focus?"/
+
+/"ok on framing. but id watn document.activeElement to be a f($atom). as a clietn specific binding on a shared abstraction. doable i assume? lock."/
+
+/"i think our list of focus subjects is larger, no? … what about dock? down to specific features like input/turn? how do we handle focus inside a buffer? is that cilent managed ?"/
+
+/"so. where are we on the coherent focus management system????"/
+
+* rulings
+
+| # | his words | state |
+|---+-----------+-------|
+| R1 | /"focus as a vector is nice."/ | route exists, leaves unlanded |
+| R2 | /"id watn document.activeElement to be a f($atom). as a clietn specific binding on a shared abstraction."/ · /"lock."/ | landed, dock textarea |
+| R3 | /"1."/ — nothing named holds the keys → =null= | landed |
+| Q0 | /"b"/ — a focus report writes =$focus= directly | landed |
+| Q1 | /"b"/ — the part takes =focus= as a prop | landed, =Field= |
+| Q2 | /"a"/ — the frame body is a holder in the browser | landed |
+| Q3 | /"a"/ — a name only where a signal sends keys | unlanded |
+| N1 | /"ah you mean the dock textarea"/ | landed |
+| N2 | /"2. dock — $focus = "dock" …; file panels/dock/textarea.jsx."/ | landed |
+| Q4 | /"call it dock.input"/ · /"amn a"/ — the ADDRESS in =$focus=; the thing stays the dock textarea | landed |
+| Q5 | /"b"/ — one grammar, panel then holder: =dock.input= · =frame.view= · =sidebar.filter.<kind>= | landed |
+| Q6 | /"whateveer"/ — MINE, his to overrule: =/focus <panel>= stays, a table gives the panel its holder | landed |
+| Q7 | /"q7c"/ — the repl ALWAYS takes the keys at its own address =repl.input=; the dock mirrors | landed |
+
+* as code
+
+** landed
+
+#+BEGIN_SRC jsx
+// systems/anima/src/surfaces/chrome/mount.jsx — Q0 · R3
+  const held = (event) => {
+    const holder = event.target.closest("[data-focus]");
+    appDie.bridge.$focus.set(holder === null ? null : holder.dataset.focus);
+  };
+  const dropped = (event) => {
+    if (event.relatedTarget === null) appDie.bridge.$focus.set(null);
+  };
+  globalThis.document.addEventListener("focusin", held);
+  globalThis.document.addEventListener("focusout", dropped);
+#+END_SRC
+
+#+BEGIN_SRC jsx
+// subsystems/drapes/Field.jsx — Q1
+  createEffect(() => {
+    if (held.focus && document.activeElement !== element) element.focus({ preventScroll: true });
+  });
+#+END_SRC
+
+** landed 11-16 — Q2, the frame body
+
+#+BEGIN_SRC diff
+// systems/anima/src/surfaces/chrome/panels/frame/frame.jsx:116
+-      <div class="fbody" data-r="fbody">
++      <div ref={body} class="fbody" data-r="fbody" data-focus="frame.view" tabindex="-1">
+#+END_SRC
+
+#+BEGIN_SRC jsx
+// systems/anima/src/surfaces/chrome/panels/frame/frame.jsx — inside Frame, beside its effects
+  createEffect(() => {
+    if (focus() === "frame.view" && !body.contains(document.activeElement)) body.focus({ preventScroll: true });
+  });
+#+END_SRC
+
+** landed 11-16 — Q4 · Q5 · Q6, the addresses (probe =focus.probe.js=: =/focus frame= → =frame.view=, bare flips, =/focus sidebar= VALIDATION)
+
+#+BEGIN_SRC js
+// systems/ghost/gestalten/commands/surface/focus.js — Q6
+const HOLDERS = {
+  dock: "dock.input",
+  frame: "frame.view",
+};
+    ctx.client.app.bridge.$focus.set(HOLDERS[held]);
+#+END_SRC
+
+* terrain — measured 11-16
+
+| holder | tty | browser | =$focus= |
+|--------+-----+---------+----------|
+| dock textarea | =ghost …/dock/textarea.jsx= | =drapes/Field.jsx= | =dock.input= |
+| repl input | =ghost …/repl/repl.jsx:28= | =Field=, anima =repl.jsx= | =repl.input= |
+| consent | in the dock's slot | =drapes/Consent.jsx:18= | none |
+| sidebar filter | =ghost …/entity/entity.jsx:116= | =drapes/Sbfilter.jsx:13= | =sidebar.filter.<kind>=, tty only |
+| frame view | =ghost …/frame/frame.jsx:118= | =.fbody= | =frame.view= |
+| journal cell view | =focused: () => false= (m111 Q5) | — | never |
+
+Probe: a same-value =atom.set= wakes nobody — ={"sameValueNotifies":false,"fired":1}= (nanostores 1.0.1). A request cannot ride a store that already holds it; the report (Q0) is what makes the next request a change.
+
+Probe: the drapes test DOM has =focus()=, no =activeElement=, no =focusin= — ={"hasFocus":"function","after":null,"seen":[]}=. Real focus is proven only on a foreground browser window.
+
+* QA
+
+/"I click the journal, press ctrl-v ctrl-v, I type — the catalog narrows."/
+
+#+marker_qa: focus/T-dock-caret · held · his :1794 11-16: load TEXTAREA#textarea · click journal BODY · ctrl-v ×2 TEXTAREA#textarea, value "/", catalog open, console clean
+#+marker_qa: focus/T-frame-caret · pending · /focus frame takes the caret out of the dock textarea; a click in the frame reports "frame"
+#+marker_qa: focus/T-consent-keys · pending · a paused activity: y · n · e act without a click
+#+marker_qa: focus/P-phone-keyboard · pending · a tap on the palette key opens the soft keyboard (m24 focus law)
+
+* deferred
+
+- the sidebar filter in the browser: a named holder =sidebar.filter.<kind>= there too? unruled.
+- =focused= handed to browser views (=anima …/frame/view.jsx:15= passes none; tty =frame.jsx:118= does). unruled.
+- the bare =/focus= flip and each leaf's output under Q3. unruled.
+
+* changelog
+
+- /"fix autofocus"/ · /"fix"/ 11-16 — three files: =drapes/Field.jsx= · anima =mount.jsx= · anima dock textarea. =drapes/tests/parts/field.test.js= =1 failed (1 step)= → =ok | 1 passed (4 steps)=; closes =drapes-field-focus-class-unset=.
+- departures, mine, reported: the mark sits on the textarea, not its wrapper (a focused send key inside the wrapper would report the textarea) · the =activeElement !== element= guard (m24) · Q2 not landed with it.
+- /"FUCKING RENAME RIGHT FUCKING NOW"/ · /"2. dock …"/ 11-16 — one asserted script, dry then wet: 28 files, 3 moves, residue zero outside the keep-list. =ghost commands.test.js= =ok | 1 passed (35 steps)= · =legend.test.js= =ok | 1 passed (10 steps)= · =viva --help= rc 0.
+- mine, his to overrule: the tty catalog's input component is =Input= (=ghost …/repl/repl.jsx:21=).
+- not mine, red before: anima =regions.test.js= · =textarea.test.js= =Could not resolve "./panes/index.js"= (+4). Unverified: =subsystems/sheets/tests= (=OpenTUI native FFI is not available=), no baseline taken.
+- keep-list: =typology/types.d.ts:326= =MiddlewareComposer= · =~/.viva/registry/{assembly,vcompany}= (their own parts) · =testament/= · generated =build/= · =bundle/app.mjs=.
+
+- /"go"/ · /"land"/ 11-16 — 14 files. =commands.test.js= =35 steps= · =legend= =10= · =field= =4= · =consent= =3=, all ok. Mine, =:1794=, synthetic keys: =/focus frame= → =DIV.fbody= active, field drops =.focus=.
+
+- /"q7c"/ · /"go"/ 11-16 — 10 files; =:1794= synthetic: inner input → chord → =#repl= → =esc= → inner input; dock =/= → =#repl= → =esc= → dock.
+
+* release
+
+- renamed =/focus composer= — =/focus dock=; answers =keys to the dock= · migrate: retype ⟨focus⟩
+- fixed anima — =ctrl-v ctrl-v= puts the caret in the dock textarea · migrate: none ⟨focus⟩
+- changed — the repl owns its input in the browser, the dock mirrors · migrate: none ⟨focus⟩
+- fixed — =esc= on the repl hands the keys back to the panel that held them; =/repl/close= answers nothing · migrate: none ⟨focus⟩
+
+* review — 11-16
+
+7 stops · 7 amen · 1 drilled (S4 → Q4 · Q5 · Q6) · S5: the two-leaf sketch CUT, the argued =/focus= stands.
+
+* handoff
+
+- goal: every named holder obeys =$focus= in both clients.
+- done: dock textarea, both directions, browser; the rename · addresses =dock.input= · =frame.view= · =sidebar.filter.<kind>= · frame body holder · consent =focus= prop · =$focusHistory= (cap 6) + =belt.focus.back= on =/repl/close=, no output.
+- next: his walk, real keys, both clients (Q7 · frame =inner= · =submit= =back=, live on =:1794= synthetic only) · the =dock.consent= writer.
+- never: a pinner (=drapes/controls/persist.js= is for on-screen keys) · a blur on =null= · the killed noun in a new row.
+- owed: WHO writes =dock.consent= (11-16 probe: the swap fires =focusout= related =null= → =$focus= =null=, caret on =BODY=; =T-consent-keys= red without it) · =legend.test.js:19= seats ="journal"=, no holder · the three =* deferred= rulings · =P-phone-keyboard= · a click while the repl is open, then =esc= · history skips =null= (mine) · no test on cap · =inner= · anima repl field.

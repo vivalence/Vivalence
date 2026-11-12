@@ -2,7 +2,7 @@ import paladin from "@vivalence/paladin";
 import { Connection, Url } from "@vivalence/typology";
 
 const status = (remote) =>
-  new Connection(remote).call("/status").then(
+  new Connection(remote).call("/beacon/status").then(
     (held) => held,
     () => null,
   );

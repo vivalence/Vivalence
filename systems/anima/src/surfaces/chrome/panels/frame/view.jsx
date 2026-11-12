@@ -1,4 +1,4 @@
-import { from } from "solid-js";
+import { from, Show } from "solid-js";
 import { Dynamic } from "solid-js/web";
 import * as parts from "@vivalence/drapes/parts";
 import * as ambient from "../../ambient/index.js";
@@ -36,14 +36,28 @@ export const Cell = (props) => {
   const framed = from(terminal.$buffer);
   const pool = from(candidates(props.buffer, app.client.runtime.entities.file.$entities));
   return (
-    <parts.Artcard
-      mode={reference(props.buffer.mode)}
-      label={named(props.buffer)}
-      inframe={framed() === props.buffer}
-      picks={cellPicks(props.buffer, cells(pool()))}
-      onPick={props.onLine}
-      onFull={() => props.onLine(`/buffer/full ${named(props.buffer)}`)}>
-      <View buffer={props.buffer} listed={cells} picked={cell} />
-    </parts.Artcard>
+    <Show
+      when={cells(pool()).length > 0}
+      fallback={
+        <parts.Artchip
+          mode={reference(props.buffer.mode)}
+          label={named(props.buffer)}
+          inframe={framed() === props.buffer}
+          onOpen={() => props.onLine(`/buffer "${named(props.buffer)}"`)}
+          onFull={() => props.onLine(`/buffer/full ${named(props.buffer)}`)}
+        />
+      }
+    >
+      <parts.Artcard
+        mode={reference(props.buffer.mode)}
+        label={named(props.buffer)}
+        inframe={framed() === props.buffer}
+        picks={cellPicks(props.buffer, cells(pool()))}
+        onPick={props.onLine}
+        onFull={() => props.onLine(`/buffer/full ${named(props.buffer)}`)}
+      >
+        <View buffer={props.buffer} listed={cells} picked={cell} />
+      </parts.Artcard>
+    </Show>
   );
 };

@@ -11,7 +11,7 @@ const bar = async (name, width = 100, over = {}) => {
 
 specimen.describe("Bar — the mode bar, one row: mark · entity · harness · activity · display · system", () => {
   specimen.it("idle: no activity segment; the segments left to right, display and system right, the system a bare dot", async () => {
-    specimen.expect((await bar("idle"))[0]).toMatch(/^ <<  \[e4 openings ‹board\/play›\]  \{capable ██░░░░\}\s+\[right\]  ● $/);
+    specimen.expect((await bar("idle"))[0]).toMatch(/^ <<  \[e4 openings ‹board\/play›\]  \{capable ██░░░░ 7● 1◇\}\s+\[right\]  ● $/);
   });
 
   specimen.it("no harness, no braces: harness null drops its segment", async () => {
@@ -21,7 +21,7 @@ specimen.describe("Bar — the mode bar, one row: mark · entity · harness · a
   specimen.it("running: the activity segment shows; consent: ? approve; faulted: ! and the context meter at caution", async () => {
     specimen.expect((await bar("running"))[0]).toMatch(/▰▱ running · r3\/10/);
     specimen.expect((await bar("consent"))[0]).toMatch(/\?▰▱ approve match_move/);
-    specimen.expect((await bar("faulted"))[0]).toMatch(/\{capable ██████\}  !▰▱ fault · r3/);
+    specimen.expect((await bar("faulted"))[0]).toMatch(/\{capable ██████ 7● 1◇\}  !▰▱ fault · r3/);
   });
 
   specimen.it("the display word is a table over view × align: docked names its side, the rest name the view", async () => {

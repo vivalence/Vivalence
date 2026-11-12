@@ -7,6 +7,11 @@
 				const theme = JSON.parse(localStorage.getItem("viva.bridge.theme"));
 				if (["northsea", "parchment", "porcelain", "datasette"].includes(theme)) document.documentElement.dataset.theme = theme;
 			} catch (_) {}
+			try {
+				const fonts = { "2xs": "11px", xs: "12.5px", sm: "14px", base: "16px", lg: "18px", xl: "20px", "2xl": "22.5px" };
+				const font = JSON.parse(localStorage.getItem("viva.bridge.font"));
+				if (Object.hasOwn(fonts, font)) document.documentElement.style.fontSize = fonts[font];
+			} catch (_) {}
 		</script>
 		<link rel="icon" href="/favicon.png" />
 		<link rel="manifest" href="/manifest.json" />

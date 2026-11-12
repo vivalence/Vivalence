@@ -1,6 +1,10 @@
 export { entity } from "./entity.js";
 export { buffer } from "./buffer.js";
 export { thread } from "./thread.js";
+export { literal } from "./literal.js";
+export { symbol } from "./symbol.js";
 export { mode } from "./mode.js";
 export { primer } from "./primer.js";
+export { modes } from "./modes.js";
+export { tool } from "./tool.js";
 export { generative } from "./generative.js";

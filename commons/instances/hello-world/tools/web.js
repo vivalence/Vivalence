@@ -37,9 +37,9 @@ export const web = new Vector()
     async (ctx) => {
       try {
         const results = await query(ctx.input.query, ctx.input.count);
-        return { output: { results, count: results.length } };
+        return { product: { results, count: results.length } };
       } catch (error) {
-        return { condition: "ERROR", output: { message: error.message } };
+        return { condition: "ERROR", product: { message: error.message } };
       }
     },
   )
@@ -75,7 +75,7 @@ export const web = new Vector()
       if (!reader) {
         return {
           condition: "ERROR",
-          output: {
+          product: {
             message:
               "web_read is not available on this daemon — no reader service is consumed. " +
               "Do not retry it. Answer from the web_search snippets you already have, and say " +
@@ -95,20 +95,20 @@ export const web = new Vector()
           }],
           output: { schema: Pick },
         });
-        const pick = folded.output.object;
+        const pick = folded.product.object;
 
         const article = page.extract(pick.selector);
         // the title is the DOCUMENT's, never the model's — the skeleton it read carries no text,
         // so a title from the pick could only ever be a guess or a refusal. it answered
         // "<UNKNOWN>" on the first live read, which was the honest answer to a bad question.
-        const output = { url: page.url, title: page.title, ...article };
+        const product = { url: page.url, title: page.title, ...article };
         // the one number that decides whether this tool is affordable: what the model is
         // handed back, and re-billed for on every later turn of the thread.
-        return { output };
+        return { product };
       } catch (error) {
         return {
           condition: "ERROR",
-          output: { message: `${error.message} — ${ctx.input.url}` },
+          product: { message: `${error.message} — ${ctx.input.url}` },
         };
       }
     },

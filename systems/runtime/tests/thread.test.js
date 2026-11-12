@@ -37,7 +37,7 @@ specimen.describe("Thread", () => {
     });
     await em.flush();
 
-    specimen.expect(stamped.traits).toEqual(["MASKED", "AIMED", "QUEUEING", "INTELLIGENT", "VOCAL"]);
+    specimen.expect(stamped.traits).toEqual(["MASKED", "AIMED", "QUEUEING", "HARNESSED", "CONVERSATIONAL"]);
     specimen.expect(stamped.trait.AIMED.mount).toBe("/emit/feed");
     specimen.expect(stamped.trait.QUEUEING.depth).toBe(1);
     specimen.expect(stamped.trait.MASKED.limit).toBe(4);
@@ -45,8 +45,8 @@ specimen.describe("Thread", () => {
     const orphan = em.create(ThreadEntity, { user: fixtures.user, mode: fixtures.mode });
     await em.flush();
 
-    specimen.expect(orphan.traits).toEqual(["INTELLIGENT", "VOCAL"]);
-    specimen.expect(orphan.trait.INTELLIGENT).toEqual({ tier: "capable", effort: "low", rounds: 12 });
+    specimen.expect(orphan.traits).toEqual(["HARNESSED", "CONVERSATIONAL"]);
+    specimen.expect(orphan.trait.HARNESSED).toEqual({ tier: "capable", effort: "low", rounds: 12, slugging: "deep" });
     specimen.expect(orphan.trait.QUEUEING).toEqual({ depth: 1 });
     specimen.expect(orphan.intent).toBeFalsy();
   });
@@ -74,7 +74,7 @@ specimen.describe("Thread", () => {
     });
     await em.flush();
 
-    specimen.expect(overriding.traits).toEqual(["MASKED", "AIMED", "QUEUEING", "INTELLIGENT", "VOCAL"]);
+    specimen.expect(overriding.traits).toEqual(["MASKED", "AIMED", "QUEUEING", "HARNESSED", "CONVERSATIONAL"]);
     specimen.expect(overriding.trait.AIMED.mount).toBe("/emit/feed");
     specimen.expect(overriding.trait.QUEUEING.depth).toBe(1);
     specimen.expect(overriding.trait.MASKED.limit).toBe(10);
@@ -119,5 +119,27 @@ specimen.describe("Thread", () => {
     queued.trait = { ...queued.trait, QUEUEING: { depth: 0 } };
     const invalid = await updating.flush().then(() => null, (error) => error.message);
     specimen.expect(invalid).toContain("/QUEUEING/depth");
+  });
+
+  specimen.it("Q40 — a stored thread wearing INTELLIGENT · VOCAL heals at load; the next flush writes the heirs", async () => {
+    const stored = em.create(ThreadEntity, { user: fixtures.user, mode: fixtures.mode });
+    await em.flush();
+    const connection = em.getConnection();
+    await connection.execute(
+      `update thread set traits = '["INTELLIGENT","VOCAL"]', trait = '{"INTELLIGENT":{"tier":"fast","rounds":21},"VOCAL":{}}' where id = ?`,
+      [stored.id],
+    );
+    const loading = em.fork();
+    const loaded = await loading.findOneOrFail(ThreadEntity, { id: stored.id }, { filters: false });
+    const seen = { traits: loaded.traits, trait: loaded.trait };
+    await loading.flush();
+    const [row] = await connection.execute(`select traits, trait from thread where id = ?`, [stored.id]);
+    const written = { traits: JSON.parse(row.traits), trait: JSON.parse(row.trait) };
+    console.log(JSON.stringify({ seen, written }, null, 2));
+    specimen.expect(seen.traits).toEqual(["HARNESSED", "CONVERSATIONAL"]);
+    specimen.expect([seen.trait.TOOLED, seen.trait.PRIMED]).toEqual([{}, {}]);
+    specimen.expect(written.traits).toEqual(["HARNESSED", "CONVERSATIONAL"]);
+    specimen.expect(written.trait.HARNESSED).toEqual({ tier: "fast", effort: "low", rounds: 21, slugging: "deep" });
+    specimen.expect(written.trait.CONVERSATIONAL).toEqual({ language: [], hear: {}, speak: {}, call: {}, polish: { engaged: true } });
   });
 });

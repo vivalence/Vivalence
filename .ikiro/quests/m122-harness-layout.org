@@ -1,0 +1,126 @@
+#+title: harness layout — one word per subject on mode AND thread; TOOLED · PRIMED compose the hallucination
+#+filetags: :typology:runtime:harness:traits:
+#+status: TANGLING 11-17 — Q0 – Q40 LOCKED; code 5 · ui 5 · stop 9 · Q19 · gaps LANDED (=milestones.org= · =ui.org= · =pass-11-17.org=); comp INTEGRATED; walk owed; /"heavy on testing and snapshotting throughout!"/
+# writer: agent · limit: 16000 chars
+
+* intent
+
+/"conversational used to be the marker for this. that was the idea. but conversation became a faculty and its kinda not clean rn. so. /fold then we clean up the mode traits"/
+
+/"harnessed. means we have a place to put our tools and primer and stuff. its the thing we talk to. … consumer side on thread we select models and settings with intelligent. but we need another place to put allthe interaction stuff. conversation makes sense."/
+
+/"we will need a plcae to manage what tools are acessible. think about the intent of vivalence. beyond whats subject rn. whast the right layout for our intelligent features?"/
+
+/"depending on what mode were on, differnt things are loaded into each hallucination by default and then we need further tooling to pull in more stuff, either specific tools from other modes, stuff in the repl, maybe custom build ephemeral stuff like subagents … i might be mid drill session learning langugae. then i only whatever that mode loads. but suddenly i want to make a change or generate some data or a literal rewritten or assets collected from the internet or a research done and a buffer or file written that another agent should then read to me … we will need ways to make the boundries fluid."/
+
+Scope: /"drop the emitter stuff from scope here."/
+
+* the dialogue
+
+| # | the ruling | beef, verbatim |
+|---+------------+----------------|
+| frame | the author offers on the mode, the user chooses on the thread | /"ok on the perspective. good framing."/ |
+| Q0 | =CONVERSATIONAL= = a human converses here (typed · dictated · called); =HARNESSED= = the mode has a model | /"a is correct."/ · /"i would think for conversational to include chat turn stuff."/ |
+| Q1A | the thread wears =CONVERSATIONAL=; =VOCAL= dies, its properties move whole; =hear= · =speak= · =call= each a full =Selector=; =language= a list | /"a. but keep hte properties on vocal to be coherent with out sematnics. not just provider. model id and wat else as selectors also valid."/ · /"great. languages is list!"/ |
+| Q2A | the thread wears =HARNESSED=; =INTELLIGENT= dies, schema unchanged | /"a"/ |
+| Q3 | the thread loads AND filters, tools AND primer | /"armed amen."/ · /"both. its going to be where we do loading and filtering of tools and primer."/ |
+| Q3A | one map, path → =eager · lazy · none=; the thread stores its delta over the mode's default | /"a."/ · /"so i think its for the delta. meaning we need to resolve teh default brain map somewhere and then manage the delta."/ |
+| Q4A | the thread's delta wins at a mode change; the delta is add-only | /"a"/ · /"add only append only model"/ |
+| Q5A | =AGENTIC= dies into the map (stands); the mode's =armed= EXPORT is KILLED 11-16 | /"a"/ → /"no on this implemtnation. … completely off design"/ · 11-17 /"we drop the agentic trait."/ |
+| Q6A | the model pulls through a DEDICATED tool that only promotes a listed path; never =/thread/update=; its name OPEN | /"a. but armory load is wrong."/ |
+| Q6B | the map covers both: a pulled path brings its primer WITH its tools; one list, one pull; the request's encoding OPEN | /"a. but the encoding will matter a lot."/ |
+| Q7 | tools get the primer's load staging; look and load run on it | /"we watn the same loading staging on tools we got on primer. … same mechanism. same words. make it coherent."/ |
+| Q9 | the trait = the space the user AND the model share; both add tools and primer there | /"armed as the user / model shared space. user can add more tools and primer there."/ |
+| Q9A | DOUBLE LOAD: a model load lands in the turns AND is marked on the trait; the next request's system prompt is composed from it; the duplicate is accepted | /"i want the double load. its fine."/ |
+| Q10 | two traits on the thread: =TOOLED= (tools) · =PRIMED= (primer), each path → =eager · lazy · none=; the mode keeps =TOOLING= · =PRIMER=; =ARMED= dies | /"1 TOOLING · PRIMER TOOLED · PRIMED"/ |
+| Q12 | =mode/read= (also daemon · runtime) = the OUTLINE: nature + valence of tools and primer; =primer/load= · =tool/load= load one in FULL; revises Q6B's one pull | /"both. mode read or even daemon read / runtime read -> all load the outline of tools and primers, nature and valence, and the actual primer/load tool/load both load the specifics in full."/ |
+| Q13A | an outline entry = nature · valence · input names + types · examples · output when declared | /"nature, valence, input names and types, examples (they are separate often). also if exists, output!"/ · /"good. if output exists, treated like input. otherwise amen. … yields not needed on tools."/ |
+| Q14 | =tool/load= grafts into the live tool tree, writes =TOOLED=, returns the tool's teardown; the tree reaches its tools as =ctx.tools=; the local =armed= in =harnessed.js= is renamed =tools= | /"armed.use(shard.context.bind(\"tools\", armed)); armed should be renamed to tools in harnessed.js a."/ · /"output needs to contain the acutal tool/primer teardown"/ |
+| Q14C | =harnessed.js= imports =gestalten=, reads =gestalten.tools=; the local tree owns the name =tools= | /"import gestalten instead. lookup gestalten.tools"/ |
+| Q15 | a hallucination's tool carries =input= AND =output=, both optional (=primitives/hallucination.js:168= =Tool= + =declarations=); what a provider does with =output= is MINE | /"a"/ · /"are you talking about what the providers do? i dont care. whatever is right. the hallucination contains both input and output schemas - optionally."/ |
+| Q16 | =tool/unload=: trims the live tool tree, REMOVES the path from =TOOLED=, =none= where still carried (11-18); the turns keep the old load | /"remove from thread, keep in turn history. simple unload tool"/ · the whole vector shown: /"amen"/ |
+| Q17 | every tool sits behind its mode, the thread's own mode too: =francesca_drill= (as read: no setting now) | /"if then slugging but not now. for now we keep every tool behind its mode including self!"/ |
+| Q18 | a mode's own primer sits behind its slug too | /"like tools."/ |
+| Q19 | one setting names tools AND primer: =flat= (none behind a mode) · =nested= (this mode not) · =deep= (all, DEFAULT), wired in now; key =slugging= on =HARNESSED=, /"amen"/ (=slugging.test.js=) | /"i want the setting enum for flat, nested, deep (default) already in place for me to change when i want so wired in. deep is all iwth mode, nested is this mode not, and flat is none by mode."/ |
+| Q20 | =read= is called =index=: =/modes/index= · =/daemons/index= · =/daemon/:slug/modes/index=; =load= is the actual load | /"actually we might want to call read -> index. like, you get the index. and load is the actual load."/ |
+| Q21 | =tool/load= takes MANY natures; a nature naming a branch loads the whole tree under it (=tree-load.test.js=) | /"i could load all runtime tools by callind tool/load('/runtime') or a set via tool/load([/runtime/fs/dir, /teacher/francesca/review])"/ |
+| Q22 | tools load ACROSS daemons: runtime ↔ daemon ↔ daemon; the full address =/daemon/:slug/mode/:type/:slug/path/to/tool=; as read: in scope NOW | /"we will also want to load tools from other daemons! uiuiui. very importatn actualyl. … but thats now."/ |
+| Q23 | inside a daemon a mode is addressed by TYPE and slug: =/teacher/francesca/drill= → =teacher_francesca_drill=; the local address is the tail of the full one | /"q23 b."/ |
+| Q24 | a tool takes a REFERENCE, read against =ctx.runtime= · =ctx.daemon= · the current mode; every match is collected; tools are grafted live, never called through an aperture | /"for modes index we get some reference. not nature. reference. … we try a few getter lookup strategies and collect. … if i get reference /runtime then all stuff in runtime is pulled. if i get /daemon/slug/mode/:type then i get all modes of a type. if i get /teacher/francesca then just that mode is matched if its in the currrent ctx.daemon."/ |
+| Q24A | =TOOLED= · =PRIMED= hold the full ABSOLUTE reference | /"i wnat the full absolute reference on trait level."/ |
+| Q24B | =modes/index=: input =reference= + =detail=; output per mode reference · valence · tools · primers; 3 input egs + 1 output eg; the valence warns that width costs context | /"output is not just references. its the reference, valence, tools and primers (reference and valence)"/ · /"maybe the input should feature another dial for 'detail'"/ |
+| Q25A | =tool/load= answers ={ tools }=, the SAME =declarations= the provider receives, schemas · examples · output whole | /"when we load we want the full gammot of schematics in out examples and all. and we want the same for the tools vector in harnessed"/ · /"output should just be 'tools'"/ |
+| Q26 | an index writes nothing; =tool/preload= writes =lazy= | /"a. but lets add a tool for this. preload? preload. that loads mode or tool references as lazy."/ |
+| Q27 | names are NARROWED, statically: the trait stores the complete reference; a name = f(the thread's mode, the reference), nothing else; the rule cuts what the mode says and keeps a marker (=runtime= · =daemon= + slug) when it leaves the host; what the model types is widened by the reverse. Q25 dies; =slugging=: =deep= = none, =nested= = this, =flat= dead | /"all tools and primer are stored complete in the trait. what does the narrowing is the actual vector loading under context aka with thread mode runtime daemon. … for as long as were on one thread mode caching holds. it only changes once we move mode."/ · /"yeeeesssssssssssssss amen great."/ |
+| Q28 | a provider name is capped at 64 chars; past it the load is REFUSED, loud (as read: cap = refuse, never cut) | /"fix. add cap."/ |
+| Q29 | Q8 dies: the next request is rebuilt from the trait (Q9A); the tool order follows the trait | /"q9 is right. q8 was misguided."/ |
+| Q30 | =primer/load= reads through =found=; answers the sections the system prompt gets (R9 – R11) | /"q30a"/ |
+| Q31 | a primer node's load: outer > last > solo (=shape/primer.js:7= =find=, HOLY) | /"outer>last>solo"/ |
+| Q32 | =modes/index= lists =covered=; =found= walks the same =modes= · =readings= | /"a. … where there is cohrence we'd watn to capture that"/ |
+| Q33 | a reference matching nothing: the rest loads, it is answered =missed= | /"b."/ |
+| Q34B | a name's length is its distance from the thread's mode (Q27); the owner is =ctx.reference=, daemon OR runtime | /"shorter distances … have shorter references"/ · /"ok amen."/ |
+| Q35 | a load keys the reference ADDED, absolute (=keyed=), never what it found; unload reads it the same | /"store the reference of the branch or leaf we added, not everything that was found inside of it."/ |
+| Q36A | every request into a host carries =ctx.runtime= (B, /"amen"/ 11-17); =modeDie= does not | /"if a mode runs in runtime, it must receive runtime. a modedie receives the runtime if its a daemon mode also, yes."/ |
+| Q37 | R1: a key runs from root to the node picked, branch or leaf; a writer's rule (=keyed=), no schema | /"they all go back to root. … nothing writes to the contextmap something that is unrooted."/ |
+| Q38 | R7: one name, two tools → the nearest loads; the rest a commented-out =console.log= | /"b. but note the duplication somewhere. console log for now. commented out console . log"/ |
+| Q39A | R8: a tool step never carries =_=; =ToolCall= =name= refuses it, loud; the split stays the one way back | /"we go from / to _ but never from _ to /"/ · /"plan b is we refuse _ in tool signatures."/ |
+| Q40 | a stored =INTELLIGENT= · =VOCAL= heals at the cast to its heir; no migration (=Thread.ts:82= · =belt/traits.js:28=) | /"cast heals the name"/ |
+
+** as code — LANDED (=milestones.org= · =ui.org=); the pre-landing hunks: =moved.org= → its capture
+
+* the law
+
+1. One word per subject, on the mode AND the thread: the author offers, the user chooses.
+2. /"a hallucination is a function of thread and turns."/
+3. /"the armed trait on thread is our central management trait to compose the harness'es hallucination."/
+4. A path has one state — =eager= (in the request) · =lazy= (listed, pullable) · =none= (pruned) — for its tools and its primer together.
+5. The thread stores a delta; the mode's default is resolved at the hallucination; the delta wins and is add-only.
+6. Tools keep two words: =TOOLING= offers, =TOOLED= loads; =PRIMER= offers, =PRIMED= loads.
+
+| subject | mode | thread |
+|---------+------+--------|
+| the model | =HARNESSED= | =HARNESSED= |
+| the human | =CONVERSATIONAL= | =CONVERSATIONAL= |
+| the tools · primer | =TOOLING= · =PRIMER= offer | =TOOLED= · =PRIMED= |
+
+* milestones — code, then ui; each green before the next; depth · files · suites: =reference/harness-layout/milestones.org= · ui: =ui.org=
+
+/"we're ready to land the code side. the ui is being designed rn. … code first, then ui."/
+
+| milestone | rulings | reds closed |
+|---+---+---|
+| the thread words | Q0 · Q1A · Q2A · Q19 · Q40 | — |
+| the tool contract | Q15 · Q28 · Q36A · Q39A | R2 · R3 · R4 · R8 |
+| the reference | Q24 · Q24A · Q27 · Q33 · Q34B · Q35 · Q37 · Q38 | R1 · R7 · R9 – R15 |
+| the five tools | Q12 · Q13A · Q14 · Q16 · Q20 · Q21 · Q24B · Q25A · Q26 · Q30 – Q32 | — |
+| the composer | Q3A · Q4A · Q5A · Q9A · Q10 · Q14C · Q17 · Q18 · Q29 | R16 · R17 dead |
+| the served map | Q3 · Q9 · Q24B · Q27 | — |
+| the commands | Q9 · Q9A · Q21 · Q33 | — |
+| the anima surfaces | Q9 · Q28 | — |
+| the repl shapes | Q21 · Q26 | — |
+| the ghost twins | — | — |
+
+=AGENTIC= · R5 · R6 · the campaign: =milestones.org= =* moved=.
+
+* deferred — open, his: 9 entries, =moved.org=; + R5 · R6 a mode TYPED =runtime= · =daemon=, /"we shall protect against some mode types. not now."/; + the load's character count, /"we will do something about that once the system runs"/; + the comp: the widget · HANDOFF.md, =ui.org= =* open=
+
+* changelog
+
+- 11-16 – 11-17 earlier: =reference/harness-layout/changelog.org=
+- 11-17 /"quest harness layout go. land."/ · /"land hte rest of the quest up and including ui"/ — 10 milestones LANDED
+
+* release
+
+- added =v.<schema>.eg(…)= — short for =.example(…)= · migrate: none ⟨harness-layout⟩
+- renamed thread traits =INTELLIGENT= → =HARNESSED=, =VOCAL= → =CONVERSATIONAL= · migrate: none, healed at the cast ⟨m122⟩
+- removed mode trait =AGENTIC=, tool =primer_read= · migrate: drop =AGENTIC=; another mode's tools by =tool_load <reference>= ⟨m122⟩
+- added thread traits =TOOLED= · =PRIMED=; tools =modes_index · tool_load · tool_preload · tool_unload · primer_load=; =/harness/tool/*= · =/primer/load=; =/metadata/harness= =home= · =index= · migrate: none ⟨m122⟩
+- moved =shard.hallucinate.declarations= → =belt.hallucinate=; =belt.reference.narrow · fold= take =slugging= · migrate: none ⟨m122⟩
+
+* handoff
+
+- goal: the layout above, drilled to the end, then tangled
+- done: Q0 – Q39A locked, the drill ENDS, R9 – R15 · Q9A closed in probes; =v.eg= · =.signal= drop LANDED; the walk, 9 amen (=* review=); 10 milestones LANDED 11-17; the pass: stop 9 · Q19 · wins; 11-18 primer preload · unload · reset, writes silent (=pass-11-17.org=); 11-18 =pass-11-18.org=
+- next: =converse= declares once a session (his: =pass-11-17.org=); the anima walk; tty waits on known-issues:2341
+- never: a mode file naming other modes (=armed= export) · a subject for voice · a Persona entity · keep/drop lists · globs · a sketch calling a fn the tree lacks (11-17 =fromm.address=, /"doesnt exist and wount"/) · asking him a provider's wire · a setting flipped mid-thread · an index writing the trait · a tool answering thinner than its lock
+- owed: examples · outputs move from valence prose into the signatures (16 of 17 tools; his /"low counts here are temporarry"/); a daemon run of the map; =drop_block= (11-18)

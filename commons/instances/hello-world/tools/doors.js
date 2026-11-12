@@ -28,7 +28,7 @@ export async function persona(ctx) {
     return { greeting: "No hallucinator attached. Bot says high." };
   }
 
-  const { output } = await ctx.mode.harness.object.render({
+  const { product } = await ctx.mode.harness.object.render({
     thread: ctx.input.thread,
     turns: [{
       role: "user",
@@ -38,5 +38,5 @@ export async function persona(ctx) {
       greeting: v.string().desc("Your catchphrase response as HAL9000."),
     }),
   });
-  return { greeting: output.object.greeting };
+  return { greeting: product.object.greeting };
 }

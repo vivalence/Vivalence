@@ -1,3 +1,4 @@
+import { TIER_POINTS } from "@vivalence/typology/scenarios";
 // TANGLED from docs/40-49_repository/47_integration/47.02_hallucination-triad.org
 // Didactic, runnable guide to the cortex → hallucination → harnessed triad.
 // Edit the .org, re-tangle; or edit here and keep the .org src blocks in sync.
@@ -22,7 +23,7 @@ function tutor() {
   return {
     type: "dialogue",
     id: "dialogue-1",
-    tune: [0.9, 1.0, 0.3], // [intelligence, reasoning, speed] — register pads thrift → 0.5
+    tune: [0.9, 0.3, 0.5], // [intelligence, speed, thrift]
     channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
     via: {
       render: async (request) => {
@@ -30,7 +31,7 @@ function tutor() {
         // A structured output was asked for → the provider returns an object turn.
         if (output?.schema) {
           const data = { query: lastUser(turns) };
-          return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" }, object: data };
+          return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" } };
         }
         // A real tool is on the table and unanswered → call it, then the loop feeds the result back.
         if (tools?.length && !answered(turns)) {
@@ -48,7 +49,7 @@ function tutor() {
 
 specimen.describe("47.02 hallucination triad — the request in isolation (typology only)", () => {
   // Cortex is a faculty repository. Register providers, then SPAWN a request through it.
-  const cortex = () => new Cortex().register([tutor()]);
+  const cortex = () => new Cortex(TIER_POINTS).register([tutor()]);
 
   specimen.it("cortex.hallucinate is the typed-fetch surface — ONE record describes the call", async () => {
     const folded = await cortex().hallucinate.dialogue.render({
@@ -57,7 +58,7 @@ specimen.describe("47.02 hallucination triad — the request in isolation (typol
       system: { tutor: "You are a patient tutor." },
       turns: [{ role: "user", parts: [{ type: "text", text: "olá" }] }],
     }); // shape.object trie: /dialogue/render leaf
-    specimen.expect(folded.output.message).toBe("answer: olá");
+    specimen.expect(folded.product.message).toBe("answer: olá");
   });
 
   specimen.it("a tool loop runs at the leaf, once — tool_use → execute → tool_result → final turn", async () => {
@@ -69,7 +70,7 @@ specimen.describe("47.02 hallucination triad — the request in isolation (typol
       tools,
     }); // round 1 calls lookup, round 2 answers
     specimen.expect(folded.meta.state).toBe("complete");
-    specimen.expect(folded.output.message).toBe("answer: brasil");
+    specimen.expect(folded.product.message).toBe("answer: brasil");
   });
 
   specimen.it("object is DERIVED from dialogue — the derivation resolves the same provider, output-aware", async () => {
@@ -79,7 +80,7 @@ specimen.describe("47.02 hallucination triad — the request in isolation (typol
       turns: [{ role: "user", parts: [{ type: "text", text: "hi" }] }],
       output: { schema: { type: "object" } },
     }); // provider honors request.output → object turn
-    specimen.expect(folded.output.object).toEqual({ query: "hi" });
+    specimen.expect(folded.product.object).toEqual({ query: "hi" });
   });
 });
 

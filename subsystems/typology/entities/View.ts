@@ -14,20 +14,41 @@ export class ViewRepository extends DataRepository {
     return { mode: query.mode, slug: query.slug, mime: query.mime };
   }
 
-  async bundle(data, { bundler }) {
+  async bundle(view, { bundler }) {
+    const held = this.em.getRepository(FileEntity);
+    const file = await held.findOne({ view: view.id, path: view.entry });
+    if (file && (await bundler.fresh(view.sources))) return file;
+    const compiling = await bundler.bundle({ mime: view.mime, mount: view.mount, name: view.entry });
+    const [compiled] = compiling.bundle.entries;
+    view.sources = compiling.sources;
+    const written = await held.ensure({
+      mode: view.mode.id,
+      view: view.id,
+      path: view.entry,
+      mime: mime.javascript,
+      mount: `${bundler.directory}/${view.entry}`,
+      hash: compiled.integrity,
+      integrity: `sha256-${compiled.integrity}`,
+      bytes: compiled.bytes,
+    });
+    await this.em.flush();
+    return written;
+  }
+
+  async generate(data, { bundler }) {
     const built = await bundler.bundle({ mime: data.mime, source: data.source, entry: data.entry });
     const [compiled] = built.entries;
     const stem = compiled.mount.slice(1);
     const kept = stem.replace(COMPILED, "");
     const files = [
-      ...(data.source === undefined ? [] : [{
+      {
         path: `bundle/${kept}`,
         mime: data.mime,
         mount: `${bundler.directory}/bundle/${kept}`,
         hash: compiled.hash,
         integrity: `sha256-${await crypto.digest(data.source)}`,
         bytes: data.source.length,
-      }]),
+      },
       { path: `bundle/${stem}`, mime: mime.javascript, mount: `${bundler.directory}/bundle/${stem}`, hash: compiled.integrity, integrity: `sha256-${compiled.integrity}`, bytes: compiled.bytes },
     ];
     const view = await this.ensure({ mode: data.mode, slug: data.slug, mime: data.mime, traits: data.traits ?? ["FRAME"], entry: `bundle/${stem}` });
@@ -43,7 +64,9 @@ export class ViewRepository extends DataRepository {
 export class ViewEntity extends DataEntity {
   slug!: string;
   mime!: string;
+  mount: (string | null) & Opt = null;
   entry!: string;
+  sources: { path: string; bytes: number; mtime: string }[] & Opt = [];
   traits: string[] & Opt = [];
   trait: any & Opt = {};
 
@@ -65,7 +88,9 @@ export const ViewSchema = new EntitySchema<ViewEntity, DataEntity>({
   properties: {
     slug: { type: types.string },
     mime: { type: types.string },
+    mount: { type: types.string, nullable: true },
     entry: { type: types.string },
+    sources: { type: types.json, defaultRaw: `'[]'`, lazy: true, hidden: true },
     traits: { type: types.json, defaultRaw: `'[]'` },
     trait: { type: types.json, defaultRaw: `'{}'` },
 

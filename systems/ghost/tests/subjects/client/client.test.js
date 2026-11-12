@@ -46,8 +46,11 @@ specimen.describe("the client against a world — attach, sign in, see the runti
   specimen.it("a terminal lands on HOME; /modes lists the hosts' modes; /mode srs/memo sets the memo thread; many matches answer the candidates", async () => {
     await eventually(() => clientDie.runtime !== null && first(clientDie) !== undefined && first(clientDie).thread !== null, 30000);
     specimen.expect(first(clientDie).mode.reference.absolute).toBe("/runtime/house/mode/home/probe");
-    specimen.expect((await first(clientDie).repl.dispatch("/modes")).map((row) => row.reference)).toEqual(specimen.expect.arrayContaining(["/runtime/house/mode/home/probe", "/daemon/memo/mode/srs/memo"]));
-    specimen.expect(await first(clientDie).repl.dispatch("/mode srs/memo")).toMatch(/^\/daemon\/memo\/mode\/srs\/memo · thread #/);
+    specimen.expect((await first(clientDie).repl.dispatch("/modes")).split("\n\n").map((hosted) => hosted.trim().split("\n"))).toEqual(specimen.expect.arrayContaining([
+      specimen.expect.arrayContaining(["/runtime/house", "/home/probe"]),
+      specimen.expect.arrayContaining(["/daemon/memo", "/srs/memo"]),
+    ]));
+    specimen.expect(await first(clientDie).repl.dispatch("/mode /srs/memo")).toMatch(/^\/daemon\/memo\/mode\/srs\/memo · thread #/);
     specimen.expect(await first(clientDie).repl.dispatch("/mode mode")).toEqual({ which: specimen.expect.arrayContaining(["/runtime/house/mode/home/probe", "/daemon/memo/mode/srs/memo"]) });
   });
 
@@ -79,6 +82,8 @@ specimen.describe("the client against a world — attach, sign in, see the runti
     specimen.expect(views.every((view) => view.slug === "memo")).toBe(true);
     const picked = ghost.belt.view.pick(views.filter(chrome.runs));
     specimen.expect(picked.mime).toBe(mime.tty.solid);
-    specimen.expect(await ghost.belt.view.bytes(ghost.belt.view.entry(picked), clientDie.runtime.attach)).toContain("export");
+    const served = await fetch(clientDie.runtime.attach.url.branch(`/view/${picked.id}`).absolute);
+    specimen.expect(served.status).toBe(200);
+    specimen.expect(await served.text()).toContain("export");
   });
 });

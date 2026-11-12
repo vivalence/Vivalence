@@ -1,4 +1,4 @@
-import { specimen, Aperture, Path, sleep } from "@vivalence/typology";
+import { specimen, Aperture, Controller, Path, sleep, Span } from "@vivalence/typology";
 import { lifecycle } from "@vivalence/runtime";
 import { lighthouse } from "../scenarios/index.js";
 
@@ -15,7 +15,7 @@ specimen.describe("a daemon's twitch — its own Twitch, the daemon bound, a for
     scenario.runtime.twitch.open("/after/literal/create", (ctx) => kernel.push(ctx.input.entity.slug));
     for (const slug of SLUGS) {
       await scenario.seedDaemon(slug);
-      const die = { runtime: scenario.runtime, daemon: { type: "daemon", slug, reference: new Path(`/daemon/${slug}`), domain: {}, aperture: new Aperture() }, register: { modes: [] } };
+      const die = { runtime: scenario.runtime, daemon: { type: "daemon", slug, reference: new Path(`/daemon/${slug}`), domain: {}, aperture: new Aperture(), controller: new Controller({ stdout: new Span(slug) }) }, register: { modes: [] } };
       await lifecycle.daemon.population.datamap(die, async () => {});
       die.daemon.twitch.open("/after/literal/create", (ctx) => heard[slug].push(`${ctx.input.entity.daemon.slug}:${ctx.input.entity.slug}`));
       daemons[slug] = die.daemon;
@@ -50,6 +50,22 @@ specimen.describe("a daemon's twitch — its own Twitch, the daemon bound, a for
     await sleep.ms(20);
     specimen.expect(heard.spanish).toEqual(["spanish:casa"]);
     specimen.expect(heard.italian).toEqual(["italian:casa"]);
+  });
+
+  specimen.it("a twitch that throws after the write faults on its daemon's stdout, never another's", async () => {
+    const fault = new Error("the after-step failed");
+    daemons.italian.twitch.open("/after/literal/update", () => {
+      throw fault;
+    });
+    await scenario.datamap.shard.scope(async () => {
+      const casa = await daemons.italian.entities.literal.findOneOrFail({ slug: "casa", daemon: "italian" });
+      casa.ontology = "word";
+      await scenario.datamap.entities.em.flush();
+    });
+    await sleep.ms(20);
+    const faults = (daemon) => daemon.controller.stdout.$history.get().filter((record) => record.track === "fault");
+    specimen.expect(faults(daemons.italian).map((record) => record.data.message)).toEqual([fault.message]);
+    specimen.expect(faults(daemons.spanish)).toEqual([]);
   });
 
   specimen.it("the runtime root hears every daemon's row", () => {

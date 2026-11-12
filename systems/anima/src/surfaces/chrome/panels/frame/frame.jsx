@@ -1,4 +1,4 @@
-import { For, from, Show } from "solid-js";
+import { createEffect, For, from, Show } from "solid-js";
 import * as parts from "@vivalence/drapes/parts";
 import { belt } from "@vivalence/typology";
 import * as ambient from "../../ambient/index.js";
@@ -104,6 +104,14 @@ export function Frame(props) {
   const buffer = from(terminal.$buffer);
   const buffers = from(belt.atom.chain(terminal.$thread, "$buffers"));
   console.log("buffer, buffers", buffer(), buffers(), buffer);
+  const focus = from(app.bridge.$focus);
+  let body;
+  let inner = null;
+  createEffect(() => {
+    if (focus() !== "frame.view" || body.contains(document.activeElement)) return;
+    const holder = inner !== null && body.contains(inner) ? inner : body;
+    holder.focus({ preventScroll: true });
+  });
   return (
     <section
       class="pane frame"
@@ -113,7 +121,13 @@ export function Frame(props) {
           {(held) => <Head buffer={held} dock={props.dock} />}
         </Show>
       </div>
-      <div class="fbody" data-r="fbody">
+      <div
+        ref={body}
+        class="fbody"
+        data-r="fbody"
+        data-focus="frame.view"
+        tabindex="-1"
+        onFocusIn={(event) => (inner = event.target)}>
         <Show when={buffer()} keyed fallback={<Empty buffers={parts.listing(buffers)} />}>
           {(held) => <View buffer={held} listed={framed} picked={frame} />}
         </Show>

@@ -27,8 +27,8 @@ specimen.describe("lifecycle — the postcss plugin weaves the design system's s
     await Deno.mkdir(`${directory}/out`);
     await Deno.writeTextFile(to, result.css);
     const sheet = await Deno.readTextFile(to);
-    const { output } = await design();
-    specimen.expect(sheet.startsWith(output.css)).toBe(true);
+    const { product } = await design();
+    specimen.expect(sheet.startsWith(product.css)).toBe(true);
     specimen.expect(sheet.trimEnd().endsWith(authored.trimEnd())).toBe(true);
     const themed = blocks(sheet).filter((block) => block.selector.startsWith(":root[data-theme="));
     specimen.expect(themed.length).toBe(Object.keys(THEMES).length * 5);

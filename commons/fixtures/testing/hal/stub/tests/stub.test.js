@@ -1,4 +1,5 @@
-import { soma, specimen } from "@vivalence/typology";
+import { STUB_FACULTIES } from "../../../data/stub.js";
+import { soma, specimen, v } from "@vivalence/typology";
 import provider from "../provider/index.js";
 import { plan, prose, read, round, shape } from "../provider/script.js";
 
@@ -43,14 +44,14 @@ specimen.describe("stub · the script is a pure function of the request", () => 
 
 specimen.describe("stub · the faculties", () => {
   specimen.it("registers dialogue at three tunes plus verbatim and speech", async () => {
-    const faculties = await provider({ statics: {} });
+    const faculties = await provider({ statics: {}, faculties: STUB_FACULTIES });
     specimen.expect(faculties.filter((faculty) => faculty.type === "dialogue").length).toBe(3);
     specimen.expect(faculties.map((faculty) => faculty.type)).toContain("verbatim");
     specimen.expect(faculties.map((faculty) => faculty.type)).toContain("speech");
   });
 
   specimen.it("streams the scripted number of deltas, and takes the scripted time doing it", async () => {
-    const [deep] = await provider({ statics: {} });
+    const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
     const started = performance.now();
     const events = (await drain(deep.via.stream({ turns: [said("hi --deltas 4 --pace 30ms")] }))).map((packet) => packet.event);
     specimen.expect(events.filter((event) => event === "/part/delta").length).toBe(4);
@@ -59,19 +60,19 @@ specimen.describe("stub · the faculties", () => {
   });
 
   specimen.it("calls the armed tool for --rounds, then answers — the round comes off the turns", async () => {
-    const [deep] = await provider({ statics: {} });
+    const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
     const tools = [{ name: "lookup" }];
     const first = await drain(deep.via.stream({ tools, turns: [said("go --tool lookup --rounds 2 --pace 1ms")] }));
-    specimen.expect(first.at(-1).meta.state).toBe("tools");
+    specimen.expect(first.at(-1).turn.meta.state).toBe("tools");
     specimen.expect(first.find((packet) => packet.part?.type === "tool_use").part.name).toBe("lookup");
     const folded = first.reduce((turn, packet) => soma.pour(turn, packet), null);
     specimen.expect(folded.parts).toEqual([{ type: "tool_use", id: "stub-0", name: "lookup", input: { query: "go --tool lookup --rounds 2 --pace 1ms" } }]);
     const third = await drain(deep.via.stream({ tools, turns: [said("go --tool lookup --rounds 2 --pace 1ms"), answered("lookup"), answered("lookup")] }));
-    specimen.expect(third.at(-1).meta.state).toBe("complete");
+    specimen.expect(third.at(-1).turn.meta.state).toBe("complete");
   });
 
   specimen.it("a stall is interruptible: the abort signal cuts it, it is not waited out", async () => {
-    const [deep] = await provider({ statics: {} });
+    const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
     const abort = new AbortController();
     setTimeout(() => abort.abort("SIGKILL"), 60);
     const started = performance.now();
@@ -80,7 +81,7 @@ specimen.describe("stub · the faculties", () => {
   });
 
   specimen.it("--timeout yields nothing until the signal ends it — the row that will not die", async () => {
-    const [deep] = await provider({ statics: STATICS });
+    const [deep] = await provider({ statics: STATICS, faculties: STUB_FACULTIES });
     const abort = new AbortController();
     setTimeout(() => abort.abort("SIGKILL"), 80);
     const events = await drain(deep.via.stream({ turns: [said("--run hung")] }, { signal: abort.signal }));
@@ -88,7 +89,7 @@ specimen.describe("stub · the faculties", () => {
   });
 
   specimen.it("--fault retryable throws with the flag the belt's backoff reads", async () => {
-    const [deep] = await provider({ statics: {} });
+    const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
     const thrown = await deep.via.render({ turns: [said("x --fault retryable")] }).catch((error) => error);
     specimen.expect(thrown.retryable).toBe(true);
     const fatal = await deep.via.render({ turns: [said("x --fault")] }).catch((error) => error);
@@ -96,35 +97,57 @@ specimen.describe("stub · the faculties", () => {
   });
 
   specimen.it("--close length seals an assistant turn with NO parts and that state — what gpt-5.1 did on 09-23", async () => {
-    const [deep] = await provider({ statics: {} });
+    const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
     const events = await drain(deep.via.stream({ turns: [said("hi --close length")] }));
     specimen.expect(events.map((event) => event.event)).toEqual(["/turn/open", "/turn/close"]);
-    specimen.expect(events.at(-1).meta).toEqual({ state: "length", usage: null, provider: { finish_reason: "length", model: "stub-deep" } });
+    specimen.expect(events.at(-1).turn.meta).toEqual({ state: "length", provider: { finish_reason: "length", model: "stub-deep" } });
     const turn = await deep.via.render({ turns: [said("hi --close filter")] });
     specimen.expect(turn.parts).toEqual([]);
     specimen.expect(turn.meta.state).toBe("filter");
   });
 
-  specimen.it("render pours the same script into one turn, object included", async () => {
-    const [deep] = await provider({ statics: {} });
+  specimen.it("render pours the same script into one turn, the object part its one home", async () => {
+    const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
     const turn = await deep.via.render({
       turns: [said("x --object '{\"answer\":\"42\"}'")],
       output: { schema: { type: "object", properties: { answer: { type: "string" } }, required: ["answer"] } },
     });
-    specimen.expect(turn.object).toEqual({ answer: "42" });
+    specimen.expect(turn.parts).toEqual([{ type: "object", data: { answer: "42" } }]);
     specimen.expect(turn.meta.state).toBe("complete");
   });
 
   specimen.it("verbatim transcribes the packets it was fed, speech answers audio", async () => {
-    const faculties = await provider({ statics: {} });
+    const faculties = await provider({ statics: {}, faculties: STUB_FACULTIES });
     const verbatim = faculties.find((faculty) => faculty.type === "verbatim");
     const speech = faculties.find((faculty) => faculty.type === "speech");
     async function* frames() {
-      yield { event: "/audio/packet", audio: "buon" };
-      yield { event: "/audio/packet", audio: "giorno" };
+      yield { event: "/audio/packet", audio: { data: "buon", rate: 16000 } };
+      yield { event: "/audio/packet", audio: { data: "giorno", rate: 16000 } };
     }
-    const events = await drain(verbatim.via.stream(frames(), { script: "--pace 1ms" }));
-    specimen.expect(events.at(-2)).toMatchObject({ event: "/verbatim/final", transcript: "buon giorno" });
-    specimen.expect((await drain(speech.via.stream(["ciao"]))).at(0).event).toBe("/audio/packet");
+    const signal = new AbortController().signal;
+    const settings = { script: "--pace 1ms" };
+    const events = await drain(verbatim.via.stream({ source: frames(), settings }, { signal }));
+    specimen.expect(events).toEqual([
+      { event: "/turn/open", turn: { role: "user" } },
+      { event: "/part/open", index: 0, part: { type: "text", text: "" } },
+      { event: "/part/draft", index: 0, part: { text: "buon" } },
+      { event: "/part/draft", index: 0, part: { text: "buon giorno" } },
+      { event: "/part/delta", index: 0, part: { text: "buon giorno" } },
+      { event: "/part/close", index: 0 },
+      { event: "/turn/close", turn: {} },
+    ]);
+    for (const packet of events) specimen.expect(packet).matches(v.primitives.hallucination.Packet.Response);
+    const folded = events.reduce((turn, packet) => soma.pour(turn, packet), null);
+    specimen.expect(folded).toEqual({ role: "user", parts: [{ type: "text", text: "buon giorno" }] });
+    const spoken = await drain(speech.via.stream({ source: ["ciao"] }, { signal }));
+    specimen.expect(spoken.map((packet) => packet.event)).toEqual(["/audio/packet", "/audio/close"]);
+    for (const packet of spoken) specimen.expect(packet).matches(v.primitives.hallucination.Audio.Any);
+  });
+
+  specimen.it("only the row's faculties load; a type the stub does not speak faults", async () => {
+    const [deep] = STUB_FACULTIES;
+    const faculties = await provider({ statics: {}, faculties: [deep] });
+    specimen.expect(faculties.map((faculty) => faculty.id)).toEqual([deep.id]);
+    await specimen.expect(provider({ statics: {}, faculties: [{ ...deep, type: "picture" }] })).rejects.toThrow("[stub] faculties/0");
   });
 });

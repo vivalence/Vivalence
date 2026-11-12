@@ -16,7 +16,7 @@ Deno.test("paladin prime — a directory is a Primer, the frontmatter sniffed pe
   await t.step("no frontmatter is eager text; ours is the pattern; the standard's description is the valence, lazy", async () => {
     assertEquals(await shape.primer.load(primer), {
       format: "The dock renders markdown.",
-      primer: "Read on demand with primer_read { nature }:\nguides/draw — How to draw a page\nskills/render/SKILL — Render a page, folded",
+      primer: "Load on demand with primer_load { references }:\n/guides/draw — How to draw a page\n/skills/render/SKILL — Render a page, folded",
     });
   });
 

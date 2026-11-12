@@ -11,5 +11,5 @@ export const manifest = {
 export const docs = {
   name: "Deepgram Verbatim",
   description:
-    "Streaming ASR + Flux-style turn detection via Deepgram Nova. pt-BR + en.",
+    "Streaming ASR via Deepgram Nova (listen v1) and Flux turn detection (listen v2), one verbatim faculty per entry of the ledger row's faculties.",
 };

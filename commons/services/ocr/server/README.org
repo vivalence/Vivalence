@@ -1,0 +1,45 @@
+* Tesseract OCR Service
+
+Docker: =cp .env.source .env=, set =SERVICE_KEY=, then =docker compose up -d --build= from =server/=
+Port: =localhost:5556=
+Health: =GET /status=
+
+The image holds the engine only. A language's data is fetched from =TESSDATA_SHELF= into =mnt/tessdata= the first time a read asks for it.
+
+** Connect
+
+#+begin_src jsonc
+{
+  "module": "@commons/service/ocr-tesseract",
+  "secrets": { "key": "${VIVA_SERVICE_OCR_KEY}" },
+  "statics": { "remote": "${VIVA_SERVICE_OCR_REMOTE}", "language": "eng" }
+}
+#+end_src
+
+Without =statics.remote= the service reads with tesseract as wasm from npm, in the runtime's own process.
+
+** Read
+
+#+begin_src bash
+curl -X POST http://localhost:5556/read \
+  -H "Authorization: Bearer $SERVICE_KEY" \
+  -d "{\"language\":\"eng\",\"segmentation\":1,\"data\":\"$(base64 < page.png)\"}"
+#+end_src
+
+#+begin_src json
+{ "tsv": "level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext\n1\t1\t0\t0\t0\t0\t0\t0\t300\t100\t-1\t\n" }
+#+end_src
+
+| key          | flag    |
+|--------------+---------|
+| segmentation | =--psm= |
+| density      | =--dpi= |
+
+A refusal answers =4xx= with ={ "message": "the engine holds no zzz" }=.
+
+** Test
+
+#+begin_src bash
+set -a; . commons/services/ocr/server/.env; set +a
+deno test -A --no-check commons/services/ocr/tests/server.test.js
+#+end_src

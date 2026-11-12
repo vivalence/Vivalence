@@ -23,11 +23,21 @@ export function define(name, { schematic = null, repository = {}, entity = {} } 
   return { name, schematic, repository, entity };
 }
 
+export function heal(entity, vocabulary) {
+  if (!vocabulary.retired) return { traits: entity.traits, trait: entity.trait };
+  const heir = (name) => vocabulary.retired[name] ?? name;
+  return {
+    traits: entity.traits.map(heir),
+    trait: Object.fromEntries(Object.entries(entity.trait).map(([name, data]) => [heir(name), data])),
+  };
+}
+
 export function cast(entity, vocabulary) {
-  const undeclared = vocabulary.additionalProperties ? [] : entity.traits.filter((name) => !Object.hasOwn(vocabulary.properties, name));
+  const healed = heal(entity, vocabulary);
+  const undeclared = vocabulary.additionalProperties ? [] : healed.traits.filter((name) => !Object.hasOwn(vocabulary.properties, name));
   if (undeclared.length) throw new Error(`[traits] ${entity.id}: no trait ${undeclared.join(" · ")} in a vocabulary of ${Object.keys(vocabulary.properties).join(" · ")}`);
-  const trait = vocabulary.fill(entity.trait);
-  const claimed = [...vocabulary.errors(trait)].filter((error) => entity.traits.includes(error.instancePath.split("/")[1]));
+  const trait = vocabulary.fill(healed.trait);
+  const claimed = [...vocabulary.errors(trait)].filter((error) => healed.traits.includes(error.instancePath.split("/")[1]));
   if (claimed.length) throw new Error(`[traits] ${entity.id}: ${claimed.map((error) => `${error.instancePath} ${error.message}`).join(" · ")}`);
   return trait;
 }

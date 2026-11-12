@@ -192,13 +192,32 @@ The instance the mode ships in, as one JSON file: its manifest and its one daemo
     "secrets": { "jwt": "${SECRET_VIVA_JWT}" }
   },
   "datamap": { "module": "@commons/datamap/libsql" },
+  "tiers": {
+    "frugal": [0.1, 0.9, 1.0],
+    "fast": [0.4, 1.0, 0.8],
+    "balanced": [0.5, 0.5, 0.5],
+    "capable": [0.9, 0.2, 0.5],
+    "unleashed": [1.0, 0.9, 0.1]
+  },
   "hallucinators": [
-    { "module": "@commons/hallucinator/anthropic", "secrets": { "key": "${SECRET_VIVA_ANTHROPIC_API_KEY}" } },
-    { "module": "@commons/hallucinator/openrouter", "secrets": { "key": "${SECRET_VIVA_OPENROUTER_API_KEY}" } }
+    {
+      "module": "@commons/hallucinator/anthropic",
+      "secrets": { "key": "${SECRET_VIVA_ANTHROPIC_API_KEY}" },
+      "faculties": [
+        { "type": "dialogue", "id": "claude-opus-5-5", "tune": [1.0, 0.8, 0.1], "context": 1000000, "thinking": true },
+        { "type": "dialogue", "id": "claude-sonnet-5-5", "tune": [0.6, 0.6, 0.5], "context": 1000000, "thinking": true },
+        { "type": "dialogue", "id": "claude-haiku-5-5", "tune": [0.25, 0.95, 0.5], "context": 1000000, "thinking": true }
+      ]
+    },
+    { "module": "@commons/hallucinator/openrouter", "secrets": { "key": "${SECRET_VIVA_OPENROUTER_API_KEY}" }, "faculties": [ … ] },
+    { "module": "@commons/hallucinator/elevenlabs", "secrets": { "key": "${SECRET_VIVA_ELEVENLABS_API_KEY}" }, "faculties": [ … ] },
+    { "module": "@commons/hallucinator/deepgram", "secrets": { "key": "${SECRET_VIVA_DEEPGRAM_API_KEY}" }, "faculties": [ … ] }
   ],
   "clients": [{ "manifest": { "type": "client", "slug": "anima" }, "statics": { "serve": "${VIVA_CLIENT_ANIMA_SERVE}" } }]
 }
 ```
+
+A hallucinator row loads only the faculties it lists — models, voices, their tunes; a row whose key is empty sleeps. `tiers` gives each of the five tier names its point; the runtime refuses to start without all five.
 
 Identity is the runtime's own: `SECRET_VIVA_JWT` signs its users, and every daemon behind it authenticates against that one remote. There is no identity service to declare.
 

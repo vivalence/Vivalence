@@ -7,7 +7,7 @@ Resolves relative imports and @vivalence/<pkg>[/<sub>] through each workspace me
 import json, os, re, sys
 from collections import defaultdict
 
-ROOT = os.environ.get("CLAUDE_PROJECT_DIR", ".")
+ROOT = os.environ.get("CLAUDE_PROJECT_DIR", os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 ROOTS = ["systems", "subsystems", "commons", "testament"]
 SKIP = re.compile(r"(^|/)(bak[^/]*|todo|node_modules|out|snapshots|static|\.git|\.jj|\.svelte-kit)(/|$)")
 SRC = (".js", ".ts", ".jsx", ".mjs", ".svelte")

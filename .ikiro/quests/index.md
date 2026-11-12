@@ -3,38 +3,42 @@
 > Derived — regenerate at every sunset/revival (`skills/quest/`). Root = live only; `done/` = landed + verified; `discarded/` = sunset without landing; `benched/` = beef's bench; `bak/` = beef's recovery surface, untouched. ⚑ = classification is the 09-01 revival's judgment call (header status and landed reality disagreed, or the lean was mine) — beef curates. Bucket names follow DISK, never a rename that was only ever made in this file.
 > Rebuilt WHOLE from disk 10-22 (`ls` of the root and the four buckets); `reference/<quest>/` holds each quest's drained sections.
 
-## live (10 quests · 10 files: m103 · m108 · m110 · m113 · m115 · m116 · prod-deploy · m119 · reader-mode · empty-armory) — the only quests at the root
+## live (9 quests · 8 files, m116 has none on disk: m108 · m115 · m116 · m121 · literal-rewrite · m123 · harness-layout · focus · ledger-faculties) — the only quests at the root
 
 
 
-- `reader-mode.org` — reader mode (UNNUMBERED) — `commons/reader/reader`: url → snapshot File + cleaned html (`data-block` · `data-done`), view settles `buffer.data`, settings a persisted nanostore, `/refine <instructions>` + tool (DRILLING 11-11: layer 1 LOCKED Q0–Q9; layer 2 CLOSED; LANDED 11-11: mounted in localhost, walked; speech DEFERRED, repl `/refine` waits on `thread.cursor`)
+- `m121-wakaru.org` — m121 wakaru — a game mode on Second Language's mechanics, never a copy: the game torn down and indexed at `~/code/teardowns/second-language` (9,025 modules), viva's mode contract measured (DRILLING 11-16: the whole game, a buffer a game run, top-down, on the language domain and the cortex; their game read whole → `reference/m121/teardown.org`; Q1–Q15 unruled, nothing designed)
+- `m122-harness-layout.org` — harness layout (m122) — a thread wears `HARNESSED` · `CONVERSATIONAL` · `TOOLED` · `PRIMED`; tools take a reference; `modes/index` · `tool/load · unload · preload` · `primer/load` (MILESTONED 11-17: 5 code · 5 ui, `ui.org`, `reference/harness-layout/milestones.org`; Q0–Q39A locked)
+- `ledger-faculties.org` — ledger faculties — the ledger row IS the catalog, a provider translates; every hallucinator (/"a"/ 11-17); tiers asked
+- `m123-call-faculty.org` — call faculty (m123) — two-way speech: verbatim · speech · call speak one content grammar (`/part/draft` · `/part/full`), audio is medium, a cascaded call derived in the cortex (DRILLING 11-16, Q0–Q17A locked: the client dictation drilled, anima AND tty; elevenlabs flash LANDED; 8 milestones services → client, next his ledger go)
+- `literal-rewrite.org` — literal rewrite (UNNUMBERED) — the language-learning domain edits and renames its own literals and symbols; twitches hold token integrity, a rename moves its references (DESIGNED 11-13, Q0–Q11; runtime tools + stdout tap LANDED)
+- `focus.org` — focus (UNNUMBERED) — `$focus` is the one truth, the browser binds `document.activeElement` to it; PARTIAL 11-16: the dock textarea lands, frame · consent · route leaves owed.
 
-- `empty-armory.org` — empty armory (unnumbered) — no tool armed for every mode; the runtime harness grafts fs · shell; GENERATIVE = `mode.generator.bundle` + `gestalten.tools.generative` (LANDED 11-12; owed: vdex · assembly · README · his modeline look)
-- `m119-scope-params.org` — m119 scope params — daemon AND mode scoping ride the request context: a `mode` filter on nine kinds (literal · symbol · view · intent · file · note · thread · turn · buffer), `shard.bind` on the host's aperture enables + parameterizes it, one stamp twitch on create; the `mint` options-fence dies; client = `runtime.entities.branch(mode.connection, …)` (DESIGNED 11-09 on "amen"; 26 probes green on `:memory:`; Q1 RULED b `default: false` + `bind` enables; code waits for `go 1`)
 
-- `prod-deploy.org` — prod deploy (UNNUMBERED) — HEAD onto R000 · S000: one runtime, lighthouse embedded, `instance.viva.jsonc`, volume wiped, `traits: []`, the user by hand; CI #260 GREEN; DEPLOYED 11-06 19:52, his login owed (`* as code`)
-- `m103-command-pass.org` — m103 command pass — every shell and repl command run once: `* the map` (93) = command · widget callers · source; `viva help` pretty LANDED (WALKING 10-27; the chrome-panels quest MOVED whole to `reference/m103/chrome-panels-10-27.org`, its handoff carried)
 - `m108-anima-app.org` — m108 anima on the App — anima moved onto m107's style (LANDING 10-26, milestones 1–3 in; next: milestone 4)
-- `m110-paladin-commands.org` — m110 paladin commands — the 19 machine commands (`ledger/` · `registry/` · `instance/` · `/doctor`) the m86 ghost rebuild parked in `bak.3`, back on the shell; `instance/user` dead
 - `m115-mando.org` — m115 mando — language as the controller: comando (board) · cocina (tickets) on the spanish daemon, the model converses and the tools move · grade, the board/rail drawn in the chrome's tokens, kit copied per game, both faces (REWORKED 10-30; `aprende` listing deferred)
 - `m116-find-is-a-sync.org` — m116 find is a sync — `RemoteRepository.persist()` · the localStorage row cache die; every `find` drops the local rows inside `where` the daemon no longer has (DESIGNED 11-06, Q0 B; code waits for go)
-- `m113-file-rows.org` — m113 file rows — a File row is the asset: ghost's `entities/file` (every row at boot, live, `url` = `/attached/file/:id`); the assembly editors · player · import and cloze · judge · exhibit · dojo read `$files` and `buffer.mode.connection` (LANDED 10-28, 6/8 QA held; connoisseur done)
 
-## roadmap/ (11) — beef's roadmap: numbered or unnumbered strands, not live at the root
+## roadmap/ (15) — beef's roadmap: numbered or unnumbered strands, not live at the root
 
 - `roadmap/anima-deeplink.org` — anima deep link — a URL lands in a terminal and a mode, signed in: query = repl lines, fragment = a one-use code the lighthouse mints (SKETCH 10-19, unnumbered — his to number; rides on m95's anima)
+- `roadmap/bombadil-browser-properties.org` — bombadil browser properties — anima's UI checked by temporal properties (`now · always · extract`), fuzzed and shrunk by Antithesis' CLI (ROADMAP 11-16, unnumbered; nothing studied)
+- `roadmap/eager-reply.org` — eager reply — a cascaded call thinks on `/turn/eager`, holds the reply, releases it on `/turn/close` (ROADMAP 11-16, unnumbered; call-faculty Q6's B, SKETCH)
 - `roadmap/m62-the-governed-hallucination.org` — m62 the governed hallucination — one control structure over every running hallucination: budgets that SUM up a tree, a stop that reaches the fetch, a live view of what is burning (ROADMAP: the mishap measured, the stop path traced to the abandoned generator, the design shape drafted, nouns proposed — governor STRUCK, fifteen organ words · stint/bout; 8 forks owed, nothing lands)
 - `roadmap/m84-harness-runtime.org` — m84 harness runtime — the runtime's home, the switch between modes, the woken run; tools a mode imports (SCAFFOLDED 10-10 from m81's harness half)
 - `roadmap/m89-telemetry.org` — m89 telemetry — DESIGNED 10-12; tangle + scenarios drained to `reference/m89/` (≈20 of 37 files gone); seven forks owed (m96 open #18)
 - `roadmap/m93-kleisli-remonadization.org` — m93 kleisli remonadization (+ `.tangle.org`) — ROADMAP 10-24 by beef's move: 1 · 2 · 4 LANDED via m96 10-21; milestone 3 landed by the replay, keep/cut owed (m96 open #1); 2 QA markers pending
 - `roadmap/m93-kleisli-remonadization.tangle.org` — the m93 tangle — LANDED by the m96 replay 10-21 (38 hunks of 51 on today's tree, the rest drifted under later quests)
 - `roadmap/m94-trait-rejiggle.org` — m94 trait rejiggle — FORMAT landed via m96 10-21 (`v.traits.<entity>.<NAME>`, the enums dead); the rotation stays roadmap; owed m96 open #17
+- `roadmap/mode-lineage.org` — mode lineage — a renamed mode keeps its entity: `manifest.formerly` names its old reference, a beat before prune renames instead of minting (ROADMAP 11-13, unnumbered; Q0 locked, rest SKETCH)
 - `roadmap/modes-map.org` — modes as a map — paladin outputs `daemons[].modes` · `runtime.modes` keyed, the array defaulted in (10-09, unnumbered; key QUESTIONED: slug collides across types)
 - `roadmap/mountpoint-fallthrough.org` — mountpoint fallthrough — a mode's ground seated by paladin, the way a daemon's is (LANDED 09-21 the hour it was written, unnumbered; sits in roadmap/ by disk)
 - `roadmap/runtime-independence.org` — runtime independence — vivalence off Deno: one source on Deno · Node · Bun, one resolution through a ledger-level node_modules, two seams per host, and at the end a viva binary that needs no runtime i
+- `roadmap/theme-revival.org` — theme revival — the token space drives the chrome again: font scale · rem sheet · rem icons LANDED 11-13, dark/light CUT, depth RULED for revival; the wider carry-over is his list (ROADMAP 11-13, unnumbered)
 - `roadmap/threlte-rapier-drapes.org` — threlte + rapier through drapes — the three.js phase of the stage (PREP, unnumbered: beef's Oct-2024 force-graph prototype recovered — alive at `vintagecollection/…/archive/dev/`, deleted from vivalence 2025-03-27, nested-`<Attractor>` layout + oriented-cylinder links are the reusable code; the 2024 submodule hack is dead because the import map + bundler `nodePaths` compile three/threlte out-of-tree, measured on @droneaid; laws: Deno cannot prefix-map npm:, the `three/addons` barrel pulls https; one fork — `stage/scene.js` · new family · threlte-first)
 
-## benched/ (15) — beef's bench: parked live quests
+## benched/ (16) — beef's bench: parked live quests
+- `benched/m124-solid-two.org` — solid two (m124) — the clients' renderers on Solid 2.0 (stable 11-17): DOM half GO, tty half BLOCKED on `@opentui/solid` (peer `solid-js ^1.9.12`) and Deno `node:ffi`; 8 milestones, probe first; Q1–Q3 unruled, nothing landed (BENCHED 11-17 /"move to benched"/; reopen: `@opentui/solid` on Solid 2 · the tty painting under Deno; `reference/solid-two/terrain.org`)
 - `benched/harness-disarming.org` — the armory switch: `ARMED { off }` a thread trait, off PRUNED from the armory, `/arm` · `/disarm`, the widget's `check` rows — designed whole, nothing landed (benched 11-08 /\"not now\"/; reopen: his word)
 
 - `benched/m25-user-and-thread-handling.org` — m25 — user and thread handling
@@ -52,7 +56,16 @@
 - `benched/runtime-testing-recast.org` — runtime + paladin testing recast — BENCHED 10-10: ruled 10-06, nothing built; reopens after m84 lands, M0 re-measured first.
 - `benched/skibidi.org` — skibidi — a Skype on vivalence: a `commons/services/skibidi` citizen carrying DOCKER (LiveKit SFU outside) and ATTACHED (webhooks inside), the daemon mints grant tokens, media never touches it (BENCHED unnumbered on "compact benched": designed, spike green on loopback — token · rooms · browser join · roster; two forks open — the orphan `control` vector, lecture · conference · both; compact #244)
 
-## done/ (138) — landed AND verified
+## done/ (147) — landed AND verified
+- `done/tune-triangle.org` — tune triangle (unnumbered) — the tune array is truth, a tier a pointer at it; three axes `intelligence · speed · thrift`, `subsystems/drapes/Tune.jsx` (LANDED 11-13; DONE 11-17 by /"anything that landed and hasnt been touch in +2 days"/; 3 `marker_qa` held 11-17 /"tune triangle done."/)
+- `done/empty-armory.org` — empty armory (unnumbered) — no tool armed for every mode; the runtime harness grafts fs · shell; GENERATIVE = `mode.generator.bundle` + `gestalten.tools.generative` (LANDED 11-12; DONE 11-17, same order; tails: vdex · assembly · README · his modeline look)
+- `done/m119-scope-params.org` — m119 scope params — daemon AND mode scoping ride the request context, `shard.bind` on the host's aperture; the `mint` options-fence dies (LANDED 11-10; DONE 11-17, same order; `T-cli-alive` held 11-17 rc 0; tails: chess fixtures w/o `daemon` (4 reds) · assembly `mint` unprobed · the chess walk)
+- `done/reader-mode.org` — reader mode (unnumbered) — `commons/reader/reader`: url → snapshot File + cleaned html, view settles `buffer.data` (LANDED 11-11, walked in his anima; DONE 11-17, same order; tails: speech DEFERRED · repl `/refine` waits on `thread.cursor` · fetch guard before a non-localhost recipe · OpenDyslexic woff2 · `reader-books` tails in its handoff)
+- `done/m113-file-rows.org` — m113 file rows — a File entity is the asset: ghost's `entities/file`, `/attached/file/:id`; editors · player · import · games read `$files` (LANDED 10-28; DONE 11-17, same order; tails: 2 `marker_qa` pending — import drop (.glb) · cloze audio (cloze not on localhost))
+- `done/m110-paladin-commands.org` — m110 paladin commands — the 19 machine commands back on the shell, 22 landed (21 paladin · `/doctor`) (LANDED 10-26; DONE 11-17, same order; tails: Q5 docs · doctor cards unported)
+- `done/m120-lazy-view-bundles.org` — m120 lazy view bundles — boot seats views and builds none; `/attached/view/:id` builds on fetch, rebuilds when `sources` changed, `ETag` → 304; `bundle/<slug>.<mime stem>.mjs`; mountpoint 1.0 G → 23 M (11-16, his /"walk passed"/); written views → `roadmap/written-views.org`
+- `done/scale.org` — scale (unnumbered) — the language-learning domain moves a literal set's memory strength: tool `/scale` over route `/scale/literal`, one percent scale (0 = 1 min · 10 = 1 h · 50 = 30 d · 100 = 365 d), statuses begin at their own percent (`PROFILE` 3 · 15 · 36 · 60), `advance · drop · set`; `resolveSymbols` composes `$all · $in · $none` (DONE 11-14 by /"move to done when done"/: 7 walk stops amen; domain 16 passed | 3 failed, the 3 pre-existing; QA held at tool level, the live tutor-thread walk his; release lifted, 4 entries)
+- `done/prod-deploy.org` — prod deploy (unnumbered) — HEAD onto R000 · S000: one runtime, lighthouse embedded, a json recipe, the user by hand; anima on `denoland/deno:debian` bundling every start, import map cut + pinned (DONE 11-12 on /"move to done"/; tails: known issue `prod-deploy-tails`)
 - `reader-books.org` — reader books — whole books in `commons/reader/reader`: one book File per buffer (`<section data-chapter>`), marks in `buffer.data.done`, a parsing screen per kind (epub · pdf · page), contents crawl, pdf text · pages · model (typed-block windows on `ctx.cortex`) (DONE 11-12 on his order, suite 27 green, NOT walked — tails in `reader-mode.org` handoff)
 - `vector-trie.org` — the trie is `Map<Pattern, Vector>`, `seat` merges onto the trie's own pattern, `do` replaces (DONE 11-12)
 - `done/signature-rank.org` — signature rank (unnumbered) — `rank` active · hidden · void on every signature, each consumer decides; `v.primitives.signatures.Rank`; every ghost repl command hidden; the first `v` ordering rule (DONE 11-12; tails: registry ranks · tools read `rank`? · `/help` raw · `v` order applied; known issues `strip-drops-chord` · `frame-set-test-stub-lacks-views`)
@@ -194,7 +207,8 @@
 - `done/voice.quest.org` — Voice — single-tier shuo-style implementation
 - `done/wafer-lifecycle.quest.org` — Wafer Lifecycle — Vector-based Process Composition
 
-## discarded/ (52) — sunset without landing
+## discarded/ (53) — sunset without landing
+- `discarded/m103-command-pass.org` — m103 command pass — every shell and repl command run once, `* the map` (93); `viva help` pretty LANDED (WALKING 10-27; the file 0 chars on disk since jj `ntzuzkmyoxow` 11-06; CUT 11-17 /"m103-command-pass.org cut."/; its sections live in `reference/m103/`)
 
 - `discarded/m99-keys.org` — m99 keys — a press becomes a KeySignal; the Legend queues it and walks the active terminal's keymap (TANGLED 10-23, never landed; SUPERSEDED 10-24 by m104: every hunk replayed there, rulings carried verbatim, QA moved)
 - `discarded/2026.07.02.org` — (no title)

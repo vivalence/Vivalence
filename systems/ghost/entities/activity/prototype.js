@@ -16,6 +16,9 @@ export class Activity extends Entity {
   set status(code) {
     this.controller.status.set(code);
   }
+  get error() {
+    return this.controller.status.reflection.error;
+  }
   set error(error) {
     if (error !== null) this.controller.status.set({ error });
   }

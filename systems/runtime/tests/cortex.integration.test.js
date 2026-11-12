@@ -14,19 +14,18 @@ async function collectStream(stream) {
   return { packets, turn };
 }
 
-function captureSonnet(cortex) {
-  const faculties    = cortex.find({ type: "dialogue" });
-  const sonnet       = faculties.find((faculty) => faculty.tune[0] === 0.4);
-  const originalStream = sonnet.via.stream;
+function captureDefault(cortex) {
+  const picked       = cortex.findOne({ type: "dialogue", via: "stream", tier: "capable" });
+  const originalStream = picked.via.stream;
   let capturedRequest = null;
-  sonnet.via.stream  = async (request) => {
+  picked.via.stream  = async (request) => {
     capturedRequest = request;
     return originalStream(request);
   };
   return {
     get turns() { return capturedRequest?.turns; },
     get request() { return capturedRequest; },
-    restore()   { sonnet.via.stream = originalStream; },
+    restore()   { picked.via.stream = originalStream; },
   };
 }
 
@@ -139,7 +138,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
     specimen.it("history grows: faculty receives all prior turns", async () => {
       const { dewey, createThread, cortex } = scenario;
       const thread  = await createThread();
-      const capture = captureSonnet(cortex);
+      const capture = captureDefault(cortex);
 
       try {
         const stream1 = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "first" }], thread });
@@ -170,7 +169,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
     specimen.it("system section written by mode harness middleware", async () => {
       const { dewey, createThread, cortex } = scenario;
       const thread  = await createThread();
-      const capture = captureSonnet(cortex);
+      const capture = captureDefault(cortex);
 
       try {
         const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "hi" }], thread });
@@ -361,7 +360,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
 
       em.clear();
 
-      const capture = captureSonnet(cortex);
+      const capture = captureDefault(cortex);
       try {
         const stream3 = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "third after reload" }], thread });
         await collectStream(stream3);

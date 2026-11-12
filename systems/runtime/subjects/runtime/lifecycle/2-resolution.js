@@ -1,4 +1,3 @@
-import paladin from "@vivalence/paladin";
 import { fromm, monad, shape, shard } from "@vivalence/typology";
 import * as belt from "../../../gestalten/belt/index.js";
 
@@ -37,26 +36,26 @@ export const modes = (factory) => async (die, next) => {
 
 export const attach = async (die, next) => {
   for (const service of Object.values(die.runtime.services)) {
-    die.aperture.branch(service.reference.absolute, service.attachment);
+    die.aperture.branch(service.reference, service.attachment);
   }
-
-  const attached = die.aperture.branch("/attached");
-  attached.branch("/file/:id").use(shard.datamap.errors()).do(async (input, ctx) => {
-    const file = await die.runtime.entities.file.findOneOrFail({ id: ctx.params.id });
-    ctx.response.type = file.mime;
-    ctx.response.headers.set("x-viva-integrity", file.integrity);
-    return await paladin.read.bytes(file.mount);
-  });
-
   await next();
 };
 
+const harnessed = (host) => fromm.modes(host.modes).flat.filter((mode) => mode.implements("HARNESSED"));
+
+const carrying = (host, runtime) => {
+  host.aperture.use(shard.context.bind("runtime", runtime));
+  for (const mode of harnessed(host)) mode.aperture.branch("/harness").use(shard.context.bind("runtime", runtime));
+};
+
 export const expose = async (die, next) => {
-  const runtime = die.aperture.branch(die.runtime.reference.nature, die.runtime.aperture);
+  carrying(die.runtime, die.runtime);
+  const runtime = die.aperture.branch(die.runtime.reference, die.runtime.aperture);
   runtime.branch("/status", shard.nano.atom(die.runtime.controller.status.$transient));
   runtime.open("/batch", shard.batch.route(runtime));
   for (const daemon of Object.values(die.runtime.daemons)) {
-    const branch = die.aperture.branch(daemon.reference.nature, daemon.aperture);
+    carrying(daemon, die.runtime);
+    const branch = die.aperture.branch(daemon.reference, daemon.aperture);
     branch.branch("/status", shard.nano.atom(daemon.$status));
     branch.open("/batch", shard.batch.route(branch));
   }
@@ -64,9 +63,10 @@ export const expose = async (die, next) => {
 };
 
 export const metadata = async (die, next) => {
-  const root = die.aperture.branch("/metadata");
+  die.aperture.open("/beacon/manifest", () => die.mask.manifest);
 
-  root.open("/manifest", () => die.mask.manifest);
+  const root = die.aperture.branch("/metadata").use(die.runtime.lighthouse.authenticate);
+
   root.open("/aperture", () => shape.strip(die.aperture));
   root.open("/datamap", () => shard.datamap.strip(die.runtime.datamap.getMetadata()));
 

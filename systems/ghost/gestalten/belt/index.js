@@ -1,9 +1,11 @@
 export * as activity from "./activity.js";
-export * as completions from "./completions.js";
+export * as catalog from "./catalog.js";
+export * as dictation from "./dictation.js";
 export * as dock from "./dock.js";
+export * as focus from "./focus.js";
 export * as harness from "./harness.js";
 export * as input from "./input.js";
-export * as intelligent from "./intelligent.js";
+export * as harnessed from "./harnessed.js";
 export * as journal from "./journal.js";
 export { outline } from "./outline.js";
 export * as view from "./view.js";

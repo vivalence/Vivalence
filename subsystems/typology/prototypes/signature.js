@@ -46,7 +46,7 @@ export class Signature {
   }
 
   get absolute() {
-    return this.array.map((s) => s.nature);
+    return this.array.map((s) => s.nature).filter(Boolean);
   }
 
   get json() {

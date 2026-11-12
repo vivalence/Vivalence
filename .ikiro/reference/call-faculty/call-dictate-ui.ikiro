@@ -1,0 +1,77 @@
+#+title: call · dictate — the client surface; dock, repl, bar, panels, both faces
+#+filetags: :client:anima:ghost:dock:repl:voice:call-faculty:
+#+status: OPEN — the dummy fixes placement and look; the wiring is yours
+# writer: agent · source: design canvas "Vivalence · Client System", page call · dictate
+
+* intent
+
+/"i need my new call capabilities designed. including the option / config settings spaces on the thread. client terminal for box and app and drivers and devices. thread and mode for config control and settings, and ui for display and events and state."/
+
+/"good dummy. this just says where shit goes and what it looks like. generally there is a lot of work to be done by the implementation agent."/
+
+* reference
+
+- =prototype.dc.html= (this folder): one interactive dummy, both faces (=face= dom · tty). It is a SKETCH. The data is canned, the timers are fake, the state is one object. Read it for placement, shape and the order of events, not for architecture.
+- =call-faculty.org=: the drill. Laws 1–6 and Q0–Q26 are LOCKED. Where this quest and the drill disagree, the drill wins, except for the UI rulings below, which are newer (11-17).
+- The v0.5 dock (=Client · Wireframes=, =proto-v05.dc.html=) is the base this builds on: the =<<= chevron, =ctrl-v=, the repl, the panel, the bar.
+- dapper: tokens and themes. The dummy reads only dapper names, never a hex.
+
+* the UI rulings (11-17, his comments on the dummy)
+
+| # | ruling | his words |
+|---|---|---|
+| U1 | =dock.input= carries a mic button before send; it toggles: click to dictate, click again to stop (keep the words); red (=signal-negative=) while live | /"the dock input is missing the mic icon."/ · /"clicking this icon again does the same as stop"/ |
+| U2 | while dictating, the line above =dock.input= holds the words (settled solid, tail muted) plus a compact ■ stop and a trash glyph, 20px each, tight padding | /"during dictation i still want a stop button."/ · /"bad placement. way too much space."/ |
+| U3 | the composer's =<<= opens a popover anchored above it (attach · dictate · call · paste, a letter runs its row); it is not the control catalog | /"the chevron here opens a popover not the catalog"/ |
+| U4 | dictate also sits behind the chevron (=ctrl-v c d=, as in v0.5) | /"dictate is behind the chevron. check the current dock."/ |
+
+* what the dummy fixes (placement, look, order)
+
+- *dictation*: the mic, or =/dictate=, starts it. The words grow in the line above =dock.input=. Exits: stop (■ · mic · Esc · the runtime ending it) appends the words to =dock.input=; send (Enter · send) ends and sends; trash drops them. Nothing is stored. Every exit is echoed as a repl line.
+- *call*: =/call= swaps the composer for the call line: =<<= · mic + level · state word · speaker + level · duration · ■ end. In the journal:
+  - your caption is a draft: settled solid, tail muted;
+  - the polish lands after the turn seals, and only while =engaged=;
+  - the reply is muted past the heard position (=/audio/played=);
+  - when you speak over it, the turn closes =interrupted= with a =heard m:ss= trace.
+- *the process segment* in the bar carries the voice state: dictate · listening · thinking · speaking, with a meter. Clicking it ends whatever is running.
+- *the entity segment* opens the thread panel:
+  - =conversational=: hear · speak · call · polish + =engaged= on/off;
+  - =mode · <slug>= voice: dictate · call.
+- *the system segment* opens the box panel: microphone (meter, mute) · speaker (meter) · permission (dom) or recorder (tty).
+- *no ear*: the dictate and call rows, the mic and the commands are absent, not disabled. The thread panel says so in one quiet line. A typed =/dictate= is the repl's normal unknown-command fault.
+- *tty*: the same state on the cell grid:
+  - the dictation line on =surface-sunk=;
+  - the call line in place of the composer;
+  - the popover rows on =surface-lift=;
+  - the bar on two rows.
+  Keys: =ctrl-v= once for control, twice for the repl; space speaks over.
+
+* what the dummy does NOT decide (yours, from the drill)
+
+- the packets and the fold: one =soma.pour= (milestones 0 · 2). The dummy's tick loop stands in for =/part/draft= · =/part/full= · =/turn/close= · =/audio/*=.
+- resolution: =/dictate= · =/call= exist only when the cortex resolves an ear and the mode trait carries voice (milestone 4). The dummy fakes this with an =ear= switch.
+- the thread trait's real shape (=CONVERSATIONAL=: hear · speak · call · polish{Selector, =engaged=}), its heal (Q16C), and where the panel writes it.
+- devices: =microphone.in= · frames in anima; a recorder spawned on the machine in ghost (Q17). Recorders as ledger data come LATER (S14, skipped).
+- the cascade (=converse= · the =call= derivation), barge-in on real audio, and the speaker playing packets.
+
+* work, by layer
+
+1. anima dock: mic in =dock.input= (U1); the dictation line (U2); the chevron popover (U3); the call line in the composer's place.
+2. repl: =/dictate= · =/dictate stop= · =/dictate trash= · =/call= · =/call end= · =/polish engaged on|off= · =/mic on|mute=, each a line and echoed; present only when they resolve.
+3. bar: process-segment voice states; system segment → box panel; entity segment → thread panel.
+4. panels: thread (conversational + mode voice) and box. These read and write the trait and the box; no local state.
+5. ghost: the same regions on OpenTUI. Dictation in the terminal is required (Q17).
+6. wire to milestones 5 (client dictation) and 7 (client call) of the drill.
+
+* QA
+
+- I press the mic, I speak, my words grow above =dock.input=; I press it again, they sit in =dock.input=.
+- During dictation, ■ keeps, trash drops, Enter sends; Esc keeps unless the repl is open (then Esc closes the repl).
+- =<<= opens the popover; =d= dictates; Esc closes it.
+- No ear in the ledger: no mic, no rows, no commands, nothing throws.
+- I call, I speak, it answers aloud; I talk over it, it stops, and the journal shows where.
+- The same, in ghost.
+
+* never
+
+a caret for a dictation (Q23) · pause · a dictation object · a guard for a missing ear · a second fold · hexes in a view · the catalog behind the composer's chevron

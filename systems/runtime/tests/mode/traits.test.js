@@ -85,7 +85,7 @@ specimen.describe("mode traits", () => {
         thread: scenario.fixtures.thread.id,
       });
       specimen.expect(result.condition).toBe("NOMINAL");
-      specimen.expect(result.output.buffer[0].data.recall).toBe("LEARNING");
+      specimen.expect(result.product.buffer[0].data.recall).toBe("LEARNING");
     });
 
     specimen.it("arity 2 handlers work through object compilation", async () => {
@@ -141,10 +141,10 @@ specimen.describe("mode traits", () => {
           thread: scenario.fixtures.thread.id,
         });
         specimen.expect(result.condition).toBe("NOMINAL");
-        specimen.expect(result.output.buffer).toHaveLength(1);
-        specimen.expect(result.output.buffer[0].mode.id ?? result.output.buffer[0].mode).toBe(scenario.fixtures.mode.id);
-        specimen.expect(result.output.buffer[0].data.recall).toBe("LEARNING");
-        specimen.expect(result.output.buffer[0].literals).toBeTruthy();
+        specimen.expect(result.product.buffer).toHaveLength(1);
+        specimen.expect(result.product.buffer[0].mode.id ?? result.product.buffer[0].mode).toBe(scenario.fixtures.mode.id);
+        specimen.expect(result.product.buffer[0].data.recall).toBe("LEARNING");
+        specimen.expect(result.product.buffer[0].literals).toBeTruthy();
       });
     });
 
@@ -152,7 +152,7 @@ specimen.describe("mode traits", () => {
       await scenario.scoped(async () => {
         const result = await scenario.mode.emit.literal({ literal: { id: scenario.fixtures.goodbye.id }, thread: scenario.fixtures.thread.id });
         specimen.expect(result.condition).toBe("NOMINAL");
-        specimen.expect(result.output.buffer).toHaveLength(1);
+        specimen.expect(result.product.buffer).toHaveLength(1);
       });
     });
 
@@ -162,8 +162,8 @@ specimen.describe("mode traits", () => {
         { literal: { id: scenario.fixtures.hello.id }, thread: scenario.fixtures.thread.id },
       );
       specimen.expect(result.condition).toBe("NOMINAL");
-      specimen.expect(result.output.buffer[0].data).toBeTruthy();
-      specimen.expect(result.output.buffer[0].literals).toBeTruthy();
+      specimen.expect(result.product.buffer[0].data).toBeTruthy();
+      specimen.expect(result.product.buffer[0].literals).toBeTruthy();
     });
 
     specimen.it("persists buffer to DB when thread provided", async () => {
@@ -172,8 +172,8 @@ specimen.describe("mode traits", () => {
           literal: { id: scenario.fixtures.hello.id },
           thread: scenario.fixtures.thread.id,
         });
-        specimen.expect(result.output.buffer[0].id).toBeTruthy();
-        const found = await em.findOne(BufferEntity, { id: result.output.buffer[0].id }, { populate: ["literals"] });
+        specimen.expect(result.product.buffer[0].id).toBeTruthy();
+        const found = await em.findOne(BufferEntity, { id: result.product.buffer[0].id }, { populate: ["literals"] });
         specimen.expect(found).toBeTruthy();
         specimen.expect(found.data.recall).toBe("LEARNING");
         specimen.expect(found.mode.id).toBe(scenario.fixtures.mode.id);
@@ -189,7 +189,7 @@ specimen.describe("mode traits", () => {
           literal: { id: scenario.fixtures.hello.id },
           thread: scenario.fixtures.thread.id,
         });
-        specimen.expect(result.output.buffer[0].index).toBe(before);
+        specimen.expect(result.product.buffer[0].index).toBe(before);
         await em.refresh(thread);
         specimen.expect(thread.counter).toBe(before + 1);
       });
@@ -214,7 +214,7 @@ specimen.describe("mode traits", () => {
         for (const finalize of await gestalten.belt.stagger(emptyMode, scenario.daemon, traits.mode)) await finalize();
         const result = await emptyMode.emit.nothing({ thread: scenario.fixtures.thread.id });
         specimen.expect(result.condition).toBe("EXHAUSTED");
-        specimen.expect(result.output.buffer).toEqual([]);
+        specimen.expect(result.product.buffer).toEqual([]);
       });
     });
   });

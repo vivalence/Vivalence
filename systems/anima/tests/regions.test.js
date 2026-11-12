@@ -1,9 +1,8 @@
 import { specimen } from "@vivalence/typology";
 import { mime } from "@vivalence/typology";
 import { fire, paint, settle, surface, world } from "./world.js";
-import { LENSES } from "../src/surfaces/chrome/panels/sidebar/sections.js";
 
-const LEAVES = ["tabs", "sidebar", "modebar", "fhead", "fbody", "dhead", "journal", "composer", "panel", "strip"];
+const LEAVES = ["tabs", "sidebar", "modebar", "fhead", "fbody", "dhead", "journal", "textarea", "panel", "strip"];
 
 const named = (element) => {
   const slot = element.getAttribute("data-r");
@@ -45,13 +44,13 @@ const seated = async (dock, buffer = null) => {
 const SLOTS = "section.panel, nav.modebar, div@wid, div@pop, div@tele, div@island";
 
 const ORACLE = {
-  docked: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.dock(div.dhead, div@strip, div.journal, div.composer))), ${SLOTS})`,
-  split: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.frame(div.fhead, div.fbody), div.seam.v, section.pane.dock(div.dhead, div@strip, div.journal, div.composer))), ${SLOTS})`,
+  docked: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.dock(div.dhead, div@strip, div.journal, div.textarea))), ${SLOTS})`,
+  split: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.frame(div.fhead, div.fbody), div.seam.v, section.pane.dock(div.dhead, div@strip, div.journal, div.textarea))), ${SLOTS})`,
   closed: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.frame(div.fhead, div.fbody))), ${SLOTS})`,
-  full: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.dock(div.dhead, div@strip, div.journal, div.composer))), ${SLOTS})`,
-  messenger: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.frame(div.fhead, div.fbody), section.pane.dock.floating(div.dhead, div@strip, div.journal, div.composer, span.dgrip))), ${SLOTS})`,
-  minimised: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.frame(div.fhead, div.fbody), section.pane.dock.floating.min(div.dhead, div@strip, div.journal, div.composer, span.dgrip))), ${SLOTS})`,
-  phoneDock: `div.client.phone(div.body(div.split(section.pane.dock(div.dhead, div@strip, div.journal, div.composer))), ${SLOTS})`,
+  full: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.dock(div.dhead, div@strip, div.journal, div.textarea))), ${SLOTS})`,
+  messenger: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.frame(div.fhead, div.fbody), section.pane.dock.floating(div.dhead, div@strip, div.journal, div.textarea, span.dgrip))), ${SLOTS})`,
+  minimised: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.frame(div.fhead, div.fbody), section.pane.dock.floating.min(div.dhead, div@strip, div.journal, div.textarea, span.dgrip))), ${SLOTS})`,
+  phoneDock: `div.client.phone(div.body(div.split(section.pane.dock(div.dhead, div@strip, div.journal, div.textarea))), ${SLOTS})`,
   phoneFrame: `div.client.phone(div.body(div.split(section.pane.frame(div.fhead, div.fbody))), ${SLOTS})`,
   phoneSidebar: `div.client.phone(div.body(aside.sidebar, div.split), ${SLOTS})`,
 };
@@ -124,20 +123,17 @@ specimen.describe("anima regions — the design's skeleton (dom.js skeleton) ove
     rig.close();
   });
 
-  specimen.it("the dock head: the lens is the frame's select, the close sits right-most; both are lines", async () => {
-    const { rig, root, sent } = await seated({ view: "docked", lens: "repl" });
+  specimen.it("the dock head: the lens is a popover key, a dot per stream, the close sits right-most; both are lines", async () => {
+    const { rig, root, sent } = await seated({ view: "docked", lens: ["turns", "repl"] });
     const head = root().querySelector(".dhead");
-    specimen.expect([...head.children].map((child) => child.className)).toEqual(["asel", "iconbtn"]);
-    specimen.expect(head.querySelector(".iconbtn").getAttribute("title")).toBe("close the dock · /dock closed · hold: display");
-    const lens = head.querySelector(".asel select");
-    specimen.expect(lens.getAttribute("aria-label")).toBe("lens");
-    specimen.expect([...lens.options].map((option) => option.textContent)).toEqual(Object.keys(LENSES));
-    specimen.expect(lens.options[lens.selectedIndex].textContent).toBe("repl");
-    lens.value = "/dock/lens trace";
-    fire(lens, "change");
-    fire(head.querySelector(".iconbtn"), "click");
+    specimen.expect([...head.children].map((child) => child.className)).toEqual(["iconbtn lens", "iconbtn"]);
+    specimen.expect(head.querySelector(".iconbtn:not(.lens)").getAttribute("title")).toBe("close the dock · /dock closed · hold: display");
+    const lens = head.querySelector(".iconbtn.lens");
+    specimen.expect(lens.getAttribute("title")).toBe("lens · turns · repl");
+    specimen.expect([...lens.children].map((stream) => stream.className)).toEqual(["tk on", "tk", "tk on"]);
+    fire(head.querySelector(".iconbtn:not(.lens)"), "click");
     await settle();
-    specimen.expect(sent).toEqual(["/dock/lens trace", "/dock closed"]);
+    specimen.expect(sent).toEqual(["/dock closed"]);
     rig.close();
   });
 
@@ -186,7 +182,7 @@ specimen.describe("anima regions — the design's skeleton (dom.js skeleton) ove
     await settle();
     specimen.expect(bones(root())).toBe(ORACLE.phoneDock);
     specimen.expect(root().querySelector(".split").style.flexDirection).toBe("column");
-    specimen.expect([...root().querySelector(".dhead").children].map((child) => child.className)).toEqual(["asel", "iconbtn"]);
+    specimen.expect([...root().querySelector(".dhead").children].map((child) => child.className)).toEqual(["iconbtn lens", "iconbtn"]);
     specimen.expect(root().querySelector("[data-r='strip']").innerHTML).toBe('<button type="button" class="strip" title="open the frame"><span class="l">◆ board</span><span class="muted">chess/chess</span><span class="o">⤢</span></button>');
     fire(root().querySelector(".strip"), "click");
     await settle();

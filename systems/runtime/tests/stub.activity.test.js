@@ -3,6 +3,7 @@ import { metronome } from "@vivalence/typology/scenarios";
 import provider from "../../../commons/fixtures/testing/hal/stub/provider/index.js";
 import paladin from "@vivalence/paladin";
 import { create } from "./scenarios/cortex.js";
+import { STUB_FACULTIES } from "./scenarios/fixtures.js";
 
 const { ledger, until } = metronome;
 
@@ -16,7 +17,7 @@ specimen.beforeAll(async () => {
   // playground's shape: the stub ALONE. the scenario seeds fixture faculties, and two
   // providers at neighbouring tunes would shadow each other on the nearest-tune pick.
   world.cortex.faculties.clear();
-  world.cortex.register(await provider({ statics: { scripts: { stalled: "--stall 20s --deltas 6" } } }));
+  world.cortex.register(await provider({ statics: { scripts: { stalled: "--stall 20s --deltas 6" } }, faculties: STUB_FACULTIES }));
 });
 specimen.afterAll(async () => {
   await world.daemon.entities.activity.remove({});
@@ -59,13 +60,16 @@ specimen.describe("stub · the controller machine over a scripted run", () => {
     const roster = ledger(world.daemon.entities.activity);
     const thread = await world.createThread();
 
+    const walked = new Set();
+    const unheld = world.daemon.entities.activity.$entities.subscribe((held) => {
+      for (const row of held) for (const step of row.steps) walked.add(`${step.path.join(" › ")} ${step.track}`);
+    });
     const events = [];
     for await (const packet of await fire(thread, "--tool fs_tree --rounds 1 --pace 5ms")) events.push(packet.event);
 
-    await until(() => roster.rows.length);
-    const walked = roster.rows.map((frame) => frame.last).filter(Boolean);
-    specimen.expect(walked.some((last) => last.startsWith("hallucination › fs_tree/"))).toBe(true);
-    specimen.expect(events).toContain("/tool/yield");
+    await until(() => [...walked].some((last) => last.startsWith("hallucination › fs_tree/")));
+    unheld();
+    specimen.expect(events).toContain("/turn/full");
     specimen.expect(events.at(-1)).toBe("/response/close");
     roster.off();
   });

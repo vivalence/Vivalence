@@ -37,6 +37,7 @@ export async function svelte(entry, opts = {}) {
     bundle: true,
     sourcemap: prod ? false : "inline",
     write: false,
+    metafile: true,
     format: "esm",
     target: "esnext",
     treeShaking: true,
@@ -75,6 +76,5 @@ export async function svelte(entry, opts = {}) {
   config.outfile = entry;
   delete config.outdir;
 
-  const bundle = await esbuild.build(config);
-  return bundle.outputFiles;
+  return await esbuild.build(config);
 }

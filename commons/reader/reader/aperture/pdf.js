@@ -2,7 +2,7 @@ import { encodeBase64 } from "@std/encoding/base64";
 import { extractText, getDocumentProxy } from "npm:unpdf@2.1.0";
 import { PDFDocument } from "npm:pdf-lib@1.17.1";
 import { parseHTML } from "linkedom";
-import { Controller, nearest, Span, tiers, v } from "@vivalence/typology";
+import { Controller, nearest, Span, v } from "@vivalence/typology";
 import { normalized } from "./parse.js";
 
 const titled = async (document) => (await document.getMetadata()).info.Title ?? "";
@@ -13,6 +13,24 @@ export const pdf = async (bytes) => {
   const html = normalized(new TextEncoder().encode(text.join("\f")), "text/plain; charset=utf-8");
   return [{ title: await titled(document), root: parseHTML(html).document.body }];
 };
+
+export async function* scanned(bytes, ctx) {
+  if (ctx.providers.ocr === undefined) throw new Error("reader: this mode consumes no ocr service");
+  const source = { type: "document", media: "application/pdf", data: encodeBase64(bytes) };
+  const blocks = [];
+  let page = 1;
+  for await (const block of ctx.providers.ocr(source)) {
+    if (block.words[0].page !== page) {
+      yield { step: "read", value: `page ${page} · ${blocks.length} blocks` };
+      page = block.words[0].page;
+    }
+    blocks.push(block);
+  }
+  yield { step: "read", value: `page ${page} · ${blocks.length} blocks` };
+  const text = blocks.map((block) => block.text).join("\n\n");
+  const html = normalized(new TextEncoder().encode(text), "text/plain; charset=utf-8");
+  return [{ title: await titled(await getDocumentProxy(bytes.slice())), root: parseHTML(html).document.body }];
+}
 
 export const paged = async (bytes) => {
   const document = await getDocumentProxy(bytes.slice());
@@ -177,7 +195,7 @@ export const chaptered = (blocks, title) =>
 const reading = (cortex) => {
   const documents = cortex.find({ type: "dialogue", via: "render" }).filter((faculty) => faculty.channels.in.includes("document"));
   if (documents.length === 0) throw new Error("reader: no dialogue faculty in this cortex reads documents");
-  return nearest(documents, tiers.capable);
+  return nearest(documents, cortex.tiers.capable);
 };
 
 const excerpt = async (source, from, until) => {
@@ -230,8 +248,8 @@ export async function* modeled(bytes, ctx) {
       output: { schema: Window },
       settings: { maxTokens: 32000 },
     });
-    blocks.push(...folded.output.object.blocks);
-    yield { step: "read", value: `pages ${from}–${to} of ${total} · ${folded.output.object.blocks.length} blocks · ${faculty.id}` };
+    blocks.push(...folded.product.object.blocks);
+    yield { step: "read", value: `pages ${from}–${to} of ${total} · ${folded.product.object.blocks.length} blocks · ${faculty.id}` };
   }
   return chaptered(blocks, source.getTitle() ?? "");
 }

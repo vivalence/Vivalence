@@ -149,7 +149,7 @@ specimen.describe(
       pin(
         {
           condition: yielded.condition,
-          buffer: yielded.output.buffer.map(({ data, mime, views, index }) => ({
+          buffer: yielded.product.buffer.map(({ data, mime, views, index }) => ({
             data,
             mime,
             views,

@@ -38,7 +38,10 @@ export async function seed(domain = {}) {
     modes: {},
     providers: {},
   };
-  held.twitch.use(shard.context.spread(contexts.daemonDie, held)).use(shard.datamap.owned());
+  held.twitch
+    .use(shard.context.spread(contexts.daemonDie, held))
+    .use(shard.context.bind("daemon", held))
+    .use(shard.datamap.owned());
   held.twitch.branch("/after").use(shard.datamap.detached(datamap));
   if (domain.twitch) held.twitch.graft(domain.twitch);
   datamap.registerSubscriber(held.twitch);
@@ -148,18 +151,18 @@ export async function seed(domain = {}) {
   await em.flush();
 
   const now = Date.now();
-  const retained = (row, status, lastSignal, due) =>
+  const retained = (row, status, lastSignal, due, hours) =>
     entities.note.create({
       user,
       literal: row,
       slug: `retention.${row.slug}`,
       daemon,
       traits: ["RETAINED"],
-      trait: { RETAINED: { driver: "BAYESIAN", status, lastSignal, state: {}, due: new Date(due).toISOString(), lastAt: now } },
+      trait: { RETAINED: { driver: "BAYESIAN", status, lastSignal, state: [4, 4, hours], due: new Date(due).toISOString(), lastAt: now } },
     });
   const retention = {
-    known: retained(hello, "KNOWN", "SUCCESS", now + 86_400_000),
-    learning: retained(goodbye, "LEARNING", "MISTAKE", now - 86_400_000),
+    known: retained(hello, "KNOWN", "SUCCESS", now + 86_400_000, 168),
+    learning: retained(goodbye, "LEARNING", "MISTAKE", now - 86_400_000, 24),
   };
   await em.flush();
 

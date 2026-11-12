@@ -1,0 +1,65 @@
+#+title: ledger faculties — the ledger row IS the catalog; a provider translates
+#+filetags: :hallucinators:ledger:cortex:
+#+status: LANDED 11-18 on /"go"/ — R1–R8; real-tree census 69 ok · 12 red = base reds by name (=vault= · 11 anima rig imports gone since m108); his look owed
+# writer: agent · limit: 8000 chars · unnumbered
+
+* intent
+
+/"who defines the faculties and the models atm? … what degrees of settings/control do i have right now? and what is optimal. i dont want f.e. the hallucinator service to define all teh tiers and models asf inside. the outside should be able to control this"/
+
+* rulings
+
+| R | ruling | his |
+|---+--------+-----|
+| 1 | the row lists its =faculties=; the provider translates each by =type= | /"a"/ |
+| 2 | every hallucinator: anthropic · openrouter · elevenlabs · deepgram | /"i want that for all hallucination providers! openrouter and antropic too"/ |
+| 3 | =capable= slow · smart · fair price; =unleashed= fast · smart · expensive; Opus scored to match | /"i assume unleashed to be fast smart and expensive. i expect capable to be slow smart and reasonabley priced"/ · /"amen"/ |
+| 4 | =eager= dies; the riddler's reply asks =fast= | /"drop eager."/ |
+| 5 | =balanced= an even trade, =[0.5, 0.5, 0.5]=; frugal · fast keep theirs | /"b"/ |
+| 6 | five tier names stay typology's; the ledger owes all five points, boot refuses one missing | /"b. for nwo. later different"/ |
+| 7 | MINE (he never sees it): the shipped =commons/ledger/ledger.viva.json= carries all four full rows, asleep without a key; his ledger gets his three at land | /"i dotn understand. this seeems weird."/ |
+| 8 | ONLY the row's =faculties= load; no set from the service; a hallucinator package exports no =faculties= | /"question was whether this means that ONLY these faculties are loaded vs plus some standard set by the service. i'd say ONLY"/ · /"amen"/ on R1's row |
+
+* as code — moved whole to =reference/ledger-faculties/as-code-11-17.org=; built into =land/repo.patch=
+
+* terrain — measured 11-17
+
+Moved whole to =reference/ledger-faculties/terrain-11-17.org= (cap).
+
+* blast table — moved whole to =reference/ledger-faculties/blast-11-17.org=; the 69 files: =land/files.txt=
+
+* milestones
+
+All four BUILT in a sandbox 11-18, not landed: the row schema · the translators (+ the stub) · the ledgers · the docs. Kit: =reference/ledger-faculties/land/= (=repo.patch= 67 files · =drift.py= 2 files the sibling edited live · =registry.patch= · =ledger.patch=), each dry-run clean on the live tree 11-18.
+
+* land — on his go, this order
+
+1. backup =~/.viva/ledger.viva.json= + =localhost.viva.db= → =~/.viva/bak/ledger-faculties/localhost-20261118/=
+2. =ledger.patch= (=~/.viva=): =tiers= + full rows FIRST — the new runtime refuses to boot without them
+3. local SQL, 1 of 19 threads: =UPDATE Thread SET trait = replace(trait, '"tier":"eager"', '"tier":"fast"')= — else its HARNESSED cast throws at hydration
+4. =registry.patch= (=~/.viva/registry=, watched): the old code ignores the new keys; his =jj= after
+5. =repo.patch= + =python3 drift.py <repo>= (=commons= watched → a deploy); then =SNAPSHOT_HOT=1= =harness.metadata.snapshot.test.js= (gitignored)
+6. census =land/= list; prod threads with =eager= measured BEFORE any deploy
+
+* changelog
+
+- 11-18 /"go"/ (on "my part … a full check before it lands"): sandbox build. Census 81 suites: =68 ok · 13 red=, the 13 = the baseline's BY NAME (=vault.test.js= 1 step · =harness.surfaces.test.js= · 11 anima suites "Build failed with 5 errors" on the real tree too). Providers by agent: anthropic 37 · openrouter 50 · elevenlabs 16 · deepgram 5 steps, each new step red once. Departures, mine, reported: =tiers= optional on the Instance, the =Cortex= constructor refuses an incomplete one (the instance-wide required field faulted 30+ paladin expectations; the runtime still refuses to boot) · =/metadata/tiers= beside =/metadata/cortex=, ghost's client cortex built with it · the stub converted too · elevenlabs speech ids =luiza= · =leandro= (were voice ids) · italian's =statics.models= → deepseek + openrouter's chooser · 3 pictures, moved whole.
+
+- 11-18 /"go"/ (land): 1 backup =~/.viva/bak/ledger-faculties/localhost-20261118/= · 2 =ledger.patch= · 3 SQL 1 row =eager= → =fast= (0 left of 19) · 4 =registry.patch= 6 files (=spanish= kept the sibling's =@education/game/wakaru= row) · 5 =repo.patch= 67 + =drift.py= 2; every landed file =cmp= = the sandbox. The watcher restarted on the registry write and NOT again for the repo write: the new client asked the old runtime =/metadata/tiers= → 404 for ~3 min; a =touch= of =systems/runtime/gestalten/shard/host.js= restarted it, =/metadata/tiers= 401 (served). His rows through the landed code: anthropic 3 · openrouter 7 · elevenlabs 3; frugal → gemini-3.5-flash-lite · fast → gemini-3.8-flash · balanced → sonnet · capable → gpt-6.1-sol · unleashed → opus. =viva instance/doctor=: 0 faults.
+
+* deferred
+
+- tier names into the ledger: R6 holds /"for nwo. later different"/
+- the clients read the points from the runtime, never typology: =/tier= (=systems/ghost/gestalten/commands/content/harness.js:56=) · the sidebar (=sections.js:519=) · the pdf pick (=commons/reader/reader/aperture/pdf.js:198=)
+- tier points: /"rebalance those."/ · /"eager: [0.3, 0.5, 0.1], makes no sense? fast, dumb, expensive?? not sure."/ — R3 · R4 · R5
+- vendor facts (channels · codec · context · thinking): the per-type translator's (mine, rule 7)
+
+* review — moved whole to =reference/ledger-faculties/review-11-17.org= (cap)
+
+* handoff
+
+- goal: the outside controls models · voices · tunes; a provider only translates
+- done: census 11-17 · R1–R8
+- next: his look (anima reloaded: five tiers, the model list) · his VCS commit in =~/.viva/registry= =education= · =vcompany=
+- never: a provider's default table · a fallback for a row without =faculties= · a per-provider override key · a package exporting =faculties= (=accio= spreads it under the row, =subsystems/paladin/prototypes/registry.js:256=)
+- owed: prod threads with =eager= measured before any deploy · unfiled reds (=known-issues.org= over cap): =vault.test.js= 1 step · 11 anima suites (=Could not resolve "./panes/index.js"= …) · =testament/= archives still import =tiers=

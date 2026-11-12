@@ -1,3 +1,4 @@
+import { TIER_POINTS } from "./scenarios/tiers.js";
 import { specimen, Cortex } from "@vivalence/typology";
 
 function makeService(slug, faculties) {
@@ -12,25 +13,25 @@ specimen.describe("Cortex hallucinators", () => {
     const services = [
       {
         service: makeService("anthropic", [
-          { type: "dialogue", id: "dialogue-1", tune: [0.4, 0.6, 0.6, 0.6], via: { stream: async function* () {} } },
+          { type: "dialogue", id: "dialogue-1", tune: [0.4, 0.6, 0.6], via: { stream: async function* () {} } },
         ]),
         mask: { module: "@vivalence/hallucinator/anthropic", secrets: { anthropic: "key-a" } },
       },
       {
         service: makeService("elevenlabs", [
-          { type: "speech", id: "speech-2", tune: [0.3, 0.5, 0.5, 0.1], via: { stream: async function* () {} } },
+          { type: "speech", id: "speech-2", tune: [0.3, 0.5, 0.1], via: { stream: async function* () {} } },
         ]),
         mask: { module: "@vivalence/hallucinator/elevenlabs", secrets: { elevenlabs: "key-e" } },
       },
       {
         service: makeService("deepgram", [
-          { type: "verbatim", id: "verbatim-3", tune: [0.4, 0.6, 0.5, 0.1], via: { stream: async function* () {} } },
+          { type: "verbatim", id: "verbatim-3", tune: [0.4, 0.5, 0.1], via: { stream: async function* () {} } },
         ]),
         mask: { module: "@vivalence/hallucinator/deepgram", secrets: { deepgram: "key-d" } },
       },
     ];
 
-    const cortex = new Cortex();
+    const cortex = new Cortex(TIER_POINTS);
     for (const { service, mask } of services) {
       cortex.register(await service.provider(mask));
     }
@@ -39,17 +40,17 @@ specimen.describe("Cortex hallucinators", () => {
     specimen.expect(cortex.find({ type: "speech" }).length).toBeGreaterThan(0);
     specimen.expect(cortex.find({ type: "verbatim" }).length).toBeGreaterThan(0);
 
-    const speech = cortex.findOne({ type: "speech", tier: "eager" });
+    const speech = cortex.findOne({ type: "speech", tier: "fast" });
     specimen.expect(speech.type).toBe("speech");
     specimen.expect(speech.secret).toBe("key-e");
 
-    const verbatim = cortex.findOne({ type: "verbatim", tier: "eager" });
+    const verbatim = cortex.findOne({ type: "verbatim", tier: "fast" });
     specimen.expect(verbatim.type).toBe("verbatim");
     specimen.expect(verbatim.secret).toBe("key-d");
   });
 
   specimen.it("an empty roster leaves the cortex barren", async () => {
-    const cortex = new Cortex();
+    const cortex = new Cortex(TIER_POINTS);
     for (const { service, mask } of []) {
       cortex.register(await service.provider(mask));
     }
@@ -61,25 +62,25 @@ specimen.describe("Cortex hallucinators", () => {
     const services = [
       {
         service: makeService("anthropic", [
-          { type: "dialogue", id: "dialogue-4", tune: [0.6, 0.6, 0.6, 0.6], via: { stream: async function* () {} } },
+          { type: "dialogue", id: "dialogue-4", tune: [0.6, 0.6, 0.6], via: { stream: async function* () {} } },
         ]),
         mask: { module: "anthropic", secrets: { anthropic: "k1" } },
       },
       {
         service: makeService("openai", [
-          { type: "dialogue", id: "dialogue-5", tune: [0.3, 0.5, 0.5, 0.1], via: { stream: async function* () {} } },
+          { type: "dialogue", id: "dialogue-5", tune: TIER_POINTS.fast, via: { stream: async function* () {} } },
         ]),
         mask: { module: "openai", secrets: { openai: "k2" } },
       },
     ];
 
-    const cortex = new Cortex();
+    const cortex = new Cortex(TIER_POINTS);
     for (const { service, mask } of services) {
       cortex.register(await service.provider(mask));
     }
 
-    const eager = cortex.findOne({ type: "dialogue", tier: "eager" });
-    specimen.expect(eager.secret).toBe("k2");
+    const fast = cortex.findOne({ type: "dialogue", tier: "fast" });
+    specimen.expect(fast.secret).toBe("k2");
 
     const academic = cortex.findOne({ type: "dialogue", tier: "capable" });
     specimen.expect(academic.secret).toBe("k1");

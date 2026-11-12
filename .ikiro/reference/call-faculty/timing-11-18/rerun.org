@@ -1,0 +1,17 @@
+#+title: dictate timing — run it again
+# writer: agent · limit: 2000 chars · moved whole from =../dictate-performance-11-18.org= 11-18 (cap)
+
+* run it again
+
+#+BEGIN_SRC sh
+say -v "Eddy (Spanish (Spain))" -o hola.aiff "Hola, hoy quiero practicar español contigo durante diez minutos."
+afconvert -f WAVE -d LEI16@16000 -c 1 hola.aiff hola.wav
+python3 .ikiro/reference/call-faculty/timing-11-18/serve.py <dir of hola.wav and instrument.js>
+python3 .ikiro/reference/call-faculty/timing-11-18/sink.py <dir for the dumps>
+DENO_DIR=~/Library/Caches/deno deno run -A --no-check .ikiro/reference/call-faculty/timing-11-18/polish.probe.js
+#+END_SRC
+
+- each helper binds a free port and writes it to =port.txt= · =sink.port=; =instrument.js= names =51485= (the clip) and the page's =subjects/index.js?t=…= stamp, both read fresh (=performance.getEntriesByType("resource")=)
+- in the page: =eval= the fetched =instrument.js=, set =__T.rec=, click, then post =__T.dump(from)= to the sink; a tool result cuts near 1000 chars
+- a second tab shares his =localStorage=: his terminal switch and his dock width move it; coordinates are read off the DOM before each click (11-18 one stray click on dojo's =Check=)
+- the thread's =CONVERSATIONAL.polish.engaged= is his: flipped for a run, flipped back

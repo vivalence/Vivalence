@@ -27,6 +27,6 @@ fi
 
 mode=${IKIRO_GUARD_MODE:-deny}
 printf '%s tangle-guard %s %s %s\n' "$(date +%s)" "$mode" "$session" "$class" >> "$log" 2>/dev/null
-if [ "$mode" = "warn" ]; then echo "tangle-guard (warn): $reason" >&2; exit 0; fi
+if [ "$mode" = "warn" ]; then jq -n --arg reason "tangle-guard (warn): $reason" '{ hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: $reason } }'; exit 0; fi
 jq -n --arg reason "$reason" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:$reason}}'
 exit 0

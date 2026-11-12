@@ -1,3 +1,4 @@
+import { STUB_FACULTIES } from "../../../../commons/fixtures/testing/data/stub.js";
 import paladin from "@vivalence/paladin";
 import { hello } from "@vivalence/runtime/scenarios";
 
@@ -5,7 +6,7 @@ export const MEMO = await paladin.read.json(paladin.scope.repository.branch("com
 
 export const RECIPE = {
   ...hello.RECIPE,
-  hallucinators: [{ module: "@commons/hallucinator/stub" }],
+  hallucinators: [{ module: "@commons/hallucinator/stub", faculties: STUB_FACULTIES }],
   daemons: [...hello.RECIPE.daemons, ...MEMO.daemons],
 };
 

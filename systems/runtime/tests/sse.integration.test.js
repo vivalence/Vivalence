@@ -78,7 +78,7 @@ specimen.describe("SSE wire — http(dewey.aperture) → /harness/dialogue/strea
     specimen.expect(opens.length).toBe(1);
     specimen.expect(closes.length).toBe(1);
     specimen.expect(deltas.length).toBeGreaterThan(0);
-    specimen.expect(closes[0].meta.state).toBe("complete");
+    specimen.expect(closes[0].turn.meta.state).toBe("complete");
   });
 
   specimen.it("executable tools do not cross the JSON wire — single round, no tool call", async () => {
@@ -102,7 +102,7 @@ specimen.describe("SSE wire — http(dewey.aperture) → /harness/dialogue/strea
 
     specimen.expect(opens.length).toBe(1);
     specimen.expect(closes.length).toBe(1);
-    specimen.expect(closes[0].meta.state).toBe("complete");
+    specimen.expect(closes[0].turn.meta.state).toBe("complete");
     specimen.expect(frames.at(-1).event).toBe("/response/close");
     specimen.expect(text.includes('"type":"tool_use"')).toBe(false);
   });

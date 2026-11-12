@@ -11,8 +11,8 @@ const ds = await design();
 const blocks = Object.fromEntries(
   Object.keys(ds.themes).map((name) => [
     name,
-    ds.output.css.slice(ds.output.css.indexOf(":root {")).split("}\n")[0] +
-    ds.output.css.slice(ds.output.css.indexOf(`:root[data-theme="${name}"] {`)).split("}\n")[0],
+    ds.product.css.slice(ds.product.css.indexOf(":root {")).split("}\n")[0] +
+    ds.product.css.slice(ds.product.css.indexOf(`:root[data-theme="${name}"] {`)).split("}\n")[0],
   ]),
 );
 

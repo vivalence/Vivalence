@@ -80,9 +80,9 @@ specimen.describe(
       });
 
       specimen.expect(yielded.condition).toBe("NOMINAL");
-      specimen.expect(yielded.output.buffer.length).toBe(1);
+      specimen.expect(yielded.product.buffer.length).toBe(1);
 
-      const [buffer] = yielded.output.buffer;
+      const [buffer] = yielded.product.buffer;
       specimen.expect(buffer.thread).toBe(rigged.row);
       specimen.expect(buffer.index).toBe(0);
       // THE assertion. Two lines bind — the repository's create and emitter.js:57-58 — and this
@@ -144,7 +144,7 @@ specimen.describe(
           thread: "thread-1",
         });
 
-        specimen.expect(yielded.output.buffer[0].data).toEqual(data);
+        specimen.expect(yielded.product.buffer[0].data).toEqual(data);
       },
     );
 

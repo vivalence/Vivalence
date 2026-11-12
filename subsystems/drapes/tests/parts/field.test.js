@@ -2,13 +2,13 @@ import { specimen } from "@vivalence/typology";
 import { fire, parts, screen } from "../scenarios/index.js";
 import { oracle, shape } from "./oracle.js";
 
-const FIELD = `<div class="field   "><span class="pcw"></span><textarea id="composer" class="" rows="1" spellcheck="false" placeholder="say it, or / for a command" aria-label="composer"></textarea><span class="fk"></span></div>`;
+const FIELD = `<div class="field   "><span class="pcw"></span><textarea id="textarea" class="" rows="1" spellcheck="false" placeholder="say it, or / for a command" aria-label="dock textarea"></textarea><span class="fk"></span></div>`;
 
-const REPL = `<div class="field focus dict repl"><span class="pcw"></span><textarea class="repl" rows="1" spellcheck="false" placeholder="" aria-label="composer"></textarea><span class="fk"></span></div>`;
+const REPL = `<div class="field focus dict repl"><span class="pcw"></span><textarea class="repl" rows="1" spellcheck="false" placeholder="" aria-label="dock textarea"></textarea><span class="fk"></span></div>`;
 
 specimen.describe("Field — the design's .field (dom.js:288): .pcw · textarea · .fk", () => {
-  specimen.it("the composer: id composer, the placeholder, empty lead and keys", () => {
-    const rig = screen(() => parts.Field({ id: "composer", placeholder: "say it, or / for a command" }));
+  specimen.it("the dock textarea: id textarea, the placeholder, empty lead and keys", () => {
+    const rig = screen(() => parts.Field({ id: "textarea", placeholder: "say it, or / for a command" }));
     specimen.expect(shape(rig.target)).toBe(oracle(FIELD));
     rig.close();
   });

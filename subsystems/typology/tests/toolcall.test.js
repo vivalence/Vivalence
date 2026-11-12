@@ -55,4 +55,29 @@ specimen.describe("ToolCall — the wire↔signal codec, a Signal sibling on the
     new ToolCall(steps);
     specimen.expect(steps.length).toBe(2);
   });
+
+  specimen.it("Q39A (R8) — a tool step carrying _ is refused, loud; every other leaf round-trips", () => {
+    const armed = new Vector();
+    armed.branch("/teacher/word_list").open({ nature: "/deal" }, () => ({}));
+    armed.branch("/teacher/francesca").open({ nature: "/drill" }, () => ({}));
+    const verdicts = steer.trie.leaves(armed).map(({ steps }) => {
+      try {
+        const name = new ToolCall(steps).name;
+        return { name, back: new ToolCall(name).signal.pathname };
+      } catch (error) {
+        return { refused: error.message };
+      }
+    });
+    console.log(JSON.stringify(verdicts, null, 2));
+    specimen.expect(verdicts).toEqual([
+      { refused: '[toolcall] a tool step carries "_", it would not split back: word_list' },
+      { name: "teacher_francesca_drill", back: "/teacher/francesca/drill" },
+    ]);
+  });
+
+  specimen.it("Q28 (R4) — a name past 64 chars is refused, loud, never cut; 64 passes", () => {
+    const at = (length) => new ToolCall([{ nature: "daemon" }, { nature: "x".repeat(length - "daemon_".length) }]);
+    specimen.expect(at(64).name).toHaveLength(64);
+    specimen.expect(() => at(65).name).toThrow("65 chars, a provider caps a tool name at 64");
+  });
 });

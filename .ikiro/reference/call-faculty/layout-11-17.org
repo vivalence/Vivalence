@@ -1,0 +1,69 @@
+#+title: call-faculty — the layout law's hunks, locked in the S13 drill 11-17
+# writer: agent · limit: 4000 chars
+
+* Q24 /"q24 a"/ — every packet carries the thing its event names, under that noun
+
+Run by =walk-11-17/law.probe.js= over the belt's recorded tool round: folds to the tree's three turns; each schematic holds its packet. Positions stay flat beside =event=: =index= · =pts=.
+#+BEGIN_SRC js
+// subsystems/typology/schematics/primitives/hallucination.js:272
+Packet.TurnClose = v.object({
+  event: v.const("/turn/close"),
+  turn: v.object({ meta: v.record(v.string(), v.unknown()).optional() }),
+});
+Packet.ResponseClose = v.object({
+  event: v.const("/response/close"),
+  response: v.object({ meta: v.object({ state: State, rounds: v.integer() }, { additionalProperties: true }) }),
+});
+Audio.Packet = v.object({
+  event: v.const("/audio/packet"),
+  pts: v.number().optional(),
+  audio: v.object({ data: v.string(), rate: v.integer(), codec: v.string().optional() }),
+});
+// subsystems/typology/gestalten/belt/soma.js:3
+const TURN = {
+  open: (turn, carried) => ({ ...carried, parts: [] }),
+  close: (turn, carried) => ({ ...turn, ...carried }),
+  full: (turn, carried) => carried,
+};
+const PART = {
+  open: (part, carried) => ({ ...carried }),
+  delta: grown,
+  close: sealed,
+};
+export function pour(turn, packet) {
+  const [, noun, act] = packet.event.split("/");
+  if (noun === "turn") return TURN[act](turn, packet.turn);
+  if (noun === "part") turn.parts[packet.index] = PART[act](turn.parts[packet.index], packet.part);
+  return turn;
+}
+#+END_SRC
+MISWIRE fixed in the Q29 walk S3 (=walk-11-17/close.probe.js=): ghost pours =/response/close= too (=ghost/gestalten/belt/harness.js:6=); the =if= wrote =parts[undefined]=, and threw on a fault before any turn; =if (noun === "part")= /"amen"/. Unwritten under Q24: =align= · =Audio.Close= in the noun form · Q19's =draft= · =full= as =PART= acts · =soma.transcript='s =/response/close= · both translators · the stub provider · the walk's microphone copies (=frames()= re-cut only in =moved-11-17-client.org=).
+
+* Q25 /"b"/ — a tool round sends its results once: the =tool_result= parts of =/turn/full=
+
+Run by =walk-11-17/tools.probe.js= on the recorded round: 15 packets → 13, the folded answer the same, =output= too; a =tool_result= part passes =is.yieldish=. Dies: =Packet.ToolCall= · =Packet.ToolYield= and their arms in =Packet.Response= · =soma.transcript='s =/tool/call= · =/tool/yield= cases; Q24's =tool= noun never exists. Unrun: the ghost reader below.
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/belt/hallucinate.js:158
+const settled = await dispatch(policy, turn.parts);
+const parts = settled.map(({ call, result }) => ({
+  type: "tool_result",
+  id: call.id,
+  condition: result.condition,
+  output: result.output,
+}));
+const answered = { role: "user", parts };
+yield { event: "/turn/full", turn: answered };
+// subsystems/typology/gestalten/belt/soma.js:59 — gathered = today's /tool/yield body, moved
+case "/turn/full": {
+  const results = record.turn.parts.filter((part) => part.type === "tool_result");
+  return {
+    ...current,
+    turns: [...current.turns, record.turn],
+    output: results.reduce((output, part) => gathered(output, part.output), current.output),
+  };
+}
+// systems/ghost/entities/mode/traits/harnessed.js:20
+if (packet?.event === "/turn/full")
+  for (const part of packet.turn.parts.filter((held) => held.type === "tool_result")) await merge(part);
+#+END_SRC
+=commons/instances/hello-world/app/App.svelte:121= reads the names off the folded =tool_use= parts; the quest's =converse= (S7) sends the result turn only.

@@ -37,7 +37,7 @@ export const metadata = (type) => async (die, next) => {
 };
 
 export const cortex = (type) => async (die, next) => {
-  die[type].cortex = new Cortex().register(belt.cortex.wire(die[type].aperture.branch("/cortex"), await die[type].aperture.call("/metadata/cortex")));
+  die[type].cortex = new Cortex(await die[type].aperture.call("/metadata/tiers")).register(belt.cortex.wire(die[type].aperture.branch("/cortex"), await die[type].aperture.call("/metadata/cortex")));
   await next();
 };
 

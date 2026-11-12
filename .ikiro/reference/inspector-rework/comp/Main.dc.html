@@ -1,0 +1,1213 @@
+<!doctype html>
+<html lang="en" data-theme="northsea">
+<head>
+<meta charset="utf-8">
+<title>Inspector, anima</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/vivalence/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:"Victor Mono";src:url("ds/vivalence/fonts/VictorMono-Regular.woff2") format("woff2");font-weight:400}
+@font-face{font-family:"Victor Mono";src:url("ds/vivalence/fonts/VictorMono-SemiBold.woff2") format("woff2");font-weight:600 700}
+@font-face{font-family:"Inter";src:url("ds/vivalence/fonts/Inter-VariableFont_opsz-wght.ttf") format("truetype");font-weight:100 900}
+@font-face{font-family:"IBM Plex Mono";src:url("ds/vivalence/fonts/IBMPlexMono-Regular.ttf") format("truetype");font-weight:400 700}
+@font-face{font-family:"IBM Plex Sans";src:url("ds/vivalence/fonts/IBMPlexSans-VariableFont_wdth-wght.ttf") format("truetype");font-weight:100 700}
+@font-face{font-family:"Space Mono";src:url("ds/vivalence/fonts/SpaceMono-Regular.ttf") format("truetype");font-weight:400 700}
+body{margin:0}
+.ins{width:960px;height:640px;box-sizing:border-box;display:grid;grid-template-rows:34px minmax(0,1fr);font-family:var(--font-family-code);font-size:var(--size-type-xs);line-height:1;box-shadow:inset 0 0 0 var(--size-ring) var(--boundary);overflow:hidden}
+.ins-closed{width:960px;height:640px;box-sizing:border-box;padding:var(--size-space-sm);font-family:var(--font-family-code);font-size:var(--size-type-xs)}
+.ins-closed>div{display:inline-flex;align-items:center;gap:var(--size-space-sm);height:34px;padding:0 var(--size-space-xs) 0 var(--size-space-sm);box-shadow:inset 0 0 0 var(--size-ring) var(--boundary)}
+.ins-span,.ins-act,.ins-x,.ins-link,.ins-step,.ins-node button{appearance:none;border:0;background:transparent;font:inherit;cursor:pointer;padding:0;margin:0;color:inherit}
+.ins-head{display:flex;align-items:center;gap:var(--size-space-sm);padding:0 var(--size-space-xs) 0 var(--size-space-sm);background:var(--surface-sunk);box-shadow:inset 0 calc(-1 * var(--size-ring)) 0 var(--boundary)}
+.ins-gap{flex:1}
+.ins-x{width:24px;height:24px;display:inline-grid;place-items:center;color:var(--text-light);border-radius:var(--shape-radius-key)}
+.ins-x:hover,.ins-act:hover{background:var(--control-selected);color:var(--text-strong)}
+.ins-body{display:grid;grid-template-columns:248px var(--size-ring) minmax(0,1fr) var(--size-ring) 288px;min-height:0}
+.ins-log{display:grid;grid-template-columns:minmax(0,1fr) var(--size-ring) 320px;min-height:0}
+.ins-div{background:var(--boundary)}
+.ins-col{min-width:0;min-height:0;overflow:hidden;display:flex;flex-direction:column;padding:var(--size-space-xs)}
+.ins-scroll{min-height:0;flex:1;overflow:auto;scrollbar-width:thin}
+.ins-lens{flex:none;margin:0 0 6px;row-gap:2px;font-size:var(--size-type-2xs)}
+.ins-lens>button{height:20px;padding:0 6px}
+.ins-ln{margin-left:4px;color:var(--text-muted)}
+.ins-lens>button[aria-pressed="true"] .ins-ln{color:inherit}
+.ins-empty{padding:var(--size-space-xs);color:var(--text-muted)}
+.ins-node{display:grid;grid-template-columns:2ch minmax(0,1fr);align-items:center;height:var(--size-row);padding-right:var(--size-space-xs);border-radius:var(--shape-radius-key);white-space:nowrap;color:var(--text-ink);box-sizing:border-box}
+.ins-node button{height:100%}
+.ins-node:hover,.ins-span:hover{background:var(--control-selected)}
+.ins-node[aria-current="true"],.ins-span[aria-current="true"]{background:var(--control-selected);box-shadow:inset 0 0 0 var(--size-ring) var(--signal-primary-ink)}
+.ins-node .f{color:var(--text-muted);text-align:center}
+.ins-node .m{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:var(--size-space-xs);text-align:left;min-width:0}
+.ins-node .nm.is-strong{color:var(--text-strong);font-weight:600}
+.ins-node .q{color:var(--text-muted);overflow:hidden;text-overflow:ellipsis}
+.ins-node .c{color:var(--text-muted);font-variant-numeric:tabular-nums}
+.ins-node .live{color:var(--signal-primary-ink)}
+.ins-bang{color:var(--signal-negative-ink);font-weight:700}
+.ins-oh{display:flex;align-items:center;gap:var(--size-space-xs);height:28px;padding:0 var(--size-space-xs);white-space:nowrap;flex:none}
+.ins-oh b{color:var(--text-strong);font-weight:600;font-size:var(--size-type-sm)}
+.ins-oh .kit-quiet{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ins-act{height:22px;padding:0 var(--size-space-xs);color:var(--text-muted);border-radius:var(--shape-radius-key);flex:none}
+.ins-act[aria-pressed="true"]{background:var(--control-contrast-pressed);color:var(--control-on-pressed)}
+.ins-crumbs{display:flex;gap:var(--size-space-xs);align-items:center;height:20px;padding:0 var(--size-space-xs);color:var(--text-muted);font-size:var(--size-type-2xs);white-space:nowrap;overflow:hidden;flex:none}
+.ins-link{color:var(--text-link);text-align:left}
+.ins-link:hover{text-decoration:underline}
+.ins-sec{height:24px;display:flex;align-items:flex-end;padding:0 var(--size-space-xs) var(--size-space-2xs);box-sizing:border-box}
+.ins-kv{display:grid;grid-template-columns:14ch minmax(0,1fr) auto;align-items:center;gap:var(--size-space-xs);min-height:var(--size-row);padding:0 var(--size-space-xs);white-space:nowrap}
+.ins-kv .k{color:var(--text-light);overflow:hidden;text-overflow:ellipsis}
+.ins-kv .v{color:var(--text-strong);display:flex;align-items:center;gap:var(--size-space-xs);min-width:0}
+.ins-kv .tx{overflow:hidden;text-overflow:ellipsis}
+.ins-kv .q{color:var(--text-muted);font-size:var(--size-type-2xs);overflow:hidden;text-overflow:ellipsis;max-width:16ch}
+.ins-kv.is-sub .k{padding-left:2ch}
+.ins-kv.is-worn .k{color:var(--text-strong);font-weight:600}
+.ins-kv.is-cast .k,.ins-kv.is-cast .v{color:var(--text-muted)}
+.ins-kv.is-changed{box-shadow:inset 2px 0 0 var(--signal-primary)}
+.ins-kv.is-fault .v{color:var(--signal-negative-ink)}
+.ins-kv.is-tall{padding-top:3px;padding-bottom:3px}
+.ins-kv.is-tall .kit-choice{row-gap:2px}
+.ins-in{grid-template-columns:6ch minmax(0,1fr)}
+.ins-sel{appearance:none;border:0;margin:0;font:inherit;cursor:pointer;height:22px;padding:0 var(--size-space-xs);color:var(--text-strong);background:var(--control-field);box-shadow:inset 0 0 0 var(--size-ring) var(--boundary);border-radius:var(--shape-radius-key)}
+.ins-step{width:22px;height:22px;color:var(--text-light);box-shadow:inset 0 0 0 var(--size-ring) var(--boundary);border-radius:var(--shape-radius-key)}
+.ins-num{font-variant-numeric:tabular-nums;min-width:4ch;text-align:center}
+.ins-cells{display:inline-flex;gap:1px}
+.ins-cells i{width:3px;height:5px;background:var(--divider)}
+.ins-cells i.on{background:var(--text-ink)}
+.ins-pre{flex:none;max-height:220px;margin:var(--size-space-xs) 0;padding:var(--size-space-xs);background:var(--surface-sunk);color:var(--text-ink);font:inherit;line-height:1.5;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;border-radius:var(--shape-radius-key);scrollbar-width:thin}
+.ins-pre.is-prose{font-family:var(--font-family-sans-text);font-size:var(--size-type-sm);line-height:var(--size-leading-loose)}
+.ins-th{display:flex;align-items:center;gap:var(--size-space-xs);height:28px;padding:0 var(--size-space-xs);flex:none}
+.ins-spans{flex:none;max-height:45%;overflow:auto;scrollbar-width:thin}
+.ins-log .ins-spans{flex:1;max-height:none}
+.ins-span{width:100%;display:grid;grid-template-columns:minmax(0,1fr) 84px 5ch;align-items:center;gap:var(--size-space-xs);height:var(--size-row);padding:0 var(--size-space-xs);border-radius:var(--shape-radius-key);text-align:left;white-space:nowrap;color:var(--text-strong);box-sizing:border-box}
+.ins-log .ins-span{grid-template-columns:minmax(0,1fr) 40% 6ch}
+.ins-span .n{display:flex;align-items:center;gap:var(--size-space-xs);overflow:hidden}
+.ins-span .nm{overflow:hidden;text-overflow:ellipsis}
+.ins-bar{position:relative;height:5px;background:var(--divider)}
+.ins-bar i{position:absolute;top:0;bottom:0;background:var(--text-ink)}
+.ins-bar i.is-fault{background:var(--signal-negative)}
+.ins-bar i.is-live{background:var(--signal-primary)}
+.ins-span .ms{color:var(--text-muted);text-align:right;font-variant-numeric:tabular-nums;font-size:var(--size-type-2xs)}
+.ins-span .ms.is-slow{color:var(--signal-caution-ink)}
+.ins-span .ms.is-live{color:var(--signal-primary-ink)}
+.ins-fault{margin:var(--size-space-xs) 0 var(--size-space-2xs);padding:var(--size-space-xs);background:var(--signal-negative-tint);color:var(--signal-negative-ink);border-radius:var(--shape-radius-key);line-height:1.5}
+.ins-path{padding:var(--size-space-xs) var(--size-space-xs) var(--size-space-2xs);color:var(--text-muted);font-size:var(--size-type-2xs);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ins-meta{padding:0 var(--size-space-xs) var(--size-space-2xs);color:var(--text-light);font-size:var(--size-type-2xs);line-height:1.5}
+.ins-rec{display:grid;grid-template-columns:6ch 7ch minmax(0,1fr);gap:var(--size-space-xs);height:20px;align-items:center;padding:0 var(--size-space-xs);font-size:var(--size-type-2xs);color:var(--text-ink);white-space:nowrap}
+.ins-rec span{overflow:hidden;text-overflow:ellipsis}
+.ins-rec .t{color:var(--text-muted);font-variant-numeric:tabular-nums}
+.ins-rec .run{color:var(--signal-primary-ink)}
+.ins-rec .pos{color:var(--signal-positive-ink)}
+.ins-rec .neg{color:var(--signal-negative-ink)}
+@media (prefers-reduced-motion: reduce){.ins *{animation:none!important}}
+</style>
+</helmet>
+<sc-if value="{{closed}}" hint-placeholder-val="{{false}}">
+<div class="kit ins-closed" data-zone="1"><div data-zone="3"><span class="kit-label">telemetry</span><span class="kit-quiet">leader s t</span><button class="ins-act" onClick="{{reopen}}">open</button></div></div>
+</sc-if>
+<sc-if value="{{open}}" hint-placeholder-val="{{true}}">
+<div class="kit ins" data-zone="3" role="dialog" aria-label="telemetry">
+<div class="ins-head">
+<span class="kit-label">telemetry</span>
+<div class="kit-choice" role="tablist"><button role="tab" aria-pressed="{{inInspector}}" aria-selected="{{inInspector}}" onClick="{{toInspector}}">inspector</button><button role="tab" aria-pressed="{{inLogger}}" aria-selected="{{inLogger}}" onClick="{{toLogger}}">logger {{records}}</button></div>
+<span class="ins-gap"></span>
+<sc-if value="{{hasFaults}}" hint-placeholder-val="{{true}}"><button class="kit-seg is-fault" aria-label="faults, show them" onClick="{{toFaults}}">! {{faults}}</button></sc-if>
+<button class="ins-x" aria-label="close" onClick="{{close}}"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 2l8 8M10 2l-8 8"/></svg></button>
+</div>
+<sc-if value="{{inInspectorFlag}}" hint-placeholder-val="{{true}}">
+<div class="ins-body">
+<div class="ins-col" role="tree" aria-label="entities">
+<label class="kit-field is-repl" style="min-height: 26px; margin-bottom: 6px; flex: none"><span class="p">⌕</span><input aria-label="filter" placeholder="filter" value="{{query}}" onChange="{{onQuery}}"></label>
+<div class="kit-choice ins-lens" role="tablist" aria-label="index"><sc-for list="{{lenses}}" as="l" hint-placeholder-count="8"><button role="tab" aria-pressed="{{l.pressed}}" aria-selected="{{l.pressed}}" onClick="{{l.pick}}">{{l.label}}<span class="ins-ln">{{l.n}}</span></button></sc-for></div>
+<div class="ins-scroll">
+<sc-for list="{{nodes}}" as="n" hint-placeholder-count="18">
+<div class="ins-node" role="treeitem" aria-current="{{n.curText}}" style="padding-left: {{n.pad}}"><button class="f" aria-label="{{n.foldLabel}}" onClick="{{n.fold}}">{{n.sign}}</button><button class="m" onClick="{{n.pick}}"><span class="nm {{n.strongCls}}">{{n.name}}</span><span class="q">{{n.quiet}}</span><span class="ins-bang">{{n.bang}}</span><span class="{{n.tailCls}}">{{n.tailText}}</span></button></div>
+</sc-for>
+<sc-if value="{{noNodes}}" hint-placeholder-val="{{false}}"><div class="ins-empty">nothing matches</div></sc-if>
+</div>
+</div>
+<div class="ins-div"></div>
+<div class="ins-col">
+<div class="ins-oh"><span class="kit-label">{{node.kind}}</span><b>{{node.title}}</b><span class="kit-quiet">{{node.ref}}</span><span class="ins-gap"></span><sc-for list="{{acts}}" as="a" hint-placeholder-count="2"><button class="ins-act" aria-pressed="{{a.pressed}}" onClick="{{a.run}}">{{a.name}}</button></sc-for></div>
+<nav class="ins-crumbs" aria-label="path"><sc-for list="{{node.crumbs}}" as="c" hint-placeholder-count="3"><button class="ins-link" onClick="{{c.pick}}">{{c.name}}</button><span>›</span></sc-for><span>{{node.kind}}</span></nav>
+<div class="ins-scroll">
+<sc-if value="{{hasPeek}}" hint-placeholder-val="{{false}}"><pre class="ins-pre is-prose">{{node.peek}}</pre></sc-if>
+<sc-if value="{{hasJson}}" hint-placeholder-val="{{false}}"><pre class="ins-pre">{{node.json}}</pre></sc-if>
+<sc-for list="{{sections}}" as="s" hint-placeholder-count="4">
+<div class="ins-sec"><span class="kit-label">{{s.label}}</span></div>
+<sc-for list="{{s.rows}}" as="r" hint-placeholder-count="3">
+<div class="ins-kv {{r.cls}}"><span class="k">{{r.k}}</span><span class="v"><sc-if value="{{r.isText}}" hint-placeholder-val="{{true}}"><span class="tx">{{r.v}}</span></sc-if><sc-if value="{{r.isLink}}" hint-placeholder-val="{{false}}"><button class="ins-link tx" onClick="{{r.go}}">{{r.v}}</button></sc-if><sc-if value="{{r.isSelect}}" hint-placeholder-val="{{false}}"><select class="ins-sel" aria-label="{{r.k}}" value="{{r.v}}" onChange="{{r.change}}"><sc-for list="{{r.opts}}" as="o" hint-placeholder-count="6"><option value="{{o.name}}">{{o.name}}</option></sc-for></select></sc-if><sc-if value="{{r.isChoice}}" hint-placeholder-val="{{false}}"><span class="kit-choice"><sc-for list="{{r.opts}}" as="o" hint-placeholder-count="4"><button aria-pressed="{{o.pressed}}" onClick="{{o.pick}}">{{o.name}}</button></sc-for></span></sc-if><sc-if value="{{r.isStep}}" hint-placeholder-val="{{false}}"><button class="ins-step" aria-label="less" onClick="{{r.less}}">−</button><span class="ins-num">{{r.v}}</span><button class="ins-step" aria-label="more" onClick="{{r.more}}">+</button><span class="ins-cells" aria-hidden="true"><sc-for list="{{r.cells}}" as="c" hint-placeholder-count="16"><i class="{{c.c}}"></i></sc-for></span></sc-if><sc-if value="{{r.isField}}" hint-placeholder-val="{{false}}"><label class="kit-field is-repl" style="min-height: 22px; width: 180px"><input aria-label="label" placeholder="name, enter" value="{{r.v}}" onChange="{{r.change}}" onBlur="{{r.commit}}" onKeyDown="{{r.key}}"></label></sc-if><span class="ins-bang">{{r.bang}}</span></span><span class="q">{{r.q}}</span></div>
+</sc-for>
+</sc-for>
+</div>
+</div>
+<div class="ins-div"></div>
+<div class="ins-col">
+<div class="ins-th"><span class="kit-label">trace</span><span class="ins-gap"></span><span class="kit-choice"><button aria-pressed="{{allOn}}" onClick="{{showAll}}">all {{trace.nAll}}</button><button aria-pressed="{{faultsOn}}" onClick="{{showFaults}}">faults {{trace.nFaults}}</button></span></div>
+<div class="ins-spans">
+<sc-for list="{{tspans}}" as="s" hint-placeholder-count="7">
+<button class="ins-span" aria-current="{{s.curText}}" onClick="{{s.pick}}"><span class="n" style="padding-left: {{s.pad}}"><span class="kit-dot {{s.dot}}"></span><span class="nm">{{s.name}}</span><span class="kit-quiet">{{s.quiet}}</span><span class="ins-bang">{{s.bang}}</span></span><span class="ins-bar"><i class="{{s.barCls}}" style="left: {{s.l}}%; width: {{s.wc}}%"></i></span><span class="ms {{s.msCls}}">{{s.ms}}</span></button>
+</sc-for>
+<sc-if value="{{noTrace}}" hint-placeholder-val="{{false}}"><div class="ins-empty">no span touches this</div></sc-if>
+</div>
+<sc-if value="{{td.has}}" hint-placeholder-val="{{true}}">
+<div class="ins-scroll">
+<div class="ins-path">{{td.path}}</div><div class="ins-meta">{{td.meta}}</div>
+<sc-if value="{{td.hasFault}}" hint-placeholder-val="{{false}}"><div class="ins-fault">{{td.f1}}<br>{{td.f2}}</div></sc-if>
+<sc-if value="{{td.hasInput}}" hint-placeholder-val="{{false}}"><div class="ins-kv ins-in"><span class="k">input</span><span class="v"><span class="tx">{{td.input}}</span></span></div></sc-if>
+<sc-for list="{{td.recs}}" as="r" hint-placeholder-count="4"><div class="ins-rec"><span class="t">{{r.t}}</span><span>{{r.k}}</span><span class="{{r.c}}">{{r.v}}</span></div></sc-for>
+<sc-if value="{{td.hasStack}}" hint-placeholder-val="{{false}}"><div class="ins-th"><button class="ins-act" aria-expanded="{{stackText}}" onClick="{{toggleStack}}">{{stackSign}} stack</button></div></sc-if>
+<sc-if value="{{td.showStack}}" hint-placeholder-val="{{false}}"><pre class="ins-pre">{{td.stack}}</pre></sc-if>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{inLoggerFlag}}" hint-placeholder-val="{{false}}">
+<div class="ins-log">
+<div class="ins-col">
+<div class="ins-th"><span class="kit-choice"><sc-for list="{{filters}}" as="f" hint-placeholder-count="5"><button aria-pressed="{{f.pressed}}" onClick="{{f.pick}}">{{f.id}} {{f.n}}</button></sc-for></span></div>
+<div class="ins-spans">
+<sc-for list="{{lspans}}" as="s" hint-placeholder-count="14">
+<button class="ins-span" aria-current="{{s.curText}}" onClick="{{s.pick}}"><span class="n" style="padding-left: {{s.pad}}"><span class="kit-dot {{s.dot}}"></span><span class="nm">{{s.name}}</span><span class="kit-quiet">{{s.quiet}}</span><span class="ins-bang">{{s.bang}}</span></span><span class="ins-bar"><i class="{{s.barCls}}" style="left: {{s.l}}%; width: {{s.wc}}%"></i></span><span class="ms {{s.msCls}}">{{s.ms}}</span></button>
+</sc-for>
+<sc-if value="{{noLog}}" hint-placeholder-val="{{false}}"><div class="ins-empty">no spans · /telemetry/clear moved the watermark</div></sc-if>
+</div>
+</div>
+<div class="ins-div"></div>
+<div class="ins-col">
+<sc-if value="{{ld.has}}" hint-placeholder-val="{{true}}">
+<div class="ins-scroll">
+<div class="ins-path">{{ld.path}}</div><div class="ins-meta">{{ld.meta}}</div>
+<sc-if value="{{ld.hasFault}}" hint-placeholder-val="{{false}}"><div class="ins-fault">{{ld.f1}}<br>{{ld.f2}}</div></sc-if>
+<sc-if value="{{ld.hasInput}}" hint-placeholder-val="{{false}}"><div class="ins-kv ins-in"><span class="k">input</span><span class="v"><span class="tx">{{ld.input}}</span></span></div></sc-if>
+<sc-for list="{{ld.recs}}" as="r" hint-placeholder-count="4"><div class="ins-rec"><span class="t">{{r.t}}</span><span>{{r.k}}</span><span class="{{r.c}}">{{r.v}}</span></div></sc-for>
+<sc-if value="{{ld.hasStack}}" hint-placeholder-val="{{false}}"><div class="ins-th"><button class="ins-act" aria-expanded="{{stackText}}" onClick="{{toggleStack}}">{{stackSign}} stack</button></div></sc-if>
+<sc-if value="{{ld.showStack}}" hint-placeholder-val="{{false}}"><pre class="ins-pre">{{ld.stack}}</pre></sc-if>
+</div>
+</sc-if>
+<sc-if value="{{ld.none}}" hint-placeholder-val="{{false}}"><div class="ins-empty">pick a span</div></sc-if>
+</div>
+</div>
+</sc-if>
+</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["northsea","parchment","porcelain","datasette"],"default":"northsea"},"$preview":{"width":960,"height":640}}'>
+const TIERS = ['frugal', 'fast', 'balanced', 'capable', 'unleashed', 'eager'];
+const EFFORTS = ['none', 'low', 'medium', 'high'];
+const VIEWS = ['docked', 'full', 'closed', 'messenger'];
+const SIDES = ['left', 'right', 'top', 'bottom'];
+const LENSES = ['turns', 'harness', 'repl'];
+const MARKDOWNS = ['pretty', 'plain'];
+const THEMES = ['northsea', 'parchment', 'porcelain', 'datasette'];
+const GROUPS = ['terminals', 'threads', 'modes', 'buffers', 'activity', 'harness', 'display', 'box',
+  'system', 'control'];
+const FILTERS = ['all', 'activity', 'repl', 'net', 'faults'];
+const MEMO = '/daemon/memo/mode/srs/memo';
+const SRS = '/daemon/memo/mode/domain/srs';
+const HELLO = '/daemon/hello/mode/demo/hello-world';
+const MAGISTER = 'You are Magister, a Roman schoolmaster of spaced repetition, living inside a vivalence daemon.\n\nYour learner studies the language named below from their own: the classical tongue and the church’s. Beside you sits a frame of flashcards; a grade given there or here moves the one schedule. Your job is to run review sessions in conversation: fetch what is due, quiz one card at a time, judge the answer honestly, grade the card so its schedule evolves, and teach where a card keeps failing.\n\nThe loop:\n1. Call review to pull cards. If nothing is due and nothing is untouched, say so and offer a rest.\n2. Present one card as a question: give the learning side only.\n3. The learner answers. Judge it: exact or clearly equivalent means GOOD, hesitant or partial means HARD, effortless and instant means EASY, wrong or blank means AGAIN.\n4. Call grade with the card’s slug and your judgment, then move to the next card.\n5. When the batch is done, summarize: how many, how they went, what is due next.\n\n…';
+const HELLO_TEXT = 'You are the vivalence hello-world demo, talking to the operator of this machine.\nTwo or three plain sentences unless the answer genuinely needs more.\n\nEvery reply is a budget: at most THREE tool calls, then answer. A call that returned nothing useful is an answer too — say so, do not call again with the same input.\n\nWork each reply in this order:\n1. LOOK. … viva_doctor, ONCE. … web_search ONCE, then web_read the one article …\n2. DECIDE. No tool. Is this an answer, a page, or research?\n3. ACT, one call. … generator_view_render … or the research tool in ONE call with the whole brief.\n4. CHANGE, only when asked. … ONE generator_view_revise on the same page …\n\n…';
+const FORMAT_TEXT = 'The dock renders markdown: # heading through ######, **bold**, *italic* or _italic_, `code`, [text](https://url), > quote, - bullet or 1. numbered, --- rule, ```lang fenced blocks, and | pipe | tables | above a |---|---| row.\nNothing else renders — no images, no HTML, no strikethrough, no footnotes, no task boxes — so reach for a list or a table only when the answer is genuinely shaped like one.';
+const SRS_TEXT = 'This daemon schedules its cards with SM-2, the scheduler Anki ships. A card’s status climbs untouched → unknown → learning → known → graduated … A grade is one of AGAIN · HARD · GOOD · EASY … Every grade is traced, so a card’s history is real. A suspended card is dealt by nothing until it is resumed; a leech is a card lapsed again and again.';
+
+const v = (k, value, more = {}) => ({ k, v: value, ...more });
+const to = (k, value, go, more = {}) => ({ k, v: value, go, ...more });
+const ed = (k, path, edit, more = {}) => ({ k, path, edit, ...more });
+const arg = (name, type, required, about = '') => v(required ? name : `${name}?`, type, { q: about });
+const rec = (t, k, value = '', c = '') => ({ t, k, v: value, c });
+const worn = (name, value = '') => v(`● ${name}`, value, { cls: 'is-worn' });
+const cast = (name, value = '') => v(`○ ${name}`, value, { cls: 'is-cast' });
+const n = (id, name, more = {}, kids = []) => ({ id, name, ...more, kids });
+const inputs = (args) => (args === null ? [cast('not captured')] : args.length ? args : [cast('none', '{}')]);
+const SEEN = { [`${MEMO}:srs/lookup`]: ['lookup', 'hallu', 'tool'] };
+
+const tool = (pre, owner, path, valence, args, more = {}) => n(`${pre}.t.${path}`, path.split('/').at(-1), {
+  leaf: true, kind: 'tool', as: path.replaceAll('/', '_'), title: path.replaceAll('/', '_'),
+  ref: `${owner}/harness/tools/${path}`, acts: ['copy'],
+  tr: SEEN[`${owner}:${path}`] ?? (owner === MEMO ? 'turns' : 'none'),
+  secs: [
+    ['effect', [v('valence', valence), v('load', 'eager')]],
+    ['input', inputs(args)],
+    ['address', [v('path', `${owner}/harness/tools/${path}`), v('as', path.replaceAll('/', '_'), { q: 'model sees' }),
+      ...(more.from ? [to('from', more.from[0], more.from[1])] : [])]],
+  ],
+});
+const branch = (pre, owner, path, kids) => n(`${pre}.t.${path}`, path.split('/').at(-1), {
+  quiet: String(kids.length), kind: 'branch', title: path, ref: `${owner}/harness/tools/${path}`, tr: 'none',
+}, kids);
+
+const primer = (pre, owner, name, text, rows = []) => n(`${pre}.p.${name}`, name, {
+  leaf: true, kind: 'primer', quiet: 'eager', title: name, ref: `${owner}/harness/primer/${name}`,
+  tr: owner === MEMO ? 'turns' : 'none', acts: ['read'], peek: text,
+  secs: [['own', [v('load', 'eager'), v('path', `/${name}`), ...rows]]],
+});
+
+const reference = (pre, owner, name, rows = []) => n(`${pre}.r.${name}`, name, {
+  leaf: true, quiet: 'faculty', kind: 'reference', title: name, ref: `${owner}/harness/${name}`,
+  tr: owner === MEMO && name === 'dialogue' ? 'turns' : 'none',
+  secs: [['own', [v('faculty', name), v('route', `${owner}/harness/${name}`), ...rows]]],
+});
+
+const route = (pre, owner, path, shapes, valence, args, out = []) => n(`${pre}.a.${path}`, path, {
+  leaf: true, quiet: shapes, kind: 'route', title: path, ref: `${owner}${path}`, tr: 'none', acts: ['copy'],
+  secs: [
+    ['effect', [v('valence', valence), v('shapes', shapes)]],
+    ['input', inputs(args)],
+    ...(out.length ? [['output', out]] : []),
+  ],
+});
+
+const trait = (pre, owner, name, quiet, rows) => n(`${pre}.x.${name}`, name, {
+  leaf: true, quiet, kind: 'trait', title: name, ref: `${owner}#${name}`, tr: 'none',
+  secs: [['brings', rows]],
+});
+
+const command = (id, nature, { rank = '', chord = '', valence = '', args = [], send = true }) => n(id, nature, {
+  leaf: true, quiet: chord || rank, kind: 'command', title: nature, ref: nature, tr: `cmd:${nature}`,
+  acts: send && args.every((a) => a.k.endsWith('?')) ? ['send'] : [],
+  secs: [
+    ['own', [v('nature', nature), v('rank', rank || 'listed'), v('chord', chord || '—')]],
+    ['effect', [valence ? v('valence', valence) : cast('valence', 'not captured')]],
+    ['input', args.length ? args : [cast('none', '{}')]],
+  ],
+});
+
+const mode = (id, name, title, ref, rows, { secs = [], ...more } = {}, kids = []) => n(id, name, {
+  sign: '◇', leaf: kids.length === 0, kind: 'mode', title, ref, tr: 'none', acts: ['attach'],
+  ...more, secs: [['own', rows], ...secs],
+}, kids);
+
+const FACULTIES = ['verbatim', 'dialogue', 'object', 'choice', 'picture'];
+
+const THREAD = [
+  ['own', [v('id', '01a1e526-970c-723d-81bd-f6d81c47d9ec'), v('phase', 'manual'), v('counter', '1'),
+    v('intent', 'null'), v('parent', 'null'), v('createdAt', '16:17:53.932'), { k: 'updatedAt', stamp: true }]],
+  ['traits', [
+    worn('INTELLIGENT'),
+    ed('tier', 'thread.tier', 'select', { opts: TIERS, cls: 'is-sub' }),
+    ed('effort', 'thread.effort', 'choice', { opts: EFFORTS, cls: 'is-sub' }),
+    ed('rounds', 'thread.rounds', 'step', { min: 1, max: 100, step: 1, q: '/ 100', cls: 'is-sub' }),
+    worn('VOCAL', '{}'),
+    ed('LABELED', 'thread.label', 'field', { trait: 'LABELED' }),
+    cast('QUEUEING', 'depth 1'),
+    cast('AIMED', '{}'),
+    cast('MASKED', '{}'),
+  ]],
+  ['relations', [
+    to('mode', '◇ srs/memo', 'srs-memo', { q: 'was home/probe · /mode moved it' }),
+    to('user', 'localhost', 'lighthouse', { q: 'whole user object' }),
+  ]],
+  ['stores', [
+    to('$turns', '8', 'turns', { bang: '!', q: 'computed · by createdAt' }),
+    to('$buffers', '1', 'buffers', { q: 'computed · by index' }),
+    to('$activities', '0', 'activities', { q: 'computed' }),
+    v('$children', '0'),
+    v('turns · buffers · children', '[] [] []', { q: 'mikro, stay empty', cls: 'is-cast' }),
+  ]],
+];
+
+
+const MEMO_TOOLS = [
+  tool('memo', MEMO, 'review', 'Pull the cards to quiz in the dock now: due first, then untouched by rank. Each carries its slug, both sides, an example, voice and picture, its status, lapses and the four horizons.', [
+    arg('limit', 'integer 1–20', false, 'five when left out'), arg('symbols', 'string[]', false, 'see srs_topics')]),
+  tool('memo', MEMO, 'grade', 'Grade the card the learner just answered — AGAIN wrong or blank, HARD right with struggle, GOOD right, EASY instant. Evolves its SM-2 schedule, traces the grade on this thread.', [
+    arg('card', 'string', true, 'amor.noun'), arg('signal', 'AGAIN · HARD · GOOD · EASY', true)]),
+  tool('memo', MEMO, 'progress', 'The learner report: cards, touched, untouched, due now, suspended, counts by status, the five weakest and the leeches.', []),
+  tool('memo', MEMO, 'add', 'Make a new card from the conversation — the learning side and its meaning. Look it up with srs_lookup first.', [
+    arg('learning', 'string', true, 'gratias ago'), arg('known', 'string', true, 'I give thanks'),
+    arg('ontology', 'word · sentence', true), arg('symbols', 'string[]', false, '[]')]),
+  tool('memo', MEMO, 'explain', 'A card laid open: both sides, its example, its facets, the sentences that hold its lemma, and every grade it was given.', [
+    arg('card', 'string', true, 'amor.noun')]),
+  tool('memo', MEMO, 'session', 'Deal a session into the frame beside the dock, where the learner flips and grades with the keys.', [
+    arg('limit', 'integer', false), arg('symbols', 'string[]', false), arg('thread', 'string', false)]),
+  branch('memo', MEMO, 'srs', [
+    tool('memo', MEMO, 'srs/lookup', 'Find cards by any text — the slug, the learning side or its meaning. Use it before /add to see whether a card already exists.', [
+      arg('search', 'string', true, 'love'), arg('limit', 'integer 1–20', false, 'five when left out')], { from: ['◇ domain/srs', 'domain-srs'] }),
+    tool('memo', MEMO, 'srs/sentences', 'The sentences that hold a word’s lemma — context for a word the learner keeps missing.', [
+      arg('card', 'string', true, 'amor.noun'), arg('limit', 'integer 1–10', false, 'three')], { from: ['◇ domain/srs', 'domain-srs'] }),
+    tool('memo', MEMO, 'srs/topics', 'Every topic and level of the deck with its card count — what a session can be narrowed to.', [], { from: ['◇ domain/srs', 'domain-srs'] }),
+    tool('memo', MEMO, 'srs/history', 'Every grade a card was given, oldest first, each with the status it left.', [
+      arg('card', 'string', true, 'amor.noun')], { from: ['◇ domain/srs', 'domain-srs'] }),
+    tool('memo', MEMO, 'srs/leeches', 'The cards the learner keeps lapsing on, weakest first — candidates to explain or suspend.', [
+      arg('lapses', 'integer', false, 'eight'), arg('limit', 'integer 1–20', false, 'five')], { from: ['◇ domain/srs', 'domain-srs'] }),
+    tool('memo', MEMO, 'srs/suspend', 'Take a card out of every deal until it is resumed — for a leech, or a card the learner asks to skip.', [
+      arg('card', 'string', true), arg('reason', 'string', true, 'leech')], { from: ['◇ domain/srs', 'domain-srs'] }),
+    tool('memo', MEMO, 'srs/resume', 'Deal a suspended card again.', [arg('card', 'string', true)], { from: ['◇ domain/srs', 'domain-srs'] }),
+  ]),
+];
+
+const HELLO_TOOLS = [
+  branch('hello', HELLO, 'viva', [
+    tool('hello', HELLO, 'viva/doctor', 'The live vivalence setup on this machine, as JSON — the same record viva instance/doctor prints, read straight off paladin.', []),
+  ]),
+  branch('hello', HELLO, 'web', [
+    tool('hello', HELLO, 'web/search', 'Search Wikipedia, the English encyclopedia. Every result is an article: its title, its address and a snippet.', [
+      arg('query', 'string', true, 'flamingo'), arg('count', 'integer 1–100', false, 'eight')]),
+    tool('hello', HELLO, 'web/read', 'Open one URL and read the article out of it — the body as markdown, the links inside it, and its images.', [
+      arg('url', 'url', true, 'http · https, public')]),
+  ]),
+  tool('hello', HELLO, 'research', 'Research a subject and leave a page about it on the operator’s screen. Searches Wikipedia, follows links, draws a report into a buffer.', [
+    arg('brief', 'string', true, 'the whole brief, in prose')]),
+  branch('hello', HELLO, 'generator', [
+    branch('hello', HELLO, 'generator/view', [
+      tool('hello', HELLO, 'generator/view/render', 'Draw a page. Submit a COMPLETE Svelte 5 component as source; it is compiled, content-addressed and mounted.', [
+        arg('source', 'svelte', true), arg('label', 'string', true), arg('data', 'any', false)]),
+      tool('hello', HELLO, 'generator/view/revise', 'Iterate a page you already drew: the SAME buffer gets new source, label and/or data and re-mounts in place.', [
+        arg('buffer', 'string', true, 'buffer id'), arg('source', 'svelte', false), arg('label', 'string', false), arg('data', 'any', false)]),
+      tool('hello', HELLO, 'generator/view/inspect', 'Read a page’s source back by its bundle hash.', null),
+      tool('hello', HELLO, 'generator/view/list', 'The pages on this thread.', null),
+    ]),
+  ]),
+];
+
+const harness = (pre, owner, tools, primers, refs, rows) => n(`${pre}.harness`, 'harness', {
+  quiet: '3 tries', kind: 'harness', title: owner.split('/').at(-1), ref: `${owner}/metadata/harness`, tr: owner === MEMO ? 'turns' : 'none',
+  secs: [['own', rows]],
+}, [
+  n(`${pre}.tools`, 'tools', { quiet: String(tools.flatMap(function leaves(t) { return t.kind === 'tool' ? [t] : t.kids.flatMap(leaves); }).length), kind: 'try', title: 'tools', ref: `${owner}/metadata/harness/tools`, tr: 'none' }, tools),
+  n(`${pre}.primer`, 'primer', { quiet: String(primers.length), kind: 'try', title: 'primer', ref: `${owner}/metadata/harness/primer`, tr: 'none' }, primers),
+  n(`${pre}.refs`, 'references', { quiet: String(refs.length), kind: 'try', title: 'references', ref: `${owner}/metadata/harness/references`, tr: 'none' }, refs),
+]);
+
+const SPEC = n('app', 'app', {
+  kind: 'app', title: 'app', ref: 'anima', tr: 'all',
+  secs: [
+    ['own', [ed('theme', 'app.theme', 'choice', { opts: THEMES, signal: (x) => `/theme ${x}`, q: 'bridge › mask › user' }),
+      v('surface', 'anima chrome', { q: 'solid · vite' }), v('controller', 'span app', { q: 'sibling of client · not logged' })]],
+    ['box', [v('drivers', 'audio'), v('device', 'microphone · speaker')]],
+  ],
+}, [
+  n('client', 'client', {
+    quiet: 'anima', kind: 'client', title: 'anima', ref: 'client', tr: 'b-client',
+    secs: [
+      ['own', [v('type', 'client'), v('slug', 'anima'), v('controller', 'span client', { q: 'the logger reads it' })]],
+      ['mask', [worn('HOME', '/runtime/house/mode/home/probe'), v('modes', '1', { q: 'register' })]],
+      ['aperture', [v('serves back', '/terminal/:terminal/repl · /metadata/repl', { q: 'armed by LOOPING' })]],
+      ['relations', [to('runtime', 'house', 'runtime'), to('user', 'localhost', 'lighthouse')]],
+    ],
+  }, [
+    n('runtime', 'runtime', {
+      quiet: 'house', dot: true, kind: 'runtime', title: 'house', ref: '/runtime/house', tr: 'b-runtime',
+      secs: [
+        ['own', [v('manifest', 'slug house'), v('reference', '/runtime/house'), v('remote', 'http://localhost:63750/'),
+          v('status', 'HEALTHY'), v('connection', 'IDLE', { q: 'one websocket' })]],
+        ['metadata', [v('statics', 'serve · remote'), v('aperture', 'mode entities metadata cortex status batch')]],
+        ['cortex', [v('faculties', 'dialogue object choice verbatim speech picture'),
+          v('dialogue', 'stub-deep · stub-middle · stub-quick', { q: 'provider stub' })]],
+        ['entities', [v('daemon', '2'), v('mode', '5', { q: '+1 local' }), v('terminal', '1'), v('thread', '1'), v('turn', '8'),
+          v('buffer', '1'), v('activity', '0', { q: 'settled ones leave' })]],
+      ],
+    }, [
+      n('lighthouse', 'lighthouse', {
+        quiet: 'localhost', dot: true, kind: 'lighthouse', title: 'localhost', ref: '/lighthouse', tr: 'b-lighthouse',
+        secs: [
+          ['own', [v('status', 'AUTHENTICATED', { q: 'sidebar reads VERIFIED' }), v('isAuthorized', 'true'), v('isIdentified', 'true'),
+            v('authority', 'access · refresh', { q: 'jwt' })]],
+          ['manifest', [worn('JOINABLE'), worn('AUTOLOGIN'), cast('INVITATIONAL')]],
+          ['user', [v('slug', 'localhost'), v('id', '01a1e526…df69'), cast('THEMED', 'porcelain'), cast('HOME', '{}'), cast('DOCKED', '{}')]],
+        ],
+      }),
+      mode('probe', 'home/probe', 'probe', '/runtime/house/mode/home/probe', [
+        v('type', 'home'), v('slug', 'probe'), v('name', 'null'), v('version', '0.0.1'), v('daemon', 'null', { q: 'the runtime\u2019s own' }),
+        v('traits', 'RUNTIME EXPOSED TOOLING DATASET'), v('metadata', 'aperture'), v('harness', 'null'), v('installed', '91a07b3c')], {
+        secs: [['seats', [v('HOME', 'every terminal with no thread', { q: 'client trait' })]]],
+      }),
+      n('memo', 'daemon', {
+        quiet: 'memo', dot: true, kind: 'daemon', title: 'memo', ref: '/daemon/memo', tr: 'b-memo',
+        secs: [
+          ['own', [v('id', 'memo', { q: '= slug' }), v('reference', '/daemon/memo'), v('version', '0.1.0'), v('status', 'HEALTHY'),
+            v('statics', 'known English · learning Latin')]],
+          ['mask', [v('modes', '@memo/domain/srs · @memo/topography/latin · @memo/srs/memo')]],
+          ['aperture', [v('routes', 'pick review preview history suspend resume mode datamap entities metadata cortex status batch')]],
+          ['stores', [v('$modes', '3'), v('$literals', '0'), v('$symbols', '0'), v('$notes', '0')]],
+        ],
+      }, [
+        mode('srs-memo', 'srs/memo', 'Memo', MEMO, [
+          v('type', 'srs'), v('slug', 'memo'), v('name', 'Memo'), v('version', '0.1.0'), v('installed', '91a07b3c'),
+          v('description', 'Spaced-repetition flashcards on SM-2: drill in the frame or in conversation with the Magister'),
+          v('module', 'null'), v('metadata', 'aperture · harness'), v('connection', 'IDLE')], {
+          tail: 'seated',
+          secs: [
+            ['faces', [v('repl', '1 pattern'), cast('keymap', '0 patterns'), v('call', 'metadata deck grade stats chat entities emit harness')]],
+            ['relations', [to('daemon', 'memo', 'memo'), to('thread', '[ memo ]', 'thread', { q: 'seated' })]],
+            ['stores', [to('$turns', '8', 'turns', { bang: '!' }), to('$buffers', '1', 'buffers'), v('$views', '2'),
+              v('$literals · $symbols · $notes · $files', '0 0 0 0')]],
+          ],
+        }, [
+          n('memo.traits', 'traits', { quiet: '7', kind: 'traits', title: '7 worn', ref: `${MEMO}#traits`, tr: 'none' }, [
+            trait('memo', MEMO, 'VIEWABLE', 'views', [v('$views', '2'), v('draws', 'frame · cell')]),
+            trait('memo', MEMO, 'EMITTER', 'buffers', [to('route', '/emit/session', 'memo.a./emit/session')]),
+            trait('memo', MEMO, 'EXPOSED', 'aperture', [v('metadata', 'aperture'), to('tree', 'aperture', 'memo.aperture')]),
+            trait('memo', MEMO, 'HARNESSED', 'harness', [v('metadata', 'harness'), to('tree', 'harness', 'memo.harness')]),
+            trait('memo', MEMO, 'CONVERSATIONAL', 'dialogue', [v('route', '/harness/dialogue/stream'), to('turns', '8', 'turns')]),
+            trait('memo', MEMO, 'TOOLING', 'tools', [to('tools', '13', 'memo.tools')]),
+            trait('memo', MEMO, 'PRIMER', 'primer', [to('primer', 'magister', 'memo.p.magister')]),
+          ]),
+          harness('memo', MEMO, MEMO_TOOLS,
+            [primer('memo', MEMO, 'magister', MAGISTER, [to('reads as', '[ memo ]', 'thread'), v('model', 'stub-middle')])],
+            FACULTIES.map((name) => reference('memo', MEMO, name, [v('branches', { verbatim: '1', dialogue: '2', object: '2', choice: '1', picture: '1 · render' }[name])])),
+            [v('landed with', 'HARNESSED', { q: 'metadata.harness' }), v('size', '129336 chars json', { q: '3441 rows' }),
+              v('counts', 'tools 13 · primer 1 · references 7', { q: 'leaves' }),
+              v('tune', 'fast', { q: 'repo · policy default' }), v('system keys', 'magister · language · today', { q: 'repo · per call' })]),
+          n('memo.aperture', 'aperture', {
+            quiet: 'routes', kind: 'aperture', title: 'memo', ref: `${MEMO}/metadata/aperture`, tr: 'none',
+            secs: [['own', [v('landed with', 'EXPOSED'), v('call', '8 verbs', { q: 'mode.call' })]]],
+          }, [
+            n('memo.a.meta', 'metadata', { quiet: '5', kind: 'branch', title: 'metadata', ref: `${MEMO}/metadata`, tr: 'none' }, [
+              route('memo', MEMO, '/metadata/status', '{}', 'the host’s status', []),
+              route('memo', MEMO, '/metadata/manifest', '{}', 'the mode’s manifest', []),
+              route('memo', MEMO, '/metadata/emitter', '{}', 'the emitter route', []),
+              route('memo', MEMO, '/metadata/aperture', '{}', 'this tree', []),
+              route('memo', MEMO, '/metadata/harness/primer/(.*)', 'input', 'one primer, as a thread’s model reads it', [arg('thread', 'string', true)]),
+            ]),
+            route('memo', MEMO, '/deck', 'input', 'the cards to review now — due first, then untouched by rank; suspended ones never', [
+              arg('limit', 'integer', false), arg('symbols', 'string[]', false)]),
+            route('memo', MEMO, '/grade', 'input', 'grade the card just answered; its SM-2 schedule evolves and the grade is traced', [
+              arg('card', 'string', true), arg('signal', 'AGAIN · HARD · GOOD · EASY', true)]),
+            route('memo', MEMO, '/stats', 'input', 'the learner report', []),
+            route('memo', MEMO, '/chat', 'input output', 'one answer from the Magister outside a thread', [arg('prompt', 'string', true, 'what is due today?')],
+              [arg('answer', 'string', true)]),
+            route('memo', MEMO, '/emit/session', 'input', 'deal a session as a buffer on the thread', [arg('thread', 'string', true), arg('limit', 'integer', false)]),
+            n('memo.a.entities', 'entities', {
+              leaf: true, quiet: '9', kind: 'branch', title: 'entities', ref: `${MEMO}/entities`, tr: 'none',
+              secs: [['kinds', ['literal', 'symbol', 'view', 'intent', 'file', 'note', 'thread', 'turn', 'buffer']
+                .map((kind) => v(kind, '12 verbs', { q: 'find · subscribe · …' }))]],
+            }),
+          ]),
+        ]),
+        mode('domain-srs', 'domain/srs', 'Spaced Repetition', SRS, [
+          v('type', 'domain'), v('slug', 'srs'), v('name', 'Spaced Repetition'), v('version', '0.1.0'), v('traits', 'EXPOSED TOOLING'),
+          v('description', 'Anki\u2019s SM-2 over the daemon\u2019s literals: retention and traced grades are notes, suspension too'),
+          v('metadata', 'aperture', { q: 'not HARNESSED · no harness' })], {
+          secs: [
+            ['tools', ['lookup', 'sentences', 'topics', 'history', 'leeches', 'suspend', 'resume']
+              .map((name) => to(name, `srs_${name}`, `memo.t.srs/${name}`, { q: 'in memo harness' }))],
+          ],
+        }),
+        mode('latin', 'topography/latin', 'Latin', '/daemon/memo/mode/topography/latin', [
+          v('type', 'topography'), v('slug', 'latin'), v('name', 'Latin'), v('version', '0.1.0'), v('traits', 'DATASET FILESET'),
+          v('description', '219 words and 50 sentences, English to Latin — classical and ecclesiastical'), v('metadata', 'none')]),
+      ]),
+      n('hello', 'daemon', {
+        quiet: 'hello', dot: true, kind: 'daemon', title: 'hello', ref: '/daemon/hello', tr: 'b-hello',
+        secs: [
+          ['own', [v('id', 'hello', { q: '= slug' }), v('reference', '/daemon/hello'), v('version', '0.0.1'), v('status', 'HEALTHY')]],
+          ['stores', [v('$modes', '1'), v('call', '7 verbs')]],
+        ],
+      }, [
+        mode('hello-world', 'demo/hello-world', 'hello-world', HELLO, [
+          v('type', 'demo'), v('slug', 'hello-world'), v('name', 'null'), v('version', 'null'), v('metadata', 'harness · aperture')], {
+          secs: [['harness defaults', [v('tune', 'capable', { q: 'repo' }), v('rounds', '10', { q: 'repo' }), v('effort', 'low', { q: 'repo' })]]],
+        }, [
+          n('hello.traits', 'traits', { quiet: '8', kind: 'traits', title: '8 worn', ref: `${HELLO}#traits`, tr: 'none' }, [
+            trait('hello', HELLO, 'HARNESSED', 'harness', [to('tree', 'harness', 'hello.harness')]),
+            trait('hello', HELLO, 'CONVERSATIONAL', 'dialogue', [v('route', '/harness/dialogue/stream')]),
+            trait('hello', HELLO, 'GENERATIVE', 'generator', [to('tools', 'generator/view', 'hello.t.generator/view')]),
+            trait('hello', HELLO, 'TOOLING', 'tools', [to('tools', '8', 'hello.tools')]),
+            trait('hello', HELLO, 'PRIMER', 'primer', [to('primer', '4', 'hello.primer')]),
+            trait('hello', HELLO, 'EMITTER', 'buffers', [to('route', '/article', 'hello.a./article')]),
+            trait('hello', HELLO, 'VIEWABLE', 'views', [v('draws', 'App.svelte')]),
+            trait('hello', HELLO, 'EXPOSED', 'aperture', [to('tree', 'aperture', 'hello.aperture')]),
+          ]),
+          harness('hello', HELLO, HELLO_TOOLS, [
+            primer('hello', HELLO, 'hello', HELLO_TEXT),
+            primer('hello', HELLO, 'machine', 'machine(standing(ctx)) — the instance, the daemon, the modes and their routes, rendered per call.'),
+            primer('hello', HELLO, 'render', 'RENDER — the HOUSE RULES for a drawn page: tokens, components, what a page may contain.'),
+            primer('hello', HELLO, 'format', FORMAT_TEXT, [v('only on', '/dialogue')]),
+          ], FACULTIES.map((name) => reference('hello', HELLO, name)), [
+            v('landed with', 'HARNESSED', { q: 'metadata.harness' }), v('captured', 'tools 18 · primer 5 · references 7', { q: 'live 11-16' }),
+            v('listed', 'tools 8 · primer 4', { q: 'repo 10-14' }), v('budget', '3 tool calls', { q: 'per reply, by primer' })]),
+          n('hello.aperture', 'aperture', {
+            quiet: 'routes', kind: 'aperture', title: 'hello-world', ref: `${HELLO}/metadata/aperture`, tr: 'none',
+            secs: [['own', [v('landed with', 'EXPOSED'), v('middleware', 'logs caller · mode')]]],
+          }, [
+            route('hello', HELLO, '/hello/bot', '{}', 'a fixed greeting', [], [v('greeting', 'Bot says high.')]),
+            route('hello', HELLO, '/hello/agent', 'input', 'the persona: one hallucinated answer', null),
+            route('hello', HELLO, '/hello/research', 'input', 'the research door — streams the records the tool folds', [arg('brief', 'string', true)]),
+            route('hello', HELLO, '/article', 'input', 'emitter: mint an article buffer', null),
+          ]),
+        ]),
+      ]),
+    ]),
+    n('locals', 'local modes', {
+      quiet: '1', kind: 'registry', title: 'local modes', ref: 'client.modes', tr: 'b-console',
+      secs: [['own', [v('source', 'register.modes'), v('hydrated', 'never', { q: 'connection null' })]]],
+    }, [
+      mode('console', 'home/console', 'Console', '/mode/home/console', [
+        v('type', 'home'), v('slug', 'console'), v('name', 'Console'), v('version', '0.0.1'), v('owner', '@commons'),
+        v('description', 'A mode the client hosts. Its verbs join the repl beside the client\u2019s own'),
+        v('daemon · connection · call · harness', 'null null null null', { cls: 'is-cast' }), v('metadata', '{}'),
+        to('repl', 'hello · whoami', 'c.local')]),
+    ]),
+    n('terminal', 'terminal', {
+      quiet: '1', kind: 'terminal', title: '1 of 1', ref: '01a1e526-9378-72b8-bc44-efbeea92ce23', acts: ['new'],
+      secs: [
+        ['own', [v('id', '01a1e526-9378-72b8-bc44-efbeea92ce23'), v('index', '0', { q: '1 of 1' }), v('daemon', 'memo'),
+          v('traits · trait', '[] {}', { q: 'DOCKED cast, not kept', cls: 'is-cast' }), v('createdAt', '16:17:53.016')]],
+        ['loop', [v('repl $catalog', 'null'), v('legend $chord', 'null'), v('stall $phase', 'manual')]],
+        ['dock', [
+          ed('view', 'terminal.dock.view', 'choice', { opts: VIEWS }),
+          ed('align', 'terminal.dock.align', 'choice', { opts: SIDES }),
+          ed('share', 'terminal.dock.share', 'step', { min: 0.1, max: 0.9, step: 0.05 }),
+          ed('lens', 'terminal.dock.lens', 'set', { opts: LENSES }),
+          ed('markdown', 'terminal.dock.markdown', 'choice', { opts: MARKDOWNS }),
+          v('shown', 'full', { q: 'DEFAULT ⊕ mask ⊕ user ⊕ terminal' }),
+        ]],
+        ['relations', [to('thread', '[ memo ]', 'thread'), to('buffer', '◆ memo #0', 'buffers')]],
+      ],
+    }, [
+      n('thread', 'thread', { kind: 'thread', ref: '01a1e526-970c-723d-81bd-f6d81c47d9ec', secs: THREAD }, [
+        n('t.harness', 'harness', {
+          leaf: true, quiet: 'stub-middle', kind: 'harness', title: 'resolved', ref: 'harness(runtime, thread)', tr: 'turns',
+          secs: [
+            ['intelligent', [
+              ed('tier', 'thread.tier', 'select', { opts: TIERS }),
+              ed('effort', 'thread.effort', 'choice', { opts: EFFORTS }),
+              ed('rounds', 'thread.rounds', 'step', { min: 1, max: 100, step: 1, q: '/ 100' }),
+            ]],
+            ['model', [v('id', 'stub-middle'), v('provider', 'stub'), v('tune', '.60 .60 .50'), v('context', '0 / 1000000'),
+              v('in', 'text image document tool_result'), v('out', 'text tool_use object')]],
+            ['models', [v('stub-deep', '.95 .15 .15', { q: '1M' }), v('stub-middle', '.60 .60 .50', { q: 'answers' }), v('stub-quick', '.25 .95 .50', { q: '200k' })]],
+            ['mode harness', [to('tools', '13', 'memo.tools'), to('primer', 'magister', 'memo.p.magister'), to('references', '5', 'memo.refs')]],
+          ],
+        }),
+        n('turns', 'turns', {
+          sign: '┴', bang: '!', count: '8', leaf: true, kind: 'turns', title: '8', ref: 'thread.$turns', tr: 'turns',
+          secs: [['chain', [
+            v('1 user', 'ciao'),
+            v('2 assistant', '[stub] ciao.', { q: '10 / 11' }),
+            v('3 user', 'lookup please --tool srs/lookup --deltas 3'),
+            to('4 assistant', 'tool_use srs_lookup', 'memo.t.srs/lookup', { q: 'tools' }),
+            v('5 user', 'tool_result ERROR', { cls: 'is-fault' }),
+            v('6 assistant', '[stub] lookup please', { q: '10 / 20' }),
+            v('7 user', 'break --fault fatal'),
+            v('8 assistant', 'parts [] · fault unknown: [stub] scripted fatal fault', { cls: 'is-fault', bang: '!', q: 'error · r1' }),
+          ]], ['ids', [v('user turns', 'uuid v4'), v('assistant turns', 'uuid v7')]]],
+        }),
+        n('buffers', 'buffers', {
+          sign: '◆', count: '1', leaf: true, kind: 'buffer', title: 'memo #0', ref: '01a1e526…0cd6', tr: 'none',
+          secs: [
+            ['own', [v('id', '01a1e526-9d80-73eb-adec-710370980cd6'), v('status', 'PENDING'), v('mime', 'application/json'),
+              v('index', '0'), v('context', 'null'), v('user', 'id string')]],
+            ['traits', [worn('LABELED', 'memo #0', { q: 'minted server-side' }), cast('RENDERED', '{}')]],
+            ['relations', [to('mode', '◇ srs/memo', 'srs-memo'), to('thread', '[ memo ]', 'thread')]],
+            ['stores', [v('$views', '0'), v('$files', '0'), v('$data', '{}'), v('$bundle', 'null'), v('$notes', '0')]],
+          ],
+        }),
+        n('activities', 'activities', {
+          count: '0', leaf: true, kind: 'activities', title: '0 running', ref: 'thread.$activities', tr: 'turns',
+          secs: [
+            ['store', [cast('running', 'none'), v('lifetime', '~0.2–0.5 s', { q: 'removed when its controller settles' })]],
+            ['seen', [v('ciao', 'DONE', { q: '6 steps' }), v('lookup please', 'DONE', { q: '12 steps', bang: '!' }),
+              v('break --fault fatal', 'FAILED', { cls: 'is-fault', q: '6 steps' })]],
+            ['shape', [v('steps', 'ring of the last 12 records'), v('status', 'getter on the controller'),
+              v('error', 'setter only · reads undefined', { cls: 'is-fault' }), v('buffer', 'undefined in every capture', { cls: 'is-cast' })]],
+          ],
+        }),
+      ]),
+      n('t.repl', 'repl', {
+        quiet: 'commands', kind: 'repl', title: 'commands', ref: 'terminal.repl.commands', tr: 'none',
+        secs: [['precedence', [v('1', 'system'), v('2', 'surface', { q: 'with an app' }), v('3', 'local modes'),
+          v('4', 'content'), v('5', 'seated mode', { q: 'later wins' })]]],
+      }, [
+        n('c.system', 'system', { quiet: '9', kind: 'group', title: 'system', ref: 'commands/system', tr: 'none' }, [
+          command('c.anima', '/anima', {}),
+          command('c.doctor', '/doctor', {}),
+          command('c.help', '/help', {}),
+          command('c.leader', '/leader', { send: false }),
+          command('c.logout', '/lighthouse/logout', { valence: 'sign out', send: false }),
+          command('c.quit', '/quit', { rank: 'tty only', send: false }),
+          command('c.repl', '/repl', { chord: 'leader leader', valence: 'fills the catalog: every listed command' }),
+          command('c.runtime', '/runtime', {}),
+          command('c.set', '/set', { rank: 'hidden', valence: 'inspector: write one path of the client’s state',
+            args: [arg('path', 'string', true, '11 writable'), arg('value', 'by path', true)] }),
+        ]),
+        n('c.surface', 'surface', { quiet: '14', kind: 'group', title: 'surface', ref: 'commands/surface', tr: 'none' }, [
+          command('c.cell', '/cell', {}),
+          command('c.dock', '/dock', {}),
+          command('c.split', '/split', { args: [arg('share', 'number 0.1–0.9', true)] }),
+          command('c.filter', '/filter', {}),
+          command('c.focus', '/focus', {}),
+          command('c.font', '/font', {}),
+          command('c.frame', '/frame', {}),
+          command('c.popover', '/popover', {}),
+          command('c.sidebar', '/sidebar/toggle', { rank: 'hidden', chord: 'leader/d/b', valence: 'the sidebar flipped' }),
+          command('c.telemetry', '/telemetry', { rank: 'hidden', chord: 'leader/s/t', valence: 'the telemetry window: a logger over spans and activities, an inspector over the client',
+            args: [arg('view', 'logger · inspector · off', false, 'absent toggles')] }),
+          command('c.inspector', '/inspector', { valence: 'open the inspector', args: [arg('point', 'string', false, 'where to start')] }),
+          command('c.clear', '/telemetry/clear', { rank: 'hidden', valence: 'drop every record the logger holds; live activities stay' }),
+          command('c.theme', '/theme', { args: [arg('name', THEMES.join(' · '), true)] }),
+          command('c.widget', '/widget', {}),
+        ]),
+        n('c.content', 'content', { quiet: '16', kind: 'group', title: 'content', ref: 'commands/content', tr: 'none' }, [
+          command('c.mode', '/mode', { valence: 'move the seated thread onto a mode', args: [arg('reference', 'path', true)] }),
+          command('c.modes', '/modes', { valence: 'every host and its modes' }),
+          command('c.tier', '/tier', { valence: 'the seated thread’s model tier — INTELLIGENT.tier', args: [arg('tier', TIERS.join(' · '), true)] }),
+          command('c.harness', '/harness', {}),
+          command('c.thread', '/thread', {}),
+          command('c.buffer', '/buffer', {}),
+          command('c.terminal.new', '/terminal/new', {}),
+          command('c.terminal.close', '/terminal/close', {}),
+          command('c.detach', '/detach', {}),
+          command('c.dictate', '/dictate', {}),
+          command('c.activity', '/activity', {}),
+          command('c.pause', '/pause', { chord: 'leader/a/p', valence: 'SIGSTOP to the thread’s activities' }),
+          command('c.resume', '/resume', { chord: 'leader/a/c', valence: 'SIGCONT to the thread’s activities' }),
+          command('c.stop', '/stop', { chord: 'leader/a/s', valence: 'SIGTERM to the thread’s activities' }),
+          command('c.abort', '/abort', { chord: 'leader/a/k', valence: 'SIGKILL to the thread’s activities' }),
+          command('c.turn', '*', { rank: 'hidden', valence: 'a bare line — a turn to the active terminal’s mode, streamed onto the thread’s span', send: false }),
+        ]),
+        n('c.local', 'home/console', { quiet: '2', kind: 'group', title: 'local mode', ref: '/mode/home/console', tr: 'none' }, [
+          command('c.hello', '/hello', {}),
+          command('c.whoami', '/whoami', {}),
+        ]),
+      ]),
+    ]),
+  ]),
+  n('bridge', 'bridge', {
+    quiet: '17', kind: 'bridge', title: '17 stores', ref: 'app.bridge', tr: 'none',
+    secs: [
+      ['screen', [v('$focus', 'dock.input'), v('$focusHistory', '[]', { q: 'last 6' }), v('$viewport', 'null × null · narrow false'),
+        ed('$sidebar', 'bridge.sidebar', 'choice', { opts: ['open', 'closed'], signal: (x) => `/set bridge.sidebar ${x === 'open'}`, q: 'width 39' }),
+        ed('$hidden', 'bridge.hidden', 'set', { opts: GROUPS }),
+        v('$draft · $selected', '"" 0'), v('$popover · $widget · $selection', 'null null null'), v('$phonePane', 'dock'),
+        v('$float', '{}'), v('$signin', 'user "" · pass ""'), v('$sections', 'filter expand peeks pick hostsOff traits')]],
+      ['persisted', [v('$terminal', 'null', { q: 'viva.bridge.terminal' }), v('$theme', 'null', { q: 'viva.bridge.theme' }),
+        v('$font', 'base', { q: 'viva.bridge.font' })]],
+    ],
+  }),
+  n('telemetry', 'telemetry', {
+    count: '45', kind: 'telemetry', title: 'telemetry', ref: 'viva.telemetry.state', tr: 'all', acts: ['clear'],
+    secs: [
+      ['state', [v('open · view', 'true · inspector'), v('filter · selection · since', 'all · null · 0'),
+        v('window', 'x 0 · y 48 · 600 × 420', { q: 'px · ghost uses cells' }), v('point · folds · picked · queries · peeks', 'seeded by anima mount'),
+        v('key', 'viva.telemetry.state', { q: 'persistentAtom' })]],
+      ['$logger', [v('source', 'client.controller.stdout.$history'), v('cap', '1000', { q: 'Span.limit' }), v('records', '45')]],
+      ['by track', [v('status', '18'), v('start', '11'), v('log', '9'), v('stop', '6'), v('fault', '1', { cls: 'is-fault' }),
+        v('request · response · entity', '0 0 0', { cls: 'is-cast', q: 'ctx carries no span' })]],
+    ],
+  }),
+]);
+
+
+const T = '01a1e526…ce23';
+const R = (at, track, value = '', tone = '') => [at, track, value, tone];
+const VALIDATION = 'Error: Validation failed: must have required properties search\n    at file:///Users/finn/vivalence/…';
+const FATAL = 'Error: [stub] scripted fatal fault\n    at fault (file:///Users/finn/vivalence/code/vival…';
+const NOTFOUND = 'Error: Not found\n    at /Users/finn/vivalence/code/vivalence/systems/ghost/gesta…';
+const MEMOISH = ['thread', 'turns', 'activities', 'srs-memo', 'memo.harness', 'memo.p.magister', 'memo.r.dialogue', 't.harness'];
+const LOOKUP = [...MEMOISH, 'memo.t.srs/lookup'];
+
+const BASE = [
+  { id: 'b-client', parent: null, name: 'client', path: ['anima', 'client'], t0: 0, t1: null, code: 'RUNNING',
+    on: ['client'], recs: [R(0, 'log', 'lighthouse http://localhost:63750/ · traits JOINABLE AUTOLOGIN'),
+      R(0.3, 'status', 'RUNNING', 'run'), R(0.4, 'start'), R(12.3, 'log'), R(15.5, 'log')] },
+  { id: 'b-console', parent: 'b-client', name: '/mode/home/console', path: ['anima', 'client', '/mode/home/console'],
+    t0: 1.6, t1: null, code: 'RUNNING', on: ['console'], recs: [R(1.6, 'start')] },
+  { id: 'b-lighthouse', parent: 'b-client', name: 'lighthouse', path: ['anima', 'client', 'lighthouse'],
+    t0: 2.1, t1: 12.1, nodur: true, code: 'AUTHENTICATED', on: ['lighthouse'],
+    note: 'status only · no start or stop · no timestamp',
+    recs: [R(2.1, 'status', 'AUTHENTICATING', 'run'), R(12.1, 'status', 'AUTHENTICATED', 'pos')] },
+  { id: 'b-runtime', parent: 'b-client', name: '/runtime/house', path: ['anima', 'client', '/runtime/house'],
+    t0: 40.8, t1: null, code: 'RUNNING', on: ['runtime', 'probe'], note: 'a host span is held, never stopped',
+    recs: [R(40.8, 'status'), R(40.9, 'start'), R(81.7, 'log')] },
+  { id: 'b-hello', parent: 'b-client', name: '/daemon/hello', path: ['anima', 'client', '/daemon/hello'],
+    t0: 41.1, t1: null, code: 'RUNNING', on: ['hello'], recs: [R(41.1, 'status'), R(41.1, 'start'), R(92.2, 'log')] },
+  { id: 'b-memo', parent: 'b-client', name: '/daemon/memo', path: ['anima', 'client', '/daemon/memo'],
+    t0: 41.2, t1: null, code: 'RUNNING', on: ['memo'], recs: [R(41.2, 'status'), R(41.2, 'start'), R(97.6, 'log')] },
+  { id: 'b-terminal', parent: 'b-client', name: `terminal/${T}`, path: ['anima', 'client', `terminal/${T}`],
+    t0: 95.3, t1: null, nodur: true, code: 'IDLE', on: ['terminal'], note: 'log only · no start',
+    recs: [R(95.3, 'log', 'home /runtime/house/mode/home/probe · thread 01a1e526…d9ec')] },
+  { id: 'mode', parent: 'b-terminal', name: '/mode', cmd: '/mode', path: ['…', `terminal/${T}`, '/mode'],
+    t0: 104.4, t1: 113.7, code: 'DONE', on: ['thread', 'srs-memo', 'probe'],
+    recs: [R(104.4, 'status', 'RUNNING', 'run'), R(104.5, 'start'),
+      R(113.5, 'log', '/daemon/memo/mode/srs/memo · thread #01a1e526…d9ec'), R(113.6, 'stop'), R(113.7, 'status', 'DONE', 'pos')] },
+  { id: 'star1', parent: 'b-terminal', name: '/*', q: '1 of 3', cmd: '*', path: ['…', `terminal/${T}`, '/*'],
+    t0: 113.9, t1: 645.2, code: 'DONE', on: ['thread', 'turns', 'srs-memo'], note: 'one path for every bare line',
+    recs: [R(113.9, 'status', 'RUNNING', 'run'), R(113.9, 'start'), R(645.1, 'stop'), R(645.2, 'status', 'DONE', 'pos')] },
+  { id: 'star2', parent: 'b-terminal', name: '/*', q: '2 of 3', cmd: '*', path: ['…', `terminal/${T}`, '/*'],
+    t0: 645.4, t1: 887.9, code: 'DONE', on: ['thread', 'turns', 'srs-memo'], note: 'one path for every bare line',
+    recs: [R(645.4, 'status', 'RUNNING', 'run'), R(645.4, 'start'), R(887.9, 'stop'), R(887.9, 'status', 'DONE', 'pos')] },
+  { id: 'star3', parent: 'b-terminal', name: '/*', q: '3 of 3', cmd: '*', path: ['…', `terminal/${T}`, '/*'],
+    t0: 888.1, t1: 907.2, code: 'DONE', on: ['thread', 'turns', 'srs-memo'],
+    note: 'closed DONE here · its activity went FAILED',
+    recs: [R(888.1, 'status', 'RUNNING', 'run'), R(888.1, 'start'), R(907.2, 'stop'), R(907.2, 'status', 'DONE', 'pos')] },
+  { id: 'modes', parent: 'b-terminal', name: '/modes', cmd: '/modes', path: ['…', `terminal/${T}`, '/modes'],
+    t0: 1710.0, t1: 1712.3, code: 'DONE', on: ['runtime', 'memo', 'hello'],
+    recs: [R(1710.0, 'status', 'RUNNING', 'run'), R(1710.4, 'start'),
+      R(1711.7, 'log', '/runtime/house /home/probe · /daemon/memo /domain/srs /topography/latin /srs/memo …'),
+      R(1712.3, 'stop'), R(1712.3, 'status', 'DONE', 'pos')] },
+  { id: 'nonsense', parent: 'b-terminal', name: '/nonsense', cmd: '/nonsense', path: ['…', `terminal/${T}`, '/nonsense'],
+    t0: 1712.4, t1: 1731.3, code: 'FAILED', on: ['terminal'],
+    fault: ['! NOT_FOUND · /nonsense', 'Not found'], stack: NOTFOUND,
+    recs: [R(1712.4, 'status', 'RUNNING', 'run'), R(1712.5, 'start'), R(1728.7, 'status', 'FAILED · NOT_FOUND', 'neg'),
+      R(1729.1, 'fault', 'Not found · NOT_FOUND', 'neg'), R(1731.3, 'stop')] },
+  { id: 'act1', parent: null, activity: true, name: 'hallucination', q: '01a1e526…582e', path: ['activity/01a1e526…582e'],
+    t0: 117.6, t1: 133.5, approx: true, code: 'DONE', on: MEMOISH, note: 'turn ciao · 6 steps · times from entity stamps',
+    recs: [R(117.6, 'status', 'RUNNING', 'run'), R(117.7, 'start'), R(117.8, 'log', 'stream · dialogue'),
+      R(133.3, 'log', 'round 1 · complete · 10 / 11'), R(133.4, 'stop'), R(133.5, 'status', 'DONE', 'pos')] },
+  { id: 'act1h', parent: 'act1', activity: true, name: 'hallucination', path: ['hallucination'],
+    t0: 117.7, t1: 133.4, approx: true, code: 'DONE', on: MEMOISH,
+    recs: [R(117.7, 'start'), R(117.8, 'log', 'stream · dialogue'), R(133.3, 'log', 'round 1 · complete · 10 / 11'), R(133.4, 'stop')] },
+  { id: 'act2', parent: null, activity: true, name: 'hallucination', q: '01a1e526…57ad', path: ['activity/01a1e526…57ad'],
+    t0: 663.6, t1: 885.1, code: 'DONE', on: LOOKUP, note: 'turn lookup please · 12 steps',
+    recs: [R(663.6, 'status', 'RUNNING', 'run'), R(663.8, 'start'), R(664.0, 'log', 'stream · dialogue'),
+      R(751.2, 'log', 'round 1 · tools'), R(884.8, 'log', 'round 2 · complete · 10 / 20'), R(885.1, 'stop'),
+      R(885.1, 'status', 'DONE', 'pos')] },
+  { id: 'act2h', parent: 'act2', activity: true, name: 'hallucination', path: ['hallucination'],
+    t0: 663.6, t1: 885.1, code: 'DONE', on: LOOKUP,
+    recs: [R(663.6, 'status', 'RUNNING', 'run'), R(663.8, 'start'), R(664.0, 'log', 'streamOrRender stream · faculty dialogue'),
+      R(751.2, 'log', 'round 1 · state tools'), R(884.8, 'log', 'round 2 · state complete · usage 10 / 20'),
+      R(885.1, 'stop'), R(885.1, 'status', 'DONE', 'pos')] },
+  { id: 'tool', parent: 'act2h', activity: true, name: 'srs_lookup/stub-0', path: ['hallucination', 'srs_lookup/stub-0'],
+    t0: 751.7, t1: 753.0, code: 'FAILED', on: LOOKUP, note: 'no stop · ends at its fault',
+    fault: ['! VALIDATION · srs_lookup · round 1', 'Validation failed: must have required properties search'], stack: VALIDATION,
+    input: '{ query: "lookup please --tool srs/lookup --deltas 3" }',
+    recs: [R(751.7, 'status', 'RUNNING', 'run'), R(751.8, 'start'), R(751.8, 'log', 'input { query }'),
+      R(752.8, 'status', 'FAILED · VALIDATION', 'neg'), R(753.0, 'fault', 'VALIDATION', 'neg')] },
+  { id: 'act3', parent: null, activity: true, name: 'hallucination', q: '01a1e526…efe2', path: ['activity/01a1e526…efe2'],
+    t0: 901.6, t1: 902.4, code: 'FAILED', on: MEMOISH, note: 'turn break --fault fatal · 6 steps · fault from controller.status',
+    fault: ['! unknown · hallucination · round 1', '[stub] scripted fatal fault'], stack: FATAL,
+    recs: [R(901.6, 'status', 'RUNNING', 'run'), R(901.7, 'start'), R(901.7, 'log', 'stream · dialogue'),
+      R(902.2, 'status', 'FAILED', 'neg'), R(902.3, 'fault', '[stub] scripted fatal fault', 'neg'), R(902.4, 'stop')] },
+  { id: 'act3h', parent: 'act3', activity: true, name: 'hallucination', path: ['hallucination'],
+    t0: 901.6, t1: 902.4, code: 'FAILED', on: MEMOISH,
+    fault: ['! unknown · hallucination · round 1', '[stub] scripted fatal fault'], stack: FATAL,
+    recs: [R(901.6, 'status', 'RUNNING', 'run'), R(901.7, 'start'), R(901.7, 'log', 'streamOrRender stream · faculty dialogue'),
+      R(902.2, 'status', 'FAILED', 'neg'), R(902.3, 'fault', '[stub] scripted fatal fault', 'neg'), R(902.4, 'stop')] },
+];
+
+const TARGETS = [
+  [/^\/set thread\./, ['thread', 't.harness']],
+  [/^\/set terminal\./, ['terminal']],
+  [/^\/set bridge\.|^\/sidebar/, ['bridge']],
+  [/^\/theme/, ['bridge']],
+  [/^\/mode /, ['thread', 'srs-memo']],
+  [/^\/telemetry|^\/inspector/, ['telemetry']],
+  [/^\/terminal/, ['terminal']],
+];
+const aimed = (text) => (TARGETS.find(([test]) => test.test(text)) ?? [null, []])[1];
+const flat = (node, up = null) => [{ ...node, up }, ...node.kids.flatMap((kid) => flat(kid, node.id))];
+const NODES = flat(SPEC);
+const BY = Object.fromEntries(NODES.map((node) => [node.id, node]));
+const KIDS = Object.fromEntries(NODES.map((node) => [node.id, NODES.filter((other) => other.up === node.id)]));
+const LINEAGE = Object.fromEntries(NODES.map((node) => {
+  const walk = (id) => (id === null ? [] : [...walk(BY[id].up), BY[id]]);
+  return [node.id, walk(node.up)];
+}));
+const INDEXES = [['tree', 'tree'], ['tool', 'tools'], ['primer', 'primers'], ['reference', 'refs'],
+  ['route', 'routes'], ['command', 'commands'], ['trait', 'traits'], ['mode', 'modes']];
+const OWNERS = { command: ['group'], mode: ['daemon', 'runtime', 'registry'] };
+const owner = (node) => LINEAGE[node.id].filter((above) => (OWNERS[node.kind] ?? ['mode']).includes(above.kind)).at(-1);
+const SAID = Object.fromEntries(NODES.map((node) => [node.id, [node.name, node.as, node.quiet, node.title,
+  ...(node.secs && typeof node.secs !== 'function' ? node.secs.flatMap(([, rows]) => rows.map((row) => `${row.k} ${row.v ?? ''}`)) : [])]
+  .filter(Boolean).join(' ').toLowerCase()]));
+
+const DESC = Object.fromEntries(NODES.map((node) => {
+  const under = (id) => [id, ...KIDS[id].flatMap((kid) => under(kid.id))];
+  return [node.id, new Set(under(node.id))];
+}));
+
+const EFFECTS = {
+  '/telemetry': (state, index, text) => {
+    const view = text.split(' ')[1];
+    return view === 'off' ? { open: false } : view === undefined ? { open: !state.open } : { open: true, tab: view };
+  },
+  '/telemetry/clear': (state, index) => ({ since: index }),
+  '/inspector': () => ({ tab: 'inspector' }),
+  '/sidebar/toggle': (state) => ({ vals: { ...state.vals,
+    'bridge.sidebar': state.vals['bridge.sidebar'] === 'open' ? 'closed' : 'open' } }),
+};
+
+const INITIAL = () => ({
+  open: true,
+  tab: 'inspector',
+  picked: 'memo.t.srs/lookup',
+  lens: 'tree',
+  folds: Object.fromEntries(['app', 'client', 'runtime', 'memo', 'srs-memo', 'memo.harness', 'memo.tools', 'memo.t.srs',
+    'terminal', 'thread'].map((id) => [id, true])),
+  query: '',
+  span: 'tool',
+  logSpan: 'nonsense',
+  only: 'all',
+  filter: 'all',
+  stack: false,
+  json: false,
+  peek: false,
+  copied: null,
+  touched: false,
+  stamp: '16:17:55.584',
+  since: -1,
+  sent: [],
+  changed: [],
+  drafts: {},
+  vals: {
+    'app.theme': 'porcelain',
+    'thread.tier': 'capable',
+    'thread.effort': 'low',
+    'thread.rounds': 12,
+    'thread.label': '',
+    'terminal.dock.view': 'full',
+    'terminal.dock.align': 'right',
+    'terminal.dock.share': 0.38,
+    'terminal.dock.lens': ['turns', 'harness'],
+    'terminal.dock.markdown': 'pretty',
+    'bridge.sidebar': 'closed',
+    'bridge.hidden': [],
+  },
+});
+
+const ms = (value) => (value === null ? '—' : value < 1 ? '<1ms' : value < 1000 ? `${Math.round(value)}ms`
+  : `${(value / 1000).toFixed(2)}s`);
+const decimals = (step) => (String(step).split('.')[1] ?? '').length;
+const touching = (node) => (node.tr === 'all' ? () => true
+  : (span) => span.on.some((id) => DESC[node.id].has(id)) || (node.kind === 'command' && span.cmd === node.name));
+const KEEP = {
+  all: () => true,
+  activity: (span) => Boolean(span.activity),
+  repl: (span) => !span.activity,
+  net: () => false,
+  faults: (span, faulty) => faulty.has(span.id),
+};
+const arrange = (list) => {
+  const ids = new Set(list.map((span) => span.id));
+  const ALL = Object.fromEntries(list.map((span) => [span.id, span]));
+  const up = (span) => {
+    let id = span.parent;
+    while (id !== null && id !== undefined && !ids.has(id)) id = PARENT[id] ?? null;
+    return id ?? null;
+  };
+  const kids = (id) => list.filter((span) => up(span) === id).sort((a, b) => a.t0 - b.t0);
+  const walk = (span, depth) => [{ ...span, depth }, ...kids(span.id).flatMap((kid) => walk(kid, depth + 1))];
+  return kids(null).flatMap((span) => walk(ALL[span.id], 0));
+};
+let PARENT = {};
+
+const derive = (self, fallback) => {
+  const state = self.state;
+  const put = (delta) => self.setState(delta);
+  const word = state.vals['thread.label'] === '' ? 'memo' : state.vals['thread.label'];
+  const named = (node) => (node.id === 'thread' ? `[ ${word} ]` : node.name);
+  const pick = (id) => put({
+    picked: id, peek: false, json: false,
+    folds: { ...state.folds, ...Object.fromEntries(LINEAGE[id].map((above) => [above.id, true])) },
+  });
+  const signal = (text, delta = {}) => {
+    const index = state.sent.length;
+    const id = `s${index}`;
+    const effect = EFFECTS[text.split(' ')[0]];
+    const merged = { ...state, ...delta };
+    put({ ...delta, ...(effect ? effect(merged, index, text) : {}), sent: [...state.sent, { id, text }], span: id, logSpan: id });
+  };
+  const write = (path, value, text, extra = {}) => signal(text, {
+    ...extra,
+    vals: { ...state.vals, [path]: value },
+    changed: state.changed.includes(path) ? state.changed : [...state.changed, path],
+    touched: true,
+    stamp: new Date().toISOString().slice(11, 23),
+  });
+
+  const now = 1731.3 + state.sent.length * 400 + 200;
+  const sent = state.sent.map((entry, index) => {
+    const t0 = 1731.3 + (index + 1) * 400;
+    const cmd = entry.text.split(' ')[0];
+    return { id: entry.id, parent: 'b-terminal', name: entry.text, cmd, path: ['…', `terminal/${T}`, cmd],
+      t0, t1: t0 + 2.4, code: 'DONE', on: aimed(entry.text),
+      recs: [R(t0, 'status', 'RUNNING', 'run'), R(t0 + 0.1, 'start'), R(t0 + 1.9, 'log', entry.text),
+        R(t0 + 2.3, 'stop'), R(t0 + 2.4, 'status', 'DONE', 'pos')] };
+  });
+  const live = [...(state.since < 0 ? BASE : []), ...sent.filter((_, index) => index >= state.since)]
+    .map((span) => ({ ...span, end: span.t1 === null ? now : span.t1 }));
+  PARENT = Object.fromEntries(live.map((span) => [span.id, span.parent]));
+  const faulty = new Set();
+  for (const span of live) {
+    if (!span.fault) continue;
+    let id = span.id;
+    while (id) { faulty.add(id); id = PARENT[id]; }
+  }
+  const owns = (span) => Boolean(span.fault);
+
+  const geo = (list, held, choose) => {
+    if (list.length === 0) return [];
+    const low = Math.min(...list.map((span) => span.t0));
+    const high = Math.max(...list.map((span) => span.end));
+    const width = Math.max(1, high - low);
+    return arrange(list).map((span) => ({
+      id: span.id,
+      depth: span.depth,
+      name: span.name,
+      quiet: span.q ?? '',
+      dot: owns(span) ? 'is-fault' : span.t1 === null ? 'is-running' : span.code === 'IDLE' ? '' : 'is-healthy',
+      tone: owns(span) ? 'N' : span.t1 === null ? 'P' : span.code === 'IDLE' ? 'm' : 'G',
+      bang: faulty.has(span.id) && !owns(span) ? '!' : '',
+      l: (((span.t0 - low) / width) * 100).toFixed(1),
+      w: Math.max(1.5, ((span.end - span.t0) / width) * 100).toFixed(1),
+      fault: owns(span),
+      ms: span.nodur ? '—' : span.t1 === null ? 'live' : `${span.approx ? '~' : ''}${ms(span.t1 - span.t0)}`,
+      slow: span.t1 !== null && !span.nodur && span.t1 - span.t0 > 500,
+      cur: span.id === held,
+      pick: () => choose(span.id),
+    }));
+  };
+  const detail = (span) => (span === undefined ? null : {
+    path: span.path.join(' › '),
+    meta: [span.code, span.nodur ? 'no duration' : span.t1 === null ? 'live' : `${span.approx ? '~' : ''}${ms(span.t1 - span.t0)}`,
+      span.note].filter(Boolean).join(' · '),
+    fault: span.fault ?? null,
+    input: span.input ?? '',
+    recs: span.recs.map(([at, k, value, c]) => ({ t: `+${(at - span.t0).toFixed(1)}`, k, v: value, c })),
+    stack: span.stack ?? '',
+  });
+
+  const query = state.query.trim().toLowerCase();
+  const lensed = state.lens !== 'tree';
+  const indexed = (kind) => {
+    const items = NODES.filter((node) => node.kind === kind && (query === '' || SAID[node.id].includes(query)));
+    const groups = [...new Set(items.map((node) => owner(node).id))];
+    return groups.flatMap((id) => {
+      const held = items.filter((node) => owner(node).id === id);
+      const head = BY[id];
+      return [
+        { id: `${id}:index`, depth: 0, hasKids: true, sign: '◇', name: head.kind === 'daemon' ? `daemon ${head.quiet}` : named(head),
+          strong: true, quiet: '', bang: '', tail: 'count', tailText: String(held.length), cur: head.id === state.picked,
+          pick: () => pick(head.id), fold: () => pick(head.id) },
+        ...held.map((node) => ({
+          id: node.id, depth: 1, hasKids: false, sign: '', name: node.as ?? named(node), strong: false,
+          quiet: node.as ? '' : node.kind === 'mode' ? node.title : (node.quiet ?? ''),
+          bang: node.bang ?? '', tail: '', tailText: '', cur: node.id === state.picked,
+          pick: () => pick(node.id), fold: () => pick(node.id),
+        })),
+      ];
+    });
+  };
+  const lenses = INDEXES.map(([id, label]) => ({
+    id, label, n: id === 'tree' ? '' : String(NODES.filter((node) => node.kind === id).length),
+    on: state.lens === id, pick: () => put({ lens: id }),
+  }));
+  const shown = query === ''
+    ? NODES.filter((node) => LINEAGE[node.id].every((above) => state.folds[above.id]))
+    : NODES.filter((node) => `${named(node)} ${node.quiet ?? ''} ${node.kind}`.toLowerCase().includes(query));
+  const treed = shown.map((node) => {
+    const hasKids = KIDS[node.id].length > 0;
+    const isOpen = Boolean(state.folds[node.id]);
+    return {
+      id: node.id,
+      depth: query === '' ? LINEAGE[node.id].length : 0,
+      hasKids,
+      sign: hasKids ? (isOpen ? '▾' : '▸') : (node.sign ?? ''),
+      name: named(node),
+      strong: hasKids,
+      quiet: query === '' ? (node.quiet ?? '') : LINEAGE[node.id].slice(-2).map(named).join(' › '),
+      bang: node.bang ?? '',
+      tail: node.dot ? 'dot' : node.tail ? 'live' : node.count ? 'count' : '',
+      tailText: node.tail ?? node.count ?? '',
+      cur: node.id === state.picked,
+      pick: () => pick(node.id),
+      fold: hasKids ? () => put({ folds: { ...state.folds, [node.id]: !isOpen } }) : () => pick(node.id),
+    };
+  });
+  const nodes = lensed ? indexed(state.lens) : treed;
+
+  const node = BY[state.picked];
+  const valueOf = (path) => (state.vals[path] ?? fallback[path]);
+  const shape = (row) => {
+    const base = { k: row.k, v: row.v ?? '', q: row.q ?? '', bang: row.bang ?? '', cls: row.cls ?? '',
+      type: 'text', opts: [], go: null, cells: [] };
+    if (row.go) return { ...base, type: 'link', go: () => pick(row.go) };
+    if (row.stamp) return { ...base, v: state.stamp, q: state.touched ? 'now' : '1.6s ago', cls: 'is-changed' };
+    if (!row.edit) return base;
+    const value = valueOf(row.path);
+    const said = (next) => (row.signal ? row.signal(next) : `/set ${row.path} ${next}`);
+    const send = (next) => write(row.path, next, said(next));
+    const marked = `${base.cls}${state.changed.includes(row.path) ? ' is-changed' : ''}`;
+    if (row.edit === 'choice') return { ...base, cls: marked, type: 'choice', v: value,
+      opts: row.opts.map((name) => ({ name, on: name === value, pick: () => send(name) })) };
+    if (row.edit === 'set') return { ...base, cls: `${marked} is-tall`, type: 'choice', v: value.join(' '),
+      opts: row.opts.map((name) => ({ name, on: value.includes(name), pick: () => write(row.path,
+        value.includes(name) ? value.filter((held) => held !== name) : [...value, name], `/set ${row.path} ${name}`) })) };
+    if (row.edit === 'select') {
+      const next = row.opts[(row.opts.indexOf(value) + 1) % row.opts.length];
+      return { ...base, cls: marked, type: 'select', v: value, opts: row.opts.map((name) => ({ name, on: name === value })),
+        change: (event) => send(event.target.value), cycle: () => send(next) };
+    }
+    if (row.edit === 'step') {
+      const places = decimals(row.step);
+      const moved = (by) => send(Number(Math.min(row.max, Math.max(row.min, value + by)).toFixed(places)));
+      const lit = Math.round(((value - row.min) / (row.max - row.min)) * 16);
+      return { ...base, cls: marked, type: 'step', v: value.toFixed(places),
+        less: (event) => moved(-row.step * (event && event.shiftKey ? 10 : 1)),
+        more: (event) => moved(row.step * (event && event.shiftKey ? 10 : 1)),
+        cells: Array.from({ length: 16 }, (_, index) => ({ c: index < lit ? 'on' : '' })), lit, of: 16 };
+    }
+    const draft = state.drafts[row.path];
+    const drafts = { ...state.drafts };
+    delete drafts[row.path];
+    const commit = () => (draft === undefined ? null : draft === value ? put({ drafts })
+      : write(row.path, draft, said(draft), { drafts }));
+    return { ...base, type: 'field', k: `${value === '' ? '○' : '●'} ${row.trait}`,
+      cls: `${marked} ${value === '' ? 'is-cast' : 'is-worn'}`, v: draft ?? value,
+      change: (event) => put({ drafts: { ...state.drafts, [row.path]: event.target.value } }),
+      commit, key: (event) => (event.key === 'Enter' ? commit() : null) };
+  };
+  const sections = [
+    ...(node.secs ?? []).map(([label, rows]) => ({ label, rows: rows.map(shape) })),
+    ...(KIDS[node.id].length ? [{ label: 'holds', rows: KIDS[node.id].map((kid) => ({
+      k: kid.kind === kid.name ? '' : kid.kind, v: named(kid), q: kid.quiet ?? kid.count ?? '', bang: kid.bang ?? '', cls: '',
+      type: 'link', opts: [], cells: [], go: () => pick(kid.id) })) }] : []),
+  ];
+  const ACTS = {
+    copy: () => null,
+    attach: () => ({ name: 'attach', on: false, run: () => signal(`/mode ${node.ref}`) }),
+    read: () => ({ name: 'read', on: state.peek, run: () => put({ peek: !state.peek }) }),
+    send: () => ({ name: 'send', on: false, run: () => signal(node.name) }),
+    clear: () => ({ name: 'clear', on: false, run: () => signal('/telemetry/clear') }),
+    new: () => ({ name: 'new', on: false, run: () => signal('/terminal/new') }),
+  };
+  const acts = [
+    { name: state.copied === node.id ? 'copied' : 'copy', on: state.copied === node.id, run: () => {
+      try { navigator.clipboard.writeText(node.ref).catch(() => null); } catch (error) { put({ copied: node.id }); return; }
+      put({ copied: node.id });
+    } },
+    { name: 'json', on: state.json, run: () => put({ json: !state.json }) },
+    ...(node.acts ?? []).map((name) => ACTS[name]()).filter(Boolean),
+  ];
+  const json = JSON.stringify(Object.fromEntries(sections.map((section) =>
+    [section.label, Object.fromEntries(section.rows.map((row) => [row.k, row.v]))])), null, 2);
+
+  const touched = live.filter(touching(node));
+  const listed = touched.filter((span) => state.only === 'all' || faulty.has(span.id));
+  const logged = live.filter((span) => KEEP[state.filter](span, faulty));
+  const faults = live.filter(owns).length;
+
+  return {
+    open: state.open,
+    reopen: () => signal('/telemetry inspector', { open: true }),
+    close: () => signal('/telemetry off', { open: false }),
+    tab: state.tab,
+    toTab: (tab) => put({ tab }),
+    records: live.length,
+    faults,
+    toFaults: () => (state.tab === 'logger' ? put({ filter: 'faults' })
+      : put({ picked: 'thread', lens: 'tree', only: 'faults', span: 'tool', folds: { ...state.folds, app: true, client: true, terminal: true } })),
+    lenses,
+    lens: state.lens,
+    query: state.query,
+    onQuery: (event) => put({ query: event.target.value }),
+    nodes,
+    node: {
+      kind: node.kind,
+      title: node.id === 'thread' ? word : node.title,
+      ref: node.ref,
+      crumbs: LINEAGE[node.id].map((above) => ({ name: named(above), pick: () => pick(above.id) })),
+      acts,
+      json: state.json ? json : '',
+      peek: state.peek && node.peek ? node.peek : '',
+      sections,
+    },
+    trace: {
+      only: state.only,
+      setOnly: (only) => put({ only }),
+      nAll: touched.length,
+      nFaults: touched.filter(owns).length,
+      spans: geo(listed, state.span, (id) => put({ span: id, stack: false })),
+      detail: detail(listed.find((span) => span.id === state.span)),
+    },
+    logger: {
+      filters: FILTERS.map((id) => ({ id, n: live.filter((span) => KEEP[id](span, faulty)).length, on: state.filter === id, pick: () => put({ filter: id }) })),
+      spans: geo(logged, state.logSpan, (id) => put({ logSpan: id, stack: false })),
+      detail: detail(logged.find((span) => span.id === state.logSpan)),
+    },
+    stack: state.stack,
+    toggleStack: () => put({ stack: !state.stack }),
+  };
+};
+
+const EMPTY = { has: false, none: true, path: '', meta: '', hasFault: false, f1: '', f2: '', hasInput: false, input: '', recs: [],
+  hasStack: false, showStack: false, stack: '' };
+const TAILS = { dot: 'kit-dot is-healthy', live: 'live', count: 'c', '': '' };
+
+class Component extends DCLogic {
+  state = INITIAL();
+  theme() { return this.state.changed.includes('app.theme') ? this.state.vals['app.theme'] : (this.props.theme ?? 'northsea'); }
+  themed() { document.documentElement.setAttribute('data-theme', this.theme()); }
+  componentDidMount() { this.themed(); }
+  componentDidUpdate() { this.themed(); }
+  renderVals() {
+    const m = derive(this, {});
+    const spanned = (s) => ({
+      ...s,
+      curText: String(s.cur),
+      pad: `${s.depth * 1.5}ch`,
+      barCls: s.fault ? 'is-fault' : s.ms === 'live' ? 'is-live' : '',
+      dot: s.dot,
+      wc: Math.min(Number(s.w), 100 - Number(s.l)).toFixed(1),
+      msCls: s.ms === 'live' ? 'is-live' : s.slow ? 'is-slow' : '',
+    });
+    const told = (d) => (d === null ? EMPTY : {
+      has: true, none: false, path: d.path, meta: d.meta,
+      hasFault: d.fault !== null, f1: d.fault ? d.fault[0] : '', f2: d.fault ? d.fault[1] : '',
+      hasInput: d.input !== '', input: d.input, recs: d.recs,
+      hasStack: d.stack !== '', showStack: d.stack !== '' && this.state.stack, stack: d.stack,
+    });
+    const rowed = (r) => ({
+      ...r,
+      isText: r.type === 'text', isLink: r.type === 'link', isChoice: r.type === 'choice',
+      isSelect: r.type === 'select', isStep: r.type === 'step', isField: r.type === 'field',
+      opts: r.opts.map((o) => ({ ...o, pressed: String(Boolean(o.on)) })),
+    });
+    return {
+      open: m.open,
+      closed: !m.open,
+      reopen: m.reopen,
+      close: m.close,
+      inInspector: String(m.tab === 'inspector'),
+      inLogger: String(m.tab === 'logger'),
+      inInspectorFlag: m.tab === 'inspector',
+      inLoggerFlag: m.tab === 'logger',
+      toInspector: () => m.toTab('inspector'),
+      toLogger: () => m.toTab('logger'),
+      records: m.records,
+      faults: m.faults,
+      hasFaults: m.faults > 0,
+      toFaults: m.toFaults,
+      lenses: m.lenses.map((l) => ({ ...l, pressed: String(l.on) })),
+      query: m.query,
+      onQuery: m.onQuery,
+      nodes: m.nodes.map((n) => ({
+        ...n,
+        curText: String(n.cur),
+        pad: `calc(4px + ${Math.min(n.depth, 9) * 1.25}ch)`,
+        foldLabel: n.hasKids ? `fold ${n.name}` : `open ${n.name}`,
+        strongCls: n.strong ? 'is-strong' : '',
+        tailCls: TAILS[n.tail],
+        tailText: n.tail === 'dot' ? '' : n.tailText,
+      })),
+      noNodes: m.nodes.length === 0,
+      node: m.node,
+      acts: m.node.acts.map((a) => ({ ...a, pressed: String(a.on) })),
+      hasPeek: m.node.peek !== '',
+      hasJson: m.node.json !== '',
+      sections: m.node.sections.map((s) => ({ ...s, rows: s.rows.map(rowed) })),
+      trace: m.trace,
+      allOn: String(m.trace.only === 'all'),
+      faultsOn: String(m.trace.only === 'faults'),
+      showAll: () => m.trace.setOnly('all'),
+      showFaults: () => m.trace.setOnly('faults'),
+      tspans: m.trace.spans.map(spanned),
+      noTrace: m.trace.spans.length === 0,
+      td: told(m.trace.detail),
+      filters: m.logger.filters.map((f) => ({ ...f, pressed: String(f.on) })),
+      lspans: m.logger.spans.map(spanned),
+      noLog: m.logger.spans.length === 0,
+      ld: told(m.logger.detail),
+      stackText: String(m.stack),
+      stackSign: m.stack ? '▾' : '▸',
+      toggleStack: m.toggleStack,
+    };
+  }
+}
+</script>
+</body>
+</html>

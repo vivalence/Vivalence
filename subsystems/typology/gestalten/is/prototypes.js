@@ -77,7 +77,7 @@ export function App(thing) {
 
 export function yieldish(thing) {
   // @beef. technically wrong-ish and incomplete.
-  return is.object(thing) && is.string(thing.condition) && is.object(thing.output);
+  return is.object(thing) && is.string(thing.condition) && is.object(thing.product);
 }
 
 export function buffers(thing) {

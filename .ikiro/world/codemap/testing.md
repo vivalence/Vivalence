@@ -111,7 +111,9 @@ export async function boot(world, { shelf, slug, extra = {}, deadline = 120_000 
 ```
 **ghost `systems/ghost/tests/world.js` `settle screen` (`keys.test.js:5`).**
 
+- **an `/after` twitch is DETACHED (`shard/datamap.js:270`)** — probe after it drains, via the CALLER's call (`Twitch.graft` takes ONE).
 - **an expectation never spells product content** — read off the FIXTURE or the live value (11-12).
+- **a reader of the world's files lands with ONE fixture the world made** — REJECTED 11-13 ocr: 3 clean renders green, 3 of 4 real scans crashed.
 - **a suite on a live port runs only if it listens** — `{ ignore: !listening }` (`commons/services/nlp/tests/service.test.js:5`, 11-12).
 
 ## snapshots

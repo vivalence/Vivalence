@@ -56,6 +56,25 @@ function Choice(props) {
   );
 }
 
+function Toggles(props) {
+  return (
+    <box style={{ flexDirection: "row", height: 1, gap: 1, paddingRight: 1 }}>
+      <text fg={props.palette.textInk} style={{ flexShrink: 0, flexGrow: 1 }}>{` ${props.label.padEnd(LABEL)}`}</text>
+      <For each={props.options}>
+        {(option) => (
+          <Chip
+            palette={props.palette}
+            label={`${props.on.includes(option) ? "◉" : "○"} ${option}`}
+            current={false}
+            ink={props.on.includes(option) ? props.palette.textStrong : props.palette.textMuted}
+            signal={`${props.signal} ${option}`}
+          />
+        )}
+      </For>
+    </box>
+  );
+}
+
 function Split(props) {
   return (
     <box style={{ flexDirection: "row", height: 1, gap: 1, paddingRight: 1 }}>
@@ -80,7 +99,7 @@ export function Display(props) {
       <Choice palette={props.palette} label="dock" options={VIEWS} value={dock().view} signal="/dock" />
       <Choice palette={props.palette} label="side" options={SIDES} value={dock().align} signal="/dock" />
       <Split palette={props.palette} share={dock().share} />
-      <Choice palette={props.palette} label="lens" options={LENSES} value={dock().lens} signal="/dock/lens" />
+      <Toggles palette={props.palette} label="lens" options={LENSES} on={dock().lens} signal="/dock/lens" />
       <Choice palette={props.palette} label="markdown" options={MARKDOWNS} value={dock().markdown} signal="/set terminal.dock.markdown" />
       <Rule palette={props.palette} />
     </box>

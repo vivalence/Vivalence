@@ -1,0 +1,42 @@
+#+title: call · dictate — design pass 11-17: the comp beside his served anima
+# writer: agent · limit: 5000 chars · trigger: /"The design isn't at all like the artifact specified."/
+
+* how it was seen
+
+- the comp RENDERED: =prototype.dc.html= under a 60-row dc runtime + =inspector-rework/comp/bundle.css= (the kit), staged per state (idle · popover · dictating · call hearing/speaking/interrupted · thread · box · control · repl; ear on/off; dom · tty), porcelain, on a free port
+- his =:1794= in Chrome: espanol =harness/runtime=, porcelain
+
+* panes — shows what, from where (comp)
+
+- dock.input: =<<= · textarea · mic (ear) · send; dictating: red ring, the line above on surface-sunk (settled · tail · ▍ · ■ · trash)
+- =<<= popover · =ctrl-v c=: a attach · d dictate · l call · p paste
+- call line instead of dock.input: =<<= · mic + meter · state word · speaker + meter · m:ss · ■ end
+- bar: mark · entity · ={capable}= · process (voice state + meter) · display · system (mic · speaker · dot)
+- thread panel (entity seg): conversational h hear · s speak · c call · p polish + engaged chips; mode · <slug> voice chips
+- box panel (system seg): m microphone meter · o speaker meter · permission | recorder
+
+* gaps
+
+| # | pane | comp | his screen | fate |
+|---+------+------+------------+------|
+| 1 | every voice part | ear on (its default) | absent: his ledger holds =anthropic= · =openrouter=, no verbatim · speech faculty | LAW 1: no ear → absent |
+| 2 | =<<= · =ctrl-v c=, no ear | a attach · p paste | opened nothing: anima filtered every row by =resolves=, ghost kept a · p | BRIDGED 11-17 |
+| 3 | thread panel | a strip above the bar, keyed rows, chips | the entity WIDGET at the segment (m108), =conversational= a sub-section, unkeyed values | OPEN Q |
+| 4 | box panel | strip: device rows + meters | box widget: meters + state words, mute keys, theme, font | follows 3 |
+| 5 | bar system | one seg: mic · speaker · dot | cube seg + sys seg (m108) | live chrome stays |
+| 6 | bar entity · harness | =e4 openings board/play= · ={capable}= | =[espanol ‹harness/runtime›]= · ={ fast · low … }= (m108) | live chrome stays |
+| 7 | call-line mic | speak over (space) | =/mic mute= · =/mic on= | departure: no barge-in route, a voice barges in by itself |
+| 8 | speak row | toggles =/speak= | no =/speak= | LACKS |
+| 9 | mode voice | chips toggle =/mode voice= | text, read only | LACKS: the mode's harness decides (Q34) |
+| 10 | attach · paste | act | =/attach= · =/paste= resolve nowhere → the repl's unknown-command fault | LACKS |
+| 11 | tty face | the same on the cell grid | paints nothing: known issue =tty-chrome-opentui-node-ffi= | BLOCKED |
+
+* bridged
+
+#2: =sections.js= =CONTROLS= gate d · l on =resolves= in their own predicate (ghost =textarea.jsx:22='s shape); a · p always; the sidebar =control= keeps his =attach…= key, its =a= row filtered. =<<= on his screen 11-17: a attach · p paste. Tests: anima =dictation= ok 6 · =call= ok 9; fail-once: the old filter reds 3 steps.
+
+Q35 (anima): no ear → =textarea.jsx= =DEAF= greys the mic (=parts.css= =.fk button.off=, the =.srow .sk.off= sibling), =title= names why: no thread · the mode has no harness · no hallucinator hears. Seen on his =:1794=: =opacity .45=. Tests: =dictation= ok 6 · =call= ok 9 (a =toEqual= of a DOM node vs =null= HUNG the old step); fail-once: 2 steps red. The tty: owed, it paints nothing (row 11).
+
+* found
+
+- =systems/anima/tests/textarea.test.js= red: its bundle imports =./panes/index.js= · =./renderers.js= · =./screen.js= (gone since m108); unfiled: =known-issues.org= over cap

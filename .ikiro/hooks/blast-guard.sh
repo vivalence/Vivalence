@@ -14,5 +14,5 @@ grep -qE -- '--include[= ]' <<<"$command" && filtered="--include"
 grep -qE 'grep[^|]*\|[[:space:]]*head\b' <<<"$command" && filtered="${filtered:+$filtered · }| head"
 [ -n "$filtered" ] || exit 0
 printf '%s blast-guard warn %s blast-filtered\n' "$(date +%s)" "$(jq -r '.session_id // "nosession"' <<<"$input")" >> "$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log" 2>/dev/null
-echo "blast-guard (warn): a recursive grep over a code root carries $filtered — a .jsx · .svelte · .json · .ts consumer can hide (m91: chassis.jsx). Blast every text type: grep -rnI … --exclude-dir=node_modules --exclude-dir=bak (skill change)." >&2
+jq -n --arg reason "blast-guard (warn): a recursive grep over a code root carries $filtered — a .jsx · .svelte · .json · .ts consumer can hide (m91: chassis.jsx). Blast every text type: grep -rnI … --exclude-dir=node_modules --exclude-dir=bak (skill change)." '{ hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: $reason } }'
 exit 0

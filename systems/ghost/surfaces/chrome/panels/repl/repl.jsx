@@ -1,7 +1,7 @@
 import { createEffect, For, from, Show } from "solid-js";
 import { useTerminalDimensions } from "@opentui/solid";
 import * as ambient from "../../ambient/index.js";
-import { completions, filled } from "../../../../gestalten/belt/completions.js";
+import { completions, filled } from "../../../../gestalten/belt/catalog.js";
 
 export const chorded = (chord) => chord.replaceAll("leader", "ctrl-v").replaceAll("/", " ");
 
@@ -18,7 +18,7 @@ export const ENTERS = [
 
 export const entered = (held) => ENTERS.find(([test]) => test(held))[1](held);
 
-function Composer(props) {
+function Input(props) {
   return (
     <box style={{ flexDirection: "row", height: 1, gap: 2, paddingLeft: 1, paddingRight: 1 }}>
       <text fg={props.palette.textStrong} style={{ flexShrink: 0 }}>
@@ -103,10 +103,7 @@ export function Repl(props) {
     app.bridge.$selected.set(0);
   };
   const faulted = (error) => terminal.controller.stdout.fault(error);
-  const submitted = (line) => {
-    drafted("");
-    return terminal.repl.dispatch(line).then(() => terminal.repl.dispatch("/repl/close")).catch(faulted);
-  };
+  const submitted = (typed) => terminal.repl.submit(typed).catch(faulted);
   const fill = (line) => (line.endsWith(" ") ? drafted(line) : submitted(line));
   const height = () => Math.min(12, Math.floor(dimensions().height / 3));
   const selected = () => Math.max(0, Math.min(chosen(), shown().length - 1));
@@ -119,7 +116,7 @@ export function Repl(props) {
   });
   return (
     <box style={{ flexDirection: "column", height: height(), flexShrink: 0, backgroundColor: props.palette.surfaceLift }}>
-      <Composer palette={props.palette} draft={draft()} focused={focus() === "composer"} onDraft={drafted} onSubmit={(line) => fill(entered({ line, shown: shown(), catalog: catalog(), selected: selected() }))} />
+      <Input palette={props.palette} draft={draft()} focused={focus() === "repl.input"} onDraft={drafted} onSubmit={(line) => fill(entered({ line, shown: shown(), catalog: catalog(), selected: selected() }))} />
       <Show when={shown().length > 0} fallback={<text fg={props.palette.textMuted}>{" ✕ nothing matches · enter sends it anyway"}</text>}>
         <scrollbox ref={rows} style={{ flexGrow: 1 }}>
           <For each={shown()}>{(completion, index) => <Completion

@@ -14,9 +14,15 @@ const natures = (node, steps = []) => [
 
 const LAWFUL = ["/help", "/quit", "/modes", "/mode", "/*"];
 
+const docked = (runtime, terminal) => {
+  runtime.lighthouse = { user: { trait: {} } };
+  runtime.entities.terminal = { $entities: atom([terminal]), updateOne: async (where, data) => Object.assign(terminal, data) };
+  return Object.assign(terminal, { runtime, traits: [], trait: {} });
+};
+
 const seated = async (client, id) => {
   await control.controlled(client.controller);
-  return Object.assign(new ghost.terminal.Terminal(), { id, index: 0, client, runtime: client.runtime, controller: client.controller.branch(`terminal/${id}`) });
+  return docked(client.runtime, Object.assign(new ghost.terminal.Terminal(), { id, index: 0, client, controller: client.controller.branch(`terminal/${id}`) }));
 };
 
 const on = (tty, read) => {
@@ -29,9 +35,19 @@ const on = (tty, read) => {
   }
 };
 
+const during = async (tty, run) => {
+  const isTerminal = Deno.stdin.isTerminal;
+  Deno.stdin.isTerminal = () => tty;
+  try {
+    return await run();
+  } finally {
+    Deno.stdin.isTerminal = isTerminal;
+  }
+};
+
 specimen.describe("repl — a line runs on the terminal's Repl; its records land on the client's span; the tail is what a surface paints", () => {
   const root = new Controller({ stdout: new Span("ghost") });
-  const mask = { manifest: { type: "client", slug: "ghost", traits: [] }, reference: new Path("/client/ghost"), modes: [] };
+  const mask = { manifest: { type: "client", slug: "ghost", traits: [] }, reference: new Path("/client/ghost"), modes: [], trait: {} };
   const client = new ghost.client.Client({ controller: root.branch("client"), mask, register: { modes: [] }, instance: null });
   const held = steer.dispatch.execute(execution, client);
   client.runtime = { entities: { mode: { $entities: atom([]) } } };
@@ -40,7 +56,8 @@ specimen.describe("repl — a line runs on the terminal's Repl; its records land
 
   specimen.it("/help on a tty answers with the whole of terminal.repl.commands — the client's with the tty's /quit, the terminal's; no app, none of the app's", async () => {
     terminal = await seated(client, "t1");
-    await on(true, () => terminal.repl.dispatch("/help"));
+    await during(true, () => terminal.repl.dispatch("/help"));
+    specimen.expect(terminal.dock.lens).toEqual(["turns", "harness"]);
     specimen.expect(tracks(tail)).toEqual(["log"]);
     const listed = natures(tail.get().at(-1).data);
     specimen.expect(listed).toEqual(on(true, () => natures(shape.strip(terminal.repl.commands))));
@@ -70,6 +87,7 @@ specimen.describe("repl — a line runs on the terminal's Repl; its records land
     const probe = { type: "home", slug: "probe", repl: new Vector().open({ nature: "/ping", valence: "the mode answers. Example: /ping" }, () => "pong") };
     terminal.$thread.set({ mode: probe, $buffers: atom([{ id: "b1" }]), $phase: atom("manual") });
     specimen.expect(await terminal.repl.dispatch("/ping")).toBe("pong");
+    specimen.expect(tail.get().at(-1)).toMatchObject({ track: "log", data: "pong", path: ["ghost", "client", "terminal/t1", "/ping"] });
     probe.repl.open({ nature: "/late", valence: "wired after the mode was attached. Example: /late" }, () => "late");
     specimen.expect(await terminal.repl.dispatch("/late")).toBe("late");
     specimen.expect(natures(shape.strip(terminal.repl.commands))).not.toContain("/mode/home/probe/ping");
@@ -87,7 +105,7 @@ specimen.describe("repl — a line runs on the terminal's Repl; its records land
     client.app = new ghost.app.App({ client });
     const shown = on(true, () => natures(shape.strip(terminal.repl.commands)));
     client.app = null;
-    specimen.expect(shown.filter((nature) => !headless.includes(nature))).toEqual(["/filter", "/filter/close", "/filter/expand", "/filter/pick", "/filter/daemon", "/filter/trait", "/focus", "/popover", "/popover/close", "/repl", "/repl/close", "/repl/next", "/repl/previous", "/repl/complete", "/sidebar", "/sidebar/toggle", "/sidebar/width", "/telemetry", "/telemetry/clear", "/terminal", "/terminal/new", "/terminal/close", "/terminal/close/:id", "/theme/set", "/widget/toggle/close", "/widget/toggle/sidebar", "/widget/toggle/entity", "/widget/toggle/display", "/widget/toggle/system", "/widget/toggle/dock", "/widgets/close"]);
+    specimen.expect(shown.filter((nature) => !headless.includes(nature))).toEqual(["/filter", "/filter/close", "/filter/expand", "/filter/pick", "/filter/daemon", "/filter/trait", "/focus", "/font/set", "/popover", "/popover/close", "/repl", "/repl/close", "/repl/complete", "/sidebar", "/sidebar/toggle", "/sidebar/width", "/telemetry", "/telemetry/clear", "/inspector", "/terminal", "/terminal/new", "/terminal/close", "/terminal/close/:id", "/theme/set", "/widget/toggle/close", "/widget/toggle/sidebar", "/widget/toggle/entity", "/widget/toggle/display", "/widget/toggle/system", "/widget/toggle/dock", "/widgets/close"]);
     specimen.expect(on(true, () => natures(shape.strip(terminal.repl.commands)))).toEqual(headless);
   });
 

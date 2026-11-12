@@ -1,3 +1,4 @@
+import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { specimen, Controller, soma, v, Url, Connection, Cortex, Vector, cortex, shard, shape } from "@vivalence/typology";
 import { gestalten } from "@vivalence/runtime";
 import { create } from "./scenarios/cortex.js";
@@ -29,7 +30,7 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
       shard.transmitter.inline(shape.http(daemon.aperture)),
     );
     const strip = await connection.call("/metadata/cortex");
-    remote = new Cortex().register(cortex.wire(connection.branch("/cortex"), strip));
+    remote = new Cortex(TIER_POINTS).register(cortex.wire(connection.branch("/cortex"), strip));
   });
 
   specimen.afterAll(async () => {
@@ -65,8 +66,8 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
         policy: { tier: "unleashed" },
         turns: [{ role: "user", parts: [{ type: "text", text: "casa" }] }],
       });
-      specimen.expect(folded.output.message).toMatch(/\[opus\]/);
-      specimen.expect(folded.output.message).toContain("casa");
+      specimen.expect(folded.product.message).toMatch(/\[opus\]/);
+      specimen.expect(folded.product.message).toContain("casa");
     });
 
     specimen.it("balanced resolves sonnet (exact tune re-resolved daemon-side)", async () => {
@@ -75,7 +76,7 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
         policy: { tier: "balanced" },
         turns: [{ role: "user", parts: [{ type: "text", text: "hola" }] }],
       });
-      specimen.expect(folded.output.message).toMatch(/\[sonnet\]/);
+      specimen.expect(folded.product.message).toMatch(/\[sonnet\]/);
     });
   });
 
@@ -108,7 +109,7 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
         tools,
       });
       specimen.expect(ran).toBe(true);
-      specimen.expect(folded.output.message).toContain("[opus]");
+      specimen.expect(folded.product.message).toContain("[opus]");
       specimen.expect(folded.meta.state).toBe("complete");
     });
   });
@@ -121,7 +122,7 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
         turns: [{ role: "user", parts: [{ type: "text", text: "casa" }] }],
         output: { schema: v.object({ query: v.string() }) },
       });
-      specimen.expect(folded.output.object).toEqual({ query: "casa" });
+      specimen.expect(folded.product.object).toEqual({ query: "casa" });
     });
   });
 });

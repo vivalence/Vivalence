@@ -21,13 +21,13 @@ export function metronome(script, type = "dialogue") {
           { event: "/turn/open", turn: { role: "assistant" } },
           { event: "/part/open", index: 0, part: { type: "tool_use", ...step.tool } },
           { event: "/part/close", index: 0 },
-          { event: "/turn/close", meta: { state: "tools" } },
+          { event: "/turn/close", turn: { meta: { state: "tools" } } },
         ]]
       : step.deltas
         ? Array.from({ length: step.deltas }, (_, index) => [
             ...(index === 0 ? [{ event: "/turn/open", turn: { role: "assistant" } }, { event: "/part/open", index: 0, part: { type: "text", text: "" } }] : []),
-            { event: "/part/delta", index: 0, delta: { text: "." } },
-            ...(index === step.deltas - 1 ? [{ event: "/part/close", index: 0 }, { event: "/turn/close", meta: { state: step.state ?? "complete" } }] : []),
+            { event: "/part/delta", index: 0, part: { text: "." } },
+            ...(index === step.deltas - 1 ? [{ event: "/part/close", index: 0 }, { event: "/turn/close", turn: { meta: { state: step.state ?? "complete" } } }] : []),
           ])
         : step.packets.map((packet) => [packet]);
   async function* stream(request, { signal } = {}) {
@@ -50,7 +50,7 @@ export function metronome(script, type = "dialogue") {
     faculty: {
       type,
       id: `metronome-${type}`,
-      tune: [0.5, 0.5, 0.5, 0.5],
+      tune: [0.5, 0.5, 0.5],
       channels: { in: ["text"], out: ["text"] },
       via: { stream, render: (request, options) => collect(stream(request, options)) },
     },

@@ -9,6 +9,7 @@ export const ICONS = {
   up: '<path d="M8 13V3M3.5 7.5 8 3l4.5 4.5"></path>',
   chev2: '<path d="M8 3.5 3.5 8 8 12.5M12.5 3.5 8 8l4.5 4.5"></path>',
   stop: '<rect x="4" y="4" width="8" height="8" rx="1"></rect>',
+  trash: '<path d="M3.25 4.75h9.5M6.5 4.75v-2h3v2M4.75 4.75l.75 8.5h5l.75-8.5"></path>',
   minimize: '<path d="M3.5 11.5h9"></path>',
   restore: '<rect x="3" y="3.5" width="10" height="9" rx="1"></rect><path d="M3 6.5h10"></path>',
   find: '<circle cx="7" cy="7" r="4.5"></circle><path d="M10.5 10.5 14 14"></path>',
@@ -35,8 +36,7 @@ export const Icon = (props) => {
   const held = mergeProps({ size: 16 }, props);
   return (
     <svg
-      width={held.size}
-      height={held.size}
+      style={`width:${held.size / 16}rem;height:${held.size / 16}rem`}
       viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"

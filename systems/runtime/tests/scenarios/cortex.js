@@ -1,10 +1,11 @@
+import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { Aperture, contexts, Cortex, Mode, Path, shard, Twitch, Vector } from "@vivalence/typology";
 import { seed, tiers, faculties } from "./fixtures.js";
 
 import { traits } from "@vivalence/runtime";
 const { HARNESSED } = traits.mode;
 
-export async function create({ harness } = {}) {
+export async function create({ harness, faculties: extra = [] } = {}) {
   const { orm, em, datamap, entities, runtime, twitch, fixtures, held } = await seed();
 
   const deweyEntity = entities.mode.create({
@@ -16,7 +17,7 @@ export async function create({ harness } = {}) {
   });
   await em.flush();
 
-  const cortex = new Cortex().register(faculties());
+  const cortex = new Cortex(TIER_POINTS).register([...faculties(), ...extra]);
 
   const dewey = new Mode({
     manifest: { type: "teacher", slug: "dewey", traits: ["EXPOSED", "HARNESSED"] },

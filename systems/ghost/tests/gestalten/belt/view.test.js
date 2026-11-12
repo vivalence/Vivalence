@@ -2,8 +2,8 @@ import { crypto, mime, specimen, Url } from "@vivalence/typology";
 import { atom } from "nanostores";
 import * as ghost from "@vivalence/ghost";
 
-// m87 law 3 · 5 · 9 on the client side — the pin, else the mode's View rows (Q10′), unfiltered: each chrome keeps what it runs; the pick compiled first;
-// bytes proven twice (the header and the row) before a module is imported from a blob; a real Deno.serve on a free port
+// m87 law 3 · 5 · 9 on the client side — the pin, else the mode's View rows (Q10′), unfiltered: each chrome keeps what it runs; the pick the first (m120 Q8);
+// bytes proven twice (the header and the row); a view loads by its id, a held fingerprint answers 304 (m120 Q5); a real Deno.serve on a free port
 
 const MODULE = "export default (target) => `mounted ${target}`;\n";
 const TAMPERED = "export default () => 'tampered';\n";
@@ -12,6 +12,7 @@ let server;
 let attach;
 let integrity;
 let lying;
+const answered = [];
 
 const file = (id, path, type, held) => ({ id, path, mime: type, integrity: held });
 const view = (slug, type, entryPath, files) => ({ id: `v-${slug}`, slug, mime: type, entry: entryPath, files });
@@ -25,6 +26,15 @@ specimen.describe("ghost belt/view — candidates · pick · entry · bytes · l
       if (pathname === "/attached/file/f-play") return new Response(MODULE, { headers: { "content-type": mime.javascript, "x-viva-integrity": integrity } });
       if (pathname === "/attached/file/f-lying") return new Response(MODULE, { headers: { "content-type": mime.javascript, "x-viva-integrity": lying } });
       if (pathname === "/attached/file/f-tampered") return new Response(TAMPERED, { headers: { "content-type": mime.javascript, "x-viva-integrity": integrity } });
+      if (pathname === "/attached/view/v-play" && request.headers.get("if-none-match") === `"${integrity}"`) {
+        answered.push(304);
+        return new Response(null, { status: 304, headers: { etag: `"${integrity}"`, "x-viva-integrity": integrity } });
+      }
+      if (pathname === "/attached/view/v-play") {
+        answered.push(200);
+        return new Response(MODULE, { headers: { "content-type": mime.javascript, etag: `"${integrity}"`, "x-viva-integrity": integrity } });
+      }
+      if (pathname === "/attached/view/v-bad") return new Response(TAMPERED, { headers: { "content-type": mime.javascript, "x-viva-integrity": integrity } });
       return new Response("nope", { status: 404 });
     });
     const url = new Url(`http://127.0.0.1:${server.addr.port}/attached`);
@@ -53,12 +63,12 @@ specimen.describe("ghost belt/view — candidates · pick · entry · bytes · l
     specimen.expect(shipped.get()).toEqual([play, pulse]);
   });
 
-  specimen.it("pick takes a compiled entry over a source, the first of equals, and leaves its list unsorted; none, undefined; entry fails loud without its file", () => {
-    const source = view("source", mime.tty.solid, "a.jsx", [file("2", "a.jsx", mime.tty.solid, "x")]);
+  specimen.it("pick takes the first, a view without its File too, and leaves its list unsorted; none, undefined; entry fails loud without its file", () => {
+    const unbuilt = view("unbuilt", mime.tty.solid, "bundle/unbuilt.tty.solid.mjs", []);
     const built = view("built", mime.tty.solid, "a.mjs", [file("3", "a.mjs", mime.javascript, "x")]);
-    const listed = [source, built];
-    specimen.expect(ghost.belt.view.pick(listed).slug).toBe("built");
-    specimen.expect(listed.map((held) => held.slug)).toEqual(["source", "built"]);
+    const listed = [unbuilt, built];
+    specimen.expect(ghost.belt.view.pick(listed).slug).toBe("unbuilt");
+    specimen.expect(listed.map((held) => held.slug)).toEqual(["unbuilt", "built"]);
     specimen.expect(ghost.belt.view.pick([])).toBe(undefined);
     specimen.expect(ghost.belt.view.entry(built).id).toBe("3");
     specimen.expect(() => ghost.belt.view.entry(view("lost", mime.tty.solid, "gone.js", [file("4", "a.js", mime.javascript, "x")]))).toThrow(/lost: no file at its entry gone\.js — its files: a\.js/);
@@ -74,11 +84,13 @@ specimen.describe("ghost belt/view — candidates · pick · entry · bytes · l
     await specimen.expect(ghost.belt.view.bytes({ id: "f-missing" }, attach)).rejects.toThrow(/\/attached\/file\/f-missing: 404/);
   });
 
-  specimen.it("load imports the entry from a blob and memoizes the module by integrity; a tampered entry never loads", async () => {
-    const play = view("play", mime.tty.solid, "board.js", [file("f-play", "board.js", mime.javascript, integrity)]);
+  specimen.it("load fetches the view by id, imports it from a blob; again, it sends the fingerprint and a 304 keeps the module; a tampered view or a 404 never loads", async () => {
+    const play = view("play", mime.tty.solid, "bundle/play.tty.solid.mjs", []);
     const module = await ghost.belt.view.load(play, attach);
     specimen.expect(module.default("cell")).toBe("mounted cell");
-    specimen.expect(await ghost.belt.view.load({ ...play, id: "v-other", files: [file("f-missing", "board.js", mime.javascript, integrity)] }, attach)).toBe(module);
-    await specimen.expect(ghost.belt.view.load(view("bad", mime.tty.solid, "board.js", [file("f-tampered", "board.js", mime.javascript, lying)]), attach)).rejects.toThrow(/sha256/);
+    specimen.expect(await ghost.belt.view.load(play, attach)).toBe(module);
+    specimen.expect(answered).toEqual([200, 304]);
+    await specimen.expect(ghost.belt.view.load(view("bad", mime.tty.solid, "bundle/bad.tty.solid.mjs", []), attach)).rejects.toThrow(/sha256/);
+    await specimen.expect(ghost.belt.view.load(view("gone", mime.tty.solid, "bundle/gone.tty.solid.mjs", []), attach)).rejects.toThrow(/\/attached\/view\/v-gone: 404/);
   });
 });

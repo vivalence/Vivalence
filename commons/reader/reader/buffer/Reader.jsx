@@ -16,6 +16,9 @@ import { dwell, pivot, sentence, sentences, span, tokens } from "./pace.js";
 import sheet from "./reader.css";
 
 const SWIPE = 110;
+const SLOP = 14;
+const FLICK = 0.6;
+const GLIDE = "cubic-bezier(.16, 1, .3, 1)";
 const UNITS = ["sentence", "block", "section"];
 const STYLES = ["word", "chunk", "pacer"];
 const PAUSES = ["off", "light", "strong"];
@@ -116,6 +119,9 @@ const PdfScreen = (props) => (
       <span class="kit-label">read by</span>
       <div class="kit-choice">
         <button aria-pressed={String(props.options.reader === "text")} onClick={() => props.set({ reader: "text" })}>text</button>
+        <Show when={props.options.scannable}>
+          <button aria-pressed={String(props.options.reader === "ocr")} onClick={() => props.set({ reader: "ocr" })}>ocr</button>
+        </Show>
         <Show when={props.readable()}>
           <button aria-pressed={String(props.options.reader === "model")} onClick={() => props.set({ reader: "model" })}>model</button>
         </Show>
@@ -168,6 +174,7 @@ export const Reader = (props) => {
   const [parsing, setParsing] = createSignal(null);
   const [steps, setSteps] = createSignal([]);
   const [failed, setFailed] = createSignal(false);
+  const [shelved, setShelved] = createSignal(false);
   const [open, setOpen] = createSignal(false);
   const [listing, setListing] = createSignal(false);
   let toggle;
@@ -195,6 +202,8 @@ export const Reader = (props) => {
     onCleanup(() => document.removeEventListener("pointerdown", closed));
   });
   const [drag, setDrag] = createSignal(null);
+  const [gone, setGone] = createSignal([]);
+  const [revisited, setRevisited] = createSignal([]);
   let scroller;
   let swipe = null;
 
@@ -250,10 +259,21 @@ export const Reader = (props) => {
   };
 
   const block = (id) => blocks().find((candidate) => candidate.id === id);
-  const live = createMemo(() => blocks().filter((candidate) => !candidate.done).map((candidate) => candidate.id));
+  const live = createMemo(() =>
+    blocks()
+      .filter((candidate) => !candidate.done && !gone().includes(candidate.id))
+      .map((candidate) => candidate.id));
+  const visible = createMemo(() =>
+    blocks()
+      .filter((candidate) => live().includes(candidate.id) || revisited().includes(candidate.id))
+      .map((candidate) => candidate.id));
   const left = () => blocks().filter((candidate) => !candidate.done);
 
-  const [buffers] = createResource(() => props.buffer.mode.entities.buffer.find({}), { initialValue: [] });
+  const [buffers, shelf] = createResource(() => props.buffer.mode.entities.buffer.find({}), { initialValue: [] });
+  const back = () => {
+    setShelved(true);
+    return shelf.refetch();
+  };
   const reading = () => buffers()
     .map((buffer) => ({ buffer, data: Reading.cast(buffer.data) }))
     .filter((entry) => entry.data.article !== null);
@@ -273,6 +293,7 @@ export const Reader = (props) => {
       for await (const packet of packets) setSteps((seen) => [...seen, packet]);
       await props.terminal.client.runtime.entities.buffer.find({ id: props.buffer.id });
       setParsing(null);
+      setShelved(false);
       setAddress("");
     } catch (error) {
       console.error("[reader] take", error);
@@ -384,39 +405,107 @@ export const Reader = (props) => {
     return settings().pace === "block" ? step(event) : play();
   };
 
+  const resisted = (travel) =>
+    Math.abs(travel) <= SWIPE
+      ? travel
+      : Math.sign(travel) * (SWIPE + (Math.abs(travel) - SWIPE) * 0.35);
+
+  const glide = (article, change) => {
+    const firsts = new Map(
+      [...article.children].map((node) => [node, node.getBoundingClientRect().top]),
+    );
+    change();
+    for (const [node, top] of firsts) {
+      if (!node.isConnected) continue;
+      const delta = top - node.getBoundingClientRect().top;
+      if (delta === 0) continue;
+      node.animate(
+        [{ transform: `translateY(${delta}px)` }, { transform: "none" }],
+        { duration: 320, easing: GLIDE },
+      );
+    }
+  };
+
+  const leave = async (swiped) => {
+    const width = Math.sign(swiped.dx) * swiped.element.offsetWidth;
+    await swiped.element.querySelector(".txt").animate(
+      [{ transform: `translateX(${width}px)`, opacity: 0 }],
+      { duration: 200, easing: "cubic-bezier(.25, .8, .5, 1)", fill: "forwards" },
+    ).finished;
+    const read = block(swiped.id).done;
+    glide(swiped.element.parentElement, () => {
+      setGone([...gone(), swiped.id]);
+      setRevisited(revisited().filter((id) => id !== swiped.id));
+    });
+    setDrag(null);
+    try {
+      if (!read) await finish([swiped.id]);
+    } finally {
+      setGone(gone().filter((id) => id !== swiped.id));
+    }
+  };
+
+  const revisit = (id) => {
+    const article = scroller.querySelector(".rd-art");
+    if (revisited().includes(id)) {
+      return glide(article, () => setRevisited(revisited().filter((candidate) => candidate !== id)));
+    }
+    glide(article, () => setRevisited([...revisited(), id]));
+    reveal(id);
+  };
+
   const down = (event, id) => {
     if (event.button > 0) return;
     if (event.target.closest("button, a, input")) return;
-    swipe = { id, x: event.clientX, y: event.clientY, live: false, pointer: event.pointerId, element: event.currentTarget };
+    swipe = {
+      id,
+      x: event.clientX,
+      y: event.clientY,
+      dx: 0,
+      at: event.timeStamp,
+      velocity: 0,
+      armed: false,
+      live: false,
+      pointer: event.pointerId,
+      element: event.currentTarget,
+    };
   };
   const move = (event) => {
     if (swipe === null) return;
     const dx = event.clientX - swipe.x;
     const dy = event.clientY - swipe.y;
     if (!swipe.live) {
-      if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) {
-        swipe = null;
+      if (Math.abs(dx) < SLOP || Math.abs(dx) < 2 * Math.abs(dy)) {
+        if (Math.abs(dy) > 10) swipe = null;
         return;
       }
-      if (Math.abs(dx) < 12) return;
       swipe.live = true;
+      swipe.x += Math.sign(dx) * SLOP;
       swipe.element.setPointerCapture(swipe.pointer);
       getSelection().removeAllRanges();
     }
-    setDrag({ id: swipe.id, dx, live: true });
+    const travel = event.clientX - swipe.x;
+    swipe.velocity = (travel - swipe.dx) / Math.max(1, event.timeStamp - swipe.at);
+    swipe.dx = travel;
+    swipe.at = event.timeStamp;
+    const armed = Math.abs(travel) > SWIPE;
+    if (armed !== swipe.armed && "vibrate" in navigator) navigator.vibrate(8);
+    swipe.armed = armed;
+    setDrag({ id: swipe.id, dx: resisted(travel), armed, live: true });
   };
-  const up = (event) => {
+  const up = () => {
     const ended = swipe;
     swipe = null;
     if (ended === null || !ended.live) return;
-    const dx = event.clientX - ended.x;
-    if (Math.abs(dx) > SWIPE) {
-      setDrag({ id: ended.id, dx: dx > 0 ? 900 : -900, live: false });
-      setTimeout(() => done(ended.id), 200);
-      return;
-    }
-    setDrag({ id: ended.id, dx: 0, live: false });
-    setTimeout(() => setDrag(null), 220);
+    const flung = Math.abs(ended.velocity) > FLICK
+      && Math.sign(ended.velocity) === Math.sign(ended.dx)
+      && Math.abs(ended.dx) > SWIPE / 3;
+    if (ended.armed || flung) return leave(ended);
+    setDrag(null);
+  };
+  const cancel = () => {
+    swipe = null;
+    setDrag(null);
   };
   const dragged = (id) => (drag() !== null && drag().id === id ? drag() : null);
   const shift = (id) => (dragged(id) === null ? 0 : dragged(id).dx);
@@ -426,6 +515,25 @@ export const Reader = (props) => {
     if (link === null) return;
     event.preventDefault();
     window.open(link.href, "_blank", "noopener");
+  };
+  const [scrolled, setScrolled] = createSignal(false);
+  const [near, setNear] = createSignal(false);
+  const neared = (event) => setNear(event.clientY - event.currentTarget.getBoundingClientRect().top < 150);
+  const [framed, setFramed] = createSignal(new Set());
+  const sighted = (entries) =>
+    setFramed((before) => {
+      const after = new Set(before);
+      for (const entry of entries) after[entry.isIntersecting ? "add" : "delete"](entry.target.id);
+      return after;
+    });
+  const watcher = new IntersectionObserver(sighted);
+  onCleanup(() => watcher.disconnect());
+  const watched = (section) => {
+    watcher.observe(section);
+    onCleanup(() => {
+      watcher.unobserve(section);
+      sighted([{ isIntersecting: false, target: section }]);
+    });
   };
   const reveal = (id) => scroller.querySelector(`[id="blk-${id}"]`).scrollIntoView({ block: "center", behavior: "smooth" });
 
@@ -504,8 +612,8 @@ export const Reader = (props) => {
   return (
     <div class="kit rd-root">
       <div class="rd-body">
-        <main class="rd-frame">
-          <Show when={held().article === null && held().intake === null && parsing() === null}>
+        <main class="rd-frame" onPointerMove={neared} onPointerLeave={() => setNear(false)}>
+          <Show when={(held().article === null || shelved()) && held().intake === null && parsing() === null}>
             <div
               class="rd-empty"
               classList={{ "is-over": over() }}
@@ -539,7 +647,13 @@ export const Reader = (props) => {
                     <span class="kit-label">currently reading</span>
                     <For each={reading()}>
                       {(entry) => (
-                        <button class="rd-rec" onClick={() => props.terminal.repl.dispatch(`/thread ${entry.buffer.thread.id}`)}>
+                        <button
+                          class="rd-rec"
+                          onClick={() => {
+                            setShelved(false);
+                            return props.terminal.repl.dispatch(`/thread ${entry.buffer.thread.id}`);
+                          }}
+                        >
                           <span class="sign">◆</span>
                           <span class="t">{entry.data.article.title}</span>
                           <span />
@@ -584,8 +698,14 @@ export const Reader = (props) => {
             <Intake />
           </Show>
 
-          <Show when={held().article !== null && held().intake === null && parsing() === null}>
-            <div class="rd-top">
+          <Show when={held().article !== null && !shelved() && held().intake === null && parsing() === null}>
+            <div class="rd-top" classList={{ "is-away": scrolled() && !near() }}>
+              <button class="kit-seg" aria-label="back" title="back" onClick={back}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <path d="M4 11l8-7 8 7" />
+                  <path d="M6 9.5V20h4.5v-6h3v6H18V9.5" />
+                </svg>
+              </button>
               <span class="kit-dot is-healthy" />
               <Show when={held().article.url !== null} fallback={<span class="src">{held().article.title}</span>}>
                 <a class="src" href={held().article.url} target="_blank" rel="noopener noreferrer" title={held().article.url}>{sourced(held().article.url)}</a>
@@ -674,6 +794,11 @@ export const Reader = (props) => {
                     {(width) => <button aria-pressed={String(settings().width === width)} onClick={() => set({ width })}>{width}</button>}
                   </For>
                 </div>
+                <span class="kit-label">sidebar</span>
+                <div class="kit-choice">
+                  <button aria-pressed={String(settings().rail)} onClick={() => set({ rail: true })}>shown</button>
+                  <button aria-pressed={String(!settings().rail)} onClick={() => set({ rail: false })}>hidden</button>
+                </div>
                 <Show when={settings().pace === "block"}>
                   <span class="kit-label">step</span>
                   <div class="kit-choice">
@@ -720,21 +845,30 @@ export const Reader = (props) => {
 
             <Show when={book()} fallback={<div class="rd-empty"><span class="kit-label">opening the book…</span></div>}>
               <div class="rd-mid">
+                <Show when={settings().rail}>
                 <nav class="rd-rail" aria-label="blocks">
                   <For each={blocks()}>
                     {(cell) => (
                       <button
                         class="rd-cell"
-                        classList={{ "is-done": cell.done, "is-media": !cell.done && cell.kind === "image" }}
+                        classList={{
+                          "is-done": cell.done,
+                          "is-media": !cell.done && cell.kind === "image",
+                          "is-framed": framed().has(`blk-${cell.id}`),
+                        }}
                         aria-label={`${cell.id} · ${cell.kind}${cell.done ? " · done" : ""}`}
-                        onClick={() => { if (!cell.done && settings().face === "reader" && settings().pace === "scroll") reveal(cell.id); }}
+                        onClick={() => {
+                          if (settings().face !== "reader" || settings().pace !== "scroll") return;
+                          return cell.done ? revisit(cell.id) : reveal(cell.id);
+                        }}
                       />
                     )}
                   </For>
                   <span class="lbl">{left().length} left · {minutes(left(), settings().pace === "speed" ? settings().wpm : 200)} min</span>
                 </nav>
+                </Show>
 
-                <div class="rd-scroll" ref={scroller}>
+                <div class="rd-scroll" ref={scroller} onScroll={(event) => setScrolled(event.currentTarget.scrollTop > 10)}>
                   <Show when={settings().face === "reader" && settings().pace !== "scroll"}>
                     <div class="rd-sheet f-reader rd-paced" classList={{ "is-speed": settings().pace === "speed" }} role="button" tabindex="0" onClick={paced}>
                       <article
@@ -828,21 +962,23 @@ export const Reader = (props) => {
                               style={{ "--rd-size": `${settings().size}px`, "--rd-lh": LEADING[settings().leading], "--rd-measure": WIDTH[settings().width] }}
                               onClick={follow}
                             >
-                              <For each={live()}>
+                              <For each={visible()}>
                                 {(id) => (
                                   <section
                                     classList={{
                                       blk: true,
                                       [`k-${block(id).kind}`]: true,
+                                      "is-done": block(id).done,
                                       "is-drag": dragged(id) !== null && dragged(id).live,
-                                      "is-armed": dragged(id) !== null && dragged(id).live && Math.abs(shift(id)) > SWIPE,
+                                      "is-armed": dragged(id) !== null && dragged(id).armed,
                                     }}
                                     id={`blk-${id}`}
-                                    style={{ transform: `translateX(${shift(id)}px)`, opacity: Math.max(0.2, 1 - Math.abs(shift(id)) / 520).toFixed(2) }}
+                                    ref={watched}
+                                    style={{ "--dx": `${shift(id)}px` }}
                                     onPointerDown={(event) => down(event, id)}
                                     onPointerMove={move}
                                     onPointerUp={up}
-                                    onPointerCancel={up}
+                                    onPointerCancel={cancel}
                                   >
                                     <div class="acts r">
                                       <button class="act done" aria-label={`done with ${id}`} onClick={() => done(id)}>
@@ -851,7 +987,7 @@ export const Reader = (props) => {
                                         </svg>
                                       </button>
                                     </div>
-                                    <div innerHTML={block(id).html} />
+                                    <div class="txt" innerHTML={block(id).html} />
                                   </section>
                                 )}
                               </For>
@@ -891,11 +1027,52 @@ export const Reader = (props) => {
   );
 };
 
+const Fault = (props) => (
+  <div class="kit rd-root">
+    <div class="rd-body">
+      <main class="rd-frame">
+        <div class="rd-empty">
+          <div class="rd-load" role="alert">
+            <div class="head">
+              <span class="src">buffer.data is not a Reading</span>
+            </div>
+            <For each={props.faults}>
+              {(fault) => (
+                <div class="rd-step-row is-failed" title={`${fault.instancePath} ${fault.message}`}>
+                  <span class="kit-dot is-fault" />
+                  <span class="n">{fault.instancePath}</span>
+                  <span class="v">{fault.message}</span>
+                </div>
+              )}
+            </For>
+            <button class="kit-seg" style="align-self: flex-start" onClick={props.wipe}>wipe</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+);
+
+const Held = (props) => {
+  const stored = from(props.buffer.$data);
+  const faults = createMemo(() => [...Reading.errors(Reading.cast(stored()))]);
+  const wipe = () =>
+    props.terminal.client.runtime.entities.buffer.updateOne(
+      { id: props.buffer.id },
+      { data: Reading.cast({}) },
+    );
+  return (
+    <Show when={faults().length === 0} fallback={<Fault faults={faults()} wipe={wipe} />}>
+      <Reader {...props} />
+    </Show>
+  );
+};
+
 export default (element, props) => {
   const shadow = element.attachShadow({ mode: "open" });
   const style = document.createElement("style");
   style.textContent = sheet;
   shadow.append(style);
-  const dispose = render(() => <Reader {...props} />, shadow);
+  const dispose = render(() => <Held {...props} />, shadow);
   return { destroy: dispose };
 };

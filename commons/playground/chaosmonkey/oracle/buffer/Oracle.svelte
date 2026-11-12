@@ -51,7 +51,7 @@
       call.log({ request });
       const render = await buffer.mode.daemon.cortex.hallucinate.object.render(request);
       call.log({ render });
-      assistant.set(render.output?.object?.answer ?? "");
+      assistant.set(render.product?.object?.answer ?? "");
     } catch (error) {
       call.fault(error);
       assistant.set(`… the oracle falters: ${error.message}`);
@@ -73,7 +73,7 @@
         output: v.object({ answer: v.string() }),
       });
       call.log({ render });
-      assistant.set(render?.output?.object?.answer ?? "");
+      assistant.set(render?.product?.object?.answer ?? "");
     } catch (error) {
       call.fault(error);
       assistant.set(`… ${error.message}`);
@@ -124,8 +124,8 @@
       let text = "";
       let tokens = 0;
       for await (const packet of source) {
-        if (packet.event === "/part/delta" && packet.delta?.text) {
-          text += packet.delta.text;
+        if (packet.event === "/part/delta" && packet.part.text) {
+          text += packet.part.text;
           assistant.set(text);
           tokens += 1;
         } else {
@@ -213,7 +213,7 @@
           parts: [{ type: "text", text: flags }],
         });
         for await (const packet of packets) {
-          if (packet.event === "/part/delta" && packet.delta?.text) assistant.set((text += packet.delta.text));
+          if (packet.event === "/part/delta" && packet.part.text) assistant.set((text += packet.part.text));
           else call.log({ event: packet.event });
         }
       })().catch((error) => {

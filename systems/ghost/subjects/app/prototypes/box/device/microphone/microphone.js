@@ -1,5 +1,9 @@
 import { atom } from "nanostores";
-import { Pipe } from "@vivalence/typology";
+import paladin from "@vivalence/paladin";
+import { belt, pcm, Pipe } from "@vivalence/typology";
+import { samples } from "./recorder.js";
+
+const RATE = 16000;
 
 const SPEAKING_THRESHOLD = 0.02;
 const SPEAKING_RISE_MS = 100;
@@ -13,13 +17,26 @@ export class Microphone {
   $speaking = atom(false);
   $paused = atom(false);
   in = new Pipe();
+  feed = null;
+  recorder = {
+    command: "ffmpeg",
+    args: [
+      "-loglevel", "error",
+      "-f", "avfoundation",
+      "-i", ":default",
+      "-ar", String(RATE),
+      "-ac", "1",
+      "-f", "f32le",
+      "-",
+    ],
+  };
+  rate = null;
   stream = null;
   source = null;
   worklet = null;
   analyser = null;
   raf = null;
   inflight = null;
-  audioUnsubscribe = null;
   riseSince = 0;
   fallSince = 0;
 
@@ -38,7 +55,7 @@ export class Microphone {
   async claim() {
     if (this.$claimed.get()) return;
     if (this.inflight) return this.inflight;
-    this.inflight = acquire(this);
+    this.inflight = (paladin.is.browser ? acquire : record)(this);
     try {
       await this.inflight;
     } finally {
@@ -46,8 +63,16 @@ export class Microphone {
     }
   }
 
-  release() {
-    teardown(this, null);
+  release(exit) {
+    teardown(this, null, exit);
+  }
+
+  async *frames(signal = this.feed.signal) {
+    let pts = 0;
+    for await (const samples of this.in.drain(signal)) {
+      yield { event: "/audio/packet", pts, audio: { data: pcm.encode(samples), rate: this.rate } };
+      pts += samples.length / this.rate;
+    }
   }
 
   pause() {
@@ -84,12 +109,13 @@ async function acquire(microphone) {
     microphone.analyser.fftSize = 256;
     microphone.source.connect(microphone.worklet);
     microphone.source.connect(microphone.analyser);
-    microphone.audioUnsubscribe = driver.$state.subscribe((state) => {
-      if (state === "closed" && microphone.$claimed.get()) {
-        teardown(microphone, new Error("audio context closed"));
-      }
-    });
     pollLevel(microphone);
+    microphone.feed = new AbortController();
+    belt.atom.until(driver.$state, (state) => state === "closed", microphone.feed.signal).then(
+      () => teardown(microphone, new Error("audio context closed")),
+      () => {},
+    );
+    microphone.rate = context.sampleRate;
     microphone.$permission.set("granted");
     microphone.$claimed.set(true);
     microphone.$error.set(null);
@@ -99,11 +125,39 @@ async function acquire(microphone) {
   }
 }
 
-function teardown(microphone, err) {
+async function record(microphone) {
+  try {
+    const feed = new AbortController();
+    hear(microphone, samples(microphone.recorder, feed.signal));
+    microphone.feed = feed;
+    microphone.rate = RATE;
+    microphone.$permission.set("granted");
+    microphone.$claimed.set(true);
+    microphone.$error.set(null);
+  } catch (err) {
+    teardown(microphone, err);
+    throw err;
+  }
+}
+
+async function hear(microphone, heard) {
+  try {
+    for await (const chunk of heard) {
+      const level = Math.sqrt(chunk.reduce((sum, sample) => sum + sample * sample, 0) / chunk.length);
+      microphone.$level.set(level);
+      updateSpeaking(microphone, level);
+      if (!microphone.paused) microphone.in.send(chunk);
+    }
+  } catch (err) {
+    teardown(microphone, err);
+  }
+}
+
+function teardown(microphone, err, exit = "stop") {
+  microphone.feed?.abort(exit);
+  microphone.feed = null;
   if (microphone.raf) cancelAnimationFrame(microphone.raf);
   microphone.raf = null;
-  microphone.audioUnsubscribe?.();
-  microphone.audioUnsubscribe = null;
   microphone.worklet?.disconnect();
   microphone.worklet = null;
   microphone.analyser = null;

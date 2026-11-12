@@ -10,12 +10,41 @@ import {
   translateTurns,
 } from "../provider/translate.js";
 
-const strong = { id: "openai/gpt-5.1", tune: [0.9, 1.0, 0.3], thinking: true };
+const strong = { id: "openai/gpt-5.1", tune: [0.9, 0.3, 0.5], thinking: true };
 const light = {
   id: "google/gemini-2.5-flash-lite",
-  tune: [0.1, 0.3, 1.0],
+  tune: [0.1, 1.0, 0.5],
   thinking: false,
 };
+
+const FACULTIES = [
+  { type: "dialogue", id: "openai/gpt-6.1-sol", tune: [0.8, 0.35, 0.3], context: 1050000, thinking: true },
+  { type: "dialogue", id: "google/gemini-3.8-flash", tune: [0.45, 0.85, 0.7], context: 1048576, thinking: true },
+  { type: "dialogue", id: "google/gemini-3.5-flash-lite", tune: [0.1, 1.0, 0.95], context: 1048576, thinking: true },
+  { type: "choice", id: "typesafe/jev-1.13", tune: [0.4, 1.0, 0.95], context: 32000, options: 255, choices: null },
+  {
+    type: "picture",
+    id: "openai/gpt-image-2.6-sunburst",
+    tune: [0.8, 0.4, 0.4],
+    limits: { references: 16, mask: false, aspects: ["1:1", "3:2", "2:3"] },
+  },
+  {
+    type: "picture",
+    id: "black-forest-labs/flux-3-image",
+    tune: [0.6, 0.6, 0.6],
+    limits: { references: 10, mask: false, aspects: ["1:1", "3:2", "2:3", "4:3", "3:4", "16:9", "9:16"] },
+  },
+  {
+    type: "picture",
+    id: "google/gemini-nano-banana-2.1",
+    tune: [0.4, 0.9, 0.9],
+    limits: {
+      references: 14,
+      mask: false,
+      aspects: ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"],
+    },
+  },
+];
 
 specimen.describe("openrouter provider", () => {
   specimen.describe("translateTurns", () => {
@@ -75,7 +104,7 @@ specimen.describe("openrouter provider", () => {
             role: "user",
             parts: [
               { type: "text", text: "and also" },
-              { type: "tool_result", id: "t1", output: { r: 2 } },
+              { type: "tool_result", id: "t1", product: { r: 2 } },
             ],
           },
         ]);
@@ -103,7 +132,7 @@ specimen.describe("openrouter provider", () => {
               {
                 type: "tool_result",
                 id: "a1",
-                output: { object: [{ literal: "vedere", signal: "SUCCESS" }] },
+                product: { object: [{ literal: "vedere", signal: "SUCCESS" }] },
               },
             ],
           },
@@ -214,18 +243,20 @@ specimen.describe("openrouter provider", () => {
           message: { role: "assistant", content: "hello" },
           finish_reason: "stop",
         }],
-        usage: { prompt_tokens: 1 },
+        usage: { prompt_tokens: 1, completion_tokens: 2, cost: 0.001 },
       });
       specimen.expect(turn.role).toBe("assistant");
       specimen.expect(turn.parts).toEqual([{ type: "text", text: "hello" }]);
       specimen.expect(turn.meta).toEqual({
         state: "complete",
-        usage: { prompt_tokens: 1 },
+        usage: { input: 1, output: 2, cost: 0.001 },
         provider: {
           finish_reason: "stop",
           model: "google/gemini-2.5-flash-lite",
+          usage: { prompt_tokens: 1, completion_tokens: 2, cost: 0.001 },
         },
       });
+      specimen.expect(turn).matches(v.primitives.hallucination.Turn);
     });
 
     specimen.it(
@@ -248,7 +279,7 @@ specimen.describe("openrouter provider", () => {
               finish_reason: "tool_calls",
             },
           ],
-          usage: {},
+          usage: { prompt_tokens: 1, completion_tokens: 2 },
         });
         specimen.expect(turn.parts[0]).toEqual({
           type: "thinking",
@@ -280,7 +311,7 @@ specimen.describe("openrouter provider", () => {
             finish_reason: "tool_calls",
           },
         ],
-        usage: {},
+        usage: { prompt_tokens: 1, completion_tokens: 2 },
       });
       specimen.expect(turn.parts[0].input).toEqual({});
     });
@@ -295,7 +326,7 @@ specimen.describe("openrouter provider", () => {
       specimen.expect(packets).toEqual([
         { event: "/turn/open", turn: { role: "assistant" } },
         { event: "/part/open", index: 0, part: { type: "text", text: "" } },
-        { event: "/part/delta", index: 0, delta: { text: "hi" } },
+        { event: "/part/delta", index: 0, part: { text: "hi" } },
       ]);
     });
 
@@ -312,13 +343,13 @@ specimen.describe("openrouter provider", () => {
         specimen.expect(packets).toEqual([
           { event: "/part/close", index: 0 },
           { event: "/part/open", index: 1, part: { type: "text", text: "" } },
-          { event: "/part/delta", index: 1, delta: { text: "so" } },
+          { event: "/part/delta", index: 1, part: { text: "so" } },
         ]);
       },
     );
 
     specimen.it(
-      "tool_call deltas open a tool_use part with input filled via string deltas",
+      "tool_call deltas open a tool_use part at input {}, the arguments parsed once at close",
       () => {
         const translator = streamTranslator();
         translator.translate({ choices: [{ delta: { role: "assistant" } }] });
@@ -336,13 +367,9 @@ specimen.describe("openrouter provider", () => {
         specimen.expect(opening[0]).toEqual({
           event: "/part/open",
           index: 0,
-          part: { type: "tool_use", id: "t1", name: "look", input: "" },
+          part: { type: "tool_use", id: "t1", name: "look", input: {} },
         });
-        specimen.expect(opening[1]).toEqual({
-          event: "/part/delta",
-          index: 0,
-          delta: { input: '{"q":' },
-        });
+        specimen.expect(opening).toHaveLength(1);
         const filling = translator.translate({
           choices: [{
             delta: {
@@ -350,11 +377,29 @@ specimen.describe("openrouter provider", () => {
             },
           }],
         });
-        specimen.expect(filling).toEqual([{
-          event: "/part/delta",
-          index: 0,
-          delta: { input: "1}" },
-        }]);
+        specimen.expect(filling).toEqual([]);
+        const closing = translator.translate({
+          choices: [{
+            delta: {
+              tool_calls: [{ index: 1, id: "t2", function: { name: "look" } }],
+            },
+          }],
+        });
+        specimen.expect(closing).toEqual([
+          { event: "/part/delta", index: 0, part: { input: { q: 1 } } },
+          { event: "/part/close", index: 0 },
+          {
+            event: "/part/open",
+            index: 1,
+            part: { type: "tool_use", id: "t2", name: "look", input: {} },
+          },
+        ]);
+        specimen.expect(
+          translator.translate({ choices: [{ delta: {}, finish_reason: "tool_calls" }] }),
+        ).toEqual([
+          { event: "/part/delta", index: 1, part: { input: {} } },
+          { event: "/part/close", index: 1 },
+        ]);
       },
     );
 
@@ -375,15 +420,21 @@ specimen.describe("openrouter provider", () => {
         const closing = translator.translate({
           model: "m",
           choices: [],
-          usage: { completion_tokens: 3 },
+          usage: { prompt_tokens: 2, completion_tokens: 3 },
         });
         specimen.expect(closing).toEqual([
           {
             event: "/turn/close",
-            meta: {
-              state: "complete",
-              usage: { completion_tokens: 3 },
-              provider: { finish_reason: "stop", model: undefined },
+            turn: {
+              meta: {
+                state: "complete",
+                provider: {
+                  finish_reason: "stop",
+                  model: undefined,
+                  usage: { prompt_tokens: 2, completion_tokens: 3 },
+                },
+                usage: { input: 2, output: 3 },
+              },
             },
           },
         ]);
@@ -405,7 +456,8 @@ specimen.describe("openrouter provider", () => {
         const packets = translator.flush();
         specimen.expect(packets).toHaveLength(1);
         specimen.expect(packets[0].event).toBe("/turn/close");
-        specimen.expect(packets[0].meta.usage).toBe(null);
+        specimen.expect(packets[0].turn.meta.usage).toBe(undefined);
+        specimen.expect(packets[0]).matches(v.primitives.hallucination.Packet.TurnClose);
       },
     );
   });
@@ -577,7 +629,7 @@ specimen.describe("openrouter provider", () => {
     specimen.it(
       "returns 3 dialogue faculties (no network) with render + stream, one choice faculty and three picture faculties with render only",
       async () => {
-        const faculties = await provider({ secrets: { key: "fake-key" } });
+        const faculties = await provider({ secrets: { key: "fake-key" }, faculties: FACULTIES });
         specimen.expect(faculties).toHaveLength(7);
         for (const faculty of faculties.filter((faculty) => faculty.type === "dialogue")) {
           specimen.expect(Array.isArray(faculty.tune)).toBe(true);
@@ -627,7 +679,7 @@ specimen.describe("openrouter provider", () => {
     specimen.it(
       "all three dialogue models think: each exposes thinking channels",
       async () => {
-        const faculties = await provider({ secrets: { key: "fake-key" } });
+        const faculties = await provider({ secrets: { key: "fake-key" }, faculties: FACULTIES });
         const thinking = faculties.filter((faculty) =>
           faculty.channels.out.includes("thinking")
         );
@@ -635,7 +687,7 @@ specimen.describe("openrouter provider", () => {
       },
     );
 
-    specimen.it("statics.models replaces the default table", async () => {
+    specimen.it("statics.models changes nothing: a row with statics.models and no faculties yields none", async () => {
       const faculties = await provider({
         secrets: { key: "fake-key" },
         statics: {
@@ -648,15 +700,15 @@ specimen.describe("openrouter provider", () => {
             },
           },
         },
+        faculties: [],
       });
-      specimen.expect(faculties.filter((faculty) => faculty.type === "dialogue")).toHaveLength(1);
-      specimen.expect(faculties[0].context).toBe(262144);
+      specimen.expect(faculties).toEqual([]);
     });
   });
 
   specimen.describe("picture faculties", () => {
     const original = globalThis.fetch;
-    const service = { secrets: { key: "sk-or-test" } };
+    const service = { secrets: { key: "sk-or-test" }, faculties: FACULTIES };
     const PNG = "iVBORw0KGgo";
     const picture = (data) => ({ type: "image", media: "image/png", data });
     const OK = {
@@ -732,7 +784,10 @@ specimen.describe("openrouter provider", () => {
       stub(200, OK);
       const gemini = await faculty("google/gemini-nano-banana-2.1");
       const response = await gemini.via.render({ prompt: "a red fox", images: [] });
-      specimen.expect(response).toEqual({ images: [{ type: "image", media: "image/png", data: PNG }], usage: OK.usage });
+      specimen.expect(response).toEqual({
+        images: [{ type: "image", media: "image/png", data: PNG }],
+        meta: { usage: { input: 12, output: 4160, cost: 0.04 }, provider: { usage: OK.usage } },
+      });
       specimen.expect([...v.primitives.hallucination.Picture.Response.errors(response)]).toEqual([]);
     });
 
@@ -766,18 +821,20 @@ specimen.describe("openrouter provider", () => {
       specimen.expect(error).toEqual({ kind: "overloaded", retryable: true, provider: { status: 502, message: "Generation failed" } });
     });
 
-    specimen.it("statics.pictures replaces the picture table", async () => {
-      const faculties = await provider({
-        secrets: { key: "sk-or-test" },
-        statics: {
-          pictures: {
-            solo: { id: "bytedance-seed/seedream-4.5", tune: [0.5, 0.5, 0.5, 0.5], limits: { references: 8, mask: false, aspects: ["1:1"] } },
-          },
-        },
-      });
-      const pictures = faculties.filter((each) => each.type === "picture");
-      specimen.expect(pictures.map((each) => each.id)).toEqual(["bytedance-seed/seedream-4.5"]);
-      specimen.expect(pictures[0].limits.references).toBe(8);
+    specimen.it("only the row's faculties load: one entry yields one faculty; an unknown type faults naming it", async () => {
+      const seedream = {
+        type: "picture",
+        id: "bytedance-seed/seedream-4.5",
+        tune: [0.5, 0.5, 0.5],
+        limits: { references: 8, mask: false, aspects: ["1:1"] },
+      };
+      const faculties = await provider({ secrets: { key: "sk-or-test" }, faculties: [seedream] });
+      specimen.expect(faculties.map((each) => [each.type, each.id])).toEqual([["picture", "bytedance-seed/seedream-4.5"]]);
+      specimen.expect(faculties[0].limits.references).toBe(8);
+      const speech = { ...FACULTIES[0], type: "speech" };
+      await specimen.expect(provider({ secrets: { key: "sk-or-test" }, faculties: [speech] })).rejects.toThrow(
+        "[openrouter] faculties/0/type must be equal to constant",
+      );
     });
 
     specimen.it("fetch is restored after each step", () => {

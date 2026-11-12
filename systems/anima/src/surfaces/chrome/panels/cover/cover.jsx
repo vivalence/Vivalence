@@ -1,4 +1,5 @@
 import { createEffect, from, Show } from "solid-js";
+import { FONTS } from "@vivalence/dapper";
 import * as ambient from "../../ambient/index.js";
 import { Booting } from "../booting/booting.jsx";
 import { Signin } from "../authentication/signin.jsx";
@@ -34,6 +35,7 @@ export function Cover() {
   const user = from(app.client.runtime.lighthouse.$user);
   const beats = from(app.telemetry.$logger);
   const theme = from(app.bridge.$theme);
+  const font = from(app.bridge.$font);
   const viewport = from(app.bridge.$viewport);
   const current = () => {
     terminals();
@@ -48,6 +50,9 @@ export function Cover() {
     theme();
     globalThis.document.documentElement.dataset.theme = app.theme;
     root.parentElement.dataset.viva = app.theme;
+  });
+  createEffect(() => {
+    globalThis.document.documentElement.style.fontSize = FONTS[font()];
   });
   return (
     <div ref={root} class="client" classList={{ phone: viewport().narrow }}>

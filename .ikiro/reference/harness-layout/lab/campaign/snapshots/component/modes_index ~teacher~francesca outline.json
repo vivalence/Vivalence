@@ -1,0 +1,26 @@
+{
+  "output": {
+    "modes": [
+      {
+        "reference": "/daemon/education/mode/teacher/francesca",
+        "valence": "the education teacher",
+        "tools": [
+          {
+            "reference": "/daemon/education/mode/teacher/francesca/drill/deal",
+            "valence": "education·francesca /drill/deal"
+          },
+          {
+            "reference": "/daemon/education/mode/teacher/francesca/drill/grade",
+            "valence": "education·francesca /drill/grade"
+          }
+        ],
+        "primers": [
+          {
+            "reference": "/daemon/education/mode/teacher/francesca/role",
+            "valence": "section role"
+          }
+        ]
+      }
+    ]
+  }
+}

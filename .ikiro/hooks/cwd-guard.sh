@@ -19,6 +19,6 @@ open=$(tr -cd '(' <<<"$before" | wc -c); close=$(tr -cd ')' <<<"$before" | wc -c
 reason="cwd persists across Bash calls (harness-friction, 10 compacts). '$hit' would move every later call. Use an absolute path, or a subshell: (cd … && …)."
 mode=${IKIRO_GUARD_MODE:-deny}
 printf '%s cwd-guard %s %s\n' "$(date +%s)" "$mode" "$session" >> "$log" 2>/dev/null
-if [ "$mode" = "warn" ]; then echo "cwd-guard (warn): $reason" >&2; exit 0; fi
+if [ "$mode" = "warn" ]; then jq -n --arg reason "cwd-guard (warn): $reason" '{ hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: $reason } }'; exit 0; fi
 jq -n --arg reason "$reason" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:$reason}}'
 exit 0

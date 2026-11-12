@@ -1,0 +1,22 @@
+{
+  "output": {
+    "modes": [
+      {
+        "reference": "/daemon/education/mode/tactic/harvest",
+        "valence": "Operator mode that closes the katabolic loop: survey what has no voice, resolve recordings from web sources or synthesize via TTS, receive them into the topography's fileset, stamp VOCALIZED with attribution, and let the datasink write the mode content back to disk."
+      },
+      {
+        "reference": "/daemon/education/mode/game/nyan",
+        "valence": "Standalone typing trainer. Setup, practice, review. One keystroke stream split into recall / spelling / motor. Generic words, or learning-domain literals graded back to retention."
+      },
+      {
+        "reference": "/daemon/education/mode/game/cloze",
+        "valence": "Fill blanked tokens in a sentence. Typed, picked, or audio-prompted. Per-token review."
+      },
+      {
+        "reference": "/daemon/education/mode/teacher/francesca",
+        "valence": "the education teacher"
+      }
+    ]
+  }
+}

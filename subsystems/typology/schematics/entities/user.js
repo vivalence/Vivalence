@@ -7,9 +7,9 @@ export const UserSchematic = {
   $id: "User",
   is: "one person on the lighthouse: a slug, how they authenticate, their home and dock in traits",
   own: {
-    slug: v.string().optional().desc("the login name").examples("beef"),
-    traits: traits.names.user.optional().desc("the trait names worn").examples(["HOME", "THEMED"]),
-    trait: traits.user.default({}).optional().desc("trait data by name").examples({ HOME: { reference: "/runtime/runtime/mode/harness/runtime" }, THEMED: "northsea" }),
+    slug: v.string().optional().desc("the login name").example("beef"),
+    traits: traits.names.user.optional().desc("the trait names worn").example(["HOME", "THEMED"]),
+    trait: traits.user.default({}).optional().desc("trait data by name").example({ HOME: { reference: "/runtime/runtime/mode/harness/runtime" }, THEMED: "northsea" }),
   },
   relations: {
     daemons: () => v.array(v.daemon()).optional().desc("daemons they own"),

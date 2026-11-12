@@ -47,7 +47,9 @@ export const datamap = async (die, next) => {
     die.runtime.datamap.entities.em,
     ActivityEntity,
   );
-  die.runtime.twitch.use(shard.context.spread(contexts.runtimeDie, die.runtime));
+  die.runtime.twitch
+    .use(shard.context.spread(contexts.runtimeDie, die.runtime))
+    .use(shard.context.bind("runtime", die.runtime));
   for (const held of twitch) die.runtime.twitch.graft(held);
   die.runtime.twitch.branch("/after").use(shard.datamap.detached(die.runtime.datamap));
   die.runtime.datamap.registerSubscriber(die.runtime.twitch);
@@ -75,12 +77,12 @@ export const lighthouse = async (die, next) => {
 };
 
 export const aperture = async (die, next) => {
-  die.aperture.open("/status", () => die.controller.status);
+  die.aperture.open("/beacon/status", () => die.controller.status);
   await next();
 };
 
 export const acid = async (die, next) => {
-  die.runtime.cortex = new Cortex();
+  die.runtime.cortex = new Cortex(die.runtime.instance.tiers);
   const citizens = await Promise.all(
     (die.runtime.instance.hallucinators ?? []).map((query) => paladin.ledger.registry.accio(query)),
   );

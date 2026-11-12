@@ -6,7 +6,7 @@ paths: ["commons/**", "**/registry/**"]
 
 A `*.viva.js` = a package entry at `@commons/<type>/<slug>`; svelte/jsx mount by string.
 
-**dashboards/dataspace** (manifest · views) ← `Dashboard.svelte` ← `schema.js`; `*.bak.svelte` DEAD; no test.
+**dashboards/dataspace** (manifest · views) ← `Dashboard.svelte` ← `schema.js`; `*.bak.svelte` DEAD.
 ```js
 // commons/dashboards/dataspace/dataspace.viva.js:15
 const views = [{ slug: "dataspace", mount: "Dashboard.svelte", mime: mime.dom.svelte }];
@@ -30,13 +30,13 @@ import { entities } from "../dataset/entities/index.js";
 import { card } from "../domain/card.js";
 
 ```
-**`mode/memo.viva.js`** (buffer · views · harness · tools · aperture · emitter) ← deal · progress; no `used`.
+**`mode/memo.viva.js`** (buffer · views · harness · tools · aperture · emitter) ← deal · progress.
 ```js
 // commons/fixtures/memo/mode/memo.viva.js:19
     { mime: mime.tty.solid, mount: "buffer/memo.jsx" },
     { mime: mime.dom.svelte, mount: "buffer/Memo.svelte" },
 ```
-**fixtures/testing** — `data/index.js` (seed · tiers · faculties · live) ← `systems/runtime/tests/scenarios/fixtures.js`; `probe/probe.viva.js`; no `used`.
+**fixtures/testing** — `data/index.js` (seed · tiers · faculties · live) ← `systems/runtime/tests/scenarios/fixtures.js`; `probe/probe.viva.js`.
 ```js
 // commons/fixtures/testing/data/index.js:1
 export { seed, DAEMON } from "./seed.js";
@@ -48,7 +48,7 @@ export { instance, stack, tiers } from "./tiers.js";
   specimen.it("reads flags out of prose and leaves the prose alone", () => {
     const held = plan({ turns: [said("tell me about flamingos --deltas 6 --stall 3s")] });
 ```
-**hallucinators/*** — `service.viva.js` (provider · manifest · docs) ← `provider/index`, + `translate.js` in anthropic · openrouter (MINE, /"i've never read openrouter. yours."/); elevenlabs no `used`.
+**hallucinators/*** — `service.viva.js` (provider · manifest · docs) ← `provider/index`, + `translate.js` in anthropic · openrouter (MINE, /"i've never read openrouter. yours."/).
 ```js
 // commons/hallucinators/openrouter/tests/provider.test.js:10
   translateTurns,
@@ -73,16 +73,15 @@ import { calling, rig, saying, SOURCE } from "./rig.js";
   "datamap": { "module": "@commons/datamap/libsql" },
   "hallucinators": [
 ```
-**playground** — 9 entries; oracle `{Helpdesk,Paragraph}.svelte` DEAD; no `used`.
+**playground** — 9 entries; oracle `{Helpdesk,Paragraph}.svelte` DEAD.
 ```js
 // commons/playground/chaosmonkey/oracle/oracle.viva.js:25
 export const buffer = v.buffer({ data: {} });
 ```
-**services** — `nlp/service.viva.js` (:84 control · manifest · provider · tools); `reader/service.viva.js` ← extract · hop (← guard) · skeleton. Gateways (mail · OCR) land here, modes consume; mail per VENDOR — REJECTED one + presets (/"email per provider"/).
+**services** — `nlp/service.viva.js` (:84 control · manifest · provider · tools); `reader/service.viva.js` ← extract · hop (← guard) · skeleton; `ocr/` own `Block` · `Word` (11-13 /"no changes or additions in typology"/). Gateways (mail) land here, modes consume; mail per VENDOR — REJECTED one + presets (/"email per provider"/). **A service's engine = an npm dep or its OWN `server/` image; the root `Dockerfile` never** (REJECTED 11-13 tesseract `apk` /"We're not going to add fucking Tesseract to our base image"/).
 ```js
-// commons/services/nlp/tests/classify.test.js:3
-import { tools } from "../tools/index.js";
-
+// commons/services/nlp/service.viva.js:11
+  traits: ["SERVER", "DOCKER", "COMPOSE", "TOOLING"],
 ```
 
 ## registry packages
@@ -115,9 +114,4 @@ const CONFIG = `${Deno.cwd()}/deno.jsonc`;
 import { Chess } from "https://esm.sh/chessops@0.14.2/chess";
 import { makeFen } from "https://esm.sh/chessops@0.14.2/fen";
 import { parseSan } from "https://esm.sh/chessops@0.14.2/san";
-```
-```
-census 10-16 · files/exports/tests
-. 1/1/0, dashboards 4/7/0, datamaps 1/0/0, fixtures 39/121/9, hallucinators 10/31/3,
-harnesses 1/2/0, instances 14/37/9, playground 28/39/0, services 9/9/6
 ```

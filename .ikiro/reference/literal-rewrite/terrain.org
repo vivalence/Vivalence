@@ -1,0 +1,29 @@
+#+title: literal-rewrite — terrain, moved whole 11-13
+# limit: 2000 chars
+
+* terrain — measured 11-13
+
+Stored, daemon =spanish= (=localhost.viva.db=):
+#+BEGIN_SRC text
+tokens 1242 · every one carries index form gloss deprel · 9 without literal (7 words the corpus lacks)
+spelled: 354 sentences hold tokens, 0 whose token form is missing from TRANSLATED.learning
+uses: sentence 1228 links, 1227 named by a token · conjugation 825/825 · the stray: hola-como-estas → cómo.adverb
+VOCALIZED 165, every asset path spells its slug
+#+END_SRC
+
+What holds a literal slug: =Literal.slug= · =Note.slug= =retention.<slug>= · =VOCALIZED.asset.path= + =File.path= + the mp3 · =Buffer.data= sets · =Turn.parts= · other literals' =ANNOTATED.tokens[].literal= / =CONJUGATED= · =dataset/literals/**=. By id, safe: =literal_uses=.
+What holds a symbol slug: by id =symbol_literals · note_symbols · buffer_symbols=; by spelling each literal's =symbol= tree (no exact rule found), mode source (=modes/tactics/clinic/emitter/adverbs.js:9=), =dataset/symbols/= (the datasink writes literals only).
+
+Twitch facts, probed on a scratch copy of the domain:
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/twitch.js:10 — two opens on one signal chain, both fire
+open(signature, effect) {
+  const ear = this.branch(signature);
+  ear.effect = ear.effect ? sequence(ear.effect, effect) : effect;
+  return this;
+}
+// systems/runtime/subjects/daemon/lifecycle/1-population.js:46 — every /after runs detached, after the write returns
+// a before-twitch may read the corpus; its throw reaches the caller, nothing stored
+// changeSet.originalEntity.trait arrives as stored TEXT (JSON.parse it)
+#+END_SRC
+

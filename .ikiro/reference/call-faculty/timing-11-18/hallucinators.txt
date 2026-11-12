@@ -1,0 +1,18 @@
+# limit: 1567 chars · 11-18 timing evidence, as printed
+fast → google/gemini-3.8-flash · frugal → google/gemini-3.5-flash-lite
+polish as shipped (tier fast, no settings) {
+  ms: 16365,
+  usage: { input: 87, output: 1669, cost: 0.006324 },
+  model: undefined,
+  parts: [ "thinking:2174", "text:54" ],
+  message: "Hola, hoy quiero practicar español con durante 10 min.",
+}
+polish effort none (tier fast) FAULT 163 [hallucinate] 'dialogue' response closed error after 1 rounds — 400 Reasoning is mandatory for this endpoint and cannot be disabled.
+polish effort none (tier frugal) FAULT 156 [hallucinate] 'dialogue' response closed error after 1 rounds — 400 Reasoning is mandatory for this endpoint and cannot be disabled.
+  ws open 665 ms
+scribe first packet 1311 ms audio sent 0.64s
+  audio ended 21534 ms 3.94s sent
+scribe delta 5119 "Hola, hoy quiero practicar español contigo durante 10 minutos."
+scribe /turn/close 5120 ms 295 ms after audio end
+  ws close 5290 ms 1005
+scribe stream end 5296 ms 471 ms after audio end

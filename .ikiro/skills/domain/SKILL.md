@@ -55,9 +55,9 @@ A trait never adds a column; a payload sort is `json_extract` (`education/domain
 
 ## Routes are verbs, tools ride routes — one function
 
-`education/domain/tools/review.js:42`: the tool calls `ctx.call["/review/literal"]({…})`. A route is ONE repository call; the route may take an optional `owner`, a tool never does — the caller's mode owns what it mints. /"the domain's aperture never branches an entity capability — a capability is a repository verb"/ A second road to the same rows is the defect. REJECTED: an `owner(kind)` lookup — /"every writer takes the owner from the caller … The domain never looks a topology up"/. Tool-first is a MODE's seat, not the domain's.
+`education/domain/tools/review.js:42`: the tool calls `ctx.call["/review/literal"]({…})`. A route is ONE repository call; the route may take an optional `owner`, a tool never does — the caller's mode owns what it mints. /"the domain's aperture never branches an entity capability — a capability is a repository verb"/ A second road to the same rows is the defect. REJECTED: an `owner(kind)` lookup — /"every writer takes the owner from the caller"/. Tool-first is a MODE's seat, not the domain's.
 
-A tool's subject is its INPUT, never ctx; it takes no field it PRODUCES /"review produces a next date."/ 09-22. A tool contracts with a non-deterministic caller: schema enums + defaults, text `minLength: 1`, a projected paged answer; an error is a RECOVERY — whose fault, the valid set, the next move (`belt/hallucinate.js:52`).
+A tool's subject is its INPUT, never ctx; it takes no field it PRODUCES /"review produces a next date."/ 09-22. A tool contracts with a non-deterministic caller: schema enums + defaults, text `minLength: 1`, a projected paged answer; an error is a RECOVERY — whose fault, the valid set, the next move (`belt/hallucinate.js:52`). Each input: `.desc()` + `.example()`; valence = WHEN (11-14).
 
 ## The three failures
 

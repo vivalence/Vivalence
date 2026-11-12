@@ -4,19 +4,29 @@ import { persistentAtom } from "@nanostores/persistent";
 export class Bridge {
   $terminal = persistentAtom("viva.bridge.terminal", null, { encode: JSON.stringify, decode: JSON.parse });
   $viewport = atom({ width: null, height: null, narrow: false });
-  $focus = atom("composer");
+  $focus = atom("dock.input");
+  $focusHistory = atom([]);
   $sidebar = atom({ open: false, width: 39 });
   $draft = atom("");
+  $dictation = atom(null);
+  $call = atom(null);
   $selected = atom(0);
   $hidden = atom([]);
   $theme = persistentAtom("viva.bridge.theme", null, { encode: JSON.stringify, decode: JSON.parse });
+  $font = persistentAtom("viva.bridge.font", "base", { encode: JSON.stringify, decode: JSON.parse });
   $popover = atom(null);
   $phonePane = atom("dock");
   $widget = atom(null);
   $float = atom({});
   $selection = atom(null);
   $signin = atom({ user: "", pass: "" });
-  $sections = atom({ filter: {}, expand: {}, peeks: {}, pick: null, hostsOff: { thread: [], mode: [] }, traits: { thread: [], mode: ["VIEWABLE"] } });
+  $sections = atom({ filter: {}, expand: {}, peeks: {}, views: {}, current: null, pick: null, hostsOff: { thread: [], mode: [] }, traits: { thread: [], mode: ["VIEWABLE"] } });
+
+  constructor() {
+    this.$focus.listen((held, left) => {
+      if (left !== null) this.$focusHistory.set([...this.focusHistory, left].slice(-6));
+    });
+  }
 
   get terminal() {
     return this.$terminal.get();
@@ -30,12 +40,24 @@ export class Bridge {
     return this.$focus.get();
   }
 
+  get focusHistory() {
+    return this.$focusHistory.get();
+  }
+
   get sidebar() {
     return this.$sidebar.get();
   }
 
   get draft() {
     return this.$draft.get();
+  }
+
+  get dictation() {
+    return this.$dictation.get();
+  }
+
+  get call() {
+    return this.$call.get();
   }
 
   get selected() {
@@ -48,6 +70,10 @@ export class Bridge {
 
   get theme() {
     return this.$theme.get();
+  }
+
+  get font() {
+    return this.$font.get();
   }
 
   get popover() {

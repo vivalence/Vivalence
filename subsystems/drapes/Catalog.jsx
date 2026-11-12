@@ -68,6 +68,27 @@ export const Chooser = (props) => {
           </button>
         )}
       </For>
+      <Show when={held.changes !== undefined}>
+        <Show when={held.changes.said !== ""}>
+          <div class={held.changes.fault ? "crow chg fault" : "crow chg"}>
+            <span class="sub">{held.changes.said}</span>
+          </div>
+        </Show>
+        <Show when={held.changes.rows.length > 0}>
+          <div class="cf chg">
+            <span class="q">{held.changes.head}</span>
+          </div>
+          <For each={held.changes.rows}>
+            {(change) => (
+              <div class={change.head ? "crow chg head" : "crow chg"} title={change.reference}>
+                <span class="mk">{change.mark}</span>
+                <span>{change.label}</span>
+                <span class="sub">{change.sub}</span>
+              </div>
+            )}
+          </For>
+        </Show>
+      </Show>
     </div>
   );
 };

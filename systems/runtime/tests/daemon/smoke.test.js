@@ -33,7 +33,7 @@ specimen.describe("smoke: full lifecycle", () => {
       thread: thread.id,
     });
     specimen.expect(result.condition).toBe("NOMINAL");
-    buffers = result.output.buffer;
+    buffers = result.product.buffer;
     specimen.expect(buffers).toHaveLength(1);
     specimen.expect(buffers[0].id).toBeTruthy();
     specimen.expect(buffers[0].data.recall).toBe("LEARNING");
@@ -62,7 +62,7 @@ specimen.describe("smoke: full lifecycle", () => {
       thread: thread.id,
     });
     specimen.expect(result.condition).toBe("NOMINAL");
-    specimen.expect(result.output.buffer[0].index).toBeGreaterThan(buffers[0].index);
+    specimen.expect(result.product.buffer[0].index).toBeGreaterThan(buffers[0].index);
   });
 
   specimen.it("all buffers ordered by index", async () => {

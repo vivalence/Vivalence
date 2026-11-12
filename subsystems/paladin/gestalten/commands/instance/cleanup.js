@@ -37,7 +37,7 @@ async function effect(ctx) {
 export const cleanup = new Vector().open(
   {
     nature: "/instance/cleanup",
-    valence: "prune stale view bundles under the instance's mountpoint — per mode the newest compiled view and every generated page stay; asks unless --force. Example: viva instance/cleanup chess --force",
+    valence: "prune stale view bundles under the instance's mountpoint — every hash-named build without its source goes; a view's own bundle/<slug>.<mime>.mjs and every generated view stay; asks unless --force. Example: viva instance/cleanup chess --force",
     input: v.object({
       target: v.string().desc("slug or path, defaults to the mounted instance. Example: chess").optional(),
       force: v.boolean().desc("skip the confirmation").group("flags").optional(),

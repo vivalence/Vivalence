@@ -100,4 +100,20 @@ specimen.describe("symbols: m:n slug query", () => {
     });
     specimen.expect(results.length).toBe(2);
   });
+
+  const slugs = async (symbols) => (await repo.find({ symbols })).map((literal) => literal.slug).sort();
+
+  specimen.it("$all with $in: every $all symbol AND any $in symbol", async () => {
+    specimen.expect(await slugs({ $all: ["word"], $in: ["farewell"] })).toEqual(["hello"]);
+    specimen.expect(await slugs({ $all: ["greeting"], $in: ["word", "farewell"] })).toEqual(["goodbye", "hello"]);
+  });
+
+  specimen.it("$in with $none: any $in symbol, minus every $none symbol", async () => {
+    specimen.expect(await slugs({ $in: ["greeting"], $none: ["farewell"] })).toEqual(["goodbye"]);
+  });
+
+  specimen.it("$all with $in with $none compose in one where", async () => {
+    specimen.expect(await slugs({ $all: ["greeting"], $in: ["word"], $none: ["farewell"] })).toEqual(["goodbye"]);
+    specimen.expect(await slugs({ $all: ["greeting"], $in: ["farewell"], $none: ["word"] })).toEqual([]);
+  });
 });

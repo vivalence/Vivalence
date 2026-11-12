@@ -20,7 +20,7 @@ if [ "$tool" = "Bash" ]; then
   hits=$(grep -nE '^[[:space:]]*(//|/\*)' <<<"$command" | grep -vE '@beef|TODO|https?:' || true)
   [ -n "$hits" ] || exit 0
   printf '%s comment-guard warn %s authored-comment\n' "$(date +%s)" "$(jq -r '.session_id // "nosession"' <<<"$input")" >> "$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log" 2>/dev/null
-  echo "comment-guard (warn, Bash route): a script writing $target carries // lines — code is self-documenting; use the Edit tool so the gate can judge the content." >&2
+  jq -n --arg reason "comment-guard (warn, Bash route): a script writing $target carries // lines — code is self-documenting; use the Edit tool so the gate can judge the content." '{ hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: $reason } }'
   exit 0
 fi
 

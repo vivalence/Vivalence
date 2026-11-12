@@ -4,14 +4,11 @@ import { SyntaxStyle } from "@opentui/core";
 import { is } from "@vivalence/typology";
 import * as ambient from "../../ambient/index.js";
 import * as widgets from "../../widgets/index.js";
-import { cells, prose, streamed } from "../../../../gestalten/belt/journal.js";
+import { cells, prose, streamed, yields } from "../../../../gestalten/belt/journal.js";
 import { Mounted } from "../frame/frame.jsx";
+import { clocked, spliced } from "./textarea.jsx";
 
-export const LENS = {
-  chat: { turns: true, records: [] },
-  repl: { turns: true, records: ["log", "fault"] },
-  trace: { turns: false, records: ["log", "fault"] },
-};
+export const RECORDED = ["log", "fault"];
 
 export const clock = (at) => new Date(at).toTimeString().slice(0, 8);
 
@@ -19,8 +16,10 @@ export const landed = (turn) => (streamed(turn) ? Infinity : Date.parse(turn.cre
 
 export const journaled = (lens, turns, records) =>
   [
-    ...(LENS[lens].turns ? turns : []).map((turn) => ({ at: landed(turn), turn })),
-    ...records.filter((record) => LENS[lens].records.includes(record.track)).map((record) => ({ at: record.at, record })),
+    ...(lens.includes("turns") ? turns : []).map((turn) => ({ at: landed(turn), turn })),
+    ...(lens.includes("repl") ? records : [])
+      .filter((record) => RECORDED.includes(record.track))
+      .map((record) => ({ at: record.at, record })),
   ].sort((first, second) => first.at - second.at);
 
 export const SETTLED = [
@@ -132,8 +131,33 @@ export const syntax = (palette) =>
     "markup.link": { fg: palette.signalPrimaryInk },
   });
 
+export const drafted = (parts) =>
+  parts
+    .filter((part) => "draft" in part)
+    .map((part) => part.draft.text)
+    .join(" ");
+
+export const INTERRUPTED = [
+  [(turn) => turn.meta === null || turn.meta.state !== "interrupted", () => null],
+  [
+    (turn, call) => call !== null && Object.hasOwn(call.heard, turn.id),
+    (turn, call) => `interrupted · heard ${clocked(call.heard[turn.id])}`,
+  ],
+  [() => true, () => "interrupted"],
+];
+
+export const interrupted = (turn, call) =>
+  INTERRUPTED.find(([test]) => test(turn, call))[1](turn, call);
+
 function Plain(props) {
-  return <text fg={props.palette[props.body]}>{props.turn.role === "user" ? <b>{props.text}</b> : props.text}</text>;
+  const words = () => spliced(prose(props.turn.parts), drafted(props.turn.parts));
+  return (
+    <text fg={props.palette[props.body]}>
+      {props.turn.role === "user" ? <b>{words()[0]}</b> : words()[0]}
+      <span style={{ fg: props.palette.textMuted }}>{words()[1]}</span>
+      {streamed(props.turn) ? "▍" : ""}
+    </text>
+  );
 }
 
 function Pretty(props) {
@@ -155,8 +179,9 @@ const REGISTERS = {
 function Turn(props) {
   const runtime = ambient.terminal.consume().client.runtime;
   const user = from(runtime.lighthouse.$user);
+  const call = from(ambient.app.consume().bridge.$call);
   const register = () => REGISTERS[props.row.turn.role];
-  const buffers = () => cells(props.row.turn, props.buffers);
+  const buffers = () => cells(props.row.turn, props.buffers, props.yields);
   const text = () => prose(props.row.turn.parts) + (streamed(props.row.turn) ? "▍" : "");
   return (
     <box style={{ flexDirection: "column", paddingBottom: 1 }}>
@@ -182,7 +207,9 @@ function Turn(props) {
             <text fg={props.palette.textStrong} style={{ flexShrink: 0 }}>{` ${widgets.entity.moded(props.row.turn)}`}</text>
           </Show>
           <text wrapMode="none" fg={props.palette.textMuted} style={{ flexGrow: 1, flexShrink: 1, minWidth: 0 }}>{meta(props.row.turn, buffers()) === "" ? "" : ` · ${meta(props.row.turn, buffers())}`}</text>
-          <Thought palette={props.palette} turn={props.row.turn} />
+          <Show when={props.lens.includes("harness")}>
+            <Thought palette={props.palette} turn={props.row.turn} />
+          </Show>
         </box>
         <Show when={prose(props.row.turn.parts) !== "" || props.row.turn.role === "user"}>
           <box style={{ paddingLeft: 1 }}>
@@ -190,7 +217,16 @@ function Turn(props) {
           </box>
         </Show>
       </Show>
-      <For each={tools(props.row.turn.parts, props.waiting)}>{(tool) => <Tool palette={props.palette} tool={tool} indent={1} />}</For>
+      <Show when={interrupted(props.row.turn, call())}>
+        {(trace) => (
+          <box style={{ flexDirection: "row", paddingLeft: 1 }}>
+            <text fg={props.palette.textMuted}>{`· ${trace()}`}</text>
+          </box>
+        )}
+      </Show>
+      <Show when={props.lens.includes("harness")}>
+        <For each={tools(props.row.turn.parts, props.waiting)}>{(tool) => <Tool palette={props.palette} tool={tool} indent={1} />}</For>
+      </Show>
       <For each={buffers()}>{(buffer) => <Artifact palette={props.palette} buffer={buffer} />}</For>
     </box>
   );
@@ -208,7 +244,7 @@ function Trace(props) {
     <box style={{ flexDirection: "row", paddingBottom: 1 }}>
       <text fg={props.palette.textMuted} style={{ flexShrink: 0 }}>{" · "}</text>
       <text fg={props.palette.textMuted} style={{ flexGrow: 1, flexShrink: 1, minWidth: 0 }}>
-        {`${clock(props.row.record.at)}  ${traced(props.row.record)}${props.lens === "trace" ? `  ${props.row.record.path.join(" › ")}` : ""}`}
+        {`${clock(props.row.record.at)}  ${traced(props.row.record)}${!props.lens.includes("turns") ? `  ${props.row.record.path.join(" › ")}` : ""}`}
       </text>
     </box>
   );
@@ -239,7 +275,7 @@ export function Journal(props) {
   return (
     <scrollbox stickyScroll stickyStart="bottom" verticalScrollbarOptions={{ visible: false }} style={{ flexGrow: 1, paddingLeft: 1, paddingRight: 1 }} onMouseDown={(event) => event.preventDefault()}>
       <For each={journaled(props.lens, turns(), records())}>
-        {(row) => <Dynamic component={ROWS.find(([test]) => test(row))[1]} palette={props.palette} row={row} lens={props.lens} markdown={props.markdown} buffers={buffers()} waiting={waiting()} />}
+        {(row) => <Dynamic component={ROWS.find(([test]) => test(row))[1]} palette={props.palette} row={row} lens={props.lens} markdown={props.markdown} buffers={buffers()} yields={yields(turns())} waiting={waiting()} />}
       </For>
     </scrollbox>
   );

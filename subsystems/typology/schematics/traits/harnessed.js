@@ -1,0 +1,14 @@
+import { v } from "../v.js";
+import { Selector, Tier } from "../primitives/hallucination.js";
+
+export const Harnessed = v.object({
+  ...Selector,
+  tier: Tier.default("capable").desc('The model tier. Example: "fast"'),
+  effort: v.enum(["none", "low", "medium", "high"]).default("low").desc('Reasoning effort. Example: "high"'),
+  rounds: v.integer({ minimum: 1, maximum: 100 }).default(12).desc("The round budget. Example: 12"),
+  thinking: v.boolean().optional(),
+  slugging: v
+    .enum(["deep", "nested"])
+    .default("deep")
+    .desc('How a tool or primer section is named: deep = its distance from this mode, nested = this mode\'s own behind its slug too. Example: "nested"'),
+});

@@ -6,10 +6,10 @@ export const DaemonSchematic = {
   $id: "Daemon",
   is: "one installed package running on the runtime: its slug is its id; it owns modes, a dataset of symbols and literals, notes, users",
   own: {
-    slug: v.string().desc("its name, the id").examples("education"),
-    mask: v.record(v.string(), v.unknown()).optional().desc("the instance mask: module, statics, secrets").examples({ module: "@education/daemon" }),
-    traits: v.array(v.string()).optional().desc("the trait names worn").examples([]),
-    trait: v.record(v.string(), v.unknown()).optional().desc("trait data by name").examples({}),
+    slug: v.string().desc("its name, the id").example("education"),
+    mask: v.record(v.string(), v.unknown()).optional().desc("the instance mask: module, statics, secrets").example({ module: "@education/daemon" }),
+    traits: v.array(v.string()).optional().desc("the trait names worn").example([]),
+    trait: v.record(v.string(), v.unknown()).optional().desc("trait data by name").example({}),
   },
   relations: {
     modes: () => v.array(v.mode()).optional().desc("its modes"),

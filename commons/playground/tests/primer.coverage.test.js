@@ -63,7 +63,7 @@ specimen.describe("dealer — the emitter deals card buffers off a finite deck",
   specimen.it("/oracle keeps only the faces the harness names that are in the deck", async () => {
     const asked = [];
     const seat = table({
-      mode: { harness: { object: { render: async (request) => (asked.push(request), { output: { object: { faces: ["Q♦", "joker", "A♠"] } } }) } } },
+      mode: { harness: { object: { render: async (request) => (asked.push(request), { product: { object: { faces: ["Q♦", "joker", "A♠"] } } }) } } },
     });
     await seat.deal("/oracle", { focus: "royals", thread: "th-1" });
     specimen.expect(seat.dealt).toEqual(["Q♦", "A♠"]);

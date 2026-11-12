@@ -11,5 +11,5 @@ export const manifest = {
 export const docs = {
   name: "ElevenLabs Speech",
   description:
-    "Streaming TTS via ElevenLabs Turbo v2.5. Two pt-BR voices at latency-first tune.",
+    "Streaming TTS (speech) and realtime STT via Scribe (verbatim), one faculty per entry of the ledger row's faculties.",
 };

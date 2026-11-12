@@ -7,18 +7,22 @@
 # The first write passes: a one-file change is a legitimate deploy.
 # IKIRO_GUARD_MODE=warn (the default until real fires are counted) → log + allow; deny → refuse.
 # IKIRO_WATCH_LIVE=1|0 overrides the lsof probe (the exercise rig has no runtime).
+# 11-16: anima's vite on :1794 hot-deploys src · drapes · typology · dapper · ghost into his open page; a
+# 12-file inspector rework landed there file by file, unnamed.
 input=$(cat)
 path=$(jq -r '.tool_input.file_path // empty' <<<"$input")
 session=$(jq -r '.session_id // "nosession"' <<<"$input")
 log="$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log"
 
 case "$path" in
-  */.viva/registry/*) package=${path#*/.viva/registry/}; package="registry/${package%%/*}" ;;
-  */vivalence/commons/*) package=${path#*/vivalence/commons/}; package="commons/${package%%/*}" ;;
+  */.viva/registry/*) package=${path#*/.viva/registry/}; package="registry/${package%%/*}"; port=2501; watcher="runtime/watch" ;;
+  */vivalence/commons/*) package=${path#*/vivalence/commons/}; package="commons/${package%%/*}"; port=2501; watcher="runtime/watch" ;;
+  */systems/anima/src/*|*/systems/ghost/*|*/subsystems/drapes/*|*/subsystems/typology/*|*/subsystems/dapper/*)
+    package=${path#*/vivalence/code/vivalence/}; package="anima-vite/${package%/*}"; package=${package%%/*}; port=1794; watcher="anima's vite (HMR, systems/anima/vite.config.mjs:27)" ;;
   *) exit 0 ;;
 esac
 
-live=${IKIRO_WATCH_LIVE:-$(lsof -nP -iTCP:2501 -sTCP:LISTEN -t >/dev/null 2>&1 && echo 1 || echo 0)}
+live=${IKIRO_WATCH_LIVE:-$(lsof -nP -iTCP:$port -sTCP:LISTEN -t >/dev/null 2>&1 && echo 1 || echo 0)}
 [ "$live" = 1 ] || exit 0
 
 state="${TMPDIR:-/tmp}/ikiro-watch-${session}"
@@ -28,11 +32,11 @@ earlier=$(awk -v now="$now" -v pkg="$package" -v p="$path" '$1 > now - 600 && $2
 printf '%s %s %s\n' "$now" "$package" "$path" >> "$state"
 [ -n "$earlier" ] || exit 0
 
-reason="watch-guard: a second file of $package in ten minutes while runtime/watch listens on :2501 — every save is a deploy, and this one ships the half-done state between the files. Build the change in a scratchpad copy of the package and land it in ONE rsync ([[feedback_watched_tree_lands_in_one_burst]])."
+reason="watch-guard: a second file of $package in ten minutes while $watcher listens on :$port — every save is a deploy, and this one ships the half-done state between the files. Build the change in a scratchpad copy of the package and land it in ONE rsync ([[feedback_watched_tree_lands_in_one_burst]])."
 printf '%s watch-guard %s %s second-file\n' "$now" "${IKIRO_GUARD_MODE:-warn}" "$session" >> "$log" 2>/dev/null
 if [ "${IKIRO_GUARD_MODE:-warn}" = deny ]; then
   jq -n --arg r "$reason" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:$r}}'
 else
-  echo "$reason" >&2
+  jq -n --arg r "$reason" '{hookSpecificOutput:{hookEventName:"PreToolUse",additionalContext:$r}}'
 fi
 exit 0

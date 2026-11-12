@@ -1,0 +1,2354 @@
+# limit: 120000 chars · ledger-faculties land kit 11-18 · patch -p1 from the named root, dry-run first
+--- a/README.md
++++ b/README.md
+@@ -192,14 +192,33 @@
+     "secrets": { "jwt": "${SECRET_VIVA_JWT}" }
+   },
+   "datamap": { "module": "@commons/datamap/libsql" },
++  "tiers": {
++    "frugal": [0.1, 0.9, 1.0],
++    "fast": [0.4, 1.0, 0.8],
++    "balanced": [0.5, 0.5, 0.5],
++    "capable": [0.9, 0.2, 0.5],
++    "unleashed": [1.0, 0.9, 0.1]
++  },
+   "hallucinators": [
+-    { "module": "@commons/hallucinator/anthropic", "secrets": { "key": "${SECRET_VIVA_ANTHROPIC_API_KEY}" } },
+-    { "module": "@commons/hallucinator/openrouter", "secrets": { "key": "${SECRET_VIVA_OPENROUTER_API_KEY}" } }
++    {
++      "module": "@commons/hallucinator/anthropic",
++      "secrets": { "key": "${SECRET_VIVA_ANTHROPIC_API_KEY}" },
++      "faculties": [
++        { "type": "dialogue", "id": "claude-opus-5-5", "tune": [1.0, 0.8, 0.1], "context": 1000000, "thinking": true },
++        { "type": "dialogue", "id": "claude-sonnet-5-5", "tune": [0.6, 0.6, 0.5], "context": 1000000, "thinking": true },
++        { "type": "dialogue", "id": "claude-haiku-5-5", "tune": [0.25, 0.95, 0.5], "context": 1000000, "thinking": true }
++      ]
++    },
++    { "module": "@commons/hallucinator/openrouter", "secrets": { "key": "${SECRET_VIVA_OPENROUTER_API_KEY}" }, "faculties": [ … ] },
++    { "module": "@commons/hallucinator/elevenlabs", "secrets": { "key": "${SECRET_VIVA_ELEVENLABS_API_KEY}" }, "faculties": [ … ] },
++    { "module": "@commons/hallucinator/deepgram", "secrets": { "key": "${SECRET_VIVA_DEEPGRAM_API_KEY}" }, "faculties": [ … ] }
+   ],
+   "clients": [{ "manifest": { "type": "client", "slug": "anima" }, "statics": { "serve": "${VIVA_CLIENT_ANIMA_SERVE}" } }]
+ }
+ ```
+ 
++A hallucinator row loads only the faculties it lists — models, voices, their tunes; a row whose key is empty sleeps. `tiers` gives each of the five tier names its point; the runtime refuses to start without all five.
++
+ Identity is the runtime's own: `SECRET_VIVA_JWT` signs its users, and every daemon behind it authenticates against that one remote. There is no identity service to declare.
+ 
+ # Quickstart
+--- a/subsystems/paladin/tests/expand.test.js
++++ b/subsystems/paladin/tests/expand.test.js
+@@ -138,6 +138,8 @@
+   { at: "lighthouse.statics.remote", read: ["PUBLIC_VIVA_LIGHTHOUSE_REMOTE"], unset: ["PUBLIC_VIVA_LIGHTHOUSE_REMOTE"] },
+   { at: "hallucinators[0].secrets.key", read: ["SECRET_VIVA_ANTHROPIC_API_KEY"], unset: [] },
+   { at: "hallucinators[1].secrets.key", read: ["SECRET_VIVA_OPENROUTER_API_KEY"], unset: ["SECRET_VIVA_OPENROUTER_API_KEY"] },
++  { at: "hallucinators[2].secrets.key", read: ["SECRET_VIVA_ELEVENLABS_API_KEY"], unset: ["SECRET_VIVA_ELEVENLABS_API_KEY"] },
++  { at: "hallucinators[3].secrets.key", read: ["SECRET_VIVA_DEEPGRAM_API_KEY"], unset: ["SECRET_VIVA_DEEPGRAM_API_KEY"] },
+   { at: "client[anima].statics.serve", read: ["VIVA_CLIENT_ANIMA_SERVE"], unset: ["VIVA_CLIENT_ANIMA_SERVE"] },
+   { at: "service[multiplayer].secrets.jwt", read: ["SECRET_VIVA_JWT"], unset: ["SECRET_VIVA_JWT"] },
+ ];
+@@ -145,6 +147,8 @@
+   { key: "PUBLIC_VIVA_LIGHTHOUSE_REMOTE", at: "lighthouse.statics.remote", verdict: "REQUIRED", required: true },
+   { key: "PUBLIC_VIVA_RUNTIME_REMOTE", at: "runtime.statics.remote", verdict: "ok", required: true },
+   { key: "SECRET_VIVA_ANTHROPIC_API_KEY", at: "hallucinators[0].secrets.key", verdict: "ok", required: false },
++  { key: "SECRET_VIVA_DEEPGRAM_API_KEY", at: "hallucinators[3].secrets.key", verdict: "optional", required: false },
++  { key: "SECRET_VIVA_ELEVENLABS_API_KEY", at: "hallucinators[2].secrets.key", verdict: "optional", required: false },
+   { key: "SECRET_VIVA_JWT", at: "service[multiplayer].secrets.jwt", verdict: "REQUIRED", required: true },
+   { key: "SECRET_VIVA_OPENROUTER_API_KEY", at: "hallucinators[1].secrets.key", verdict: "optional", required: false },
+   { key: "VIVA_CLIENT_ANIMA_ORIGIN", at: null, verdict: "REQUIRED", required: true },
+@@ -153,8 +157,6 @@
+   { key: "VIVA_RUNTIME_SERVE", at: "runtime.statics.serve", verdict: "ok", required: true },
+ ];
+ const LEDGERED = [
+-  { key: "SECRET_VIVA_DEEPGRAM_API_KEY", at: null, verdict: "documented", required: false },
+-  { key: "SECRET_VIVA_ELEVENLABS_API_KEY", at: null, verdict: "documented", required: false },
+   { key: "VIVA_REPOSITORY_MOUNT", at: null, verdict: "REQUIRED", required: true },
+ ];
+ const FLAGS = { VIVA_RUNTIME_SERVE: "http://localhost:2501/", PUBLIC_VIVA_RUNTIME_REMOTE: "${VIVA_RUNTIME_SERVE}" };
+--- a/subsystems/typology/tests/cortex.snapshot.test.js
++++ b/subsystems/typology/tests/cortex.snapshot.test.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "./scenarios/tiers.js";
+ // snapshot demo · cortex — the faculty repository (type → Faculty[]) as data.
+ // Step 1: DRY — console.log the pojo + resolved path, eyeball it. Step 2: write + read back.
+ import { specimen, Cortex } from "@vivalence/typology";
+@@ -9,7 +10,7 @@
+ describe("snapshot demo: cortex", () => {
+   // cortex — faculties live in a Map (fold flattens to {}) → parse-override to expand the repository
+   it("captures cortex", () => {
+-    const cortex = new Cortex().register([
++    const cortex = new Cortex(TIER_POINTS).register([
+       {
+         type: "dialogue",
+         id: "dialogue-1",
+--- a/subsystems/typology/tests/dictation.conversation.test.js
++++ b/subsystems/typology/tests/dictation.conversation.test.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "./scenarios/tiers.js";
+ import { belt, specimen, v, Controller, Cortex, Span, shard, sse, Context, sleep } from "@vivalence/typology";
+ import { Audio, Packet } from "../schematics/primitives/hallucination.js";
+ 
+@@ -102,7 +103,7 @@
+ const POLISH = "Punctuate and capitalize. Output only the corrected transcript.";
+ 
+ async function pipeline({ conversational = {}, hypotheses, final, correct, chunks = ["oi", "tudo", "bem"], polish = POLISH, delay, minds }) {
+-  const cortex = new Cortex().register([
++  const cortex = new Cortex(TIER_POINTS).register([
+     scriptedFaculty(hypotheses, final),
+     ...(minds ?? [fastDialogue(correct ?? ((text) => text), delay)]),
+   ]);
+@@ -171,7 +172,7 @@
+   });
+ 
+   specimen.it("polish failure degrades silently, the words intact, the stream closes", async () => {
+-    const cortex = new Cortex().register([
++    const cortex = new Cortex(TIER_POINTS).register([
+       scriptedFaculty(["hi"], "hi there"),
+       { ...fastDialogue((text) => text), via: { render: async () => { throw new Error("provider down"); } } },
+     ]);
+@@ -197,7 +198,7 @@
+       }
+     };
+     const faculty = { ...scriptedFaculty([], ""), via: { stream: () => turns() } };
+-    const cortex = new Cortex().register([faculty, fastDialogue((text) => text.toUpperCase(), 60)]);
++    const cortex = new Cortex(TIER_POINTS).register([faculty, fastDialogue((text) => text.toUpperCase(), 60)]);
+     const ctx = new Context({ request: { url: "http://socket/harness/verbatim/stream", body: {}, raw: { body: source(["x"]) } } });
+     ctx.cortex = cortex;
+     ctx.controller = new Controller({ stdout: new Span("hallucination") });
+--- a/subsystems/typology/tests/hallucination.snapshot.test.js
++++ b/subsystems/typology/tests/hallucination.snapshot.test.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "./scenarios/tiers.js";
+ import { join } from "@std/path";
+ import { specimen, v, Controller, Cortex, Vector } from "@vivalence/typology";
+ 
+@@ -25,7 +26,7 @@
+ 
+ function scriptedCortex(script, seen) {
+   let cursor = 0;
+-  return new Cortex().register([
++  return new Cortex(TIER_POINTS).register([
+     {
+       type: "dialogue",
+       id: "dialogue-1",
+@@ -92,7 +93,7 @@
+     specimen.it("an invalid policy throws at the call, named", async () => {
+       let error = null;
+       try {
+-        await new Cortex().hallucinate.dialogue.render({ controller: new Controller(), policy: { rounds: 0 }, turns: [] });
++        await new Cortex(TIER_POINTS).hallucinate.dialogue.render({ controller: new Controller(), policy: { rounds: 0 }, turns: [] });
+       } catch (thrown) { error = thrown; }
+       specimen.expect(error.message).toContain("invalid dialogue hallucination");
+     });
+@@ -170,7 +171,7 @@
+           ],
+         ];
+         let cursor = 0;
+-        const cortex = new Cortex().register([
++        const cortex = new Cortex(TIER_POINTS).register([
+           {
+             type: "dialogue",
+             id: "dialogue-2",
+@@ -209,7 +210,7 @@
+       "the request carries output.schema with no respond splice; the structured turn folds",
+       async () => {
+         const seen = [];
+-        const cortex = new Cortex().register([
++        const cortex = new Cortex(TIER_POINTS).register([
+           {
+             type: "dialogue",
+             id: "dialogue-3",
+--- a/subsystems/typology/tests/cortex.test.js
++++ b/subsystems/typology/tests/cortex.test.js
+@@ -1,4 +1,5 @@
+-import { specimen, belt, Controller, Cortex, Span, Vector, nearest, shard, tiers, v } from "@vivalence/typology";
++import { TIER_POINTS } from "./scenarios/tiers.js";
++import { specimen, belt, Controller, Cortex, Span, Vector, nearest, shard, v } from "@vivalence/typology";
+ import { metronome } from "./scenarios/metronome.js";
+ 
+ function mockFaculties() {
+@@ -47,7 +48,7 @@
+ }
+ 
+ function populatedCortex() {
+-  return new Cortex().register(mockFaculties());
++  return new Cortex(TIER_POINTS).register(mockFaculties());
+ }
+ 
+ specimen.describe("Cortex", () => {
+@@ -62,28 +63,28 @@
+     specimen.expect(populated.find()).toHaveLength(5);
+     specimen.expect(populated.find({ type: "dialogue", via: "stream" })).toHaveLength(2);
+ 
+-    const additive = new Cortex();
++    const additive = new Cortex(TIER_POINTS);
+     specimen.expect(additive.register([mockFaculties()[0]])).toBe(additive);
+     additive.register([mockFaculties()[1]]);
+     specimen.expect(additive.find({ type: "dialogue" })).toHaveLength(2);
+ 
+-    specimen.expect(new Cortex().register(mockFaculties()[0]).find({ type: "dialogue" })).toHaveLength(1);
++    specimen.expect(new Cortex(TIER_POINTS).register(mockFaculties()[0]).find({ type: "dialogue" })).toHaveLength(1);
+ 
+     const supplied = {
+       type: "dialogue", id: "kept", tune: [0.2, 0.8, 0.5],
+       channels: { in: ["text"], out: ["text"] },
+       via: { render: async () => ({}) },
+     };
+-    const padded = new Cortex().register([supplied]);
++    const padded = new Cortex(TIER_POINTS).register([supplied]);
+     specimen.expect(supplied.tune).toEqual([0.2, 0.8, 0.5]);
+     specimen.expect(padded.find({ type: "dialogue" })[0].tune).toEqual([0.2, 0.8, 0.5]);
+ 
+     let long = null;
+-    try { new Cortex().register([{ ...supplied, tune: [0.2, 0.4, 0.8, 0.5] }]); } catch (thrown) { long = thrown; }
++    try { new Cortex(TIER_POINTS).register([{ ...supplied, tune: [0.2, 0.4, 0.8, 0.5] }]); } catch (thrown) { long = thrown; }
+     specimen.expect(long.message).toContain("invalid faculty");
+ 
+     let error = null;
+-    try { new Cortex().register([{ type: "dialogue", id: "dialogue-7", tune: [0.5, 0.5, 0.5] }]); } catch (thrown) { error = thrown; }
++    try { new Cortex(TIER_POINTS).register([{ type: "dialogue", id: "dialogue-7", tune: [0.5, 0.5, 0.5] }]); } catch (thrown) { error = thrown; }
+     specimen.expect(error.message).toContain("invalid faculty");
+   });
+ 
+@@ -113,9 +114,9 @@
+     specimen.expect(cortex.findOne({ type: "verbatim" })).toBe(undefined);
+ 
+     const dialogues = mockFaculties().filter((faculty) => faculty.type === "dialogue");
+-    specimen.expect(nearest(dialogues, tiers.unleashed).tune).toEqual([0.9, 0.3, 0.5]);
+-    specimen.expect(nearest(dialogues, tiers.frugal).tune).toEqual([0.1, 1.0, 0.5]);
+-    specimen.expect(nearest(dialogues, tiers.balanced).tune).toEqual([0.4, 0.6, 0.5]);
++    specimen.expect(nearest(dialogues, TIER_POINTS.unleashed).tune).toEqual([0.9, 0.3, 0.5]);
++    specimen.expect(nearest(dialogues, TIER_POINTS.frugal).tune).toEqual([0.1, 1.0, 0.5]);
++    specimen.expect(nearest(dialogues, TIER_POINTS.balanced).tune).toEqual([0.4, 0.6, 0.5]);
+ 
+     const spread = [
+       { tune: [0.1, 0.1, 0.1] },
+@@ -126,7 +127,7 @@
+   });
+ 
+   specimen.it("the object avenue derives from a dialogue donor; the provider owns structured output", async () => {
+-    const donorOnly = new Cortex().register([mockFaculties()[0]]);
++    const donorOnly = new Cortex(TIER_POINTS).register([mockFaculties()[0]]);
+     specimen.expect(donorOnly.find({ type: "object" })).toHaveLength(0);
+     const derived = donorOnly.findOne({ type: "object" });
+     specimen.expect(derived).toBeDefined();
+@@ -135,7 +136,7 @@
+ 
+     specimen.expect(populatedCortex().findOne({ type: "object" }).tune).toEqual([0.3, 0.8, 0.5]);
+ 
+-    specimen.expect(new Cortex().register([mockFaculties()[3]]).findOne({ type: "object" })).toBe(undefined);
++    specimen.expect(new Cortex(TIER_POINTS).register([mockFaculties()[3]]).findOne({ type: "object" })).toBe(undefined);
+   });
+ 
+   specimen.it("hallucinate: gate → fill → lowered Request; verbatim.render derives from the stream", async () => {
+@@ -155,9 +156,9 @@
+       ],
+       "verbatim",
+     );
+-    const cortex = new Cortex().register([clock.faculty, spoken.faculty]);
++    const cortex = new Cortex(TIER_POINTS).register([clock.faculty, spoken.faculty]);
+     specimen.expect(cortex.hallucinator).toBe(undefined);
+-    specimen.expect(new Cortex().hallucinate).not.toBe(cortex.hallucinate);
++    specimen.expect(new Cortex(TIER_POINTS).hallucinate).not.toBe(cortex.hallucinate);
+     specimen.expect(cortex.hallucinate).toBe(cortex.hallucinate);
+ 
+     await specimen.expect(cortex.hallucinate.dialogue.render({ turns: [] })).rejects.toThrow(/controller/);
+@@ -198,7 +199,7 @@
+       channels: { in: ["text", "object"], out: ["object"] },
+       via: { render: async (round) => { seen.push(round); return Object.fromEntries(Object.entries(round.questions).map(([key, question]) => [key, answered(question)])); } },
+     };
+-    const cortex = new Cortex().register([chooser]);
++    const cortex = new Cortex(TIER_POINTS).register([chooser]);
+     specimen.expect(cortex.findOne({ type: "choice", via: "stream" })).toBe(undefined);
+     const system = { expected: "Vado al mercato.", answer: "Io vado al mercato domani." };
+     await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), system, questions: {} })).rejects.toThrow(/a choice asks at least one question/);
+@@ -231,6 +232,20 @@
+     await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), system, questions: { wide: { ask: "?", options: four } } })).rejects.toThrow(/'bench\/chooser' holds 3 options; "wide" carries 4/);
+     await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), system, questions: { a: { ask: "?" }, b: { ask: "?" }, c: { ask: "?" }, d: { ask: "?" } } })).rejects.toThrow(/'bench\/chooser' renders 3 question\(s\) at once; 4 asked/);
+ 
+-    await specimen.expect(new Cortex().hallucinate.choice.render({ controller: new Controller(), system, questions: { ok: { ask: "?" } } })).rejects.toThrow(/no 'choice' faculty resolves a 'render' avenue/);
++    await specimen.expect(new Cortex(TIER_POINTS).hallucinate.choice.render({ controller: new Controller(), system, questions: { ok: { ask: "?" } } })).rejects.toThrow(/no 'choice' faculty resolves a 'render' avenue/);
++  });
++
++  specimen.it("the ledger's tiers decide a pick; a cortex refuses tiers missing a name; eager is no tier", () => {
++    const faculties = [
++      { type: "dialogue", id: "slow-smart", tune: TIER_POINTS.capable, via: { render: () => {} } },
++      { type: "dialogue", id: "fast-smart", tune: TIER_POINTS.unleashed, via: { render: () => {} } },
++    ];
++    const cortex = new Cortex(TIER_POINTS).register(faculties);
++    specimen.expect(cortex.findOne({ type: "dialogue", tier: "capable" }).id).toBe("slow-smart");
++    specimen.expect(cortex.findOne({ type: "dialogue", tier: "unleashed" }).id).toBe("fast-smart");
++    specimen.expect(cortex.split([]).tiers).toBe(TIER_POINTS);
++    const { capable, ...partial } = TIER_POINTS;
++    specimen.expect(() => new Cortex(partial)).toThrow("[cortex] tiers/ must have required properties capable");
++    specimen.expect(() => cortex.findOne({ type: "dialogue", tier: "eager" })).toThrow("[cortex] invalid query /tier");
+   });
+ });
+--- a/subsystems/typology/tests/call.conversation.test.js
++++ b/subsystems/typology/tests/call.conversation.test.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "./scenarios/tiers.js";
+ import { Controller, Cortex, soma, Span, specimen, ToolCall, v, Vector } from "@vivalence/typology";
+ 
+ const { Packet } = v.primitives.hallucination;
+@@ -103,7 +104,7 @@
+ 
+ const call = async (script, hangup = 250) => {
+   const controller = new Controller({ stdout: new Span("call") });
+-  const cortex = new Cortex().register([ear(), mind(), mouth()]);
++  const cortex = new Cortex(TIER_POINTS).register([ear(), mind(), mouth()]);
+   const tools = new Vector().open({ nature: new ToolCall("clock").signal.pathname }, () => ({ condition: "NOMINAL", product: { message: "15:00" } }));
+   const microphone = (async function* () {
+     for (const [wait, words] of script) {
+@@ -123,11 +124,11 @@
+ 
+ specimen.describe("the cascaded call — ear · mind · mouth behind one stream (law 6 · Q0 · Q6)", () => {
+   specimen.it("each organ is picked by its own selector; no ear, no call", () => {
+-    const cortex = new Cortex().register([ear(), mind("mind-a"), mind("mind-b", [0.9, 0.1, 0.1]), mouth("mouth-a"), mouth("mouth-b", [0.1, 0.9, 0.9])]);
++    const cortex = new Cortex(TIER_POINTS).register([ear(), mind("mind-a"), mind("mind-b", [0.9, 0.1, 0.1]), mouth("mouth-a"), mouth("mouth-b", [0.1, 0.9, 0.9])]);
+     specimen.expect(() => cortex.findOne({ type: "call", via: "stream" })).toThrow(/2 'dialogue' faculties match/);
+     const picked = cortex.findOne({ type: "call", via: "stream", mind: { id: "mind-b" }, speak: { tier: "fast" } });
+     specimen.expect(picked.id).toBe("scribe_v3_live+mind-b+mouth-b");
+-    specimen.expect(new Cortex().register([mind(), mouth()]).findOne({ type: "call", via: "stream" })).toBe(undefined);
++    specimen.expect(new Cortex(TIER_POINTS).register([mind(), mouth()]).findOne({ type: "call", via: "stream" })).toBe(undefined);
+   });
+ 
+   specimen.it("a heard turn seals, the mind answers aloud; every packet one grammar, every turn an id", async () => {
+--- a/subsystems/typology/tests/hallucination.test.js
++++ b/subsystems/typology/tests/hallucination.test.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "./scenarios/tiers.js";
+ import { belt, specimen, Controller, Cortex, Vector, v } from "@vivalence/typology";
+ 
+ const { Packet } = v.primitives.hallucination;
+@@ -50,7 +51,7 @@
+ }
+ 
+ function populatedCortex() {
+-  return new Cortex().register([
++  return new Cortex(TIER_POINTS).register([
+     {
+       type: "dialogue",
+       id: "dialogue-1",
+@@ -105,7 +106,7 @@
+   specimen.describe("the request record — WHAT rides the invocation", () => {
+     specimen.it("system sections cross keyed and ordered; turns carry no system turn", async () => {
+       let seen = null;
+-      const cortex = new Cortex().register([{
++      const cortex = new Cortex(TIER_POINTS).register([{
+         type: "dialogue", id: "dialogue-5", tune: [0.5, 0.5, 0.5],
+         channels: { in: ["text"], out: ["text"] },
+         via: { render: async (request) => ((seen = request), { role: "assistant", parts: [{ type: "text", text: "ok" }], meta: { state: "complete" } }) },
+@@ -124,7 +125,7 @@
+ 
+     specimen.it("an explicit cache.marks wins over the derived marks", async () => {
+       let seen = null;
+-      const cortex = new Cortex().register([{
++      const cortex = new Cortex(TIER_POINTS).register([{
+         type: "dialogue", id: "dialogue-6", tune: [0.5, 0.5, 0.5],
+         channels: { in: ["text"], out: ["text"] },
+         via: { render: async (request) => ((seen = request), { role: "assistant", parts: [{ type: "text", text: "ok" }], meta: { state: "complete" } }) },
+@@ -197,7 +198,7 @@
+ 
+     specimen.it("an unknown tool becomes an error result and the response still completes", async () => {
+       let toolResultTurn = null;
+-      const cortex = new Cortex().register([{
++      const cortex = new Cortex(TIER_POINTS).register([{
+         type: "dialogue", id: "dialogue-7", tune: [0.5, 0.5, 0.5],
+         channels: { in: ["text"], out: ["text"] },
+         via: {
+@@ -217,7 +218,7 @@
+     });
+ 
+     specimen.it("rounds ceiling closes length and render throws", async () => {
+-      const cortex = new Cortex().register([{
++      const cortex = new Cortex(TIER_POINTS).register([{
+         type: "dialogue", id: "dialogue-8", tune: [0.5, 0.5, 0.5],
+         channels: { in: ["text"], out: ["text", "tool_use"] },
+         via: { render: async () => ({ role: "assistant", parts: [{ type: "tool_use", id: "t1", name: "loop", input: {} }], meta: { state: "tools" } }) },
+@@ -261,7 +262,7 @@
+     });
+ 
+     specimen.it("throws when no speech faculty carries a render avenue", async () => {
+-      const cortex = new Cortex().register([{
++      const cortex = new Cortex(TIER_POINTS).register([{
+         type: "speech", id: "speech-9", tune: [0.5, 0.5, 0.5],
+         channels: { in: ["text"], out: ["audio"] },
+         via: { stream: async function* () {} },
+@@ -280,7 +281,7 @@
+     });
+ 
+     specimen.it("the object avenue resolves the dialogue faculty and folds its structured turn", async () => {
+-      const cortex = new Cortex().register([{
++      const cortex = new Cortex(TIER_POINTS).register([{
+         type: "dialogue", id: "dialogue-10", tune: [0.5, 0.5, 0.5],
+         channels: { in: ["text"], out: ["object"] },
+         via: {
+@@ -302,7 +303,7 @@
+     specimen.it("output.schema reaches the provider on request.output", async () => {
+       let seenSchema = null;
+       const schema = { marker: "OUT" };
+-      const cortex = new Cortex().register([{
++      const cortex = new Cortex(TIER_POINTS).register([{
+         type: "dialogue", id: "dialogue-11", tune: [0.5, 0.5, 0.5],
+         channels: { in: ["text"], out: ["object"] },
+         via: {
+@@ -322,7 +323,7 @@
+     });
+ 
+     specimen.it("object synthesis runs real tools before the structured turn, lexicon-native", async () => {
+-      const cortex = new Cortex().register([{
++      const cortex = new Cortex(TIER_POINTS).register([{
+         type: "dialogue", id: "dialogue-12", tune: [0.5, 0.5, 0.5],
+         channels: { in: ["text", "tool_result"], out: ["text", "tool_use", "object"] },
+         via: {
+--- a/subsystems/typology/tests/voice.conversation.test.js
++++ b/subsystems/typology/tests/voice.conversation.test.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "./scenarios/tiers.js";
+ import {
+   specimen,
+   sleep,
+@@ -58,7 +59,7 @@
+ }
+ 
+ function makeMode() {
+-  const cortex = new Cortex().register([stubSpeechFaculty(), stubVerbatimFaculty()]);
++  const cortex = new Cortex(TIER_POINTS).register([stubSpeechFaculty(), stubVerbatimFaculty()]);
+   const harness = {
+     dialogue: {
+       stream: async ({ parts }) => {
+@@ -109,7 +110,7 @@
+     })();
+ 
+     const speechPath = (async () => {
+-      const speech = mode.cortex.findOne({ type: "speech", tier: "eager", via: "stream" });
++      const speech = mode.cortex.findOne({ type: "speech", tier: "fast", via: "stream" });
+       if (!speech) return;
+       for await (const packet of speech.via.stream(soma.textFromPackets(audioBranch), {})) {
+         live.send.speech.packet(packet);
+@@ -127,7 +128,7 @@
+       const state = ctx.socket.state;
+       state.verbatim ??= (() => {
+         const audio = new Queue();
+-        const asr   = mode.cortex.findOne({ type: "verbatim", tier: "eager", via: "stream" });
++        const asr   = mode.cortex.findOne({ type: "verbatim", tier: "fast", via: "stream" });
+         (async () => {
+           for await (const event of asr.via.stream(audio.drain(), {})) {
+             state.conversation.send.verbatim?.packet?.(event);
+--- a/subsystems/typology/tests/cortex.hallucinators.test.js
++++ b/subsystems/typology/tests/cortex.hallucinators.test.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "./scenarios/tiers.js";
+ import { specimen, Cortex } from "@vivalence/typology";
+ 
+ function makeService(slug, faculties) {
+@@ -30,7 +31,7 @@
+       },
+     ];
+ 
+-    const cortex = new Cortex();
++    const cortex = new Cortex(TIER_POINTS);
+     for (const { service, mask } of services) {
+       cortex.register(await service.provider(mask));
+     }
+@@ -39,17 +40,17 @@
+     specimen.expect(cortex.find({ type: "speech" }).length).toBeGreaterThan(0);
+     specimen.expect(cortex.find({ type: "verbatim" }).length).toBeGreaterThan(0);
+ 
+-    const speech = cortex.findOne({ type: "speech", tier: "eager" });
++    const speech = cortex.findOne({ type: "speech", tier: "fast" });
+     specimen.expect(speech.type).toBe("speech");
+     specimen.expect(speech.secret).toBe("key-e");
+ 
+-    const verbatim = cortex.findOne({ type: "verbatim", tier: "eager" });
++    const verbatim = cortex.findOne({ type: "verbatim", tier: "fast" });
+     specimen.expect(verbatim.type).toBe("verbatim");
+     specimen.expect(verbatim.secret).toBe("key-d");
+   });
+ 
+   specimen.it("an empty roster leaves the cortex barren", async () => {
+-    const cortex = new Cortex();
++    const cortex = new Cortex(TIER_POINTS);
+     for (const { service, mask } of []) {
+       cortex.register(await service.provider(mask));
+     }
+@@ -67,19 +68,19 @@
+       },
+       {
+         service: makeService("openai", [
+-          { type: "dialogue", id: "dialogue-5", tune: [0.3, 0.5, 0.1], via: { stream: async function* () {} } },
++          { type: "dialogue", id: "dialogue-5", tune: TIER_POINTS.fast, via: { stream: async function* () {} } },
+         ]),
+         mask: { module: "openai", secrets: { openai: "k2" } },
+       },
+     ];
+ 
+-    const cortex = new Cortex();
++    const cortex = new Cortex(TIER_POINTS);
+     for (const { service, mask } of services) {
+       cortex.register(await service.provider(mask));
+     }
+ 
+-    const eager = cortex.findOne({ type: "dialogue", tier: "eager" });
+-    specimen.expect(eager.secret).toBe("k2");
++    const fast = cortex.findOne({ type: "dialogue", tier: "fast" });
++    specimen.expect(fast.secret).toBe("k2");
+ 
+     const academic = cortex.findOne({ type: "dialogue", tier: "capable" });
+     specimen.expect(academic.secret).toBe("k1");
+--- a/subsystems/typology/prototypes/cortex.js
++++ b/subsystems/typology/prototypes/cortex.js
+@@ -7,17 +7,7 @@
+ import * as steer from "../gestalten/steer/index.js";
+ import { Vector } from "./vector.js";
+ import { v } from "../schematics/index.js";
+-import { FacultyType, Selector } from "../schematics/primitives/hallucination.js";
+-
+-// [intelligence, reasoning, speed, thrift]  (each 0-1, 1 = max)
+-export const tiers = {
+-  frugal: [0.1, 0.9, 1.0],
+-  fast: [0.4, 1.0, 0.8],
+-  balanced: [0.4, 0.6, 0.6],
+-  capable: [0.6, 0.4, 0.4],
+-  unleashed: [0.9, 0.2, 0.2],
+-  eager: [0.3, 0.5, 0.1],
+-};
++import { FacultyType, Selector, Tiers } from "../schematics/primitives/hallucination.js";
+ 
+ export function nearest(faculties, target) {
+   return recipe.nearest(faculties, target);
+@@ -32,7 +22,7 @@
+   speak: v.object({ ...Selector }).optional(),
+ });
+ 
+-const where = (supplied = {}) => {
++const where = (tiers, supplied = {}) => {
+   const query = v.cast(WHERE, { ...supplied });
+   const [fault] = v.faults(WHERE, query);
+   if (fault) throw new Error(`[cortex] invalid query ${fault.at}: ${fault.reason}`);
+@@ -44,7 +34,10 @@
+   hallucinate = null;
+   #hallucinator = new Vector();
+ 
+-  constructor() {
++  constructor(tiers) {
++    const [fault] = v.faults(Tiers, tiers);
++    if (fault) throw new Error(`[cortex] tiers${fault.at} ${fault.reason}`);
++    this.tiers = tiers;
+     const { Audio, Packet, Response } = v.primitives.hallucination;
+     for (const avenue of ["dialogue", "object"]) {
+       this.#hallucinator
+@@ -96,13 +89,13 @@
+   }
+ 
+   split(supplied) {
+-    const cortex = new Cortex();
++    const cortex = new Cortex(this.tiers);
+     for (const [type, held] of this.faculties) cortex.faculties.set(type, [...held]);
+     return cortex.register(supplied);
+   }
+ 
+   find(supplied) {
+-    const query = where(supplied);
++    const query = where(this.tiers, supplied);
+     const stored = query.type
+       ? (this.faculties.get(query.type) ?? [])
+       : [...this.faculties.values()].flat();
+@@ -115,7 +108,7 @@
+   }
+ 
+   findOne(supplied) {
+-    const query = where(supplied);
++    const query = where(this.tiers, supplied);
+     const found = this.find(query);
+     if (query.tune) return nearest(found, query.tune) ?? DERIVATIONS[query.type]?.(this, query);
+     if (found.length > 1) throw new Error(`[cortex] ${found.length} '${query.type}' faculties match — name a tier, a tune or an id`);
+--- a/documentation/content/30-39_guides/31_guides/31.02_instance-from-scratch.mdx
++++ b/documentation/content/30-39_guides/31_guides/31.02_instance-from-scratch.mdx
+@@ -335,10 +335,21 @@
+ 
+ export const datamap = { module: "@commons/datamap/libsql" };
+ 
++export const tiers = {
++  frugal: [0.1, 0.9, 1.0],
++  fast: [0.4, 1.0, 0.8],
++  balanced: [0.5, 0.5, 0.5],
++  capable: [0.9, 0.2, 0.5],
++  unleashed: [1.0, 0.9, 0.1],
++};
++
+ export const hallucinators = [
+   {
+     module: "@commons/hallucinator/anthropic",
+     secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
++    faculties: [
++      { type: "dialogue", id: "claude-sonnet-5-5", tune: [0.6, 0.6, 0.5], context: 1000000, thinking: true },
++    ],
+   },
+ ];
+ 
+--- a/systems/runtime/tests/cortex.integration.test.js
++++ b/systems/runtime/tests/cortex.integration.test.js
+@@ -14,19 +14,18 @@
+   return { packets, turn };
+ }
+ 
+-function captureSonnet(cortex) {
+-  const faculties    = cortex.find({ type: "dialogue" });
+-  const sonnet       = faculties.find((faculty) => faculty.tune[0] === 0.4);
+-  const originalStream = sonnet.via.stream;
++function captureDefault(cortex) {
++  const picked       = cortex.findOne({ type: "dialogue", via: "stream", tier: "capable" });
++  const originalStream = picked.via.stream;
+   let capturedRequest = null;
+-  sonnet.via.stream  = async (request) => {
++  picked.via.stream  = async (request) => {
+     capturedRequest = request;
+     return originalStream(request);
+   };
+   return {
+     get turns() { return capturedRequest?.turns; },
+     get request() { return capturedRequest; },
+-    restore()   { sonnet.via.stream = originalStream; },
++    restore()   { picked.via.stream = originalStream; },
+   };
+ }
+ 
+@@ -139,7 +138,7 @@
+     specimen.it("history grows: faculty receives all prior turns", async () => {
+       const { dewey, createThread, cortex } = scenario;
+       const thread  = await createThread();
+-      const capture = captureSonnet(cortex);
++      const capture = captureDefault(cortex);
+ 
+       try {
+         const stream1 = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "first" }], thread });
+@@ -170,7 +169,7 @@
+     specimen.it("system section written by mode harness middleware", async () => {
+       const { dewey, createThread, cortex } = scenario;
+       const thread  = await createThread();
+-      const capture = captureSonnet(cortex);
++      const capture = captureDefault(cortex);
+ 
+       try {
+         const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "hi" }], thread });
+@@ -361,7 +360,7 @@
+ 
+       em.clear();
+ 
+-      const capture = captureSonnet(cortex);
++      const capture = captureDefault(cortex);
+       try {
+         const stream3 = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "third after reload" }], thread });
+         await collectStream(stream3);
+--- a/systems/runtime/tests/cortex.stripwire.test.js
++++ b/systems/runtime/tests/cortex.stripwire.test.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "@vivalence/typology/scenarios";
+ import { specimen, Controller, soma, v, Url, Connection, Cortex, Vector, cortex, shard, shape } from "@vivalence/typology";
+ import { gestalten } from "@vivalence/runtime";
+ import { create } from "./scenarios/cortex.js";
+@@ -29,7 +30,7 @@
+       shard.transmitter.inline(shape.http(daemon.aperture)),
+     );
+     const strip = await connection.call("/metadata/cortex");
+-    remote = new Cortex().register(cortex.wire(connection.branch("/cortex"), strip));
++    remote = new Cortex(TIER_POINTS).register(cortex.wire(connection.branch("/cortex"), strip));
+   });
+ 
+   specimen.afterAll(async () => {
+--- a/systems/runtime/tests/cortex-contract.snapshot.test.js
++++ b/systems/runtime/tests/cortex-contract.snapshot.test.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "@vivalence/typology/scenarios";
+ import { join } from "@std/path";
+ import { specimen, Controller, v, Url, Connection, Cortex, Aperture, Vector, cortex, shard, shape } from "@vivalence/typology";
+ import { gestalten } from "@vivalence/runtime";
+@@ -54,7 +55,7 @@
+   let sealed;
+ 
+   specimen.beforeAll(async () => {
+-    const daemon = { type: "daemon", aperture: new Aperture(), cortex: new Cortex().register([contractFaculty()]) };
++    const daemon = { type: "daemon", aperture: new Aperture(), cortex: new Cortex(TIER_POINTS).register([contractFaculty()]) };
+     gestalten.shard.host.cortex(daemon);
+     daemon.aperture.branch("/metadata").open("/cortex", () => cortex.strip(daemon.cortex));
+ 
+@@ -75,7 +76,7 @@
+       shard.transmitter.inline(recordingHandler),
+     );
+     strip = await connection.call("/metadata/cortex");
+-    const remote = new Cortex().register(cortex.wire(connection.branch("/cortex"), strip));
++    const remote = new Cortex(TIER_POINTS).register(cortex.wire(connection.branch("/cortex"), strip));
+ 
+     const tools = new Vector()
+       .open({ nature: "lookup" }, async (ctx) => ({ message: `${ctx.input.query} means house` }))
+--- a/systems/runtime/tests/harness.metadata.snapshot.test.js
++++ b/systems/runtime/tests/harness.metadata.snapshot.test.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "@vivalence/typology/scenarios";
+ import { join } from "@std/path";
+ import { Cortex, specimen } from "@vivalence/typology";
+ import { mountMode } from "@vivalence/runtime/scenarios";
+@@ -11,7 +12,7 @@
+ let scenario;
+ 
+ specimen.beforeAll(async () => {
+-  scenario = await mountMode(oracle, { cortex: new Cortex() });
++  scenario = await mountMode(oracle, { cortex: new Cortex(TIER_POINTS) });
+ });
+ specimen.afterAll(async () => {
+   await scenario.orm.close();
+@@ -31,7 +32,7 @@
+ specimen.describe("harness — /metadata/harness/primer/* reads one primer section as the model reads it", () => {
+   let held;
+   specimen.beforeAll(async () => {
+-    held = await mountMode(root, { cortex: new Cortex() });
++    held = await mountMode(root, { cortex: new Cortex(TIER_POINTS) });
+   });
+   specimen.afterAll(async () => {
+     await held.orm.close();
+--- a/systems/runtime/tests/hallucination-triad.doc.test.js
++++ b/systems/runtime/tests/hallucination-triad.doc.test.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "@vivalence/typology/scenarios";
+ // TANGLED from docs/40-49_repository/47_integration/47.02_hallucination-triad.org
+ // Didactic, runnable guide to the cortex → hallucination → harnessed triad.
+ // Edit the .org, re-tangle; or edit here and keep the .org src blocks in sync.
+@@ -48,7 +49,7 @@
+ 
+ specimen.describe("47.02 hallucination triad — the request in isolation (typology only)", () => {
+   // Cortex is a faculty repository. Register providers, then SPAWN a request through it.
+-  const cortex = () => new Cortex().register([tutor()]);
++  const cortex = () => new Cortex(TIER_POINTS).register([tutor()]);
+ 
+   specimen.it("cortex.hallucinate is the typed-fetch surface — ONE record describes the call", async () => {
+     const folded = await cortex().hallucinate.dialogue.render({
+--- a/systems/runtime/tests/turn.unit-of-work.test.js
++++ b/systems/runtime/tests/turn.unit-of-work.test.js
+@@ -2,6 +2,7 @@
+ import { TurnEntity } from "@vivalence/runtime";
+ import stub from "../../../commons/fixtures/testing/hal/stub/provider/index.js";
+ import { create } from "./scenarios/cortex.js";
++import { STUB_FACULTIES } from "./scenarios/fixtures.js";
+ 
+ // m95 Q33: harnessed.js creates each turn's row at /turn/open on a forked em and saves it at its
+ // /turn/close — a tool running mid-response already reads the sealed tool_use turn, and a consumer
+@@ -131,7 +132,7 @@
+   specimen.beforeAll(async () => {
+     world = await create();
+     world.cortex.faculties.clear();
+-    world.cortex.register(await stub({ statics: {} }));
++    world.cortex.register(await stub({ statics: {}, faculties: STUB_FACULTIES }));
+   });
+   specimen.afterAll(async () => {
+     await world.daemon.entities.activity.remove({});
+--- a/systems/runtime/tests/stub.activity.test.js
++++ b/systems/runtime/tests/stub.activity.test.js
+@@ -3,6 +3,7 @@
+ import provider from "../../../commons/fixtures/testing/hal/stub/provider/index.js";
+ import paladin from "@vivalence/paladin";
+ import { create } from "./scenarios/cortex.js";
++import { STUB_FACULTIES } from "./scenarios/fixtures.js";
+ 
+ const { ledger, until } = metronome;
+ 
+@@ -16,7 +17,7 @@
+   // playground's shape: the stub ALONE. the scenario seeds fixture faculties, and two
+   // providers at neighbouring tunes would shadow each other on the nearest-tune pick.
+   world.cortex.faculties.clear();
+-  world.cortex.register(await provider({ statics: { scripts: { stalled: "--stall 20s --deltas 6" } } }));
++  world.cortex.register(await provider({ statics: { scripts: { stalled: "--stall 20s --deltas 6" } }, faculties: STUB_FACULTIES }));
+ });
+ specimen.afterAll(async () => {
+   await world.daemon.entities.activity.remove({});
+--- a/systems/runtime/tests/harness.compose.test.js
++++ b/systems/runtime/tests/harness.compose.test.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "@vivalence/typology/scenarios";
+ import { belt, Cortex, Mode, Path, shape, shard, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
+ import { Runtime, ThreadEntity, TurnEntity, traits } from "@vivalence/runtime";
+ import { textTurn, toolUseTurn } from "../../../commons/fixtures/testing/data/faculties.js";
+@@ -59,7 +60,7 @@
+     });
+     scenario = await create({ harness });
+     const { daemon, dewey } = scenario;
+-    daemon.cortex = new Cortex().register([scripted]);
++    daemon.cortex = new Cortex(TIER_POINTS).register([scripted]);
+     dewey.module.primer = new Vector().open("dewey", "You are Dewey.");
+     PRIMER(dewey);
+     const harvest = new Mode({ manifest: { type: "tactics", slug: "harvest", traits: ["PRIMER", "TOOLING"] } });
+--- a/subsystems/paladin/instance/lifecycle/1-population.js
++++ b/subsystems/paladin/instance/lifecycle/1-population.js
+@@ -91,6 +91,7 @@
+     : undefined;
+   instance.datamap = at("datamap")(module.datamap);
+   instance.hallucinators = at("hallucinators")(module.hallucinators);
++  instance.tiers = at("tiers")(module.tiers);
+   instance.clients = (module.clients ?? []).map((declaration) => dressed(`client[${slug(declaration)}]`)(declaration));
+   instance.services = (module.services ?? []).map((declaration) => at(`service[${slug(declaration)}]`)(declaration));
+   instance.daemons = (module.daemons ?? []).map((declaration) => dressed(`daemon[${slug(declaration)}]`)(declaration));
+--- a/commons/ledger/ledger.viva.json
++++ b/commons/ledger/ledger.viva.json
+@@ -8,9 +8,53 @@
+   },
+   "lighthouse": { "secrets": { "jwt": "${SECRET_VIVA_JWT}" }, "traits": ["JOINABLE", "AUTOLOGIN"] },
+   "datamap": { "module": "@commons/datamap/libsql" },
++  "tiers": {
++    "frugal": [0.1, 0.9, 1.0],
++    "fast": [0.4, 1.0, 0.8],
++    "balanced": [0.5, 0.5, 0.5],
++    "capable": [0.9, 0.2, 0.5],
++    "unleashed": [1.0, 0.9, 0.1]
++  },
+   "hallucinators": [
+-    { "module": "@commons/hallucinator/anthropic", "secrets": { "key": "${SECRET_VIVA_ANTHROPIC_API_KEY}" } },
+-    { "module": "@commons/hallucinator/openrouter", "secrets": { "key": "${SECRET_VIVA_OPENROUTER_API_KEY}" } }
++    {
++      "module": "@commons/hallucinator/anthropic",
++      "secrets": { "key": "${SECRET_VIVA_ANTHROPIC_API_KEY}" },
++      "faculties": [
++        { "type": "dialogue", "id": "claude-opus-5-5", "tune": [1.0, 0.8, 0.1], "context": 1000000, "thinking": true },
++        { "type": "dialogue", "id": "claude-sonnet-5-5", "tune": [0.6, 0.6, 0.5], "context": 1000000, "thinking": true },
++        { "type": "dialogue", "id": "claude-haiku-5-5", "tune": [0.25, 0.95, 0.5], "context": 1000000, "thinking": true }
++      ]
++    },
++    {
++      "module": "@commons/hallucinator/openrouter",
++      "secrets": { "key": "${SECRET_VIVA_OPENROUTER_API_KEY}" },
++      "faculties": [
++        { "type": "dialogue", "id": "openai/gpt-6.1-sol", "tune": [0.8, 0.35, 0.3], "context": 1050000, "thinking": true },
++        { "type": "dialogue", "id": "google/gemini-3.8-flash", "tune": [0.45, 0.85, 0.7], "context": 1048576, "thinking": true },
++        { "type": "dialogue", "id": "google/gemini-3.5-flash-lite", "tune": [0.1, 1.0, 0.95], "context": 1048576, "thinking": true },
++        { "type": "choice", "id": "typesafe/jev-1.13", "tune": [0.4, 1.0, 0.95], "context": 32000, "options": 255, "choices": null },
++        { "type": "picture", "id": "openai/gpt-image-2.6-sunburst", "tune": [0.8, 0.4, 0.4], "limits": {"references": 16, "mask": false, "aspects": ["1:1", "3:2", "2:3"]} },
++        { "type": "picture", "id": "black-forest-labs/flux-3-image", "tune": [0.6, 0.6, 0.6], "limits": {"references": 10, "mask": false, "aspects": ["1:1", "3:2", "2:3", "4:3", "3:4", "16:9", "9:16"]} },
++        { "type": "picture", "id": "google/gemini-nano-banana-2.1", "tune": [0.4, 0.9, 0.9], "limits": {"references": 14, "mask": false, "aspects": ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"]} }
++      ]
++    },
++    {
++      "module": "@commons/hallucinator/elevenlabs",
++      "secrets": { "key": "${SECRET_VIVA_ELEVENLABS_API_KEY}" },
++      "faculties": [
++        { "type": "speech", "id": "luiza", "model": "eleven_flash_v2_5", "voice": "21m00Tcm4TlvDq8ikWAM", "tune": [0.3, 0.4, 0.1] },
++        { "type": "speech", "id": "leandro", "model": "eleven_flash_v2_5", "voice": "EXAVITQu4vr4xnSDxMaL", "tune": [0.5, 0.5, 0.1] },
++        { "type": "verbatim", "id": "scribe_v3_live", "model": "scribe_v3_live", "tune": [0.8, 0.9, 0.7] }
++      ]
++    },
++    {
++      "module": "@commons/hallucinator/deepgram",
++      "secrets": { "key": "${SECRET_VIVA_DEEPGRAM_API_KEY}" },
++      "faculties": [
++        { "type": "verbatim", "id": "nova-3", "model": "nova-3", "tune": [0.5, 0.9, 0.6] },
++        { "type": "verbatim", "id": "flux-general-multi", "model": "flux-general-multi", "tune": [0.6, 0.8, 0.4] }
++      ]
++    }
+   ],
+   "clients": [
+     { "manifest": { "type": "client", "slug": "anima" }, "statics": { "serve": "${VIVA_CLIENT_ANIMA_SERVE}" } },
+--- a/systems/ghost/gestalten/shard/host.js
++++ b/systems/ghost/gestalten/shard/host.js
+@@ -37,7 +37,7 @@
+ };
+ 
+ export const cortex = (type) => async (die, next) => {
+-  die[type].cortex = new Cortex().register(belt.cortex.wire(die[type].aperture.branch("/cortex"), await die[type].aperture.call("/metadata/cortex")));
++  die[type].cortex = new Cortex(await die[type].aperture.call("/metadata/tiers")).register(belt.cortex.wire(die[type].aperture.branch("/cortex"), await die[type].aperture.call("/metadata/cortex")));
+   await next();
+ };
+ 
+--- a/subsystems/typology/schematics/primitives/instance.js
++++ b/subsystems/typology/schematics/primitives/instance.js
+@@ -4,6 +4,7 @@
+ import { Home } from "./home.js";
+ import { Docked, Themed } from "../traits/index.js";
+ import { Path, Url } from "../prototypes/signatures.js";
++import { Tiers } from "./hallucination.js";
+ 
+ const Statics = (known = {}) => v.object(known, { additionalProperties: true });
+ const Secrets = v.record(v.string(), v.unknown());
+@@ -131,6 +132,7 @@
+     clients: v.array(Client).default([]),
+     datamap: Datamap.optional(),
+     hallucinators: v.array(Mask).optional(),
++    tiers: Tiers.optional(),
+     services: v.array(Service).default([]),
+     daemons: v.array(Daemon).default([]),
+   },
+@@ -186,6 +188,7 @@
+     lighthouse: v.object({ secrets: v.object({ jwt: Reference("SECRET_") }), traits: v.array(v.enum(LighthouseTraitsEnum)).optional(), trait: LighthouseTrait.optional() }, { additionalProperties: false }).optional(),
+     datamap: MaskOf.optional(),
+     hallucinators: v.array(MaskOf).optional(),
++    tiers: Tiers.optional(),
+     clients: v.array(v.object({ manifest: Manifest, module: v.string().optional(), mountpoint: v.string().optional(), statics: MaskStatics.optional(), modes: v.array(v.union([v.string(), ModeMask])).optional(), trait: ClientTrait.optional() }, { additionalProperties: false })).optional(),
+     services: v.array(v.object({ manifest: Manifest, module: v.string(), mountpoint: v.string().optional(), statics: MaskStatics.optional(), secrets: MaskSecrets.optional(), datamap: MaskOf.optional() }, { additionalProperties: false })).optional(),
+     daemons: v.array(DaemonMask).optional(),
+@@ -205,6 +208,7 @@
+     lighthouse: Lighthouse.optional(),
+     datamap: Datamap.optional(),
+     hallucinators: v.array(Mask).optional(),
++    tiers: Tiers.optional(),
+     clients: v.array(Client).optional(),
+     services: v.array(Service).optional(),
+   },
+--- a/subsystems/typology/schematics/primitives/hallucination.js
++++ b/subsystems/typology/schematics/primitives/hallucination.js
+@@ -221,12 +221,21 @@
+     v.const("balanced"),
+     v.const("capable"),
+     v.const("unleashed"),
+-    v.const("eager"),
+   ])
+   .desc(
+-    "A named desire in tune-space: frugal=cheap+fast, balanced=even trade, capable=strong+moderate cost, unleashed=max capability cost-no-object, eager=engagement-first.",
++    "A named desire in tune-space: frugal=cheap+fast, balanced=even trade, capable=slow+smart+fair price, unleashed=fast+smart+expensive.",
+   );
+ 
++export const Tiers = v
++  .object({
++    frugal: Tune,
++    fast: Tune,
++    balanced: Tune,
++    capable: Tune,
++    unleashed: Tune,
++  })
++  .desc("Each tier's point in tune-space, declared by the ledger. Example: { \"fast\": [0.4, 1.0, 0.8] }");
++
+ export const Channels = v.object({
+   in: v.array(Channel),
+   out: v.array(Channel),
+--- a/systems/runtime/tests/runtime/hello.test.js
++++ b/systems/runtime/tests/runtime/hello.test.js
+@@ -164,7 +164,7 @@
+     const refused = await world.get("/runtime/house/metadata/modes");
+     expect(refused.status).toBe(401);
+     expect((await refused.json()).error.code).toBe("MISSING_TOKEN");
+-    for (const path of ["/status", "/metadata/manifest", "/metadata/statics", "/metadata/datamap", "/metadata/aperture", "/metadata/cortex"]) {
++    for (const path of ["/status", "/metadata/manifest", "/metadata/statics", "/metadata/datamap", "/metadata/aperture", "/metadata/cortex", "/metadata/tiers"]) {
+       const response = await world.get(`/runtime/house${path}`, finn.access);
+       expect([path, response.status]).toEqual([path, 200]);
+       await response.body?.cancel();
+@@ -228,10 +228,10 @@
+ 
+   afterAll(() => world.stop());
+ 
+-  it("boots the shipped recipe as authored — the relative modes, both hallucinators dormant on blank keys", async () => {
++  it("boots the shipped recipe as authored — the relative modes, all four hallucinators dormant on blank keys", async () => {
+     expect(world.ready).toMatch(hello.READY);
+     expect(world.query("select slug from Daemon")).toEqual([{ slug: "hello" }]);
+-    expect(world.log.filter((line) => /\[instance\] hallucinators\[\d\] filtered/.test(line)).length).toBe(2);
++    expect(world.log.filter((line) => /\[instance\] hallucinators\[\d\] filtered/.test(line)).length).toBe(4);
+   });
+ 
+   it("signs a user up and lets them into the shipped daemon", async () => {
+--- a/systems/runtime/tests/runtime/beats.coverage.test.js
++++ b/systems/runtime/tests/runtime/beats.coverage.test.js
+@@ -247,6 +247,7 @@
+     specimen.expect(await read("/runtime/house/metadata/manifest")).toEqual({ type: "runtime", slug: "house" });
+     specimen.expect(await read("/runtime/house/metadata/statics")).toEqual({ serve: "http://127.0.0.1:0" });
+     specimen.expect(await read("/runtime/house/metadata/cortex")).toEqual([]);
++    specimen.expect(await read("/runtime/house/metadata/tiers")).toEqual({});
+     specimen.expect(Object.keys(await read("/runtime/house/metadata/datamap"))).toContain("file");
+     specimen.expect(Object.keys((await read("/runtime/house/metadata/aperture")).branches)).toContain("entities");
+     specimen.expect(await read("/runtime/house/metadata/modes")).toEqual([
+--- a/systems/anima/tests/tele.test.js
++++ b/systems/anima/tests/tele.test.js
+@@ -134,7 +134,7 @@
+         table("runtime", "healthy", ro("reference", "/runtime/stub") + ro("status", "healthy")),
+         table("lighthouse", "authenticated", ro("standing", "authenticated") + ro("user", "beef") + ro("traits", "AUTOLOGIN") + `<div class="ir act"><button class="neg" data-line="/lighthouse/logout" data-echo="0">sign out</button></div>`),
+         table("terminal", "docked", ro("terminal", "1 of 2") + E("view", "terminal.dock.view", "docked", ["docked", "full", "closed", "messenger"]) + E("align", "terminal.dock.align", "right", ["left", "right"]) + N("share", "terminal.dock.share", 0.38, 0.05, 0.2, 0.8) + E("lens", "terminal.dock.lens", ["turns", "harness", "repl"], ["turns", "harness", "repl"]) + `<div class="ir act"><button class="" data-line="/terminal/new" data-echo="0">new terminal</button><button class="neg" data-line="/terminal/close" data-echo="0">close terminal</button></div>`),
+-        table("thread", "chat/chat", X("label", "thread.label", "first words") + ro("mode", "chat/chat") + ro("turns", "2") + E("tier", "thread.tier", "fast", ["frugal", "fast", "balanced", "capable", "unleashed", "eager"]) + E("effort", "thread.effort", "low", ["none", "low", "medium", "high"]) + N("rounds", "thread.rounds", 6, 1, 1, 50)),
++        table("thread", "chat/chat", X("label", "thread.label", "first words") + ro("mode", "chat/chat") + ro("turns", "2") + E("tier", "thread.tier", "fast", ["frugal", "fast", "balanced", "capable", "unleashed"]) + E("effort", "thread.effort", "low", ["none", "low", "medium", "high"]) + N("rounds", "thread.rounds", 6, 1, 1, 50)),
+         table("buffers", "0", ro("buffers", "0") + ro("seated", "—")),
+         table("activities", "0", null),
+         table("telemetry", "4 records", ro("records", "4") + ro("spans", "3") + `<div class="ir act"><button class="neg" data-line="/telemetry/clear" data-echo="0">clear</button></div>`),
+--- a/systems/anima/tests/world.js
++++ b/systems/anima/tests/world.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "@vivalence/typology/scenarios";
+ import { compile, fire, screen, settle, words } from "@vivalence/drapes/scenarios";
+ import * as esbuild from "esbuild";
+ import { atom } from "nanostores";
+@@ -115,7 +116,7 @@
+     client.runtime = {
+       lighthouse,
+       entities,
+-      cortex: new Cortex().register([{ type: "dialogue", provider: "stub", id: "seer", tune: [0.4, 1.0, 0.8], via: { stream: () => {}, render: () => {} } }]),
++      cortex: new Cortex(TIER_POINTS).register([{ type: "dialogue", provider: "stub", id: "seer", tune: [0.4, 1.0, 0.8], via: { stream: () => {}, render: () => {} } }]),
+       reference: { absolute: "/runtime/stub" },
+       $status: atom({ code: "HEALTHY" }),
+       get status() {
+--- a/systems/anima/tests/oracle-dialogue.test.js
++++ b/systems/anima/tests/oracle-dialogue.test.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "@vivalence/typology/scenarios";
+ import { specimen, soma, Cortex } from "@vivalence/typology";
+ import { mountMode } from "@vivalence/runtime/scenarios";
+ import * as oracle from "../../../commons/playground/chaosmonkey/oracle/oracle.viva.js";
+@@ -30,7 +31,7 @@
+ let scenario;
+ 
+ specimen.beforeAll(async () => {
+-  scenario = await mountMode(oracle, { cortex: new Cortex().register([seer()]) });
++  scenario = await mountMode(oracle, { cortex: new Cortex(TIER_POINTS).register([seer()]) });
+ });
+ 
+ specimen.afterAll(async () => {
+--- a/systems/anima/tests/harness-wire.test.js
++++ b/systems/anima/tests/harness-wire.test.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "@vivalence/typology/scenarios";
+ import { specimen, shape, soma, Cortex } from "@vivalence/typology";
+ import { mountMode } from "@vivalence/runtime/scenarios";
+ import { belt } from "@vivalence/ghost";
+@@ -23,7 +24,7 @@
+ const MOUNT = "/mode/chaosmonkey/oracle";
+ 
+ specimen.beforeAll(async () => {
+-  scenario = await mountMode(oracle, { cortex: new Cortex().register([seer()]) });
++  scenario = await mountMode(oracle, { cortex: new Cortex(TIER_POINTS).register([seer()]) });
+ });
+ specimen.afterAll(async () => {
+   await scenario.orm.close();
+--- a/systems/anima/tests/oracle.snapshot.test.js
++++ b/systems/anima/tests/oracle.snapshot.test.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "@vivalence/typology/scenarios";
+ import { specimen, trace, Cortex } from "@vivalence/typology";
+ import { mountMode } from "@vivalence/runtime/scenarios";
+ import * as oracle from "../../../commons/playground/chaosmonkey/oracle/oracle.viva.js";
+@@ -49,7 +50,7 @@
+ let scenario;
+ 
+ specimen.beforeAll(async () => {
+-  scenario = await mountMode(oracle, { cortex: new Cortex().register([seer()]) });
++  scenario = await mountMode(oracle, { cortex: new Cortex(TIER_POINTS).register([seer()]) });
+ });
+ 
+ specimen.afterAll(async () => {
+--- a/systems/runtime/tests/qa/memo.test.js
++++ b/systems/runtime/tests/qa/memo.test.js
+@@ -50,7 +50,7 @@
+     expect(effect?.manifest?.slug ?? err).toBe("memo");
+     expect([effect.faults, effect.problems]).toEqual([[], []]);
+     expect(Object.keys(effect.daemons)).toEqual(["memo"]);
+-    expect(Object.keys(effect.dormant).sort()).toEqual(["hallucinators[0]", "hallucinators[1]"]);
++    expect(Object.keys(effect.dormant).sort()).toEqual(["hallucinators[0]", "hallucinators[1]", "hallucinators[2]", "hallucinators[3]"]);
+   });
+ 
+   it("run.js on the shelf installs the Latin core — 269 literals, 242 symbols, every literal a word or a sentence", async () => {
+--- a/systems/runtime/tests/qa/fresh.test.js
++++ b/systems/runtime/tests/qa/fresh.test.js
+@@ -56,12 +56,12 @@
+     expect(effect.stratum).toBe("session");
+   });
+ 
+-  it("instance/doctor: zero faults, zero problems, two dormant hallucinators, no lighthouse organ", async () => {
++  it("instance/doctor: zero faults, zero problems, four dormant hallucinators, no lighthouse organ", async () => {
+     const { effect, err } = await viva(world, ["instance/doctor"]);
+     expect(effect?.manifest?.slug ?? err).toBe("hello-world");
+     expect(effect.faults).toEqual([]);
+     expect(effect.problems).toEqual([]);
+-    expect(Object.keys(effect.dormant).sort()).toEqual(["hallucinators[0]", "hallucinators[1]"]);
++    expect(Object.keys(effect.dormant).sort()).toEqual(["hallucinators[0]", "hallucinators[1]", "hallucinators[2]", "hallucinators[3]"]);
+     expect(Object.keys(effect.daemons)).toEqual(["hello"]);
+     expect(effect.services).toEqual({});
+     expect("lighthouse" in effect).toBe(false);
+--- a/systems/runtime/tests/scenarios/lighthouse.js
++++ b/systems/runtime/tests/scenarios/lighthouse.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "@vivalence/typology/scenarios";
+ import { Aperture, Connection, Controller, Cortex, Datamap, Path, Span, Twitch, Url, shape, shard, steer, v } from "@vivalence/typology";
+ import { MikroORM } from "@mikro-orm/core";
+ import { config } from "../../../../commons/datamaps/libsql/libsql.viva.js";
+@@ -24,7 +25,7 @@
+     entities: { ...datamap.entities },
+     aperture: new Aperture(),
+     twitch: new Twitch(),
+-    cortex: new Cortex(),
++    cortex: new Cortex(TIER_POINTS),
+     modes: {},
+     daemons: {},
+     instance: { daemons: [], lighthouse: v.primitives.instance.Lighthouse.cast({ secrets: { jwt: SECRET }, traits }) },
+--- a/systems/runtime/tests/scenarios/bench.js
++++ b/systems/runtime/tests/scenarios/bench.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "@vivalence/typology/scenarios";
+ import paladin from "@vivalence/paladin";
+ import { Connection, contexts, Controller, Cortex, fromm, middleware, Path, shape, shard, Span, Twitch, Url } from "@vivalence/typology";
+ import { Daemon, factories, lifecycle, sets, gestalten, ActivityEntity, ActivityRepository, UserEntity, DaemonEntity, traits as catalog } from "@vivalence/runtime";
+@@ -58,7 +59,7 @@
+ 
+   const daemon = Object.assign(new Daemon(), {
+     slug: "bench",
+-    cortex: new Cortex(),
++    cortex: new Cortex(TIER_POINTS),
+     statics: spec.statics ?? null,
+     mask: {
+       manifest: { type: "daemon", slug: "bench", version: "0.0.1", traits: [] },
+--- a/systems/runtime/tests/scenarios/activity.js
++++ b/systems/runtime/tests/scenarios/activity.js
+@@ -1,7 +1,7 @@
+ import { Url, Connection, Vector, Aperture, shape, shard, sleep, v } from "@vivalence/typology";
+ import { metronome } from "@vivalence/typology/scenarios";
+ import { create as harnessed } from "./cortex.js";
+-import { tiers } from "./fixtures.js";
++import { tiers, TIER_POINTS } from "./fixtures.js";
+ import { lighthouseOf, SECRET } from "./daemon.js";
+ import { signer } from "../../subjects/lighthouse/signer.js";
+ import { userspace } from "../../subjects/runtime/lifecycle/3-integration.js";
+@@ -37,7 +37,7 @@
+ export async function create({ port = 0, script = (index) => [TOOL, OBJECT, { deltas: 6 }][index % 3] } = {}) {
+   const clock = metronome.metronome(script);
+   const spoken = metronome.metronome(() => SPOKEN, "verbatim");
+-  const world = await harnessed({ faculties: [clock.faculty, spoken.faculty] });
++  const world = await harnessed({ faculties: [{ ...clock.faculty, tune: TIER_POINTS.capable }, spoken.faculty] });
+   const { daemon, dewey, cortex, em, datamap, runtime: kernel, twitch, fixtures } = world;
+   dewey.tools = new Vector().open({ nature: "lookup", input: v.object({ query: v.string() }) }, lookup);
+ 
+--- a/systems/runtime/tests/scenarios/cortex.js
++++ b/systems/runtime/tests/scenarios/cortex.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "@vivalence/typology/scenarios";
+ import { Aperture, contexts, Cortex, Mode, Path, shard, Twitch, Vector } from "@vivalence/typology";
+ import { seed, tiers, faculties } from "./fixtures.js";
+ 
+@@ -16,7 +17,7 @@
+   });
+   await em.flush();
+ 
+-  const cortex = new Cortex().register([...faculties(), ...extra]);
++  const cortex = new Cortex(TIER_POINTS).register([...faculties(), ...extra]);
+ 
+   const dewey = new Mode({
+     manifest: { type: "teacher", slug: "dewey", traits: ["EXPOSED", "HARNESSED"] },
+--- a/commons/instances/playground/instance.viva.json
++++ b/commons/instances/playground/instance.viva.json
+@@ -11,7 +11,14 @@
+           "flaky": "--fault retryable",
+           "hung": "--timeout"
+         }
+-      }
++      },
++      "faculties": [
++        { "type": "dialogue", "id": "stub-deep", "tune": [0.95, 0.15, 0.15], "context": 1000000 },
++        { "type": "dialogue", "id": "stub-middle", "tune": [0.6, 0.6, 0.5], "context": 1000000 },
++        { "type": "dialogue", "id": "stub-quick", "tune": [0.25, 0.95, 0.5], "context": 200000 },
++        { "type": "verbatim", "id": "stub-verbatim", "tune": [0.4, 0.8, 0.9] },
++        { "type": "speech", "id": "stub-speech", "tune": [0.3, 0.8, 0.9] }
++      ]
+     }
+   ],
+   "daemons": [
+--- a/commons/hallucinators/deepgram/service.viva.js
++++ b/commons/hallucinators/deepgram/service.viva.js
+@@ -11,5 +11,5 @@
+ export const docs = {
+   name: "Deepgram Verbatim",
+   description:
+-    "Streaming ASR + Flux-style turn detection via Deepgram Nova. pt-BR + en.",
++    "Streaming ASR via Deepgram Nova (listen v1) and Flux turn detection (listen v2), one verbatim faculty per entry of the ledger row's faculties.",
+ };
+--- a/commons/hallucinators/elevenlabs/service.viva.js
++++ b/commons/hallucinators/elevenlabs/service.viva.js
+@@ -11,5 +11,5 @@
+ export const docs = {
+   name: "ElevenLabs Speech",
+   description:
+-    "Streaming TTS via ElevenLabs Flash v2.5, two voices at latency-first tune. Realtime STT via Scribe v3 Live.",
++    "Streaming TTS (speech) and realtime STT via Scribe (verbatim), one faculty per entry of the ledger row's faculties.",
+ };
+--- a/commons/hallucinators/anthropic/service.viva.js
++++ b/commons/hallucinators/anthropic/service.viva.js
+@@ -10,5 +10,5 @@
+ export const docs = {
+   name: "Anthropic Faculty Provider",
+   description:
+-    "Conversation faculties via Anthropic Messages API. Three tune points: opus (thinking), sonnet, haiku.",
++    "Dialogue faculties via the Anthropic Messages API, one per entry of the ledger row's faculties.",
+ };
+--- a/systems/ghost/gestalten/commands/content/harness.js
++++ b/systems/ghost/gestalten/commands/content/harness.js
+@@ -1,4 +1,4 @@
+-import { Vector, tiers, traits, v } from "@vivalence/typology";
++import { Vector, traits, v } from "@vivalence/typology";
+ import * as belt from "../../belt/index.js";
+ import * as shard from "../../shard/index.js";
+ 
+@@ -53,7 +53,7 @@
+       const HARNESSED = belt.input.cast(Tiered, ctx.signal);
+       await ctx.client.runtime.entities.thread.updateOne(
+         { id: ctx.terminal.thread.id },
+-        traits.patch(ctx.terminal.thread, { HARNESSED: { ...UNPINNED, ...HARNESSED, tune: tiers[HARNESSED.tier] } }),
++        traits.patch(ctx.terminal.thread, { HARNESSED: { ...UNPINNED, ...HARNESSED, tune: minded(ctx).cortex.tiers[HARNESSED.tier] } }),
+       );
+       return { HARNESSED };
+     },
+--- a/subsystems/typology/tests/scenarios/index.js
++++ b/subsystems/typology/tests/scenarios/index.js
+@@ -1,3 +1,4 @@
+ export * as cats from "./cats/index.js";
+ export * as topography from "./topography.js";
+ export * as metronome from "./metronome.js";
++export { TIER_POINTS } from "./tiers.js";
+--- /dev/null
++++ b/subsystems/typology/tests/scenarios/tiers.js
+@@ -0,0 +1,7 @@
++export const TIER_POINTS = {
++  frugal: [0.1, 0.9, 1.0],
++  fast: [0.4, 1.0, 0.8],
++  balanced: [0.5, 0.5, 0.5],
++  capable: [0.9, 0.2, 0.5],
++  unleashed: [1.0, 0.9, 0.1],
++};
+--- a/systems/runtime/gestalten/shard/host.js
++++ b/systems/runtime/gestalten/shard/host.js
+@@ -18,6 +18,7 @@
+   root.open("/aperture", () => shape.strip(context.aperture));
+ 
+   root.open("/cortex", () => (context.cortex ? faculties.strip(context.cortex) : []));
++  root.open("/tiers", () => (context.cortex ? context.cortex.tiers : {}));
+   root.open("/modes", () => fromm.modes(context.modes).flat.map(listed(context)));
+ };
+ 
+--- a/commons/hallucinators/openrouter/service.viva.js
++++ b/commons/hallucinators/openrouter/service.viva.js
+@@ -9,5 +9,5 @@
+ export const docs = {
+   name: "OpenRouter Faculty Provider",
+   description:
+-    "Conversation faculties via OpenRouter chat completions. Three tune points: gpt-6.1-sol (reasoning), gemini-3.8-flash, gemini-3.5-flash-lite. Override the table via statics.models. Picture faculties via the OpenRouter Image API: gpt-image-2.6-sunburst, flux-3-image, gemini-nano-banana-2.1; override via statics.pictures.",
++    "Dialogue faculties via OpenRouter chat completions, choice faculties via its decisions API, picture faculties via its Image API, one per entry of the ledger row's faculties.",
+ };
+--- a/commons/instances/hello-world/tests/rig.js
++++ b/commons/instances/hello-world/tests/rig.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "@vivalence/typology/scenarios";
+ import { belt, Controller, Cortex, Path, Span, soma, v, Vector, mime } from "@vivalence/typology";
+ import { traits } from "@vivalence/runtime";
+ const { EMITTER, GENERATIVE, HARNESSED } = traits.mode;
+@@ -100,7 +101,7 @@
+   const held = views();
+   const daemon = {
+     type: "daemon",
+-    cortex: new Cortex().register([scripted.faculty]),
++    cortex: new Cortex(TIER_POINTS).register([scripted.faculty]),
+     entities: {
+       thread: threads,
+       // the harness stamps the dock's turn id onto the row after chaining, so the stub takes the patch too.
+--- a/commons/hallucinators/deepgram/tests/provider.test.js
++++ b/commons/hallucinators/deepgram/tests/provider.test.js
+@@ -9,11 +9,22 @@
+   for (const packet of packets) specimen.expect([...Packet.Response.errors(packet)]).toEqual([]);
+ };
+ 
++const FACULTIES = [
++  { type: "verbatim", id: "nova-3", model: "nova-3", tune: [0.5, 0.9, 0.6] },
++  { type: "verbatim", id: "flux-general-multi", model: "flux-general-multi", tune: [0.6, 0.8, 0.4] },
++];
++
++class DialedSocket {
++  constructor(url) {
++    throw new Error(url);
++  }
++}
++
+ specimen.describe("deepgram provider", () => {
+   specimen.it(
+     "returns verbatim faculties without performing network calls",
+     async () => {
+-      const faculties = await provider({ secrets: { key: "fake-key" } });
++      const faculties = await provider({ secrets: { key: "fake-key" }, faculties: FACULTIES });
+       specimen.expect(faculties.map((faculty) => faculty.id)).toEqual(
+         ["nova-3", "flux-general-multi"],
+       );
+@@ -24,6 +35,31 @@
+         specimen.expect(faculty.channels.in[0].codec).toBe("pcm_16000");
+       }
+       specimen.expect(faculties[0].config.language).toEqual([]);
++      specimen.expect(faculties[1].config.turns).toBe(true);
++    },
++  );
++
++  specimen.it(
++    "only the row's faculties load: one entry yields one faculty; an unknown type faults naming it",
++    async () => {
++      const faculties = await provider({ secrets: { key: "fake-key" }, faculties: [FACULTIES[1]] });
++      specimen.expect(faculties.map((faculty) => [faculty.id, faculty.tune])).toEqual([
++        ["flux-general-multi", [0.6, 0.8, 0.4]],
++      ]);
++      const original = globalThis.WebSocket;
++      globalThis.WebSocket = DialedSocket;
++      try {
++        const dialed = faculties[0].via.stream({ source: [] }, { signal: new AbortController().signal });
++        await specimen.expect(dialed.next()).rejects.toThrow(
++          "wss://api.deepgram.com/v2/listen?model=flux-general-multi&",
++        );
++      } finally {
++        globalThis.WebSocket = original;
++      }
++      const speech = { ...FACULTIES[0], type: "speech" };
++      await specimen.expect(provider({ secrets: { key: "fake-key" }, faculties: [speech] })).rejects.toThrow(
++        "[deepgram] faculties/0/type must be equal to constant",
++      );
+     },
+   );
+ 
+--- a/commons/hallucinators/deepgram/provider/index.js
++++ b/commons/hallucinators/deepgram/provider/index.js
+@@ -1,4 +1,4 @@
+-import { pcm, Queue } from "@vivalence/typology";
++import { pcm, Queue, v } from "@vivalence/typology";
+ 
+ function line(url, protocols) {
+   const ws = new WebSocket(url, protocols);
+@@ -130,14 +130,25 @@
+   }
+ }
+ 
++const Verbatim = v.object({
++  type: v.const("verbatim"),
++  id: v.string(),
++  model: v.string(),
++  tune: v.primitives.hallucination.Tune,
++});
++
++const Faculties = v.array(Verbatim);
++
+ export default async function provider(service) {
++  const [violation] = v.faults(Faculties, service.faculties);
++  if (violation) throw new Error(`[deepgram] faculties${violation.at} ${violation.reason}`);
+   const apiKey = service.secrets.key;
+   const protocols = ["token", apiKey];
+ 
+-  const novaFaculty = () => ({
++  const novaFaculty = (entry) => ({
+     type: "verbatim",
+-    id: "nova-3",
+-    tune: [0.5, 0.9, 0.6],
++    id: entry.id,
++    tune: entry.tune,
+     context: 0,
+     channels: {
+       in: [{ type: "audio", codec: "pcm_16000" }],
+@@ -148,7 +159,7 @@
+       stream: ({ source, settings = {} }, { signal } = {}) =>
+         transcribe(
+           `wss://api.deepgram.com/v1/listen?` +
+-            `model=nova-3&encoding=linear16&sample_rate=16000&` +
++            `model=${entry.model}&encoding=linear16&sample_rate=16000&` +
+             `language=${spoken(settings.language)}&` +
+             `interim_results=true&punctuate=true&vad_events=true&` +
+             `utterance_end_ms=${settings.utteranceEnd ?? 1000}&endpointing=${
+@@ -163,10 +174,10 @@
+     },
+   });
+ 
+-  const fluxFaculty = () => ({
++  const fluxFaculty = (entry) => ({
+     type: "verbatim",
+-    id: "flux-general-multi",
+-    tune: [0.6, 0.8, 0.4],
++    id: entry.id,
++    tune: entry.tune,
+     context: 0,
+     channels: {
+       in: [{ type: "audio", codec: "pcm_16000" }],
+@@ -177,7 +188,7 @@
+       stream: ({ source, settings = {} }, { signal } = {}) =>
+         transcribe(
+           `wss://api.deepgram.com/v2/listen?` +
+-            `model=flux-general-multi&encoding=linear16&sample_rate=16000&` +
++            `model=${entry.model}&encoding=linear16&sample_rate=16000&` +
+             `eot_threshold=${settings.eotThreshold ?? 0.7}` +
+             (settings.eagerThreshold
+               ? `&eager_eot_threshold=${settings.eagerThreshold}`
+@@ -193,5 +204,12 @@
+     },
+   });
+ 
+-  return [novaFaculty(), fluxFaculty()];
++  const FAMILIES = [
++    [(entry) => entry.model.startsWith("flux"), fluxFaculty],
++    [() => true, novaFaculty],
++  ];
++
++  return service.faculties.map((entry) =>
++    FAMILIES.find(([matches]) => matches(entry))[1](entry)
++  );
+ }
+--- a/commons/hallucinators/elevenlabs/tests/provider.test.js
++++ b/commons/hallucinators/elevenlabs/tests/provider.test.js
+@@ -91,8 +91,14 @@
+   }
+ }
+ 
++const FACULTIES = [
++  { type: "speech", id: "luiza", model: "eleven_flash_v2_5", voice: "21m00Tcm4TlvDq8ikWAM", tune: [0.3, 0.4, 0.1] },
++  { type: "speech", id: "leandro", model: "eleven_flash_v2_5", voice: "EXAVITQu4vr4xnSDxMaL", tune: [0.5, 0.5, 0.1] },
++  { type: "verbatim", id: "scribe_v3_live", model: "scribe_v3_live", tune: [0.8, 0.9, 0.7] },
++];
++
+ const faculty = async (type) =>
+-  (await provider({ secrets: { key: "fake-key" } })).find((each) => each.type === type);
++  (await provider({ secrets: { key: "fake-key" }, faculties: FACULTIES })).find((each) => each.type === type);
+ 
+ function listen(ear, source, settings = {}, abort = new AbortController()) {
+   const collected = [];
+@@ -127,10 +133,14 @@
+   specimen.it(
+     "returns the speech faculties and the scribe ear without performing network calls",
+     async () => {
+-      const faculties = await provider({ secrets: { key: "fake-key" } });
++      const faculties = await provider({ secrets: { key: "fake-key" }, faculties: FACULTIES });
+       const speech = faculties.filter((each) => each.type === "speech");
+ 
+-      specimen.expect(faculties.map((each) => each.type)).toEqual(["speech", "speech", "verbatim"]);
++      specimen.expect(faculties.map((each) => [each.type, each.id])).toEqual([
++        ["speech", "luiza"],
++        ["speech", "leandro"],
++        ["verbatim", "scribe_v3_live"],
++      ]);
+ 
+       for (const voice of speech) {
+         specimen.expect(typeof voice.via.stream).toBe("function");
+@@ -161,6 +171,10 @@
+         packets.push(packet);
+       }
+ 
++      specimen.expect(SpeechSocket.instances[0].sent[0]).toBe(
++        "wss://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream-input" +
++          "?model_id=eleven_flash_v2_5&output_format=pcm_16000",
++      );
+       specimen.expect(SpeechSocket.instances[0].sent.slice(1)).toEqual([" ", "buongiorno", ""]);
+       specimen.expect(SpeechSocket.instances[0].messages.at(-1)).toEqual({ text: "" });
+       specimen.expect(packets.map((packet) => packet.event)).toEqual([
+@@ -229,10 +243,21 @@
+   });
+ 
+     specimen.it("each faculty has a unique id", async () => {
+-    const faculties = await provider({ secrets: { key: "fake-key" } });
++    const faculties = await provider({ secrets: { key: "fake-key" }, faculties: FACULTIES });
+     const ids = faculties.map((each) => each.id);
+     specimen.expect(new Set(ids).size).toBe(faculties.length);
+   });
++
++  specimen.it("only the row's faculties load: one entry yields one faculty; an unknown type faults naming it", async () => {
++    const faculties = await provider({ secrets: { key: "fake-key" }, faculties: [FACULTIES[1]] });
++    specimen.expect(faculties.map((each) => [each.type, each.id, each.tune])).toEqual([
++      ["speech", "leandro", [0.5, 0.5, 0.1]],
++    ]);
++    const picture = { ...FACULTIES[0], type: "picture" };
++    await specimen.expect(provider({ secrets: { key: "fake-key" }, faculties: [picture] })).rejects.toThrow(
++      "[elevenlabs] faculties/0/type must be equal to constant",
++    );
++  });
+ });
+ 
+ specimen.describe("elevenlabs scribe — the ear speaks the one content grammar", () => {
+--- a/commons/hallucinators/elevenlabs/provider/index.js
++++ b/commons/hallucinators/elevenlabs/provider/index.js
+@@ -1,4 +1,4 @@
+-import { pcm, Queue } from "@vivalence/typology";
++import { pcm, Queue, v } from "@vivalence/typology";
+ 
+ const RATE = 16000;
+ 
+@@ -103,17 +103,31 @@
+ const languageCode = (languages = []) =>
+   languages.length === 1 ? `&language_code=${languages[0]}` : "";
+ 
++const Speech = v.object({
++  type: v.const("speech"),
++  id: v.string(),
++  model: v.string(),
++  voice: v.string(),
++  tune: v.primitives.hallucination.Tune,
++});
++
++const Verbatim = v.object({
++  type: v.const("verbatim"),
++  id: v.string(),
++  model: v.string(),
++  tune: v.primitives.hallucination.Tune,
++});
++
++const Faculties = v.array(v.union([Speech, Verbatim]));
++
+ export default async function provider(service) {
++  const [violation] = v.faults(Faculties, service.faculties);
++  if (violation) throw new Error(`[elevenlabs] faculties${violation.at} ${violation.reason}`);
+   const apiKey = service.secrets.key;
+ 
+-  const voices = {
+-    luiza: { id: "21m00Tcm4TlvDq8ikWAM", tune: [0.3, 0.4, 0.1] },
+-    leandro: { id: "EXAVITQu4vr4xnSDxMaL", tune: [0.5, 0.5, 0.1] },
+-  };
+-
+-  function makeSpeech(voice) {
++  function makeSpeech(entry) {
+     const render = async ({ source, settings = {} }, { signal } = {}) => {
+-      const url = `https://api.elevenlabs.io/v1/text-to-speech/${voice.id}` +
++      const url = `https://api.elevenlabs.io/v1/text-to-speech/${entry.voice}` +
+         `?output_format=mp3_44100_128`;
+       const res = await fetch(url, {
+         method: "POST",
+@@ -121,7 +135,7 @@
+         headers: { "xi-api-key": apiKey, "Content-Type": "application/json" },
+         body: JSON.stringify({
+           text: source,
+-          model_id: "eleven_flash_v2_5",
++          model_id: entry.model,
+           voice_settings: {
+             stability: settings.stability ?? 0.5,
+             similarity_boost: settings.similarityBoost ?? 0.75,
+@@ -138,8 +152,8 @@
+ 
+     const stream = async function* ({ source, settings = {} }, { signal } = {}) {
+       const url =
+-        `wss://api.elevenlabs.io/v1/text-to-speech/${voice.id}/stream-input` +
+-        `?model_id=eleven_flash_v2_5&output_format=pcm_16000`;
++        `wss://api.elevenlabs.io/v1/text-to-speech/${entry.voice}/stream-input` +
++        `?model_id=${entry.model}&output_format=pcm_16000`;
+       const { ws, inbox, failed } = socket(url);
+       signal.addEventListener("abort", () => ws.close(), { once: true });
+       await opened(ws);
+@@ -197,8 +211,8 @@
+ 
+     return {
+       type: "speech",
+-      id: voice.id,
+-      tune: voice.tune,
++      id: entry.id,
++      tune: entry.tune,
+       context: 0,
+       channels: {
+         in: [{ type: "text" }],
+@@ -211,24 +225,27 @@
+     };
+   }
+ 
+-  const transcribe = ({ source, settings = {} }, { signal } = {}) =>
+-    hear(
+-      `${SCRIBE}?model_id=scribe_v3_live&audio_format=pcm_16000` +
+-        `&commit_strategy=turn_prediction` +
+-        languageCode(settings.language),
+-      { "xi-api-key": apiKey },
+-      source,
+-      signal,
+-    );
+-
+-  return [
+-    ...Object.values(voices).map(makeSpeech),
+-    {
++  function makeVerbatim(entry) {
++    const transcribe = ({ source, settings = {} }, { signal } = {}) =>
++      hear(
++        `${SCRIBE}?model_id=${entry.model}&audio_format=pcm_16000` +
++          `&commit_strategy=turn_prediction` +
++          languageCode(settings.language),
++        { "xi-api-key": apiKey },
++        source,
++        signal,
++      );
++
++    return {
+       type: "verbatim",
+-      id: "scribe_v3_live",
+-      tune: [0.8, 0.9, 0.7],
++      id: entry.id,
++      tune: entry.tune,
+       channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
+       via: { stream: transcribe },
+-    },
+-  ];
++    };
++  }
++
++  const TYPES = { speech: makeSpeech, verbatim: makeVerbatim };
++
++  return service.faculties.map((entry) => TYPES[entry.type](entry));
+ }
+--- a/systems/ghost/tests/scenarios/hello.js
++++ b/systems/ghost/tests/scenarios/hello.js
+@@ -1,3 +1,4 @@
++import { STUB_FACULTIES } from "../../../../commons/fixtures/testing/data/stub.js";
+ import paladin from "@vivalence/paladin";
+ import { hello } from "@vivalence/runtime/scenarios";
+ 
+@@ -5,7 +6,7 @@
+ 
+ export const RECIPE = {
+   ...hello.RECIPE,
+-  hallucinators: [{ module: "@commons/hallucinator/stub" }],
++  hallucinators: [{ module: "@commons/hallucinator/stub", faculties: STUB_FACULTIES }],
+   daemons: [...hello.RECIPE.daemons, ...MEMO.daemons],
+ };
+ 
+--- a/commons/hallucinators/anthropic/tests/provider.test.js
++++ b/commons/hallucinators/anthropic/tests/provider.test.js
+@@ -15,6 +15,14 @@
+   thinking: false,
+ };
+ 
++const FACULTIES = [
++  { type: "dialogue", id: "claude-opus-5-5", tune: [1.0, 0.8, 0.1], context: 1000000, thinking: true },
++  { type: "dialogue", id: "claude-sonnet-5-5", tune: [0.6, 0.6, 0.5], context: 1000000, thinking: true },
++  { type: "dialogue", id: "claude-haiku-5-5", tune: [0.25, 0.95, 0.5], context: 1000000, thinking: true },
++];
++
++const service = (faculties = FACULTIES) => ({ secrets: { key: "fake-key" }, faculties });
++
+ specimen.describe("anthropic provider", () => {
+   specimen.describe("translateTurns", () => {
+     specimen.it(
+@@ -486,7 +494,7 @@
+     specimen.it(
+       "returns 3 dialogue faculties (no network) with render + stream",
+       async () => {
+-        const faculties = await provider({ secrets: { key: "fake-key" } });
++        const faculties = await provider(service());
+         specimen.expect(faculties).toHaveLength(3);
+         for (const faculty of faculties) {
+           specimen.expect(faculty.type).toBe("dialogue");
+@@ -500,12 +508,30 @@
+     specimen.it(
+       "all three models think: each exposes thinking channels",
+       async () => {
+-        const faculties = await provider({ secrets: { key: "fake-key" } });
++        const faculties = await provider(service());
+         const thinking = faculties.filter((faculty) =>
+           faculty.channels.out.includes("thinking")
+         );
+         specimen.expect(thinking).toHaveLength(3);
+       },
+     );
++
++    specimen.it(
++      "only the row's faculties load: one entry yields one faculty; an unknown type faults naming it",
++      async () => {
++        const faculties = await provider(service([FACULTIES[0]]));
++        specimen.expect(faculties.map((faculty) => [faculty.id, faculty.tune])).toEqual([
++          ["claude-opus-5-5", [1.0, 0.8, 0.1]],
++        ]);
++        const speech = { ...FACULTIES[0], type: "speech" };
++        await specimen.expect(provider(service([speech]))).rejects.toThrow(
++          "[anthropic] faculties/0/type must be equal to constant",
++        );
++        await specimen.expect(provider({ secrets: { key: "fake-key" } })).rejects.toThrow(
++          "[anthropic] faculties/ must be array",
++        );
++        specimen.expect(await provider(service([]))).toEqual([]);
++      },
++    );
+   });
+ });
+--- a/commons/hallucinators/anthropic/provider/index.js
++++ b/commons/hallucinators/anthropic/provider/index.js
+@@ -1,7 +1,3 @@
+-// Anthropic faculty provider
+-// Contract: provider(service) → Faculty[]
+-// Exposes dialogue faculties at three tune points + object faculty.
+-
+ import Anthropic from "@anthropic-ai/sdk";
+ import { v } from "@vivalence/typology";
+ import {
+@@ -25,28 +21,19 @@
+   };
+ }
+ 
+-const models = {
+-  opus: {
+-    id: "claude-opus-5-5",
+-    tune: [0.95, 0.15, 0.15],
+-    context: 1000000,
+-    thinking: true,
+-  },
+-  sonnet: {
+-    id: "claude-sonnet-5-5",
+-    tune: [0.6, 0.6, 0.5],
+-    context: 1000000,
+-    thinking: true,
+-  },
+-  haiku: {
+-    id: "claude-haiku-5-5",
+-    tune: [0.25, 0.95, 0.5],
+-    context: 1000000,
+-    thinking: true,
+-  },
+-};
++const Dialogue = v.object({
++  type: v.const("dialogue"),
++  id: v.string(),
++  tune: v.primitives.hallucination.Tune,
++  context: v.integer(),
++  thinking: v.boolean().optional(),
++});
++
++const Faculties = v.array(Dialogue);
+ 
+ export default async function provider(service) {
++  const [violation] = v.faults(Faculties, service.faculties);
++  if (violation) throw new Error(`[anthropic] faculties${violation.at} ${violation.reason}`);
+   const client = new Anthropic({ apiKey: service.secrets.key });
+ 
+   function makeDialogue(model) {
+@@ -81,11 +68,9 @@
+     return { render, stream };
+   }
+ 
+-  const faculties = [];
+-
+-  for (const [, model] of Object.entries(models)) {
++  const dialogue = (model) => {
+     const { render, stream } = makeDialogue(model);
+-    faculties.push({
++    return {
+       type: "dialogue",
+       id: model.id,
+       tune: model.tune,
+@@ -101,8 +86,10 @@
+         out: ["text", "tool_use", ...(model.thinking ? ["thinking"] : [])],
+       },
+       via: { render, stream },
+-    });
+-  }
++    };
++  };
++
++  const TYPES = { dialogue };
+ 
+-  return faculties;
++  return service.faculties.map((entry) => TYPES[entry.type](entry));
+ }
+--- a/systems/runtime/subjects/runtime/lifecycle/1-population.js
++++ b/systems/runtime/subjects/runtime/lifecycle/1-population.js
+@@ -82,7 +82,7 @@
+ };
+ 
+ export const acid = async (die, next) => {
+-  die.runtime.cortex = new Cortex();
++  die.runtime.cortex = new Cortex(die.runtime.instance.tiers);
+   const citizens = await Promise.all(
+     (die.runtime.instance.hallucinators ?? []).map((query) => paladin.ledger.registry.accio(query)),
+   );
+--- a/commons/reader/reader/tests/reader.test.js
++++ b/commons/reader/reader/tests/reader.test.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "@vivalence/typology/scenarios";
+ import { Cortex, Path, shape, specimen, steer, ToolCall } from "@vivalence/typology";
+ import { strToU8, zipSync } from "npm:fflate@0.8.3";
+ import { parseHTML } from "linkedom";
+@@ -108,7 +109,7 @@
+ let buffer;
+ let call;
+ specimen.beforeAll(async () => {
+-  scenario = await mountMode(reader, { cortex: new Cortex().register([writer(), transcriber()]) });
++  scenario = await mountMode(reader, { cortex: new Cortex(TIER_POINTS).register([writer(), transcriber()]) });
+   scenario.mode.mountpoint = new Path(await Deno.makeTempDir({ prefix: "reader-" }));
+   site = Deno.serve({ port: 0, onListen() {} }, (request) => {
+     const path = new URL(request.url).pathname;
+--- a/commons/reader/reader/aperture/pdf.js
++++ b/commons/reader/reader/aperture/pdf.js
+@@ -2,7 +2,7 @@
+ import { extractText, getDocumentProxy } from "npm:unpdf@2.1.0";
+ import { PDFDocument } from "npm:pdf-lib@1.17.1";
+ import { parseHTML } from "linkedom";
+-import { Controller, nearest, Span, tiers, v } from "@vivalence/typology";
++import { Controller, nearest, Span, v } from "@vivalence/typology";
+ import { normalized } from "./parse.js";
+ 
+ const titled = async (document) => (await document.getMetadata()).info.Title ?? "";
+@@ -195,7 +195,7 @@
+ const reading = (cortex) => {
+   const documents = cortex.find({ type: "dialogue", via: "render" }).filter((faculty) => faculty.channels.in.includes("document"));
+   if (documents.length === 0) throw new Error("reader: no dialogue faculty in this cortex reads documents");
+-  return nearest(documents, tiers.capable);
++  return nearest(documents, cortex.tiers.capable);
+ };
+ 
+ const excerpt = async (source, from, until) => {
+--- a/commons/hallucinators/openrouter/provider/index.js
++++ b/commons/hallucinators/openrouter/provider/index.js
+@@ -28,63 +28,45 @@
+   };
+ }
+ 
+-const models = {
+-  strong: {
+-    id: "openai/gpt-6.1-sol",
+-    tune: [0.8, 0.35, 0.3],
+-    context: 1050000,
+-    thinking: true,
+-  },
+-  standard: {
+-    id: "google/gemini-3.8-flash",
+-    tune: [0.45, 0.85, 0.7],
+-    context: 1048576,
+-    thinking: true,
+-  },
+-  light: {
+-    id: "google/gemini-3.5-flash-lite",
+-    tune: [0.1, 1.0, 0.95],
+-    context: 1048576,
+-    thinking: true,
+-  },
+-};
+-
+-const choosers = {
+-  standard: {
+-    id: "typesafe/jev-1.13",
+-    tune: [0.4, 1.0, 0.95],
+-    context: 32000,
+-    options: 255,
+-    choices: null,
+-  },
+-};
+-
+-const painters = {
+-  capable: {
+-    id: "openai/gpt-image-2.6-sunburst",
+-    tune: [0.8, 0.4, 0.4],
+-    limits: { references: 16, mask: false, aspects: ["1:1", "3:2", "2:3"] },
+-  },
+-  balanced: {
+-    id: "black-forest-labs/flux-3-image",
+-    tune: [0.6, 0.6, 0.6],
+-    limits: { references: 10, mask: false, aspects: ["1:1", "3:2", "2:3", "4:3", "3:4", "16:9", "9:16"] },
+-  },
+-  fast: {
+-    id: "google/gemini-nano-banana-2.1",
+-    tune: [0.4, 0.9, 0.9],
+-    limits: { references: 14, mask: false, aspects: ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"] },
+-  },
+-};
++const Tune = v.primitives.hallucination.Tune;
++
++const Dialogue = v.object({
++  type: v.const("dialogue"),
++  id: v.string(),
++  tune: Tune,
++  context: v.integer(),
++  thinking: v.boolean().optional(),
++});
++
++const Choice = v.object({
++  type: v.const("choice"),
++  id: v.string(),
++  tune: Tune,
++  context: v.integer(),
++  options: v.integer({ minimum: 2 }),
++  choices: v.union([v.integer({ minimum: 1 }), v.null()]),
++});
++
++const Picture = v.object({
++  type: v.const("picture"),
++  id: v.string(),
++  tune: Tune,
++  limits: v.object({
++    references: v.integer(),
++    mask: v.boolean(),
++    aspects: v.array(v.string()),
++  }),
++});
++
++const Faculties = v.array(v.union([Dialogue, Choice, Picture]));
+ 
+ export default async function provider(service) {
++  const [violation] = v.faults(Faculties, service.faculties);
++  if (violation) throw new Error(`[openrouter] faculties${violation.at} ${violation.reason}`);
+   const client = new OpenAI({
+     apiKey: service.secrets.key,
+     baseURL: "https://openrouter.ai/api/v1",
+   });
+-  const table = service.statics?.models ?? models;
+-  const choosing = service.statics?.choosers ?? choosers;
+-  const pictures = service.statics?.pictures ?? painters;
+ 
+   function makeDialogue(model) {
+     const render = async (request, { signal } = {}) => {
+@@ -159,11 +141,9 @@
+     return { render };
+   }
+ 
+-  const faculties = [];
+-
+-  for (const [, model] of Object.entries(table)) {
++  const dialogue = (model) => {
+     const { render, stream } = makeDialogue(model);
+-    faculties.push({
++    return {
+       type: "dialogue",
+       id: model.id,
+       tune: model.tune,
+@@ -179,33 +159,31 @@
+         out: ["text", "tool_use", ...(model.thinking ? ["thinking"] : [])],
+       },
+       via: { render, stream },
+-    });
+-  }
++    };
++  };
+ 
+-  for (const [, model] of Object.entries(choosing)) {
+-    faculties.push({
+-      type: "choice",
+-      id: model.id,
+-      tune: model.tune,
+-      context: model.context,
+-      options: model.options,
+-      choices: model.choices,
+-      channels: { in: ["text", "object"], out: ["object"] },
+-      via: makeChoice(model),
+-    });
+-  }
++  const choice = (model) => ({
++    type: "choice",
++    id: model.id,
++    tune: model.tune,
++    context: model.context,
++    options: model.options,
++    choices: model.choices,
++    channels: { in: ["text", "object"], out: ["object"] },
++    via: makeChoice(model),
++  });
+ 
+-  for (const [, model] of Object.entries(pictures)) {
+-    faculties.push({
+-      type: "picture",
+-      id: model.id,
+-      tune: model.tune,
+-      context: 0,
+-      channels: { in: ["text", "image"], out: ["image"] },
+-      limits: model.limits,
+-      via: makePicture(model),
+-    });
+-  }
++  const picture = (model) => ({
++    type: "picture",
++    id: model.id,
++    tune: model.tune,
++    context: 0,
++    channels: { in: ["text", "image"], out: ["image"] },
++    limits: model.limits,
++    via: makePicture(model),
++  });
++
++  const TYPES = { dialogue, choice, picture };
+ 
+-  return faculties;
++  return service.faculties.map((entry) => TYPES[entry.type](entry));
+ }
+--- a/commons/hallucinators/openrouter/tests/provider.test.js
++++ b/commons/hallucinators/openrouter/tests/provider.test.js
+@@ -17,6 +17,35 @@
+   thinking: false,
+ };
+ 
++const FACULTIES = [
++  { type: "dialogue", id: "openai/gpt-6.1-sol", tune: [0.8, 0.35, 0.3], context: 1050000, thinking: true },
++  { type: "dialogue", id: "google/gemini-3.8-flash", tune: [0.45, 0.85, 0.7], context: 1048576, thinking: true },
++  { type: "dialogue", id: "google/gemini-3.5-flash-lite", tune: [0.1, 1.0, 0.95], context: 1048576, thinking: true },
++  { type: "choice", id: "typesafe/jev-1.13", tune: [0.4, 1.0, 0.95], context: 32000, options: 255, choices: null },
++  {
++    type: "picture",
++    id: "openai/gpt-image-2.6-sunburst",
++    tune: [0.8, 0.4, 0.4],
++    limits: { references: 16, mask: false, aspects: ["1:1", "3:2", "2:3"] },
++  },
++  {
++    type: "picture",
++    id: "black-forest-labs/flux-3-image",
++    tune: [0.6, 0.6, 0.6],
++    limits: { references: 10, mask: false, aspects: ["1:1", "3:2", "2:3", "4:3", "3:4", "16:9", "9:16"] },
++  },
++  {
++    type: "picture",
++    id: "google/gemini-nano-banana-2.1",
++    tune: [0.4, 0.9, 0.9],
++    limits: {
++      references: 14,
++      mask: false,
++      aspects: ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"],
++    },
++  },
++];
++
+ specimen.describe("openrouter provider", () => {
+   specimen.describe("translateTurns", () => {
+     specimen.it(
+@@ -600,7 +629,7 @@
+     specimen.it(
+       "returns 3 dialogue faculties (no network) with render + stream, one choice faculty and three picture faculties with render only",
+       async () => {
+-        const faculties = await provider({ secrets: { key: "fake-key" } });
++        const faculties = await provider({ secrets: { key: "fake-key" }, faculties: FACULTIES });
+         specimen.expect(faculties).toHaveLength(7);
+         for (const faculty of faculties.filter((faculty) => faculty.type === "dialogue")) {
+           specimen.expect(Array.isArray(faculty.tune)).toBe(true);
+@@ -650,7 +679,7 @@
+     specimen.it(
+       "all three dialogue models think: each exposes thinking channels",
+       async () => {
+-        const faculties = await provider({ secrets: { key: "fake-key" } });
++        const faculties = await provider({ secrets: { key: "fake-key" }, faculties: FACULTIES });
+         const thinking = faculties.filter((faculty) =>
+           faculty.channels.out.includes("thinking")
+         );
+@@ -658,7 +687,7 @@
+       },
+     );
+ 
+-    specimen.it("statics.models replaces the default table", async () => {
++    specimen.it("statics.models changes nothing: a row with statics.models and no faculties yields none", async () => {
+       const faculties = await provider({
+         secrets: { key: "fake-key" },
+         statics: {
+@@ -671,15 +700,15 @@
+             },
+           },
+         },
++        faculties: [],
+       });
+-      specimen.expect(faculties.filter((faculty) => faculty.type === "dialogue")).toHaveLength(1);
+-      specimen.expect(faculties[0].context).toBe(262144);
++      specimen.expect(faculties).toEqual([]);
+     });
+   });
+ 
+   specimen.describe("picture faculties", () => {
+     const original = globalThis.fetch;
+-    const service = { secrets: { key: "sk-or-test" } };
++    const service = { secrets: { key: "sk-or-test" }, faculties: FACULTIES };
+     const PNG = "iVBORw0KGgo";
+     const picture = (data) => ({ type: "image", media: "image/png", data });
+     const OK = {
+@@ -792,18 +821,20 @@
+       specimen.expect(error).toEqual({ kind: "overloaded", retryable: true, provider: { status: 502, message: "Generation failed" } });
+     });
+ 
+-    specimen.it("statics.pictures replaces the picture table", async () => {
+-      const faculties = await provider({
+-        secrets: { key: "sk-or-test" },
+-        statics: {
+-          pictures: {
+-            solo: { id: "bytedance-seed/seedream-4.5", tune: [0.5, 0.5, 0.5], limits: { references: 8, mask: false, aspects: ["1:1"] } },
+-          },
+-        },
+-      });
+-      const pictures = faculties.filter((each) => each.type === "picture");
+-      specimen.expect(pictures.map((each) => each.id)).toEqual(["bytedance-seed/seedream-4.5"]);
+-      specimen.expect(pictures[0].limits.references).toBe(8);
++    specimen.it("only the row's faculties load: one entry yields one faculty; an unknown type faults naming it", async () => {
++      const seedream = {
++        type: "picture",
++        id: "bytedance-seed/seedream-4.5",
++        tune: [0.5, 0.5, 0.5],
++        limits: { references: 8, mask: false, aspects: ["1:1"] },
++      };
++      const faculties = await provider({ secrets: { key: "sk-or-test" }, faculties: [seedream] });
++      specimen.expect(faculties.map((each) => [each.type, each.id])).toEqual([["picture", "bytedance-seed/seedream-4.5"]]);
++      specimen.expect(faculties[0].limits.references).toBe(8);
++      const speech = { ...FACULTIES[0], type: "speech" };
++      await specimen.expect(provider({ secrets: { key: "sk-or-test" }, faculties: [speech] })).rejects.toThrow(
++        "[openrouter] faculties/0/type must be equal to constant",
++      );
+     });
+ 
+     specimen.it("fetch is restored after each step", () => {
+--- a/commons/editors/darkroom/tests/picture.test.js
++++ b/commons/editors/darkroom/tests/picture.test.js
+@@ -1,3 +1,4 @@
++import { TIER_POINTS } from "@vivalence/typology/scenarios";
+ import { decodeBase64 } from "@std/encoding/base64";
+ import { Cortex, Path, specimen, v } from "@vivalence/typology";
+ import { mountMode } from "@vivalence/runtime/scenarios";
+@@ -20,7 +21,7 @@
+ 
+ let scenario;
+ specimen.beforeAll(async () => {
+-  scenario = await mountMode(darkroom, { cortex: new Cortex().register([painter()]) });
++  scenario = await mountMode(darkroom, { cortex: new Cortex(TIER_POINTS).register([painter()]) });
+   scenario.mode.mountpoint = new Path(await Deno.makeTempDir({ prefix: "darkroom-" }));
+ });
+ specimen.afterAll(async () => {
+--- a/commons/fixtures/testing/data/index.js
++++ b/commons/fixtures/testing/data/index.js
+@@ -12,3 +12,5 @@
+   verbatimFaculty,
+ } from "./faculties.js";
+ export { BASE, CREDENTIALS, live } from "./live.js";
++export { TIER_POINTS } from "@vivalence/typology/scenarios";
++export { STUB_FACULTIES } from "./stub.js";
+--- /dev/null
++++ b/commons/fixtures/testing/data/stub.js
+@@ -0,0 +1,7 @@
++export const STUB_FACULTIES = [
++  { type: "dialogue", id: "stub-deep", tune: [0.95, 0.15, 0.15], context: 1000000 },
++  { type: "dialogue", id: "stub-middle", tune: [0.6, 0.6, 0.5], context: 1000000 },
++  { type: "dialogue", id: "stub-quick", tune: [0.25, 0.95, 0.5], context: 200000 },
++  { type: "verbatim", id: "stub-verbatim", tune: [0.4, 0.8, 0.9] },
++  { type: "speech", id: "stub-speech", tune: [0.3, 0.8, 0.9] },
++];
+--- a/systems/ghost/tests/subjects/terminal/commands.test.js
++++ b/systems/ghost/tests/subjects/terminal/commands.test.js
+@@ -1,6 +1,7 @@
++import { TIER_POINTS } from "@vivalence/typology/scenarios";
+ import { atom } from "nanostores";
+ import { useTestStorageEngine } from "@nanostores/persistent";
+-import { Controller, Cortex, KeySignal, Path, ReplSignal, Span, Url, Vector, belt, mime, shape, specimen, steer, tiers, v } from "@vivalence/typology";
++import { Controller, Cortex, KeySignal, Path, ReplSignal, Span, Url, Vector, belt, mime, shape, specimen, steer, v } from "@vivalence/typology";
+ import * as ghost from "@vivalence/ghost";
+ import { chrome } from "../../../surfaces/index.js";
+ 
+@@ -469,9 +470,10 @@
+   });
+ 
+   specimen.it("/tier · /effort · /rounds claim HARNESSED on the seated thread, field-wise; a value outside the schema is VALIDATION", async () => {
++    client.runtime.cortex = new Cortex(TIER_POINTS);
+     specimen.expect(await run("/tier fast")).toEqual({ HARNESSED: { tier: "fast" } });
+     specimen.expect(threads.writes.at(-1)).toMatchObject({ where: { id: "th1" }, data: { traits: ["LABELED", "HARNESSED"], trait: { LABELED: { name: "flamingo" }, HARNESSED: { tier: "fast" } } } });
+-    specimen.expect(threads.writes.at(-1).data.trait.HARNESSED.tune).toEqual(tiers.fast);
++    specimen.expect(threads.writes.at(-1).data.trait.HARNESSED.tune).toEqual(TIER_POINTS.fast);
+     specimen.expect(await run("/effort high")).toEqual({ HARNESSED: { effort: "high" } });
+     specimen.expect(await run("/rounds 12")).toEqual({ HARNESSED: { rounds: 12 } });
+     specimen.expect(await fault("/rounds 101")).toBe("VALIDATION");
+@@ -502,7 +504,7 @@
+ 
+   specimen.it("/model pins HARNESSED.provider · id on the seated thread; /tier unpins", async () => {
+     const pin = { provider: "openrouter", id: "openai/gpt-5" };
+-    client.runtime.cortex = new Cortex().register([{ type: "dialogue", ...pin, tune: tiers.fast, via: { stream: {} } }]);
++    client.runtime.cortex = new Cortex(TIER_POINTS).register([{ type: "dialogue", ...pin, tune: TIER_POINTS.fast, via: { stream: {} } }]);
+     specimen.expect(await run("/model openrouter openai/gpt-5")).toEqual({ HARNESSED: pin });
+     specimen.expect(threads.writes.at(-1).data.trait.HARNESSED).toMatchObject(pin);
+     const seated = threads.$entities.get().find((thread) => thread.id === "th1");
+@@ -516,8 +518,8 @@
+   });
+ 
+   specimen.it("/model narrows the cortex's dialogue models: words that name one pin it; none or several open the chooser over all of them and write nothing; its catalog entry takes no argument, so Enter on it dispatches", async () => {
+-    const faculty = (provider, id) => ({ type: "dialogue", provider, id, tune: tiers.fast, via: { stream: {} } });
+-    client.runtime.cortex = new Cortex().register([faculty("openrouter", "openai/gpt-5"), faculty("openrouter", "openai/gpt-5-mini"), faculty("anthropic", "claude-opus")]);
++    const faculty = (provider, id) => ({ type: "dialogue", provider, id, tune: TIER_POINTS.fast, via: { stream: {} } });
++    client.runtime.cortex = new Cortex(TIER_POINTS).register([faculty("openrouter", "openai/gpt-5"), faculty("openrouter", "openai/gpt-5-mini"), faculty("anthropic", "claude-opus")]);
+     const written = threads.writes.length;
+     specimen.expect(await run("/model opus")).toEqual({ HARNESSED: { provider: "anthropic", id: "claude-opus" } });
+     specimen.expect(await run("/model openrouter openai/gpt-5")).toEqual({ HARNESSED: { provider: "openrouter", id: "openai/gpt-5" } });
+--- a/commons/fixtures/testing/hal/stub/tests/stub.test.js
++++ b/commons/fixtures/testing/hal/stub/tests/stub.test.js
+@@ -1,3 +1,4 @@
++import { STUB_FACULTIES } from "../../../data/stub.js";
+ import { soma, specimen, v } from "@vivalence/typology";
+ import provider from "../provider/index.js";
+ import { plan, prose, read, round, shape } from "../provider/script.js";
+@@ -43,14 +44,14 @@
+ 
+ specimen.describe("stub · the faculties", () => {
+   specimen.it("registers dialogue at three tunes plus verbatim and speech", async () => {
+-    const faculties = await provider({ statics: {} });
++    const faculties = await provider({ statics: {}, faculties: STUB_FACULTIES });
+     specimen.expect(faculties.filter((faculty) => faculty.type === "dialogue").length).toBe(3);
+     specimen.expect(faculties.map((faculty) => faculty.type)).toContain("verbatim");
+     specimen.expect(faculties.map((faculty) => faculty.type)).toContain("speech");
+   });
+ 
+   specimen.it("streams the scripted number of deltas, and takes the scripted time doing it", async () => {
+-    const [deep] = await provider({ statics: {} });
++    const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
+     const started = performance.now();
+     const events = (await drain(deep.via.stream({ turns: [said("hi --deltas 4 --pace 30ms")] }))).map((packet) => packet.event);
+     specimen.expect(events.filter((event) => event === "/part/delta").length).toBe(4);
+@@ -59,7 +60,7 @@
+   });
+ 
+   specimen.it("calls the armed tool for --rounds, then answers — the round comes off the turns", async () => {
+-    const [deep] = await provider({ statics: {} });
++    const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
+     const tools = [{ name: "lookup" }];
+     const first = await drain(deep.via.stream({ tools, turns: [said("go --tool lookup --rounds 2 --pace 1ms")] }));
+     specimen.expect(first.at(-1).turn.meta.state).toBe("tools");
+@@ -71,7 +72,7 @@
+   });
+ 
+   specimen.it("a stall is interruptible: the abort signal cuts it, it is not waited out", async () => {
+-    const [deep] = await provider({ statics: {} });
++    const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
+     const abort = new AbortController();
+     setTimeout(() => abort.abort("SIGKILL"), 60);
+     const started = performance.now();
+@@ -80,7 +81,7 @@
+   });
+ 
+   specimen.it("--timeout yields nothing until the signal ends it — the row that will not die", async () => {
+-    const [deep] = await provider({ statics: STATICS });
++    const [deep] = await provider({ statics: STATICS, faculties: STUB_FACULTIES });
+     const abort = new AbortController();
+     setTimeout(() => abort.abort("SIGKILL"), 80);
+     const events = await drain(deep.via.stream({ turns: [said("--run hung")] }, { signal: abort.signal }));
+@@ -88,7 +89,7 @@
+   });
+ 
+   specimen.it("--fault retryable throws with the flag the belt's backoff reads", async () => {
+-    const [deep] = await provider({ statics: {} });
++    const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
+     const thrown = await deep.via.render({ turns: [said("x --fault retryable")] }).catch((error) => error);
+     specimen.expect(thrown.retryable).toBe(true);
+     const fatal = await deep.via.render({ turns: [said("x --fault")] }).catch((error) => error);
+@@ -96,7 +97,7 @@
+   });
+ 
+   specimen.it("--close length seals an assistant turn with NO parts and that state — what gpt-5.1 did on 09-23", async () => {
+-    const [deep] = await provider({ statics: {} });
++    const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
+     const events = await drain(deep.via.stream({ turns: [said("hi --close length")] }));
+     specimen.expect(events.map((event) => event.event)).toEqual(["/turn/open", "/turn/close"]);
+     specimen.expect(events.at(-1).turn.meta).toEqual({ state: "length", provider: { finish_reason: "length", model: "stub-deep" } });
+@@ -106,7 +107,7 @@
+   });
+ 
+   specimen.it("render pours the same script into one turn, the object part its one home", async () => {
+-    const [deep] = await provider({ statics: {} });
++    const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
+     const turn = await deep.via.render({
+       turns: [said("x --object '{\"answer\":\"42\"}'")],
+       output: { schema: { type: "object", properties: { answer: { type: "string" } }, required: ["answer"] } },
+@@ -116,7 +117,7 @@
+   });
+ 
+   specimen.it("verbatim transcribes the packets it was fed, speech answers audio", async () => {
+-    const faculties = await provider({ statics: {} });
++    const faculties = await provider({ statics: {}, faculties: STUB_FACULTIES });
+     const verbatim = faculties.find((faculty) => faculty.type === "verbatim");
+     const speech = faculties.find((faculty) => faculty.type === "speech");
+     async function* frames() {
+@@ -142,4 +143,11 @@
+     specimen.expect(spoken.map((packet) => packet.event)).toEqual(["/audio/packet", "/audio/close"]);
+     for (const packet of spoken) specimen.expect(packet).matches(v.primitives.hallucination.Audio.Any);
+   });
++
++  specimen.it("only the row's faculties load; a type the stub does not speak faults", async () => {
++    const [deep] = STUB_FACULTIES;
++    const faculties = await provider({ statics: {}, faculties: [deep] });
++    specimen.expect(faculties.map((faculty) => faculty.id)).toEqual([deep.id]);
++    await specimen.expect(provider({ statics: {}, faculties: [{ ...deep, type: "picture" }] })).rejects.toThrow("[stub] faculties/0");
++  });
+ });
+--- a/commons/fixtures/testing/hal/stub/tests/stub.snapshot.test.js
++++ b/commons/fixtures/testing/hal/stub/tests/stub.snapshot.test.js
+@@ -1,3 +1,4 @@
++import { STUB_FACULTIES } from "../../../data/stub.js";
+ import { soma, specimen, v } from "@vivalence/typology";
+ import { join } from "@std/path";
+ import provider from "../provider/index.js";
+@@ -39,7 +40,7 @@
+ 
+ describe("stub · every scripted run, packet by packet and folded", () => {
+   it("the dialogue faculty at its deepest tune, one request per run", async () => {
+-    const [deep] = await provider({ statics: {} });
++    const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
+     const runs = {};
+     for (const [name, request] of Object.entries(RUNS)) {
+       const packets = await drain(deep.via.stream(request));
+@@ -51,7 +52,7 @@
+   });
+ 
+   it("the same request twice is the same stream", async () => {
+-    const [deep] = await provider({ statics: {} });
++    const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
+     const request = RUNS["two rounds, the second"];
+     expect(await drain(deep.via.stream(request))).toEqual(await drain(deep.via.stream(request)));
+   });
+--- a/commons/fixtures/testing/hal/stub/provider/index.js
++++ b/commons/fixtures/testing/hal/stub/provider/index.js
+@@ -37,7 +37,7 @@
+     yield {
+       event: "/turn/close",
+       turn: {
+-        meta: { state: script.close, provider: { finish_reason: script.close, model: model.slug } },
++        meta: { state: script.close, provider: { finish_reason: script.close, model: model.id } },
+       },
+     };
+     return;
+@@ -90,37 +90,42 @@
+ }
+ 
+ 
+-const MODELS = {
+-  deep: { slug: "stub-deep", tune: [0.95, 0.15, 0.15], context: 1000000 },
+-  middle: { slug: "stub-middle", tune: [0.6, 0.6, 0.5], context: 1000000 },
+-  quick: { slug: "stub-quick", tune: [0.25, 0.95, 0.5], context: 200000 },
+-};
++const { Tune } = v.primitives.hallucination;
++
++const Faculties = v.array(
++  v.union([
++    v.object({ type: v.const("dialogue"), id: v.string(), tune: Tune, context: v.integer() }),
++    v.object({ type: v.const("verbatim"), id: v.string(), tune: Tune }),
++    v.object({ type: v.const("speech"), id: v.string(), tune: Tune }),
++  ]),
++);
+ 
+ // async by contract — paladin awaits every provider, and the real ones open a client here.
+ // deno-lint-ignore require-await
+ export default async function provider(service) {
++  const [violation] = v.faults(Faculties, service.faculties);
++  if (violation) throw new Error(`[stub] faculties${violation.at} ${violation.reason}`);
+   const statics = service.statics ?? {};
+-  const faculties = [];
+ 
+-  for (const model of Object.values(MODELS)) {
+-    const seat = { ...model, statics };
+-    faculties.push({
++  const dialogueFaculty = (entry) => {
++    const seat = { ...entry, statics };
++    return {
+       type: "dialogue",
+-      id: model.slug,
+-      tune: model.tune,
+-      context: model.context,
++      id: entry.id,
++      tune: entry.tune,
++      context: entry.context,
+       channels: { in: ["text", "image", "document", "tool_result"], out: ["text", "tool_use", "object"] },
+       via: {
+         stream: (request, { signal } = {}) => dialogue(seat, request, signal),
+         render: (request, { signal } = {}) => soma.bridge(dialogue(seat, request, signal)),
+       },
+-    });
+-  }
++    };
++  };
+ 
+-  faculties.push({
++  const verbatimFaculty = (entry) => ({
+     type: "verbatim",
+-    id: "stub-verbatim",
+-    tune: [0.4, 0.8, 0.9],
++    id: entry.id,
++    tune: entry.tune,
+     channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
+     via: {
+       stream: async function* ({ source, settings = {} }, { signal } = {}) {
+@@ -141,10 +146,10 @@
+     },
+   });
+ 
+-  faculties.push({
++  const speechFaculty = (entry) => ({
+     type: "speech",
+-    id: "stub-speech",
+-    tune: [0.3, 0.8, 0.9],
++    id: entry.id,
++    tune: entry.tune,
+     channels: { in: [{ type: "text" }], out: [{ type: "audio", codec: "pcm_16000" }] },
+     via: {
+       stream: async function* ({ source }, { signal } = {}) {
+@@ -159,5 +164,7 @@
+     },
+   });
+ 
+-  return faculties;
++  const TYPES = { dialogue: dialogueFaculty, verbatim: verbatimFaculty, speech: speechFaculty };
++
++  return service.faculties.map((entry) => TYPES[entry.type](entry));
+ }

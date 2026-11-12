@@ -1,0 +1,56 @@
+{
+  "input": {
+    "references": [
+      "/tactic/harvest/drain",
+      "/daemon/chess/mode/teacher/coach/whoami"
+    ]
+  },
+  "answer": {
+    "output": {
+      "tools": [
+        {
+          "name": "tactic_harvest_drain",
+          "valence": "Write the daemon's current truth back to the topography's dataset files through its datasink — the explicit flush of the katabolic loop. Returns the drain report verbatim.",
+          "input": {
+            "type": "object",
+            "properties": {
+              "topography": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "name": "daemon_chess_teacher_coach_whoami",
+          "valence": "chess·coach /whoami"
+        }
+      ]
+    }
+  },
+  "trait": {
+    "TOOLED": {
+      "/daemon/education/mode/teacher/francesca/drill/deal": "eager",
+      "/daemon/education/mode/tactic/harvest/drain": "eager",
+      "/daemon/chess/mode/teacher/coach/whoami": "eager"
+    },
+    "PRIMED": {}
+  },
+  "live": [
+    {
+      "name": "tactic_harvest_drain",
+      "valence": "Write the daemon's current truth back to the topography's dataset files through its datasink — the explicit flush of the katabolic loop. Returns the drain report verbatim.",
+      "input": {
+        "type": "object",
+        "properties": {
+          "topography": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "daemon_chess_teacher_coach_whoami",
+      "valence": "chess·coach /whoami"
+    }
+  ]
+}

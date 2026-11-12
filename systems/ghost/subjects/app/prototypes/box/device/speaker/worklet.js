@@ -7,12 +7,18 @@ class SpeakerPcmProcessor extends AudioWorkletProcessor {
     this.bufferedSamples = 0;
     this.priming = true;
     this.jitter = options?.processorOptions?.jitter ?? 1600;
+    this.played = 0;
+    this.reported = 0;
+    this.ticks = 0;
     this.port.onmessage = (event) => {
       if (event.data?.flush) {
         this.queue.length = 0;
         this.cursor = 0;
         this.bufferedSamples = 0;
         this.priming = true;
+        this.played = 0;
+        this.reported = 0;
+        this.port.postMessage({ played: 0 });
         return;
       }
       this.queue.push(event.data);
@@ -38,12 +44,18 @@ class SpeakerPcmProcessor extends AudioWorkletProcessor {
       written += take;
       this.cursor += take;
       this.bufferedSamples -= take;
+      this.played += take;
       if (this.cursor >= head.length) {
         this.queue.shift();
         this.cursor = 0;
       }
     }
     while (written < channel.length) channel[written++] = 0;
+    this.ticks += 1;
+    if (this.ticks % 25 === 0 && this.played !== this.reported) {
+      this.reported = this.played;
+      this.port.postMessage({ played: this.played });
+    }
     const playing = this.queue.length > 0;
     if (playing !== this.playing) {
       this.playing = playing;

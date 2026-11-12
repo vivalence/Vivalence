@@ -5,6 +5,32 @@
 Issues we know about and have NOT fixed. Each entry: symptom, root cause hypothesis,
 evidence, attempts, why not fixed now, fallback workaround.
 
+* relation-only-edit-pushes-nothing — OPEN (found 11-18, runtime)
+** Symptom
+A many-to-many edit alone (=buffer.turns.add=, =literals=, =symbols=, =files=, =views=) never reaches a subscribed client; it shows after a reload.
+** Root cause
+=shard/datamap.js:181= pushes on =/after/<entity>/create|update|delete= only; mikro flushes a collection-only change with ZERO change sets, so no =afterUpdate= fires. Pinned: =systems/runtime/tests/entities/view.test.js= "a relation-only edit fires no afterUpdate".
+** Why not fixed now
+The dock reads tool results instead (m108 11-18); the push layer is its own quest.
+
+* education-kernel-suite-dead-at-setup — OPEN (found 11-18, registry)
+** Symptom
+=deno test -A --no-check ~/.viva/registry/education/domain/tests/kernel/literal.test.js= aborts before any case: =ValidationError: Value for SymbolEntity.daemon is required=.
+** Why it matters
+Every retention case is silent — the =traits: "RETAINED"= lookup lost 112 reviews on 11-18 while its test (=:346=) never ran.
+
+* dojo-review-failures-only-in-console — OPEN (found 11-18, registry)
+** Symptom
+A failed =/review/literal= (500) shows nothing on screen: =modes/games/dojo/buffer/Dojo.svelte:677= =.catch(console.warn)=; tty =dojo.jsx:25= does surface it.
+** Why not fixed now
+Unruled: the screen's answer to a lost review.
+
+* retained-helper-scans-loaded-notes — OPEN (found 11-18, registry)
+** Symptom
+=education/domain/traits/literal/retained.js:14= =retained(literal)= throws unless =notes= is populated, then scans them in memory; =scale= (=:119=) · =assess= (=:141=) read it.
+** Why not fixed now
+=review= moved to the repository query =trait: { RETAINED: { $ne: null } }= (/"the code is SHHHIIITTTT"/); the two readers are their own ruling.
+
 * watch-restart-leaks-esbuild-children — OPEN (found 11-09, dev)
 ** Symptom
 =runtime/watch= (pid of =deno run --watch … run.js=) holds 33 =@esbuild/darwin-arm64= children after a day of restarts; each in-process restart spawns a new esbuild service, none is stopped.
@@ -27,7 +53,7 @@ prod =runtime: "/runtime/runtime", modes: []=; anima HOME =/runtime/runtime/mode
 ** Root cause
 =subsystems/paladin/instance/lifecycle/1-population.js:58= =inherit(module, ledger, slot)= falls through WHOLE slots: a recipe =runtime: {statics}= drops the ledger's =runtime.modes=. localhost's recipe has no block → ledger wins; prod's has → nothing.
 ** State
-prod recipe patched by hand 11-09 (=instance.viva.jsonc:12=, =.bak-20261109= beside it); canonical ledger carries =modes= since 42fd3068. localhost's recipe ALSO restates =runtime= since 11-09 (m118: =modes= = harness + =@commons/editor/darkroom=, statics copied) — a ledger =runtime.modes= change must be mirrored there till the ruling.
+prod recipe patched by hand 11-09 (=instance.viva.jsonc:12=, its baks trashed 11-12 → =~/.viva/bak/prod/coolify-bak-20261112/=); canonical ledger carries =modes= since 42fd3068. localhost's recipe ALSO restates =runtime= since 11-09 (m118: =modes= = harness + =@commons/editor/darkroom=, statics copied) — a ledger =runtime.modes= change must be mirrored there till the ruling.
 ** Ruling
 his: per-key fall-through for =runtime=, or a recipe never restates the ledger's =runtime=.
 
@@ -148,14 +174,6 @@ None needed yet.
 
 ** Evidence · why not fixed
 Seen while probing m99 Q25 (pattern merge in =graft=); the lock used =new this.signature({ ...a, ...b })= instead. Callers: =subsystems/typology/tests/path.absolute.test.js:49= (=good.clone().branch(…)=, works only because =branch= mints a new child). Typology is HOLY — needs his ruling.
-
-* verbatim-transcripts-never-persist — OPEN (found 10-16)
-
-** Symptom
-The dictation chain is live runtime-side (=/harness/verbatim/stream=, =systems/runtime/tests/dictation.integration.test.js=), but the verbatim branch =systems/runtime/subjects/mode/traits/harnessed.js:190-197= has no persisting step: a transcript is streamed back and never becomes a Turn.
-
-** Why not fixed now
-Whether a dictation IS a turn is a ruling (=reference/client-design-briefing-ii.md= §3·7); his go.
 
 * box-sample-rate-hardcoded-16k — OPEN (found 10-16)
 
@@ -415,115 +433,6 @@ None needed — it is weight, not breakage. The drapes half of the same
 problem IS fixed (=components= aggregate deleted, 1.33 MB → 0.54 MB), so
 buffer views are already 2.5× lighter; this issue is the remaining 292 KB.
 
-* detached-process-die-on-parent-exit
-
-** Symptom
-=viva /instance/start= reports =ghost: started temp (runtime=PID kajuit=PID)= and
-writes lock files at =$VIVA_SYSTEM_MOUNT/locks/<type>_<slug>.lock=. Within
-milliseconds the spawned PIDs are dead. =kill -0 <pid>= → "no such process". The
-intended behaviour (background runtime+kajuit running after ghost exits) does not
-happen.
-
-** Root cause hypothesis
-=Deno.Command= has no native way to put a child in a new session / process group on
-unix. =child.unref()= only stops the parent's event loop from waiting on the child
-— it does NOT decouple the child from the controlling terminal's session. When the
-parent ghost process exits (or the shell sends SIGHUP), the cascade reaches the
-detached deno child because it still shares the process group / session.
-
-macOS lacks =setsid= as a standalone binary, so the obvious unix shim
-(=setsid deno task ...=) isn't available out of the box.
-
-** Evidence
-#+begin_src text
-$ deno task ghost/run /instance/start
-ghost: started temp (runtime=57865, kajuit=57866)
-$ kill -0 57865
-(eval):kill:1: kill 57865 failed: no such process
-$ kill -0 57866
-(eval):kill:1: kill 57866 failed: no such process
-#+end_src
-
-Lock files contain the dead pids:
-
-#+begin_src jsonc
-// $VIVA_SYSTEM_MOUNT/locks/runtime_temp.lock
-{ "pid": 57865, "type": "runtime", "slug": "temp", "mount": "/Users/.../testament/temp",
-  "started": "2026-05-28T..." }
-#+end_src
-
-=/instance/init= (=piped= attachment) and =/instance/run= (=inherit= attachment)
-both work end-to-end — confirms the env / instance resolution chain is fine, the
-problem is specifically the =detached= attachment lifecycle.
-
-** Attempts (none kept)
-1. Wrap cmd in =nohup=. Lock pid then = nohup's pid, not the deno's, so
-   =/instance/stop= reads the wrong pid; also nohup writes to =nohup.out= when
-   stdout is a tty, polluting cwd.
-2. =nohup sh -c 'deno ... > LOG 2>&1'=. Same lock-pid problem + shell escaping
-   the env vars.
-3. Pipe child stdout/stderr to log files. Tangential to the death cause,
-   reverted.
-
-All reverted. Process.js is back to its original simple form.
-
-** Why not fixed now
-We don't yet know the precise cause without a controlled experiment. Options that
-would actually work (in rough order of effort):
-
-- compile a tiny =setsid=-equivalent shim and ship it via =viva/install=
-- replace the =nohup= path with a =sh -c 'exec ...'= so the shell process replaces
-  itself with deno (pid preserved) and explicitly call =setpgid= / detach
-- write a Deno script wrapper that uses =Deno.Command= with a fresh
-  =Deno.Process=-style detach (none currently exists)
-- use a real process supervisor (launchd plist, systemd unit, pm2) — overkill
-  for our scale
-
-None of these are 30-minute jobs. Currently we are using =/instance/init= and
-=/instance/run= for everything that needs a live instance, which both work.
-
-** Fallback workaround
-Use =/instance/run= (inherit attachment, stays attached to terminal) or
-=/instance/init= (piped attachment, holds the ink wizard until user dismisses).
-Both keep the children alive for the duration of the parent process — that's
-what every demo this week has used.
-
-** measured at the connoisseur's pass (m46) — the flag exists
-=Deno.Command= carries =detached: true= — deno 2.9.6, =deno types= :4210: /"Whether to detach the
-spawned process from the current process. This allows the spawned process to continue running after
-the current process exits."/ Probe (=sleep 20=, parent exits): with the flag the child's pgid = its
-own pid and it lives; without it pgid = the parent's group. =unref()= was only ever the second half.
-Every option above was a shim for this one line. Owed: the 2.x release that introduced it (README
-floor is 2.7+). Design that consumes it: m46 =* the connoisseur's pass=, cluster A / =start=.
-** RESOLVED — m49 M1, live-proven
-=start= spawns a supervisor ghost (=instance/run <target> --instance=<mount> --logged=) with
-=detached: true= + =unref()=; the supervisor claims =locks/<slug>.lock= (its own pid + a token),
-integrates the children, and perpetuates. Proof on =m49-smoke=: supervisor 70721 outlived =start=,
-=/status= answered on its port, =instance/stop= SIGTERM'd 70721 → it took the =deno task= wrapper
-and the leaf runtime with it, lock gone, port free. Quest: =m49-process-ontology-and-control-vector=.
-
-* deno-task-cwd-rewrite
-
-** Symptom
-=Deno.cwd()= inside a handler reflects the directory of the resolved
-=deno.jsonc= (repo root) — NOT the shell directory the user typed =deno task=
-from. Without correction, =viva /instance/clone localhost ./here= materializes
-the instance at =<repo-root>/here= instead of =<shell-cwd>/here=.
-
-** Cause
-=deno task= walks up to find the nearest =deno.jsonc=, then chdirs to that
-directory before running the task. =PWD= is also overwritten to the repo root.
-The original shell cwd is preserved only in =INIT_CWD=.
-
-** Workaround (in use)
-#+begin_src js
-const cwd = Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
-#+end_src
-
-Applied at every handler that resolves a user-supplied relative path
-(=instance/clone=, mw in =systems/ghost/mod.js=). Should be lifted into a paladin
-helper (=paladin.cwd= or =ctx.cwd=) so handlers don't have to remember.
-
 * documentation-public-ships-astro-dist-node_modules-junk — OPEN (beef's tree, one =rm=)
 
 ** Symptom
@@ -579,46 +488,6 @@ written — the capture runner exits regardless of example leaks.
 =ProcessDie.disintegrate()= that reaches the process's datamap — requires the
 service provider contract to hand the datamap (or a terminator) back to the
 die instead of swallowing it in the server closure.
-
-* typology-client-barrel-tdz
-
-** Symptom
-=import("subsystems/typology/mod.client.js")= throws =Cannot access 'Signature'
-before initialization=. Found while checking whether M22.1's carriers reached
-the client; A/B'd with them moved aside — identical failure, so pre-existing.
-
-** Cause
-Circular import + TDZ inside the CLIENT chain
-(=prototypes/index.client.js= → =gestalten/index.client.js= → back), where a
-module reads =Signature= at evaluation time rather than inside a function.
-
-** Why not fixed
-Out of M22's scope, and it is not obviously live: =mod.client.js= is not in the
-package's =exports= map at all, so nothing can import it by specifier — kajuit
-reaches the client surface through its own vite aliases. Either it is dead and
-should go, or it is aliased and the client build is carrying a broken entry.
-Decide which before repairing.
-
-** ANSWERED + BIT DOWNSTREAM (README-walk report, compact 63 (`the-readme-walk-lands-admin-in-the-identity-table…`))
-=mod.client.js= is LOAD-BEARING — kajuit's =vite.config.mjs= alias points
-=@vivalence/typology= at it. And the cycle now bites a downstream consumer
-through TIMING, not a typology-internal read: SvelteKit dev SSR loads
-=+layout.svelte= and =+page.svelte= in parallel; when =+page='s path reaches
-=src/telemetry/logger.js= while the other entry is mid-evaluation of the client
-barrel chain (=mod.client.js → gestalten/index.client.js → belt/index.js →
-export * as trace=), =trace= is an unfinished namespace and
-=atom(trace.chronicle.seed())= at module scope throws =reading 'chronicle'= —
-EVERY route 500s. Deterministic: =allSettled([+page, +layout])= ERR ERR,
-reversed order OK OK; deno runs the same graph green (module runner's choice).
-FIXED (beef's go): =systems/kajuit/src/app/+layout.js= — =export const ssr =
-false=. kajuit is adapter-static + =200.html= fallback = documented SvelteKit
-SPA mode; dev SSR was the only place the race existed. Verified live: dev
-server WITH fix serves the 2,570-byte shell (no server-side module eval —
-race impossible), WITHOUT fix 5.8 MB SSR render; this box's runner happens to
-load layout first so the 500 never fired locally — the remote =allSettled=
-probe stays the repro. The barrel TDZ cycle itself remains LATENT (unchanged
-verdict above); lazy =$story= seed / direct trace import stay on the table if
-SSR ever returns.
 
 * user/thread isolation — the m25 breakage sweep (LIVE, UNFIXED)
 Full map, evidence, ranks: =.ikiro/quests/benched/m25-user-and-thread-handling.org= "where it breaks" (14 BREAKS / 6 root causes). Kept here so the security rows don't sink with the bench. One line each, fix direction in the quest:
@@ -694,7 +563,7 @@ NOTE (docs-survey wake, measured): =commons/instances/hello-world/= has ZERO =@e
 re-capture owed · README "Hello, Mode!" quotes =registry/dummy/mode.viva.js= + =App.svelte= —
 =registry/dummy= DOES NOT EXIST in the repo. Cheap win unclaimed: doctor-at-create naming an
 unsupplied package owner before first boot. Smaller filed
-findings ride compact 81 (`the-ubuntu-walk-lands-both-users-in-the-identity-table…`): =deno task dependencies= allow-list misses =better-sqlite3= + =argon2=
+findings ride compact 81 (`the-ubuntu-walk-lands-both-users-in-the-identity-table…`): =deno task install= (was =dependencies=) allow-list misses =better-sqlite3= + =argon2=
 (argon2 prebuild gates signup hashing) · =instance/init= has no non-interactive path past blank
 secrets · one-shot shells always mint fresh =$PPID= sessions (export =VIVA_INSTANCE_MOUNT= is the
 working path) · =setsid nohup= needed for =instance/run= children to survive the shell.
@@ -996,62 +865,6 @@ stay clear of it.
 None recorded — the cascade is runtime (holy). Whether a symbol ever owns its documents, or a document
 its symbols, is beef's.
 
-* bundle-store-never-prunes — OPEN (design, marked at his ask during the vdex scroll session)
-
-** Symptom
-=~/.viva= holds *757* =*.svelte.mjs= artifacts. Nothing has ever been unlinked.
-=stucatch/dashboard/watch/bundle/= alone carries 15 generations of the same view.
-
-Each dev artifact is *6385 kb* (inline sourcemap — =sourcemap: prod ? false : "inline"=,
-=subsystems/typology/gestalten/bundle/svelte.js:38=), and one =Vdex.svelte= compile measures
-*858ms cold · 426ms warm*.
-
-** Why it just got sharper
-The dev-rebundle landing (this session, =daemon/aperture/metadata.js= + =daemon/traits/application.js=)
-makes =/metadata/app= recompile whenever =paladin.is.dev=. That is once per mode per *client boot*, so a
-page reload now mints a fresh artifact for every source change instead of once per daemon boot. The store
-grows at the speed of the edit loop.
-
-Second multiplier: one module at two mountings writes *byte-identical output into two stores* —
-=office/vdocs/bundle/b5b4fa174fc598eb.svelte.mjs= and =office/corpo/bundle/b5b4fa174fc598eb.svelte.mjs=
-are the same bytes under the same hash, because the store path is keyed by the MOUNTING
-(=bundles/${manifest.type}/${manifest.slug}=) while the content is keyed by the module.
-
-** The design he ruled out, in his own words
-#+begin_quote
-lets think aaabout how to do this. we want a cleanup process in the runtime. runtime goes through the
-waste and cleans up anything older than xyz or something.
-no that would force the runtime to regularly re-compile. stupid. hmmm.
-no clue.
-#+end_quote
-
-He is right and the reason is worth keeping: the artifacts are *content-addressed*, so an age-keyed reaper
-cannot tell a dead generation from the live one. The only pointer to the live artifact is
-=mode.app.view.mount=, held in the runtime's memory — not on disk, not in the ledger. Sweep by age and you
-either delete the artifact the running daemon is still serving (next client boot 404s until something
-recompiles), or you have to ask the runtime what is live — at which point age is the wrong key entirely.
-
-** The key that is actually available
-*Supersession, not age.* =mode.app.compile()= knows both hashes: the one it is replacing and the one it just
-minted. Everything else under that mode's =bundle/= is dead the instant =compile()= returns a different hash.
-That is a one-=Deno.remove= prune with zero inference and no reaper process.
-
-It only prunes going forward. The standing 757 need a separate one-shot, and that one CAN be age-keyed
-because nothing is serving them.
-
-** Unsettled — what a "go" would have to decide
-- *Whose verb.* =paladin.bundler(store)= mints and serves, so it could own =prune=; but only the trait knows
-  which hash is live. Runtime lifecycle is a third candidate and the one he reached for first.
-- *Does prod want it.* Prod compiles once per daemon boot, so the store grows once per deploy — slow enough
-  that pruning may be a dev-only concern, and deleting in prod costs the rollback.
-- *Shared stores.* Two daemons under one mountpoint, or one module at two mountings, both write into paths
-  that a naive prune would treat as exclusively its own.
-- *The dedup.* Whether the store should be keyed by module identity rather than by mounting, which would
-  make vdocs/corpo one artifact instead of two and shrink the problem before pruning it.
-
-** Workaround meanwhile
-=find ~/.viva -name "*.svelte.mjs" -delete= while every runtime is down. The next boot re-mints what is live.
-
 * boot-blames-the-port-and-names-nobody — OPEN TRAP (environmental; measured this session)
 
 ** Symptom
@@ -1209,26 +1022,6 @@ m66 (three containers) cuts prod over on the runtime mirror + deprecated tail; t
 
 ** Workaround
 Keep the old member at the bottom of the enum, restart every instance, drop later.
-
-* bundler-spams-the-mountpoint — OPEN (beef 2026-09-19: /"why do we store the same bundles under different hashes??? should be equal, no?!"/)
-
-** Symptom
-=~/.viva/instances/*/mountpoint/daemon_*/bundles= = 3.7G; =language-learning/daemon_playground= alone 595 files; italian 7 files / 55M. Every boot after any repo change adds a 7–10 MB file per APPLICATION mode. Nothing prunes.
-
-** Root cause
-Sibling bundles ARE different bytes (every md5 distinct, KB drift) — the hashes are honest, the defect is upstream. =subsystems/paladin/gestalten/belt/bundler.js:38-57=: on the ENTRY path (=traits/application.js:27=, every APPLICATION mode at boot) no source is digested; the file is compiled first and =hash ??= digest(text)= hashes the OUTPUT. Any change in the import closure (mode svelte, drapes, typology, dapper, a dev path string) → new bytes → new name. =mode.application.view= is in-memory per boot; no row references it. The SOURCE path (generative, =bundle({source})=) hashes the input and dedupes, and Buffer rows persist that hash in =view.json= — a generative bundle is referenced state, an application bundle is an unmanaged cache.
-
-** Evidence
-Italian db, 2026-09-19: Buffer rows with a non-null view = 0; each of the 7 on-disk hashes in =Buffer.view= = 0; Mode has no view/hash column. Readers of =bundles/= outside bundler.js: =resolve.js:25= · =application.js:26= · =generative.js:9=, all construct the store path only. Cleanup verbs in =systems/ghost/trajectories= (prune|clean|gc): 0 files.
-
-** Ruling
-beef, verbatim: /"i want the fact of persistence questioned. maybe graceful shutdown includes cleanup? for sure we want cleanup commands in ghost. maybe cleanup hooks in runtime + manual? same tooling in paladin."/
-
-** Why not fixed now
-Own quest (number beef's). Shape: application bundles keyed on their INPUTS (digest of the entry's import closure, or entry + repo rev + package rev) or not persisted at all; generative bundles stay because rows name them. ONE paladin primitive =paladin.bundler(store).prune({ keep })=; callers = runtime =disintegrate=, a post-compile boot hook, ghost =instance/prune --json= reporting bytes freed. =keep= = live application views + every Buffer-held hash.
-
-** Workaround
-=rm -rf <mountpoint>/daemon_*/bundles= while the instance is stopped; the next boot recompiles every APPLICATION mode. Generative views held by Buffer rows are LOST by this — only safe on an instance with none.
 
 * migration-non-transactional-leaves-a-failed-migration-half-applied — OPEN (the wound left when mikro 7.2.3 fixed the FK weld and the glued pragma, 10-08)
 
@@ -1655,17 +1448,17 @@ none.
 
 * intelligent-rounds-overrides-call-config — OPEN (found on the harness dossier pass)
 ** Symptom
-A thread whose INTELLIGENT trait sets =rounds= overrides the =config.rounds= a caller passes to the harness. hello-world's nested researcher (=config: { rounds: 30 }=) is capped at the thread's dial — =rounds: 1= starves it.
+A thread whose HARNESSED trait sets =rounds= overrides the =config.rounds= a caller passes to the harness. hello-world's nested researcher (=config: { rounds: 30 }=) is capped at the thread's dial — =rounds: 1= starves it.
 ** Root cause
-=systems/runtime/subjects/mode/traits/harnessed.js:46-48= =requesting= spreads =...config= FIRST, then =ctx.intelligent.rounds=. The researcher passes =thread=, so =claiming= reads the outer thread's INTELLIGENT.
+=systems/runtime/subjects/mode/traits/harnessed.js:46-48= =requesting= spreads =...config= FIRST, then =ctx.harnessed.rounds=. The researcher passes =thread=, so =claiming= reads the outer thread's HARNESSED.
 ** Evidence
-=commons/instances/hello-world/tools/research.js:4-7= comment: /"the researcher's own budget — NOT the thread's INTELLIGENT.rounds … would starve a research pass if it were dialed low."/ — the code does the opposite. Read, not run.
+=commons/instances/hello-world/tools/research.js:4-7= comment: /"the researcher's own budget — NOT the thread's HARNESSED.rounds … would starve a research pass if it were dialed low."/ — the code does the opposite. Read, not run.
 ** Ruling
 none yet — precedence (call over thread, or thread over call) is beef's call.
 ** Why not fixed
 runtime precedence change; needs a ruling.
 ** Workaround
-leave the thread's INTELLIGENT.rounds unset on threads that run research.
+leave the thread's HARNESSED.rounds unset on threads that run research.
 ** Reference
 =.ikiro/reference/harnesses/harness.md §6.1= · G7.
 
@@ -1959,25 +1752,16 @@ Found while reading an outside repo; more samples, a confidence band, or refusin
 ** Workaround
 Read a ladder answer whose =hold= sits near 0.5 as undecided; clear the rung's cache before trusting a second run.
 
-* agentic-doubles-a-self-branched-tool-prefix — OPEN (found scaffolding the chess coach)
+* tool-ctx-thread-is-an-id — OPEN (found landing m122's composer, 11-17)
 
 ** Symptom
-A TOOLING mode that branches its own tools under its slug (=coach/practice= declares =.branch("/practice")=) is slurped by AGENTIC under the slug again, so an agentic game's model sees =practice_practice_board=, =practice_practice_move= … — and play's talk now carries them, operating on practice buffers it has no business moving on.
+A tool's =ctx.thread= is the thread's ID; =contexts.js:32= =thread= says the Thread (=Tool= contract, =optional(thread)=). A tool that reads =ctx.thread.trait= gets =undefined=.
 
 ** Root cause
-=systems/runtime/subjects/mode/traits/agentic.js:9= — =mode.tools.branch(source.manifest.slug).slurp(source.tools)= prefixes every source; =~/.viva/registry/chess/modes/coach/practice/tools/index.js= prefixes itself for its own harness. Both are right alone.
-
-** Evidence
-The names follow from the two lines; the live list on play's harness was not read (no real model call this session).
-
-** Ruling
-none yet.
+=systems/runtime/subjects/mode/traits/harnessed.js= =arming= binds =ctx.input.thread=. The load tools need the entity: =composing= binds =ctx.thread= again on the =/tool= and =/primer= branches only.
 
 ** Why not fixed
-Whether practice keeps its self-prefix, AGENTIC skips a prefix it finds, or practice stops being TOOLING (it is an App coach, against "the coach is headless") is beef's call.
-
-** Workaround
-None needed until a model reaches for a =practice_practice_*= name; TALK does not name them.
+Registry tools pass =thread: ctx.thread= into emitters and wheres (=aprende= · =assembly= · =memo=); an entity there is unprobed.
 
 * runtime-watch-leaks-an-esbuild-per-restart — OPEN (found killing an orphaned watcher, m73 09-30)
 
@@ -2060,23 +1844,6 @@ A hook is beef's wiring (=ontology.md= law 8); the allowlist rows and their rig 
 
 ** Workaround
 =git -C <dir>= instead of =--git-dir=; =find <repo>/.git/refs -type f= + =.git/packed-refs= for refs; =jj log --ignore-working-copy -r 'bookmarks() | remote_bookmarks()'= for bookmarks; =readlink -f "$(which jj)"= for the version; never the words =git= / =jj= + a verb inside an =echo= label.
-
-* panel-a-status-strip-tests-outlive-the-strip — OPEN (found landing m76 M3)
-
-** Symptom
-=systems/anima/tests/dock/stage.mount.test.js= fails three of nine steps: "a view loads under its path…" expects =loading view attach/bundle/dealer/card active chat=, "a mode with no harness has no chat key" expects =done= and one =.status.positive=, "the frame keeps its own two states" expects =… active=. The rendered words carry no status word and no =chat= key.
-
-** Root cause
-Panel A (=systems/anima/src/app/panels/a/a.svelte=) draws =Frame= + =Dock= only; no element prints a buffer's =status= or a =chat= key under the view anywhere in =src/app/panels/a/= (=grep 'class="status"\|"chat"'= → 0). The strip left with the anima rework (=72acf68d1 new anima, pincer, tbone…=); the steps stayed.
-
-** Evidence
-m76's whole diff to =a.svelte= is the one settling line (=git diff -- systems/anima/src/app/panels/a/a.svelte=); the three steps red before and after it. The other six steps (settling included) are green.
-
-** Why not fixed
-The strip's return or the steps' cut is beef's call on panel A's shape, not m76's.
-
-** Workaround
-Read the suite as 6/9; the three reds are not a regression signal.
 
 * second-browser-unseats-a-fresh-seat — OPEN (found running m76's testimony, 10-03)
 
@@ -2467,18 +2234,6 @@ No caller hits it: every boot grafts =turn= last (=entities/terminal/commands/in
 ** Workaround
 Graft a =*= edge last.
 
-* ghost-panes-bundle-stale — OPEN (found 10-24, m102 QA walk)
-** Symptom
-Bare =viva= (the chrome) dies at boot: =FAILED props.client.controller.stdout.tail is not a function=; =run.js= prints nothing because opentui holds =console=. =systems/ghost/tests/panes.out.coverage.test.js= ×2 red on every census since 10-23, attributed "as before" without a cause.
-** Root cause
-=systems/ghost/chrome/out/panes.mjs= (gitignored, built by =deno task ghost/bundle=) dates 10-22 10:28 — before m100 · m101 took =tail= off the span; the source panes no longer call it, only the stale bundle does (=grep -c stdout.tail= → 4 in the bundle, 0 in =chrome/panes/=).
-** Evidence
-The scratchpad copy rebuilt (=ghost panes → … 123381 bytes=): =panes.out.coverage.test.js= =ok | 1 passed (3 steps)=; ghost =31 passed · 1 failed= (=shell= alone); bare =viva= paints the sign-in screen.
-** Why not fixed
-A rebuild writes the bundle beef's =deno task ghost/watch chrome= imports — his go.
-** Workaround
-=deno task ghost/bundle= after any =chrome/panes/= or span change.
-
 * runtime-and-hello-reds-untraced — OPEN (found 10-24, m105 Q12 typology census)
 ** Symptom
 Red on the base tree under an empty =HOME=, named nowhere before:
@@ -2505,17 +2260,21 @@ chess =kit/open.js= ×5 · media =Media.svelte= · =upload.js= · vcompany =Cale
 ** Workaround
 none for chess · media · vcompany in anima.
 
-* repl-answer-unpainted — OPEN (found 10-26, m108 anima walk)
+* tty-chrome-opentui-node-ffi — OPEN (found 11-13, pty walk)
 ** Symptom
-=/thread= with no words returns its candidates; neither client shows them, in any lens.
+=viva chrome= in a pty paints nothing and exits 0; =systems/ghost/tests/scenarios/chrome.js= answers =marks: []= · /"EOF before the island"/.
 ** Root cause
-=systems/ghost/subjects/terminal/repl.js= =dispatch= resolves =replDie.output=; every caller drops it (ghost =composer.jsx:57=, anima's inlined sites); the lens shows only =log= · =fault= records.
-** Evidence
-anima repl lens after =/thread=: no row; ghost =grep -rn 'repl.dispatch(' systems/ghost/surfaces= → =.catch(faulted)= only.
-** Why not fixed
-where an answer lands (a =log= record on the branch · a journal row) is unruled.
-** Workaround
-the sidebar's thread list.
+=@opentui/core@0.5.17= =chunk-node-tfvyz31s.js:242= =requireModule("node:ffi")=; deno 2.9.7 has no =node:ffi= (also under =--unstable-ffi=). The fault lands on =ghost/app= in =ghost.spans.log= only: /"OpenTUI native FFI is not available for this runtime yet"/; the app's status reads =ABORTED=, the shell's =FAILED= check passes.
+** Ruling
+none. Unknown: the version pair that last painted. Deno 2.9.8 unprobed.
+
+* anima-dock-record-unseen-his-browser — OPEN (found 11-13, repl output)
+** Symptom
+his anima (console reads like Firefox): =/modes= logs its record on =terminal/<id>/modes=, the lens flips to =repl=, the dock shows nothing. Chrome on the same =:1794=: the row paints, on a terminal with and without turns.
+** Root cause
+unknown. Unproven guess: the dock unpinned (=dock.jsx:31= follows only when bottomed), the record under the last turn.
+** Ruling
+none. Owed: his browser, a scroll to the bottom, the dock view.
 
 * terminal-tabs-in-arrival-order — OPEN (found 10-26, m108 anima walk)
 ** Symptom
@@ -2635,22 +2394,15 @@ None — a catalog-checked nature at =gathered=, or the chip built from the verb
 
 * anima-tests-world-rig-dead — OPEN (11-06, phone pass)
 ** Symptom
-=chrome · sidebar · tele · bar · regions .test.js= all abort: =tests/world.js:13= =ENTRY= bundles =./panes/index.js= · =./renderers.js= · =./view.js=, none exist since m108 m2. Five suites red before any step; =regions.test.js:179= still asserts the phone pane · strip · back button, all cut 11-06 (his /"phone implements same layout"/).
+every suite on =tests/world.js= aborts (11, 11-17): =:13= =ENTRY= bundles =./panes/index.js= · =./renderers.js= · =./view.js=, none exist since m108 m2. red before any step; =regions.test.js:179= still asserts the phone pane · strip · back button, all cut 11-06 (his /"phone implements same layout"/).
 ** Ruling
 m108 milestone 4 (the rig onto =surfaces/chrome/=); the phone-pane steps die with it.
 
 * popover-bounds-are-the-window — OPEN (11-06, phone pass)
 ** Symptom
-=drapes/Pop.jsx:51= · =Tele.jsx:10= clamp against =bridge.$viewport= = =innerWidth/innerHeight=; =.client= is now inset by the safe area, so a popover near the modeline can overrun by =safe-area-inset-bottom= (~34px). =Wid= and the modeline popover already measure =.client= (=modeline.jsx:71=, =dock.jsx:30=).
+=drapes/Pop.jsx:51= · =Tele.jsx:10= clamp against =bridge.$viewport= = =innerWidth/innerHeight=; =.client= is inset by the top safe area (bottom → =.modebar= 11-14): a popover overruns ~47px. =Wid= and the modeline popover already measure =.client= (=modeline.jsx:71=, =dock.jsx:30=).
 ** Ruling
 None — the store carries the client box, one writer at the =cover.jsx= root.
-
-* prod-anima-is-the-pre-rewrite-svelte — OPEN (11-06 23:10 curl)
-** Symptom
-=curl https://vivalence.com/= answers sveltekit markers + =cdn.jsdelivr.net/npm/eruda= (debug console ON); the Solid anima and every phone fix of 11-06 are not on prod.
-** Ruling
-=prod-deploy= — his deploy.
-
 
 * fs-tools-mountpoint-gate-is-prose-only — OPEN (11-09)
 ** Symptom
@@ -2693,6 +2445,8 @@ Thread rows store the whole vocabulary filled — =LABELED: {}= · =AIMED: {}= b
 =belt/traits.js:30= =cast= validates WORN names only, so the fill is never checked.
 ** Workaround
 =primer.entity.test.js= mirrors cast (worn names only).
+** Evidence 11-13
+Literal too: =hola-como-estas= stores ="LABELED": {}= (not in its =traits=) after =literal_update=; probable writer =traits.patch(held, …)= merging the CAST =held.trait= back. Unverified.
 
 * runtime-host-reference-unknown-on-a-daemon-host — OPEN (11-09)
 ** Symptom
@@ -2780,9 +2534,9 @@ Outside the rename pass; whose sweep (paladin beat · runtime prune) is his call
 
 * pruned-mode-buffers-set-null — OPEN (found 11-12, assembly-mode-rename)
 ** Symptom
-A pruned mode's Buffer entities survive with =mode = NULL= (probe: Buffer =01a1cf81-…= after =pruned mode: guide=).
+A pruned mode's Buffer AND Thread entities survive with =mode = NULL=. LIVE 11-12: Thread =01a1cf81-6920-…= (0 turns) → anima fault =thread.mode is null= at =systems/ghost/entities/thread/prototype.js:6= (=WORD= has no null arm), headline tab dies. 11-12 his /"a & c"/: =WORD= null arm landed; the thread deleted (backup =~/.viva/bak/instances/localhost-20261112/localhost.viva.db=). Client null arms landed 11-12 (his /"fix"/): =sidebar/sections.js:44,61= · =terminal/stall.js:14= · =commands/thread.js:10=; =entity.jsx:11= had one; =stall.js:34= his =@beef= block. OPEN: the typology rule itself.
 ** Root cause
-=subsystems/typology/entities/Buffer.ts:96= =deleteRule: "set null"=; Note cascades (=Note.ts:52=).
+=Buffer.ts:96= · =Thread.ts:107= =deleteRule: "set null"= (=nullable: true=); Note cascades (=Note.ts:52=).
 ** Why not fixed
 Typology is holy; cascade vs keep-as-orphan is his ruling.
 
@@ -2795,3 +2549,157 @@ A raw upload over the plain-HTTP transport reaches the route with =content-type=
 Probe =scratchpad/q3b.probe.js= (11-12): both the =yields= arm and =aim= print the type doubled. The browser rides multiplex, where the header is set once (m118 departure 3).
 ** Why not fixed
 Typology is holy; outside the reader drill.
+
+* prod-deploy-tails — OPEN (11-12, carried at the quest's close)
+=quests/done/prod-deploy.org= closed on /"move to done"/; its =* handoff= =owed= row holds each tail whole. By name: =prod-hosts-tails= · =prod-anima-debian-tails= · =recipe-runtime-block-hides-ledger-modes= · =anima-bundle-volume-survives-recreate= (CUT after a plain S000 recreate serves a new =index-*.js=) · =anima-bake-ships-instance-secrets= · S000's recipe is the 11-06 file vs R000's · =tune= → =tier= has no data migration · a turn on an old prod thread unmeasured · =(.*)= pattern =not compiled= per anima load · reader =/add= fetch guard · INVITATIONAL Q1 · the quest was never numbered.
+
+* prod-anima-debian-tails — OPEN (11-12, prod-deploy milestone 10)
+- S000's service network =xkgcgwck8k08cgs8okoo4sko= is HAND-made (=docker network create= + =connect coolify-proxy=), no Coolify labels; what the next Coolify deploy does with it is unmeasured.
+- the network SURVIVED S000's 22:02:44 reboot (the hosts cycle's, =prod-hosts-tails=; docker journal: anima + proxy join it 22:02:56, anima joins till 22:13) and was gone by 22:15:29 (=restartmanger … network e9afddd7… not found=); the proxy recreate was 21:39, before. Remover unread: Coolify's stop/deploy disconnects + removes a service network (2 root sessions from I000 in the window), unproven. Gone again → =up= refuses, 503.
+- =denoland/deno:alpine= (root =Dockerfile:1=) and =denoland/deno:debian= (=systems/anima/Dockerfile:4=) are unpinned; anima copies =/deno-dir= across them, a tag skew between two builds is unprobed.
+- =documentation/Dockerfile:20-21= runs unpinned =npm:astro= · =npm:pagefind=.
+- the anima image is 1.53 GB (base 1.13 GB): the 810 MB =/deno-dir= lands as a second layer. The small shape (bundle in a build stage, ship =build/= on nginx) needs =paladin:baked= read at page load, his call.
+- =@anthropic-ai/sdk= 1.8.0 (API =2026-10-21=) has no live call on prod; the provider tests build no client.
+
+* prod-hosts-tails — OPEN (11-12, prod-deploy hosts cycle)
+- unattended-upgrades patches, never reboots (=Automatic-Reboot= unset): the four hosts ran 178–191 days on kernel =-111= with =-147= installed. His call: a fixed night hour.
+- S000's GitLab runner mounts =docker.sock=: a CI job is root on the host serving vivalence.com (/"later."/).
+- ufw does not gate docker-published ports (=DOCKER-USER= empty): the provider firewall alone guards =:8000= · =:2501= · =:5555=, its rules unread.
+- =acme.json= on S000 · I000 carries dead hostnames: Traefik retries their LE renewals at every start.
+- lynis 11-12 index 67–70; hardening + rkhunter (nightly, 0 warnings) landed, the pass = skill =servers=. Unruled: O000 =/home/beef= 755.
+- NEXT, his 11-13: /"try to get in from the outside. are my secrets exposed. are we bundling something we shouldnt? is the lighthouse safe now? i know signed in users can get to other user data rn. ignore that one for now"/ — ran 11-13 on vivalence.com + the runtime: =security=.
+
+* security — OPEN (outside probe 11-13, vivalence.com + runtime; his: /"persist those as a special sub level in known issues. security."/)
+Held, measured without a token: 1579 gated read leaves 401 · cortex 401 · forged tokens (alg none, garbage, the bundle's jwt, weak guesses) =INVALID_TOKEN= · =/multiplex= 401 per frame · =/lighthouse/signup= · =/autologin= 404 · bundle 0 keys, 0 tokens, 0 source maps, its jwt = anima's decoy (hash-compared on the host) · only 22/80/443 reach a host (+2222/5050 GitLab). Skipped on his word: signed-in users reaching other users' data.
+** methods tried (11-13)
+- ports: TCP connect from a sibling host over the public IP, control ports 4444 · 9999 (this Mac answers every connect).
+- bundle: crawl =vivalence.com= (4 real files, SPA fallback filtered), regex scan for key shapes · =secrets:{}= · paths · hosts · source maps.
+- bundle jwt vs the runtime's signing secret: sha256 compared ON the host, no value read.
+- route map: =/metadata/aperture= pulled, 1583 read leaves (=find= · =count= · =metadata= · =status=) hit by GET with no token; mutating leaves never called.
+- forged tokens, header and =?token==: alg none · garbage · HS256 signed with each bundle jwt value and weak guesses, as =access= and as =operator= (=/lighthouse/password=).
+- websocket =/multiplex= opened with no token, gated signals sent as frame and as push.
+- =/lighthouse/login=: 6 wrong passwords on a fake name, 6 on a real one (timing), 30 in a row (rate limit), object-shaped name · password (operator injection: none, the query is bound).
+- CORS: =Origin= of the app, a lookalike, a stranger, none.
+- NOT tried: a signed-in session · password guessing · image layers · GitLab · Coolify login · load.
+** login-has-no-rate-limit — medium
+PROXY half closed 11-13: R000 =/data/coolify/proxy/dynamic/login-limit.yaml= (Traefik =rateLimit= 5/min burst 5 per IP, router priority 1000 on =/lighthouse/login=), measured 5 × 401 then 429 + =retry-after=. OWED, his /"i want both."/: the runtime's own throttle (self-hosted instances have no proxy). =systems/runtime/subjects/lighthouse/apertures/users.js:24=; =Password= is =minLength: 1=.
+** cors-pattern-admits-lookalike-origins — low
+=https://evilvivalence.com= gets =allow-origin= + =credentials: true=: the fourth pattern has no dot. Bearer auth, no cookies, so low today.
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shard/cors.js:1
+const origins = ["localhost(:[0-9]+)?", "127.0.0.1", "*.vivalence.com", "*vivalence.com"];
+#+END_SRC
+** bundle-bakes-the-whole-instance — low
+The served bundle carries env key names, mountpoints, a =/Users/…= and a =/home/…= path, the instance recipe. Same root as =anima-bake-ships-instance-secrets=.
+** faults-leak-internals — low
+A =password= sent as an object answers 500 with argon2's message; =shape/http.js:33= returns =e.message= on any throw.
+** attached-file-needs-no-token — low
+=/attached/file/:id= sits outside =authenticate= (=runtime/attachment.js:6=); its uuid v7 is the only guard.
+** anima-sends-no-security-headers — low
+=vivalence.com=: no HSTS, CSP, X-Frame-Options.
+** tokens-and-backups-at-rest — low
+=User.authentication.tokens= holds access + refresh in plaintext; R000 =/data/backup/*.tgz= and the service =.env= are mode 644.
+** registry-pulls-anonymously — unread
+Project =beef/viva= is public: an anonymous token pulls =runtime= · =anima= · =viva=. Image contents unread — /"are we bundling something we shouldnt?"/ still open there.
+
+* dojo-view-shows-stale-literal-text — OPEN (found 11-13, literal-rewrite)
+** Symptom
+After =literal_update= stored =¡Hola! ¿Qué tal estás?= (16:03), the dojo view and a fresh rep buffer =01a1d570-6e78-723d-bc61-511c20784646= still showed =¿Cómo estás?=; the buffer holds the slug only.
+** Root cause
+Not traced. Evidence: thread =01a1d1b0-7ac7-750c-b99d-2943dbf3ab96=, 16:04–16:05.
+
+* review-literal-note-slug-unique-faults — OPEN (found 11-13)
+** Symptom
+12 faults in 4 s on =/daemon/spanish/review/literal/<id>=: =UniqueConstraintViolationException … 'Note_scope_slug_unique'= (=~/.viva/logs/localhost/spans.jsonl=, at 1794580303534–1794580307184).
+** Root cause
+Not traced; =retained.js:105= mints =retention.<slug>= when =notes.retention(row)= finds none.
+** Evidence 11-18
+Every SECOND review 500s (dojo, wakaru); last one landed 11-14 15:50. Domain scenario passes the same calls. Correlates with uncommitted =mode/lifecycle/1-population.js= (11-13 18:01).
+
+* education-domain-kernel-suites-daemon-required — OPEN (found 11-13, base tree)
+** Symptom
+=~/.viva/registry/education/domain/tests/= =FAILED | 13 passed (91 steps) | 3 failed=: =kernel/datasink.test.js:9= · =kernel/literal.test.js:94= (=SymbolEntity.daemon is required=) · =userspace/scoping.test.js:22= (=LiteralEntity.daemon is required=).
+** Root cause
+Not traced; same with and without this session's edits. 11-16: same fault at games =cocina= · =comando= =tests/tools.test.js:12= (=literal.create= names no =daemon=, m119); their view reds: =tty-chrome-opentui-node-ffi=.
+
+* daemon-twitch-test-hides-a-thread-create-fault — OPEN (found 11-13)
+** Symptom
+=systems/runtime/tests/daemon/twitch.test.js= last step passes and prints =[twitch:detached] Error: You cannot call 'EntityManager.findOne()' with empty 'where' parameter= from an after-twitch on =/after/thread/create=.
+** Root cause
+Not traced.
+
+* lookup-is-accent-sensitive — OPEN (found 11-13)
+** Symptom
+=language-learning_lookup "hola como estas"= → not in the corpus; =¡Hola! ¿Cómo estás?= is (thread =01a1b609-5607-741b-98df-9899bdc62e02=).
+** Root cause
+=TRANSLATED.search= is a raw =$like= (=domain/traits/literal/claims.js:28=).
+
+* buffer-delete-takes-siblings — OPEN (found 11-13, reader-mode drop)
+** Symptom
+Two =/buffer/delete= on one thread of four reader buffers removed all four; a fresh =reader #12= appeared. The second answered =buffer "reader #11" removed= while =pasted= was framed.
+** Root cause
+Unproven. Suspect =systems/ghost/entities/buffer/hydration.js:6=: =on.release= runs =buffer.removeOne=.
+** Evidence
+11-13 anima journal, thread =01a1b1c1-23c1-724f-85ef-8dcaa1c103f8=; db before in =~/.viva/bak/instances/localhost-20261113/=.
+** Why not fixed
+Outside the reader quest; untraced.
+** Workaround
+One delete, then count the thread's buffers.
+
+* datamap-owned-gate — OPEN (found 11-14)
+** Symptom
+/"this is the uglyest code in the codebase. the. worst.!!!"/ — =subsystems/typology/gestalten/shard/datamap.js:277= =owned()=: every twitch gets every write, then each drops rows by matching =ctx.reference.absolute= strings (=startsWith("/runtime/")= · ===== =/daemon/${owner}=); a mode twitch (=/daemon/<slug>/mode/<type>/<slug>=) never sees a daemon-owned row.
+** Root cause
+Ownership is decided by string-comparing a reference path, not by the subscriber's scope.
+** Why not fixed
+Unruled.
+
+* subscribe-teardown-still-delivers — OPEN (found 11-14)
+** Symptom
+After the teardown =RemoteRepository.subscribe= returns (=subsystems/typology/prototypes/remote-repository.js:176=), the next server update still arrives and merges: =pushesTotal: 2= after =off()=.
+** Evidence
+Probe on a seeded datamap over =Deno.serve= (11-14, =.ikiro/reference/client-mirror/branch-push.probe.js=). Not checked in production.
+** Root cause
+Not traced.
+
+* traced-path-mounts-by-nature — OPEN (found 11-16)
+** Symptom
+=Vector.branch(path)= with a TRACED Path mounts at =path.nature=, silently; =.absolute= is ignored (=.ikiro/reference/attached-404/signature.probe.js=). =systems/runtime/subjects/runtime/lifecycle/2-resolution.js:39= passed =.absolute= before 11-16. No server reference is traced today.
+** Ruling
+none.
+
+* memo-tablet-snapshot-handler-undefined — OPEN (found 11-16, m120 baseline)
+** Symptom
+=commons/fixtures/memo/tests/tablet.snapshot.test.js= 0 passed, 2 steps red: =fire= at =:58= reads =element.__click= undefined on the "Revela" button; the second step's =calls= diff.
+** Root cause
+Untraced (a svelte delegation shape vs the test's =fire=, unprobed); a base-tree red.
+
+* m120-orphan-view-files — OPEN (11-16, m120 sweep)
+** Symptom
+26 File rows on =bundle/<hash16>.<stem>.mjs= paths whose artifacts =viva instance/cleanup= removed; the patrol marks them =MISSING= (=runtime/lifecycle/3-integration.js:24=); no client reads them (picks by =view.entry=).
+** Why not fixed
+Dropping db rows is his call. Artifacts: =~/.viva/bak/instances/localhost-20261116/m120-sweep/=.
+
+* dock-stop-tooltip-promises-an-unbound-esc — OPEN (found 11-16, call-faculty drill)
+
+** Symptom
+=systems/anima/src/surfaces/chrome/panels/dock/textarea.jsx:106= titles the stop button "stop · esc · /stop"; no keymap entry sends =/stop= on =esc= (the two =esc= bindings: =/repl/close= =commands/system/repl.js:18=, =/legend/close= =leader.js:17=).
+
+** Why not fixed
+What Esc does outside a dictation is his ruling; inside one it stops it (=quests/m123-call-faculty.org= Q16 · Q16A).
+
+* dictate-polish-reasoning-uncapped — OPEN
+** Symptom: stop → text lands 5–20 s later, unchanged
+** Root cause: =shard/hal.js:55= repair passes no =settings=; =openrouter/provider/translate.js:119= → reasoning on, uncapped; =hal.js:49= holds the stream for it
+** Evidence: =reference/call-faculty/dictate-performance-11-18.org=
+** Why not fixed: his pick (effort · model)
+
+* journal-rebuilds-per-activity — OPEN
+** Symptom: page blocked 57–136 ms per Activity message, ~0.5 s a dictation edge
+** Root cause: =dock/journal.jsx:314= =waiting()= reads the store; =entries()= mints new objects; =<For>= remounts all
+** Evidence: =reference/call-faculty/dictate-performance-11-18.org=
+** Why not fixed: his pick
+
+* polish-example-noop — OPEN
+** Symptom: =/polish engaged off= returns, sends nothing, no fault
+** Root cause: =commands/content/polish.js:10= example names =/polish=, route is =/polish/engaged=; =commands.test.js:606= checks an Example exists, never that it dispatches

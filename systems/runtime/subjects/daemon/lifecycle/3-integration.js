@@ -1,16 +1,9 @@
-import { Url, Connection, fromm, shard, shape } from "@vivalence/typology";
+import { Url, Connection, shard, shape } from "@vivalence/typology";
 import * as belt from "../../../gestalten/belt/index.js";
 import { host } from "../../../gestalten/shard/index.js";
 
 export const call = async (die, next) => {
   die.connection = new Connection(new Url("http://internal"), shard.transmitter.inline(shape.http(die.daemon.aperture)));
-  await next();
-};
-
-export const twitch = async (die, next) => {
-  for (const mode of fromm.modes(die.daemon.modes).flat) {
-    die.daemon.twitch.graft(mode.twitch);
-  }
   await next();
 };
 

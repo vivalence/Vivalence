@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>call · dictate · prototype</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="vivalence.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Poppins:wght@600&amp;family=K2D:wght@600&amp;family=Victor+Mono:wght@400;600;700&amp;family=IBM+Plex+Sans:wght@400;600&amp;family=IBM+Plex+Mono:wght@400;600&amp;family=VT323&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<style>
+body{margin:0}
+.v-tty > div{min-height:18px}
+@media (max-width: 720px){.v-frame{display:none !important}}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" tabindex="0" onKeyDown="{{ onKey }}" data-theme="{{ theme }}" class="kit" style="width: 100%; height: 100vh; display: flex; flex-direction: column; overflow: hidden; outline: none;">
+
+<sc-if value="{{ dom }}" hint-placeholder-val="{{ true }}">
+<div data-zone="1" style="flex: 1; min-height: 0; display: flex;">
+<section class="v-frame" aria-label="frame" style="flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; padding: 16px; box-shadow: inset -1px 0 0 var(--boundary);">
+<span class="kit-label">‹board/play› · ◆ b1</span>
+<div style="flex: 1; display: grid; place-items: center; background: var(--surface-sunk);"><span class="kit-code kit-quiet" style="font-size: var(--size-type-xs);">no buffer in the frame · /buffer b1</span></div>
+</section>
+<section aria-label="dock" style="flex: 0 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 8px; padding: 12px 16px 16px;">
+<div style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column-reverse;">
+<div style="display: flex; flex-direction: column;">
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="4"><div class="{{ r.cls }}"><span class="reg">{{ r.reg }}</span><span class="body"><sc-if value="{{ r.cmd }}" hint-placeholder-val="{{ false }}"><span class="p">&lt;&lt; </span></sc-if><span>{{ r.a }}</span><sc-if value="{{ r.hasB }}" hint-placeholder-val="{{ false }}"><span style="color: var(--text-muted);">{{ r.b }}</span></sc-if><sc-if value="{{ r.live }}" hint-placeholder-val="{{ false }}"><span style="color: var(--signal-primary-ink);">▍</span></sc-if></span></div></sc-for>
+</div>
+</div>
+
+<sc-if value="{{ d.on }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: flex-start; gap: 4px; padding: 2px 2px 2px 10px; background: var(--surface-sunk); border-radius: var(--shape-radius-field); line-height: 20px;">
+<span style="flex: 1; min-width: 0;"><span style="color: var(--text-strong);">{{ d.settled }}</span><span style="color: var(--text-muted);">{{ d.tail }}</span><span style="color: var(--signal-negative);">▍</span></span>
+<button type="button" onClick="{{ d.stop }}" aria-label="stop, keep the words" title="stop · esc" style="appearance: none; border: 0; background: transparent; width: 20px; height: 20px; display: inline-grid; place-items: center; padding: 0; flex: none; cursor: pointer; border-radius: var(--shape-radius-key); color: var(--text-strong); font-size: 11px; line-height: 1;">■</button>
+<button type="button" onClick="{{ d.trash }}" aria-label="trash the words" title="trash · /dictate trash" style="appearance: none; border: 0; background: transparent; color: var(--text-light); width: 20px; height: 20px; display: inline-grid; place-items: center; padding: 0; flex: none; cursor: pointer; border-radius: var(--shape-radius-key);"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"></path></svg></button>
+</div>
+</sc-if>
+
+<sc-if value="{{ comp.show }}" hint-placeholder-val="{{ true }}">
+<div style="position: relative;">
+<sc-if value="{{ pop.on }}" hint-placeholder-val="{{ false }}"><div onClick="{{ pop.close }}" style="position: fixed; inset: 0; z-index: 4;"></div><div data-zone="0" role="menu" aria-label="control" style="position: absolute; left: 0; bottom: calc(100% + 4px); z-index: 5; width: 220px; padding: 4px; display: grid; background: var(--surface-lift); box-shadow: var(--shape-lift), inset 0 0 0 var(--size-ring) var(--boundary-strong); border-radius: var(--shape-radius-card);"><sc-for list="{{ pop.rows }}" as="r" hint-placeholder-count="4"><button type="button" role="menuitem" class="{{ r.cls }}" onClick="{{ r.click }}"><span class="k">{{ r.k }}</span><span class="n">{{ r.n }}</span><span class="ic"></span><span class="v">{{ r.v }}</span></button></sc-for></div></sc-if>
+<div class="{{ comp.cls }}" style="align-items: flex-start; gap: 8px; padding: 5px 6px 5px 6px;">
+<button type="button" class="kit-seg" onClick="{{ comp.chev }}" aria-label="{{ comp.chevT }}" title="{{ comp.chevT }}" style="height: 22px; padding: 0 4px; font-weight: 700; color: {{ comp.pc }};">&lt;&lt;</button>
+<textarea ref="{{ taRef }}" data-role="composer" rows="{{ comp.rows }}" value="{{ comp.draft }}" onChange="{{ comp.input }}" placeholder="say it, or / for a command" aria-label="dock.input" style="line-height: 20px; padding: 1px 0;"></textarea>
+<sc-if value="{{ comp.micOn }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ comp.micCls }}" onClick="{{ comp.mic }}" aria-label="{{ comp.micT }}" title="{{ comp.micT }}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3"></path></svg></button></sc-if>
+<button type="button" class="ic" onClick="{{ comp.send }}" aria-label="send" title="send · enter" style="color: {{ comp.sendC }};"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 12 20 4l-6 16-3-7z"></path></svg></button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ cl.on }}" hint-placeholder-val="{{ false }}">
+<div class="kit-field is-live" style="gap: 8px; padding: 0 6px;">
+<button type="button" class="kit-seg" onClick="{{ comp.chev }}" aria-label="control" title="control · ctrl-v c" style="height: 22px; padding: 0 4px; font-weight: 700; color: var(--signal-negative);">&lt;&lt;</button>
+<button type="button" class="ic" onClick="{{ cl.over }}" aria-label="{{ cl.overT }}" title="{{ cl.overT }}" style="color: {{ cl.micC }};"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3"></path></svg></button>
+<span class="kit-meter" style="--v: {{ cl.lvl }};"><i></i></span>
+<span class="kit-code" style="font-size: var(--size-type-xs); color: var(--text-strong);">{{ cl.word }}</span>
+<span style="flex: 1;"></span>
+<span style="display: inline-flex; color: {{ cl.spkC }};"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zM16 9a4 4 0 0 1 0 6"></path></svg></span>
+<span class="kit-meter" style="--v: {{ cl.out }};"><i></i></span>
+<span class="kit-code" style="font-size: var(--size-type-xs); color: var(--text-muted); font-variant-numeric: tabular-nums;">{{ cl.dur }}</span>
+<button type="button" class="kit-seg" onClick="{{ cl.end }}" title="end · /call end"><span class="sign">■</span>end</button>
+</div>
+</sc-if>
+</section>
+</div>
+
+<sc-if value="{{ pn.on }}" hint-placeholder-val="{{ false }}">
+<div data-zone="0"><div class="kit-panel">
+<div class="kit-panel-head"><span class="tag">{{ pn.tag }}</span><span>{{ pn.title }}</span><button type="button" class="kit-seg esc" onClick="{{ pn.close }}" style="height: 20px;">esc</button></div>
+<sc-if value="{{ pn.repl }}" hint-placeholder-val="{{ false }}"><label class="kit-field is-repl" style="margin-bottom: 6px;"><span class="p">/</span><input ref="{{ rqRef }}" data-role="repl" type="text" value="{{ pn.rq }}" onChange="{{ pn.rqInput }}" aria-label="repl" spellcheck="false"></label></sc-if>
+<div class="kit-panel-body" style="grid-template-columns: {{ pn.cols }};">
+<sc-for list="{{ pn.rows }}" as="r" hint-placeholder-count="4"><sc-if value="{{ r.isRow }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ r.cls }}" onClick="{{ r.click }}"><span class="k">{{ r.k }}</span><span class="n">{{ r.n }}</span><span class="ic"><sc-if value="{{ r.hasMeter }}" hint-placeholder-val="{{ false }}"><span class="kit-meter" style="--v: {{ r.m }};"><i></i></span></sc-if></span><span class="v">{{ r.v }}</span></button></sc-if><sc-if value="{{ r.isChoice }}" hint-placeholder-val="{{ false }}"><div style="display: grid; grid-template-columns: 2ch auto 1fr; gap: 8px; align-items: center; height: 26px; padding: 0 8px;"><span></span><span style="color: var(--text-muted);">{{ r.n }}</span><div class="kit-choice" role="group" aria-label="{{ r.n }}" style="justify-self: end;"><sc-for list="{{ r.opts }}" as="o" hint-placeholder-count="2"><button type="button" aria-pressed="{{ o.on }}" onClick="{{ o.click }}">{{ o.label }}</button></sc-for></div></div></sc-if><sc-if value="{{ r.isLabel }}" hint-placeholder-val="{{ false }}"><span class="kit-label" style="grid-column: 1 / -1; padding: 8px 8px 2px;">{{ r.n }}</span></sc-if><sc-if value="{{ r.isQuiet }}" hint-placeholder-val="{{ false }}"><span class="kit-code kit-quiet" style="grid-column: 1 / -1; font-size: var(--size-type-xs); padding: 4px 8px;">{{ r.n }}</span></sc-if></sc-for>
+</div>
+</div></div>
+</sc-if>
+
+<div data-zone="0"><div class="kit-bar">
+<button type="button" class="kit-mark" onClick="{{ bar.mark }}" aria-label="open the control bar" title="control · ctrl-v c"><svg width="16" height="18" viewBox="0 0 16 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="filter: var(--brand-filter);"><path d="M8 2 L2 9 L8 16 M14 2 L8 9 L14 16"></path></svg></button>
+<button type="button" class="{{ bar.entC }}" onClick="{{ bar.thread }}" title="thread · conversational · mode voice"><span class="name">e4 openings</span><span class="mode">board/play</span></button>
+<button type="button" class="kit-seg"><span class="sign">{</span>capable<span class="kit-meter" style="--v: 34%;"><i></i></span><span class="sign">}</span></button>
+<button type="button" class="kit-seg" onClick="{{ bar.proc }}" title="{{ bar.procT }}"><sc-if value="{{ bar.pMic }}" hint-placeholder-val="{{ false }}"><span style="display: inline-flex; color: var(--signal-negative);"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3"></path></svg></span></sc-if><sc-if value="{{ bar.pSpk }}" hint-placeholder-val="{{ false }}"><span style="display: inline-flex; color: var(--signal-primary-ink);"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zM16 9a4 4 0 0 1 0 6"></path></svg></span></sc-if><sc-if value="{{ bar.pDot }}" hint-placeholder-val="{{ true }}"><span class="{{ bar.dotC }}"></span></sc-if><sc-if value="{{ bar.pMeter }}" hint-placeholder-val="{{ false }}"><span class="kit-meter" style="--v: {{ bar.lvl }};"><i></i></span></sc-if><span class="num">{{ bar.pText }}</span></button>
+<span class="kit-gap"></span>
+<button type="button" class="kit-seg" aria-label="display"><span class="sign">█▏█</span></button>
+<button type="button" class="{{ bar.sysC }}" onClick="{{ bar.box }}" aria-label="system · box" title="box · microphone · speaker"><span style="display: inline-flex; color: {{ bar.micC }};"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3"></path></svg></span><span style="display: inline-flex; color: var(--text-light);"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zM16 9a4 4 0 0 1 0 6"></path></svg></span><span class="kit-dot is-healthy"></span></button>
+</div></div>
+</sc-if>
+
+<sc-if value="{{ tty }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ focusRoot }}" style="flex: 1; min-height: 0; display: flex; flex-direction: column; cursor: text;">
+<pre class="kit-tty v-tty" data-zone="1" style="margin: 0; flex: 1; min-height: 0; overflow: hidden; padding: 8px 12px; display: flex; flex-direction: column; justify-content: flex-end;"><sc-for list="{{ tt.body }}" as="ln" hint-placeholder-count="8"><div><sc-for list="{{ ln.sp }}" as="x" hint-placeholder-count="2"><span class="{{ x.c }}">{{ x.t }}</span></sc-for></div></sc-for></pre>
+<pre class="kit-tty v-tty" data-zone="0" style="margin: 0; padding: 4px 12px;"><sc-for list="{{ tt.chrome }}" as="ln" hint-placeholder-count="2"><div><sc-for list="{{ ln.sp }}" as="x" hint-placeholder-count="2"><span class="{{ x.c }}">{{ x.t }}</span></sc-for></div></sc-for></pre>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["northsea","parchment","porcelain","datasette"],"default":"northsea"},"face":{"editor":"enum","options":["dom","tty"],"default":"dom"},"ear":{"editor":"boolean","default":true},"$preview":{"width":1440,"height":900}}'>
+const THEMES = ['northsea', 'parchment', 'porcelain', 'datasette'];
+const DICT = 'now show me the english attack and what white plays against the najdorf'.split(' ');
+const TEXT = [
+  'the english attack: 6.Be3 e5 7.Nb3 Be6 8.f3, then Qd2 and long castling.',
+  'the frame holds the position after 10.O-O-O.',
+  'done. 5…a6 is on the board.'
+];
+const UTT = [
+  { raw: 'what does white play against the najdorf', pol: 'What does White play against the Najdorf?' },
+  { raw: 'just the english attack', pol: 'Just the English Attack.' },
+  { raw: 'set it up to move ten', pol: 'Set it up to move ten.' }
+];
+const REPLY = [
+  'the main tries are 6.Bg5, 6.Be3 and 6.Bc4, each a different fight. 6.Be3 is the english attack: f3, Qd2, long castling, then a pawn storm on the kingside.',
+  'english attack: 6.Be3 e5 7.Nb3 Be6 8.f3 Be7 9.Qd2 O-O 10.O-O-O. white storms the kingside, black the queenside.',
+  'set up after 10.O-O-O in the frame. step through it with the arrows.'
+];
+const fmt = (ms) => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+const cells = (v, n) => { const k = Math.round((v / 100) * (n || 6)); return '▰'.repeat(k) + '▱'.repeat((n || 6) - k); };
+const S = (t, c) => ({ t: t, c: c || 'i' });
+const L = (sp) => ({ sp: sp && sp.length ? sp : [S(' ')] });
+
+class Component extends DCLogic {
+  M() {
+    if (!this.m) {
+      this.rootRef = { current: null };
+      this.taRef = { current: null };
+      this.rqRef = { current: null };
+      this.m = {
+        theme: null, face: null, panel: null, pop: null, rq: '', draft: '',
+        j: [{ k: 'you', t: 'set up the najdorf' }, { k: 'agent', t: 'done. 5…a6 is on the board.' }],
+        dict: null, call: null, run: null,
+        conv: { speak: true, engaged: true },
+        voice: { dictate: true, call: true },
+        box: { mute: false },
+        lvl: 0, out: 0, n: 0
+      };
+    }
+    return this.m;
+  }
+
+  ear() { return this.props.ear ?? true; }
+  face() { return this.M().face || this.props.face || 'dom'; }
+  theme() { return this.M().theme || this.props.theme || 'northsea'; }
+  canDict() { return this.ear() && this.m.voice.dictate; }
+  canCall() { return this.ear() && this.m.voice.call; }
+
+  componentDidMount() {
+    this.M();
+    this._t = setInterval(() => this.tick(), 100);
+    this._want = this.face() === 'dom' ? 'ta' : 'root';
+    this.focus();
+  }
+  componentWillUnmount() { clearInterval(this._t); }
+  componentDidUpdate() { this.focus(); }
+  focus() {
+    const w = this._want; this._want = null;
+    if (!w) return;
+    const el = w === 'ta' ? this.taRef.current : w === 'rq' ? this.rqRef.current : this.rootRef.current;
+    const fallback = this.rootRef.current;
+    if (el && el.focus) el.focus(); else if (fallback && fallback.focus) fallback.focus();
+  }
+
+  // ---------- the repl: every control is a line ----------
+  cmds() {
+    const m = this.m, out = [];
+    const add = (path, valence, run, hide) => out.push({ path, valence, run, hide: !!hide });
+    if (this.canDict()) {
+      if (!m.dict) add('/dictate', 'dictation on · the mic', () => this.dictStart());
+      else { add('/dictate stop', 'end, keep the words', () => this.dictEnd('stop')); add('/dictate trash', 'end, drop the words', () => this.dictEnd('trash')); }
+    }
+    if (this.canCall()) {
+      if (!m.call) add('/call', 'hear › mind › speak', () => this.callStart());
+      else add('/call end', 'end the call', () => this.callEnd());
+    }
+    if (this.ear()) {
+      add('/polish engaged ' + (m.conv.engaged ? 'off' : 'on'), 'repair what was heard', () => { m.conv.engaged = !m.conv.engaged; });
+      add('/polish engaged on', '', () => { m.conv.engaged = true; }, true);
+      add('/polish engaged off', '', () => { m.conv.engaged = false; }, true);
+    }
+    add('/speak ' + (m.conv.speak ? 'off' : 'on'), 'replies aloud', () => { m.conv.speak = !m.conv.speak; });
+    add('/speak on', '', () => { m.conv.speak = true; }, true);
+    add('/speak off', '', () => { m.conv.speak = false; }, true);
+    ['dictate', 'call'].forEach((v) => ['on', 'off'].forEach((s) => add('/mode voice ' + v + ' ' + s, '', () => { m.voice[v] = s === 'on'; }, true)));
+    add('/mic ' + (m.box.mute ? 'on' : 'mute'), 'the microphone', () => { m.box.mute = !m.box.mute; });
+    add('/mic on', '', () => { m.box.mute = false; }, true);
+    add('/mic mute', '', () => { m.box.mute = true; }, true);
+    add('/attach', 'attach a file', () => null);
+    add('/paste', 'the clipboard as an attachment', () => null);
+    const nf = this.face() === 'dom' ? 'tty' : 'dom';
+    add('/face ' + nf, nf === 'tty' ? 'ghost' : 'anima', () => { m.face = nf; this._want = nf === 'dom' ? 'ta' : 'root'; });
+    const nt = THEMES[(THEMES.indexOf(this.theme()) + 1) % THEMES.length];
+    add('/theme ' + nt, 'palette', () => { m.theme = nt; });
+    THEMES.forEach((t) => add('/theme ' + t, '', () => { m.theme = t; }, true));
+    return out;
+  }
+  exec(line) {
+    const m = this.M(), l = line.trim().replace(/\s+/g, ' ');
+    if (!l) return;
+    m.j.push({ k: 'cmd', t: l });
+    const c = this.cmds().find((x) => x.path === l);
+    if (!c) { m.j.push({ k: 'fault', t: '! no command ' + l }); return; }
+    c.run();
+  }
+  act(line) { this.m.pop = null; this.exec(line); this.forceUpdate(); }
+  replMatches() {
+    const q = '/' + this.m.rq.replace(/^\//, '');
+    return this.cmds().filter((c) => !c.hide && (q === '/' || c.path.indexOf(q) === 0 || c.path.indexOf(q.slice(1)) > 0));
+  }
+  replRun() {
+    const m = this.m, hit = this.replMatches()[0];
+    const line = hit ? hit.path : '/' + m.rq.replace(/^\//, '');
+    m.panel = null; m.rq = '';
+    this._want = this.face() === 'dom' ? 'ta' : 'root';
+    this.exec(line);
+  }
+
+  // ---------- dictation: a draft, never stored ----------
+  dictStart() { const m = this.m; m.panel = null; m.dict = { i: 0, acc: 0 }; this._want = 'ta'; }
+  dictWords() { return DICT.slice(0, this.m.dict ? this.m.dict.i : 0).join(' '); }
+  dictEnd(how) {
+    const m = this.m;
+    if (!m.dict) return;
+    const w = this.dictWords();
+    if (how === 'stop' && w) m.draft = (m.draft ? m.draft.replace(/\s*$/, ' ') : '') + w;
+    m.dict = null; m.lvl = 0; this._want = 'ta';
+  }
+
+  // ---------- the call: cascade ----------
+  callStart() {
+    const m = this.m;
+    if (m.dict) this.dictEnd('stop');
+    m.panel = null; m.run = null;
+    m.call = { st: 'wait', acc: 0, t: 0, u: 0, turn: null, pol: null };
+  }
+  callEnd() {
+    const m = this.m, c = m.call;
+    if (!c) return;
+    if (c.st === 'speaking' && c.turn) { c.turn.live = false; c.turn.wi = c.turn.words.length; m.j.push({ k: 'trace', t: 'interrupted · heard ' + fmt(c.turn.hi * 260) }); }
+    if (c.st === 'hearing' && c.turn) { c.turn.t = c.turn.words.slice(0, c.turn.wi).join(' '); c.turn.tail = ''; }
+    m.call = null; m.lvl = 0; m.out = 0; this._want = 'ta';
+  }
+  hearStart() {
+    const c = this.m.call, u = UTT[c.u];
+    c.turn = { k: 'you', raw: u.raw, words: u.raw.split(' '), wi: 0, t: '', tail: '' };
+    this.m.j.push(c.turn);
+    c.st = 'hearing'; c.acc = 0;
+  }
+  bargeIn() {
+    const m = this.m, c = m.call;
+    if (!c || c.st !== 'speaking' || m.box.mute) return;
+    const s = c.turn;
+    s.live = false; s.wi = s.words.length;
+    m.j.push({ k: 'trace', t: 'interrupted · heard ' + fmt(s.hi * 260) });
+    c.u = (c.u + 1) % UTT.length; c.turn = null; m.out = 0;
+    this.hearStart();
+  }
+  callTick() {
+    const m = this.m, c = m.call;
+    c.t += 100; c.acc += 100;
+    if (c.pol) { c.pol.n -= 1; if (c.pol.n <= 0) { if (m.conv.engaged) c.pol.turn.t = c.pol.text; c.pol = null; } }
+    const noise = () => (m.box.mute ? 0 : Math.round(4 + Math.random() * 8));
+    if (c.st === 'wait') {
+      m.lvl = noise(); m.out = 0;
+      if (c.acc >= 1400 && !m.box.mute) this.hearStart();
+    } else if (c.st === 'hearing') {
+      m.lvl = m.box.mute ? 0 : Math.round(35 + Math.random() * 50);
+      if (c.acc >= 300) {
+        c.acc = 0;
+        const h = c.turn;
+        h.wi += 1;
+        if (h.wi > h.words.length) {
+          h.t = h.raw; h.tail = '';
+          c.pol = { turn: h, text: UTT[c.u].pol, n: 5 };
+          c.turn = null; c.st = 'thinking';
+        } else {
+          const k = Math.max(0, h.wi - 2);
+          h.t = h.words.slice(0, k).join(' ');
+          h.tail = h.words.slice(k, h.wi).join(' ');
+        }
+      }
+    } else if (c.st === 'thinking') {
+      m.lvl = noise(); m.out = 0;
+      if (c.acc >= 1200) {
+        c.turn = { k: 'agent', words: REPLY[c.u].split(' '), wi: 0, hi: 0, live: true };
+        m.j.push(c.turn); c.st = 'speaking'; c.acc = 0;
+      }
+    } else if (c.st === 'speaking') {
+      const s = c.turn;
+      m.lvl = noise();
+      s.wi = Math.min(s.words.length, s.wi + 1);
+      m.out = m.conv.speak ? Math.round(30 + Math.random() * 55) : 0;
+      if (c.acc >= 260) {
+        c.acc = 0; s.hi += 1;
+        if (s.hi >= s.words.length) { s.live = false; c.turn = null; c.st = 'wait'; c.u = (c.u + 1) % UTT.length; m.out = 0; }
+      }
+    }
+  }
+
+  // ---------- a typed turn ----------
+  say(text) {
+    const m = this.m;
+    m.j.push({ k: 'you', t: text });
+    m.run = { turn: { k: 'agent', t: '', words: TEXT[m.n++ % TEXT.length].split(' '), wi: 0, live: true }, wait: 6 };
+  }
+  submit() {
+    const m = this.m;
+    let text = m.draft;
+    if (m.dict) { const w = this.dictWords(); text = (text ? text.replace(/\s*$/, ' ') : '') + w; m.dict = null; m.lvl = 0; }
+    text = text.trim(); m.draft = '';
+    if (!text) return;
+    if (text[0] === '/') this.exec(text); else this.say(text);
+  }
+
+  tick() {
+    const m = this.m;
+    if (!m) return;
+    let dirty = false;
+    if (m.dict) {
+      m.dict.acc += 100;
+      m.lvl = m.box.mute ? 0 : Math.round(20 + Math.random() * 60);
+      if (m.dict.acc >= 340 && m.dict.i < DICT.length && !m.box.mute) { m.dict.acc = 0; m.dict.i += 1; }
+      dirty = true;
+    }
+    if (m.call) { this.callTick(); dirty = true; }
+    if (m.run) {
+      const r = m.run;
+      if (r.wait > 0) r.wait -= 1;
+      else {
+        if (r.turn.wi === 0) m.j.push(r.turn);
+        r.turn.wi += 1;
+        r.turn.t = r.turn.words.slice(0, r.turn.wi).join(' ');
+        if (r.turn.wi >= r.turn.words.length) { r.turn.live = false; m.run = null; }
+      }
+      dirty = true;
+    }
+    if (dirty) this.forceUpdate();
+  }
+
+  // ---------- panels ----------
+  panelRows() {
+    const m = this.m, ear = this.ear(), p = m.panel;
+    const R = (k, n, v, click, extra) => Object.assign({ isRow: true, k: k, n: n, v: v || '', click: click || null, cls: 'kit-row', hasMeter: false, m: '0%' }, extra || {});
+    const keep = (line) => () => this.act(line);
+    if (p === 'control') return this.ctrlRows();
+    return this.otherRows(p, R, keep);
+  }
+  ctrlRows() {
+    const m = this.m;
+    const R = (k, n, v, click, extra) => Object.assign({ isRow: true, k: k, n: n, v: v || '', click: click || null, cls: 'kit-row', hasMeter: false, m: '0%' }, extra || {});
+    const keep = (line) => () => this.act(line);
+    {
+      const rows = [R('a', 'attach', '', keep('/attach'))];
+      if (this.canDict()) rows.push(R('d', m.dict ? 'stop dictation' : 'dictate', m.dict ? 'live' : '', keep(m.dict ? '/dictate stop' : '/dictate'), m.dict ? { cls: 'kit-row is-current' } : null));
+      if (this.canCall()) rows.push(R('l', m.call ? 'end the call' : 'call', m.call ? fmt(m.call.t) : '', keep(m.call ? '/call end' : '/call'), m.call ? { cls: 'kit-row is-current' } : null));
+      rows.push(R('p', 'paste', '', keep('/paste')));
+      return rows;
+    }
+  }
+  otherRows(p, R, keep) {
+    const m = this.m, ear = this.ear();
+    if (p === 'thread') {
+      const rows = [{ isLabel: true, n: 'conversational' }];
+      if (ear) rows.push(R('h', 'hear', 'elevenlabs · scribe_v3_live'));
+      rows.push(R('s', 'speak', m.conv.speak ? 'elevenlabs · flash_v2_5' : 'off', keep(m.conv.speak ? '/speak off' : '/speak on')));
+      if (ear) {
+        rows.push(R('c', 'call', 'cascade · hear › mind › speak'));
+        rows.push(R('p', 'polish', 'default'));
+        rows.push({ isChoice: true, n: 'engaged', opts: [{ label: 'on', on: m.conv.engaged, click: keep('/polish engaged on') }, { label: 'off', on: !m.conv.engaged, click: keep('/polish engaged off') }] });
+      } else rows.push({ isQuiet: true, n: 'no hallucinator hears · hear, call, polish stay absent' });
+      rows.push({ isLabel: true, n: 'mode · board/play' });
+      rows.push({ isChoice: true, n: 'voice', opts: ['dictate', 'call'].map((v) => ({ label: v, on: m.voice[v], click: keep('/mode voice ' + v + ' ' + (m.voice[v] ? 'off' : 'on')) })) });
+      return rows;
+    }
+    if (p === 'box') {
+      const rows = [
+        R('m', 'microphone', m.box.mute ? 'muted' : 'default · built-in', keep(m.box.mute ? '/mic on' : '/mic mute'), { hasMeter: true, m: m.lvl + '%' }),
+        R('o', 'speaker', m.conv.speak ? 'default · built-in' : 'default · silent', null, { hasMeter: true, m: m.out + '%' })
+      ];
+      if (this.face() === 'dom') rows.push(R('', 'permission', 'granted'));
+      else rows.push(R('', 'recorder', 'pw-record · spawned'));
+      return rows;
+    }
+    if (p === 'repl') {
+      const hits = this.replMatches();
+      if (!hits.length) return [{ isQuiet: true, n: 'nothing matches /' + m.rq.replace(/^\//, '') }];
+      return hits.map((c, i) => R('', c.path, c.valence, () => { m.rq = ''; m.panel = null; this._want = this.face() === 'dom' ? 'ta' : 'root'; this.act(c.path); }, i === 0 ? { cls: 'kit-row is-current' } : null));
+    }
+    return [];
+  }
+  openPanel(p) {
+    const m = this.M();
+    m.panel = m.panel === p ? null : p; m.rq = '';
+    this._want = m.panel === 'repl' ? 'rq' : this.face() === 'dom' ? 'ta' : 'root';
+    this.forceUpdate();
+  }
+
+  onKey(e) {
+    const m = this.M(), k = e.key, tty = this.face() === 'tty';
+    const role = e.target && e.target.getAttribute ? e.target.getAttribute('data-role') : null;
+    const plain = !e.ctrlKey && !e.metaKey && !e.altKey;
+    if (m.pop && !e.ctrlKey) {
+      if (k === 'Escape') { e.preventDefault(); m.pop = null; this._want = tty ? 'root' : 'ta'; this.forceUpdate(); return; }
+      const row = plain && k.length === 1 ? this.ctrlRows().find((r) => r.k === k.toLowerCase()) : null;
+      if (row) { e.preventDefault(); row.click(); return; }
+      m.pop = null;
+    }
+    if (e.ctrlKey && (k === 'v' || k === 'V')) {
+      e.preventDefault();
+      m.panel = m.panel === 'control' ? 'repl' : m.panel === 'repl' ? null : 'control'; m.rq = '';
+      this._want = m.panel === 'repl' ? 'rq' : tty ? 'root' : 'ta';
+      this.forceUpdate(); return;
+    }
+    if (k === 'Escape') {
+      e.preventDefault();
+      if (m.panel) { m.panel = null; m.rq = ''; this._want = tty ? 'root' : 'ta'; }
+      else if (m.dict) this.exec('/dictate stop');
+      this.forceUpdate(); return;
+    }
+    if (m.panel === 'repl') {
+      if (k === 'Enter') { e.preventDefault(); this.replRun(); this.forceUpdate(); return; }
+      if (tty && plain) {
+        if (k === 'Backspace') { e.preventDefault(); m.rq = m.rq.slice(0, -1); this.forceUpdate(); }
+        else if (k.length === 1) { e.preventDefault(); m.rq += k; this.forceUpdate(); }
+      }
+      return;
+    }
+    if (m.panel && plain && k.length === 1) {
+      const row = this.panelRows().find((r) => r.isRow && r.k && r.k === k.toLowerCase() && r.click);
+      if (row) { e.preventDefault(); row.click(); return; }
+    }
+    if (m.call) {
+      if (k === ' ' && role !== 'composer') { e.preventDefault(); this.bargeIn(); this.forceUpdate(); }
+      return;
+    }
+    if (k === 'Enter' && !e.shiftKey && (role === 'composer' || tty)) { e.preventDefault(); this.submit(); this.forceUpdate(); return; }
+    if (tty && plain) {
+      if (k === 'Backspace') { e.preventDefault(); m.draft = m.draft.slice(0, -1); this.forceUpdate(); }
+      else if (k.length === 1) { e.preventDefault(); m.draft += k; this.forceUpdate(); }
+    }
+  }
+
+  // ---------- view models ----------
+  journal() {
+    const reg = { you: 'you', agent: 'agent', cmd: 'cmd', fault: 'fault', trace: 'trace' };
+    return this.m.j.slice(-40).map((r) => {
+      let a = r.t || '', b = '';
+      if (r.k === 'agent' && r.hi !== undefined) { a = r.words.slice(0, r.hi).join(' '); b = r.words.slice(r.hi, r.wi).join(' '); }
+      else if (r.k === 'you' && r.tail) b = r.tail;
+      return { k: r.k, cls: 'kit-turn is-' + (r.k === 'cmd' ? 'command' : r.k), reg: reg[r.k], cmd: r.k === 'cmd', a: a, b: (a && b ? ' ' : '') + b, hasB: !!b, live: !!r.live };
+    });
+  }
+  callWord() { const st = this.m.call.st; return st === 'thinking' ? 'thinking' : st === 'speaking' ? 'speaking' : this.m.box.mute ? 'muted' : 'listening'; }
+  dictParts() {
+    const w = DICT.slice(0, this.m.dict.i), k = Math.max(0, w.length - 2);
+    const settled = w.slice(0, k).join(' '), tail = w.slice(k).join(' ');
+    return { settled: settled, tail: w.length ? (settled ? ' ' : '') + tail : 'listening' };
+  }
+  procBar() {
+    const m = this.m;
+    const v = { pMic: false, pSpk: false, pDot: true, dotC: 'kit-dot', pMeter: false, lvl: '0%', pText: 'idle', procT: 'process' };
+    if (m.dict) Object.assign(v, { pMic: true, pDot: false, pMeter: true, lvl: m.lvl + '%', pText: 'dictate', procT: 'dictating · esc stops' });
+    else if (m.call) {
+      const st = m.call.st;
+      if (st === 'speaking') Object.assign(v, { pSpk: true, pDot: false, pMeter: true, lvl: m.out + '%' });
+      else if (st === 'thinking') v.dotC = 'kit-dot is-running';
+      else Object.assign(v, { pMic: !m.box.mute, pDot: m.box.mute, pMeter: true, lvl: m.lvl + '%' });
+      v.pText = this.callWord() + ' · ' + fmt(m.call.t); v.procT = 'call · /call end';
+    } else if (m.run) Object.assign(v, { dotC: 'kit-dot is-running', pText: 'r1' });
+    return v;
+  }
+
+  ttyView() {
+    const m = this.m, W = 92;
+    const body = [];
+    const wrap = (r, parts) => {
+      const pad = '      ';
+      let cur = [S(r.padEnd(6), 'm')], len = 6;
+      const out = [];
+      parts.forEach((p) => {
+        if (!p.t) return;
+        p.t.split(/(\s+)/).forEach((tok) => {
+          if (!tok) return;
+          const space = !/\S/.test(tok);
+          if (!space && len + tok.length > W && len > 6) { out.push(L(cur)); cur = [S(pad, 'm')]; len = 6; }
+          if (space && len === 6) return;
+          cur.push(S(tok, p.c)); len += tok.length;
+        });
+      });
+      out.push(L(cur));
+      return out;
+    };
+    this.journal().forEach((r) => {
+      let parts;
+      if (r.k === 'you') parts = [S(r.a, 's b'), S(r.b, 'm')];
+      else if (r.k === 'agent') parts = [S(r.a, 'i'), S(r.b, 'm'), S(r.live ? '▍' : '', 'P')];
+      else if (r.k === 'cmd') parts = [S('<< ', 'P'), S(r.a, 'i')];
+      else if (r.k === 'fault') parts = [S(r.a, 'N')];
+      else parts = [S(r.a, 'm')];
+      wrap(r.reg, parts).forEach((l) => body.push(l));
+    });
+    body.push(L([S(' ')]));
+    const fill = (sp, cls) => { const n = sp.reduce((a, x) => a + x.t.length, 0); if (n < W) sp.push(S(' '.repeat(W - n), cls)); return sp; };
+    if (m.dict) {
+      const d = this.dictParts();
+      body.push(L(fill([S(' ', 'sk'), S(d.settled, 's b sk'), S(d.tail, 'm sk'), S('▍', 'N sk')], 'sk')));
+      body.push(L(fill([S(' esc', 'm sk'), S(' stop   ', 'i sk'), S('/dictate trash', 'm sk'), S('   enter', 'm sk'), S(' send', 'i sk')], 'sk')));
+    }
+    if (m.call) {
+      body.push(L([S('<< ', 'N b'), S(m.box.mute ? '○ ' : '● ', m.box.mute ? 'm' : 'N'), S(cells(m.lvl), 'i'), S(' ' + this.callWord().padEnd(11), 's'), S('◁ ', m.call.st === 'speaking' ? 'P' : 'm'), S(cells(m.out), 'i'), S('  ' + fmt(m.call.t), 'i'), S('   space', 'm'), S(' speak over', 'i'), S('   /call end', 'm')]));
+    } else {
+      if (m.pop) this.ctrlRows().forEach((r) => { const t = ' ' + r.k + '  ' + r.n.padEnd(16) + r.v; body.push(L([S(' ' + r.k + ' ', 'P b lf'), S(' ' + r.n.padEnd(16), 's lf'), S((r.v || '').padEnd(Math.max(0, 28 - t.length + (r.v || '').length)), 'm lf')])); });
+      const sp = [S('<< ', m.dict ? 'N b' : m.panel || m.pop ? 'P b' : 'P'), S(m.draft, 's'), S(' ', 'inv')];
+      if (!m.draft && !m.dict) sp.push(S(' say it, or / for a command', 'm'));
+      body.push(L(sp));
+    }
+    const chrome = [];
+    if (m.panel) {
+      const tags = { control: ['control', ''], thread: ['thread', 'e4 openings'], box: ['box', 'this machine'], repl: ['repl', ''] };
+      const t = tags[m.panel];
+      chrome.push(L(fill([S(t[0], 'P'), S(t[1] ? ' ' + t[1] : '', 'm')], '').concat([S('esc', 'm')])));
+      if (m.panel === 'repl') chrome.push(L([S('/', 'P'), S(m.rq, 's'), S(' ', 'inv')]));
+      this.panelRows().forEach((r) => {
+        if (r.isRow) chrome.push(L([S((r.k || ' ') + ' ', 'P b'), S(r.n.padEnd(18), r.cls.indexOf('is-current') > 0 ? 'inv' : 's'), S(r.hasMeter ? ' ' + cells(parseInt(r.m, 10)) + ' ' : ' ', 'i'), S(r.v, 'm')]));
+        else if (r.isChoice) chrome.push(L([S('  ' + r.n.padEnd(17), 'm')].concat(r.opts.map((o) => S(' ' + o.label + ' ', o.on ? 'inv' : 'm')))));
+        else chrome.push(L([S(r.n, 'm')]));
+      });
+      chrome.push(L([S('─'.repeat(W), 'bd')]));
+    }
+    chrome.push(L([S('<<', 'P b'), S(' [ ', 'm'), S('e4 openings', 's b'), S(' ‹board/play› ] ', 'm'), S('{', 'm'), S('capable ', 's'), S('▰▱', 'i'), S('}', 'm'), S(' █▏█ ', 'i'), S(m.box.mute ? 'mic ○' : 'mic ●', m.box.mute ? 'm' : 'i'), S(' ●', 'G')]));
+    let proc;
+    if (m.dict) proc = [S('●', 'N'), S(cells(m.lvl) + ' dictate', 'i')];
+    else if (m.call) proc = [S('●', m.call.st === 'speaking' ? 'P' : 'N'), S(cells(m.call.st === 'speaking' ? m.out : m.lvl) + ' ' + this.callWord() + ' ' + fmt(m.call.t), 'i')];
+    else if (m.run) proc = [S('●', 'P'), S(' r1', 'i')];
+    else proc = [S('○ idle', 'm')];
+    chrome.push(L(proc.concat([S('   ctx ', 'm'), S('▰▰', 'i'), S('▱▱▱▱', 'm'), S(' 34%', 'i')])));
+    return { body: body.slice(-80), chrome: chrome };
+  }
+
+  renderVals() {
+    const m = this.M(), face = this.face();
+    const p = m.panel;
+    const titles = { control: ['control', 'ctrl-v c'], thread: ['thread', 'e4 openings'], box: ['box', face === 'dom' ? 'this browser' : 'this machine'], repl: ['repl', 'ctrl-v ctrl-v'] };
+    const pc = m.dict ? 'var(--signal-negative)' : m.pop || p === 'repl' ? 'var(--signal-primary-ink)' : 'var(--text-muted)';
+    const lines = m.draft.split('\n').length + Math.floor(m.draft.length / 64);
+    const d = m.dict ? this.dictParts() : { settled: '', tail: '' };
+    const pb = this.procBar();
+    return {
+      rootRef: this.rootRef, taRef: this.taRef, rqRef: this.rqRef,
+      theme: this.theme(),
+      dom: face === 'dom', tty: face === 'tty',
+      onKey: (e) => this.onKey(e),
+      focusRoot: () => { this._want = 'root'; this.focus(); },
+      rows: this.journal(),
+      pop: { on: !!m.pop && !m.call, rows: m.pop ? this.ctrlRows() : [], close: () => { m.pop = null; this.forceUpdate(); } },
+      d: { on: !!m.dict, settled: d.settled, tail: d.tail, stop: () => this.act('/dictate stop'), trash: () => this.act('/dictate trash') },
+      comp: {
+        show: !m.call, cls: m.dict ? 'kit-field is-live' : 'kit-field', pc: pc,
+        chev: () => { m.pop = m.pop ? null : 'control'; m.panel = null; this._want = 'ta'; this.forceUpdate(); },
+        chevT: 'control · ctrl-v c',
+        micOn: this.canDict(), micCls: m.dict ? 'ic is-live' : 'ic',
+        micT: m.dict ? 'stop dictation · esc' : 'dictate',
+        mic: () => this.act(m.dict ? '/dictate stop' : '/dictate'),
+        draft: m.draft, rows: Math.min(6, Math.max(1, lines)),
+        input: (e) => { m.draft = e.target.value; this.forceUpdate(); },
+        send: () => { this.submit(); this._want = 'ta'; this.forceUpdate(); },
+        sendC: m.draft.trim() || m.dict ? 'var(--signal-primary-ink)' : 'var(--text-light)'
+      },
+      cl: m.call ? {
+        on: true, word: this.callWord(), dur: fmt(m.call.t), lvl: m.lvl + '%', out: m.out + '%',
+        micC: m.box.mute ? 'var(--text-muted)' : 'var(--signal-negative)',
+        spkC: m.call.st === 'speaking' ? 'var(--signal-primary-ink)' : 'var(--text-light)',
+        overT: m.call.st === 'speaking' ? 'speak over · space' : 'microphone',
+        over: () => { this.bargeIn(); this.forceUpdate(); },
+        end: () => this.act('/call end')
+      } : { on: false },
+      pn: {
+        on: !!p, tag: p ? titles[p][0] : '', title: p ? titles[p][1] : '', repl: p === 'repl', rq: m.rq,
+        cols: p === 'control' ? 'repeat(auto-fill, minmax(180px, 1fr))' : 'minmax(0, 520px)',
+        rows: this.panelRows(),
+        close: () => { m.panel = null; this._want = face === 'dom' ? 'ta' : 'root'; this.forceUpdate(); },
+        rqInput: (e) => { m.rq = e.target.value; this.forceUpdate(); }
+      },
+      bar: Object.assign(pb, {
+        mark: () => this.openPanel('control'),
+        thread: () => this.openPanel('thread'),
+        box: () => this.openPanel('box'),
+        proc: () => { if (m.call) this.act('/call end'); else if (m.dict) this.act('/dictate stop'); },
+        entC: p === 'thread' ? 'kit-seg is-open' : 'kit-seg',
+        sysC: p === 'box' ? 'kit-seg is-open' : 'kit-seg',
+        micC: m.box.mute ? 'var(--text-muted)' : m.dict || m.call ? 'var(--signal-negative)' : 'var(--text-light)'
+      }),
+      tt: face === 'tty' ? this.ttyView() : { body: [], chrome: [] }
+    };
+  }
+}
+</script>
+</body>
+</html>

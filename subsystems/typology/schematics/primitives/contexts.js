@@ -22,6 +22,7 @@ export const mountpoint = { mountpoint: Mountpoint.desc("The host's data directo
 export const reference = { reference: v.unknown().desc("is.Path — the host's computed reference, /<type>/<slug>. Example: new Path('/daemon/chess') · new Path('/runtime/runtime') on the runtime") };
 export const attach = { attach: v.unknown().desc("is.Url — where the runtime serves views and files by row, remote + /attached; a mode mints a File's url off it. Example: ctx.attach.branch('/file/01a0856f-425f-72b8-b36f-decc1bb2050e').absolute") };
 
+export const daemon = { daemon: v.unknown().desc("The live Daemon whose twitch or aperture the step runs on: slug · controller · datamap · entities · modes · domain").example("ctx.daemon.controller.stdout.fault(error)") };
 export const mode = { mode: v.unknown().desc("The live Mode the step runs in. Example: ctx.mode.id · ctx.mode.application.buffer") };
 export const user = { user: v.unknown().desc("The authenticated user, lighthouse-signed. Example: { id: 'u1', roles: ['player'] }") };
 export const lighthouse = { lighthouse: v.unknown().desc("The Lighthouse that signed this request") };
@@ -33,8 +34,8 @@ export const turn = { turn: Turn.desc("The user Turn chained for this request") 
 export const hallucination = { hallucination: v.union([Hallucination.dialogue, Hallucination.verbatim, Hallucination.speech, Hallucination.choice, Hallucination.picture]).desc("The request under construction, cortex.hallucinate.<type>.<via>(ctx.hallucination)") };
 export const policy = { policy: v.union([Policy.dialogue, Policy.verbatim, Policy.speech, Policy.choice, Policy.picture]).desc("The record's policy, lifted off the hallucination") };
 export const tools = { tools: v.unknown().desc("The armed Vector the model may call, never domain.tools") };
-export const intelligent = { intelligent: v.boolean().desc("The mode's harness.intelligent flag, lifted") };
-export const vocal = { vocal: v.boolean().desc("The mode's harness.vocal flag, lifted") };
+export const harnessed = { harnessed: v.unknown().desc("The thread's HARNESSED, or null when it wears none") };
+export const conversational = { conversational: v.unknown().desc("The thread's CONVERSATIONAL, or null when it wears none") };
 export const activity = { activity: v.unknown().desc("The Activity row this exchange is written to") };
 export const screen = { screen: v.unknown().desc("A guide harness's current screen. Example: { id: 'intro', fields: [] }") };
 
@@ -106,7 +107,7 @@ export const modeDie = {
 
 export const Aperture = { ...vector, ...modeDie, ...optional(user) };
 export const Tool = { ...vector, ...modeDie, ...user, ...optional(thread), ...optional(service) };
-export const Harness = { ...vector, ...modeDie, ...user, ...thread, ...optional(turn), ...hallucination, ...tools, ...controller, ...intelligent, ...vocal, ...optional(activity), ...optional(screen) };
+export const Harness = { ...vector, ...modeDie, ...user, ...thread, ...optional(turn), ...hallucination, ...tools, ...controller, ...harnessed, ...conversational, ...optional(activity), ...optional(screen) };
 export const Emitter = { ...vector, ...modeDie, ...pool, ...thread, ...optional(user) };
 export const Twitch = { ...vector, ...entities, ...call, ...cortex, ...providers, ...statics, ...domain, ...mountpoint, ...reference, ...optional(mode) };
 export const Service = { ...vector, ...service, ...mask, ...tools };

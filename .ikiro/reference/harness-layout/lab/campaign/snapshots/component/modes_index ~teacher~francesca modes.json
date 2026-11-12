@@ -1,0 +1,10 @@
+{
+  "output": {
+    "modes": [
+      {
+        "reference": "/daemon/education/mode/teacher/francesca",
+        "valence": "the education teacher"
+      }
+    ]
+  }
+}

@@ -18,32 +18,30 @@ const bag = (entries) =>
   Object.fromEntries(Object.entries(entries).filter(([, value]) => value != null));
 
 const wrap = (thing) => {
-  if (thing.output) return { condition: thing.condition ?? "NOMINAL", output: thing.output };
-  const output = Object.fromEntries(
-    Object.entries(thing).filter(([key]) => key !== "condition" && key !== "kind"),
-  );
-  return { condition: thing.condition ?? "NOMINAL", output };
+  if (thing.product) return { condition: thing.condition ?? "NOMINAL", product: thing.product };
+  const product = Object.fromEntries(Object.entries(thing).filter(([key]) => key !== "condition"));
+  return { condition: thing.condition ?? "NOMINAL", product };
 };
 
 const yieldmap = [
   [
     "response",
     (thing) => is.string(thing?.condition) && is.array(thing?.turns),
-    (thing) => ({ condition: thing.condition, output: thing.output ?? {} }),
+    (thing) => ({ condition: thing.condition, product: thing.product ?? {} }),
   ],
   [
     "emission",
     (thing) => is.yieldish(thing),
-    (thing) => ({ condition: thing.condition, output: thing.output }),
+    (thing) => ({ condition: thing.condition, product: thing.product }),
   ],
   [
     "turn",
     (thing) => is.string(thing?.role) && is.array(thing?.parts),
     (thing) => ({
       condition: ["error", "abort", "filter"].includes(thing.meta?.state) ? "ERROR" : "NOMINAL",
-      output: bag({
+      product: bag({
         message: text(thing.parts),
-        object: thing.object ?? thing.parts.find((part) => part.type === "object")?.data ?? null,
+        object: thing.parts.find((part) => part.type === "object")?.data ?? null,
       }),
     }),
   ],
@@ -52,31 +50,29 @@ const yieldmap = [
     (thing) => thing?.type === "tool_result",
     (thing) => ({
       condition: thing.condition ?? "NOMINAL",
-      output: thing.output ?? {},
+      product: thing.product ?? {},
     }),
   ],
   [
     "utterance",
     (thing) => is.string(thing),
-    (thing) => ({ condition: "NOMINAL", output: { message: thing } }),
+    (thing) => ({ condition: "NOMINAL", product: { message: thing } }),
   ],
   [
     "spoken",
     (thing) =>
       is.object(thing) &&
-      ("output" in thing || "condition" in thing || "message" in thing || "object" in thing),
+      ("product" in thing || "condition" in thing || "message" in thing || "object" in thing),
     wrap,
   ],
   [
     "opaque",
     () => true,
-    (thing) => ({ condition: "NOMINAL", output: thing == null ? {} : { object: thing } }),
+    (thing) => ({ condition: "NOMINAL", product: thing == null ? {} : { object: thing } }),
   ],
 ];
 
-const probe = (thing) =>
-  yieldmap.find(([kind]) => kind === thing?.kind) ??
-  yieldmap.find(([, sniff]) => sniff(thing));
+const probe = (thing) => yieldmap.find(([, sniff]) => sniff(thing));
 
 const reader = (thing) => {
   const [kind, , fill] = probe(thing);
@@ -88,8 +84,8 @@ const reader = (thing) => {
     get condition() {
       return filled.condition;
     },
-    get output() {
-      return filled.output;
+    get product() {
+      return filled.product;
     },
   };
 };

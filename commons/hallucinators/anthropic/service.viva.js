@@ -10,5 +10,5 @@ export const manifest = {
 export const docs = {
   name: "Anthropic Faculty Provider",
   description:
-    "Conversation faculties via Anthropic Messages API. Three tune points: opus (thinking), sonnet, haiku.",
+    "Dialogue faculties via the Anthropic Messages API, one per entry of the ledger row's faculties.",
 };

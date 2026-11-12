@@ -1,17 +1,11 @@
 import paladin from "@vivalence/paladin";
-import { fromm, Path, shard, shape, v } from "@vivalence/typology";
+import { shard, shape, v } from "@vivalence/typology";
 import * as belt from "../../../gestalten/belt/index.js";
 import { host } from "../../../gestalten/shard/index.js";
+import { attachment } from "../attachment.js";
 
 export const prune = async (die, next) => {
   await belt.modes.prune(die.runtime, null);
-  await next();
-};
-
-export const twitch = async (die, next) => {
-  for (const mode of fromm.modes(die.runtime.modes).flat) {
-    die.runtime.twitch.graft(mode.twitch);
-  }
   await next();
 };
 
@@ -75,10 +69,6 @@ export const userspace = async (die, next) => {
       .graft(shard.datamap.repository(repository))
       .graft(shard.datamap.reactive(repository, twitch, reactive));
   }
-  owned.branch("/view").open("/bundle", async (ctx) => {
-    const seated = await seat(die, ctx.input.data.mode);
-    return entities.view.bundle(ctx.input.data, { bundler: paladin.bundler(new Path(seated.mountpoint).absolute) });
-  });
 
   const activity = owned
     .branch("/activity")
@@ -103,12 +93,10 @@ export const userspace = async (die, next) => {
   await next();
 };
 
-const seat = async (die, id) => {
-  for (const host of [die.runtime, ...Object.values(die.runtime.daemons)]) {
-    const held = fromm.modes(host.modes).flat.find((mode) => mode.entity.id === id);
-    if (held) return held;
-  }
-  throw new Error(`[view/bundle] no live mode holds entity ${id}`);
+export const attached = async (die, next) => {
+  die.runtime.attachment.use(shard.context.bind("runtime", die.runtime)).graft(attachment);
+  die.aperture.branch("/attached", die.runtime.attachment);
+  await next();
 };
 
 export const entities = async (die, next) => {

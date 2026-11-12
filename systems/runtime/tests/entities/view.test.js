@@ -91,6 +91,32 @@ specimen.describe("entities — View · File · Buffer · Turn · Note", () => {
     specimen.expect((await reload(em, TurnEntity, turn.id, ["buffers"])).buffers.getItems().map((held) => held.id)).toEqual([buffer.id]);
   });
 
+  specimen.it("a relation-only edit fires no afterUpdate: buffer.turns.add flushes a collection update, zero change sets — the reactive push stays silent", async () => {
+    const { em, repos, fixtures } = scenario;
+    const thread = em.create(ThreadEntity, { user: fixtures.user, mode: fixtures.mode, traits: [] });
+    await em.flush();
+    const turn = await repos.turn.chain({ thread: thread.id, role: "assistant", parts: [] });
+    const buffer = await repos.buffer.create({ mode: fixtures.mode.id, thread: thread.id, data: {} });
+    await em.flush();
+
+    const heard = [];
+    const fork = em.fork();
+    fork.getEventManager().registerSubscriber({
+      getSubscribedEntities: () => [BufferEntity],
+      afterUpdate: (args) => heard.push({ hook: "afterUpdate", entity: args.entity.id }),
+      afterFlush: (args) =>
+        heard.push({
+          hook: "afterFlush",
+          changeSets: args.uow.getChangeSets().map((set) => `${set.name}:${set.type}`),
+          collections: args.uow.getCollectionUpdates().map((collection) => collection.property.name),
+        }),
+    });
+    (await fork.findOneOrFail(BufferEntity, buffer.id)).turns.add(fork.getReference(TurnEntity, turn.id));
+    await fork.flush();
+
+    specimen.expect(heard).toEqual([{ hook: "afterFlush", changeSets: [], collections: ["turns"] }]);
+  });
+
   specimen.it("a Note hangs on a buffer or a turn, never both required; the scope index admits one slug per carrier", async () => {
     const { em, repos, fixtures } = scenario;
     const buffer = await repos.buffer.findOneOrFail({ data: { fen: "start" } });

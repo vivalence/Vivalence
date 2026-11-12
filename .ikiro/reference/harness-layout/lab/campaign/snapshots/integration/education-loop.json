@@ -1,0 +1,1198 @@
+{
+  "rounds": [
+    {
+      "tools": [
+        {
+          "name": "tool_load",
+          "valence": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/drain"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest",
+                  "/runtime/runtime/mode/harness/runtime/fs"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "tool_unload",
+          "valence": "Takes tools out of this thread: one tool, a subtree or a whole mode. They are no longer declared from the next round on; what earlier turns say about them stays.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/runtime/runtime/mode/harness/runtime/fs/delete"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "primer_load",
+          "valence": "Loads primer sections into this thread in full: one section, or every section a reference covers. Each stays in the system prompt from the next request on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/archivist"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "turns": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "text": "go"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tools": [
+        {
+          "name": "tool_load",
+          "valence": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/drain"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest",
+                  "/runtime/runtime/mode/harness/runtime/fs"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "tool_unload",
+          "valence": "Takes tools out of this thread: one tool, a subtree or a whole mode. They are no longer declared from the next round on; what earlier turns say about them stays.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/runtime/runtime/mode/harness/runtime/fs/delete"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "primer_load",
+          "valence": "Loads primer sections into this thread in full: one section, or every section a reference covers. Each stays in the system prompt from the next request on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/archivist"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "drill_deal",
+          "valence": "education·francesca /drill/deal"
+        }
+      ],
+      "turns": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "text": "go"
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "parts": [
+            {
+              "type": "text",
+              "text": "thinking about tool_load..."
+            },
+            {
+              "type": "tool_use",
+              "id": "c1",
+              "name": "tool_load",
+              "input": {
+                "references": [
+                  "/drill/deal"
+                ]
+              }
+            }
+          ],
+          "meta": {
+            "usage": {
+              "input": 10,
+              "output": 20
+            },
+            "state": "tools"
+          }
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "tool_result",
+              "id": "c1",
+              "condition": "NOMINAL",
+              "output": {
+                "tools": [
+                  {
+                    "name": "drill_deal",
+                    "valence": "education·francesca /drill/deal"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tools": [
+        {
+          "name": "tool_load",
+          "valence": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/drain"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest",
+                  "/runtime/runtime/mode/harness/runtime/fs"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "tool_unload",
+          "valence": "Takes tools out of this thread: one tool, a subtree or a whole mode. They are no longer declared from the next round on; what earlier turns say about them stays.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/runtime/runtime/mode/harness/runtime/fs/delete"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "primer_load",
+          "valence": "Loads primer sections into this thread in full: one section, or every section a reference covers. Each stays in the system prompt from the next request on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/archivist"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "drill_deal",
+          "valence": "education·francesca /drill/deal"
+        },
+        {
+          "name": "daemon_chess_teacher_coach_whoami",
+          "valence": "chess·coach /whoami"
+        }
+      ],
+      "turns": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "text": "go"
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "parts": [
+            {
+              "type": "text",
+              "text": "thinking about tool_load..."
+            },
+            {
+              "type": "tool_use",
+              "id": "c1",
+              "name": "tool_load",
+              "input": {
+                "references": [
+                  "/drill/deal"
+                ]
+              }
+            }
+          ],
+          "meta": {
+            "usage": {
+              "input": 10,
+              "output": 20
+            },
+            "state": "tools"
+          }
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "tool_result",
+              "id": "c1",
+              "condition": "NOMINAL",
+              "output": {
+                "tools": [
+                  {
+                    "name": "drill_deal",
+                    "valence": "education·francesca /drill/deal"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "parts": [
+            {
+              "type": "text",
+              "text": "thinking about tool_load..."
+            },
+            {
+              "type": "tool_use",
+              "id": "c2",
+              "name": "tool_load",
+              "input": {
+                "references": [
+                  "/daemon/chess/mode/teacher/coach/whoami"
+                ]
+              }
+            }
+          ],
+          "meta": {
+            "usage": {
+              "input": 10,
+              "output": 20
+            },
+            "state": "tools"
+          }
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "tool_result",
+              "id": "c2",
+              "condition": "NOMINAL",
+              "output": {
+                "tools": [
+                  {
+                    "name": "daemon_chess_teacher_coach_whoami",
+                    "valence": "chess·coach /whoami"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tools": [
+        {
+          "name": "tool_load",
+          "valence": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/drain"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest",
+                  "/runtime/runtime/mode/harness/runtime/fs"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "tool_unload",
+          "valence": "Takes tools out of this thread: one tool, a subtree or a whole mode. They are no longer declared from the next round on; what earlier turns say about them stays.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/runtime/runtime/mode/harness/runtime/fs/delete"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "primer_load",
+          "valence": "Loads primer sections into this thread in full: one section, or every section a reference covers. Each stays in the system prompt from the next request on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/archivist"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "drill_deal",
+          "valence": "education·francesca /drill/deal"
+        },
+        {
+          "name": "drill_grade",
+          "valence": "education·francesca /drill/grade"
+        },
+        {
+          "name": "daemon_chess_teacher_coach_whoami",
+          "valence": "chess·coach /whoami"
+        }
+      ],
+      "turns": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "text": "go"
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "parts": [
+            {
+              "type": "text",
+              "text": "thinking about tool_load..."
+            },
+            {
+              "type": "tool_use",
+              "id": "c1",
+              "name": "tool_load",
+              "input": {
+                "references": [
+                  "/drill/deal"
+                ]
+              }
+            }
+          ],
+          "meta": {
+            "usage": {
+              "input": 10,
+              "output": 20
+            },
+            "state": "tools"
+          }
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "tool_result",
+              "id": "c1",
+              "condition": "NOMINAL",
+              "output": {
+                "tools": [
+                  {
+                    "name": "drill_deal",
+                    "valence": "education·francesca /drill/deal"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "parts": [
+            {
+              "type": "text",
+              "text": "thinking about tool_load..."
+            },
+            {
+              "type": "tool_use",
+              "id": "c2",
+              "name": "tool_load",
+              "input": {
+                "references": [
+                  "/daemon/chess/mode/teacher/coach/whoami"
+                ]
+              }
+            }
+          ],
+          "meta": {
+            "usage": {
+              "input": 10,
+              "output": 20
+            },
+            "state": "tools"
+          }
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "tool_result",
+              "id": "c2",
+              "condition": "NOMINAL",
+              "output": {
+                "tools": [
+                  {
+                    "name": "daemon_chess_teacher_coach_whoami",
+                    "valence": "chess·coach /whoami"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "parts": [
+            {
+              "type": "text",
+              "text": "thinking about tool_load..."
+            },
+            {
+              "type": "tool_use",
+              "id": "c3",
+              "name": "tool_load",
+              "input": {
+                "references": [
+                  "/drill/grade"
+                ]
+              }
+            }
+          ],
+          "meta": {
+            "usage": {
+              "input": 10,
+              "output": 20
+            },
+            "state": "tools"
+          }
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "tool_result",
+              "id": "c3",
+              "condition": "NOMINAL",
+              "output": {
+                "tools": [
+                  {
+                    "name": "drill_grade",
+                    "valence": "education·francesca /drill/grade"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tools": [
+        {
+          "name": "tool_load",
+          "valence": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/drain"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest",
+                  "/runtime/runtime/mode/harness/runtime/fs"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "tool_unload",
+          "valence": "Takes tools out of this thread: one tool, a subtree or a whole mode. They are no longer declared from the next round on; what earlier turns say about them stays.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/runtime/runtime/mode/harness/runtime/fs/delete"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "primer_load",
+          "valence": "Loads primer sections into this thread in full: one section, or every section a reference covers. Each stays in the system prompt from the next request on. A wider reference loads more: start narrow.",
+          "input": {
+            "type": "object",
+            "required": [
+              "references"
+            ],
+            "properties": {
+              "references": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": [
+              {
+                "references": [
+                  "/daemon/education/mode/tactic/harvest/archivist"
+                ]
+              },
+              {
+                "references": [
+                  "/tactic/harvest"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "drill_deal",
+          "valence": "education·francesca /drill/deal"
+        },
+        {
+          "name": "drill_grade",
+          "valence": "education·francesca /drill/grade"
+        },
+        {
+          "name": "daemon_chess_teacher_coach_whoami",
+          "valence": "chess·coach /whoami"
+        }
+      ],
+      "turns": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "text": "go"
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "parts": [
+            {
+              "type": "text",
+              "text": "thinking about tool_load..."
+            },
+            {
+              "type": "tool_use",
+              "id": "c1",
+              "name": "tool_load",
+              "input": {
+                "references": [
+                  "/drill/deal"
+                ]
+              }
+            }
+          ],
+          "meta": {
+            "usage": {
+              "input": 10,
+              "output": 20
+            },
+            "state": "tools"
+          }
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "tool_result",
+              "id": "c1",
+              "condition": "NOMINAL",
+              "output": {
+                "tools": [
+                  {
+                    "name": "drill_deal",
+                    "valence": "education·francesca /drill/deal"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "parts": [
+            {
+              "type": "text",
+              "text": "thinking about tool_load..."
+            },
+            {
+              "type": "tool_use",
+              "id": "c2",
+              "name": "tool_load",
+              "input": {
+                "references": [
+                  "/daemon/chess/mode/teacher/coach/whoami"
+                ]
+              }
+            }
+          ],
+          "meta": {
+            "usage": {
+              "input": 10,
+              "output": 20
+            },
+            "state": "tools"
+          }
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "tool_result",
+              "id": "c2",
+              "condition": "NOMINAL",
+              "output": {
+                "tools": [
+                  {
+                    "name": "daemon_chess_teacher_coach_whoami",
+                    "valence": "chess·coach /whoami"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "parts": [
+            {
+              "type": "text",
+              "text": "thinking about tool_load..."
+            },
+            {
+              "type": "tool_use",
+              "id": "c3",
+              "name": "tool_load",
+              "input": {
+                "references": [
+                  "/drill/grade"
+                ]
+              }
+            }
+          ],
+          "meta": {
+            "usage": {
+              "input": 10,
+              "output": 20
+            },
+            "state": "tools"
+          }
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "tool_result",
+              "id": "c3",
+              "condition": "NOMINAL",
+              "output": {
+                "tools": [
+                  {
+                    "name": "drill_grade",
+                    "valence": "education·francesca /drill/grade"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "parts": [
+            {
+              "type": "text",
+              "text": "thinking about daemon_chess_teacher_coach_whoami..."
+            },
+            {
+              "type": "tool_use",
+              "id": "c4",
+              "name": "daemon_chess_teacher_coach_whoami",
+              "input": {}
+            }
+          ],
+          "meta": {
+            "usage": {
+              "input": 10,
+              "output": 20
+            },
+            "state": "tools"
+          }
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "tool_result",
+              "id": "c4",
+              "condition": "NOMINAL",
+              "output": {
+                "tag": "chess·coach",
+                "path": "/whoami",
+                "mode": "coach",
+                "daemon": "/daemon/education",
+                "runtime": "/runtime/runtime",
+                "reference": "/daemon/chess",
+                "statics": {
+                  "language": "en"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "packets": [
+    {
+      "event": "/tool/yield",
+      "id": "c1",
+      "result": {
+        "condition": "NOMINAL",
+        "output": {
+          "tools": [
+            {
+              "name": "drill_deal",
+              "valence": "education·francesca /drill/deal"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "event": "/tool/yield",
+      "id": "c2",
+      "result": {
+        "condition": "NOMINAL",
+        "output": {
+          "tools": [
+            {
+              "name": "daemon_chess_teacher_coach_whoami",
+              "valence": "chess·coach /whoami"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "event": "/tool/yield",
+      "id": "c3",
+      "result": {
+        "condition": "NOMINAL",
+        "output": {
+          "tools": [
+            {
+              "name": "drill_grade",
+              "valence": "education·francesca /drill/grade"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "event": "/tool/yield",
+      "id": "c4",
+      "result": {
+        "condition": "NOMINAL",
+        "output": {
+          "tag": "chess·coach",
+          "path": "/whoami",
+          "mode": "coach",
+          "daemon": "/daemon/education",
+          "runtime": "/runtime/runtime",
+          "reference": "/daemon/chess",
+          "statics": {
+            "language": "en"
+          }
+        }
+      }
+    },
+    {
+      "event": "/response/close",
+      "meta": {
+        "usage": {
+          "input": 10,
+          "output": 4
+        },
+        "state": "complete",
+        "rounds": 5
+      }
+    }
+  ],
+  "trait": {
+    "TOOLED": {
+      "/daemon/education/mode/teacher/francesca/drill/deal": "eager",
+      "/daemon/chess/mode/teacher/coach/whoami": "eager",
+      "/daemon/education/mode/teacher/francesca/drill/grade": "eager"
+    },
+    "PRIMED": {}
+  },
+  "next": [
+    {
+      "name": "tool_load",
+      "valence": "Loads tools into this thread: one tool, a mode's whole tree, or every mode a reference covers. Each loaded tool is declared from the next round on. A wider reference loads more: start narrow.",
+      "input": {
+        "type": "object",
+        "required": [
+          "references"
+        ],
+        "properties": {
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "examples": [
+          {
+            "references": [
+              "/daemon/education/mode/tactic/harvest/drain"
+            ]
+          },
+          {
+            "references": [
+              "/tactic/harvest",
+              "/runtime/runtime/mode/harness/runtime/fs"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "tool_unload",
+      "valence": "Takes tools out of this thread: one tool, a subtree or a whole mode. They are no longer declared from the next round on; what earlier turns say about them stays.",
+      "input": {
+        "type": "object",
+        "required": [
+          "references"
+        ],
+        "properties": {
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "examples": [
+          {
+            "references": [
+              "/runtime/runtime/mode/harness/runtime/fs/delete"
+            ]
+          },
+          {
+            "references": [
+              "/tactic/harvest"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "primer_load",
+      "valence": "Loads primer sections into this thread in full: one section, or every section a reference covers. Each stays in the system prompt from the next request on. A wider reference loads more: start narrow.",
+      "input": {
+        "type": "object",
+        "required": [
+          "references"
+        ],
+        "properties": {
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "examples": [
+          {
+            "references": [
+              "/daemon/education/mode/tactic/harvest/archivist"
+            ]
+          },
+          {
+            "references": [
+              "/tactic/harvest"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "daemon_chess_teacher_coach_whoami",
+      "valence": "chess·coach /whoami"
+    },
+    {
+      "name": "drill_deal",
+      "valence": "education·francesca /drill/deal"
+    },
+    {
+      "name": "drill_grade",
+      "valence": "education·francesca /drill/grade"
+    }
+  ]
+}

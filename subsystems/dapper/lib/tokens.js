@@ -91,6 +91,16 @@ const spacing = {
   8: "2rem",
 };
 
+export const FONTS = {
+  "2xs": "11px",
+  xs: "12.5px",
+  sm: "14px",
+  base: "16px",
+  lg: "18px",
+  xl: "20px",
+  "2xl": "22.5px",
+};
+
 export const TOKENS = {
   spacing,
   font,

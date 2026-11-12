@@ -102,7 +102,7 @@ export const session = new Vector().open(
     const data = { deck, language: ctx.statics.language, dealt: new Date().toISOString() };
     if (held === undefined) {
       const emitted = await ctx.mode.emit.session({ ...ctx.input, thread: ctx.thread });
-      return { dealt: deck.length, cards: deck.map((card) => card.slug), buffer: emitted.output.buffer[0].id };
+      return { dealt: deck.length, cards: deck.map((card) => card.slug), buffer: emitted.product.buffer[0].id };
     }
     await ctx.entities.buffer.updateOne({ id: held.id }, { data });
     return { dealt: deck.length, cards: deck.map((card) => card.slug), buffer: held.id };

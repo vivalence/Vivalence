@@ -1,0 +1,3980 @@
+{
+  "harnesses": {
+    "/daemon/hello/mode/demo/hello-world": {
+      "references": {
+        "branches": {
+          "verbatim": {
+            "branches": {
+              "stream": {
+                "branches": {},
+                "effect": {
+                  "yields": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "turn"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/turn/open"
+                          },
+                          "turn": {
+                            "type": "object",
+                            "required": [
+                              "role"
+                            ],
+                            "properties": {
+                              "role": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string",
+                                "description": "The turn the runtime opened for this reply; every later packet pours into it. Example: \"0199f3a2-7c1e-7b40-9d2a-5e6f8a1b2c3d\""
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/turn/close"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {}
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "text"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/verbatim/commit"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "transcript"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/verbatim/partial"
+                          },
+                          "transcript": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "transcript"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/verbatim/eager"
+                          },
+                          "transcript": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/verbatim/resume"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "transcript"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/verbatim/final"
+                          },
+                          "transcript": {
+                            "type": "string"
+                          },
+                          "segment": {
+                            "type": "integer"
+                          },
+                          "words": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "word"
+                              ],
+                              "properties": {
+                                "word": {
+                                  "type": "string"
+                                },
+                                "start": {
+                                  "type": "number"
+                                },
+                                "end": {
+                                  "type": "number"
+                                },
+                                "confidence": {
+                                  "type": "number"
+                                },
+                                "language": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "transcript",
+                          "segments"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/verbatim/polish"
+                          },
+                          "transcript": {
+                            "type": "string"
+                          },
+                          "segments": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "feeds": {
+                    "type": "object",
+                    "required": [
+                      "event",
+                      "audio",
+                      "rate"
+                    ],
+                    "properties": {
+                      "event": {
+                        "type": "string",
+                        "const": "/audio/packet"
+                      },
+                      "audio": {
+                        "type": "string"
+                      },
+                      "rate": {
+                        "type": "integer"
+                      },
+                      "codec": {
+                        "type": "string"
+                      },
+                      "pts": {
+                        "type": "number"
+                      },
+                      "align": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "type": "string"
+                            },
+                            "offset": {
+                              "type": "integer"
+                            },
+                            "start": {
+                              "type": "number"
+                            },
+                            "end": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "dialogue": {
+            "branches": {
+              "render": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "thread",
+                      "parts"
+                    ],
+                    "properties": {
+                      "thread": {
+                        "type": "string",
+                        "description": "The thread the turn appends to. Example: \"th3\""
+                      },
+                      "terminal": {
+                        "type": "string",
+                        "description": "The calling terminal, whenever a terminal calls. Example: \"t1\""
+                      },
+                      "turn": {
+                        "type": "string",
+                        "description": "The id the user turn is minted under; the caller picks it to find the turn again. Example: \"6f1c0d2e\""
+                      },
+                      "parts": {
+                        "type": "array",
+                        "items": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "text"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "text"
+                                },
+                                "text": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data",
+                                "media"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "image"
+                                },
+                                "data": {
+                                  "type": "string"
+                                },
+                                "media": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data",
+                                "media"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "audio"
+                                },
+                                "data": {
+                                  "type": "string"
+                                },
+                                "media": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data",
+                                "media"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "video"
+                                },
+                                "data": {
+                                  "type": "string"
+                                },
+                                "media": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data",
+                                "media"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "document"
+                                },
+                                "data": {
+                                  "type": "string"
+                                },
+                                "media": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "object"
+                                },
+                                "data": {
+                                  "type": "object",
+                                  "patternProperties": {
+                                    "^.*$": {}
+                                  }
+                                },
+                                "schema": {}
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "id",
+                                "name",
+                                "input"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "tool_use"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "input": {
+                                  "type": "object",
+                                  "patternProperties": {
+                                    "^.*$": {}
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "id",
+                                "output"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "tool_result"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "condition": {
+                                  "type": "string"
+                                },
+                                "output": {
+                                  "type": "object",
+                                  "patternProperties": {
+                                    "^.*$": {}
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "text"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "thinking"
+                                },
+                                "text": {
+                                  "type": "string"
+                                },
+                                "signature": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "dialect",
+                                "block"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "alien"
+                                },
+                                "dialect": {
+                                  "type": "string"
+                                },
+                                "block": {}
+                              }
+                            }
+                          ]
+                        },
+                        "description": "The user turn's parts. Example: [{ \"type\": \"text\", \"text\": \"ciao\" }]"
+                      },
+                      "provider": {
+                        "type": "string",
+                        "description": "A provider slug, exact. Example: \"openrouter\""
+                      },
+                      "id": {
+                        "type": "string",
+                        "description": "A faculty id, exact. Example: \"openai/gpt-image-2\""
+                      },
+                      "tier": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "frugal"
+                          },
+                          {
+                            "type": "string",
+                            "const": "fast"
+                          },
+                          {
+                            "type": "string",
+                            "const": "balanced"
+                          },
+                          {
+                            "type": "string",
+                            "const": "capable"
+                          },
+                          {
+                            "type": "string",
+                            "const": "unleashed"
+                          },
+                          {
+                            "type": "string",
+                            "const": "eager"
+                          }
+                        ],
+                        "description": "A named point in tune-space; ranks what the exact keys leave. Example: \"fast\""
+                      },
+                      "tune": {
+                        "type": "array",
+                        "items": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "minItems": 3,
+                        "maxItems": 3,
+                        "description": "A point in tune-space; ranks what the exact keys leave. Example: [0.4, 1.0, 0.8]"
+                      },
+                      "config": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "Policy overrides. Example: { \"rounds\": 2 }"
+                      },
+                      "system": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "Named primer sections, each a string or a Primer. Example: { \"system\": \"You are memo.\" }"
+                      },
+                      "output": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "A schema the answer must fit. Example: { \"type\": \"object\" }"
+                      },
+                      "tools": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "In-process tools a caller supplies. Example: { \"echo\": { \"execute\": fn } }"
+                      }
+                    }
+                  }
+                }
+              },
+              "stream": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "thread",
+                      "parts"
+                    ],
+                    "properties": {
+                      "thread": {
+                        "type": "string",
+                        "description": "The thread the turn appends to. Example: \"th3\""
+                      },
+                      "terminal": {
+                        "type": "string",
+                        "description": "The calling terminal, whenever a terminal calls. Example: \"t1\""
+                      },
+                      "turn": {
+                        "type": "string",
+                        "description": "The id the user turn is minted under; the caller picks it to find the turn again. Example: \"6f1c0d2e\""
+                      },
+                      "parts": {
+                        "type": "array",
+                        "items": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "text"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "text"
+                                },
+                                "text": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data",
+                                "media"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "image"
+                                },
+                                "data": {
+                                  "type": "string"
+                                },
+                                "media": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data",
+                                "media"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "audio"
+                                },
+                                "data": {
+                                  "type": "string"
+                                },
+                                "media": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data",
+                                "media"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "video"
+                                },
+                                "data": {
+                                  "type": "string"
+                                },
+                                "media": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data",
+                                "media"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "document"
+                                },
+                                "data": {
+                                  "type": "string"
+                                },
+                                "media": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "object"
+                                },
+                                "data": {
+                                  "type": "object",
+                                  "patternProperties": {
+                                    "^.*$": {}
+                                  }
+                                },
+                                "schema": {}
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "id",
+                                "name",
+                                "input"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "tool_use"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "input": {
+                                  "type": "object",
+                                  "patternProperties": {
+                                    "^.*$": {}
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "id",
+                                "output"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "tool_result"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "condition": {
+                                  "type": "string"
+                                },
+                                "output": {
+                                  "type": "object",
+                                  "patternProperties": {
+                                    "^.*$": {}
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "text"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "thinking"
+                                },
+                                "text": {
+                                  "type": "string"
+                                },
+                                "signature": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "dialect",
+                                "block"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "alien"
+                                },
+                                "dialect": {
+                                  "type": "string"
+                                },
+                                "block": {}
+                              }
+                            }
+                          ]
+                        },
+                        "description": "The user turn's parts. Example: [{ \"type\": \"text\", \"text\": \"ciao\" }]"
+                      },
+                      "provider": {
+                        "type": "string",
+                        "description": "A provider slug, exact. Example: \"openrouter\""
+                      },
+                      "id": {
+                        "type": "string",
+                        "description": "A faculty id, exact. Example: \"openai/gpt-image-2\""
+                      },
+                      "tier": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "frugal"
+                          },
+                          {
+                            "type": "string",
+                            "const": "fast"
+                          },
+                          {
+                            "type": "string",
+                            "const": "balanced"
+                          },
+                          {
+                            "type": "string",
+                            "const": "capable"
+                          },
+                          {
+                            "type": "string",
+                            "const": "unleashed"
+                          },
+                          {
+                            "type": "string",
+                            "const": "eager"
+                          }
+                        ],
+                        "description": "A named point in tune-space; ranks what the exact keys leave. Example: \"fast\""
+                      },
+                      "tune": {
+                        "type": "array",
+                        "items": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "minItems": 3,
+                        "maxItems": 3,
+                        "description": "A point in tune-space; ranks what the exact keys leave. Example: [0.4, 1.0, 0.8]"
+                      },
+                      "config": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "Policy overrides. Example: { \"rounds\": 2 }"
+                      },
+                      "system": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "Named primer sections, each a string or a Primer. Example: { \"system\": \"You are memo.\" }"
+                      },
+                      "output": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "A schema the answer must fit. Example: { \"type\": \"object\" }"
+                      },
+                      "tools": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "In-process tools a caller supplies. Example: { \"echo\": { \"execute\": fn } }"
+                      }
+                    }
+                  },
+                  "yields": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "turn"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/turn/open"
+                          },
+                          "turn": {
+                            "type": "object",
+                            "required": [
+                              "role"
+                            ],
+                            "properties": {
+                              "role": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string",
+                                "description": "The turn the runtime opened for this reply; every later packet pours into it. Example: \"0199f3a2-7c1e-7b40-9d2a-5e6f8a1b2c3d\""
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "index",
+                          "part"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/part/open"
+                          },
+                          "index": {
+                            "type": "integer"
+                          },
+                          "part": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "text"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "text"
+                                  },
+                                  "text": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "data",
+                                  "media"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "image"
+                                  },
+                                  "data": {
+                                    "type": "string"
+                                  },
+                                  "media": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "data",
+                                  "media"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "audio"
+                                  },
+                                  "data": {
+                                    "type": "string"
+                                  },
+                                  "media": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "data",
+                                  "media"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "video"
+                                  },
+                                  "data": {
+                                    "type": "string"
+                                  },
+                                  "media": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "data",
+                                  "media"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "document"
+                                  },
+                                  "data": {
+                                    "type": "string"
+                                  },
+                                  "media": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "data"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "object"
+                                  },
+                                  "data": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                      "^.*$": {}
+                                    }
+                                  },
+                                  "schema": {}
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "id",
+                                  "name",
+                                  "input"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "tool_use"
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "input": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                      "^.*$": {}
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "id",
+                                  "output"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "tool_result"
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "condition": {
+                                    "type": "string"
+                                  },
+                                  "output": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                      "^.*$": {}
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "text"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "thinking"
+                                  },
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "signature": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "dialect",
+                                  "block"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "alien"
+                                  },
+                                  "dialect": {
+                                    "type": "string"
+                                  },
+                                  "block": {}
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "index",
+                          "delta"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/part/delta"
+                          },
+                          "index": {
+                            "type": "integer"
+                          },
+                          "delta": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {}
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "index"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/part/close"
+                          },
+                          "index": {
+                            "type": "integer"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/turn/close"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {}
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "id",
+                          "name",
+                          "input"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/tool/call"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "input": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {}
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "id",
+                          "result"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/tool/yield"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "result": {
+                            "type": "object",
+                            "required": [
+                              "condition",
+                              "output"
+                            ],
+                            "properties": {
+                              "condition": {
+                                "type": "string"
+                              },
+                              "output": {
+                                "type": "object",
+                                "patternProperties": {
+                                  "^.*$": {}
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "turn"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/turn/full"
+                          },
+                          "turn": {
+                            "type": "object",
+                            "required": [
+                              "role",
+                              "parts"
+                            ],
+                            "properties": {
+                              "role": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "system"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "user"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "assistant"
+                                  }
+                                ]
+                              },
+                              "parts": {
+                                "type": "array",
+                                "items": {
+                                  "anyOf": [
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "text"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "text"
+                                        },
+                                        "text": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "data",
+                                        "media"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "image"
+                                        },
+                                        "data": {
+                                          "type": "string"
+                                        },
+                                        "media": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "data",
+                                        "media"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "audio"
+                                        },
+                                        "data": {
+                                          "type": "string"
+                                        },
+                                        "media": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "data",
+                                        "media"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "video"
+                                        },
+                                        "data": {
+                                          "type": "string"
+                                        },
+                                        "media": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "data",
+                                        "media"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "document"
+                                        },
+                                        "data": {
+                                          "type": "string"
+                                        },
+                                        "media": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "data"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "object"
+                                        },
+                                        "data": {
+                                          "type": "object",
+                                          "patternProperties": {
+                                            "^.*$": {}
+                                          }
+                                        },
+                                        "schema": {}
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "id",
+                                        "name",
+                                        "input"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "tool_use"
+                                        },
+                                        "id": {
+                                          "type": "string"
+                                        },
+                                        "name": {
+                                          "type": "string"
+                                        },
+                                        "input": {
+                                          "type": "object",
+                                          "patternProperties": {
+                                            "^.*$": {}
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "id",
+                                        "output"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "tool_result"
+                                        },
+                                        "id": {
+                                          "type": "string"
+                                        },
+                                        "condition": {
+                                          "type": "string"
+                                        },
+                                        "output": {
+                                          "type": "object",
+                                          "patternProperties": {
+                                            "^.*$": {}
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "text"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "thinking"
+                                        },
+                                        "text": {
+                                          "type": "string"
+                                        },
+                                        "signature": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "dialect",
+                                        "block"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "alien"
+                                        },
+                                        "dialect": {
+                                          "type": "string"
+                                        },
+                                        "block": {}
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "meta": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "patternProperties": {
+                                      "^.*$": {}
+                                    }
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "meta"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/response/close"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "required": [
+                              "state",
+                              "rounds"
+                            ],
+                            "properties": {
+                              "state": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "complete"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "tools"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "length"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "abort"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "error"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "filter"
+                                  }
+                                ]
+                              },
+                              "rounds": {
+                                "type": "integer"
+                              }
+                            },
+                            "additionalProperties": true
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "object": {
+            "branches": {
+              "render": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "thread",
+                      "parts"
+                    ],
+                    "properties": {
+                      "thread": {
+                        "type": "string",
+                        "description": "The thread the turn appends to. Example: \"th3\""
+                      },
+                      "terminal": {
+                        "type": "string",
+                        "description": "The calling terminal, whenever a terminal calls. Example: \"t1\""
+                      },
+                      "turn": {
+                        "type": "string",
+                        "description": "The id the user turn is minted under; the caller picks it to find the turn again. Example: \"6f1c0d2e\""
+                      },
+                      "parts": {
+                        "type": "array",
+                        "items": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "text"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "text"
+                                },
+                                "text": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data",
+                                "media"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "image"
+                                },
+                                "data": {
+                                  "type": "string"
+                                },
+                                "media": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data",
+                                "media"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "audio"
+                                },
+                                "data": {
+                                  "type": "string"
+                                },
+                                "media": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data",
+                                "media"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "video"
+                                },
+                                "data": {
+                                  "type": "string"
+                                },
+                                "media": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data",
+                                "media"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "document"
+                                },
+                                "data": {
+                                  "type": "string"
+                                },
+                                "media": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "object"
+                                },
+                                "data": {
+                                  "type": "object",
+                                  "patternProperties": {
+                                    "^.*$": {}
+                                  }
+                                },
+                                "schema": {}
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "id",
+                                "name",
+                                "input"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "tool_use"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "input": {
+                                  "type": "object",
+                                  "patternProperties": {
+                                    "^.*$": {}
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "id",
+                                "output"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "tool_result"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "condition": {
+                                  "type": "string"
+                                },
+                                "output": {
+                                  "type": "object",
+                                  "patternProperties": {
+                                    "^.*$": {}
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "text"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "thinking"
+                                },
+                                "text": {
+                                  "type": "string"
+                                },
+                                "signature": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "dialect",
+                                "block"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "alien"
+                                },
+                                "dialect": {
+                                  "type": "string"
+                                },
+                                "block": {}
+                              }
+                            }
+                          ]
+                        },
+                        "description": "The user turn's parts. Example: [{ \"type\": \"text\", \"text\": \"ciao\" }]"
+                      },
+                      "provider": {
+                        "type": "string",
+                        "description": "A provider slug, exact. Example: \"openrouter\""
+                      },
+                      "id": {
+                        "type": "string",
+                        "description": "A faculty id, exact. Example: \"openai/gpt-image-2\""
+                      },
+                      "tier": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "frugal"
+                          },
+                          {
+                            "type": "string",
+                            "const": "fast"
+                          },
+                          {
+                            "type": "string",
+                            "const": "balanced"
+                          },
+                          {
+                            "type": "string",
+                            "const": "capable"
+                          },
+                          {
+                            "type": "string",
+                            "const": "unleashed"
+                          },
+                          {
+                            "type": "string",
+                            "const": "eager"
+                          }
+                        ],
+                        "description": "A named point in tune-space; ranks what the exact keys leave. Example: \"fast\""
+                      },
+                      "tune": {
+                        "type": "array",
+                        "items": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "minItems": 3,
+                        "maxItems": 3,
+                        "description": "A point in tune-space; ranks what the exact keys leave. Example: [0.4, 1.0, 0.8]"
+                      },
+                      "config": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "Policy overrides. Example: { \"rounds\": 2 }"
+                      },
+                      "system": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "Named primer sections, each a string or a Primer. Example: { \"system\": \"You are memo.\" }"
+                      },
+                      "output": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "A schema the answer must fit. Example: { \"type\": \"object\" }"
+                      },
+                      "tools": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "In-process tools a caller supplies. Example: { \"echo\": { \"execute\": fn } }"
+                      }
+                    }
+                  }
+                }
+              },
+              "stream": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "thread",
+                      "parts"
+                    ],
+                    "properties": {
+                      "thread": {
+                        "type": "string",
+                        "description": "The thread the turn appends to. Example: \"th3\""
+                      },
+                      "terminal": {
+                        "type": "string",
+                        "description": "The calling terminal, whenever a terminal calls. Example: \"t1\""
+                      },
+                      "turn": {
+                        "type": "string",
+                        "description": "The id the user turn is minted under; the caller picks it to find the turn again. Example: \"6f1c0d2e\""
+                      },
+                      "parts": {
+                        "type": "array",
+                        "items": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "text"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "text"
+                                },
+                                "text": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data",
+                                "media"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "image"
+                                },
+                                "data": {
+                                  "type": "string"
+                                },
+                                "media": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data",
+                                "media"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "audio"
+                                },
+                                "data": {
+                                  "type": "string"
+                                },
+                                "media": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data",
+                                "media"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "video"
+                                },
+                                "data": {
+                                  "type": "string"
+                                },
+                                "media": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data",
+                                "media"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "document"
+                                },
+                                "data": {
+                                  "type": "string"
+                                },
+                                "media": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "object"
+                                },
+                                "data": {
+                                  "type": "object",
+                                  "patternProperties": {
+                                    "^.*$": {}
+                                  }
+                                },
+                                "schema": {}
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "id",
+                                "name",
+                                "input"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "tool_use"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "input": {
+                                  "type": "object",
+                                  "patternProperties": {
+                                    "^.*$": {}
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "id",
+                                "output"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "tool_result"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "condition": {
+                                  "type": "string"
+                                },
+                                "output": {
+                                  "type": "object",
+                                  "patternProperties": {
+                                    "^.*$": {}
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "text"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "thinking"
+                                },
+                                "text": {
+                                  "type": "string"
+                                },
+                                "signature": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "dialect",
+                                "block"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "alien"
+                                },
+                                "dialect": {
+                                  "type": "string"
+                                },
+                                "block": {}
+                              }
+                            }
+                          ]
+                        },
+                        "description": "The user turn's parts. Example: [{ \"type\": \"text\", \"text\": \"ciao\" }]"
+                      },
+                      "provider": {
+                        "type": "string",
+                        "description": "A provider slug, exact. Example: \"openrouter\""
+                      },
+                      "id": {
+                        "type": "string",
+                        "description": "A faculty id, exact. Example: \"openai/gpt-image-2\""
+                      },
+                      "tier": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "frugal"
+                          },
+                          {
+                            "type": "string",
+                            "const": "fast"
+                          },
+                          {
+                            "type": "string",
+                            "const": "balanced"
+                          },
+                          {
+                            "type": "string",
+                            "const": "capable"
+                          },
+                          {
+                            "type": "string",
+                            "const": "unleashed"
+                          },
+                          {
+                            "type": "string",
+                            "const": "eager"
+                          }
+                        ],
+                        "description": "A named point in tune-space; ranks what the exact keys leave. Example: \"fast\""
+                      },
+                      "tune": {
+                        "type": "array",
+                        "items": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "minItems": 3,
+                        "maxItems": 3,
+                        "description": "A point in tune-space; ranks what the exact keys leave. Example: [0.4, 1.0, 0.8]"
+                      },
+                      "config": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "Policy overrides. Example: { \"rounds\": 2 }"
+                      },
+                      "system": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "Named primer sections, each a string or a Primer. Example: { \"system\": \"You are memo.\" }"
+                      },
+                      "output": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "A schema the answer must fit. Example: { \"type\": \"object\" }"
+                      },
+                      "tools": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "In-process tools a caller supplies. Example: { \"echo\": { \"execute\": fn } }"
+                      }
+                    }
+                  },
+                  "yields": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "turn"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/turn/open"
+                          },
+                          "turn": {
+                            "type": "object",
+                            "required": [
+                              "role"
+                            ],
+                            "properties": {
+                              "role": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string",
+                                "description": "The turn the runtime opened for this reply; every later packet pours into it. Example: \"0199f3a2-7c1e-7b40-9d2a-5e6f8a1b2c3d\""
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "index",
+                          "part"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/part/open"
+                          },
+                          "index": {
+                            "type": "integer"
+                          },
+                          "part": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "text"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "text"
+                                  },
+                                  "text": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "data",
+                                  "media"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "image"
+                                  },
+                                  "data": {
+                                    "type": "string"
+                                  },
+                                  "media": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "data",
+                                  "media"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "audio"
+                                  },
+                                  "data": {
+                                    "type": "string"
+                                  },
+                                  "media": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "data",
+                                  "media"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "video"
+                                  },
+                                  "data": {
+                                    "type": "string"
+                                  },
+                                  "media": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "data",
+                                  "media"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "document"
+                                  },
+                                  "data": {
+                                    "type": "string"
+                                  },
+                                  "media": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "data"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "object"
+                                  },
+                                  "data": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                      "^.*$": {}
+                                    }
+                                  },
+                                  "schema": {}
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "id",
+                                  "name",
+                                  "input"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "tool_use"
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "input": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                      "^.*$": {}
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "id",
+                                  "output"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "tool_result"
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "condition": {
+                                    "type": "string"
+                                  },
+                                  "output": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                      "^.*$": {}
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "text"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "thinking"
+                                  },
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "signature": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "dialect",
+                                  "block"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "const": "alien"
+                                  },
+                                  "dialect": {
+                                    "type": "string"
+                                  },
+                                  "block": {}
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "index",
+                          "delta"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/part/delta"
+                          },
+                          "index": {
+                            "type": "integer"
+                          },
+                          "delta": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {}
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "index"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/part/close"
+                          },
+                          "index": {
+                            "type": "integer"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/turn/close"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {}
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "id",
+                          "name",
+                          "input"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/tool/call"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "input": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {}
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "id",
+                          "result"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/tool/yield"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "result": {
+                            "type": "object",
+                            "required": [
+                              "condition",
+                              "output"
+                            ],
+                            "properties": {
+                              "condition": {
+                                "type": "string"
+                              },
+                              "output": {
+                                "type": "object",
+                                "patternProperties": {
+                                  "^.*$": {}
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "turn"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/turn/full"
+                          },
+                          "turn": {
+                            "type": "object",
+                            "required": [
+                              "role",
+                              "parts"
+                            ],
+                            "properties": {
+                              "role": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "system"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "user"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "assistant"
+                                  }
+                                ]
+                              },
+                              "parts": {
+                                "type": "array",
+                                "items": {
+                                  "anyOf": [
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "text"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "text"
+                                        },
+                                        "text": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "data",
+                                        "media"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "image"
+                                        },
+                                        "data": {
+                                          "type": "string"
+                                        },
+                                        "media": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "data",
+                                        "media"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "audio"
+                                        },
+                                        "data": {
+                                          "type": "string"
+                                        },
+                                        "media": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "data",
+                                        "media"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "video"
+                                        },
+                                        "data": {
+                                          "type": "string"
+                                        },
+                                        "media": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "data",
+                                        "media"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "document"
+                                        },
+                                        "data": {
+                                          "type": "string"
+                                        },
+                                        "media": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "data"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "object"
+                                        },
+                                        "data": {
+                                          "type": "object",
+                                          "patternProperties": {
+                                            "^.*$": {}
+                                          }
+                                        },
+                                        "schema": {}
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "id",
+                                        "name",
+                                        "input"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "tool_use"
+                                        },
+                                        "id": {
+                                          "type": "string"
+                                        },
+                                        "name": {
+                                          "type": "string"
+                                        },
+                                        "input": {
+                                          "type": "object",
+                                          "patternProperties": {
+                                            "^.*$": {}
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "id",
+                                        "output"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "tool_result"
+                                        },
+                                        "id": {
+                                          "type": "string"
+                                        },
+                                        "condition": {
+                                          "type": "string"
+                                        },
+                                        "output": {
+                                          "type": "object",
+                                          "patternProperties": {
+                                            "^.*$": {}
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "text"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "thinking"
+                                        },
+                                        "text": {
+                                          "type": "string"
+                                        },
+                                        "signature": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "required": [
+                                        "type",
+                                        "dialect",
+                                        "block"
+                                      ],
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "alien"
+                                        },
+                                        "dialect": {
+                                          "type": "string"
+                                        },
+                                        "block": {}
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "meta": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "patternProperties": {
+                                      "^.*$": {}
+                                    }
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "event",
+                          "meta"
+                        ],
+                        "properties": {
+                          "event": {
+                            "type": "string",
+                            "const": "/response/close"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "required": [
+                              "state",
+                              "rounds"
+                            ],
+                            "properties": {
+                              "state": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "complete"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "tools"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "length"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "abort"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "error"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "filter"
+                                  }
+                                ]
+                              },
+                              "rounds": {
+                                "type": "integer"
+                              }
+                            },
+                            "additionalProperties": true
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "choice": {
+            "branches": {
+              "render": {
+                "branches": {},
+                "effect": {}
+              }
+            }
+          },
+          "picture": {
+            "branches": {
+              "render": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "prompt",
+                      "images"
+                    ],
+                    "properties": {
+                      "prompt": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "What to make or change. Example: \"a red fox in loose watercolor, white paper showing\""
+                      },
+                      "images": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "image",
+                            "role"
+                          ],
+                          "properties": {
+                            "image": {
+                              "type": "object",
+                              "required": [
+                                "type",
+                                "data",
+                                "media"
+                              ],
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "image"
+                                },
+                                "data": {
+                                  "type": "string"
+                                },
+                                "media": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "role": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "style"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "subject"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "structure"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "init"
+                                }
+                              ],
+                              "description": "What the provider is to take from it: paint like this · this thing · these edges and this composition · the picture being edited. Example: \"style\""
+                            }
+                          }
+                        },
+                        "default": [],
+                        "description": "References, each with a role; the first `init` is the picture being edited. Example: []"
+                      },
+                      "mask": {
+                        "type": "object",
+                        "required": [
+                          "type",
+                          "data",
+                          "media"
+                        ],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "image"
+                          },
+                          "data": {
+                            "type": "string"
+                          },
+                          "media": {
+                            "type": "string"
+                          }
+                        },
+                        "description": "Alpha = the hole to repaint, over the first init image. Example: { type: \"image\", media: \"image/png\", data: \"iVBOR…\" }"
+                      },
+                      "settings": {
+                        "type": "object",
+                        "properties": {
+                          "size": {
+                            "type": "string",
+                            "description": "WxH or an aspect the provider knows. Example: \"1536x1024\""
+                          },
+                          "aspect": {
+                            "type": "string",
+                            "description": "W:H the provider maps onto its sizes; refused LOUD when the faculty lacks it. Example: \"3:2\""
+                          },
+                          "count": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 4,
+                            "description": "Pictures per request. Example: 2"
+                          },
+                          "format": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "const": "png"
+                              },
+                              {
+                                "type": "string",
+                                "const": "webp"
+                              },
+                              {
+                                "type": "string",
+                                "const": "jpeg"
+                              }
+                            ],
+                            "description": "The bytes wanted back. Example: \"webp\""
+                          },
+                          "background": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "const": "transparent"
+                              },
+                              {
+                                "type": "string",
+                                "const": "opaque"
+                              }
+                            ],
+                            "description": "Example: \"transparent\""
+                          }
+                        },
+                        "additionalProperties": true,
+                        "description": "Provider knobs; the four named ones every provider maps, the rest pass through opaque. Example: { aspect: \"3:2\", count: 1 }"
+                      }
+                    }
+                  },
+                  "output": {
+                    "type": "object",
+                    "required": [
+                      "images"
+                    ],
+                    "properties": {
+                      "images": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "type",
+                            "data",
+                            "media"
+                          ],
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "image"
+                            },
+                            "data": {
+                              "type": "string"
+                            },
+                            "media": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "description": "The pictures, in the provider's order. Example: [{ type: \"image\", media: \"image/png\", data: \"iVBOR…\" }]"
+                      },
+                      "revised": {
+                        "type": "string",
+                        "description": "The prompt the provider actually painted from, when it rewrote ours. Example: \"A red fox rendered in loose watercolor…\""
+                      },
+                      "provider": {
+                        "type": "string",
+                        "description": "The hallucinator that painted it, stamped by the belt. Example: \"openrouter\""
+                      },
+                      "id": {
+                        "type": "string",
+                        "description": "The faculty that painted it, stamped by the belt. Example: \"openai/gpt-image-2\""
+                      },
+                      "usage": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "The provider's usage record, opaque. Example: { input_tokens: 120 }"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "primer": {
+        "branches": {
+          "hello": {
+            "branches": {},
+            "effect": {}
+          },
+          "machine": {
+            "branches": {},
+            "effect": {}
+          },
+          "entity": {
+            "branches": {
+              "thread": {
+                "branches": {},
+                "effect": {
+                  "valence": "one conversation: a user, in a mode, as turns; it holds buffers and its configuration in traits",
+                  "load": "lazy"
+                }
+              },
+              "buffer": {
+                "branches": {},
+                "effect": {
+                  "valence": "one screen on a thread: data a view draws, in a mime the renderers key on",
+                  "load": "lazy"
+                }
+              }
+            }
+          },
+          "guides": {
+            "branches": {
+              "render": {
+                "branches": {},
+                "effect": {
+                  "valence": "How to draw a page — component rules, buffer.data, styling. Read before view_create.",
+                  "load": "lazy"
+                }
+              }
+            }
+          }
+        }
+      },
+      "tools": {
+        "branches": {
+          "buffer": {
+            "branches": {
+              "create": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "mime"
+                    ],
+                    "properties": {
+                      "mime": {
+                        "type": "string",
+                        "pattern": "^(?:application|audio|font|image|message|model|multipart|text|video)/(?:vnd\\.|prs\\.|x\\.)?[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]{0,126}(?:\\+[A-Za-z0-9!#$&^_.-]+)?$",
+                        "title": "RFC 6838 media type (type/[tree.]subtype[+suffix])",
+                        "description": "What the buffer IS — the kind the client picks a renderer by. Example: \"text/markdown\""
+                      },
+                      "data": {
+                        "description": "The payload a view reads at buffer.data — whatever the source destructures. Example: { title: \"Flamingo\", summary: \"Six species on four continents.\", sources: [{ title: \"Wikipedia\", url: \"https://en.wikipedia.org/wiki/Flamingo\" }] }"
+                      },
+                      "source": {
+                        "type": "string",
+                        "description": "Content bytes for a content buffer, written as a File. Example: \"# Q3\\n\\nRevenue …\""
+                      },
+                      "turn": {
+                        "type": "string",
+                        "description": "The turn the buffer surfaces under. Example: \"01a0856f-425f-72b8-b36f-decc1bb2050e\""
+                      },
+                      "label": {
+                        "type": "object",
+                        "required": [
+                          "name"
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "The short display name the operator reads on the line — a subject, not a sentence. Example: \"Flamingo — six species\""
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "One sentence on what the thing holds, for the tooltip and the list. Example: \"Range, diet and the six species, from Wikipedia and two field guides.\""
+                          }
+                        },
+                        "$id": "Label",
+                        "description": "The name and one-line description the operator reads on the buffer's entry in the chat and in the buffer list. Example: { name: \"Flamingo\", description: \"Six species, range and diet\" }"
+                      },
+                      "views": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "description": "The view's name inside this mode — one view per (slug, mime); the same slug again rewrites it. Example: \"pulse\""
+                        },
+                        "description": "Slugs of this mode's views to pin on the buffer. Example: [\"pulse\"]"
+                      }
+                    }
+                  },
+                  "valence": "Open a buffer on the operator's screen: a working area with a mime, live data, and the files it loads. Pass `data` for a state the mode's views render, or `source` for content (markdown, org, html) the client renders by mime — a source becomes a File this mode holds. `views` pins this mode's views by slug so the buffer shows them instead of the mode's default; `turn` hangs the buffer under that turn. Returns the buffer row — its id is what buffer_update and buffer_label take."
+                }
+              },
+              "update": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "id"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "description": "The buffer id. Example: \"01a0856f-425f-72b8-b36f-decc1bb2050e\""
+                      },
+                      "data": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "Data keys to merge over buffer.data; keys you omit stay. Example: { summary: \"Six species on four continents.\" }"
+                      },
+                      "source": {
+                        "type": "string",
+                        "description": "New content for the file this buffer loads, whole. Example: \"# Q3 · final\n\nRevenue …\""
+                      }
+                    }
+                  },
+                  "valence": "Write a buffer — the shared working surface between you and the user. Pass the buffer id and a data patch; the patch merges over the existing data keys. For a content buffer pass `source` instead: the file it loads is rewritten, same row, new hash. This thread's id is in the runtime row of your context; its buffer ids come from entity_find { entity: \"buffer\", where: { thread } }, or from the thread section when your primer carries one. Returns { message, buffer: [{ id, index, status, mime, data, trait }] }. Example: { id: \"01a09010-18e0-736f-ad3f-a65b44d3fa43\", data: { summary: \"Six species on four continents.\" } }"
+                }
+              },
+              "label": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "label"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "description": "The buffer id. Example: \"01a0856f-425f-72b8-b36f-decc1bb2050e\""
+                      },
+                      "label": {
+                        "type": "object",
+                        "required": [
+                          "name"
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "The short display name the operator reads on the line — a subject, not a sentence. Example: \"Flamingo — six species\""
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "One sentence on what the thing holds, for the tooltip and the list. Example: \"Range, diet and the six species, from Wikipedia and two field guides.\""
+                          }
+                        },
+                        "$id": "Label"
+                      }
+                    }
+                  },
+                  "valence": "Name a buffer. The label is what the operator reads on the buffer's line in the chat and in the buffer list — set it when a buffer's subject is clearer than its name, or when the operator asks. Returns { message, buffer: [{ id, index, status, data, view, trait }] }. Example: { id: \"01a0856f-425f-72b8-b36f-decc1bb2050e\", label: { name: \"Flamingo\", description: \"Six species, range and diet\" } }"
+                }
+              }
+            }
+          },
+          "view": {
+            "branches": {
+              "create": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "slug",
+                      "mime",
+                      "source"
+                    ],
+                    "properties": {
+                      "slug": {
+                        "type": "string",
+                        "description": "The page's name inside this mode — the subject, kebab-cased; the same slug again rewrites the page. Example: \"flamingo\""
+                      },
+                      "mime": {
+                        "type": "string",
+                        "pattern": "^(?:application|audio|font|image|message|model|multipart|text|video)/(?:vnd\\.|prs\\.|x\\.)?[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]{0,126}(?:\\+[A-Za-z0-9!#$&^_.-]+)?$",
+                        "title": "RFC 6838 media type (type/[tree.]subtype[+suffix])",
+                        "description": "What the code is — always application/vnd.viva.dom.svelte+javascript here. Example: \"application/vnd.viva.dom.svelte+javascript\""
+                      },
+                      "source": {
+                        "type": "string",
+                        "description": "The complete Svelte 5 component source, exactly as it would sit in a .svelte file. No fences, no prose around it, no partial component. It must open with `<script>\\n  let { buffer, terminal } = $props();\\n</script>`, hold one root `<article class=\"page\">`, and end with a scoped `<style>` block. See the HOUSE RULES in your context for the frame and the tokens."
+                      }
+                    }
+                  },
+                  "valence": "Draw a page. Submit a COMPLETE Svelte 5 component as `source`; it is compiled, content-addressed and stored as a View of this mode. Then buffer_create with `views: [slug]` and the page's `data` and `label` puts it on the operator's screen as a line they can click open. The HOUSE RULES in your context are binding — a component that invents its own styling renders wrong, and one that imports from a URL is refused outright. The same slug again rewrites the page in place; view_update does the same."
+                }
+              },
+              "update": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "slug",
+                      "source"
+                    ],
+                    "properties": {
+                      "slug": {
+                        "type": "string",
+                        "description": "The page's name inside this mode — the subject, kebab-cased; the same slug again rewrites the page. Example: \"flamingo\""
+                      },
+                      "mime": {
+                        "type": "string",
+                        "pattern": "^(?:application|audio|font|image|message|model|multipart|text|video)/(?:vnd\\.|prs\\.|x\\.)?[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]{0,126}(?:\\+[A-Za-z0-9!#$&^_.-]+)?$",
+                        "title": "RFC 6838 media type (type/[tree.]subtype[+suffix])",
+                        "description": "What the code is — always application/vnd.viva.dom.svelte+javascript here. Example: \"application/vnd.viva.dom.svelte+javascript\""
+                      },
+                      "source": {
+                        "type": "string",
+                        "description": "The complete Svelte 5 component source, exactly as it would sit in a .svelte file. No fences, no prose around it, no partial component. It must open with `<script>\\n  let { buffer, terminal } = $props();\\n</script>`, hold one root `<article class=\"page\">`, and end with a scoped `<style>` block. See the HOUSE RULES in your context for the frame and the tokens."
+                      }
+                    }
+                  },
+                  "valence": "Iterate a page you already drew: the SAME view, by slug, gets new source and every buffer showing it re-mounts in place; the buffer's data changes through buffer_update, its line through buffer_label. The HOUSE RULES still bind; a URL import is still refused. Use view_read first if you no longer have the source; revise from it rather than rewriting."
+                }
+              },
+              "read": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "slug"
+                    ],
+                    "properties": {
+                      "slug": {
+                        "type": "string",
+                        "description": "The view's name inside this mode — one view per (slug, mime); the same slug again rewrites it. Example: \"pulse\""
+                      },
+                      "mime": {
+                        "type": "string",
+                        "pattern": "^(?:application|audio|font|image|message|model|multipart|text|video)/(?:vnd\\.|prs\\.|x\\.)?[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]{0,126}(?:\\+[A-Za-z0-9!#$&^_.-]+)?$",
+                        "title": "RFC 6838 media type (type/[tree.]subtype[+suffix])",
+                        "description": "Which of the slug's rows when it has one per mime; the only one when left out."
+                      }
+                    }
+                  },
+                  "valence": "Read a view back by slug: the row, its Files, and the source you wrote, so you can view_update it instead of rewriting it from memory."
+                }
+              },
+              "list": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "mime": {
+                        "type": "string",
+                        "pattern": "^(?:application|audio|font|image|message|model|multipart|text|video)/(?:vnd\\.|prs\\.|x\\.)?[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]{0,126}(?:\\+[A-Za-z0-9!#$&^_.-]+)?$",
+                        "title": "RFC 6838 media type (type/[tree.]subtype[+suffix])",
+                        "description": "Only the rows of this mime when given."
+                      }
+                    }
+                  },
+                  "valence": "The views this mode holds — each row with its id, slug, mime and entry. Use it to find the slug to view_update or view_read, or to pin with buffer_create."
+                }
+              }
+            }
+          },
+          "viva": {
+            "branches": {
+              "doctor": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "valence": "The live vivalence setup on this machine, as JSON — the same record `viva instance/doctor` prints, read straight off paladin. You already have the standing facts in front of you: the instance, the daemon, the modes and their routes. This is everything under them, in three parts. `daemon` is the one you are running inside: its manifest, the modes it resolved with their traits and routes, the datamap and the entities it opened, the hallucinators it declared and which secret slots each wants, the cortex faculties actually attached, and anything left dormant for want of a key. `ledger` is the machine's own record: where it lives, every instance shelved on it with the one you are inside marked, the services and clients this instance declares, every environment variable by name and whether it resolves, and which declared slots came back unset. `registry` is every module the system resolves, as @owner/type/slug with versions and traits — the standard library plus whatever was tapped. Secrets live in a separate store and never appear here; you get slot names, never a value, and for the environment names only, never what they hold. It is a big record and it stays in this conversation once you pull it, so pull it when a question is about this machine — and then it is the record, not a guess."
+                }
+              }
+            }
+          },
+          "web": {
+            "branches": {
+              "search": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "query"
+                    ],
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "The subject as an article would be titled, plain words, no operators. Example: \"flamingo\", not \"tell me about flamingos\"."
+                      },
+                      "count": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100,
+                        "description": "How many results to return. Leave it out — eight is enough to orient. Pass a number only when a first pass missed and you want to go deeper.",
+                        "default": 8
+                      }
+                    }
+                  },
+                  "valence": "Search Wikipedia, the English encyclopedia. No key, no account. Every result is an article: its title, its address and a snippet of the matching text. Snippets are fragments, so open any article you intend to quote with web_read — an opened article carries the links in its body, and following them is how you get from a subject to its neighbours. Wikipedia is strong on anything with a name — people, places, species, events, ideas — and thin on the very recent, the very local and anything not yet notable; say so when a query lands outside what it holds. Search matches titles first, so ask for the subject as an article would be titled. Zero results is an answer: say the encyclopedia holds nothing rather than asking again for the same thing. Text is CC BY-SA 4.0 — name the article when you quote it. Example: { query: \"flamingo\" }."
+                }
+              },
+              "read": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "url"
+                    ],
+                    "properties": {
+                      "url": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z][A-Za-z0-9+.\\-]*://(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:]|%[0-9A-Fa-f]{2})*@)?(?:\\[(?:[0-9A-Fa-f:.]+|v[0-9A-Fa-f]+\\.[A-Za-z0-9\\-._~!$&'()*+,;=:]+)\\]|(?:[A-Za-z0-9\\-._~!$&'()*+,;=]|%[0-9A-Fa-f]{2})*)(?::[0-9]*)?(?:/(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})*)*(?:\\?(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?(?:#(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?$",
+                        "title": "RFC 3986 URI with an authority (scheme://…)",
+                        "description": "The full address to read, copied from a search result. Only http and https, only public addresses. Example: \"https://docs.deno.com/runtime/fundamentals/security/\"."
+                      }
+                    }
+                  },
+                  "valence": "Open one URL and read the article out of it — navigation, sidebars and footers removed, the body returned as markdown with its headings and lists intact. Also returns the links found INSIDE the article, so you can follow a citation without re-searching, and `images` — every <img> in it as { alt, src }, src already absolute https — the ONLY place a src for a figure may come from. `chars` tells you how much text the page held: a few hundred means a stub, not a subject — say so rather than writing a page out of it. `truncated: true` means the page was longer than what you got, and `title` is the document's own title, read off the page and never guessed. A read is expensive and stays in this conversation for every later turn, so open a page you mean to use rather than one you are curious about, and never re-open a page already in this thread — its text is still here. got. Example: { url: \"https://docs.deno.com/runtime/\" }."
+                }
+              }
+            }
+          },
+          "research": {
+            "branches": {},
+            "effect": {
+              "input": {
+                "type": "object",
+                "required": [
+                  "brief"
+                ],
+                "properties": {
+                  "brief": {
+                    "type": "string",
+                    "description": "The whole brief, in prose. Name what to research, who is asking, what they already know, and any angle the page should take. Example: 'Flamingos, for an operator new to this demo who knows no biology. Cover taxonomy, the six species, and why they are pink and stand on one leg.'"
+                  }
+                }
+              },
+              "valence": "Research a subject and leave a page about it on the operator's screen. It searches Wikipedia, opens the article and follows its links to the neighbours that matter, and draws a report into a buffer the operator can click open in the chat. It returns what it learned, so you can answer from it directly; the page is already on screen by then. Use this when the operator wants to KEEP something. For a single fact, call web_search yourself. It costs a minute and several model calls — one call per subject, not one per question. If it comes back with condition ERROR and a buffer, the page IS on screen and the researcher stopped before summarising: answer from the page, and treat `message` as partial."
+            }
+          },
+          "entity": {
+            "branches": {
+              "schema": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "entity": {
+                        "type": "string",
+                        "description": "Entity type from the no-argument listing. Example: \"buffer\""
+                      }
+                    }
+                  },
+                  "valence": "Ground yourself before querying. No arguments: every entity on this daemon with row counts and card fields — buffer, thread, turn, literal, symbol and whatever else it opened. With entity: its columns, relations, filter operators, repository extensions and the card projection. Returns { entities: [{ type, rows, card }] } without an argument, { schema: { entity, rows, columns, relations, operators, extensions, card } } with one. Example: { entity: \"buffer\" }"
+                }
+              },
+              "find": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "entity",
+                      "fields",
+                      "limit",
+                      "offset"
+                    ],
+                    "properties": {
+                      "entity": {
+                        "type": "string",
+                        "description": "Entity type — list them via entity_schema. Example: \"buffer\""
+                      },
+                      "where": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "MikroORM filter over the entity's columns and relations; operators $eq $ne $in $nin $like $gt $gte $lt $lte $and $or $not. Example: { thread: \"01a09010-13aa-778b-bce7-19c38f835337\", status: { $in: [\"PENDING\", \"ACTIVE\"] } }"
+                      },
+                      "fields": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "card"
+                          },
+                          {
+                            "type": "string",
+                            "const": "full"
+                          }
+                        ],
+                        "default": "card",
+                        "description": "card: the repository's lean projection (id, slug, traits unless it declares its own); full: every column. Example: \"full\""
+                      },
+                      "order": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "const": "ASC"
+                              },
+                              {
+                                "type": "string",
+                                "const": "DESC"
+                              }
+                            ]
+                          }
+                        },
+                        "description": "Sort by column. Example: { index: \"ASC\" }"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 50,
+                        "default": 12,
+                        "description": "Rows per page. Example: 20"
+                      },
+                      "offset": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "default": 0,
+                        "description": "Rows to skip — pass next.offset back. Example: 12"
+                      }
+                    }
+                  },
+                  "valence": "Query any entity on this daemon — the buffers on a thread, a thread's turns, literals by slug. Rows come back as cards — the lean agent projection; fields full only when a card lacks something you need. Columns, operators and extensions via entity_schema. Page by passing next.offset back as offset. Returns { <entity>: [rows], total, next?: { offset } }. Example: { entity: \"buffer\", where: { thread: \"01a09010-13aa-778b-bce7-19c38f835337\" }, fields: \"full\" }"
+                }
+              },
+              "count": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "entity"
+                    ],
+                    "properties": {
+                      "entity": {
+                        "type": "string",
+                        "description": "Entity type — list them via entity_schema. Example: \"buffer\""
+                      },
+                      "where": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "MikroORM filter, the same shape entity_find takes. Example: { thread: \"01a09010-13aa-778b-bce7-19c38f835337\" }"
+                      }
+                    }
+                  },
+                  "valence": "Count matching rows without loading them — cheap grounding before a find. Returns { count }. Example: { entity: \"buffer\", where: { thread: \"01a09010-13aa-778b-bce7-19c38f835337\" } }"
+                }
+              },
+              "update": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "entity",
+                      "where",
+                      "trait"
+                    ],
+                    "properties": {
+                      "entity": {
+                        "type": "string",
+                        "description": "Entity type — list them via entity_schema.",
+                        "examples": [
+                          "literal"
+                        ]
+                      },
+                      "where": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "MikroORM filter naming the one entity, the shape entity_find takes.",
+                        "examples": [
+                          {
+                            "slug": "flamingo"
+                          }
+                        ]
+                      },
+                      "trait": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "trait data by name, merged deep over what the entity holds",
+                        "examples": [
+                          {
+                            "LABELED": {
+                              "name": "Flamingo — six species"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "examples": [
+                      {
+                        "entity": "literal",
+                        "where": {
+                          "slug": "flamingo"
+                        },
+                        "trait": {
+                          "LABELED": {
+                            "name": "Flamingo — six species"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "valence": "Write trait data on one entity of this daemon — a literal's translation, a buffer's label. Pass the entity type, a where naming the one entity, and a trait patch keyed by trait name; the patch merges deep over the held data, a new name joins its traits. Find the entity first via entity_find. Returns { message, <entity>: [the entity] }."
+                }
+              }
+            }
+          },
+          "thread": {
+            "branches": {
+              "update": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "trait"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "description": "The thread id. Example: \"01a09010-13aa-778b-bce7-19c38f835337\""
+                      },
+                      "trait": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        },
+                        "description": "Trait data to merge, keyed by trait name. Example: { LABELED: { name: \"Q3 filings\", description: \"the filings correspondence\" } }"
+                      }
+                    }
+                  },
+                  "valence": "Write a thread's trait data — its configuration surface. Pass the thread id and a trait patch keyed by trait name (e.g. MASKED query data); each named trait's data merges over the existing value. This thread's id is in the runtime row of your context. Returns { message, thread: [{ id, phase, traits, trait, counter }] }. Example: { id: \"01a09010-13aa-778b-bce7-19c38f835337\", trait: { LABELED: { name: \"Q3 filings\" } } }"
+                }
+              }
+            }
+          },
+          "mode": {
+            "branches": {
+              "find": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "description": "A mode type. Example: \"office\""
+                      },
+                      "slug": {
+                        "type": "string",
+                        "description": "A mode slug. Example: \"vdex\""
+                      }
+                    }
+                  },
+                  "valence": "Every mode of this daemon with its paths on disk — source, mountpoint, files — as rows: the absolute paths fs_* and shell_run take. The first row is the daemon and its mountpoint. Narrow by type or slug. Returns { message }. Example: { type: \"office\" }"
+                }
+              }
+            }
+          },
+          "primer": {
+            "branches": {
+              "read": {
+                "branches": {},
+                "effect": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "nature"
+                    ],
+                    "properties": {
+                      "nature": {
+                        "type": "string",
+                        "description": "A nature from the primer index. Example: \"guides/render\""
+                      }
+                    }
+                  },
+                  "valence": "Reads one deferred section of your primer by its nature, as listed under [primer]. Returns { message }. Example: { nature: \"guides/render\" }"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/buffer/create",
+      "name": "daemon_hello_demo_hello-world_buffer_create",
+      "chars": 43,
+      "grammar": true
+    },
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/buffer/update",
+      "name": "daemon_hello_demo_hello-world_buffer_update",
+      "chars": 43,
+      "grammar": true
+    },
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/buffer/label",
+      "name": "daemon_hello_demo_hello-world_buffer_label",
+      "chars": 42,
+      "grammar": true
+    },
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/view/create",
+      "name": "daemon_hello_demo_hello-world_view_create",
+      "chars": 41,
+      "grammar": true
+    },
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/view/update",
+      "name": "daemon_hello_demo_hello-world_view_update",
+      "chars": 41,
+      "grammar": true
+    },
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/view/read",
+      "name": "daemon_hello_demo_hello-world_view_read",
+      "chars": 39,
+      "grammar": true
+    },
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/view/list",
+      "name": "daemon_hello_demo_hello-world_view_list",
+      "chars": 39,
+      "grammar": true
+    },
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/viva/doctor",
+      "name": "daemon_hello_demo_hello-world_viva_doctor",
+      "chars": 41,
+      "grammar": true
+    },
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/web/search",
+      "name": "daemon_hello_demo_hello-world_web_search",
+      "chars": 40,
+      "grammar": true
+    },
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/web/read",
+      "name": "daemon_hello_demo_hello-world_web_read",
+      "chars": 38,
+      "grammar": true
+    },
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/research",
+      "name": "daemon_hello_demo_hello-world_research",
+      "chars": 38,
+      "grammar": true
+    },
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/entity/schema",
+      "name": "daemon_hello_demo_hello-world_entity_schema",
+      "chars": 43,
+      "grammar": true
+    },
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/entity/find",
+      "name": "daemon_hello_demo_hello-world_entity_find",
+      "chars": 41,
+      "grammar": true
+    },
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/entity/count",
+      "name": "daemon_hello_demo_hello-world_entity_count",
+      "chars": 42,
+      "grammar": true
+    },
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/entity/update",
+      "name": "daemon_hello_demo_hello-world_entity_update",
+      "chars": 43,
+      "grammar": true
+    },
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/thread/update",
+      "name": "daemon_hello_demo_hello-world_thread_update",
+      "chars": 43,
+      "grammar": true
+    },
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/mode/find",
+      "name": "daemon_hello_demo_hello-world_mode_find",
+      "chars": 39,
+      "grammar": true
+    },
+    {
+      "home": "/runtime/house/mode/home/probe",
+      "reference": "/daemon/hello/mode/demo/hello-world/primer/read",
+      "name": "daemon_hello_demo_hello-world_primer_read",
+      "chars": 41,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/buffer/create",
+      "name": "buffer_create",
+      "chars": 13,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/buffer/update",
+      "name": "buffer_update",
+      "chars": 13,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/buffer/label",
+      "name": "buffer_label",
+      "chars": 12,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/view/create",
+      "name": "view_create",
+      "chars": 11,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/view/update",
+      "name": "view_update",
+      "chars": 11,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/view/read",
+      "name": "view_read",
+      "chars": 9,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/view/list",
+      "name": "view_list",
+      "chars": 9,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/viva/doctor",
+      "name": "viva_doctor",
+      "chars": 11,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/web/search",
+      "name": "web_search",
+      "chars": 10,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/web/read",
+      "name": "web_read",
+      "chars": 8,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/research",
+      "name": "research",
+      "chars": 8,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/entity/schema",
+      "name": "entity_schema",
+      "chars": 13,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/entity/find",
+      "name": "entity_find",
+      "chars": 11,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/entity/count",
+      "name": "entity_count",
+      "chars": 12,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/entity/update",
+      "name": "entity_update",
+      "chars": 13,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/thread/update",
+      "name": "thread_update",
+      "chars": 13,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/mode/find",
+      "name": "mode_find",
+      "chars": 9,
+      "grammar": true
+    },
+    {
+      "home": "/daemon/hello/mode/demo/hello-world",
+      "reference": "/daemon/hello/mode/demo/hello-world/primer/read",
+      "name": "primer_read",
+      "chars": 11,
+      "grammar": true
+    }
+  ]
+}

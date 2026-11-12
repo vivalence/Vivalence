@@ -1,3 +1,3 @@
 export { Dock } from "./dock.jsx";
-export { Journal, LENS, journaled, tools, meta, traced } from "./journal.jsx";
-export { Composer, CONSENT, KEYS } from "./composer.jsx";
+export { Journal, RECORDED, journaled, tools, meta, traced } from "./journal.jsx";
+export { Textarea, CONSENT, KEYS } from "./textarea.jsx";

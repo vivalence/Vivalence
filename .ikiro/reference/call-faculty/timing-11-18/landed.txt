@@ -1,0 +1,28 @@
+# limit: 1500 chars · 11-18 after the fix: polish as hal.js sends it, his ledger, as printed
+  sent {"model":"claude-haiku-5-5","thinking":{"type":"disabled"}}
+  fetch headers 1384 ms 200
+polish as landed #1 {
+  ms: 1432,
+  usage: { input: 148, output: 24 },
+  model: undefined,
+  parts: [ "text:54" ],
+  message: "Hola, hoy quiero practicar español con durante 10 min.",
+}
+  sent {"model":"claude-haiku-5-5","thinking":{"type":"disabled"}}
+  fetch headers 910 ms 200
+polish as landed #2 {
+  ms: 958,
+  usage: { input: 148, output: 25 },
+  model: undefined,
+  parts: [ "text:57" ],
+  message: "Hola, hoy quiero practicar español con... durante 10 min.",
+}
+  sent {"model":"claude-haiku-5-5","thinking":{"type":"disabled"}}
+  fetch headers 931 ms 200
+polish as landed #3 {
+  ms: 968,
+  usage: { input: 148, output: 24 },
+  model: undefined,
+  parts: [ "text:54" ],
+  message: "Hola, hoy quiero practicar español con durante 10 min.",
+}

@@ -1,0 +1,44 @@
+#+title: call-faculty, S7's hunks born in the show-me walk 11-17 — moved whole from =review-11-17.org= (cap)
+# writer: agent · limit: 3000 chars
+
+* S7 — the cascaded call (milestone 6): three MISWIREs on =walk-11-17/call.probe.js=, shown 11-17, his verdict in the quest's review table
+
+Run whole: =walk-11-17/cascade.sketch.js= (=belt/cascade.js=, new) · =converse.sketch.js= (=locked= = the first cut, =converse= = the fix) · =cortex.copy.js= (the tree's cortex + the two hunks below) · =soma.copy.js= (Q19 · Q21 applied).
+
+1 · law 6 — the bare picks throw on the real cortex (6 minds, 2 mouths); each organ takes its own selector, =WHERE= grows three keys
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/cortex.js:25 — WHERE
+hear: v.object({ ...Selector }).optional(),
+mind: v.object({ ...Selector }).optional(),
+speak: v.object({ ...Selector }).optional(),
+// subsystems/typology/prototypes/cortex.js:135 — DERIVATIONS
+call: (cortex, query) => {
+  const ear = cortex.findOne({ ...query.hear, type: "verbatim", via: "stream" });
+  const mind = cortex.findOne({ ...query.mind, type: "dialogue", via: "stream" });
+  const mouth = cortex.findOne({ ...query.speak, type: "speech", via: "stream" });
+  return ear && mind && mouth ? cascade(ear, mind, mouth) : undefined;
+},
+#+END_SRC
+
+2 · Q6 — the Q18 scribe translator never closes a turn (flux did, =EndOfTurn=): a turn opens on the first partial, a commit seals it; =harmonize= already resets on both (=verbatim.js:38 · :63=); the dictation client folds turns (=soma.transcript=), never one =pour=
+#+BEGIN_SRC js
+// commons/hallucinators/elevenlabs/provider/index.js — the scribe translator; =speaking= lives in the socket's session
+case "partial_transcript":
+  if (!speaking) {
+    yield { event: "/turn/open", turn: { role: "user" } };
+    yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
+  }
+  speaking = true;
+  yield { event: "/part/draft", index: 0, part: { text: data.text } };
+  return;
+case "committed_transcript":
+  yield { event: "/part/delta", index: 0, part: { text: data.text } };
+  yield { event: "/part/close", index: 0 };
+  yield { event: "/turn/close" };
+  speaking = false;
+  return;
+#+END_SRC
+
+3 · Q0 — the first cut stored a =tool_use= turn with no =tool_result= turn after it; =converse= speaks the round as =respond= does (=belt/hallucinate.js:161–166=): =/tool/call= · =/tool/yield= · =/turn/full=
+
+Unwritten, unprobed: the cortex =/call= branch · shard =calling= · =hal.call= · the harness =/call= route (its graft = S5's).

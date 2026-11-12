@@ -109,7 +109,7 @@ export const DATASINK = (mode, modeDie) => {
           ? sinks.filter((sink) =>
             sink.match?.(
               entity,
-              { ...shard.context.lift(contexts.modeDie, modeDie), mode },
+              ctx,
             ) === true
           )
           : [];

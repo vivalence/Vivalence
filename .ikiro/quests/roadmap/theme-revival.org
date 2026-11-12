@@ -1,0 +1,185 @@
+# limit: none (quest content)
+#+title: theme revival — the token space drives the chrome again
+#+filetags: :roadmap:theme:dapper:drapes:anima:rem:font:depth:
+#+status: ROADMAP 11-13, unnumbered — his to number. Font scale · rem sheet · rem icons LANDED, walked on :1794; dark/light CUT; depth RULED for revival (/"i like this. revive. mark under revival."/); the wider carry-over waits (/"thats not a task for now. thats what we do after compact."/).
+#+phase: roadmap
+#+next: beef — name what carries over from the old theme logic and goals; depth is the first entry under =* revival=.
+
+* intent
+beef, 11-13, four turns, verbatim.
+
+/"On our previous client a few weeks ago, we had the ability to scale font. We had our integration into Dapper and Drapes for this. And we had some widget that allowed us to control this in, I think, the B panel. And what I would like to do is to reintroduce this capability to the box, the ability to scale the font, make the interface smaller or larger."/
+
+/"b. that was what we had and what i thought we had. any other theme mechanics we dropped? migrate me to rem. wire it up. tell me about other dropped themeing contracts"/
+
+/"add the font scale component to box widget. did we scale icons before? if so, go scale."/
+
+/"i like this. revive. mark under revival."/ (on: theme-stated depth is dead) · /"so its deployed but not running???"/ (on: the type scale is not themeable in chrome) · /"we dont have dark/light modes. we have themes. drop all dark/light stuff. themes."/ · /"i for sure want to carry over a lot of the themes logic and goals. but thats not a task for now. thats what we do after compact."/
+
+* rulings
+| n | his words                                                                      | state  |
+|---+--------------------------------------------------------------------------------+--------|
+| 1 | /"b. that was what we had and what i thought we had."/                         | LANDED |
+| 2 | /"migrate me to rem. wire it up."/                                             | LANDED |
+| 3 | /"did we scale icons before? if so, go scale."/                                | LANDED |
+| 4 | /"we dont have dark/light modes. we have themes. drop all dark/light stuff."/  | LANDED |
+| 5 | /"i like this. revive. mark under revival."/                                   | MARKED |
+| 6 | /"carry over a lot of the themes logic and goals … after compact."/            | OPEN   |
+
+* as code
+** 1 · 2 — the root size is the one law; every rem follows it
+#+BEGIN_SRC js
+// subsystems/dapper/lib/tokens.js:94
+export const FONTS = {
+  "2xs": "11px",
+  xs: "12.5px",
+  sm: "14px",
+  base: "16px",
+  lg: "18px",
+  xl: "20px",
+  "2xl": "22.5px",
+};
+// systems/ghost/subjects/app/prototypes/bridge.js:13
+  $font = persistentAtom("viva.bridge.font", "base", { encode: JSON.stringify, decode: JSON.parse });
+// systems/ghost/subjects/app/commands/font.js:9
+export const font = new Vector().open(
+  {
+    nature: "/font/set",
+    rank: "hidden",
+    valence: "the chrome's type size, kept on this device; every rem follows it. Example: /font/set lg",
+    input: Sized,
+  },
+  (ctx) => {
+    const font = belt.input.cast(Sized, ctx.signal).font;
+    ctx.client.app.bridge.$font.set(font);
+    return `font ${font}`;
+  },
+);
+// systems/anima/src/surfaces/chrome/panels/cover/cover.jsx:54
+  createEffect(() => {
+    globalThis.document.documentElement.style.fontSize = FONTS[font()];
+  });
+// systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:340
+  choice("font", FONTS, world.app.bridge.font, "/font/set"),
+#+END_SRC
+
+=subsystems/drapes/parts.css=: 693 px values → rem (N/16), round-trip identical at =base=; 138 stay px by typology's own law.
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/primitives/theme.js:11
+export const Px      = v.string({ pattern: "^\\d+(\\.\\d+)?px$" }).desc('Never scaled. Example: "1px"');
+export const Rem     = v.string({ pattern: "^\\d*\\.?\\d+rem$" }).desc('Scales with the root font size. Example: ".25rem"');
+#+END_SRC
+
+Px kept: =box-shadow= · =border*= · =outline*= · =text-shadow= · radii · =.seam= · =.sbseam= · =.dgrip= · keyframe offsets · the dragged =--sb-w= fallback.
+
+** 3 — an icon's size is rem at its owner
+#+BEGIN_SRC jsx
+// subsystems/drapes/Icon.jsx:38
+      style={`width:${held.size / 16}rem;height:${held.size / 16}rem`}
+// subsystems/drapes/Mark.jsx:6
+export const Viket = (props) => <span class={props.live ? "viket live" : "viket"} style={`width:${props.size / 16}rem;height:${props.size / 16}rem`} aria-hidden="true" />;
+#+END_SRC
+#+BEGIN_SRC css
+/* subsystems/drapes/parts.css — Bar.jsx:47 carries no width · height */
+.dispg { display: block; flex-shrink: 0; width: 1.75rem; height: 1rem; }
+#+END_SRC
+
+** 4 — no scheme in the client: a theme is the only source
+Cut: =renderers.js= =DARK= + the surface's =dark= key (zero readers) · =parts.css= the two =color-scheme= rules keyed on =#app[data-viva]= · =commons/reader/reader/buffer/reader.css:128= =color-scheme: light= · the primer sentence in =commons/instances/hello-world/page/style.js:39=.
+
+#+BEGIN_SRC js
+// systems/anima/src/surfaces/chrome/widgets/buffer/renderers.js:17
+export const surfaced = (app) => ({
+  kind: "dom",
+  get palette() {
+    return tokens.kebab(app.theme, "2");
+  },
+});
+#+END_SRC
+
+Typology already refuses a scheme on a theme: =subsystems/typology/tests/theme.test.js:312= =theme.Theme.check({ ...WHOLE, scheme: "dark" })= is =false=.
+
+* terrain — measured 11-13
+Every theme emits 106 vars per zone; =parts.css= reads 50. Readers, the Svelte client (=bf2d02990^=, anima + drapes) → today's Solid kit:
+
+| var                 | old | now |
+|---------------------+-----+-----|
+| =--size-ring=       |  80 |   0 |
+| =--size-type-*=     |  70 |   0 |
+| =--size-depth=      |  45 |   0 |
+| =--shape-sunk=      |  13 |   0 |
+| =--size-space-*=    |  10 |   0 |
+| =--size-leading-*=  |   9 |   0 |
+| =--size-field=      |   6 |   0 |
+| =--size-key=        |   3 |   0 |
+| =--brand-glow=      |   2 |   0 |
+| =--brand-outline=   |   2 |   0 |
+
+Also emitted, unread: =--scrim= · =--dim= · =--boundary-soft= · =--text-header= · =--control-scrollbar= · =--control-divider= · every =--signal-*-on= · the raw radius steps. =scales()= (56 =:root= names) has 0 readers in chrome, ~600 in commons views.
+
+The type scale: a theme's =size.type= is emitted as =--size-type-*=, and no chrome rule reads it — the sheet's sizes are literals (=.75rem=, =.71875rem= …). The root font scale moves them; a theme cannot. =11.5px= · =12.5px= · =10.5px= have no step in =STEPS=.
+
+Dead consumers beside it: =systems/anima/vite.config.mjs:200= =css: { postcss: {} }= — dapper's =./postcss= · =./tailwind= have no reader in anima; =systems/anima/src/client.css= is imported nowhere.
+
+* revival
+** depth — RULED /"i like this. revive."/
+What a theme states today, and nothing wears:
+
+#+BEGIN_SRC js
+// subsystems/dapper/themes/porcelain/theme.js:7
+             label: { case: "none", track: "0em" }, lift: "0 10px 30px", sunk: "inset 0 2px 4px" },
+  size:    { row: 7.5, depth: "3px" },
+// subsystems/dapper/themes/datasette/theme.js:7
+  shape:   { radius: "0px", label: { case: "uppercase", track: ".08em" }, lift: "6px 6px 0", sunk: "0 0 0 0" },
+  size:    { row: 6.5, depth: "0px" },
+#+END_SRC
+
+How the old kit wore it — a key stands =depth= above its ground, pressed it sinks by =depth= into =sunk=:
+
+#+BEGIN_SRC css
+/* bf2d02990^:subsystems/drapes/controls/Key.svelte:74 · :100 · :101 */
+    box-shadow: 0 0 0 var(--size-ring) var(--boundary), 0 var(--size-depth) 0 var(--boundary);
+    box-shadow: var(--shape-sunk), 0 0 0 var(--size-ring) var(--boundary);
+    transform: translateY(var(--size-depth));
+#+END_SRC
+
+Old readers of =--size-depth=: =Card.svelte= 6 · =dom/Button.jsx= 4 · =Key.svelte= 4 · =Login.svelte= 3 · =Row.svelte= 3 · =Phase.svelte= 3 · =Dock.svelte= 2 · =dom/Strip.jsx= 2.
+
+UNRULED: which Solid parts wear depth. The comp is flat — =parts.css= draws every key as =box-shadow: inset 0 0 0 1px var(--boundary)=. Nothing breaks either way; northsea · parchment (=2px=) would lift too.
+
+** candidates — measured dead, his to rule after compact
+- the ring: 72 px =box-shadow= values in =parts.css= beside =--size-ring=
+- the type scale: literal rem beside =--size-type-*=
+- northsea's =brand.glow= · =brand.outline=
+- =--control-scrollbar=: since ruling 4 the browser draws northsea's native scrollbars and =<select>= popups in its default light scheme
+- =--scrim= (=.scrim= is =background: transparent=)
+- the old bridge card's latches: =strip= · =snap= · =enter sends= · =orient=
+
+* deferred
+- the docs site still carries a scheme, NOT cut, unruled: =documentation/src/layouts/Layout.astro:70= (stored =data-theme=) · =:124= =:root[data-theme="dark"]= · =:134= · =:319= =@media (prefers-color-scheme: dark)= · =:317= shiki light/dark — its own palette, not dapper. The 11-13 blast hid it behind a =| head=; the fold's name pass found it.
+- JS placement constants stay px: =subsystems/drapes/Pop.jsx:67= · =Wid.jsx:3= · =Float.jsx:1= · =Tele.jsx:5=; a widget open across a size change keeps its measured =bottom= until reopened.
+- =subsystems/drapes/Tune.jsx:66= radar svg (a sibling session's file).
+- 233 literal =font-size: Npx= in commons + registry views do not scale.
+- =/font/set= in the tty sets a store nothing reads — unruled.
+- =cover.jsx:52= still writes =data-viva=; its only readers were the two cut rules (=systems/anima/tests/chrome.test.js:100= pins it).
+
+* changelog
+- 11-13 /"b. …migrate me to rem. wire it up."/ → sheet · four inline sizes (=Mark= · =JsonTree= · =Logger= · =Yield=, mine, reported) · =FONTS= · =$font= · =/font/set= · box section · pre-paint.
+- 11-13 /"if so, go scale."/ → =Icon= · =.dispg=.
+- 11-13 /"drop all dark/light stuff."/ → ruling 4's four cuts.
+- censuses, same reds before and after: dapper =ok | 28 passed (535 steps) | 0 failed= · drapes =FAILED | 35 passed (235 steps) | 1 failed (1 step)= (=drapes-field-focus-class-unset=) · ghost =FAILED | 33 passed (113 steps) | 1 failed (1 step)= (112 before; =ghost-base-tree-reds-11-06=) · hello-world =style.tokens= =ok | 1 passed (5 steps)=. anima's suite aborts before any test (rig, known) — its 4 touched oracle files (=journal= · =painters= · =tele= · =composer=) and =world.js= are unverified by a suite.
+- walked on his =:1794=: root 16 → 18 → 22.5 px, modebar 38 → 42.75 → 53.44, icon 16 → 22.5, ring 1 → 1; =color-scheme= =normal=, no console error; left at =base=.
+
+* release
+- added =/font/set <2xs|xs|sm|base|lg|xl|2xl>= — the chrome's root type size, kept in =viva.bridge.font= · migrate: none ⟨theme-revival⟩
+- added =@vivalence/dapper= =FONTS= — the root size ladder · migrate: none ⟨theme-revival⟩
+- changed =@vivalence/drapes/parts.css= — sizes px → rem, identical at 16px root · migrate: a consumer pinning its own root font-size now scales the kit ⟨theme-revival⟩
+- removed the view surface's =dark= key — a view reads =surface.palette= · migrate: none, zero readers ⟨theme-revival⟩
+
+* handoff
+- goal: the chrome reads the theme's token space again, the way the Svelte kit did.
+- done: rulings 1–4.
+- next: his carry-over list (ruling 6); then depth's surfaces.
+- never: a scheme · a dark/light flag · =prefers-color-scheme= — /"we have themes."/
+- owed: his look at =lg= · =2xl= on a phone; northsea's native controls after ruling 4; the docs site's scheme (=* deferred=) — ruling 4 reached the client only.

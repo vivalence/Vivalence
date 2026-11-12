@@ -1,9 +1,9 @@
 import { join } from "@std/path";
-import { specimen } from "@vivalence/typology";
+import { specimen, v } from "@vivalence/typology";
 import {
   buildParams,
+  streamTranslator,
   translateResponse,
-  translateStreamEvent,
   translateTools,
 } from "../provider/translate.js";
 
@@ -24,10 +24,10 @@ function pin(subject, file) {
   return pojo;
 }
 
-const opus = { id: "claude-opus-5", tune: [0.9, 1.0, 0.3], thinking: true };
+const opus = { id: "claude-opus-5", tune: [0.9, 0.3, 0.5], thinking: true };
 const haiku = {
   id: "claude-haiku-4-5",
-  tune: [0.1, 0.3, 1.0],
+  tune: [0.1, 1.0, 0.5],
   thinking: false,
 };
 
@@ -64,6 +64,10 @@ specimen.describe(
             thinkingUnderEffort: buildParams(opus, {
               ...conversation,
               settings: { effort: "xhigh" },
+            }),
+            thinkingOff: buildParams(opus, {
+              ...conversation,
+              settings: { effort: "none" },
             }),
             toolCarrying: buildParams(haiku, {
               ...conversation,
@@ -137,7 +141,7 @@ specimen.describe(
           role: "assistant",
           model: "claude-opus-4-6",
           stop_reason: "end_turn",
-          usage: {},
+          usage: { input_tokens: 3, output_tokens: 1 },
           content: [{ type: "redacted_thinking", data: "opaque-bytes" }],
         });
         specimen.expect(inbound.parts[0]).toEqual({
@@ -157,10 +161,13 @@ specimen.describe(
     );
 
     specimen.it(
-      "translateStreamEvent over a full event sequence, nulls where events drop",
+      "streamTranslator over a full event sequence, every packet a valid Packet.Response",
       () => {
         const events = [
-          { type: "message_start", message: { role: "assistant" } },
+          {
+            type: "message_start",
+            message: { role: "assistant", usage: { input_tokens: 11, output_tokens: 1 } },
+          },
           {
             type: "content_block_start",
             index: 0,
@@ -218,11 +225,28 @@ specimen.describe(
           { type: "ping" },
         ];
 
-        const packets = events.map((event) => translateStreamEvent(event));
-        specimen.expect(packets.at(-2)).toBe(null);
-        specimen.expect(packets.at(-1)).toBe(null);
+        const translator = streamTranslator();
+        const packets = events.flatMap((event) => translator.translate(event));
+        for (const packet of packets) {
+          specimen.expect(v.primitives.hallucination.Packet.Response.check(packet)).toBe(true);
+        }
         pin(packets, "translate-stream-events.snapshot.json");
       },
     );
   },
 );
+
+specimen.describe("translateTools — Q15: output never reaches the wire", () => {
+  specimen.it("a declaration's output schema is dropped; the provider's tool takes no output field", () => {
+    const declared = {
+      name: "web_search",
+      valence: "Searches the web.",
+      input: v.object({ query: v.string() }),
+      output: v.object({ pages: v.array(v.string()) }),
+    };
+    const wire = translateTools([declared]);
+    console.log(JSON.stringify(wire, null, 2));
+    specimen.expect(JSON.stringify(wire).includes('"pages"')).toBe(false);
+    specimen.expect(JSON.stringify(wire).includes('"query"')).toBe(true);
+  });
+});

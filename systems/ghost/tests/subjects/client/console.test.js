@@ -11,11 +11,14 @@ Deno.stdin.isTerminal = () => false;
 const seated = async (clientDie) => {
   await control.controlled(clientDie.controller);
   clientDie.runtime = { entities: { mode: { $entities: atom([]) } } };
-  return Object.assign(new ghost.terminal.Terminal(), { id: "t1", index: 0, client: clientDie, runtime: clientDie.runtime, controller: clientDie.controller.branch("terminal/t1") });
+  const terminal = Object.assign(new ghost.terminal.Terminal(), { id: "t1", index: 0, client: clientDie, runtime: clientDie.runtime, traits: [], trait: {}, controller: clientDie.controller.branch("terminal/t1") });
+  clientDie.runtime.lighthouse = { user: { trait: {} } };
+  clientDie.runtime.entities.terminal = { $entities: atom([terminal]), updateOne: async (where, data) => Object.assign(terminal, data) };
+  return terminal;
 };
 
 specimen.describe("a hosted mode lends its commands to the terminal's repl — REPLING, read at every dispatch", () => {
-  const mask = { manifest: { type: "client", slug: "ghost", traits: [] }, reference: new Path("/client/ghost"), modes: [] };
+  const mask = { manifest: { type: "client", slug: "ghost", traits: [] }, reference: new Path("/client/ghost"), modes: [], trait: {} };
   const root = new Controller({ stdout: new Span("ghost") });
   const clientDie = new ghost.client.Client({ controller: root.branch("client"), mask, register: null, instance: null });
   const tail = computed(clientDie.controller.stdout.$history, (held) => held.filter((record) => ["log", "fault"].includes(record.track)));
@@ -35,7 +38,7 @@ specimen.describe("a hosted mode lends its commands to the terminal's repl — R
 });
 
 specimen.describe("a KEYMAPPED client mode lends its keys — legend.keymap grafts them at the root beside the harvest of the repl's chords", () => {
-  const mask = { manifest: { type: "client", slug: "ghost", traits: [] }, reference: new Path("/client/ghost"), modes: [] };
+  const mask = { manifest: { type: "client", slug: "ghost", traits: [] }, reference: new Path("/client/ghost"), modes: [], trait: {} };
   const root = new Controller({ stdout: new Span("ghost") });
   const clientDie = new ghost.client.Client({ controller: root.branch("client"), mask, register: null, instance: null });
 

@@ -21,7 +21,7 @@ const seat = () => {
   const commands = new Vector()
     .open({ nature: "/dock", valence: "the dock", chord: "leader/d/d" }, () => "docked")
     .open({ nature: "/boom", valence: "throws", chord: "leader/a/b" }, () => "boomed")
-    .graft(ghost.app.commands.repl, ghost.terminal.commands.leader);
+    .graft(ghost.commands.system.repl, ghost.commands.system.leader);
   Object.defineProperty(terminal.repl, "commands", { get: () => commands });
   terminal.repl.dispatch = (line) => {
     terminal.client.dispatched.push(line);
@@ -37,7 +37,7 @@ specimen.describe("the Legend — a press goes through translation into the queu
     const terminal = seat();
     terminal.legend.dispatch(ctrlV);
     specimen.expect(held(terminal)).toEqual(["leader"]);
-    specimen.expect(Object.keys(terminal.legend.chord.branches)).toEqual(["d", "a", "leader", "esc", "e", "h", "s", "w"]);
+    specimen.expect(Object.keys(terminal.legend.chord.branches)).toEqual(["d", "a", "leader", "esc", "c", "e", "h", "s", "w"]);
     specimen.expect(terminal.legend.chord.branches.e.meta).toEqual({ valence: "entity · where am I" });
   });
 
@@ -55,7 +55,7 @@ specimen.describe("the Legend — a press goes through translation into the queu
     await settled();
     specimen.expect(terminal.client.dispatched).toEqual(["/repl"]);
     specimen.expect(terminal.repl.$catalog.get().map((entry) => entry.nature)).toEqual(["/dock", "/boom"]);
-    specimen.expect([terminal.client.app.bridge.draft, terminal.client.app.bridge.focus, terminal.legend.chord]).toEqual(["/", "composer", null]);
+    specimen.expect([terminal.client.app.bridge.draft, terminal.client.app.bridge.focus, terminal.legend.chord]).toEqual(["/", "repl.input", null]);
   });
 
   specimen.it("the leader cycles: ctrl-v the legend, ctrl-v the repl, ctrl-v closed, ctrl-v the legend again", async () => {
@@ -84,15 +84,42 @@ specimen.describe("the Legend — a press goes through translation into the queu
     specimen.expect([terminal.repl.$catalog.get(), terminal.client.dispatched]).toEqual([null, ["/legend/close", "/repl/close"]]);
   });
 
-  specimen.it("with the repl open, up · down · tab dispatch /repl/previous · /repl/next · /repl/complete; closed, they are dead ends", async () => {
+  specimen.it("while a dictation is held, esc dispatches /dictate/stop (Q16); with the repl open, esc closes the repl (Q16A); nobody dictating, esc at the root is the repl's /repl/close", async () => {
     const terminal = seat();
-    for (const key of ["down", "up", "tab"]) terminal.legend.dispatch(key);
+    terminal.legend.dispatch("esc");
     await settled();
-    specimen.expect(terminal.client.dispatched).toEqual([]);
+    specimen.expect(terminal.client.dispatched).toEqual(["/repl/close"]);
+    terminal.client.app.bridge.$dictation.set({ turns: [], open: null });
+    terminal.legend.dispatch("esc");
+    await settled();
+    specimen.expect(terminal.client.dispatched).toEqual(["/repl/close", "/dictate/stop"]);
     terminal.repl.$catalog.set([]);
+    terminal.legend.dispatch("esc");
+    await settled();
+    specimen.expect(terminal.client.dispatched).toEqual(["/repl/close", "/dictate/stop", "/repl/close"]);
+  });
+
+  specimen.it("with the repl open, up · down move the selection over what the draft shows, held at both ends, dispatching nothing; tab dispatches /repl/complete; closed, they are dead ends", async () => {
+    const terminal = seat();
+    const selected = () => terminal.client.app.bridge.selected;
     for (const key of ["down", "up", "tab"]) terminal.legend.dispatch(key);
     await settled();
-    specimen.expect(terminal.client.dispatched).toEqual(["/repl/next", "/repl/previous", "/repl/complete"]);
+    specimen.expect([terminal.client.dispatched, selected()]).toEqual([[], 0]);
+    terminal.repl.$catalog.set([
+      { nature: "/dock", valence: "", chord: "", options: [], args: false },
+      { nature: "/boom", valence: "", chord: "", options: [], args: false },
+    ]);
+    terminal.client.app.bridge.$draft.set("/");
+    const walked = [];
+    for (const key of ["up", "down", "down", "up", "down"]) {
+      terminal.legend.dispatch(key);
+      await settled();
+      walked.push(selected());
+    }
+    specimen.expect([walked, terminal.client.dispatched]).toEqual([[0, 1, 1, 0, 1], []]);
+    terminal.legend.dispatch("tab");
+    await settled();
+    specimen.expect(terminal.client.dispatched).toEqual(["/repl/complete"]);
   });
 
   specimen.it("d at the root is a dead end, then ctrl-v holds a fresh leader", () => {

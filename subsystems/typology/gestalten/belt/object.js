@@ -12,6 +12,9 @@ export const place = (obj, path, val) => {
   return obj;
 };
 
+export const at = (obj, path) =>
+  path.split(".").reduce((value, step) => (value == null ? value : value[step]), obj);
+
 export const set = (obj, key, value) =>
   !is.object(obj)
     ? obj
