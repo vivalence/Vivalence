@@ -1,0 +1,5 @@
+clause.probe.js · 11-18 · one run each · ms from socket creation · eleven_flash_v2_5 · 4 chars / 25 ms
+{"reply":"short","chars":32,"flushing":false,"open":724,"firstText":724,"textEnd":948,"firstAudio":1218,"packets":5,"final":1569,"close":1005,"audioBeforeTextEnd":false}
+{"reply":"long","chars":131,"flushing":false,"open":336,"firstText":336,"firstAudio":912,"packets":9,"textEnd":1220,"final":1544,"close":1005,"audioBeforeTextEnd":true}
+{"reply":"short","chars":32,"flushing":true,"open":427,"firstText":428,"flushAt":485,"flushedText":"¡Eso! Pan. N","textEnd":644,"firstAudio":787,"packets":4,"final":944,"close":1005,"audioBeforeTextEnd":false}
+{"reply":"long","chars":131,"flushing":true,"open":254,"firstText":254,"flushAt":309,"flushedText":"¡Muy bien! P","firstAudio":614,"packets":8,"textEnd":1137,"final":1377,"close":1005,"audioBeforeTextEnd":true}

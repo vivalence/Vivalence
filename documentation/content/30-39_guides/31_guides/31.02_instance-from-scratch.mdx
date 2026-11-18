@@ -170,7 +170,7 @@ const flashcard = {
     description:
       "m39 demo — a whole flashcard app declared in the instance file: dataset-seeded literals and symbols, review memory in a dedicated Retention entity, a coach that loads the deck and records reviews.",
     version: "0.0.1",
-    traits: ["APPLICATION", "DATASET", "TOOLING", "HARNESSED", "EXPOSED"],
+    traits: ["APPLICATION", "DATASET", "TOOLING", "HARNESS", "EXPOSED"],
   },
   application: new App(
     svelte`
@@ -246,7 +246,7 @@ The `traits` array is the mode's contract with its host — each name wakes one 
 - `APPLICATION` — the mode has a face; the daemon bundles it, the runtime serves it.
 - `DATASET` — the mode seeds data on first boot.
 - `TOOLING` — the mode arms tools (the deck).
-- `HARNESSED` — the mode has a dialogue harness; an LLM can drive it.
+- `HARNESS` — the mode has a dialogue harness; an LLM can drive it.
 - `EXPOSED` — the mode's aperture is compiled into `mode.call`.
 
 The face itself is Svelte 5 in a tagged template — ``svelte`…` `` — so this mode needs no second file. The view's whole contract with the system is the `buffer` prop: `buffer.mode.call.load()` and `buffer.mode.call.review({…})` are the deck vector from above, reached through the mode's exposed aperture. The weakest card (lowest streak) sorts to the front — the review loop drives what you see.
@@ -310,7 +310,7 @@ The harness is middleware on the host's dialogue pipeline: it writes one system-
 
 The same harness answers a second kind of question. `dialogue` writes a reply; `choice` weighs a closed set of strings and returns a probability for each, in the order you gave them:
 
-```js title="a grade, inside any HARNESSED mode"
+```js title="a grade, inside any HARNESS mode"
 const verdict = await ctx.mode.harness.choice.render({
   state: { expected: "sono andato", answer: "ho andato" },
   question: "Does the answer mean the expected sentence?",
@@ -360,6 +360,14 @@ export const daemons = [
   },
 ];
 ```
+
+A faculty's `id` is what a mode selects. Through a broker such as OpenRouter the same weights run at several companies, each with its own speed, so a faculty may name both: `model` is the weights, `upstream` is the one company that runs them. One upstream per faculty, never a list; a second company is a second faculty with its own measured `tune`.
+
+```js
+{ type: "dialogue", id: "oss-groq", model: "openai/gpt-oss-120b", upstream: "groq", tune: [0.4, 1.0, 0.4], context: 131072, thinking: true },
+```
+
+Without `model`, the `id` is the model's name, as in the anthropic entry above.
 
 `modes: [domain, flashcard]` is the whole daemon — the two objects declared above, inline. In a grown instance these are registry identifiers (`"@education/domain/language-learning"`); the mechanism is the same, the daemon doesn't care where its `modes` entries come from. Around them the daemon declares nothing else: the datamap, the hallucinators and the lighthouse are declared once, at the instance root, and every daemon inherits its own copy — a daemon declares one of them only to override it, whole-slot. Each is a `{module, statics, secrets}` mask — configuration for a module that lives in the registry, resolved at boot. The copy is seated for its daemon: `mountpoint/daemon_standalone/` is its directory, and its database file is named for it, `standalone.viva.db`. A hallucinator whose secret is blank is *dormant*: dropped from the roster at mount and named by the doctor, so a missing key means a bot answer, never a dead faculty.
 
@@ -443,7 +451,7 @@ the instance's own lighthouse:
 viva instance/lighthouse signup <username> <password>
 ```
 
-The flashcard coach is `HARNESSED`, so it wants `SECRET_VIVA_ANTHROPIC_API_KEY`. The deck, the review
+The flashcard coach is `HARNESS`, so it wants `SECRET_VIVA_ANTHROPIC_API_KEY`. The deck, the review
 loop, and the Retention entity all work without one.
 
 ## it runs

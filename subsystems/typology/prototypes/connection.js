@@ -86,10 +86,11 @@ export class Connection {
 
   async fetch(endpoint, body = {}, options = {}) {
     const node = this.resolve(endpoint);
+    const url = this.url.branch(endpoint);
     const request = new Request({
-      url: this.url.branch(endpoint),
       body,
       ...options,
+      url: options.query ? url.with(options.query) : url,
     });
     return node.request(request);
   }
@@ -112,12 +113,13 @@ export class Connection {
     };
   }
 
-  async *stream(endpoint, signal, { method = "GET", body, headers, opened, raw } = {}) {
+  async *stream(endpoint, signal, { method = "GET", body, headers, opened, raw, query } = {}) {
     const response = await this.fetch(endpoint, body ?? {}, {
       method,
       headers: { accept: "text/event-stream", ...headers },
       signal,
       ...(raw && { raw }),
+      ...(query && { query }),
     });
     if (response.error) throw response.error;
     if (response.body?.[Symbol.asyncIterator] && !response.body.getReader) {

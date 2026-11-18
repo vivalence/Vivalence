@@ -118,8 +118,60 @@ specimen.describe("journal parts — Tool · Think · Block · Bench · Prog · 
   });
 
   specimen.it("Atts (dom.js:284) · Dictline (call-faculty prototype.dc.html:33): chips that drop; the spoken words solid, the tail muted, trash only — the mic is the stop", () => {
-    specimen.expect(painted(() => parts.Atts({ attachments: [{ name: "notes.txt" }], onDrop: () => {} }))).toBe(oracle(ATTS));
+    specimen.expect(painted(() => parts.Atts({ attachments: [{ name: "notes.txt", file: { mime: "text/plain", url: "/attached/file/f0" } }], onDrop: () => {} }))).toBe(oracle(ATTS));
     specimen.expect(painted(() => parts.Atts({ attachments: [], onDrop: () => {} }))).toBe("");
+    const shown = (mime) => {
+      const rig = screen(() => parts.Filecard({ name: "cat.bin", mime, src: "/attached/file/f1?token=t" }));
+      const held = [...rig.target.querySelector(".filecard").children].map((node) => node.tagName.toLowerCase());
+      rig.close();
+      return held;
+    };
+    specimen.expect(["image/png", "audio/mpeg", "video/mp4", "application/zip"].map(shown)).toEqual([
+      ["figcaption", "img"],
+      ["figcaption", "audio"],
+      ["figcaption", "video"],
+      ["figcaption"],
+    ]);
+    const sized = screen(() => parts.Filecard({ name: "cat.png", mime: "image/png", src: "/attached/file/f1?token=t" }));
+    const card = sized.target.querySelector(".filecard");
+    const press = (size) => fire(card.querySelector(`.tg button[title="${size}"]`), "click");
+    const seen = () => [card.dataset.size, card.querySelector(":scope > img") !== null, card.querySelector(".cover") !== null];
+    specimen.expect([card.textContent, card.querySelector("a"), seen()]).toEqual(["cat.png", null, ["small", true, false]]);
+    press("collapse");
+    specimen.expect(seen()).toEqual(["collapse", false, false]);
+    press("full");
+    press("cover");
+    specimen.expect(seen()).toEqual(["full", true, true]);
+    fire(card.querySelector(".cover"), "click");
+    specimen.expect(seen()).toEqual(["full", true, false]);
+    const shot = () => fire(card.querySelector(":scope > img"), "click");
+    const bar = () => fire(card.querySelector("figcaption"), "click");
+    shot();
+    specimen.expect(seen()).toEqual(["full", true, true]);
+    fire(card.querySelector(".cover"), "click");
+    bar();
+    specimen.expect(seen()).toEqual(["small", true, false]);
+    shot();
+    specimen.expect(seen()).toEqual(["full", true, false]);
+    bar();
+    bar();
+    specimen.expect(seen()).toEqual(["collapse", false, false]);
+    bar();
+    specimen.expect(seen()).toEqual(["small", true, false]);
+    sized.close();
+    const pictured = screen(() => parts.Atts({ attachments: [{ name: "cat.png", file: { mime: "image/png", url: "/attached/file/f1" } }], onDrop: () => {} }));
+    const previews = () => pictured.target.querySelectorAll(".previews img").length;
+    specimen.expect(previews()).toBe(1);
+    fire(pictured.target.querySelector(".atts .tg button"), "click");
+    specimen.expect(previews()).toBe(0);
+    pictured.close();
+    const flying = screen(() => parts.Atts({ attachments: [{ name: "cat.png", bytes: 200, landed: 50, file: null }], onDrop: () => {} }));
+    const chip = flying.target.querySelector(".att");
+    specimen.expect([chip.classList.contains("flying"), Number(chip.style.getPropertyValue("--landed"))]).toEqual([true, 0.25]);
+    flying.close();
+    const landed = screen(() => parts.Atts({ attachments: [{ name: "cat.png", bytes: 200, landed: 200, file: { id: "f1", mime: "application/zip", url: "/attached/file/f1" } }], onDrop: () => {} }));
+    specimen.expect(landed.target.querySelector(".att").classList.contains("flying")).toBe(false);
+    landed.close();
     specimen.expect(painted(() => parts.Dictline({ text: "", tail: "", onTrash: () => {} }))).toBe(oracle(DICTLINE("", "listening")));
     specimen.expect(painted(() => parts.Dictline({ text: "", tail: "vado al", onTrash: () => {} }))).toBe(oracle(DICTLINE("", "vado al")));
     const exits = [];

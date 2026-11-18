@@ -74,20 +74,20 @@ const INKS = [
   [(bytes) => opens(bytes, [0x42, 0x4d]), "bmp"],
 ];
 
-async function* single(statics, bytes, settings, media) {
+async function* single(statics, bytes, settings, mime) {
   if (!INKS.some(([matches]) => matches(bytes))) {
-    throw new Error(`ocr: this ${media} holds no image the engine reads — ${INKS.map(([, name]) => name).join(" · ")}`);
+    throw new Error(`ocr: this ${mime} holds no image the engine reads — ${INKS.map(([, name]) => name).join(" · ")}`);
   }
   yield [bytes, upright, {}];
 }
 
-async function* drawn(statics, bytes, settings, media) {
-  if (!decoder.decode(bytes.subarray(0, 1024)).includes("%PDF-")) throw new Error(`ocr: this ${media} holds no pdf`);
+async function* drawn(statics, bytes, settings, mime) {
+  if (!decoder.decode(bytes.subarray(0, 1024)).includes("%PDF-")) throw new Error(`ocr: this ${mime} holds no pdf`);
   const { PDFiumLibrary } = await import(RENDERER);
   const library = await PDFiumLibrary.init();
   try {
     const scan = await library.loadDocument(bytes).catch((fault) => {
-      throw new Error(`ocr: this ${media} does not open — ${fault.message}`);
+      throw new Error(`ocr: this ${mime} does not open — ${fault.message}`);
     });
     for (const page of scan.pages()) {
       const { originalWidth, originalHeight } = page.getOriginalSize();
@@ -104,8 +104,8 @@ async function* drawn(statics, bytes, settings, media) {
 }
 
 const PAGES = [
-  [(media) => /^application\/pdf\b/i.test(media), drawn],
-  [(media) => /^image\//i.test(media), single],
+  [(mime) => /^application\/pdf\b/i.test(mime), drawn],
+  [(mime) => /^image\//i.test(mime), single],
 ];
 
 const ENGINES = [
@@ -123,14 +123,14 @@ export default function provider(service) {
     if (fault) throw new Error(`ocr: invalid source ${fault.at}: ${fault.reason}`);
     const [refused] = v.faults(Settings, given);
     if (refused) throw new Error(`ocr: invalid settings ${refused.at}: ${refused.reason}`);
-    const pages = PAGES.find(([matches]) => matches(source.media));
-    if (pages === undefined) throw new Error(`ocr: ${source.media} is neither a pdf nor an image`);
+    const pages = PAGES.find(([matches]) => matches(source.mime));
+    if (pages === undefined) throw new Error(`ocr: ${source.mime} is neither a pdf nor an image`);
     const settings = { language: statics.language, density: statics.density, ...given };
     const read = async function* () {
       let page = 0;
       let reader = null;
       try {
-        for await (const [ink, placed, stated] of pages[1](statics, decodeBase64(source.data), settings, source.media)) {
+        for await (const [ink, placed, stated] of pages[1](statics, decodeBase64(source.data), settings, source.mime)) {
           page += 1;
           reader ??= await open(settings.language);
           const tsv = await reader.read(ink, { segmentation: statics.segmentation, ...stated });

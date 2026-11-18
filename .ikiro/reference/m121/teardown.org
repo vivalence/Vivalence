@@ -1,7 +1,7 @@
 #+title: m121 wakaru — appendix: the teardown read, the viva terrain, the leads
 #+filetags: :m121:teardown:reference:
 
-Appendix to =quests/m121-wakaru.org=, on his /"your references and analysis and insigth into the quest or an appendix"/ (11-16).
+Appendix to =quests/done/m121-wakaru.org=, on his /"your references and analysis and insigth into the quest or an appendix"/ (11-16).
 Their source stays in =~/code/teardowns/second-language= (law 2). Here: our reading, their numbers, pointers =[n:line]= = =src/module-<n>.js= line. Their code appears only in the block moved whole from the quest.
 
 * references

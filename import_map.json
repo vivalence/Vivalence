@@ -79,8 +79,6 @@
 
     "postcss": "npm:postcss@8.4.49",
     "autoprefixer": "npm:autoprefixer@10.4.20",
-    "@tailwindcss/typography": "npm:@tailwindcss/typography@0.5.15",
-    "tailwindcss": "npm:tailwindcss@3.4.14",
     "carbon-icons-svelte": "npm:carbon-icons-svelte@13.18.0",
 
     "solid-js": "npm:solid-js@1.9.12/dist/solid.js",

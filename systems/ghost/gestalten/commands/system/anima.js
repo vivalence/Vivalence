@@ -7,7 +7,7 @@ const OPENERS = [
   [() => true, "xdg-open"],
 ];
 
-const served = () => paladin.instance.mask("anima").statics.serve.absolute;
+const served = () => paladin.instance.client("anima").statics.serve.absolute;
 
 const open = async () => {
   const url = served();

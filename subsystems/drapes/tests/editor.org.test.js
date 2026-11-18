@@ -1,7 +1,7 @@
 import { specimen } from "@vivalence/typology";
 import { EditorState } from "@codemirror/state";
 import { foldable } from "@codemirror/language";
-import { orgLanguage, org, TODO, DONE } from "../editor/org.js";
+import { orgLanguage, org, TODO, DONE } from "../svelte/editor/org.js";
 
 const marked = (text, language = orgLanguage) => {
   const found = [];

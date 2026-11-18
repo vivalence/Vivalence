@@ -1,9 +1,12 @@
 import { Vector } from "../../prototypes/vector.js";
 import { Aperture } from "../../prototypes/aperture.js";
 import { Broadcaster } from "../../prototypes/broadcaster.js";
+import { Queue } from "../../prototypes/queue.js";
 import * as object from "../belt/object.js";
 import * as steer from "../steer/index.js";
+import * as fromm from "../fromm/index.js";
 import { RequestContext, serialize } from "@mikro-orm/core";
+import { decodeBase64 } from "@std/encoding/base64";
 
 export function inject(datamap) {
   return (ctx, next) => {
@@ -272,6 +275,63 @@ export function detached(datamap) {
     queue.push(() => within(() => next()));
     queueMicrotask(pump);
   };
+}
+
+export function files(entities, land) {
+  const aperture = new Aperture();
+
+  aperture.use(errors());
+
+  aperture.post("/upload/(.*)", async (input, ctx) => {
+    const dropped = {
+      path: fromm.params(ctx.params).URIC,
+      mime: ctx.request.headers.get("content-type"),
+    };
+    const holders = ctx.request.url.searchParams;
+    const thread = holders.has("thread") ? await entities.thread.findOneOrFail({ id: holders.get("thread") }) : undefined;
+    const buffer = holders.has("buffer") ? await entities.buffer.findOneOrFail({ id: holders.get("buffer") }) : undefined;
+    const progress = new Queue();
+    let landed = 0;
+    const counted = ctx.request.raw.body.pipeThrough(
+      new TransformStream({
+        transform(chunk, controller) {
+          landed += chunk.length;
+          progress.enqueue({ event: "/landed", landed });
+          controller.enqueue(chunk);
+        },
+      }),
+    );
+    const landing = land(ctx, dropped, counted);
+    landing.then(
+      () => progress.close(),
+      () => progress.close(),
+    );
+    return (async function* () {
+      yield* progress;
+      const file = await entities.file.upload({
+        ...(await landing),
+        user: ctx.user.id,
+        thread,
+        buffer,
+      });
+      yield { event: "/file", file: serialize(file, { populate: ["threads:ref", "buffers:ref"] }) };
+    })();
+  });
+
+  aperture.post("/paste", async (input, ctx) => {
+    const dropped = { path: input.path, mime: input.mime };
+    const thread = input.thread ? await entities.thread.findOneOrFail({ id: input.thread }) : undefined;
+    const buffer = input.buffer ? await entities.buffer.findOneOrFail({ id: input.buffer }) : undefined;
+    const file = await entities.file.upload({
+      ...(await land(ctx, dropped, new Blob([decodeBase64(input.data)]).stream())),
+      user: ctx.user.id,
+      thread,
+      buffer,
+    });
+    return serialize(file, { populate: ["threads:ref", "buffers:ref"] });
+  });
+
+  return aperture;
 }
 
 export function owned() {

@@ -37,7 +37,7 @@ export * as belt from "${GESTALTEN}belt/index.js";
 const seams = {
   name: "dock-seams",
   setup(build) {
-    build.onResolve({ filter: /^@vivalence\/drapes\/parts$/ }, () => ({ path: PARTS }));
+    build.onResolve({ filter: /^@vivalence\/drapes\/solid$/ }, () => ({ path: PARTS }));
     build.onResolve({ filter: /^@vivalence\/ghost$/ }, () => ({
       path: "ghost",
       namespace: "ghost",
@@ -57,7 +57,7 @@ const bundle = async () => {
     format: "esm",
     platform: "browser",
     write: false,
-    external: ["@vivalence/typology", "nanostores"],
+    external: ["@vivalence/typology", "@vivalence/dapper", "nanostores"],
     nodePaths: [NODE_MODULES],
     plugins: [seams, compile],
     logLevel: "silent",
@@ -88,7 +88,7 @@ const HEARD = [
 
 const heard = (count) => HEARD.slice(0, count).reduce(soma.transcript, { turns: [], open: null });
 
-const moded = (repl) => ({ repl, implements: (trait) => trait === "HARNESSED", daemon: { $status: atom({ code: "HEALTHY" }) } });
+const moded = (repl) => ({ repl, implements: (trait) => trait === "HARNESS", daemon: { $status: atom({ code: "HEALTHY" }) } });
 
 const EARLESS = moded(new Vector());
 
@@ -264,7 +264,7 @@ specimen.describe("anima dock.input — dictation (U1 · U2 · Q12 · Q15A) and 
     rig.close();
   });
 
-  specimen.it("a mode whose /dictate lands after the mount (HARNESSED awaits its metadata): the mic is off, then live once its host turns HEALTHY", async () => {
+  specimen.it("a mode whose /dictate lands after the mount (HARNESS awaits its metadata): the mic is off, then live once its host turns HEALTHY", async () => {
     const late = { ...moded(new Vector()), daemon: { $status: atom({ code: "MOUNTING" }) } };
     const { rig } = seated(late);
     await settle();

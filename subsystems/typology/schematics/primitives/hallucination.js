@@ -37,25 +37,30 @@ Part.Text = v.object({
 Part.Image = v.object({
   type: v.const("image"),
   data: v.string(),
-  media: v.string(),
+  mime: v.string(),
 });
 
 Part.Audio = v.object({
   type: v.const("audio"),
   data: v.string(),
-  media: v.string(),
+  mime: v.string(),
 });
 
 Part.Video = v.object({
   type: v.const("video"),
   data: v.string(),
-  media: v.string(),
+  mime: v.string(),
 });
 
 Part.Document = v.object({
   type: v.const("document"),
   data: v.string(),
-  media: v.string(),
+  mime: v.string(),
+});
+
+Part.File = v.object({
+  type: v.const("file"),
+  file: v.string(),
 });
 
 Part.Object = v.object({
@@ -213,28 +218,26 @@ export const Tune = v
   .array(v.number({ minimum: 0, maximum: 1 }), { minItems: 3, maxItems: 3 })
   .desc("Capability vector [intelligence, speed, thrift] — each 0-1, 1 = maximal. Example: [0.6, 0.4, 0.4]");
 
-// named points in tune-space (the `tiers` table on the cortex realizes them).
-export const Tier = v
-  .union([
-    v.const("frugal"),
-    v.const("fast"),
-    v.const("balanced"),
-    v.const("capable"),
-    v.const("unleashed"),
-  ])
-  .desc(
-    "A named desire in tune-space: frugal=cheap+fast, balanced=even trade, capable=slow+smart+fair price, unleashed=fast+smart+expensive.",
-  );
+export const TIERS = {
+  frugal: { tune: [0.1, 0.9, 1.0] },
+  fast: { tune: [0.4, 1.0, 0.8] },
+  balanced: { tune: [0.5, 0.5, 0.5] },
+  capable: { tune: [0.9, 0.2, 0.5] },
+  unleashed: { tune: [1.0, 0.9, 0.1] },
+  ear: { type: "verbatim", tune: [0.3, 1.0, 0.5] },
+  tongue: { type: "speech", tune: [0.3, 0.9, 0.5] },
+  actor: { type: "dialogue", tune: [0.4, 1.0, 0.8] },
+  director: { type: "dialogue", tune: [0.9, 0.2, 0.5] },
+};
 
-export const Tiers = v
-  .object({
-    frugal: Tune,
-    fast: Tune,
-    balanced: Tune,
-    capable: Tune,
-    unleashed: Tune,
-  })
-  .desc("Each tier's point in tune-space, declared by the ledger. Example: { \"fast\": [0.4, 1.0, 0.8] }");
+export const Tier = v
+  .enum(Object.keys(TIERS))
+  .desc("A name in TIERS: a point in tune-space, and for ear · tongue · actor · director the type it is worn on.");
+
+export const REQUIRES = {
+  HARNESS: [["dialogue"]],
+  CONVERSATION: [["call"], ["verbatim", "dialogue", "speech"]],
+};
 
 export const Channels = v.object({
   in: v.array(Channel),
@@ -281,6 +284,14 @@ export const Request = v.object({
 export const Faculty = v.object({
   type: v.string(),
   id: v.string().desc('The faculty, exact — a model id, a voice id. Example: "openai/gpt-image-2"'),
+  model: v
+    .string()
+    .optional()
+    .desc('The weights, where id is a name of ours. Example: "openai/gpt-oss-120b"'),
+  upstream: v
+    .string()
+    .optional()
+    .desc('Who runs the weights behind a broker; one per faculty, never a fallback. Example: "groq"'),
   tune: Tune,
   context: v.integer().optional(),
   options: v.integer({ minimum: 2 }).optional().desc("Depth — the largest answer space one choice question may carry. Example: 255"),
@@ -290,6 +301,16 @@ export const Faculty = v.object({
     .optional(),
   via: v.record(v.string(), v.unknown()),
 });
+
+export const FacultyRecipe = v.object(
+  { id: v.string(), tier: Tier.optional() },
+  { additionalProperties: true },
+);
+
+export const FacultyMask = v.object(
+  { type: v.string(), id: v.string(), tier: Tier.optional() },
+  { additionalProperties: true },
+);
 
 const Probability = v.number({ minimum: 0, maximum: 1 });
 const Rubric = v.union([v.string(), v.record(v.string(), v.unknown()), v.null()]);
@@ -545,11 +566,11 @@ Picture.Settings = v.object(
 Picture.Request = v.object({
   prompt: v.string({ minLength: 1 }).desc('What to make or change. Example: "a red fox in loose watercolor, white paper showing"'),
   images: v.array(Picture.Reference, { default: [] }).desc("References, each with a role; the first `init` is the picture being edited. Example: []"),
-  mask: Part.Image.optional().desc('Alpha = the hole to repaint, over the first init image. Example: { type: "image", media: "image/png", data: "iVBOR…" }'),
+  mask: Part.Image.optional().desc('Alpha = the hole to repaint, over the first init image. Example: { type: "image", mime: "image/png", data: "iVBOR…" }'),
   settings: Picture.Settings.optional(),
 });
 Picture.Response = v.object({
-  images: v.array(Part.Image).desc('The pictures, in the provider\'s order. Example: [{ type: "image", media: "image/png", data: "iVBOR…" }]'),
+  images: v.array(Part.Image).desc('The pictures, in the provider\'s order. Example: [{ type: "image", mime: "image/png", data: "iVBOR…" }]'),
   revised: v.string().optional().desc('The prompt the provider actually painted from, when it rewrote ours. Example: "A red fox rendered in loose watercolor…"'),
   provider: v.string().optional().desc('The hallucinator that painted it, stamped by the belt. Example: "openrouter"'),
   id: v.string().optional().desc('The faculty that painted it, stamped by the belt. Example: "openai/gpt-image-2"'),

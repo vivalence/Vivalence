@@ -90,7 +90,7 @@ export class Microphone {
 
 async function acquire(microphone) {
   try {
-    microphone.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    microphone.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true } });
     for (const track of microphone.stream.getAudioTracks()) {
       track.onended = () => teardown(microphone, new Error("track ended"));
     }

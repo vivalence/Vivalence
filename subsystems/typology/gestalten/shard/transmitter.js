@@ -12,7 +12,7 @@ const stamp = () => new Date().toISOString().slice(11, 23);
 // multiplex — base transport. One WebSocket per origin, lazily established and
 // reused; every exchange rides a frame over that shared socket. Class-free: the
 // keeper is closed-over state. Compose under retry() exactly like fetcher.
-export function multiplex({ authority, mount = "/multiplex", vector, connect } = {}) {
+export function multiplex({ authority, mount = "/multiplex", vector, connect, trace } = {}) {
   // span = new Span('multiplex')
   const open = connect ?? ((address) => new WebSocket(address));
   const pools = new Map(); // origin → { socket, opening, $state }
@@ -33,7 +33,7 @@ export function multiplex({ authority, mount = "/multiplex", vector, connect } =
         const base = new Url(origin).branch(mount);
         const armed = token ? base.with({ token }) : base;
         const address = armed.scheme(armed.secure ? "wss" : "ws").absolute;
-        const socket = new Socket(open(address), vector ?? new Vector());
+        const socket = new Socket(open(address), vector ?? new Vector(), { trace });
         //@beef  vector = new Vector(().use(this.span.trace *shard).slurp(vector)
         socket.ws.addEventListener(
           "open",
@@ -203,6 +203,7 @@ export const retry = (transport, options = {}) => {
       await transport(ctx);
       if (!ctx.response.error || ctx.request.aborted || attempt >= maxRetries || !shouldRetry(ctx))
         return;
+      if (ctx.request.stream()) return;
       const delay = Math.round(Math.min(baseDelay * 2 ** attempt + Math.random() * 500, maxDelay));
       ctx.span?.log({
         message: `retry ${attempt + 1}/${maxRetries} after ${ctx.response.error.type}`,

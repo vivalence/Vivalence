@@ -32,7 +32,7 @@ describe("ocr transcribe — the tool over the service", () => {
     const { asked, invoke } = rig("image/png");
     await invoke({ file: "01a1b1c0-e5fa-776b-b1aa-1ec226521760" });
     expect(asked[0].source.type).toBe("image");
-    expect(asked[0].source.media).toBe("image/png");
+    expect(asked[0].source.mime).toBe("image/png");
     expect(asked[0].source.data.startsWith("iVBORw0KGgo")).toBe(true);
     expect(asked[0].settings).toEqual({});
   });

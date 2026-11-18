@@ -1,12 +1,12 @@
 import { Vector } from "@vivalence/typology";
 import { wrap } from "@mikro-orm/core";
 import * as argon2 from "argon2";
-import { authority, card, respond } from "../apertures/users.js";
+import { authority, card, respond, seated } from "../apertures/users.js";
 
 export const autologin = new Vector().open("/autologin", async (input, ctx) => {
   const user = await ctx.lighthouse.users.byUsername(ctx.lighthouse.trait.AUTOLOGIN.username);
   const tokens = await authority(ctx, user);
-  wrap(user).assign({ authentication: { tokens } }, { merge: true, mergeObjectProperties: true });
+  wrap(user).assign({ authentication: { tokens: seated(user, tokens) } }, { merge: true, mergeObjectProperties: true });
   await ctx.lighthouse.users.em.flush();
   return respond.success({ authority: tokens, user: card(user) });
 });

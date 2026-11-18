@@ -25,7 +25,7 @@ describe("registry ingest", () => {
   });
 
   it("lands every module under a stamped owner — nothing ownerless, nothing versionless", async () => {
-    await lifecycle.runtime.population.registry({}, async () => {});
+    await lifecycle.runtime.population.registry({ mask: {} }, async () => {});
     const ingested = leaves(paladin.ledger.registry.pensieve);
 
     expect(ingested.length).toBeGreaterThan(0);
@@ -41,7 +41,7 @@ describe("registry ingest", () => {
   // disk that this instance does not mount, so naming the mounted set would pin the same kind
   // of literal the count did. The invariant is per-owner and survives mounting it later.
   it("gives every ingested owner a package-typed self-manifest — a mount without one cannot register", async () => {
-    await lifecycle.runtime.population.registry({}, async () => {});
+    await lifecycle.runtime.population.registry({ mask: {} }, async () => {});
     const ingested = leaves(paladin.ledger.registry.pensieve);
     const owners = [...new Set(ingested.map((leaf) => leaf.owner))];
 
@@ -53,7 +53,7 @@ describe("registry ingest", () => {
   });
 
   it("keys a slug once per owner+type, so a mount cannot ingest the same module twice", async () => {
-    await lifecycle.runtime.population.registry({}, async () => {});
+    await lifecycle.runtime.population.registry({ mask: {} }, async () => {});
     const keys = leaves(paladin.ledger.registry.pensieve).map((leaf) => `${leaf.owner}/${leaf.type}/${leaf.slug}`);
     expect(keys.length).toBe(new Set(keys).size);
   });
@@ -62,7 +62,7 @@ describe("registry ingest", () => {
   // the LOCK mechanism is still covered, in paladin's registry.mount.test.js, via an in-memory fixture.
 
   it("fork 2: the hello-world wafer resolves under @commons", async () => {
-    await lifecycle.runtime.population.registry({}, async () => {});
+    await lifecycle.runtime.population.registry({ mask: {} }, async () => {});
     const hello = await paladin.ledger.registry.pensieve.revelio({ owner: "@commons", type: "instance", slug: "hello-world" });
     expect(hello).toBeTruthy();
   });

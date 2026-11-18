@@ -1,4 +1,4 @@
-import { Url, v } from "@vivalence/typology";
+import { object, Url, v } from "@vivalence/typology";
 import * as jsonc from "@std/jsonc";
 import { Lock } from "../prototypes/lock.js";
 import { Log } from "../prototypes/log.js";
@@ -7,6 +7,21 @@ import { Registry } from "../prototypes/registry.js";
 import { Die } from "./die.js";
 
 export const RECIPE = "ledger.viva.json";
+
+const CHILDREN = {
+  runtime: {
+    args: (repository) => ["run", "-A", "--config", `${repository}/deno.jsonc`, `${repository}/systems/runtime/run.js`],
+    serve: (instance) => instance.runtime?.statics.serve,
+  },
+  anima: {
+    args: (repository) => ["task", "--config", `${repository}/deno.jsonc`, "-q", "anima/watch"],
+    serve: (instance) => instance.clients.find((client) => client.manifest.slug === "anima")?.statics.serve,
+  },
+};
+
+const INHERITED = ["PATH", "HOME", "TMPDIR", "XDG_CONFIG_HOME", "TERM", "LANG", "DENO_DIR", "NO_COLOR"];
+const carried = (key) =>
+  INHERITED.includes(key) || (/^(VIVA|PUBLIC_VIVA|SECRET_VIVA)_/.test(key) && key !== "VIVA_PROCESS_ID");
 
 export const RECORDS = ["instances", "registry"];
 
@@ -86,6 +101,26 @@ export class Ledger {
     const slots = Object.entries(module).filter(([slot]) => slot !== "manifest" && !RECORDS.includes(slot));
     const parts = await Promise.all(slots.map(async ([slot, value]) => [slot, await this.paladin.read.part(source, value, slot)]));
     return (this.declaration = { ...Object.fromEntries(parts), manifest, source });
+  }
+
+  get processes() {
+    return Object.keys(CHILDREN);
+  }
+
+  specs(...processes) {
+    const mount = this.paladin.scope.instance.absolute;
+    const repository = this.paladin.scope.repository.absolute;
+    const env = {
+      ...object.filter(Deno.env.toObject(), carried),
+      VIVA_INSTANCE_MOUNT: mount,
+      VIVA_LEDGER_MOUNT: this.paladin.scope.ledger.absolute,
+      VIVA_REPOSITORY_MOUNT: repository,
+    };
+    return processes.map((process) => ({
+      identity: { process, mount },
+      serve: CHILDREN[process].serve(this.paladin.instance)?.absolute ?? null,
+      command: { bin: Deno.execPath(), args: CHILDREN[process].args(repository), cwd: mount, env },
+    }));
   }
 
   async boot(specs, { instance = null, attachment = "inherit" } = {}) {

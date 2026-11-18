@@ -68,6 +68,9 @@ export const params = (params) => {
       const path = new Path(segments);
       return path.fin ?? path;
     },
+    get URIC() {
+      return decodeURIComponent(this.path.absolute);
+    },
   };
 };
 

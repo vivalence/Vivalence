@@ -20,7 +20,6 @@ specimen.describe("lighthouse datamap (scenario)", () => {
     kiro = await scenario.signup("kiro");
     await scenario.seedDaemon(SLUG);
     const daemon = Object.assign(new Daemon(), {
-      slug: SLUG,
       mask: { manifest: { type: "daemon", slug: SLUG }, reference: new Path(`/daemon/${SLUG}`) },
       controller: new Controller({ stdout: new Span(`daemon/${SLUG}`) }),
       domain: {},

@@ -3,6 +3,7 @@ import { expect } from "@std/expect";
 import { v, crypto, mime } from "@vivalence/typology";
 import esbuild from "esbuild";
 import paladin from "../mod.js";
+import { MEMBERS } from "../gestalten/belt/bundler.js";
 
 const SOURCE = [
   "<script>",
@@ -40,6 +41,23 @@ const SOLID = [
   "  return { destroy: dispose };",
   "};",
 ].join("\n");
+
+const SCENE = [
+  "<script>",
+  '  import { onMount } from "svelte";',
+  '  import { fade } from "svelte/transition";',
+  '  import { Text } from "@vivalence/drapes/svelte";',
+  '  import { parts } from "@vivalence/dapper";',
+  '  import { REVISION } from "three";',
+  "  let shown = $state(false);",
+  "  onMount(() => (shown = true));",
+  "</script>",
+  "",
+  "<div transition:fade><Text>{shown} {REVISION} {parts.meter.CAUTION}</Text></div>",
+].join("\n");
+
+const named = (artifact) =>
+  [...new Set([...artifact.matchAll(/^import (?:.* from )?"((?!\.|\/)[^"]+)";$/gm)].map((match) => match[1]))].sort();
 
 let directory;
 let bundler;
@@ -111,8 +129,7 @@ describe("paladin.bundler", { sanitizeResources: false, sanitizeOps: false }, ()
     });
     expect(v.bundle.check(bundle.json)).toBe(true);
 
-    expect(artifact).not.toMatch(/^import .* from "(?!\.|\/)/m);
-    expect(artifact).toContain("document.createElement");
+    expect(named(artifact)).toEqual(["solid-js", "solid-js/web"]);
     expect(artifact).toContain("crumb");
     expect(artifact).not.toContain("@opentui");
     expect(artifact).toMatch(/as default/);
@@ -125,7 +142,43 @@ describe("paladin.bundler", { sanitizeResources: false, sanitizeOps: false }, ()
     await Deno.writeTextFile(entry, SOLID);
     const again = await bundler.bundle({ mime: mime.dom.solid, entry });
     expect(again.entries[0].mount).toMatch(/\.dom\.solid\.mjs$/);
-    expect((await bundler.serve(again.entries[0].mount)).text).toContain("document.createElement");
+    expect((await bundler.serve(again.entries[0].mount)).text).toContain("crumb");
+  });
+
+  it("a dom entry names its members and carries none of them", async () => {
+    const entry = `${directory}/Scene.svelte`;
+    await Deno.writeTextFile(entry, SCENE);
+    const bundle = await bundler.bundle({ mime: mime.dom.svelte, entry });
+    const artifact = (await bundler.serve(bundle.entries[0].mount)).text;
+
+    expect(named(artifact).filter((specifier) => !MEMBERS.includes(specifier))).toEqual([]);
+    expect(named(artifact)).toEqual([
+      "@vivalence/dapper",
+      "@vivalence/drapes/svelte",
+      "svelte",
+      "svelte/internal/client",
+      "svelte/internal/disclose-version",
+      "svelte/transition",
+      "three",
+    ]);
+    expect(artifact).not.toContain("WebGLRenderer");
+    expect(artifact).not.toContain("font-sans-text");
+  });
+
+  it("a runtime subpath that is no member fails loud at the bundle", async () => {
+    const entry = `${directory}/Compiler.svelte`;
+    await Deno.writeTextFile(entry, '<script>\n  import { VERSION } from "svelte/compiler";\n</script>\n\n<p>{VERSION}</p>\n');
+    await expect(bundler.bundle({ mime: mime.dom.svelte, entry })).rejects.toThrow('"svelte/compiler" is no member');
+  });
+
+  it("the members build once: every member a file, every chunk a member names a file", async () => {
+    const held = await paladin.bundler.members();
+
+    expect(Object.keys(held.imports).sort()).toEqual([...MEMBERS].sort());
+    expect(Object.values(held.imports).filter((name) => !(name in held.files))).toEqual([]);
+    const chunks = Object.values(held.files).flatMap((text) => [...text.matchAll(/from\s*"\.\/([^"]+)"/g)].map((match) => match[1]));
+    expect(chunks.filter((name) => !(name in held.files))).toEqual([]);
+    expect(Object.values(held.files).flatMap(named)).toEqual([]);
   });
 
   it("a solid dom source carries its sheet as text", async () => {

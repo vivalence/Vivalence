@@ -1,6 +1,7 @@
 import { onSet } from "nanostores";
 import { Signature } from "./signature.js";
 import { Pipe } from "./pipe.js";
+import { Queue } from "./queue.js";
 import { Vector } from "./vector.js";
 import * as steer from "../gestalten/steer/index.js";
 import { Start, Stop, Request, Response, Fault, Log, Entity, Status } from "../schematics/primitives/track.js";
@@ -40,6 +41,21 @@ export class Span extends Signature {
 
   get history() {
     return this.$history.get();
+  }
+
+  async *drain(signal) {
+    const live = new Queue();
+    const untap = this.pipe.tap(live);
+    try {
+      yield* [...this.history];
+      yield* live.drain(signal);
+    } finally {
+      untap();
+    }
+  }
+
+  [Symbol.asyncIterator]() {
+    return this.drain();
   }
 
   tracks(vector) {

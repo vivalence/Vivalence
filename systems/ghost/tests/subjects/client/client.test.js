@@ -6,7 +6,8 @@ import { chrome } from "../../../surfaces/index.js";
 
 const mounted = async (world) => {
   paladin.assign(world.env, "flag");
-  const instance = await factories.instance(lifecycle.paladin.instance(paladin));
+  lifecycle.paladin.instance(paladin);
+  const instance = await factories.instance(paladin);
   await paladin.ledger.registry.supply();
   return { paladin, instance };
 };
@@ -27,7 +28,7 @@ specimen.describe("the client against a world — attach, sign in, see the runti
   specimen.beforeAll(async () => {
     world = await hello.boot({ recipe: hello.DEMO, prefix: "viva-ring-" });
     const { paladin, instance } = await mounted(world);
-    const mask = instance.mask("ghost");
+    const mask = instance.client("ghost");
     const root = new Controller({ stdout: new Span("ghost") });
     clientDie = await ghost.client.factory({ controller: root, mask, register: await paladin.ledger.registry.wire(mask), instance });
   });
@@ -57,6 +58,7 @@ specimen.describe("the client against a world — attach, sign in, see the runti
   specimen.it("a bare line on a harnessed thread lands two turns in the thread's $turns — the reply merged as it streams, the persisted row landing under the same id; /harness reaches the attached mode, memo; on another thread the bare line faults", async () => {
     const thread = first(clientDie).thread;
     const landed = () => thread.$turns.get().filter((turn) => turn.createdAt !== undefined);
+    clientDie.app = new ghost.app.App({ client: clientDie });
     await first(clientDie).repl.dispatch("ciao");
     await eventually(() => landed().length >= 2, 30000);
     specimen.expect(thread.$turns.get().map((turn) => turn.role)).toEqual(["user", "assistant"]);
@@ -64,6 +66,7 @@ specimen.describe("the client against a world — attach, sign in, see the runti
     await first(clientDie).repl.dispatch("/harness ciao");
     await eventually(() => landed().length >= 4, 30000);
     specimen.expect(thread.$turns.get().map((turn) => turn.role)).toEqual(["user", "assistant", "user", "assistant"]);
+    clientDie.app = null;
     await first(clientDie).repl.dispatch("/mode probe");
     const faults = () => clientDie.controller.stdout.history.filter((record) => ["fault"].includes(record.track));
     const before = faults().length;
@@ -82,8 +85,36 @@ specimen.describe("the client against a world — attach, sign in, see the runti
     specimen.expect(views.every((view) => view.slug === "memo")).toBe(true);
     const picked = ghost.belt.view.pick(views.filter(chrome.runs));
     specimen.expect(picked.mime).toBe(mime.tty.solid);
-    const served = await fetch(clientDie.runtime.attach.url.branch(`/view/${picked.id}`).absolute);
+    const served = await fetch(clientDie.runtime.attached(`/view/${picked.id}`));
     specimen.expect(served.status).toBe(200);
     specimen.expect(await served.text()).toContain("export");
+  });
+  specimen.it("a file goes up over the socket: its bytes landed count up WHILE the body is still coming, then its File, in the client's store and on its thread", async () => {
+    const thread = first(clientDie).thread;
+    const began = Date.now();
+    let pieces = 0;
+    let ended = null;
+    const body = new ReadableStream({
+      async pull(controller) {
+        await new Promise((wake) => setTimeout(wake, 60));
+        if (pieces === 5) {
+          ended = Date.now() - began;
+          return controller.close();
+        }
+        pieces++;
+        controller.enqueue(new Uint8Array(1024).fill(pieces));
+      },
+    });
+    const arrived = [];
+    for await (const packet of clientDie.runtime.entities.file.upload({ path: "slow.bin", mime: "application/octet-stream", body, thread: thread.id }))
+      arrived.push({ at: Date.now() - began, packet });
+    specimen.expect(arrived.map((held) => held.packet.event)).toEqual(["/landed", "/landed", "/landed", "/landed", "/landed", "/file"]);
+    specimen.expect(arrived.slice(0, 5).map((held) => held.packet.landed)).toEqual([1024, 2048, 3072, 4096, 5120]);
+    specimen.expect(arrived[0].at).toBeLessThan(ended);
+    specimen.expect(arrived[2].at).toBeLessThan(ended);
+    const file = arrived.at(-1).packet.file;
+    specimen.expect(clientDie.runtime.entities.file.$entities.get().includes(file)).toBe(true);
+    specimen.expect([file.bytes, file.path]).toEqual([5120, specimen.expect.stringMatching(/^files\/slow\.[0-9a-f]{8}\.bin$/)]);
+    specimen.expect(file.url).toMatch(/\/attached\/file\/[0-9a-f-]+\?token=/);
   });
 });

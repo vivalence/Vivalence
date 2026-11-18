@@ -192,13 +192,6 @@ The instance the mode ships in, as one JSON file: its manifest and its one daemo
     "secrets": { "jwt": "${SECRET_VIVA_JWT}" }
   },
   "datamap": { "module": "@commons/datamap/libsql" },
-  "tiers": {
-    "frugal": [0.1, 0.9, 1.0],
-    "fast": [0.4, 1.0, 0.8],
-    "balanced": [0.5, 0.5, 0.5],
-    "capable": [0.9, 0.2, 0.5],
-    "unleashed": [1.0, 0.9, 0.1]
-  },
   "hallucinators": [
     {
       "module": "@commons/hallucinator/anthropic",

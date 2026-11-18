@@ -8,17 +8,17 @@ const invoke = (armed, name, input) =>
 
 // three modes, three shapes: one that writes its mountpoint, one that reads a files directory, one with neither
 const vdex = {
-  manifest: { type: "office", slug: "vdex", name: "VDex", traits: ["FILESINK", "HARNESSED"] },
+  manifest: { type: "office", slug: "vdex", name: "VDex", traits: ["FILESINK", "HARNESS"] },
   module: { source: new Path("/registry/vcompany/modes/office/vdex/vdex.viva.js") },
   mountpoint: new Path("/Users/finn/vivalence/coorporation"),
   files: { directory: "/Users/finn/vivalence/coorporation" },
 };
 const francesca = {
-  manifest: { type: "tutor", slug: "francesca", traits: ["FILESET", "HARNESSED"] },
+  manifest: { type: "tutor", slug: "francesca", traits: ["FILESET", "HARNESS"] },
   module: { source: new Path("/registry/education/modes/tutor/francesca/francesca.viva.js") },
   files: { directory: "/registry/education/modes/tutor/francesca/assets" },
 };
-const dewey = { manifest: { type: "teacher", slug: "dewey", traits: ["EXPOSED", "HARNESSED"] }, module: {} };
+const dewey = { manifest: { type: "teacher", slug: "dewey", traits: ["EXPOSED", "HARNESS"] }, module: {} };
 
 const daemon = {
   manifest: { slug: "vcompany" },
@@ -48,10 +48,10 @@ Deno.test("skill.mode — every mode's paths on disk", async (t) => {
     assertEquals(rows[0], "[Host /daemon/vcompany] · mountpoint /Users/finn/.viva/instances/vivalence/mountpoint/daemon_vcompany");
     assertEquals(
       rows[1],
-      "office/vdex · VDex · traits FILESINK HARNESSED · source /registry/vcompany/modes/office/vdex · " +
+      "office/vdex · VDex · traits FILESINK HARNESS · source /registry/vcompany/modes/office/vdex · " +
         "mountpoint /Users/finn/vivalence/coorporation",
     );
-    assertEquals(rows[3], "teacher/dewey · dewey · traits EXPOSED HARNESSED");
+    assertEquals(rows[3], "teacher/dewey · dewey · traits EXPOSED HARNESS");
     assertEquals(rows.length, 4);
   });
 

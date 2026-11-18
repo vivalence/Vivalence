@@ -1,4 +1,3 @@
-import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { Cortex, Path, shape, specimen, steer, ToolCall } from "@vivalence/typology";
 import { strToU8, zipSync } from "npm:fflate@0.8.3";
 import { parseHTML } from "linkedom";
@@ -109,7 +108,7 @@ let site;
 let buffer;
 let call;
 specimen.beforeAll(async () => {
-  scenario = await mountMode(reader, { cortex: new Cortex(TIER_POINTS).register([writer(), transcriber()]) });
+  scenario = await mountMode(reader, { cortex: new Cortex().register([writer(), transcriber()]) });
   scenario.mode.mountpoint = new Path(await Deno.makeTempDir({ prefix: "reader-" }));
   site = Deno.serve({ port: 0, onListen() {} }, (request) => {
     const path = new URL(request.url).pathname;
@@ -384,7 +383,7 @@ specimen.describe("reader — a scanned pdf read by the ocr service the mode con
   specimen.it("the service is handed the pdf whole, as a document part", () => {
     specimen.expect(asked.length).toBe(1);
     specimen.expect(asked[0].type).toBe("document");
-    specimen.expect(asked[0].media).toBe("application/pdf");
+    specimen.expect(asked[0].mime).toBe("application/pdf");
     specimen.expect(atob(asked[0].data).startsWith("%PDF-")).toBe(true);
   });
 

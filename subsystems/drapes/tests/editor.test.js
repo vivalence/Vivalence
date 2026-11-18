@@ -2,10 +2,10 @@ import { specimen } from "@vivalence/typology";
 import { compile } from "svelte/compiler";
 import { EditorState, EditorSelection } from "@codemirror/state";
 import { indentOnInput } from "@codemirror/language";
-import { language, formats } from "../editor/languages.js";
-import { diff, NONE, External, originated } from "../editor/sync.js";
+import { language, formats } from "../svelte/editor/languages.js";
+import { diff, NONE, External, originated } from "../svelte/editor/sync.js";
 
-const read = (name) => Deno.readTextFile(new URL(`../editor/${name}`, import.meta.url));
+const read = (name) => Deno.readTextFile(new URL(`../svelte/editor/${name}`, import.meta.url));
 
 specimen.describe("editor — the CodeMirror wrapper", () => {
   specimen.it("Editor.svelte compiles without warnings", async () => {

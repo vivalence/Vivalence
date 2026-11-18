@@ -1,6 +1,6 @@
 import { createMemo, For, from, Show } from "solid-js";
 import { computed } from "nanostores";
-import * as parts from "@vivalence/drapes/parts";
+import * as parts from "@vivalence/drapes/solid";
 import { belt, is, trace } from "@vivalence/typology";
 import { belt as ghost } from "@vivalence/ghost";
 import * as ambient from "../../ambient/index.js";
@@ -12,7 +12,7 @@ export const ROLES = { user: "you", assistant: "agent", system: "msg", tool: "ms
 export const clock = (ms) => new Date(ms).toTimeString().slice(0, 5);
 
 const SPOKEN = ["text"];
-const UNSPOKEN = ["tool_use", "tool_result", "thinking"];
+const UNSPOKEN = ["tool_use", "tool_result", "thinking", "file"];
 
 export const prose = (parts) =>
   parts.filter((part) => !UNSPOKEN.includes(part.type)).map((part) => (SPOKEN.includes(part.type) ? part.text : `[${part.type}]`)).join("\n");
@@ -105,7 +105,9 @@ const SEGMENT = {
   text: (part) => (SPOKEN.includes(part.type) ? part.text : `[${part.type}]`),
 };
 
-const silent = (part) => part.type === "tool_result" || (part.type === "text" && part.text === "");
+const DRAWN_APART = ["tool_result", "file"];
+
+const silent = (part) => DRAWN_APART.includes(part.type) || (part.type === "text" && part.text === "");
 
 const merged = (segments, segment) => {
   const prior = segments.at(-1);
@@ -284,6 +286,13 @@ const Entry = (props) => (
     onPick={props.onPick}
     onLine={props.onLine}>
     <For each={props.entry.row.blocks}>{(block) => <parts.Block block={block} onLine={props.onLine} />}</For>
+    <Show when={props.files.length > 0}>
+      <div class="files">
+        <For each={props.files}>
+          {(file) => <parts.Filecard name={file.path.split("/").at(-1)} mime={file.mime} src={file.url} />}
+        </For>
+      </div>
+    </Show>
     <Show when={props.cells.length > 0}>
       <div class="cells">
         <For each={props.cells}>{(buffer) => <Cell buffer={buffer} onLine={props.onLine} />}</For>
@@ -298,6 +307,7 @@ export const Journal = () => {
   const terminals = from(app.client.runtime.entities.terminal.$entities);
   const thread = from(terminal.$thread);
   const activities = from(app.client.runtime.entities.activity.$entities);
+  const files = from(app.client.runtime.entities.file.$entities);
   const records = from(computed(terminal.controller.stdout.$history, (held) => held.filter((record) => record.track === "log" || record.track === "fault")));
   const user = from(app.client.runtime.lighthouse.$user);
   const selection = from(app.bridge.$selection);
@@ -336,6 +346,7 @@ export const Journal = () => {
           lens={lens()}
           markdown={markdown()}
           cells={entry.turns === undefined ? [] : rows.buffers.filter((buffer) => entry.turns.some((turn) => ghost.journal.cells(turn, [buffer], rows.yields).length > 0))}
+          files={entry.turns === undefined ? [] : entry.turns.flatMap((turn) => ghost.journal.files(turn, rows.files, rows.yields))}
           selected={selection() === index()}
           onPick={pick(index())}
           onLine={sent}
@@ -352,6 +363,7 @@ export const Journal = () => {
       <Rows
         entries={held()}
         buffers={parts.listing(buffers)}
+        files={parts.listing(files)}
         yields={results(parts.listing(turns))}
       />
     );
@@ -359,7 +371,7 @@ export const Journal = () => {
 
   const Unseated = () => {
     const held = createMemo((prior) => listed(prior, [], []), []);
-    return <Rows entries={held()} buffers={[]} yields={[]} />;
+    return <Rows entries={held()} buffers={[]} files={[]} yields={[]} />;
   };
 
   return (

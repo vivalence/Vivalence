@@ -1,0 +1,2218 @@
+#+title: instance telemetry — every subject emits, a sieve on the ledger/instance decides what each reader sees; a call's records sit under the subject it reaches
+#+filetags: :telemetry:paladin:ledger:instance:controller:span:sieve:aperture:runtime:
+#+status: DONE 11-21 on his /"move to done"/ (stop 7 never landed, six QA markers still pending: its tails are named on =quests/frontier.md=) — STOPS 1–6 LANDED 11-21 on his /"land telemetry"/ (25 files on his tree, byte-equal to the copy the census ran on; his =:2501= restarted by his watcher and =RUNNING=), stop 7 DESIGNED (waits on his Q12, seven files not landed) — the socket is a logger under the word =socket= (law 19), a =Span= on each end over =belt.sse=, the listen side redials after a restart, the commands are =instance/tail= · =instance/pipe=; 11-21 after it, LANDED too (7 files, /"format the last runtime log status update prettier."/ · /"wire the multiplexes also through controller."/): a =log='s object prints its keys, the six =[multiplex]= console prints are records on the socket's span, the client's multiplex hangs under the client's span; his recipes name no =telemetry=, so the default rules his screen (=* blast table=); his look owed (=* QA=); unindexed (/"create a new unindexed quest instance telemetry"/)
+# writer: agent · limit: 188000 chars
+
+Sibling: =roadmap/m89-telemetry.org= (DESIGNED 10-12, never landed). This quest re-rules three of its forks by his words of 11-20 (=* the law= 7–9) and replaces its level ladder with the sieve.
+
+* intent
+
+11-20, beef verbatim, in order:
+
+- /"running the runtime has become very confusing."/ · /"analyze the controller logging situation in the runtime. full assessment"/ (a pasted runtime boot, ~600 records of socket traffic)
+- /"b. so much b. B is definitely the right way to go, although I would like to have a more refined system for telemetry. […] Give me a bird's eye pass on like a nice system to pipe and filter from and to. Like right now the controllers aren't really wired up everywhere. I would like to wire them up everywhere, but then be able to only see ever the thing that specifically I'm asking to see right now. So Paladin should facilitate all of that. It should have that the telemetry is something that the Paladin owns, just like the instance and the ledger. And I want to have, yeah, proper control over that."/
+- /"think again."/
+- /"a"/
+- /"ok so i will watn SOME logic here […] there are a lot of keys with f.e. IDs and i cant hardcode that. what do signatures and signals and paths offer us here? /*/ (.*) and teh like, no? weould be nice if we use matching for filtering here."/ · /"a. call it ctx.stdout. or ... isnt there a controller on the aperture??"/
+- /"b for sure. but i also think the aperture should have its own controller. but not in typology created. feels like a runtime thing."/
+- /"amen on the sieve pattern for telemetry"/
+- /"maybe its nice capture (.*) all trailing with this an have plain "/ghost/client/terminal/*/repl" fe. be capturing exactly to / repl. slight rule change this."/
+- /"same for daemon, runtime, and attachments. or maybe at http root?"/ · /"q1 a"/
+- /"no. just telemetry on leder/instance root. nothing foling up. too much integration pain. later."/
+- /"create a new unindexed quest instance telemetry"/
+- /"good question. i'd say we go by telemetry.logger.[x] where x is interesting. we might want some sort of logic like were using of datasink and filesink. check that out. propose 2. one heavy one flat"/
+- /"ok. i like a. lets explore b for shits n giggles a bit. what would it look like as an array? i dont like the ledger console daemons naming thing. weird. not needed."/ · (on =:daemon= in a sieve key and in its target) /"thats nice actually. very nice."/
+- /"brilliant!! amen to that"/
+- /"more detail here please. express what we're doing."/ · /"way too detailed now."/ · /"shorter more bunchy description please. less yap. this is context for agents!"/
+
+* terrain — measured 11-20
+
+** the stream
+
+#+BEGIN_SRC js
+// systems/runtime/run.js:12
+controller.stdout.pipe //
+  .tap((record) => console.log(`[${trace.pathname(record.path)}] ${record.track}`, record.data || ""));
+// systems/runtime/subjects/runtime/lifecycle/3-integration.js:13
+const log = paladin.ledger.log(paladin.instance.manifest.slug);
+die.controller.stdout.pipe.tap((record) => log.append({ json: record }));
+// subsystems/typology/prototypes/socket.js:169
+const trace = this.span.branch(`${packet.signal}/${packet.frame}`);
+#+END_SRC
+
+| last 20000 records of =~/.viva/logs/localhost/spans.jsonl= | records | share |
+|---+---+---|
+| socket calls | 16967 | 84.8% |
+| mode boot | 2332 | 11.7% |
+| daemon | 468 | 2.3% |
+| runtime | 233 | 1.2% |
+
+| census | count |
+|---+---|
+| process roots (=runtime/run.js:9= · =ghost/run.js:6= · =anima/src/client.js:10=) | 3 |
+| stray roots outside them | 8 |
+| sites reading a span | 12 |
+| of those, reading a setting | 0 |
+| of those, product (never starved by a setting) | 5 |
+| bare =console.*= on the runtime path | 10 |
+| =spans.jsonl= bytes, unbounded | 130844371 |
+| boots in its last 200000 records | 214 |
+
+Product readers: =Activity.ts:83= (steps) · =Activity.ts:145= (stream) · =shape/http.js:63= (timing header) · =paladin/prototypes/registry.js:48= (integrity) · dock journal (=ghost …/dock/journal.jsx:273= · =anima …/dock/journal.jsx:301=).
+
+Stray roots: =ghost/entities/mode/prototype.js:14= · =ghost/entities/activity/prototype.js:11= · =ghost/entities/lighthouse/prototype.js:13= · =paladin/prototypes/registry.js:46= · =typology/entities/Activity.ts:58= · =commons/reader/reader/aperture/pdf.js:238= · =commons/playground/chaosmonkey/oracle/aperture.js:9= · =…/oracle/emitter.js:9=.
+
+** cost — nothing here is short of CPU
+
+| act | µs |
+|---+---|
+| emit one record, depth 4 | 17 |
+| one socket call, 4 records on a span branch | 51–57 |
+| one call on a child controller, 6 records | 89 |
+| console print | 7 |
+| file append as written (=state.jsonl=) | 59 |
+| file append, held handle | 2.4 |
+| sieve match, per record | 3.3 |
+
+Peak 1053 records/s; 178 bytes a record.
+
+** where a mode's records sit today
+
+| address, last 20000 records | records |
+|---+---|
+| =/runtime/runtime/daemon/droneaid/mode/model/editor= | 62 |
+| =/runtime/runtime/socket/daemon/droneaid/mode/model/editor= | 3399 |
+
+** who answers the socket calls (last 200000 records)
+
+| answered by | calls | share |
+|---+---+---|
+| a mode | 19694 | 44% |
+| http root =/userspace= | 9943 | 22% |
+| a daemon | 8265 | 18% |
+| the runtime | 5109 | 11% |
+| http root =/lighthouse= | 643 | 1% |
+| http root =/beacon= | 280 | <1% |
+
+** where ids sit in record paths
+
+| shape | records |
+|---+---|
+| =/runtime/runtime/socket/<route>/:id= | 188030 |
+| =/ghost/client/terminal/:id= and below | ~4400 |
+| =/ghost/client/terminal/:id/thread/:id= | 72 |
+
+** the pattern grammar and the route dispatcher
+
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/pattern.js:64
+const patternmap = [
+  ["wildcard", (signature) => signature === "*", …],
+  ["remainder", (signature) => signature === "(.*)", …],
+  ["parameter", (signature) => signature.startsWith(":"), …],
+  ["literal", (signature) => true, …],
+];
+#+END_SRC
+
+| one route =/x/(.*)= through =steer.dispatch.traverse= | result |
+|---+---|
+| =/x= | no route |
+| =/x/a= | answers |
+| =/x/a/b= | answers |
+
+| matcher, 11 cases with a =*= mid-key | right | µs/record |
+|---+---+---|
+| the route trie, key + =/*= | 6 | 10.5 |
+| =Pattern.apply= per segment | 11 | 3.7 |
+
+** a runtime mode holds a span and a dead status
+
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/mode.js:10
+status = new Status("<uninitialized>", this);
+aperture = null;
+stdout = null;
+// systems/runtime/subjects/mode/lifecycle/1-population.js:40 — its one reader; no writer in systems/runtime · commons · ~/.viva/registry
+.open("/metadata/status", (ctx) => ctx.mode.status.reflection)
+// systems/ghost/subjects/terminal/repl.js:79 — the sibling: a signal runs on a child controller
+controller: this.terminal.controller.branch(signal.pathname),
+#+END_SRC
+
+** the recipe fold today
+
+#+BEGIN_SRC js
+// subsystems/paladin/instance/lifecycle/1-population.js:27
+const SLOTS = Object.keys(v.primitives.instance.LedgerRecipe.properties).filter(
+  (slot) => !["manifest", "environment", "hallucinators"].includes(slot),
+);
+// subsystems/paladin/instance/lifecycle/2-resolution.js:6
+export function inherit(below, above, slot, clone = (value) => value) {
+  if (below[slot] !== undefined || above?.[slot] === undefined) return false;
+  below[slot] = clone(above[slot]);
+  return true;
+}
+#+END_SRC
+
+** other products (docs-checked 11-20 by an opus agent)
+
+| architecture | products |
+|---+---|
+| emit all, each reader filters | log4j2 · OTP logger · Vector · Fluent Bit · OTel Collector |
+| emit only on registered interest | ETW · Rust tracing · Perfetto · kernel dyndbg |
+| store all, query at read | journald · Datadog · Honeycomb |
+
+Recurring: a standing file plus an ephemeral tap (=vector tap= · =consul monitor -log-level=trace= · =journalctl -f=); the tap may see more than the standing config; each reader its own filter; settings inherit down a name tree; a verb lists what can be pointed at; a live retune by endpoint drifts from the file; live payload streams are off by default.
+
+* the dialogue — his words
+
+| Q | his words |
+|---+---|
+| 1 | /"a"/ |
+| 1A | /"would be nice if we use matching for filtering here."/ · /"amen on the sieve pattern for telemetry"/ |
+| 1B | /"have plain "/ghost/client/terminal/*/repl" fe. be capturing exactly to / repl. slight rule change this."/ |
+| 1C | /"q1 a"/ |
+| 2 | /"a. call it ctx.stdout."/ |
+| 3 | /"b for sure."/ |
+| 3A | /"the aperture should have its own controller. but not in typology created. feels like a runtime thing."/ · /"same for daemon, runtime, and attachments. or maybe at http root?"/ |
+| 4 | /"no. just telemetry on leder/instance root. nothing foling up. too much integration pain. later."/ |
+| 5 | /"i'd say we go by telemetry.logger.[x]"/ · /"i like a."/ · /"i dont like the ledger console daemons naming thing. weird. not needed."/ · /"brilliant!! amen to that"/ |
+| 5A | (the key grammars as regex) /"not needed. too much. or misplaced. this is more general typology but thats scope creep. later."/ · /"shorter more bunchy description please. less yap. this is context for agents!"/ · (=record: (keys, values, opts)=) /"amen"/ · (=telemetry= on the mask) /"amen"/ |
+| 6 | (what a silent recipe casts to) /"status, fault, log"/ |
+| 8 | /"we restart all the time. whats the problem??"/ · (a tail over a logger's file · a live route) /"2 goes deferred. 1."/ |
+| 10 | (=tap(paladin.telemetry.console)= · =tap(paladin.telemetry.file)=) /"ok great."/ · /"now look at these lines from the perspective oof the clients. same architecture here! […] paladin would need to abstract across surfaces here. which is exactly whtat we want anyways."/ · /"realisitically today we wount be able to offer file unless we keep it in client and allow for copy paste (important even in failure conditions when the client overall has crashed!)"/ |
+| 11 | (memory · memory and the browser's storage) /"a and b arent mutually exclusive are they? we drain on error to localstorage or maybe on a batch/debounce and we keep the rest in memory."/ |
+| 9 | /"for console especially, some formatting would be nice."/ · /"formatting: yes great."/ · (the line set from =telemetry=) /"meh. fuck it. just one hardcoded style is fine todya"/ |
+| 13 | (a tail's source: a declared file · a wide file · the running runtime) /"why does tail read from file? we are piping logs through paladin telemetry. why cant we just tail that? and pipe takes the same hook and pipes it to a file."/ · (the runtime's routes, built) /"no. i dont like this solution. thats not what i decided."/ · /"i dont want to ask the runtime. i said paladin."/ |
+| 14 | (=viva instance/tail spans.jsonl '{"/runtime/runtime/daemon/droneaid/(.*)":["request","response"]}'=) /"perfect."/ |
+| 15 | (one hand-over at =paladin.control= · paladin writes console and files from the recipe · a socket file per process under the instance's logs · =tail= and =pipe= are clients registering a sieve) /"i like sock file. very good."/ · (=~/.viva/logs/<instance>/runtime.sock=) /"yes."/ · (a socket file over a TCP port · every process listens) /"good choices"/ |
+| 18 | (one =ghost.sock= shared by every =viva= process · a socket per process, =<root>.<pid>.sock=) /"does this have a tail?"/ = /"a lot of dev effort from a simple choice"/ · /"would i have to tell the instnce/tail command what pid i want?"/ (no: a tail reads every socket in the folder) · /"b"/ |
+| 19 | (the sieve travels to the watched process · it stays in the terminal that typed it: the socket sends every record, a tail is ={ console: sieve }=, a pipe ={ "<file>": sieve }=) /"think about this again."/ · /"b"/ |
+| 20 | (stop 6 on the Q19 cut) /"amen"/ 01:18, then 01:20 /"no. something isnt right."/ · /"what i want is that we pass dat over a socket. i have a pair of prototypes like que and pipe or span or whatever. one on the listen one one the produce side. when i publish a controller to paladin, and the telemetry follows, and teh telemetry is setup for a socket file - the instance telemetry needs neew mask schematics here = then i pass data via that interlocking. thats the core mechanism."/ · /"think through what pair of prototypes is the right one for this."/ |
+| 21 | (which prototype stands on each end of the socket: =Pipe= ⟷ =Pipe=, the listen side starts empty ·=Span= ⟷ =Span=, the past the root holds, then live) /"b"/ |
+| 22 | (the recipe's word for the socket: a switch =socket: true= · a sieve under its own key · a third logger target =runtime.sock=) /"a"/ 01:57 (the switch; never answered, it reached no reply), then 01:58 his own recipe, neither of the three: =telemetry.logger.socket = { "/(.*)": ["status", "fault", "log"] }= beside =console=, /"everything from this goes to socket. might also accept just socket true. or so?"/ |
+| 27 | (what he types in the second terminal: one command =instance/listen= taking a logger · no command in this stop) /"instance/tail and instance/pipe still exists. those are the names. instance/tail"/ |
+| 28 | (stop 6 re-cut on law 19, shown as hunks: the =socket= sink · =send= · the stream row of =accept= · the listen side's span and its dial · the command's row) /"amen"/ |
+| 22A | (=socket: true= beside a sieve: a union on every logger value, an expander, a meaning for =false= · a sieve only, everything written out once) /"a"/ |
+| 29 | (after the fold's report: stops 1–6 TANGLED and amen'd, nothing LANDED, next named as his Q12) /"land telemetry"/ |
+| 30 | (his =runtime/watch= terminal pasted after the land: the new rows, the patrol's =log= as one JSON row, =[multiplex …] socket upgraded= · =[multiplex] no route for "…"= between them) /"format the last runtime log status update prettier."/ · /"wire the multiplexes also through controller."/ |
+| 31 | (after the second land's report, its closing ask unanswered: print an answered miss on the default console again, or keep it off) =/fold=, then mid-fold /"move to done"/ |
+
+* the law
+
+1. A sieve is a map, key → tracks. A key is a pattern over a record's path from its process root (=/runtime/runtime/…= · =/ghost/…= · =/anima/…=) — Q1 · Q1A.
+2. A plain key matches exactly its own path; a trailing =(.*)= takes one or more segments below it, as a route does. Everything is =/(.*)= — Q1B · Q1C.
+3. When two keys fit, the more specific wins: more segments, then more literal segments, then an exact key over a trailing one. The order keys are written in never decides — Q1A (mine, off =steer/match.js:22=).
+4. A call's records sit under the subject it reaches, never under the socket — Q2.
+5. A route's ctx carries a controller (=contexts.js:20=); the mode gains one; =ctx.stdout= as a name died with Q3 — Q3.
+6. Every aperture has its own controller, a child of its subject's, made by the runtime beat that builds the aperture, never by typology: mode · daemon · runtime · attachments, and the http root for the calls no subject claims. The deepest bind wins — Q3A.
+7. =telemetry= is a root key on the ledger recipe and on the instance recipe; it falls through whole like every slot; no fold of its own (re-rules m89 F3; a key-wise spread is =* deferred=) — Q4.
+8. Paladin owns telemetry beside the instance and the ledger (re-rules m89 F6) — intent.
+9. Every controller is wired; no stray root (re-rules m89 F7) — intent.
+10. A logger is a key under =telemetry.logger=: the key IS its target, the value its sieve. No name beside the target, no key beside the sieve — Q5.
+11. A target follows the sinks: its extension names its codec (=typology/prototypes/datasink.js:101=); a relative target sits under the instance's log mount (=paladin/prototypes/log.js:4=, as a FILESINK path sits under its mountpoint, =mode/traits/filesink.js:16=); one target has one writer, by the map's shape (=datasink.js:128= needs a throw for it) — Q5.
+12. A =:name= in a target is filled by the =:name= its sieve key bound: one file per capture, in the route grammar (=typology/prototypes/pattern.js:76=), never datasink's =%= (mine) — Q5.
+13. A sieve's keys are strict and its tracks are the eight a span writes; a =.desc= is short and bunched, it is context for agents — Q5A.
+14. A recipe that declares no =telemetry= settles to =status= · =fault= · =log= on the console, of the RUNTIME (key =/runtime/(.*)=, Q16 /"a"/: ghost and anima print nothing unless a recipe names their path); =logger: {}= is declared silence. The default is the schematic's, filled when the settled instance is cast (=paladin/instance/lifecycle/3-integration.js:88=) — Q6.
+15. What the console shows changes by an edit and a restart. A tail from another terminal takes the recipe's own sieve as ONE word (Q14, /"perfect."/) and is not scoped by what the recipe declares. HOW it reaches the records is his design of 11-21, unruled (=* open= 22); two cuts died, reading a logger's file and asking the runtime — Q8 · Q13.
+16. The console prints ONE hardcoded line: time · track · path · what the track says. A file stays JSON, one record a row. No key under =telemetry= sets it — Q9.
+17. RE-RULED by Q15, 11-21 (blocks in =* as code=, replayed; stops 4 · 5 · 6 re-cut on it): EVERY root passes =paladin.control(controller)= once, and that one call both wires the stop for its surface and hands the root to paladin's telemetry (Q17 /"a"/, after /"either or, then follow, but no duplicates."/ on my detour of one =follow= row per long-lived root); short =viva= commands are followed too, by his ruling: a =ghost.sock= per command while it runs, their =ghost= rows under a =/(.*)= sieve; paladin holds the stream and writes console and files by the instance's =telemetry=; no telemetry row stays in a system. Paladin opens a socket FILE per process under the instance's logs (=<ledger>/logs/<instance>/<root>.<pid>.sock=, Q18 /"b"/: one per PROCESS, removed when it exits; was =runtime.sock= · one =ghost.sock= for all); another process connects there and receives EVERY record of that root, the past then live; the sieve stays with the caller, whose own paladin writes console or file from a logger of the recipe's shape (Q19 /"b"/; as it stood: the caller registered a sieve there and received the admitted rows) (=viva instance/tail= · =viva instance/pipe=). No route on the runtime, no proof: the folder's permissions guard it. As it stood (Q10): A process taps its stdout with paladin's sinks, one tap a kind: =paladin.telemetry.console= · =paladin.telemetry.file=. Paladin holds how each kind is written on the surface it runs on and reads its own instance; the process only chooses which it taps. The same two rows in the runtime, ghost and anima — Q10.
+18. In a browser a file target's rows are kept in the client, the last 1000 in memory, and drained to the browser's storage on a fault at once and otherwise after 1.5 s of quiet; a copy hands them over, after a reload too — Q11.
+19. The socket is a logger: its target is the word =socket=, twin of =console=, its value a sieve and nothing else (no =true=). Only what that sieve admits leaves the process (re-rules Q19's "every record"); the listening process's own sieve picks from that. A process opens its socket file at its first admitted record, paladin names it (=<root>.<pid>.sock=, Q18); a silent recipe has none (law 14: the default names =console= only). On each end of the socket stands a =Span=: the produce side's holds the admitted records and is read as a source (past, then live), the listen side's is fed by =pipe.from= and attached as a local root is; the wire's codec is =belt.sse= — Q21 · Q22 · Q22A.
+
+* as code — the locked snippets, =ls= order; the telemetry side replayed on a copy 11-20, the Q2 · Q3 · Q3A hunks not
+
+*** subsystems
+
+**** paladin/gestalten/belt
+
+***** control.js — Q15 · Q17 /"a"/: the ONE hand-over. =paladin.control(controller)= wires the stop for the surface it runs on (OS signals · the browser's =pagehide=, moved in from =anima/src/client.js=) and hands the root to paladin's telemetry. Every root passes here: the runtime, every =viva= command, anima
+#+BEGIN_SRC diff
+// subsystems/paladin/gestalten/belt/control.js:1
+ export default function control(paladin) {
+   paladin.control = (controller) => {
+-    for (const signal of ["SIGINT", "SIGQUIT", "SIGTERM"]) Deno.addSignalListener(signal, () => controller.kill("SIGTERM", signal));
++    if (paladin.is.browser) {
++      globalThis.addEventListener("pagehide", () => controller.kill("SIGTERM", "pagehide"));
++    } else {
++      for (const signal of ["SIGINT", "SIGQUIT", "SIGTERM"]) Deno.addSignalListener(signal, () => controller.kill("SIGTERM", signal));
++    }
++    paladin.telemetry.follow(controller);
+     return controller;
+   };
+#+END_SRC
+
+**** paladin/instance
+
+***** factory.js — Q17: ghost hands its root over BEFORE its instance settles (=ghost/run.js:6= · =shell/lifecycle/1-population.js:4=); paladin attaches its writers and opens its socket when the instance does
+#+BEGIN_SRC diff
+// subsystems/paladin/instance/factory.js:11
+     resolution.mountpoints(paladin);
+     integration.settle(paladin);
++    await paladin.telemetry.attach();
+     paladin.publish();
+     return paladin.instance;
+#+END_SRC
+
+***** prototype.js — the empty instance declares the slot bare, as its siblings =runtime;= · =datamap;=, and the cast fills it. A preset ={ logger: {} }= here reads as declared silence: a booted runtime printed nothing (run 11-20, =hello.test.js= red until cut)
+#+BEGIN_SRC diff
+// subsystems/paladin/instance/prototype.js:8
+   services = [];
+   daemons = [];
++  telemetry;
+   paladin = {
+#+END_SRC
+
+**** paladin/instance/lifecycle
+
+***** 1-population.js — the recipe's =telemetry= reaches the instance. =recipe()= hands every slot over by its own row (=:92–101=); a slot without one is dropped in silence: his amen'd recipe settled to the default and =faults= never saw it (run 11-20 through =factories.instance=, found at the show's first stop; the replay had proven the cast and a stub, never the settle)
+#+BEGIN_SRC diff
+// subsystems/paladin/instance/lifecycle/1-population.js:101
+   instance.daemons = (module.daemons ?? []).map((declaration) => dressed(`daemons.${slug(declaration)}`)(declaration));
++  instance.telemetry = module.telemetry;
+   instance.paladin.requirements = record;
+#+END_SRC
+
+***** 3-integration.js — =* open= 8 · 9 closed: a target of neither kind and a key that binds no =:name= of its target are named beside the mask's faults
+#+BEGIN_SRC diff
+// subsystems/paladin/instance/lifecycle/3-integration.js:3
+ import { label, named } from "./2-resolution.js";
++import { faults as logged } from "../../prototypes/telemetry.js";
+…
+     ...worn(instance),
++    ...logged(instance.telemetry),
+   ];
+#+END_SRC
+
+**** paladin/mod.client.js — Q17: the browser's paladin wears =control= too
+#+BEGIN_SRC diff
+// subsystems/paladin/mod.client.js:4
+ import vault from "./gestalten/belt/vault.js";
+ import is from "./gestalten/belt/is.js";
++import control from "./gestalten/belt/control.js";
+ import baked, { modes } from "paladin:baked";
+
+ const paladin = new Paladin();
+-lifecycle.belt(paladin, [vault, is]);
++lifecycle.belt(paladin, [vault, is, control]);
+ lifecycle.baked(paladin, { ...baked, modes });
+
+#+END_SRC
+
+**** paladin/paladin
+
+***** prototype.js — law 8: paladin hangs telemetry beside the ledger
+#+BEGIN_SRC diff
+// subsystems/paladin/paladin/prototype.js:2
+ import { Ledger } from "../ledger/index.js";
++import { Telemetry } from "../prototypes/telemetry.js";
+…
+     this.ledger = new Ledger(this);
++    this.telemetry = new Telemetry(this);
+#+END_SRC
+
+**** paladin/prototypes
+
+***** index.js
+#+BEGIN_SRC diff
+// subsystems/paladin/prototypes/index.js:7
+ export { Log } from "./log.js";
++export { Telemetry } from "./telemetry.js";
+#+END_SRC
+
+***** telemetry.js — NEW, whole: the sieve (Q1–Q1C) · the capture (Q5) · the two checks (=* open= 8 · 9) · the console's line (Q9) · the two sinks (Q10) · the browser's kept rows (Q11). RE-CUT 11-21 on law 19 (Q21 · Q22 · Q22A): three kinds; a =socket= sink beside =console= · =file=; the socket file opens at the first admitted record; on each end a =Span= over =belt.sse= (=listen= · =accept= ⟷ =watch=); the listen side re-reads the folder every 500 ms and dials what is new (=* open= 30); =send='s and =watch='s hand loops, the encoder, =Queue= and =@std/streams= are gone. The five loose fences under =**** the sieve= are the dialogue's cuts of this file; THIS is the code. A file's path is the ledger's log base (twin =ghost/subjects/shell/lifecycle/2-resolution.js:36=); the kind of a target is two predicates, shared by the sinks and the check
+#+BEGIN_SRC js :tangle subsystems/paladin/prototypes/telemetry.js
+import { control, fn, Pattern, Signal, Span, sse, trace, v } from "@vivalence/typology";
+
+const natures = (signature) => signature.array.filter((segment) => segment.nature != null);
+
+const REACHES = [
+  [
+    (segments) => segments.length > 0 && segments.at(-1).type === "remainder",
+    (segments) => ({ segments: segments.slice(0, -1), reaches: (held, given) => held < given }),
+  ],
+  [() => true, (segments) => ({ segments, reaches: (held, given) => held === given })],
+];
+
+const literal = (segment) => segment.type === "literal";
+
+const heavier = (a, b) =>
+  b.segments.length - a.segments.length ||
+  b.segments.filter(literal).length - a.segments.filter(literal).length ||
+  a.reaches(0, 1) - b.reaches(0, 1);
+
+export const ranked = (sieve) =>
+  Object.entries(sieve)
+    .map(([key, tracks]) => {
+      const segments = natures(new Pattern(key));
+      return { key, tracks, ...REACHES.find(([test]) => test(segments))[1](segments) };
+    })
+    .sort(heavier);
+
+const fits = (signals) => (entry) =>
+  entry.reaches(entry.segments.length, signals.length) &&
+  entry.segments.every((segment, index) => segment.apply(signals[index]) !== null);
+
+export const held = (order, record) => {
+  const signals = natures(new Signal(`/${trace.pathname(record.path)}`));
+  const entry = order.find(fits(signals));
+  if (entry === undefined || !entry.tracks.includes(record.track)) return null;
+  return Object.assign(
+    {},
+    ...entry.segments.map((segment, index) => segment.apply(signals[index]).parameters),
+  );
+};
+
+const names = (text) => [...text.matchAll(/:([a-z]+)/g)].map(([, name]) => name);
+
+export const fill = (target, parameters) =>
+  target.replace(/:([a-z]+)/g, (_, name) => parameters[name]);
+
+const KINDS = {
+  console: (target) => target === "console",
+  file: (target) => target.endsWith(".jsonl"),
+  socket: (target) => target === "socket",
+};
+
+export const faults = (telemetry) =>
+  Object.entries(telemetry.logger).flatMap(([target, sieve]) => [
+    ...(Object.values(KINDS).some((kind) => kind(target))
+      ? []
+      : [`telemetry.logger.${target} is neither "console" nor "socket" nor a .jsonl path`]),
+    ...Object.keys(sieve).flatMap((path) =>
+      names(target)
+        .filter((name) => !names(path).includes(name))
+        .map((name) => `telemetry.logger.${target} ${path} binds no :${name}`),
+    ),
+  ]);
+
+const plain = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
+
+const pairs = (data) =>
+  Object.entries(data)
+    .map(([key, value]) => `${key} ${told(value)}`)
+    .join(" · ");
+
+const TOLD = [
+  [(value) => typeof value === "string", (value) => value],
+  [Array.isArray, (value) => `[${value.map(told).join(", ")}]`],
+  [plain, (value) => `{${pairs(value)}}`],
+  [() => true, (value) => JSON.stringify(value)],
+];
+
+const told = (value) => TOLD.find(([test]) => test(value))[1](value);
+
+const roomy = (value) => plain(value) && Object.keys(value).length > 0;
+
+const keyed = (data) => {
+  const width = Math.max(...Object.keys(data).map((key) => key.length));
+  return Object.entries(data)
+    .map(([key, value]) => `${key.padEnd(width)}  ${roomy(value) ? pairs(value) : told(value)}`)
+    .join("\n");
+};
+
+const LOGGED = [
+  [(data) => typeof data === "string", (data) => data],
+  [(data) => Object.values(data).some(roomy), keyed],
+  [() => true, pairs],
+];
+
+const SAID = {
+  start: () => "",
+  stop: () => "",
+  request: (data) => `${data.method ?? ""} ${data.path ?? ""}`,
+  response: (data) => `${data.status ?? ""}`,
+  fault: (data) =>
+    [`${data.type}: ${data.message}`, ...(data.stack ?? "").split("\n").slice(1)].join("\n"),
+  log: (data) => LOGGED.find(([test]) => test(data))[1](data),
+  entity: (data) => `${data.schema} ${data.id}`,
+  status: (data) => data.code,
+};
+
+const KIND = {
+  runtime: ["r", 1],
+  daemon: ["d", 1],
+  mode: ["m", 2],
+  client: ["c", 1],
+  service: ["s", 1],
+  aperture: ["a", 0],
+  harness: ["h", 0],
+  entities: ["e", 0],
+  metadata: ["md", 0],
+  userspace: ["u", 0],
+};
+
+const kinded = (words) => {
+  if (words.length === 0) return [];
+  const [word, ...rest] = words;
+  if (!(word in KIND) || rest.length === 0) return [word, ...kinded(rest)];
+  const [short, slugs] = KIND[word];
+  return [short, ...rest.slice(0, slugs), ...kinded(rest.slice(slugs))];
+};
+
+const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g;
+
+const brief = (pathname) =>
+  kinded(pathname.replace(UUID, (id) => id.slice(0, 8)).split("/")).join("/");
+
+const two = (value) => String(value).padStart(2, "0");
+
+const clock = (at) => {
+  const date = new Date(at);
+  const seconds = `${two(date.getHours())}:${two(date.getMinutes())}:${two(date.getSeconds())}`;
+  return `${seconds}.${String(date.getMilliseconds()).padStart(3, "0")}`;
+};
+
+const BROKEN = ["request", "response", "log", "fault"];
+
+const below = (said) =>
+  said
+    .split("\n")
+    .map((row) => `\n│ ${row.trim()}`)
+    .join("");
+
+const beside = (said) => `  │  ${said}`;
+
+export const line = (record) => {
+  const path = brief(trace.pathname(record.path));
+  const head = `${clock(record.at)} ${record.track.padEnd(8)} ${path}`;
+  const said = SAID[record.track](record.data);
+  if (said === "") return head;
+  return head + (BROKEN.includes(record.track) ? below(said) : beside(said));
+};
+
+const ordered = (logger, kind) =>
+  Object.entries(logger)
+    .filter(([target]) => kind(target))
+    .map(([target, sieve]) => ({ target, order: ranked(sieve) }));
+
+const sink = (loggers, write) => (record) =>
+  Promise.all(
+    loggers.map((logger) => {
+      const parameters = held(logger.order, record);
+      return parameters === null ? null : write(fill(logger.target, parameters), record);
+    }),
+  );
+
+const print = (target, record) => console[record.track === "fault" ? "error" : "log"](line(record));
+
+const KEPT = 1000;
+const QUIET = 1500;
+const REREAD = 500;
+
+export class Telemetry {
+  kept = {};
+  settles = {};
+  controller = null;
+  attached = null;
+  span = null;
+  listening = null;
+
+  constructor(paladin) {
+    this.paladin = paladin;
+  }
+
+  get logs() {
+    return this.paladin.ledger.log(this.paladin.instance.manifest.slug).base;
+  }
+
+  append(target, record) {
+    return this.paladin.state.jsonl(this.logs.branch(target), record);
+  }
+
+  drain(target) {
+    localStorage.setItem(
+      `viva.telemetry.${target}`,
+      this.kept[target].map((row) => JSON.stringify(row)).join("\n"),
+    );
+  }
+
+  keep(target, record) {
+    const rows = (this.kept[target] ??= []);
+    rows.push(record);
+    rows.splice(0, rows.length - KEPT);
+    if (record.track === "fault") return this.drain(target);
+    (this.settles[target] ??= fn.debounce(() => this.drain(target), QUIET))();
+  }
+
+  get console() {
+    return sink(ordered(this.paladin.instance.telemetry.logger, KINDS.console), print);
+  }
+
+  get file() {
+    const write = this.paladin.is.browser
+      ? (target, record) => this.keep(target, record)
+      : (target, record) => this.append(target, record);
+    return sink(ordered(this.paladin.instance.telemetry.logger, KINDS.file), write);
+  }
+
+  get socket() {
+    const send = (target, record) => this.send(record);
+    return sink(ordered(this.paladin.instance.telemetry.logger, KINDS.socket), send);
+  }
+
+  follow(controller) {
+    this.controller = controller;
+    return this.attach();
+  }
+
+  attach() {
+    if (this.attached || !this.controller || !this.paladin.instance.telemetry) return this.attached;
+    const { stdout } = this.controller;
+    stdout.history.forEach(this.console);
+    stdout.history.forEach(this.file);
+    stdout.pipe.tap(this.console);
+    stdout.pipe.tap(this.file);
+    if (!this.paladin.is.browser) {
+      stdout.history.forEach(this.socket);
+      stdout.pipe.tap(this.socket);
+    }
+    this.attached = true;
+    return this.attached;
+  }
+
+  send(record) {
+    this.span ??= this.listen(new Span("socket"));
+    this.span.pipe.send(record);
+  }
+
+  listen(span) {
+    const { stdout } = this.controller;
+    const [root] = trace.pathname(stdout.absolute).split("/");
+    const path = this.logs.branch(`${root}.${Deno.pid}.sock`).absolute;
+    this.paladin.state
+      .dir(this.logs)
+      .then(() => this.accept(Deno.listen({ transport: "unix", path }), span))
+      .catch((error) => stdout.log({ socket: path, refused: error.message }));
+    return span;
+  }
+
+  async accept(listener, span) {
+    const { stdout } = this.controller;
+    const { path } = listener.addr;
+    this.listening = path;
+    globalThis.addEventListener("unload", () => {
+      try {
+        Deno.removeSync(path);
+      } catch (error) {
+        if (!(error instanceof Deno.errors.NotFound)) throw error;
+      }
+    });
+    control.hold(this.controller).then(() => listener.close());
+    for await (const connection of listener) {
+      sse
+        .encode(span.drain())
+        .pipeTo(connection.writable)
+        .catch((error) => {
+          if (!(error instanceof Deno.errors.BrokenPipe)) stdout.fault(error);
+        });
+    }
+  }
+
+  async watch(logger, stopped) {
+    const { Telemetry: schematic } = v.primitives.instance;
+    const wrong = [
+      ...schematic.faults({ logger }).map(({ at, reason }) => `${at} ${reason}`),
+      ...faults({ logger }),
+    ];
+    if (wrong.length) throw new Error(wrong.join(" · "));
+    const { slug } = this.paladin.instance.manifest;
+    if (!Object.keys(this.paladin.instance.telemetry.logger).some(KINDS.socket)) {
+      throw new Error(`no process of ${slug} sends: its recipe names no telemetry.logger.socket`);
+    }
+    const write = (target, record) => this.append(target, record);
+    const span = new Span("watched");
+    span.pipe.tap(sink(ordered(logger, KINDS.console), print));
+    span.pipe.tap(sink(ordered(logger, KINDS.file), write));
+    await this.paladin.state.dir(this.logs);
+    const dialed = new Set();
+    const dial = async (path) => {
+      dialed.add(path);
+      try {
+        const connection = await Deno.connect({ transport: "unix", path });
+        span.pipe.from(sse.frames(connection.readable));
+      } catch (error) {
+        const gone = [Deno.errors.ConnectionRefused, Deno.errors.NotFound];
+        if (!gone.some((kind) => error instanceof kind)) throw error;
+      }
+    };
+    const reread = async () => {
+      const entries = await Array.fromAsync(Deno.readDir(this.logs.absolute));
+      const paths = entries
+        .filter((entry) => entry.name.endsWith(".sock"))
+        .map((entry) => this.logs.branch(entry.name).absolute)
+        .filter((path) => path !== this.listening && !dialed.has(path));
+      await Promise.all(paths.map(dial));
+    };
+    await reread();
+    const rereading = setInterval(reread, REREAD);
+    try {
+      await stopped;
+    } finally {
+      clearInterval(rereading);
+    }
+  }
+}
+#+END_SRC
+
+**** paladin/tests
+
+***** ledger.recipe.test.js — the settle, a case in the sibling suite: the one place a recipe's =telemetry= crosses =recipe()= · the cast · =faults= together
+#+BEGIN_SRC diff
+// subsystems/paladin/tests/ledger.recipe.test.js:76
+     expect(instance.paladin.inherited).not.toContain("clients");
+   });
+
++  it("telemetry falls through whole like any slot; the instance's own wins; a wrong one is named", async () => {
++    const telemetry = { logger: { "daemons/:daemon.jsonl": { "/runtime/runtime/daemon/:daemon/(.*)": ["fault"] } } };
++    const fallen = await mount({ ledger: (paladin) => ledger(paladin, { telemetry }), instance: { daemons: [daemon] } });
++    expect(fallen.paladin.inherited).toContain("telemetry");
++    expect(fallen.telemetry).toEqual(telemetry);
++    const own = await mount({
++      ledger: (paladin) => ledger(paladin, { telemetry }),
++      instance: { daemons: [daemon], telemetry: { logger: {} } },
++    });
++    expect(own.telemetry).toEqual({ logger: {} });
++    const wrong = { logger: { stdout: { "/(.*)": ["status"] } } };
++    const refused = await mount({ ledger: (paladin) => ledger(paladin, { telemetry: wrong }), instance: { daemons: [daemon] } });
++    expect(refused.paladin.faults).toContain('telemetry.logger.stdout is neither "console" nor "socket" nor a .jsonl path');
++  });
++
+   it("the ledger's thunks fire ONCE, at the instance's own label (clients.anima), and an overridden slot's thunk never fires", async () => {
+#+END_SRC
+
+***** telemetry.test.js — NEW, whole: the sieve's cases · the recipe's word · the line · the sinks on a real =Controller= tree; the paladin it reads is a stub of the four fields the prototype touches
+#+BEGIN_SRC js :tangle subsystems/paladin/tests/telemetry.test.js
+import { describe, it } from "@std/testing/bdd";
+import { expect } from "@std/expect";
+import { Controller, Path, Span, v } from "@vivalence/typology";
+import { faults, fill, held, line, ranked, Telemetry } from "../prototypes/telemetry.js";
+import { Instance } from "../instance/prototype.js";
+
+const { Telemetry: Schematic } = v.primitives.instance;
+
+const AMEN = {
+  logger: {
+    console: { "/(.*)": ["status", "fault"] },
+    "spans.jsonl": { "/(.*)": ["status", "fault", "log"] },
+    "daemons/:daemon.jsonl": {
+      "/runtime/runtime/daemon/:daemon/(.*)": ["start", "stop", "status", "fault", "log"],
+    },
+  },
+};
+
+const record = (pathname, track, data = null) => ({ at: 0, path: [pathname], track, data });
+
+const paladin = (telemetry, { browser = false, logs = "/ledger/logs" } = {}) => {
+  const appended = [];
+  const stub = {
+    instance: { manifest: { slug: "probe" }, telemetry },
+    is: { browser },
+    ledger: { log: (slug) => ({ base: new Path(`${logs}/${slug}`) }) },
+    state: {
+      jsonl: (path, entry) => appended.push([path.absolute, entry.track]),
+      dir: (path) => Deno.mkdir(path.absolute, { recursive: true }),
+    },
+  };
+  return { stub, appended, telemetry: new Telemetry(stub) };
+};
+
+const boot = (taps) => {
+  const runtime = new Controller({ stdout: new Span("runtime/runtime") });
+  for (const tap of taps) runtime.stdout.pipe.tap(tap);
+  runtime.start();
+  const daemon = runtime.branch("/daemon/droneaid");
+  daemon.start();
+  const mode = daemon.branch("/mode/model/editor");
+  mode.start();
+  const call = mode.stdout.branch("aperture/geometry/63638210-43de-4263-9f8a-fb4d26b5972b");
+  call.start();
+  call.request({ method: "POST", path: "/daemon/droneaid/mode/model/editor/geometry" });
+  call.response({ status: 200 });
+  call.stop();
+  daemon.stdout.log("seated on probe");
+  mode.fault(new TypeError("The database connection is not open"));
+  return runtime;
+};
+
+const printing = (run) => {
+  const printed = [];
+  const { log, error } = console;
+  console.log = (text) => printed.push(["log", text]);
+  console.error = (text) => printed.push(["error", text]);
+  try {
+    run();
+  } finally {
+    Object.assign(console, { log, error });
+  }
+  return printed;
+};
+
+describe("the sieve — a key is a record's path, its value the tracks admitted there", () => {
+  const order = ranked({
+    "/(.*)": ["status", "fault", "log"],
+    "/runtime/runtime/daemon/*/mode/model/editor": ["status", "fault", "log"],
+    "/runtime/runtime/daemon/*/mode/model/editor/(.*)": ["request", "response", "fault", "log"],
+    "/ghost/client/terminal/*/repl": ["log", "fault"],
+  });
+  const winner = (pathname) => order.find((entry) => held([entry], record(pathname, entry.tracks[0])) !== null)?.key;
+
+  it("the most specific key wins, whatever order the keys were written in", () => {
+    expect(winner("runtime/runtime")).toBe("/(.*)");
+    expect(winner("runtime/runtime/daemon/droneaid/mode/model/editor")).toBe("/runtime/runtime/daemon/*/mode/model/editor");
+    expect(winner("runtime/runtime/daemon/droneaid/mode/model/editor/aperture/geometry/f2")).toBe(
+      "/runtime/runtime/daemon/*/mode/model/editor/(.*)",
+    );
+    expect(winner("ghost/client/terminal/6f1c/repl")).toBe("/ghost/client/terminal/*/repl");
+    expect(winner("ghost/client/terminal/6f1c/repl/close")).toBe("/(.*)");
+  });
+
+  it("a plain key matches exactly its own path; a trailing (.*) takes one or more below it", () => {
+    const plain = ranked({ "/x": ["log"] });
+    const below = ranked({ "/x/(.*)": ["log"] });
+    expect(held(plain, record("x", "log"))).toEqual({});
+    expect(held(plain, record("x/a", "log"))).toBe(null);
+    expect(held(below, record("x", "log"))).toBe(null);
+    expect(held(below, record("x/a", "log"))).toEqual({});
+    expect(held(below, record("x/a/b", "log"))).toEqual({});
+  });
+
+  it("the winning key's tracks decide; a track it does not name is refused", () => {
+    expect(held(order, record("runtime/runtime/daemon/droneaid/mode/model/editor/geometry/f1", "request"))).toEqual({});
+    expect(held(order, record("runtime/runtime/daemon/droneaid/mode/model/editor/geometry/f1", "status"))).toBe(null);
+    expect(held(order, record("runtime/runtime", "request"))).toBe(null);
+  });
+
+  it("a :name in a key binds, and fills the same :name in its target", () => {
+    const captured = ranked(AMEN.logger["daemons/:daemon.jsonl"]);
+    const parameters = held(captured, record("runtime/runtime/daemon/droneaid/mode/model/editor", "status"));
+    expect(parameters).toEqual({ daemon: "droneaid" });
+    expect(fill("daemons/:daemon.jsonl", parameters)).toBe("daemons/droneaid.jsonl");
+  });
+});
+
+describe("v.primitives.instance.Telemetry — the recipe's word", () => {
+  const sentences = (value) => Schematic.faults(value).map(({ at, reason }) => `${at} ${reason}`);
+
+  it("his amen'd object passes, schematic and capture", () => {
+    expect(sentences(AMEN)).toEqual([]);
+    expect(faults(AMEN)).toEqual([]);
+  });
+
+  it("a key off the root, a bare string for the tracks and an unknown track are loud", () => {
+    expect(sentences({ logger: { console: { "a/b": ["fault"] } } })).toEqual(["/logger/console must not have additional properties"]);
+    expect(sentences({ logger: { console: { "/(.*)": "fault" } } })).toEqual(["/logger/console//(.*) must be array"]);
+    expect(sentences({ logger: { console: { "/(.*)": ["payload"] } } }).length).toBeGreaterThan(0);
+  });
+
+  it("a recipe that says nothing settles to status · fault · log on the console; logger: {} is declared silence", () => {
+    const { InstanceMask } = v.primitives.instance;
+    const settled = (held) => InstanceMask.cast({ manifest: { type: "instance", slug: "probe" }, environment: {}, ...held }).telemetry;
+    expect(settled({})).toEqual({ logger: { console: { "/runtime/(.*)": ["status", "fault", "log"] } } });
+    expect(settled({ telemetry: {} })).toEqual({ logger: { console: { "/runtime/(.*)": ["status", "fault", "log"] } } });
+    expect(settled({ telemetry: { logger: {} } })).toEqual({ logger: {} });
+  });
+
+  it("the empty Instance presets nothing: a cast over it settles to the default too", () => {
+    const { InstanceMask } = v.primitives.instance;
+    const empty = Object.assign(new Instance(), { manifest: { type: "instance", slug: "probe" }, environment: {} });
+    expect(InstanceMask.cast(empty).telemetry).toEqual({ logger: { console: { "/runtime/(.*)": ["status", "fault", "log"] } } });
+  });
+
+  it("a key that binds no :name of its target, and a target of neither kind, are named", () => {
+    expect(faults({ logger: { "daemons/:daemon.jsonl": { "/(.*)": ["status"] } } })).toEqual([
+      "telemetry.logger.daemons/:daemon.jsonl /(.*) binds no :daemon",
+    ]);
+    expect(faults({ logger: { stdout: { "/(.*)": ["status"] } } })).toEqual([
+      'telemetry.logger.stdout is neither "console" nor "socket" nor a .jsonl path',
+    ]);
+    expect(faults({ logger: { socket: { "/(.*)": ["status"] } } })).toEqual([]);
+  });
+});
+
+describe("the console's line — one style", () => {
+  it("a status keeps the divider; kind words are short, slugs whole", () => {
+    const text = line({ at: 0, path: ["runtime/runtime", "/daemon/droneaid", "/mode/model/editor"], track: "status", data: { code: "RUNNING" } });
+    expect(text.slice(13)).toBe("status   r/runtime/d/droneaid/m/model/editor  │  RUNNING");
+  });
+
+  it("request · response · log · fault say it on the row below; an id shows its first 8", () => {
+    const path = ["runtime/runtime", "/daemon/droneaid", "aperture/geometry/63638210-43de-4263-9f8a-fb4d26b5972b"];
+    const rows = line({ at: 0, path, track: "request", data: { method: "POST", path: "/daemon/droneaid/geometry" } }).split("\n");
+    expect(rows[0].slice(13)).toBe("request  r/runtime/d/droneaid/a/geometry/63638210");
+    expect(rows[1]).toBe("│ POST /daemon/droneaid/geometry");
+    const streamed = line({ at: 0, path: [...path.slice(0, 2), "harness/dialogue/stream"], track: "start", data: null });
+    expect(streamed.slice(13)).toBe("start    r/runtime/d/droneaid/h/dialogue/stream");
+    const listed = line({ at: 0, path: ["runtime/runtime", "socket", "/userspace/entities/buffer/find"], track: "start", data: null });
+    expect(listed.slice(13)).toBe("start    r/runtime/socket/u/e/buffer/find");
+    const described = line({ at: 0, path: [...path.slice(0, 2), "metadata/manifest"], track: "start", data: null });
+    expect(described.slice(13)).toBe("start    r/runtime/d/droneaid/md/manifest");
+    expect(line({ at: 0, path, track: "start", data: null }).split("\n").length).toBe(1);
+  });
+
+  it("a fault prints its stack below, one row a frame", () => {
+    const rows = line({ at: 0, path: ["runtime/runtime"], track: "fault", data: { type: "TypeError", message: "closed", stack: "TypeError: closed\n    at a (x.js:1:1)" } }).split("\n");
+    expect(rows.slice(1)).toEqual(["│ TypeError: closed", "│ at a (x.js:1:1)"]);
+  });
+
+  it("a log's object says its keys: scalars on one row, a nested object a row per key", () => {
+    const patrol = { service: {}, daemon: { chess: "RUNNING", spanish: "PAUSED" }, files: { missing: [], returned: ["a.mp3"] } };
+    const rows = line({ at: 0, path: ["runtime/runtime"], track: "log", data: patrol }).split("\n");
+    expect(rows.slice(1)).toEqual([
+      "│ service  {}",
+      "│ daemon   chess RUNNING · spanish PAUSED",
+      "│ files    missing [] · returned [a.mp3]",
+    ]);
+    const dropped = line({ at: 0, path: ["runtime/runtime", "socket"], track: "log", data: { drop: "no-route", signal: "/x/y" } });
+    expect(dropped.split("\n").slice(1)).toEqual(["│ drop no-route · signal /x/y"]);
+    const deep = line({ at: 0, path: ["runtime/runtime"], track: "log", data: { listen: { at: { port: 2501 } }, live: true } });
+    expect(deep.split("\n").slice(1)).toEqual(["│ listen  at {port 2501}", "│ live    true"]);
+    expect(line({ at: 0, path: ["runtime/runtime"], track: "log", data: "seated on probe" }).split("\n")[1]).toBe("│ seated on probe");
+  });
+});
+
+describe("paladin.telemetry — a process taps the sinks it can show", () => {
+  it("the console sink prints the admitted records, a fault on the error stream", () => {
+    const { telemetry } = paladin(AMEN);
+    const printed = printing(() => boot([telemetry.console]));
+    expect(printed.map(([stream]) => stream)).toEqual(["log", "log", "log", "log", "error"]);
+    expect(printed.at(-1)[1].split("\n")[1]).toBe("│ TypeError: The database connection is not open");
+  });
+
+  it("the file sink appends under the instance's logs, one file per capture", () => {
+    const { telemetry, appended } = paladin(AMEN);
+    boot([telemetry.file]);
+    const count = (path) => appended.filter(([held]) => held === path).length;
+    expect(count("/ledger/logs/probe/spans.jsonl")).toBe(6);
+    expect(count("/ledger/logs/probe/daemons/droneaid.jsonl")).toBe(6);
+    expect(appended.length).toBe(12);
+  });
+
+  it("a process that taps only the file prints nothing; one that taps only the console writes nothing", () => {
+    const filed = paladin(AMEN);
+    expect(printing(() => boot([filed.telemetry.file]))).toEqual([]);
+    const shown = paladin(AMEN);
+    printing(() => boot([shown.telemetry.console]));
+    expect(shown.appended).toEqual([]);
+  });
+
+  it("in a browser a file's rows are kept, drained at once on a fault", () => {
+    const stored = new Map();
+    const held = globalThis.localStorage;
+    Object.defineProperty(globalThis, "localStorage", { configurable: true, value: { setItem: (key, text) => stored.set(key, text) } });
+    try {
+      const { telemetry, appended } = paladin(AMEN, { browser: true });
+      boot([telemetry.file]);
+      expect(appended).toEqual([]);
+      expect(telemetry.kept["spans.jsonl"].length).toBe(6);
+      expect(stored.get("viva.telemetry.spans.jsonl").split("\n").length).toBe(6);
+      expect(JSON.parse(stored.get("viva.telemetry.spans.jsonl").split("\n").at(-1)).track).toBe("fault");
+      for (const settle of Object.values(telemetry.settles)) settle.cancel();
+    } finally {
+      Object.defineProperty(globalThis, "localStorage", { configurable: true, value: held });
+    }
+  });
+
+  it("a watching logger is checked by the recipe's own law, before any socket is read", async () => {
+    const { telemetry } = paladin(AMEN);
+    await expect(telemetry.watch({ console: { "a/b": ["status"] } })).rejects.toThrow(
+      "/logger/console must not have additional properties",
+    );
+    await expect(telemetry.watch({ stdout: { "/(.*)": ["status"] } })).rejects.toThrow(
+      'telemetry.logger.stdout is neither "console" nor "socket" nor a .jsonl path',
+    );
+    await expect(telemetry.watch({ console: { "/(.*)": ["status"] } })).rejects.toThrow(
+      "no process of probe sends: its recipe names no telemetry.logger.socket",
+    );
+  });
+
+  it("a followed root writes by the recipe, the past included", async () => {
+    const logs = await Deno.makeTempDir({ prefix: "viva-" });
+    const { telemetry, appended } = paladin(AMEN, { logs });
+    const runtime = boot([]);
+    const printed = [];
+    const { log, error } = console;
+    console.log = (text) => printed.push(text);
+    console.error = (text) => printed.push(text);
+    try {
+      await telemetry.follow(runtime);
+      runtime.stdout.log("after the follow");
+      await runtime.kill("SIGTERM");
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    } finally {
+      Object.assign(console, { log, error });
+    }
+    expect(printed.filter((text) => text.includes("RUNNING")).length).toBe(3);
+    expect(appended.filter(([path]) => path === `${logs}/probe/spans.jsonl`).length).toBeGreaterThanOrEqual(7);
+    expect(appended.some(([path]) => path === `${logs}/probe/daemons/droneaid.jsonl`)).toBe(true);
+    await Deno.remove(logs, { recursive: true });
+  });
+
+  it("a root handed over before its instance settles is written once the instance does", async () => {
+    const logs = await Deno.makeTempDir({ prefix: "viva-" });
+    const { telemetry, stub, appended } = paladin(undefined, { logs });
+    const runtime = boot([]);
+    expect(telemetry.follow(runtime)).toBe(null);
+    expect(appended).toEqual([]);
+    stub.instance.telemetry = { logger: { "spans.jsonl": AMEN.logger["spans.jsonl"] } };
+    await telemetry.attach();
+    expect(appended.length).toBe(6);
+    await runtime.kill("SIGTERM");
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    await Deno.remove(logs, { recursive: true });
+  });
+
+  it("a recipe with no socket logger opens no socket file", async () => {
+    const logs = await Deno.makeTempDir({ prefix: "viva-" });
+    const { telemetry } = paladin({ logger: { console: { "/(.*)": ["entity"] } } }, { logs });
+    const runtime = new Controller({ stdout: new Span("runtime/runtime") });
+    await telemetry.follow(runtime);
+    runtime.start();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(telemetry.span).toBe(null);
+    expect(await Array.fromAsync(Deno.readDir(logs))).toEqual([]);
+    await Deno.remove(logs, { recursive: true });
+  });
+
+  it("a socket path past the limit is one log on the root, never a throw", async () => {
+    const root = await Deno.makeTempDir({ prefix: "viva-" });
+    const recipe = { logger: { socket: { "/(.*)": ["status"] } } };
+    const { telemetry } = paladin(recipe, { logs: `${root}/${"deep".repeat(40)}` });
+    const runtime = new Controller({ stdout: new Span("runtime/runtime") });
+    await telemetry.follow(runtime);
+    runtime.start();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(runtime.stdout.history.filter((record) => record.track === "log" && record.data.refused).length).toBe(1);
+    expect(telemetry.listening).toBe(null);
+    await Deno.remove(root, { recursive: true });
+  });
+
+  it(
+    "a socket logger sends what its sieve admits: a listening logger opens on the past, follows, and joins a process that comes later",
+    { sanitizeOps: false, sanitizeResources: false },
+    async () => {
+      const logs = await Deno.makeTempDir({ prefix: "viva-" });
+      const recipe = { logger: { socket: { "/(.*)": ["log"] } } };
+      const first = paladin(recipe, { logs });
+      const runtime = new Controller({ stdout: new Span("runtime/runtime") });
+      runtime.start();
+      runtime.stdout.log("before the follow");
+      await first.telemetry.follow(runtime);
+      const caller = paladin(recipe, { logs });
+      const sieve = { "/(.*)": ["log", "status"] };
+      const stopped = Promise.withResolvers();
+      const printed = [];
+      const { log } = console;
+      console.log = (text) => printed.push(text.split("\n")[1]);
+      try {
+        const screen = caller.telemetry.watch({ console: sieve }, stopped.promise);
+        const file = caller.telemetry.watch({ "calls.jsonl": sieve }, stopped.promise);
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        runtime.stdout.log("after the listener joined");
+        const second = paladin(recipe, { logs });
+        const shell = new Controller({ stdout: new Span("ghost/shell") });
+        await second.telemetry.follow(shell);
+        shell.start();
+        shell.stdout.log("from the process that came later");
+        await new Promise((resolve) => setTimeout(resolve, 900));
+        stopped.resolve();
+        await Promise.all([screen, file]);
+      } finally {
+        Object.assign(console, { log });
+      }
+      expect(printed).toEqual([
+        "│ before the follow",
+        "│ after the listener joined",
+        "│ from the process that came later",
+      ]);
+      expect(caller.appended).toEqual([
+        [`${logs}/probe/calls.jsonl`, "log"],
+        [`${logs}/probe/calls.jsonl`, "log"],
+        [`${logs}/probe/calls.jsonl`, "log"],
+      ]);
+      await Deno.remove(logs, { recursive: true });
+    },
+  );
+});
+#+END_SRC
+
+**** typology/gestalten/shard — LANDED 11-21 on /"wire the multiplexes also through controller."/ (=* the dialogue= 30)
+
+***** serve.js — the upgrade is a record on the socket's own span (=runtime/lifecycle/3-integration.js:36= hands it the runtime's =stdout=)
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shard/serve.js:52
+     sockets.add(socket);
+-    console.log(
+-      `[multiplex ${new Date().toISOString().slice(11, 23)}] socket upgraded — ${sockets.size} open`,
+-    );
++    socket.span.log({ socket: "upgraded", open: sockets.size });
+     ws.addEventListener("close", () => sockets.delete(socket));
+#+END_SRC
+
+***** transmitter.js — the client's multiplex takes the span its sockets hang under, twin =serve.js:45= =multiplex(vector, trace)=; his two marks in the file stand untouched
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shard/transmitter.js:15
+-export function multiplex({ authority, mount = "/multiplex", vector, connect } = {}) {
++export function multiplex({ authority, mount = "/multiplex", vector, connect, trace } = {}) {
+…
+-        const socket = new Socket(open(address), vector ?? new Vector());
++        const socket = new Socket(open(address), vector ?? new Vector(), { trace });
+#+END_SRC
+
+**** typology/prototypes
+
+***** mode.js — Q3: typology declares, the runtime makes
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/mode.js:11
+   aperture = null;
+-  stdout = null;
++  controller = null;
+#+END_SRC
+
+***** socket.js — Q2 · Q3: SKETCH, the route's tail below the winning bind is owed (=* open= 1)
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/socket.js:169
+-    const trace = this.span.branch(`${packet.signal}/${packet.frame}`);
++    const trace = ctx.controller.stdout.branch(`${route}/${packet.frame}`);
+#+END_SRC
+
+***** socket.js — LANDED 11-21 (=* the dialogue= 30), a second block on this file: the five console prints leave, each was the double of a record on the span (a drop's =log= · an answered miss's =response= 404 · a failure's =fault=)
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/socket.js:113
+     if (!v.primitives.connection.Packet.check(packet)) {
+-      console.warn(`[multiplex] rejected malformed packet`, packet);
+       return void this.span.log({ drop: "malformed", packet });
+…
+     catch {
+-      console.warn(`[multiplex] rejected bad signal "${packet.nature}"`);
+       return void this.span.log({ drop: "bad-signal", signal: packet.nature });
+…
+     if (!effect) {
+-      console.warn(`[multiplex] no route for push "${packet.nature}"`);
+       return void this.span.log({ drop: "no-route", signal: packet.nature });
+…
+       if (!effect) {
+-        console.warn(`[multiplex] no route for "${signal.pathname}"`);
+         status = 404;
+…
+       status = 500;
+-      console.error(`[multiplex] "${packet.signal}" failed`, error);
+       this.#send({ frame: id, error: { status, message: error.message } });
+#+END_SRC
+
+***** span.js — Q21 /"b"/: a span read as a source hands its past, then its live records; his (typology). Twin =pipe.js:32= (the same tap · queue · untap, no past); the hand copy it replaces first is =typology/entities/Activity.ts:139=. The socket's produce side reads it, the listen side is a span fed by =pipe.from= (=* open= 27)
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/span.js:3
+ import { Pipe } from "./pipe.js";
++import { Queue } from "./queue.js";
+ import { Vector } from "./vector.js";
+…
+     return this.$history.get();
+   }
+
++  async *drain(signal) {
++    const live = new Queue();
++    const untap = this.pipe.tap(live);
++    try {
++      yield* [...this.history];
++      yield* live.drain(signal);
++    } finally {
++      untap();
++    }
++  }
++
++  [Symbol.asyncIterator]() {
++    return this.drain();
++  }
++
+   tracks(vector) {
+#+END_SRC
+
+**** typology/schematics/primitives
+
+***** instance.js — Q4: the slot · Q5 · Q5A: its body · Q6: what a silent recipe settles to
+The body sits ABOVE =InstanceMask=: the mask reads =Telemetry= when the module loads. The mask row is =.default({})=, twin =clients: v.array(ClientMask).default([])= (=:166=): with his amen'd =.optional()= a silent recipe casts to ={}= and Q6 never fills (run 11-20).
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/instance.js:3
+ import { Manifest } from "./manifest.js";
+ import { Home } from "./home.js";
++import { Track } from "./track.js";
+…
++export const Sieve = v
++  .record(v.string({ pattern: "^/" }), v.array(Track), { additionalProperties: false })
++  .desc("Path → tracks admitted. Plain = exact · trailing /(.*) = below · most specific wins.")
++  .example({ "/(.*)": ["status", "fault"] });
++
++export const Telemetry = v.object(
++  {
++    logger: v
++      .record(v.string(), Sieve)
++      .desc('Target → sieve. "console" · "socket" · a .jsonl under the logs · :name filled by the sieve key.')
++      .example({ "daemons/:daemon.jsonl": { "/runtime/runtime/daemon/:daemon/(.*)": ["fault"] } })
++      .default({ console: { "/runtime/(.*)": ["status", "fault", "log"] } })
++      .optional(),
++  },
++  { additionalProperties: false },
++);
++
+ export const InstanceMask = v.object(
+…
+     services: v.array(ServiceMask).default([]),
+     daemons: v.array(DaemonMask).default([]),
++    telemetry: Telemetry.default({}),
+…
+     services: v.array(ServiceRecipe).optional(),
+     daemons: v.array(DaemonRecipe).optional(),
++    telemetry: Telemetry.optional(),
+…
+     services: v.array(ServiceRecipe).optional(),
++    telemetry: Telemetry.optional(),
+   },
+   { additionalProperties: true },
+#+END_SRC
+
+| what is cast (run 11-20) | settles to |
+|---+---|
+| no =telemetry= | ={"logger":{"console":{"/runtime/(.*)":["status","fault","log"]}}}= |
+| =telemetry: {}= | the same |
+| =telemetry: { logger: {} }= | ={"logger":{}}= |
+
+664 of the last 20000 records are =status= · =fault= · =log=.
+
+***** track.js — Q5A: the tracks a sieve may name; nothing in the repo or =~/.viva/registry= adds a ninth (=span.js:13=)
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/track.js:10
+ export const Status = v.object({ code: v.string() }, { additionalProperties: true }).desc('A status as its owner holds it. Example: { "code": "STOPPED" }');
++
++export const Track = v
++  .enum(["start", "stop", "request", "response", "fault", "log", "entity", "status"])
++  .desc("The eight tracks a span writes.")
++  .example("fault");
+#+END_SRC
+
+**** typology/schematics
+
+***** v.js — Q5A /"amen"/: a record takes options; 111 callers (60 repo · 51 registry) pass two today
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/v.js:156
+-  record: (keys, values) => enhance(Type.Record(keys, values)),
++  record: (keys, values, opts) => enhance(Type.Record(keys, values, opts)),
+#+END_SRC
+
+The snapshot, his amen'd object inside its parents; =Telemetry.faults= answers =[]= (run 11-20):
+
+#+BEGIN_SRC json
+// ~/.viva/ledger.viva.json
+{
+  "telemetry": {
+    "logger": {
+      "console": {
+        "/(.*)": ["status", "fault"]
+      },
+      "spans.jsonl": {
+        "/(.*)": ["status", "fault", "log"]
+      },
+      "daemons/:daemon.jsonl": {
+        "/runtime/runtime/daemon/:daemon/(.*)": ["start", "stop", "status", "fault", "log"]
+      }
+    }
+  }
+}
+#+END_SRC
+
+| target, last 20000 records (all 20000 reach the console and =spans.jsonl= today) | records |
+|---+---|
+| =console= | 359 |
+| =spans.jsonl= | 639 |
+| =daemons/chess.jsonl= | 820 |
+| =daemons/droneaid.jsonl= | 803 |
+| =daemons/spanish.jsonl= | 642 |
+
+**** typology/tests
+
+***** multiplex.test.js — LANDED 11-21 (=* the dialogue= 30): two cases in the sibling suite, both red on the old product (=pretty/two.sh=)
+#+BEGIN_SRC diff
+// subsystems/typology/tests/multiplex.test.js:226
+     specimen.expect(owner.history.filter((record) => record.track === "fault")).toEqual([]);
++    const logged = owner.history.filter((record) => record.track === "log").map((record) => [record.path[1], record.data]);
++    specimen.expect(logged).toEqual([["socket", { socket: "upgraded", open: 1 }]]);
+…
++  specimen.it("a push the client holds no route for climbs to the span its transmitter was handed", async () => {
++    const { gate } = build();
++    const owner = new Span("client");
++    const said = [];
++    const { warn, error } = console;
++    Object.assign(console, { warn: (...words) => said.push(words), error: (...words) => said.push(words) });
++    const transport = shard.transmitter.multiplex({
++      authority: { get: () => ({ access: "sesame" }) },
++      trace: owner,
++      connect: () => {
++        const { west, east } = stubPair();
++        gate.attend(east);
++        return west;
++      },
++    });
++    try {
++      const connection = new Connection(new Url("http://stub-mux"), transport);
++      specimen.expect(await connection.call("/marco")).toEqual({ ok: true });
++      await sleep.ms(50);
++    } finally {
++      Object.assign(console, { warn, error });
++    }
++
++    const logged = owner.history.filter((record) => record.track === "log").map((record) => [record.path[1], record.data]);
++    specimen.expect(logged).toEqual([["socket", { drop: "no-route", signal: "/polo" }]]);
++    specimen.expect(said).toEqual([]);
++
++    transport.close();
++    await sleep.ms(300);
++  });
++
+   specimen.it("a drop fails the in-flight stream and the next call heals", async () => {
+#+END_SRC
+
+***** span.test.js — Q21: a case in the sibling suite; red without =drain= (=span is not async iterable=)
+#+BEGIN_SRC diff
+// subsystems/typology/tests/span.test.js:62
+     specimen.expect(root.history[0].at).toBeGreaterThanOrEqual(before);
+   });
++
++  specimen.it("read as a source it hands its past, then live; a reader leaving untaps", async () => {
++    const span = new Span("runtime");
++    span.log("before the reader");
++    const resting = span.pipe.listeners.size;
++    const said = [];
++    for await (const record of span) {
++      said.push(record.data);
++      if (said.length === 1) span.log("after the reader joined");
++      if (said.length === 2) break;
++    }
++    specimen.expect(said).toEqual(["before the reader", "after the reader joined"]);
++    specimen.expect(span.pipe.listeners.size).toBe(resting);
++  });
+ });
+#+END_SRC
+
+**** the sieve — Q1 · Q1A · Q1B · Q1C; home unruled; run on the last 20000 real records: 0 disagreements with its first cut
+#+BEGIN_SRC js
+const natures = (signature) => signature.array.filter((segment) => segment.nature != null);
+
+const REACHES = [
+  [
+    (segments) => segments.length > 0 && segments.at(-1).type === "remainder",
+    (segments) => ({ segments: segments.slice(0, -1), reaches: (held, given) => held < given }),
+  ],
+  [() => true, (segments) => ({ segments, reaches: (held, given) => held === given })],
+];
+
+const literal = (segment) => segment.type === "literal";
+
+const heavier = (a, b) =>
+  b.segments.length - a.segments.length ||
+  b.segments.filter(literal).length - a.segments.filter(literal).length ||
+  a.reaches(0, 1) - b.reaches(0, 1);
+
+export const ranked = (sieve) =>
+  Object.entries(sieve)
+    .map(([key, tracks]) => {
+      const segments = natures(new Pattern(key));
+      return { key, tracks, ...REACHES.find(([test]) => test(segments))[1](segments) };
+    })
+    .sort(heavier);
+
+const fits = (signals) => (entry) =>
+  entry.reaches(entry.segments.length, signals.length) &&
+  entry.segments.every((segment, index) => segment.apply(signals[index]) !== null);
+
+export const admits = (order, record) => {
+  const held = order.find(fits(natures(new Signal(`/${trace.pathname(record.path)}`))));
+  return held !== undefined && held.tracks.includes(record.track);
+};
+#+END_SRC
+
+His sieve in the locked grammar, and what it picked in the run:
+
+#+BEGIN_SRC json
+{
+  "/(.*)": ["status", "fault", "log"],
+  "/runtime/runtime/daemon/*/mode/model/editor": ["status", "fault", "log"],
+  "/runtime/runtime/daemon/*/mode/model/editor/(.*)": ["request", "response", "fault", "log"],
+  "/ghost/client/terminal/*/repl": ["log", "fault"]
+}
+#+END_SRC
+
+| record path | key that wins |
+|---+---|
+| =/runtime/runtime= | =/(.*)= |
+| =/runtime/runtime/daemon/droneaid/mode/model/editor= | =/runtime/runtime/daemon/*/mode/model/editor= |
+| =/runtime/runtime/daemon/droneaid/mode/model/editor/aperture/geometry/f2= | =/runtime/runtime/daemon/*/mode/model/editor/(.*)= |
+| =/ghost/client/terminal/6f1c/repl= | =/ghost/client/terminal/*/repl= |
+| =/ghost/client/terminal/6f1c/repl/close= | =/(.*)= |
+
+The capture — Q5; =held= is =admits= handing back what its key bound, =fill= writes it into the target; home unruled; run on the last 20000 real records, 4.3 µs a record (match + bind):
+
+#+BEGIN_SRC js
+const signalsOf = (record) => natures(new Signal(`/${trace.pathname(record.path)}`));
+
+export const held = (order, record) => {
+  const signals = signalsOf(record);
+  const entry = order.find(fits(signals));
+  if (entry === undefined || !entry.tracks.includes(record.track)) return null;
+  const parameters = Object.assign(
+    {},
+    ...entry.segments.map((segment, index) => segment.apply(signals[index]).parameters),
+  );
+  return { key: entry.key, parameters };
+};
+
+export const fill = (target, parameters) =>
+  target.replace(/:([a-z]+)/g, (_, name) => parameters[name]);
+#+END_SRC
+
+The console's line — Q9, the one style; home unruled; run on the last 20000 real records, zero throws, 1.7 µs a record. A fault's stack is not in it (today's print carries it inside the JSON):
+
+#+BEGIN_SRC js
+const SAID = {
+  start: () => "",
+  stop: () => "",
+  request: (data) => `${data.method ?? ""} ${data.path ?? ""}`,
+  response: (data) => `${data.status ?? ""}`,
+  fault: (data) => [`${data.type}: ${data.message}`, ...(data.stack ?? "").split("\n").slice(1)].join("\n"),
+  log: (data) => (typeof data === "string" ? data : JSON.stringify(data)),
+  entity: (data) => `${data.schema} ${data.id}`,
+  status: (data) => data.code,
+};
+
+const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g;
+
+const KIND = {
+  runtime: ["r", 1],
+  daemon: ["d", 1],
+  mode: ["m", 2],
+  client: ["c", 1],
+  service: ["s", 1],
+  aperture: ["a", 0],
+  harness: ["h", 0],
+  entities: ["e", 0],
+  metadata: ["md", 0],
+  userspace: ["u", 0],
+};
+
+const kinded = (words) => {
+  if (words.length === 0) return [];
+  const [word, ...rest] = words;
+  if (!(word in KIND) || rest.length === 0) return [word, ...kinded(rest)];
+  const [short, slugs] = KIND[word];
+  return [short, ...rest.slice(0, slugs), ...kinded(rest.slice(slugs))];
+};
+
+const brief = (pathname) =>
+  kinded(pathname.replace(UUID, (id) => id.slice(0, 8)).split("/")).join("/");
+
+const two = (value) => String(value).padStart(2, "0");
+
+const clock = (at) => {
+  const date = new Date(at);
+  const seconds = `${two(date.getHours())}:${two(date.getMinutes())}:${two(date.getSeconds())}`;
+  return `${seconds}.${String(date.getMilliseconds()).padStart(3, "0")}`;
+};
+
+const BROKEN = ["request", "response", "log", "fault"];
+
+const below = (said) =>
+  said
+    .split("\n")
+    .map((row) => `\n│ ${row.trim()}`)
+    .join("");
+
+const beside = (said) => `  │  ${said}`;
+
+export const line = (record) => {
+  const head = `${clock(record.at)} ${record.track.padEnd(8)} ${brief(trace.pathname(record.path))}`;
+  const said = SAID[record.track](record.data);
+  if (said === "") return head;
+  return head + (BROKEN.includes(record.track) ? below(said) : beside(said));
+};
+#+END_SRC
+
+His words on it (11-20): /"just make it bettern than today"/ · /"we can shorten the static parts, runtime, daemon, mode, probably if we have client service"/ · /"No, we don't cut the slugs with the type."/ · /"more space between the path and their payload […] a little bit more of a visual divider"/ · /"three decimal points is fine."/ Mine: an id shows its first 8 characters; a fault prints its stack on the rows below. A kind word is shortened only where its slug follows (a mode's is type + slug); ghost's =client= carries no slug, so =ghost/client/runtime/runtime= shortens oddly, and ghost prints no console. /"i'd like the lines to be broken into two lines on request resopnse log fault."/: those four put what they say on the row below; a status keeps the divider. His real records, one a track (run 11-20, zero throws on 20000, 2.6 µs a record):
+
+#+BEGIN_SRC text
+21:46:50.169 status   r/runtime/d/droneaid  │  RUNNING
+21:46:57.260 start    r/runtime/socket/d/droneaid/m/model/editor/geometry/e08779d3
+21:46:57.260 request  r/runtime/socket/d/droneaid/m/model/editor/geometry/e08779d3
+│ POST /daemon/droneaid/mode/model/editor/geometry
+21:46:57.262 response r/runtime/socket/d/droneaid/m/model/editor/geometry/e08779d3
+│ 200
+22:04:50.260 log      r/runtime
+│ {"service":{},"daemon":{"chess":"RUNNING","droneaid":"RUNNING","spanish":"RUNNING"},"files":{"missing":[],"returned":[]}}
+18:44:14.806 fault    r/runtime/socket/d/droneaid/m/model/editor/harness/dialogue/stream/e0e418fa
+│ TypeError: The database connection is not open
+│ at Database.prepare (file:///…/better-sqlite3/lib/…)
+#+END_SRC
+
+The row below was first cut with a 13-space indent (run as shown above); his /"too much nesting in the second line. just hte | with a single whitespcae."/ made it =│= and one space, the fence re-typed on that rule, not re-run.
+
+11-21, LANDED (=* the dialogue= 30, /"format the last runtime log status update prettier."/): a =log= that holds an object says its keys instead of its JSON, still on the row below (his 11-20 break stands). Scalars only: one row, =key value= joined by =·=. Any non-empty nested object: a row per key, keys padded to one width, the nested object's pairs beside; deeper objects wear braces; an empty object is ={}=, a list =[a, b]=. A string prints as before. The fence above (=SAID= through =line=) is the 11-20 cut; today's =LOGGED= · =TOLD= sit in the whole file under =paladin/prototypes=. A rig runtime from the edited copy on a free port, one multiplex client, 63 s (=pretty/live.probe.js=, rows pasted from =pretty/live.tree.log=):
+
+#+BEGIN_SRC text
+out 13:19:22.363 log      r/house
+out │ listen  hostname ::1 · port 54605
+out 13:19:23.244 status   r/house/d/hello  │  RUNNING
+out 13:19:23.245 status   r/house  │  RUNNING
+out 13:19:23.252 log      r/house/socket
+out │ socket upgraded · open 1
+out 13:20:23.248 log      r/house
+out │ service  {}
+out │ daemon   hello RUNNING
+out │ files    missing [] · returned []
+#+END_SRC
+
+The probe's call to a route nobody mounts (=/daemon/nowhere/status/subscribe=) answered 404 and printed NO row: an answered miss is a =response= record (=typology/tests/multiplex.test.js= "a 404 is a response, never a fault"), and the default sieve admits =status= · =fault= · =log=. Before the land that miss printed =[multiplex] no route for "…"=.
+
+The browser's =file= — Q11, his /"we drain on error to localstorage or maybe on a batch/debounce and we keep the rest in memory."/; part of the unwritten =paladin.telemetry= (=* open= 11); =drain= and its debounce are the datasink's (=runtime/subjects/mode/traits/datasink.js:98=, 1500 ms). Run 11-20 against Deno's =localStorage=, not a browser:
+
+#+BEGIN_SRC js
+const kept = {};
+
+const drain = (target) =>
+  localStorage.setItem(
+    `viva.telemetry.${target}`,
+    kept[target].map((row) => JSON.stringify(row)).join("\n"),
+  );
+
+const settle = fn.debounce(drain, 1500);
+
+const keep = (target, record) => {
+  const rows = (kept[target] ??= []);
+  rows.push(record);
+  rows.splice(0, rows.length - 1000);
+  if (record.track === "fault") return drain(target);
+  settle(target);
+};
+#+END_SRC
+
+| step | drains | rows in storage |
+|---+---+---|
+| 100 records, one every 10 ms, still arriving | 0 | 0 |
+| a fault arrives | 1 | 101 |
+| 100 more, still arriving | 1 | 101 |
+| 1.5 s of quiet | 2 | 201 |
+
+The debounce waits for quiet: a client that never goes quiet drains on a fault only. One =settle= serves ONE target as written (a second target's call resets the first's timer): owed with =* open= 11. =kept[target] ??= []= fills a map this function owns.
+
+The unbound capture (=* open= 9) — a rule across two keys, no schematic holds it; mine: run beside the mask's faults (=paladin/instance/lifecycle/3-integration.js:90=). His object answers =[]=; =/(.*)= under =daemons/:daemon.jsonl= answers that pair (run 11-20):
+
+#+BEGIN_SRC js
+const names = (text) => [...text.matchAll(/:([a-z]+)/g)].map(([, name]) => name);
+
+export const unbound = (telemetry) =>
+  Object.entries(telemetry.logger).flatMap(([target, sieve]) =>
+    Object.keys(sieve)
+      .filter((path) => names(target).some((name) => !names(path).includes(name)))
+      .map((path) => ({ target, path })),
+  );
+#+END_SRC
+
+*** systems/anima
+
+**** src
+
+***** client.js — Q15 · Q17: the browser's root passes =paladin.control= where it is minted; its own =pagehide= row and the =logging= beat die. A browser opens no socket; a file target's rows are kept (Q11)
+#+BEGIN_SRC diff
+// systems/anima/src/client.js:1
+ import paladin, { factories } from "@vivalence/paladin";
+-import { trace, Connection, Controller, Span, Vector, control, sleep, steer } from "@vivalence/typology";
++import { Connection, Controller, Span, Vector, control, sleep, steer } from "@vivalence/typology";
+ import * as ghost from "@vivalence/ghost";
+ import { chrome } from "./surfaces/index.js";
+…
+
+ const die = {
+-  controller: new Controller({ stdout: new Span("anima") }),
++  controller: paladin.control(new Controller({ stdout: new Span("anima") })),
+   instance,
+   mask: instance.client("anima"),
+ };
+ die.register = await paladin.ledger.registry.wire(die.mask);
+-
+-globalThis.addEventListener("pagehide", () => die.controller.kill("SIGTERM", "pagehide"));
+-
+-const logging = async (appDie, next) => {
+-  const shown = (record) => {
+-    const SHOWN = ["log", "fault"];
+-    if (!SHOWN.includes(record.track)) return;
+-    globalThis.console[record.track === "fault" ? "error" : "log"](
+-      trace.pathname(record.path),
+-      record.track,
+-      record.data,
+-    );
+-  };
+-
+-  for (const record of appDie.client.controller.stdout.history) shown(record);
+-  const untap = appDie.client.controller.stdout.pipe.tap(shown);
+-  try {
+-    await next();
+-  } finally {
+-    untap();
+-  }
+-};
+
+ const reported = async (appDie, next) => {
+…
+     new Vector()
+       .graft(ghost.app.lifecycle.execution) //
+-      .use(logging)
+       .use(reported)
+       .use(reach)
+#+END_SRC
+
+*** systems/ghost
+
+**** subjects/client — LANDED 11-21 (=* the dialogue= 30)
+
+***** factory.js — ghost's client (anima rides it) hands its multiplex the client's own span, =ghost/client=; his uncommitted =minted= · =ready= split in the file stands untouched
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/factory.js:21
+-  runtime.multiplex = shard.transmitter.multiplex({ authority: runtime.lighthouse.$authority, vector: clientDie.aperture });
++  runtime.multiplex = shard.transmitter.multiplex({
++    authority: runtime.lighthouse.$authority,
++    vector: clientDie.aperture,
++    trace: clientDie.controller.stdout,
++  });
+#+END_SRC
+
+**** subjects/shell/commands
+
+***** chrome.js — Q17: the dead beat leaves the terminal UI's execution
+#+BEGIN_SRC diff
+// systems/ghost/subjects/shell/commands/chrome.js:5
+ import { seat } from "../lifecycle/1-population.js";
+ import { runtime } from "../lifecycle/2-resolution.js";
+-import { ledger } from "../lifecycle/3-integration.js";
+
+ const execution = new Vector()
+   .use(seat)
+-  .use(ledger)
+   .use(runtime)
+   .do(async (shellDie) => {
+#+END_SRC
+
+***** tail.js — Q13 · Q14 · Q15: REPLACED whole (=materialize --replace systems/ghost/subjects/shell/commands/tail.js=). Two commands, each a client of paladin's socket: =viva instance/tail '<sieve>'= prints, =viva instance/pipe <file> '<sieve>'= writes under the instance's logs while it runs. The old file followed ghost's own =ghost.spans.log= with two hand filters (=/instance/tail/ghost= · =/instance/tail/client=); those die. RE-CUT 11-21: the names stand (his /"instance/tail and instance/pipe still exists. those are the names."/); each command hands =watch= its own stop (=control.hold=), the race is gone
+#+BEGIN_SRC js :tangle systems/ghost/subjects/shell/commands/tail.js
+import paladin, { factories } from "@vivalence/paladin";
+import { Vector, control } from "@vivalence/typology";
+
+const follow = async (shellDie) => {
+  const [sieve] = shellDie.signal.body;
+  if (!sieve) throw new Error(`usage: viva instance/tail '{"<path>":["<track>", …]}'`);
+  await factories.instance(paladin);
+  await paladin.telemetry.watch({ console: sieve }, control.hold(shellDie.controller));
+};
+
+const pipe = async (shellDie) => {
+  const [target, sieve] = shellDie.signal.body;
+  if (!target || !sieve) throw new Error(`usage: viva instance/pipe <file>.jsonl '{"<path>":["<track>", …]}'`);
+  await factories.instance(paladin);
+  await paladin.telemetry.watch({ [target]: sieve }, control.hold(shellDie.controller));
+};
+
+export const tail = new Vector()
+  .open(
+    {
+      nature: "/instance/tail",
+      valence:
+        "follow this instance's running processes through a sieve, on this terminal. " +
+        'Example: viva instance/tail \'{"/runtime/runtime/daemon/droneaid/(.*)":["request","response"]}\'',
+    },
+    follow,
+  )
+  .open(
+    {
+      nature: "/instance/pipe",
+      valence:
+        "follow this instance's running processes through a sieve into a file under its logs, while this runs. " +
+        'Example: viva instance/pipe calls.jsonl \'{"/runtime/runtime/daemon/droneaid/(.*)":["request","response"]}\'',
+    },
+    pipe,
+  );
+#+END_SRC
+
+**** subjects/shell/lifecycle
+
+***** 3-integration.js — Q15 · Q17: the =ledger= beat dies whole; ghost's root is handed over at =ghost/run.js:6=, as every root is
+#+BEGIN_SRC diff
+// systems/ghost/subjects/shell/lifecycle/3-integration.js:3
+ import { mime } from "@vivalence/typology";
+ import * as gestalten from "../../../gestalten/index.js";
+-
+-const encoder = new TextEncoder();
+-
+-export const ledger = async (shellDie, next) => {
+-  const file = await paladin.ledger.log(shellDie.instance.manifest.slug).open("ghost", "spans");
+-  const untap = shellDie.controller.stdout.pipe.tap((record) => file.writeSync(encoder.encode(`${JSON.stringify(record)}\n`)));
+-  try {
+-    await next();
+-  } finally {
+-    untap();
+-    file.close();
+-  }
+-};
+
+ const mounted = async (view) => {
+#+END_SRC
+
+**** tests/subjects/shell
+
+***** lifecycle.test.js — the pinned count and valences follow the two commands (26 commands → 25)
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/shell/lifecycle.test.js:69
+     specimen.expect(flagged).toEqual(routed);
+     const listed = await logged(() => steer.dispatch.execute(shell.lifecycle.execution, { controller: new Controller({ stdout: new Span("ghost") }), signal: new Argv(["help"]), instance, mask, register }, "/help"));
+-    specimen.expect(listed[0].startsWith("viva · 26 commands\n")).toBe(true);
++    specimen.expect(listed[0].startsWith("viva · 25 commands\n")).toBe(true);
+   });
+
+…
+   help: "the shell's commands. Example: viva help",
+   chrome: "the repl under the chrome — the dock paints. Example: viva chrome",
+-  "instance/tail": "follow a running ghost's spans from another terminal. Example: viva instance/tail",
+-  "instance/tail/ghost": "follow a running ghost's spans, every branch. Example: viva instance/tail/ghost",
+-  "instance/tail/client": "follow a running ghost's client spans only. Example: viva instance/tail/client",
++  "instance/tail":
++    "follow this instance's running processes through a sieve, on this terminal. " +
++    'Example: viva instance/tail \'{"/runtime/runtime/daemon/droneaid/(.*)":["request","response"]}\'',
++  "instance/pipe":
++    "follow this instance's running processes through a sieve into a file under its logs, while this runs. " +
++    'Example: viva instance/pipe calls.jsonl \'{"/runtime/runtime/daemon/droneaid/(.*)":["request","response"]}\'',
+ };
+ const valences = (node, route = "") =>
+#+END_SRC
+
+*** systems/runtime
+
+**** run.js — Q15 · Q17: today's print dies and nothing replaces it; the root already passes =paladin.control= (=:8=), before any beat, so a fault in beat 2 still prints
+#+BEGIN_SRC diff
+// systems/runtime/run.js:1
+ import paladin, { factories } from "@vivalence/paladin";
+-import { Controller, Span, trace } from "@vivalence/typology";
++import { Controller, Span } from "@vivalence/typology";
+ import { factory as runtimeFactory } from "./subjects/runtime/factory.js";
+
+…
+   );
+
+-  controller.stdout.pipe //
+-    .tap((record) => console.log(`[${trace.pathname(record.path)}] ${record.track}`, record.data || ""));
+-
+   await runtimeFactory(paladin.instance.runtime)({ controller }); // -- // @beef confusing
+
+#+END_SRC
+
+**** gestalten/belt
+
+***** modes.js — Q3
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/belt/modes.js:24
+-    mode.stdout.stop();
++    mode.controller.stop();
+#+END_SRC
+
+**** subjects/daemon/lifecycle
+
+***** 1-population.js — Q3 · Q3A
+#+BEGIN_SRC diff
+// systems/runtime/subjects/daemon/lifecycle/1-population.js:60
+   die.daemon.aperture
++    .use(shard.context.bind("controller", die.daemon.controller.branch("aperture").start()))
+     .use(shard.datamap.inject(die.daemon.datamap))
+…
+-    mode.stdout = die.daemon.controller.stdout.branch(mode.reference.absolute);
++    mode.controller = die.daemon.controller.branch(mode.reference.absolute);
+#+END_SRC
+
+**** subjects/mode/lifecycle
+
+***** 1-population.js — Q3 · Q3A
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/lifecycle/1-population.js:5
+ export const stdout = async (modeDie, next) => {
+   try {
+     await next();
+-    modeDie.mode.stdout.start();
++    modeDie.mode.controller.start();
+   } catch (error) {
+-    modeDie.mode.stdout.fault(error);
++    modeDie.mode.controller.fault(error);
+     throw error;
+…
+   modeDie.mode.aperture = new Aperture()
++    .use(shard.context.bind("controller", modeDie.mode.controller.branch("aperture").start()))
+     .use(shard.context.spread(contexts.modeDie, modeDie))
+     .use(shard.context.bind("mode", modeDie.mode))
+-    .open("/metadata/status", (ctx) => ctx.mode.status.reflection)
++    .open("/metadata/status", (ctx) => ctx.mode.controller.status.reflection)
+…
+-    .use(control.stderr((die) => die.mode.stdout));
++    .use(control.fault((die) => die.mode.controller));
+#+END_SRC
+
+**** subjects/mode/traits
+
+***** dataset.js — Q3
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/dataset.js:58
+-  const installing = mode.stdout.branch("install").start();
++  const installing = mode.controller.stdout.branch("install").start();
+#+END_SRC
+
+**** subjects/runtime/lifecycle
+
+***** 1-population.js — Q3
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/1-population.js:108
+-    mode.stdout = die.runtime.controller.stdout.branch(mode.reference.absolute);
++    mode.controller = die.runtime.controller.branch(mode.reference.absolute);
+#+END_SRC
+
+***** 3-integration.js — Q15: the =ledger= beat dies whole, paladin writes the files (=run.js=)
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/3-integration.js:1
+-import paladin from "@vivalence/paladin";
+ import { shard, shape, v } from "@vivalence/typology";
+ import * as belt from "../../../gestalten/belt/index.js";
+…
+ export const prune = async (die, next) => {
+   await belt.modes.prune(die.runtime, null);
+-  await next();
+-};
+-
+-export const ledger = async (die, next) => {
+-  const log = paladin.ledger.log(paladin.instance.manifest.slug);
+-  die.controller.stdout.pipe.tap((record) => log.append({ json: record }));
+   await next();
+ };
+#+END_SRC
+
+***** index.js — Q15: the dead beat leaves the execution
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/index.js:14
+   .use(process.settle)
+   .use(population.validate)
+-  .use(integration.ledger)
+   .use(population.aperture)
+   .use(integration.serve)
+#+END_SRC
+
+His amen'd recipe on a real =Controller= tree, the taps each process makes (run 11-20):
+
+| writes | runtime (both) | ghost (=file=) | anima (=console=) |
+|---+---+---+---|
+| =console= | 5 | – | 5 |
+| =spans.jsonl= | 6 | 6 | – |
+| =daemons/droneaid.jsonl= | 6 | 6 | – |
+
+**** tests/scenarios
+
+***** hello.js — the rigs wait for a PRINTED line (=:142=, =qa/rig.js:114=, five =qa/*.test.js=): today =[runtime/<slug>] start=. The default sieve prints no =start= and the line changed: every boot test hung 90 s (run 11-20). Ready is now the root's =status RUNNING= row, written by the same =controller.start()=
+#+BEGIN_SRC diff
+// systems/runtime/tests/scenarios/hello.js:9
+-export const READY = /^\[runtime\/[^/\]]+\] start\s*$/;
++export const READY = /^\d\d:\d\d:\d\d\.\d{3} status +r\/[^/ ]+ +│ +RUNNING$/;
+#+END_SRC
+
+The tree and the call paths the aperture controllers print (probe, real =Controller= · =Aperture=):
+
+#+BEGIN_SRC text
+runtime/runtime RUNNING
+  /daemon/droneaid RUNNING
+    /mode/model/editor RUNNING
+      aperture RUNNING
+    aperture RUNNING
+  aperture RUNNING
+
+[runtime/runtime/daemon/droneaid/mode/model/editor/aperture/geometry/f1] request
+[runtime/runtime/daemon/droneaid/aperture/status/f2] request
+[runtime/runtime/aperture/beacon/status/f3] request
+#+END_SRC
+
+* milestones — written 11-21 at his /"where is teh quest? any milestones missing?"/; the organ was absent, the seven stops of =* review= are its rows, their numbers his
+
+| S | he opens | state | his word | owed before LANDED |
+|---+---+---+---+---|
+| 1 | a recipe's =telemetry.logger= | LANDED 11-21 | amen | his look |
+| 2 | a sieve picking records by path and track | LANDED 11-21 | amen | his look · =* open= 16 |
+| 3 | the console's one line | LANDED 11-21 | amen | his look at his =runtime/watch= terminal · =* open= 13 · 17 |
+| 4 | a root handed to paladin once | LANDED 11-21 | amen | a test calling =paladin.control= |
+| 5 | a browser keeping a file's records | LANDED 11-21 | amen | his look; mounted in Chrome on the replayed copy up to the sign-in screen, no walk past it |
+| 6 | a socket logger, =viva instance/tail= · =instance/pipe= | LANDED 11-21 | amen | a =socket= logger in HIS recipe, then his two terminals (=* QA=); the two commands in a suite |
+| 7 | a call's records under the subject it reaches | DESIGNED | — | his Q12, then the Q2 · Q3 · Q3A blocks (seven files skipped at the land) |
+
+LANDED 11-21 on his /"land telemetry"/: stops 1–6, 25 files (22 edited · 2 new · =commands/tail.js= replaced), grepped on the tree that turn (=subsystems/paladin/prototypes/telemetry.js= present, each of the 25 =cmp=-equal to the replayed copy). Held by no row still: the rigs' ready off =/beacon/status= (=* open= 18); every item of =* deferred=; the organ =* deliverables=, unwritten.
+
+* blast table — written 11-21 at the land; greps over =systems= · =subsystems= · =commons= · =testament= · =documentation= · =~/.viva/registry= · =~/.viva/instances=, =bak/= · =node_modules= out
+
+| surface | readers | BREAKS | state |
+|---+---+---+---|
+| =~/.viva/logs/<slug>/spans.jsonl= | 0 | at land | LIVE |
+| =<process>.spans.log= | 0 | at land | LIVE |
+| the printed row =[runtime/<slug>] start= | 9 | at land | HELD |
+| =/instance/tail/ghost= · =/instance/tail/client= | 1 | at land | LIVE |
+| anima's devtools prints | 0 | at land | LIVE |
+| =v.record= with two arguments | 111 | never | NONE |
+| a =Span= sniffed as an async iterable | 9 | never | NONE |
+| the browser's paladin loading =Telemetry= | 1 | never | HELD |
+| the printed rows =[multiplex …]= | 0 | at land | LIVE |
+| a =log= object printed as JSON | 0 | at land | LIVE |
+| =shard.transmitter.multiplex= without =trace= | 14 | never | NONE |
+
+- =spans.jsonl=: its one writer was the runtime's =ledger= beat (dead); =paladin/prototypes/log.js:8= keeps the method, =paladin/tests/ledger.test.js:219= reads what its own case writes. His file (132 MB) stopped at 132138284 bytes at the land (measured after a call). Under his silent recipe NO file is written.
+- =<process>.spans.log=: written by ghost's =ledger= beat (dead), read only by the old =commands/tail.js:12= (replaced).
+- the printed row: =systems/runtime/tests/scenarios/hello.js:9= =READY= and eight rig files through it; the tangle re-cut =READY= onto the new line, runtime =ok ¦ 112 passed (710 steps)= on the replayed copy. =~/.viva/registry=: 0 hits.
+- the two dead routes: pinned only in =ghost/tests/subjects/shell/lifecycle.test.js= (re-cut in the tangle, 26 → 25 commands); =documentation= 0 · registry 0.
+- anima's prints: the =logging= beat (=anima/src/client.js:18=, dead) printed =log= · =fault= to the devtools console; the default sieve names =/runtime/(.*)= only (Q16 /"a"/), so a browser prints nothing until a recipe names =/anima/(.*)=.
+- a span as an async iterable (=* open= 28's unread, CLOSED): the sniffers are =shape/http.js:48= · =shard/datamap.js:17= · =shard/hal.js:123= · =prototypes/socket.js:224= · =prototypes/connection.js:123= · =fromm/index.js:28= · =runtime/subjects/mode/traits/harness.js:165= · =:237= · =ghost/entities/mode/traits/harness.js:21= (+ registry =education/modes/teacher/francesca/harness.js:13=); no effect returns a span as its output (grep =output: …span|stdout= · =return ….stdout;= · =return …span;=: 0), =pipe.from(= has no product caller, =fromm.sink(span)= throws as before (a span has no =send=).
+- the =[multiplex …]= rows (11-21, =* the dialogue= 30): six prints (=typology/prototypes/socket.js= five · =shard/serve.js= one), the literal grepped quoted, 0 readers (rigs · =testament= · =documentation= · registry). On his default sieve the runtime now prints the upgrade and a drop as =log= under =r/<slug>/socket=; an answered miss (=no route for "…"=, five rows in his paste) prints NOTHING: it is a =response= 404. In a browser and in ghost the prints are gone, the records sit under the client's span (=anima/client/socket= · =ghost/client/socket=), silent until a recipe names them.
+- a =log= object as JSON: readers of a printed row grepped (=JSON.parse(line= · =│ {=), 0 on the console; the =.jsonl= files and the socket carry the record itself, unchanged.
+- =shard.transmitter.multiplex=: 14 call sites in 8 files (11 in five test files · 2 in =testament= · =ghost/subjects/client/factory.js:21=, the one product caller); =trace= is one more key, absent = a socket span with no parent, as before.
+- the browser's paladin: =mod.client.js= wears =control=, =paladin/prototype.js= imports =Telemetry= (eight names off =@vivalence/typology=, the browser barrel). Mounted 11-21: vite from the replayed copy on a free port against a rig runtime (=land/anima.world.js=), Chrome drew the sign-in screen, console held vite's two rows and nothing else.
+
+* open — mine to close before a block is final
+
+1. The call's tail. The probes fed the socket the route below the winning bind by hand (=geometry= under the editor). The transport must learn where in the route that bind sat. Unbuilt, unrun.
+2. Q3A blocks owed: the runtime's own aperture (=runtime/lifecycle/2-resolution.js:28=) and the http root (=runtime/factory.js:9= · =runtime/lifecycle/1-population.js:72=) share ONE controller, =runtime.controller.branch("aperture")=, two children cannot both be named =aperture= (mine); each service's attachment (=service/traits/attached.js:4=); the runtime's attachment (=runtime/lifecycle/3-integration.js:102=). The lighthouse is not in his list and holds no controller of its own (=lighthouse/factory.js:6=): its calls fall to the http root.
+3. An aperture's controller is opened by its beat and closed by nobody: when its mode stops it reads =ABORTED= (parent settle, probed). Trigger 7 and the structure law (a beat closes what it opened in its own =finally=; twin =runtime/lifecycle/2-resolution.js:11=) wince; the mode's beat is not held open, its stop sits in =belt/modes.js:24=.
+4. PART CLOSED by Q5A: with the strict record =a/b= and a bare string for the tracks are loud (=must not have additional properties= · =must be array=, run 11-20); =/a/(.*)/b= and a target =stdout= still answer zero faults, their grammar is =* deferred= (his /"later"/). As it stood: A malformed key (=a/b= · =/a/(.*)/b=) is not loud: =v.record(v.string({ pattern }), …)= lets it through (run 11-20, zero faults); under Q5's =Telemetry= the object ={ logger: { console: { "a/b": "fault" } } }= also answers zero faults, a bare string where the tracks belong. Trigger 10; where the key is cast is unruled.
+5. =subsystems/typology/prototypes/mode.js:10= — the dead =status= field beside the new =controller=: his (typology).
+6. The beat is still named =stdout= (=mode/lifecycle/index.js:8=) after the field it started is gone.
+7. CLOSED 11-21 at the land for stops 1–6 (the ten-suite census on today's tree, =* testing assessment=); stands for stop 7. As it stood: Each block replays on a copy; the census (typology · runtime · ghost) runs whole before any land.
+8. CLOSED 11-20 by =paladin/prototypes/telemetry.js= (=KINDS= · =faults=: a target of neither kind is named when the instance settles). As it stood: =console= is no file: =writer.lift("console")= throws =[writer] no codec for "console"= (run 11-20). A target has two kinds, the console and a file by its extension; the =[[predicate, tag]]= table that tells them apart is unbuilt.
+9. CLOSED 11-20 by =faults= in the same file, called at =paladin/instance/lifecycle/3-integration.js:93=. As it stood: A sieve key that binds no =:name= of its target writes =daemons/undefined.jsonl= (352 of 20000 records, run 11-20). Every key under a captured target must bind the target's words, loud when the recipe is cast. Unbuilt.
+10. CLOSED 11-20: =tail.js= replaced whole, one route, the pinned count 26 → 24. As it stood: The tail's hunk (Q8) is owed: =ghost/subjects/shell/commands/tail.js:36= follows =ghost.spans.log= with two filters written by hand (=:38= · =:39=); it must take the file (a declared target; a =:name= target is many files) and a sieve from the command. The sieve as its filter is run: =/runtime/runtime/socket/daemon/droneaid/mode/model/editor/(.*)= =request= =response= kept 1536 of the last 20000 records of =spans.jsonl= (11-20). Under Q6's default no file is written and the tail follows nothing.
+11. CLOSED 11-20: written whole with its test; ghost's and anima's beats cut; =paladin/prototypes/log.js= STAYS (=.base= and =open(process, stream)= keep four callers: =ghost/…/2-resolution.js:36= · =paladin/prototypes/process.js:36= · =paladin/…/instance/up.js:43= · the tail), only its =append= loses its product caller. As it stood: =paladin.telemetry= is unwritten: the two sinks (=console= · =file=), each over the loggers of its kind in paladin's own instance, the sieve · the capture · the line inside; a probe stood in for it. With it: the beats of ghost (=ghost/subjects/shell/lifecycle/3-integration.js:8=, used by =commands/chrome.js:11= only) and anima (=anima/src/client.js:18=); the replay of records from before the tap (=anima/src/client.js:29=); what =file= is in a browser (Q11); =paladin/prototypes/log.js= absorbed.
+12. =* open= 1, worked out 11-20 as two shapes, both 7 of 7 right on a real route tree (http root · the runtime · a runtime mode · a daemon · a daemon's mode · a branch below it with its own middleware); typology core, his ruling (Q12):
+    - A: =steer.dispatch.traverse= marks each step's depth on the ctx, the bind records it, the tail is =ctx.steps.slice(ctx.seated)=. Typology only, every subject free; 1.8–2.1 µs a dispatch of 7 segments against today's 1.4–2.1 (the probe's copy of =traverse= carries no wildcard · remainder arm).
+    - B: the beat that mounts an aperture binds its mount beside the controller, the tail is the steps below the mount's length. No change to =traverse=; one more ctx key, said at each of the binding sites; 1.4–1.5 µs.
+13. A fault prints on the error stream (=console.error=), as anima's print did; in the runtime that is stderr, where today every record goes to stdout. No suite reads the difference (runtime 112 green).
+14. The runtime's file append is not awaited and its beat never untaps, as today (=3-integration.js:13=); a record admitted in the last tick before exit may not reach the file.
+15. Under the default sieve ghost writes no file: =ghost.spans.log= stops growing and =viva instance/tail= has nothing to follow until a recipe declares a =.jsonl= for =/ghost/(.*)=.
+16. Seen at the show's stop 2 (run 11-20, his amen'd recipe settled, the last 20000 real records): the capture key =/runtime/runtime/daemon/:daemon/(.*)= holds 0 of the 507 records a daemon writes itself (its =status= · =fault= · =log= sit AT =/runtime/runtime/daemon/<slug>=, =(.*)= is one or more below, Q1B · Q1C); its files hold the modes' =start= 1177 · =stop= 1175 · =log= 19. A second plain key =/runtime/runtime/daemon/:daemon= in the same sieve admits them (run: binds =chess=). And the winning key's tracks decide alone: a record its winner refuses never falls to a wider key (law 3, mine). Both shown to him, unruled.
+17. Seen at the show's stop 3 (three real boots of the replayed copy on free ports, =scratchpad/census/show.s3.log=): a silent recipe prints 3 telemetry rows until ready (the runtime's =listen= log · the daemon's and the runtime's =RUNNING=) BESIDE 9 bare rows in the old style (=[instance] …= ×6 · =[migrator]= ×2 · =[trait]= ×1, =* deferred=: the bare =console.*=); a fault prints its WHOLE stack, one row a frame, full =file://= paths (12 rows on a real mikro fault), once per controller it climbs through (daemon, then runtime); a plain http =GET /beacon/status= wrote no record with =request= · =response= admitted (not compared to the pristine copy).
+18. Seen at the show's stop 6: a rig's ready is a PRINTED row, so it hangs on the console's sieve: a recipe with only a file logger printed no =RUNNING= and =hello.js= timed out at 90 s (run 11-20). Rigs only (8 files under =systems/runtime/tests= read =READY=); the product waits on an http answer (=paladin/prototypes/process.js:6=). Mine, owed: the rigs' ready off =/beacon/status=, twin =anima/src/client.js= =reach=.
+19. Seen at stop 6, =viva instance/tail= run live against a booted copy (=scratchpad/census/show.s6.log=): it follows and prints (5 rows after a SIGTERM to the runtime); =* open= 14 is REAL, the runtime's own =STOPPED= and =stop= never reached the file (exit 0, the file ends at the root's =STOPPING=; not compared to the pristine copy); rows land in append order, not time order; any file name is taken, an undeclared =nowhere.jsonl= is CREATED empty and followed forever (a =:name= target is many files, so "declared" is no key lookup); a signal ends it with exit 143, past its =finally=.
+21. Left open by Q13's build, shown to him 11-21: a pipe lives until the runtime stops and nothing lists or ends one sooner; a pipe starts at NOW (no past), a tail opens on the past the root span holds (its last 1000 records of every track); a tail ends at the root's =STOPPING= and so never shows the =STOPPED= rows; the route names =/telemetry/tail= · =/telemetry/pipe= and the commands' home (paladin's instance commands) are mine; only the RUNTIME answers, ghost's and anima's records are not reachable live; a bad pipe target answers =500= with the right words; the runtime prints Deno's one-time =request.signal= warning on the first tail; no test crosses the wire (the live run is the proof).
+20. CLOSED 11-21 by his answer (the running runtime · the recipe's object as one word). As asked: Q13, asked 11-21 at the show's stop 6 (his "not scoped by what the instance.telemetry declares, rihgt?"): the COMMAND checks nothing against the recipe, but it reads a FILE, so it shows only what that file's logger admitted (default: no file). Where a tail's rows come from: the declared file (Q8, locked) · a file that always holds everything (today's =spans.jsonl=, 130 MB unbounded) · the running runtime (Q8's deferred live route). SKETCH beside it, unruled, unbuilt: each word after the file is ONE sieve entry =<path>=<tracks,…>= (the shape of logcat's =tag:priority= words · =RUST_LOG= =target=level=; === because =:= is a path's =:name=), several words one sieve under the same law; or the recipe's own object as one JSON word (=typology/prototypes/argv.js:57= parses a ={…}= word); ONE verb, =--json= prints the rows as JSONL and the shell's =>= is the pipe (=journalctl -o json= · =stern -o json= · =vector tap --format=); a second verb =instance/pipe= only when it writes inside the instance's logs and outlives the terminal, which is a logger added at runtime.
+22. HIS design, 11-21, verbatim, after he refused the runtime routes (/"what a shit solution. so much wiring. the manual inline signing. i could puke."/ · /"i dont want to ask the runtime. i said paladin. paaladin. !!!!!!!!!!!!! instance is paladins. logs are paladins."/): /"step by step. both runtime and clients all pipe to files and console. at some root point the paladin is called with teh output of the root controller. maybe the best solution would be a queue or $reactive or a span on paladin. the central node. and from there paladin makes the choice where to write to based on teh instances telemetry. and when a instance/tail is called, how do we get access to that? hmmm. its a separate process. maybe paladin has a telemtry port??? is that reasonable? or a socket?? is that something that systems like this might do? if so, then taht. we mount our prototype of choice over a socket and allow other processes to register their own '{"/runtime/runtime/daemon/droneaid/(.*)":["request","response"]}' which then go to console or to file at the discretion of teh process. makes sense?"/ Terrain for it, read 11-21: the root hand-over EXISTS, =paladin.control(controller)= (=paladin/gestalten/belt/control.js:2=, called at =runtime/run.js:8= · =ghost/run.js:6=, not by anima; today it only wires the OS signals); no local socket anywhere in the tree; Deno 2.9.7 serves http on a unix socket (=Deno.serve({ path })=) and fetches over one. It re-rules Q10's two taps (one hand-over, paladin decides) and stops 4 · 5 · 6 with it. Asked back as Q15.
+23. CLOSED 11-21 by /"a"/ (the default's key names the runtime). As asked: Q16, asked 11-21 (Q15 LOCKED that turn, =* the dialogue= 15): once ghost hands its root over too, Q6's default =console: { "/(.*)": […] }= prints into ghost's terminal UI and into every =viva= command: 9066 of his last 14618 ghost records are =status= · =fault= · =log= (8164 under =/ghost/client=, run 11-21). A: the default's key names the runtime (=/runtime/(.*)=), the recipe alone decides; B: the default stays, the process that owns its screen tells paladin so at the hand-over. Mine, found while reading for Q15's build: in ghost the hand-over (=ghost/run.js:6=) comes BEFORE the instance settles (=shell/lifecycle/1-population.js:4=) and some commands never settle one, so paladin's node holds the stream and attaches its writers when the instance settles (the root span's history covers the gap); a short-lived =viva= command would open and unlink a socket of its own and a tail would find itself, so a process listens only once it holds an instance and a tail skips its own file; a stale socket file after a crash is unlinked at the next start.
+24. CLOSED 11-21 by /"a"/ (one call, =paladin.control=, tools included). As asked: Q17, asked 11-21 at stop 4's re-show, his /"why +  await paladin.telemetry.follow(controller); and not paladin.control? either or, then follow, but no duplicates."/: the runtime's root is handed to paladin twice in =run.js= (=paladin.control= for the OS signals, =paladin.telemetry.follow= for the records). A: ONE call, =paladin.control=, does both at every root, the browser's =pagehide= row too (=anima/src/client.js:16=); every =viva= command is then followed as well — seen live in the first cut: a =ghost.sock= per command (the first holder keeps it, a dead one's file is unlinked by the next), a tail on =/(.*)= shows other commands' =ghost= rows, a file sieve on =/(.*)= gets each command's status rows; paladin attaches when the instance settles (=ghost/run.js:6= hands over before it). B: tools stay out, and two calls stay on the runtime's root (a =follow= that also wired the signals would wire them twice for ghost's terminal UI, whose root =run.js= already controls).
+25. Q18, asked 11-21 before stop 6, a finding inside Q15's lock (/"a socket file per process"/): the build names the file by the root's WORD, so every =viva= process shares =ghost.sock= and only the first to bind listens (=listen=: =if (await answering(path)) return=). Run on the copy, one scenario on each side (=s6.fork.probe.js= in the 11-21 session's scratchpad: a tail, then a second long-lived =viva= process, the tail ends, a new tail asks for =/ghost=): A as built — the second process holds no socket for its whole life, the new tail gets 0 of its rows, a dead =ghost.sock= stays after every =viva= exit; B =<root>.<pid>.sock= + an unlink at =unload= — every process answers, the new tail gets 2 rows, no file left. B renames the =runtime.sock= he said /"yes."/ to and drops the probe-and-unlink before the bind. The terminal UI itself was not run, a =pipe= stood in. B's cost, run on the copy after his /"tail meant like a lot of dev effort from a simple choice"/: one product file, 5 rows out · 8 in; the pid's digits take the rig's temp-folder path from 99 to 105 bytes, past the 104 of a socket path, so =telemetry.test.js= answers =3 passed (19 steps) ¦ 3 failed= until its temp folder is short (=TMPDIR= under =/tmp=: =ok ¦ 4 passed (21 steps)=); his own path is 51 bytes. CLOSED 11-21 by /"b"/, cast into =listen= and its test.
+26. Q19, asked 11-21 after his /"think about this again."/ on stop 6 (connoisseur · bird re-run). The knot: the caller's paladin already holds sieve · line · file writer (=sink=, the writers its own root uses), yet stop 6 sends the sieve to the watched process (=answer= · =admitted=), matches again in the caller (=pipe=, for the =:name=) and prints by hand (=commands/tail.js=). Redrawn and RUN on the copy (=s6.zero.py= · =zero/= · =zero.live.log= in the 11-21 session's scratchpad): the socket carries the root's records raw (=Deno.listen=, the past then live through one =Queue=, no http, no request); =watch(logger)= attaches a logger of the recipe's shape to every other process (tail = ={ console: sieve }=, pipe = ={ "<file>": sieve }=), checked by the schematic and =faults= in the caller; the command races the shell's stop (twin: the tree's own =commands/tail.js:30=). =telemetry.js= 329 → 285 rows, =tail.js= 41 → 36; =listen · answer · admitted · read · tail · pipe · admitting · line= → =listen · accept · send · watch=; the same rows on screen in the live run, sockets per process, none left. It breaks his Q15 sentence /"register their own"/ (the sieve no longer crosses the socket) and my =--json= flag leaves: asked, not cast. Not done: its two test steps (red, they call the dead methods); the OTHER redraw (our route dispatch over the socket: =Aperture= + =shape.http= + =Connection.stream=) is not built, not run. CLOSED 11-21 by /"b"/, cast into =telemetry.js= · =commands/tail.js= · the test.
+27. HIS core mechanism, 11-21 01:20, verbatim in =* the dialogue= 20, said after /"amen"/ on stop 6's Q19 cut and then /"no. something isnt right."/ Clause by clause against that cut: (1) data over a socket — carried; (2) a PAIR of prototypes, one on the listen side, one on the produce side — UNCARRIED: the produce side ran a hand loop over a =Queue= (=send=), the listen side a hand stream loop (=watch=), no prototype received anything; (3) a controller is published to paladin and the telemetry follows — carried (=paladin.control= → =follow=, stop 4, amen); (4) the telemetry is SET UP for a socket file, new mask schematics — UNCARRIED: every process listened unasked, the recipe held no word for it; (5) data passes through that interlocking — uncarried with (2). Q18 (=<root>.<pid>.sock=) and Q19 (the sieve stays with the caller) answered forks inside MY frame: which of them survive under (4) is his.
+    THOUGHT THROUGH, mine, a SKETCH, nothing built. The pair: =Span= ⟷ =Span=. Produce side: the root span paladin follows. Listen side: a span that receives the same records, each under its own =path=; its =history= fills and its =pipe= sends, so a reader attaches to it exactly as to a local root (=attach='s four rows; a tail · a pipe = that attach under the typed logger). The interlock is the pipe each span already owns, =tap= out ⟷ =from= in; one =Queue= per connection is the wire's buffer. Probed through a real unix socket (=pair.probe.js= · =pair.queued.log= · =pair.bare.log=, the 11-21 session's scratchpad =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/8d8d26fb-fe34-4389-8211-0412b7bed4e1/scratchpad/=): the listen-side span held the producer's 2 past + 2 live records whole (=history= 4); with a =Queue= in the wire a leaving listener is untapped and the producer lives; a =Pipe= tapped STRAIGHT into the socket kills the producer when the listener leaves (=BrokenPipe=, unhandled, exit 1); =Pipe.from= kills the LISTENING process when its source breaks (=typology/prototypes/pipe.js:19=, unhandled). Why not the others: =Pipe= ⟷ =Pipe= holds no past and dies as run; =Queue= ⟷ =Queue= has one drainer and no past, it fits INSIDE the wire; =Socket= is calls both ways over a WebSocket with a vector on each end, none over a unix path (READ, not run); =Broadcaster= fans out entity changes by a filter (=shard/datamap.js=, READ). What typology lacks for it, HIS (typology): a span handing its past then its live records to a sink that may be slow or leave (three readers do it by hand: =typology/entities/Activity.ts:139= · =attach= · =send=), and a =from= that ends in silence on a broken source. OPEN, his: the two names of that interlock (a cata and its ana); the recipe's word — the socket as a third logger TARGET (=telemetry.logger["<name>.sock"] = sieve=: law 10 · 11 unchanged, the key is the target, its extension the kind, the sieve says what crosses) or a key of its own; whether a recipe that says nothing has a socket; who names the file when two =viva= processes of one instance run (Q18's finding stands: one name, the second bind fails).
+    Evidence for 27, the probe whole, copied from =pair.probe.js= (run from the repo root: =deno run -A --no-check --config deno.jsonc pair.probe.js queued= · =… bare=); a SKETCH of the interlock, no product home:
+#+BEGIN_SRC js
+import { fromm, Queue, Span } from "@vivalence/typology";
+import { TextLineStream } from "@std/streams";
+
+const mode = Deno.args[0];
+const settle = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const encoder = new TextEncoder();
+const path = `${await Deno.makeTempDir({ dir: "/tmp", prefix: "pair-" })}/probe.sock`;
+
+const produced = new Span("runtime/house");
+produced.log("before anyone listens");
+const daemon = produced.branch("/daemon/hello");
+daemon.start();
+
+const listener = Deno.listen({ transport: "unix", path });
+
+const queued = async (connection) => {
+  const wire = new Queue();
+  for (const record of produced.history) wire.enqueue(record);
+  const untap = produced.pipe.tap(wire);
+  const writer = connection.writable.getWriter();
+  try {
+    for await (const record of wire.drain()) await writer.write(encoder.encode(`${JSON.stringify(record)}\n`));
+  } catch (error) {
+    console.log(`produce side: the listener left (${error.name}), untapped`);
+  } finally {
+    untap();
+  }
+};
+
+const bare = (connection) => {
+  const lines = new TransformStream({
+    transform: (record, stream) => stream.enqueue(encoder.encode(`${JSON.stringify(record)}\n`)),
+  });
+  lines.readable.pipeTo(connection.writable);
+  const write = fromm.sink(lines.writable).write;
+  for (const record of produced.history) write(record);
+  produced.pipe.tap(write);
+};
+
+(async () => {
+  for await (const connection of listener) mode === "bare" ? bare(connection) : queued(connection);
+})();
+
+const heard = new Span("heard");
+const connection = await Deno.connect({ transport: "unix", path });
+const records = connection.readable
+  .pipeThrough(new TextDecoderStream())
+  .pipeThrough(new TextLineStream())
+  .pipeThrough(new TransformStream({ transform: (row, stream) => stream.enqueue(JSON.parse(row)) }));
+heard.pipe.tap((record) => console.log(`listen side, live: ${record.track} ${JSON.stringify(record.path)}`));
+(async () => {
+  try {
+    for await (const record of records) heard.pipe.send(record);
+  } catch (error) {
+    console.log(`listen side: its stream ended (${error.name})`);
+  }
+})();
+
+await settle(200);
+daemon.log("after the listener joined");
+produced.fault(new TypeError("closed"));
+await settle(200);
+console.log(`listen side, history: ${heard.history.length} records, tracks ${JSON.stringify(heard.history.map((record) => record.track))}`);
+console.log(`listen side, first record whole: ${JSON.stringify(heard.history[0])}`);
+
+console.log("== the listener leaves, the producer keeps emitting");
+connection.close();
+await settle(100);
+produced.log("into the void 1");
+await settle(100);
+produced.log("into the void 2");
+await settle(300);
+console.log(`produce side: still alive, taps left on its pipe: ${produced.pipe.listeners.size}`);
+Deno.exit(0);
+#+END_SRC
+28. The pair of =* open= 27, CLOSED 11-21 by Q21 /"b"/: =Span= ⟷ =Span=. Run through a real unix socket in two processes (=pair.probe.js= · =cast.probe.js= + their logs, the 11-21 02:30 session's scratchpad, =* handoff=):
+    | pair | past held | producer exit, listener left | listener exit, producer left | typology rows owed | 100000 records, listener stalled, ms |
+    |---+---+---+---+---+---|
+    | =Pipe.tap(stream)= ⟷ =Pipe.from= | 0 of 2 | 1 | 0 | known issue | 1211 |
+    | =Pipe.drain= ⟷ =Pipe.from= | 0 of 2 | 0 | 0 | 0 | 14329 |
+    | =Span= ⟷ =Span= | 2 of 2 | 0 | 0 | 16 | 13908 |
+    | no listener | — | — | — | — | 1176 |
+    The codec is the tree's own pair, =belt.sse.encode= ⟷ =belt.sse.frames= (=typology/gestalten/belt/sse.js:10= · =:24=, the one =Connection= · =Request= · =Response= stream with): a broken socket cancels the iterator, so =drain='s own =finally= untaps (taps back at rest, run). At the re-cut =send='s queue · history loop · writer loop · encoder and =watch='s decoder · line stream · parse loop both die, =@std/streams= leaves =telemetry.js=. =Pipe.from= has no product caller today (grep =pipe.from(= over =subsystems= · =systems= · =commons= · =~/.viva/registry=: zero); the socket is its first. The two rows as locked, =telemetry.js= NOT yet re-cut on them (it waits on the recipe's word); the span's word ="watched"= is mine, unruled:
+#+BEGIN_SRC js
+// subsystems/paladin/prototypes/telemetry.js — produce side, once per connecting process
+sse.encode(stdout.drain()).pipeTo(connection.writable);
+// listen side, in the process that reads the socket; attached as a local root is (attach's four rows)
+const span = new Span("watched");
+span.pipe.from(sse.frames(connection.readable));
+#+END_SRC
+    Seen with it: the stalled-listener cost is =Queue= alone (known issue =queue-copies-its-backlog-per-record=), under either pair; the wire's bound is unasked. A =Span= is now async-iterable: the sniffers of =Symbol.asyncIterator= (=shape/http.js:48= · =shard/datamap.js:17= · =shard/hal.js:123= · =prototypes/socket.js:224= · =runtime/subjects/mode/traits/harness.js:165= · =:237=) would stream an effect that returned a bare span; whether one does is UNREAD, owed before a land. READ 11-21 before the land: none does (=* blast table=).
+29. The recipe's word of =* open= 27, HIS recipe 11-21 (=* the dialogue= 22), a reframe of the three shapes shown. Read: the socket is a logger whose target is the WORD =socket=, twin of =console= (law 10 unchanged: the key is the target, the value its sieve); paladin names the file (=<root>.<pid>.sock=, Q18 stays); what crosses is what that sieve admits, which re-rules Q19's "every record". SKETCH, =telemetry.js= not re-cut; its row is =socket: (target) => target === "socket"= in =KINDS=, three test steps pin the fault sentence. Run on the copy, patched and restored (=q22/word.log= · =q22/run2.log= · =q22/wire.log=, the 11-21 02:30 session's scratchpad): his recipe settles through =factories.instance=, faults =[]=; a runtime root and a =viva= root under his =/(.*)=: two socket files, each holding the 3 admitted of 6 records, bound at the first admitted record; under =/runtime/(.*)=: one file, the =viva= process binds none. Seen: his three tracks are 3 of 8, so the command he amen'd in Q14 (=["request","response"]=) would print nothing through this socket; a silent recipe has no socket (the default names =console= only). His /"might also accept just socket true"/: refused today (=telemetry.logger.socket must be object=); with =v.union([Sieve, v.boolean()])= it settles to =true= and the sieve's reader admits NOTHING in silence (=ranked(true)= is =[]=); asked back as Q22A. The three shapes shown before it, each settled and run with two processes: a switch (2 files, 6 + 6 held) · a sieve under its own key (2 files, 3 + 0: an empty socket per =viva= command) · a target =runtime.sock= (1 file, 3 held; re-rules Q18).
+30. CLOSED 11-21, mine: the listen side dials again by itself (the folder re-read below). Q26 was no question of his: /"watch stops the runtime. any process listening to runtimes socket will not get any data anymore. runtime boots again, controller is passed ot paladin, socket is back. where problem?"/ — surviving his save is the demand, the redial its mechanism; the file comes back, a connection to a dead process does not. As asked: Q26, asked 11-21, found while drawing the listen side: a save under =runtime/watch= kills the runtime and spawns a NEW process (=systems/runtime/watch.js:49-51=), so a new =runtime.<pid>.sock= at every save. Run on the tree's typology, two runtimes in a row and one listening process (=q26/run.log= · =q26/rereads.log=): a listen side that ENDS when every process it read has left holds 3 records and exits 0 at the first stop; it needs =Pipe.from= to hand back its end (the probe awaited its own pumps; typology, his; today =from= returns the pipe and drops the pumps, =pipe.js:18=). A listen side that STAYS and re-reads the folder every 500 ms joined the second runtime 1.2 s after the first left and held 6, the second's boot records from its past; zero typology change, a timer and a set of dialed paths in paladin. A stay on =Deno.watchFs= FAILED on his macOS: the new socket's creation was never reported, only removals (held 3). Unruled.
+31. The word, KILLED 11-21: /"stop using the word tial. tail doesnt exist here."/ Read: this design has a produce side and a listen side (a process that reads a socket and writes with its own loggers), no third thing. Swept: the rows written 11-21 02:30 (status · dialogue 21 · law 19 · =* open= 28–30 · the handoff's =next=). NOT swept, they leave at stop 6's re-cut: the blocks of the refused cut (=ghost/subjects/shell/commands/tail.js= · the pinned command names in =lifecycle.test.js= · =telemetry.test.js=) and laws 15 · 17; the older changelog rows and his own quotes stay as said. The listening command's name (Q14's =viva instance/…=) and its file's name are HIS, unasked. CORRECTED the same hour, MY over-read: /"instance/tail and instance/pipe still exists. those are the names. instance/tail"/ — the two COMMANDS and their file keep their names; what died is the word as a NOUN for the listen side (=a tail holds= · =a tail that stays=). The blocks keep =/instance/tail= · =/instance/pipe=; only my prose and my test locals lose the noun.
+32. Stop 6 run LIVE 11-21 on the replayed copy (=recut/live.probe.js=, its out file =recut/live.log= pasted whole below; pids masked by the probe): a real runtime on his recipe (=console= + =socket: { "/(.*)": ["status","fault","log"] }=), both commands as =viva= processes, a SIGTERM as the save, =revive= as the next boot in the same instance, then a silent recipe. Seen: the SAME listening command printed the next runtime's records without being typed again; each =viva= command opened its own =ghost.<pid>.sock= under his =/(.*)=; a sieve asking =request= · =response= printed 0 (the socket's sieve never admits them); every socket file was gone after the stops; a signalled command exits 143; the root's own =STOPPED= reached no listener (=* open= 14).
+#+BEGIN_SRC text
+== the runtime is up on his recipe; under its logs: ["runtime.<pid>.sock"]
+== viva instance/tail '{"/runtime/(.*)":["status","log"]}'
+-- the past it opens on (4 rows)
+out 03:35:38.810 log      r/house
+out │ {"listen":{"hostname":"::1","port":61056}}
+out 03:35:39.676 status   r/house/d/hello  │  RUNNING
+out 03:35:39.678 status   r/house  │  RUNNING
+== viva instance/pipe calls.jsonl '{"/(.*)":["status"]}'   (left running)
+under its logs now: ["calls.jsonl","ghost.<pid>.sock","ghost.<pid>.sock","runtime.<pid>.sock"]
+== a sieve the socket's own sieve never admits: viva instance/tail '{"/(.*)":["request","response"]}'
+rows it printed: 0
+a SIGTERM to it: exit 143
+  7313 ms == the save: SIGTERM → the runtime
+  7332 ms the runtime: exit 0
+-- the listener between the two runtimes: 3 more rows, under the logs: ["calls.jsonl","ghost.<pid>.sock","ghost.<pid>.sock"]
+out 03:35:45.330 status   r/house  │  STOPPING
+out 03:35:45.331 status   r/house/d/hello  │  STOPPING
+out 03:35:45.337 status   r/house/d/hello  │  STOPPED
+  7636 ms == the next runtime boots in the same instance
+ 10635 ms -- the SAME listener, rows since the next runtime came (4)
+out 03:35:46.528 log      r/house
+out │ {"listen":{"hostname":"::1","port":61056}}
+out 03:35:47.145 status   r/house/d/hello  │  RUNNING
+out 03:35:47.147 status   r/house  │  RUNNING
+under its logs: ["calls.jsonl","ghost.<pid>.sock","ghost.<pid>.sock","runtime.<pid>.sock"]
+a SIGTERM to the listener: exit 143 · to the pipe: exit 143
+-- calls.jsonl (10 records), its first and last
+{"at":1795228539678.276,"path":["runtime/house"],"track":"status","data":{"timestamp":"2026-11-21T02:35:39.678Z","code":"RUNNING"}}
+{"at":1795228547147.4875,"path":["runtime/house"],"track":"status","data":{"timestamp":"2026-11-21T02:35:47.147Z","code":"RUNNING"}}
+ 10703 ms the next runtime: exit 0
+under its logs after every stop: ["calls.jsonl"]
+== a recipe that says nothing: viva instance/tail '{"/(.*)":["status"]}'
+exit 1
+err [ERROR] /instance/tail: no process of hello-world sends: its recipe names no telemetry.logger.socket
+#+END_SRC
+
+* QA — written 11-21 at the land; his instance =localhost=, his recipes name no =telemetry=
+
+- I save a file under =runtime/watch=, I see rows shaped =03:35:39.678 status   r/<slug>  │  RUNNING= in that terminal, status · fault · log only, and no =[runtime/<slug>] start=.
+- I add =telemetry.logger.socket= to my recipe, I type =viva instance/tail '{"/runtime/(.*)":["status","log"]}'= in a second terminal, I see the runtime's past rows, then its live ones; after a save the SAME command prints the next runtime's rows.
+- I type =viva instance/pipe calls.jsonl '{"/(.*)":["status"]}'=, I see =~/.viva/logs/localhost/calls.jsonl= grow.
+- I name a =.jsonl= logger for =/anima/(.*)=, I see =viva.telemetry.<target>= in the page's localStorage.
+- I type =viva instance/tail '{"/(.*)":["status"]}'= on my silent recipe, I see the refusal.
+- I wait a minute under =runtime/watch=, I see the patrol as =│ service …= · =│ daemon   chess RUNNING · droneaid RUNNING · spanish RUNNING= · =│ files    missing [] · returned []=.
+- I reload anima, I see =log  r/runtime/socket= · =│ socket upgraded · open 1= in that terminal, and no row that starts with =[multiplex=.
+
+#+marker_qa: instance-telemetry/T-console-line · pending · his =runtime/watch= terminal after the land: the one-line rows, no =[runtime/…] start=
+#+marker_qa: instance-telemetry/T-socket-tail · pending · a =socket= logger in HIS recipe, then =viva instance/tail= across a save (run live on a copy only, =* open= 32)
+#+marker_qa: instance-telemetry/T-pipe-file · pending · =viva instance/pipe= into =~/.viva/logs/localhost/= (run live on a copy only)
+#+marker_qa: instance-telemetry/T-anima-file · pending · a =.jsonl= logger for =/anima/(.*)=, the page's localStorage (the probe of stop 5 only)
+#+marker_qa: instance-telemetry/T-patrol-row · pending · his =runtime/watch= terminal a minute after the 11-21 restart: the patrol's three keyed rows (seen on a rig runtime only, =pretty/live.tree.log=)
+#+marker_qa: instance-telemetry/T-multiplex-rows · pending · the same terminal on an anima reload: =socket upgraded · open N= as a =log= row, no =[multiplex= row
+#+marker_qa: instance-telemetry/P-runtime-up-2 · held · his =:2501= 11-21 after the second land: pid 64698 → 73544 by his watcher, =/beacon/status= ={"code":"RUNNING"}=, =:1794= answers 200, =viva --help= rc 0, ledger md5 equal
+#+marker_qa: instance-telemetry/P-silent-tail · held · his tree 11-21 after the land: =[ERROR] /instance/tail: no process of localhost sends: its recipe names no telemetry.logger.socket=
+#+marker_qa: instance-telemetry/P-runtime-up · held · his =:2501= 11-21 after the land: pid 17409 → 40985 by his watcher, =/beacon/status= ={"code":"RUNNING"}=, =:1794= answers 200, =viva --help= rc 0 listing both commands
+
+* deferred — in scope, unruled
+
+- The file's bound: a constant in paladin until ruled (Q5 holds no key for it).
+- The line set from =telemetry= (Q9, his /"just one hardcoded style is fine todya"/): =telemetry.format.<target>= one template of =:time :track :path :said= filled by the capture's =fill=, and beside it the payload per track as templates; both ran on real records 11-20 (an unknown word printed =undefined=), neither taken.
+- The grammar of a sieve key and of a target as typology primitives (named productions off =typology/prototypes/pattern.js:64=; a probe had them loud on eight bad objects 11-20): his /"this is more general typology but thats scope creep. later."/
+- Which fields of a record a logger writes (=keep=, datasink's meaning; without =data= no payload is written): explored 11-20 as an object and as an array of ={ admit, keep, write }=, not taken (/"i like a."/). The array form fills =keep='s default at =cast=; a named map does not (run 11-20).
+- What paladin holds: one call a process makes to attach its declared readers; a watch (own sieve, own bound, dies with its socket); a read of what is stored; the verb that lists what can be pointed at. Replaces the hand taps at =runtime/run.js:13= · =runtime/lifecycle/3-integration.js:14= · =typology/entities/Activity.ts:63= · =ghost/subjects/shell/lifecycle/3-integration.js:10= · =anima/src/client.js:18-36=; absorbs =paladin/prototypes/log.js=.
+- The watch on the runtime crosses users: grafted or absent, gated (the operator token, =lighthouse/signer.js:22=); his ruling. Q8, his /"2 goes deferred."/: a route that taps the running stdout with the caller's sieve and streams it back, twin =typology/entities/Activity.ts:144=; not built, not run over the wire.
+- A key-wise spread ledger → instance → user → terminal (his /"later"/, Q4).
+- A call on its own child controller, as a ghost repl signal runs (Q3 option C; 6 records a call, live calls in =toJSON()=): no reader today.
+- The eight stray roots onto their process tree; a hallucination branched from =ctx.controller= (=mode/traits/harness.js:35-38=), the =[hal …]= tap gone.
+- The ten bare =console.*= on the runtime path become tracks.
+- The logger's and the inspector's settings: browser storage (=viva.telemetry.state=) today; the dock's trait fold is the sibling (=ghost/subjects/terminal/prototype.js:44=).
+- A record names its boot (m89 F2).
+- Names: the reader's noun is =logger= (his, Q5; beside the client's =view: "logger"=, =ghost/subjects/app/prototypes/telemetry.js:8=); =paladin.telemetry= beside =client.app.telemetry= (m105 Q0′) and his =paladin.scribe= sketch (=paladin/gestalten/belt/scribe.js:3,8=).
+
+* changelog
+
+- 11-20 — bird pass ×2, then the drill: Q1 /"a"/ · Q1A /"amen on the sieve pattern for telemetry"/ · Q1B /"slight rule change this."/ · Q1C /"q1 a"/ · Q2 /"a. call it ctx.stdout."/ · Q3 /"b for sure."/ · Q3A /"same for daemon, runtime, and attachments."/ · Q4 /"no. just telemetry on leder/instance root."/. Departures, mine, reported: the Q1 matcher planted in the route trie was retracted (5 of 11 wrong with a =*= mid-key); "a mode has no status" was wrong (it has a dead one); the emit-cost worry was refuted by the probe.
+- 11-20 — connoisseur — 1 hunk tightened (the sieve: the =exact= flag became a =[[predicate, tag]]= table, trigger 11, twin =systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:155=; the sort moved from per record to once per sieve, trigger 3); 1 hunk moved onto its sibling (=control.stderr= on a span → =control.fault= on the controller, twin =daemon/lifecycle/1-population.js:51=); 2 winces left open (=* open= 3 · 4).
+- 11-20 — /"cut tiers."/ — =~/.viva/ledger.viva.json= rows 30–36 removed (backup =~/.viva/bak/ledger/ledger-20261120/=); a runtime booted =RUNNING= on a free port against a byte copy of the cut ledger, stopped by PID. Outside this quest's scope, recorded here as the session's one write to his tree.
+- 11-20 — Q5 /"brilliant!! amen to that"/ on the flat shape with the capture in its key. Shown before it: flat (key = target) · heavy (a name over ={ admit, keep, write }=) · heavy as an array · datasink's tuple form (=v.tuple= does not exist, not run). Departures, mine, reported: =:name= for datasink's =%=; heavy's =keep= default did not fill under a named map.
+- 11-20 — Q5A /"amen"/ ×2 (=v.record= options · =telemetry= on =InstanceMask=) · /"shorter more bunchy description please."/ · Q6 /"status, fault, log"/. Departures, mine, reported: the amen'd mask row =Telemetry.optional()= became =Telemetry.default({})= (Q6 does not fill without it); the body moved above =InstanceMask= (a =const= read before its row); the regex grammars cut on his word.
+- 11-20 — connoisseur — 3 hunks read (=instance.js= · =track.js= · =v.js=), triggers 15–19 · 9 · 10 · 14 · names walked; 1 tightened (the mask row onto its sibling's =.default=, twin =instance.js:166=); 1 wince left open, his by /"later"/ (trigger 10: a target =stdout= passes).
+- 11-20 — Q8 /"2 goes deferred. 1."/: a tail over a logger's file, no live route. Q7 withdrawn, mine (the tree answers which target kinds a process writes). The console's line shown as a sketch (/"formatting: yes great. but can we set that from instance.telemetry?"/), Q9 asked.
+- 11-20 — Q9 /"meh. fuck it. just one hardcoded style is fine todya"/ · /"just make it bettern than today"/: one line in code, no =format= key. The sink (sieve · capture · line · a writer per target kind) ran on a real =Controller= tree, shown to him as a sketch, unruled.
+- 11-20 — the sink sketch (one function fed a ={ console, file }= bag by the beat) met /"that's a little bit complicated. I'm not a fan of this. Let's assume we do have palette and capabilities directly for logs. Maybe we just do two tabs. No, shit. […] something's off. Not sure what exactly though."/ (read: paladin capabilities · two taps). connoisseur — 1 hunk read (the runtime's =ledger= beat), 3 winces: trigger 15 (the beat, a reader, writes how a console and a file are written) · 18 (an options bag on a positional) · no intermediary (paladin handed its own =instance.telemetry=); tightened onto the twin =die.controller.stdout.pipe.tap(…)= (=3-integration.js:14=, one ready sink a tap): two taps of two paladin sinks; effect run on a real =Controller= tree, the same counts (console 5 · =spans.jsonl= 6 · =daemons/droneaid.jsonl= 6). Shown, unruled.
+- 11-20 — Q10 /"ok great."/ on the two taps; the line re-cut on his notes (kind words short · a divider · four tracks on two rows); Q11 (=file= in a browser) asked.
+- 11-20 — Q11 /"we drain on error to localstorage or maybe on a batch/debounce and we keep the rest in memory."/; the second row of a broken line is =│= and one space (/"too much nesting"/). The drill's questions to him are spent: what is left is mine (=* open= 1–11) or =* deferred=.
+- 11-20 — /"amen. work out the missing pieces."/: =paladin.telemetry= whole + its test · the runtime's, ghost's and anima's taps · the tail · the two checks, as blocks, replayed on a copy (=* testing assessment=). Departures, mine, reported: the console's tap sits in =run.js=, not in the beat he amen'd (a fault before beat 3 would exit in silence); the empty =Instance= declares =telemetry= bare (my first cut preset ={ logger: {} }= and a booted runtime printed nothing); the rigs' =READY= follows the new line (every boot test hung on =[runtime/<slug>] start=); the pinned command count 26 → 24. =* open= 1 worked out as two shapes, asked as Q12 (typology core).
+- 11-20 — fold: one test step added (the empty =Instance= presets nothing), the quest replayed again, 22 hunks, 0 missed; the hello-world red traced to the census, not the tree. The session's scratchpad, while it lives: =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/4b2a6b20-b8b4-42aa-bec0-9b7301aef783/scratchpad/= — =rig/= (pristine copy) · =replay/= (the quest replayed) · =census/= (every log) · =final.sh= · =refold.sh= (replay + suites) · =tailroute.probe.js= (Q12's two shapes).
+- 11-20 — show, stop 1: a probe through =factories.instance= (the rig of =tests/ledger.recipe.test.js=) settled his amen'd recipe to the DEFAULT: =recipe()= had no row handing =telemetry= onto the instance, so no declared sieve ever reached a sink or =faults=. Mine: the replay proved =InstanceMask.cast= and a stubbed paladin, never the settle. One row (=1-population.js:102=) + one case in the sibling suite, replayed: 15 files · 24 hunks, 0 missed; =ledger.recipe.test.js= =ok ¦ 2 passed (17 steps)=, red on that case with the row dropped; paladin =62 passed (276 steps) ¦ 1 failed= (the vault twin). runtime · ghost not re-run after it: no rig declares =telemetry= (READ).
+- 11-20 — show, stops 2 · 3 /"amen"/ ×2; on =KIND= /"also apterture, harness, and the other standard words."/: two entries (=aperture: ["a", 0]= · =harness: ["h", 0]=), one test row moved and one added, replayed (24 hunks, 0 missed; =telemetry.test.js= =ok ¦ 4 passed (17 steps)=, paladin =62 passed (276 steps) ¦ 1 failed=). Stop 4's probe: three real boots (=scratchpad/census/show.s4.log=) — a silent recipe writes NO file · his amen'd recipe writes =spans.jsonl= + =daemons/hello.jsonl= · a target =stdout= refuses the boot by name (=[CONFIG.CHECK ERROR]=).
+- 11-20 — show, stop 4 /"amen"/ + three more short words, his: =entities= · =metadata= · =userspace= (two test rows added; replayed, =telemetry.test.js= =ok ¦ 4 passed (17 steps)=). Stop 5's probe (=scratchpad/show.s5.probe.js=, Deno with a real =localStorage=, the REAL =baked()= over a settled instance, =is.browser= forced, the beat's three rows on a real =Controller=): a baked instance carries =telemetry= whole; under the default NOTHING is kept (=kept {}=, storage empty: a crash leaves nothing to copy until a recipe declares a =.jsonl=); under his amen'd recipe 3 rows kept, stored after 1.7 s of quiet, a fault stored at once, 1200 logs → 1000 kept, one drain 77917 chars. No reader of =viva.telemetry.<target>= exists (the copy is m108's surface); anima itself never mounted in a browser.
+- 11-20 — show, stop 5 /"be simple. be direct. be plain and obvious"/ · /"s5 amen"/: anima's block re-cut to two taps at the mint, replayed (15 files · 26 hunks, 0 missed; =client.js= parses, =node --check=; the probe re-run in the new shape, same counts). Stop 6: the tail run live for the first time (=* open= 18 · 19).
+- 11-21 — Q14 /"perfect."/ on =viva instance/tail spans.jsonl '{"/runtime/runtime/daemon/droneaid/(.*)":["request","response"]}'= (the recipe's own sieve as one word); Q13 /"why does tail read from file? we are piping logs through paladin telemetry. why cant we just tail that? and pipe takes the same hook and pipes it to a file."/ = the running runtime (my option C). Built on the copy and run live before it was shown: =paladin.telemetry.tail= · =.pipe=, two operator routes in the runtime's =ledger= beat, two commands in paladin's instance commands, ghost's =tail.js= dead. Three defects of MY build caught by the live run and fixed: a sieve failing its schema hung the command (a streamed call with =input:= never answered; the route checks by hand, =400=) · a SIGTERM did not end a tail (the caller's abort never reaches the request, known issue =connection-stream-drops-the-callers-signal=; the command races each read against the shell's stop) · a following tail kept the runtime from stopping (=server.shutdown()= waits on the open answer; the route ends its tails when the root leaves its live states, =control.hold=). Retracted, mine: "a signal ends the tail past its =finally=" (stop 6's first cut) was an inference, never run. Replayed: 18 files · 32 hunks · 3 new · 0 missed, byte-equal to the hand build; =telemetry.test.js= =ok ¦ 4 passed (19 steps)=.
+- 11-21 — connoisseur — 2 hunks read (the command file · the runtime's two routes), triggers 15–19 · 9 · 10 · 14 walked; 2 tightened: the command's ={ runtime, body }= bag became the sibling's two plain rows (trigger 18, twin =commands/instance/lighthouse.js:22= · =install.js:76=); the operator check said twice became one =.use= on the =/telemetry= branch (twin =lighthouse/signer.js= =refuse=). The live run caught both tightenings' own breaks before he read them (a one-parameter effect receives the ctx, not the input; a body-less GET has a =null= body) and one more: =viva help='s group order (=paladin/gestalten/commands/index.js=, one row). After them, on the replayed copy (19 files · 33 hunks · 3 new, byte-equal to the hand build): paladin =62 passed (278 steps) ¦ 1 failed= (the vault twin) · ghost =42 passed (147 steps) ¦ 5 failed (16 steps)=, equal to the pristine copy · runtime =ok ¦ 112 passed (710 steps) ¦ 0 failed ¦ 1 ignored=; the live run whole in =scratchpad/census/show.s6.live.log=.
+- 11-21 — REFUSED: /"no. i dont like this solution. thats not what i decided."/ The runtime routes, the operator proof, the two commands, =paladin.telemetry.tail= · =.pipe= and their tests left =* as code= that turn (kept only under =scratchpad/hand/=); the quest replays again as stops 1–5 stood. MINE: a question of his (/"why cant we just tail that?"/) was built as a ruling, and the owner he named (paladin) was wired as the runtime. His design recorded verbatim (=* open= 22), asked back as Q15; no code.
+- 11-21 — Q15 /"i like sock file. very good."/ · /"yes."/ · /"good choices"/ · Q16 /"a"/. Built on the copy in his steps and run live before shown: =paladin.telemetry.follow(controller)= (writers from the recipe, the past replayed, a socket file =<root>.sock= under the instance's logs) · =tail= · =pipe= as clients of it · one row at each long-lived root · ghost's =tail.js= replaced by the two commands · the two =ledger= beats' bodies dead. Found live and fixed, mine: the hand-over inside =paladin.control= made every =viva= command listen (moved to one row per root, law 17); a socket path over 104 bytes refused the bind (the rig's temp folder; bound by the path relative to the working folder when shorter, a refusal is one log row, never a crash); tails ended in an error when the runtime stopped (a broken stream is the end; the server ends its answers on the stop); the pipe lost its last rows (awaited). Replayed from the quest: 16 files · 27 hunks · 2 new · 1 replaced, 0 missed, byte-equal to the build (19 files compared). Suites on that copy: paladin =62 passed (278 steps) ¦ 1 failed= (the vault twin) · typology =ok ¦ 168 passed (735 steps)= · ghost =42 passed (147 steps) ¦ 5 failed (16 steps)=, equal to the pristine copy · runtime =ok ¦ 112 passed (710 steps) ¦ 0 failed ¦ 1 ignored=. Live runs: =scratchpad/census/q15.s4.log= · =q15.s6.log=. Not run: anima in a browser; ghost's terminal UI listening (=ghost.sock=).
+- 11-21 — Q17 /"a"/: the hand-over moved back INTO =paladin.control= (=belt/control.js=, the browser's =pagehide= row with it; =mod.client.js= wears =control=); =instance/factory.js= attaches when the instance settles; the explicit =follow= rows, ghost's =ledger= beat and its mount in =chrome.js= left. Replayed from the quest: 20 files · 31 hunks · 2 new · 1 replaced, 0 missed, byte-equal to the build (23 files compared). On that copy: paladin =62 passed (279 steps) ¦ 1 failed= (the vault twin) · typology =ok ¦ 168 passed (735 steps)= · ghost =42 passed (147 steps) ¦ 5 failed (16 steps)=, equal to the pristine copy · runtime =ok ¦ 112 passed (710 steps) ¦ 0 failed ¦ 1 ignored=; both live probes re-run (=scratchpad/census/q15.s4.log= · =q15.s6.log=): a =ghost.sock= beside =runtime.sock= while a =viva= command runs, a dead holder's file left behind and passed over. Not run: anima in a browser (its file parses); ghost's terminal UI.
+- 11-21 — connoisseur — stop 4's hunks read cold beside their callers (=control.js= · =instance/factory.js= · =Telemetry.follow= · =attach=; triggers 15–19 · 9 · 10 · 14 · names walked); 2 tightened: =control.js= lost its helper and its hoisted list, his row stays as written (14, twin the tree's own =belt/control.js:3=); =attach= lost the =sinks= list over two known sinks, four plain rows (codestyle "SHOWN, never wrapped", his 11-20 /"be simple. be direct."/, re-committed by MY Q15 cut). REJECTED: =Queue.to= as the past-then-live mechanism (=typology/prototypes/queue.js:48=, an async drain; =ghost/run.js:13–23= exits with no await after a fault, READ). Replayed: 20 files · 31 hunks, 0 missed; =telemetry.test.js= =ok ¦ 4 passed (21 steps)= on both sides; the stop's boot probe equal row for row (one row differs by the temp folder's length); paladin =62 passed (280 steps) ¦ 1 failed= (the vault twin, the same text on the pristine copy). bird — stop 4's wiring holds ONE compensation (the =attach= guard joins the two orders of hand-over and settle): no rewire. Stop 6's holds four on one mechanism (=near= · =answering= + unlink · the tail skipping its own file · the stop's abort beside =Activity.ts:139='s settled-status end); RETRACTED the same day, mine: I read /"we mount our prototype of choice over a socket"/ as a typology prototype the build fails to mount; his sentence names the /"queue or $reactive or a span on paladin"/ of the sentence before it, and the build does mount the root's span. Decided, mine (he never sees it): the socket keeps its hand codec (plain http, a sieve in, JSONL out); =Connection='s fetch transport takes no unix client (=typology/gestalten/shard/transmitter.js=, =fetcher=) and its stream drops the caller's signal (=known-issues.org:1966=). What is left of the pass is ONE fork, asked as Q18 (=* open= 25). Seen: the one test that loads =mod.client.js= without Deno is the base red (=known-issues.org:147=), so nothing covers stop 4's browser side; =paladin/prototype.js= pulls the socket's code and =@std/streams= into the browser's paladin (zero imports of it under =systems/anima= today); =control= drops =follow='s promise, a =listen= rejecting outside its =try= (the folder · a stale file) is unhandled in the runtime's order (READ).
+
+- 11-21 — stop 4 /"amen"/. Q18 /"b"/ (a socket per process). connoisseur — stop 6's hunks read cold (=listen= · =answer= · =admitted= · =read= · =tail= · =pipe= · =commands/tail.js=), 4 tightened: =near= CUT (17: the refusal row already answers an over-long path; only the rig's deep temp folder needed it; =@std/path= leaves the file); =listen='s folder call moved inside its =try= (10: one refusal for folder and bind); the stream ends on the root's settled status, its own stop signal and =AbortSignal.any= gone (17, twin =typology/entities/Activity.ts:139=); the =stopped= helper over two sites inlined in =commands/tail.js= (his 11-21 /"do inline"/). Read and refused: =controller.abort.signal= as the stop (=controller.js:43=, it fires on SIGKILL only). Left as is, no twin: the =error= entry a tail passes through its queue. Test: temp folders =viva-= (the pid's digits), =runtime.stop()= in the socket step (a root that only reads =STOPPING= keeps its tails). Replayed from the quest: 20 files · 31 hunks, 0 missed; =telemetry.test.js= =ok ¦ 4 passed (21 steps)=; paladin =62 passed (280 steps) ¦ 1 failed= (the vault twin); ghost =42 passed (147 steps) ¦ 5 failed (16 steps)=, the same 16 names as the pristine copy; runtime =ok ¦ 112 passed (710 steps) ¦ 0 failed ¦ 1 ignored=. Live, a short temp folder (=s6.live.log= · =s6.fork.quest.log= in the 11-21 session's scratchpad): a socket per process, none left after the stop; a tail's last rows now 3 (the daemon's =STOPPED= arrives, the root's own does not: the runtime exits first, =* open= 14). Not run: typology's suite after the re-cut (its hunks untouched); the terminal UI; anima in a browser.
+
+- 11-21 — /"think about this again."/ on stop 6 as shown → connoisseur · bird again → Q19 /"b"/: the socket carries a root's records raw (=Deno.listen=, the past then live through one =Queue=), =watch(logger)= attaches a logger of the recipe's shape to every other process; =answer= · =admitted= · =read= · =tail= · =pipe= · =admitting= · =line= · =loggers(kind)= · =answering= dead (zero readers on the copy, grepped; last session's =show.s1.probe.js= called =loggers= and now exits 1, a scratch probe); =sink= returns its writes (a pipe's last rows are awaited), the two getters read through =ordered=, =print= is the console's one writer; the commands race the shell's stop (twin: the tree's own =commands/tail.js:30=), =--json= gone (mine). Pass on the redraw's own rows, 1 tightened: a caller leaving ends =send= in silence, any other write error is a fault on the root (my first cut logged a row per leaving caller, seen in the live run). Tests: the admit step became "a watching logger is checked by the recipe's own law", the socket step watches a console and a file logger. Replayed from the quest: 20 files · 31 hunks, 0 missed, byte-equal to the build (3 files compared); =telemetry.test.js= =ok ¦ 4 passed (21 steps)=; paladin =62 passed (280 steps) ¦ 1 failed= (the vault twin); ghost =42 passed (147 steps) ¦ 5 failed (16 steps)=, the same 16 names as pristine; runtime =ok ¦ 112 passed (710 steps) ¦ 0 failed ¦ 1 ignored=; live on a short temp folder (=s6.live.log= · =s6.fork.quest.log=): the same rows as the cut before. =telemetry.js= 329 → 285 rows. Not run: typology's suite after the re-cut; the terminal UI; anima in a browser.
+
+- 11-21 — stop 6 on the Q19 cut: /"amen"/ 01:18, then /"no. something isnt right."/ 01:20 and his core mechanism (=* the dialogue= 20). fold ×2 (the first skipped its dedupe greps, the handoff whole, the tests table and the probe's copy; re-run on his =/fold=): MINE — a mechanism noun of his (/"our prototype of choice"/) decided "mine" and read around, a correct first reading retracted; two leaf forks (Q18 · Q19) asked and built under a core never carried clause by clause; hand socket loops shown before =fromm= · =Pipe= · =Queue= were read; skill =quest= never loaded through three casts into =* as code=; three methods cut before their readers were grepped; six silent stretches. Rules landed where they fire (=drill-me= · =bird= · =connoisseur= · =show-me= · =codestyle=); =* open= 27 = his clauses against the refused cut + the pair thought through (=Span= ⟷ =Span=, a =Queue= in the wire, probed through a real unix socket); known issue =pipe-dies-with-its-stream= filed. No product code, no build on the pair.
+
+- 11-21 — his =/connoisseur= · =/bird= · =/drill-me= on the quest. His sentence walked clause by clause (2 · 4 uncarried). connoisseur — 2 hunks read cold (=send= · =watch=), triggers 17 · 19 · 9: both hand loops and their codec have twins in typology (=Pipe.drain= ⟷ =Pipe.from=, =belt.sse.encode= ⟷ =belt.sse.frames=); not re-cut yet. Q21 /"b"/: the pair is =Span= ⟷ =Span= (=* open= 28, three pairs run through a real unix socket in two processes). Cast: =span.js= (=drain= + the async iterator), dry-run and written on the replayed copy (1 file · 2 hunks, 0 missed); on that copy =span= 6 · =pipe= 5 · =queue= 4 · =controller= 6 steps green, the pair run on the real =stdout.drain()=. Departures, mine, reported: the first probe run raced (the listener's process joined after the live records left), re-run with the producer waiting on the accept; known issue =queue-copies-its-backlog-per-record= filed. Not run: typology's whole suite; =telemetry.js= is still the refused Q19 cut.
+
+- 11-21 — Q22: his own recipe, neither of the three shown (=* the dialogue= 22, =* open= 29): the socket is a logger under the word =socket=. Q22A /"a"/: a sieve only, no =true=. Cast: law 19; the schematic's =.desc= names ="socket"=. Decided by lookup, no question: a silent recipe has no socket (law 14, the default names =console= only); the file's name is paladin's (Q18 stands). Mine: the wire has no bound in this quest (known issue =queue-copies-its-backlog-per-record=). Replayed whole from the quest on a fresh copy: 21 files · 33 hunks · 2 new · 1 replaced, 0 missed; =ledger.recipe.test.js= =ok ¦ 2 passed (17 steps)= · =telemetry.test.js= =ok ¦ 4 passed (21 steps)= · paladin =62 passed (280 steps) ¦ 1 failed= (the vault twin). Q26 asked (=* open= 30). =telemetry.js= · =commands/tail.js= · the test NOT re-cut: the listen side's shape waits on Q26.
+
+- 11-21 — /"stop using the word tial. tail doesnt exist here."/ (=* open= 31) · /"i ztill dont understaad. […] socket is back. where problem?"/ on Q26: withdrawn, decided mine (=* open= 30). fold, mid-session, walked from the transcript: MINE — a mechanism of mine asked as his fork (what must survive his own save is the demand); a refused cut's noun carried through four replies; 17 · 11 · 10 calls under one line each; a hunk's size said unrun (=~10 rows=, 16); a two-process probe sequenced on a sleep (caught before its reply). Found by the walk: his /"a"/ on Q22 (01:57) reached no reply, his recipe a minute later superseded it (=* the dialogue= 22). Rules sharpened where they fire (=skills/drill-me= ×2 · =codestyle= ×3). Tests owed, named in =* testing assessment= (3 rows). No product code; =telemetry.js= still the refused cut.
+
+- 11-21 — Q27, asked on my over-read: /"instance/tail and instance/pipe still exists. those are the names. instance/tail"/ (=* open= 31 corrected, the rule line re-cut). Stop 6 RE-CUT whole on law 19: =telemetry.js= (=KINDS.socket= · a =socket= sink · =send= · =listen= at the first admitted record · =accept= streaming =span.drain()= through =belt.sse= · =watch(logger, stopped)= on a span, the folder re-read every 500 ms; =send='s and =watch='s loops, the encoder, =Queue=, =@std/streams= gone) · =commands/tail.js= (each command hands =watch= its =control.hold=) · tests (the fault sentence ×3 · a recipe with no socket logger opens no file · the socket step: past, live, a process that comes later · =span.test.js= one case). connoisseur — the new hunks read cold, triggers 15–19 · 9 · 10 · names · legibility walked, 2 tightened (a row over 100 chars; =a ¦¦ b= used as a branch → the refused cut's own =if=). Shown as hunks: /"amen"/. Replayed from the quest on a fresh copy: 22 files · 34 hunks · 2 new · 1 replaced, 0 missed; =telemetry.test.js= =ok ¦ 4 passed (22 steps)= · =ledger.recipe.test.js= =ok ¦ 2 passed (17 steps)= · =span.test.js= =ok ¦ 1 passed (7 steps)=, red under a mutant without =drain= (=span is not async iterable=), restored; typology =ok ¦ 168 passed (736 steps)= · runtime =ok ¦ 112 passed (710 steps) ¦ 0 failed ¦ 1 ignored= · paladin =62 passed (281 steps) ¦ 1 failed= (the vault twin) · ghost =42 passed (147 steps) ¦ 5 failed (16 steps)=, its 16 red names equal to the pristine copy's. Live: =* open= 32. Departures, mine, reported: the socket test step runs with Deno's op and resource sanitizers off (a process's streams end with the process, nothing closes them sooner); typology · ghost · runtime ran one replay before the two reflowed rows; a re-cut promised in one reply and withdrawn in the next (it waited on his word). =* milestones= written at his /"any milestones missing?"/. fold ×2 (mid-session · his =/fold=).
+
+- 11-21 — /"land telemetry"/: stops 1–6 LANDED (=* the dialogue= 29). Before the write, on TODAY's tree (it had drifted 58 paths from the 11-20 copy): the hunks dry on the tree (22 files · 34 hunks, 0 missed); a fresh pristine copy + a replayed copy (=land/rig= · =land/tree=, 25 files differ, both ways); =methods/census-suites.sh=, ten suites on each (=* testing assessment=): equal by red name, ghost's one extra red the filed =client.factory= flake (lone runs: pristine red 1 of 5, replayed red 1 of 5); the blast (=* blast table=, the organ written); anima from the replayed copy mounted in Chrome (sign-in screen, console clean). The write: =materialize.py= + =apply-diffs.py= on the tree in one pass (=land/land.sh write=), no target drifted since the copy, 25 of 25 =cmp=-equal to the replayed copy. After: his watcher restarted the runtime (pid 17409 → 40985), =/beacon/status= =RUNNING=, =:1794= 200, =viva --help= rc 0, =viva instance/tail= on his silent recipe answers the refusal, =spans.jsonl= stopped at 132138284 bytes, =~/.viva/ledger.viva.json= · =instances.json= md5 equal before · after. Departures, mine, reported: one =python3 -c= typed to read =instances.json= (it failed on its quoting, nothing ran; read with =cut= instead); the census's first red-name filter matched every step row (re-cut as =land/reds.sh=); the anima world ran WHILE the census ran ghost on the replayed copy (the flake's one hit there). Not run on his tree: any suite (a live watcher; the copy is byte-equal on the 25 files). Not seen: his terminal's rows; anima past the sign-in screen; =:1794= in his browser after the reload.
+
+- 11-21 — /"format the last runtime log status update prettier."/ · /"wire the multiplexes also through controller."/ (=* the dialogue= 30), read as go for both, built on a copy, LANDED in one pass (7 files: =paladin/prototypes/telemetry.js= · =typology/prototypes/socket.js= · =typology/gestalten/shard/serve.js= · =transmitter.js= · =ghost/subjects/client/factory.js= + two test files; each =cmp=-equal to the edited copy). Found first: the socket's span already hangs under the runtime's =stdout= (=serve.js:48= ← =runtime/lifecycle/3-integration.js:36=), so five of the six prints were doubles of a record; only the upgrade had none. Mine, decided: the format (=* as code=, the Q9 note) · a miss stays a =response= and gets no second record · the client's multiplex takes =trace= so a client's drops are not lost with the prints (typology, beside his two marks in =transmitter.js=, untouched). Proof: the new cases red on the old product, green on the edit (=pretty/two.sh=); the hunks replayed from an org file onto a pre-edit copy, 14 landed · 0 missed, equal to the edit; ten suites on the edited copy vs the land's replayed census, equal by red name bar ghost's filed =client.factory= flake (red at the land, green here); a rig runtime live (the Q9 note). His side after: pid 64698 → 73544, =RUNNING=, =:1794= 200, =viva --help= rc 0, ledger md5 equal, the literal =[multiplex= grepped 0. Not seen: his terminal, his browser. Departures, mine: no question before the build on HOLY typology (his order read as the go); the baseline was the land's census, not a fresh run (the product folders compared equal first); =land/tree= had three snapshot files rewritten by that census.
+
+- 11-21 — =/fold=, then /"move to done"/ (=* the dialogue= 31): the quest moved to =quests/done/= on his word with stop 7 unlanded and six markers pending (the gate's two conditions, his to override); tails on the frontier. The fold, walked from the transcript (turns since the last fold; no correction of his in them), MINE: three =cap-guard= warns at the first land (=release.md= · frontier, the quest alone had been measured) · 45 and 28 calls under one line at the first land, one nudge at the second · one =python3 -c= · the first red-name filter (it matched every step row) · an exit code read through a pipe · a rig world and a browser walk under the census's ghost suite · the six census rows not printed on the first turn after the compact · two base reds reported "unfiled, no cause looked for". Landed for them: =codestyle.md= three clauses sharpened (the batch's EVERY file measured · an exit code never through a pipe · a row his order did not name leaving his screen is asked BEFORE the write, mine, unruled) · =skills/change/SKILL.md= (no other process beside a census; the comparison is the script's) · =methods/census-suites.sh= compares reds by name itself (=AGAINST= · =ONLY=none=, replayed on both censuses: the same answers as the hand scripts) and skips =commons/hallucinators/bak= (the "hallucinators" red was a dead =bak/= test importing =Agent=: =ok ¦ 14 passed (133 steps) ¦ 0 failed= without it) · known issue =drapes-sheet-test-red-on-inline-vars= filed. His to wire, both written and both failed again: =hooks/quiet-guard.sh= · =hooks/heredoc-guard.sh=.
+
+* testing assessment
+
+11-21, at the land, TODAY's tree: =methods/census-suites.sh=, serial, =HOME= an empty temp dir, =SNAPSHOT_HOT=1= once on hello-world first; =land/census/summary.txt= in the 11-21 02:30 session's scratchpad.
+
+| suite | pristine | replayed |
+|---+---+---|
+| typology | =ok ¦ 168 passed (735 steps) ¦ 0 failed= | =ok ¦ 168 passed (736 steps) ¦ 0 failed= |
+| paladin | =FAILED ¦ 58 passed (258 steps) ¦ 1 failed (1 step)= | =FAILED ¦ 62 passed (281 steps) ¦ 1 failed (1 step)= |
+| runtime | =ok ¦ 112 passed (710 steps) ¦ 0 failed ¦ 1 ignored= | =ok ¦ 112 passed (710 steps) ¦ 0 failed ¦ 1 ignored= |
+| ghost | =FAILED ¦ 42 passed (147 steps) ¦ 5 failed (16 steps)= | =FAILED ¦ 41 passed (146 steps) ¦ 6 failed (17 steps)= |
+| dapper | =ok ¦ 28 passed (535 steps) ¦ 0 failed= | =ok ¦ 28 passed (535 steps) ¦ 0 failed= |
+| drapes | =FAILED ¦ 36 passed (254 steps) ¦ 1 failed (5 steps)= | =FAILED ¦ 36 passed (254 steps) ¦ 1 failed (5 steps)= |
+| hello-world | =ok ¦ 19 passed (64 steps) ¦ 0 failed= | =ok ¦ 19 passed (64 steps) ¦ 0 failed= |
+| hallucinators | =FAILED ¦ 14 passed (133 steps) ¦ 1 failed= | =FAILED ¦ 14 passed (133 steps) ¦ 1 failed= |
+| memo | =FAILED ¦ 3 passed (21 steps) ¦ 1 failed (2 steps)= | =FAILED ¦ 3 passed (21 steps) ¦ 1 failed (2 steps)= |
+| stub | =ok ¦ 4 passed (18 steps) ¦ 0 failed= | =ok ¦ 4 passed (18 steps) ¦ 0 failed= |
+
+Failed step names equal on both copies in nine suites (=land/reds.sh=); ghost's one more is =lifecycle.test.js= /"client.factory: hands back the Client RUNNING against the world"/, the filed flake (=known-issues.org:153=): that file alone, five rounds alternating (=land/flake.sh=), pristine red 1 of 5 · replayed red 1 of 5. Base reds on today's tree, equal on both copies, not this quest's: memo =tablet.snapshot.test.js= (filed, =known-issues.org:2771=, the =svelte/internal/disclose-version= specifier); drapes =sheet.test.js= 5 steps (=AssertionError: Values are not equal=) and hallucinators (=The requested module '@vivalence/typology' does not provide an export named 'Agent'=): neither filed, no cause looked for, both in folders holding his uncommitted work.
+
+
+11-20, the telemetry side: every block of =* as code= but the Q2 · Q3 · Q3A ones (seven files skipped, they wait on Q12) replayed on a fresh copy — 2 files new, 1 replaced, 13 files · 22 hunks landed, 0 missed, the copy byte-equal to the sandbox the suites ran on. Suites serial, =HOME= an empty temp dir, pristine copy beside the replayed one:
+
+| suite | pristine | replayed |
+|---+---+---|
+| typology | =ok ¦ 168 passed (735 steps) ¦ 0 failed= | =ok ¦ 168 passed (735 steps) ¦ 0 failed= |
+| paladin | =FAILED ¦ 58 passed (258 steps) ¦ 1 failed (1 step)= | =FAILED ¦ 62 passed (274 steps) ¦ 1 failed (1 step)= |
+| runtime | =ok ¦ 112 passed (710 steps) ¦ 0 failed ¦ 1 ignored= | =ok ¦ 112 passed (710 steps) ¦ 0 failed ¦ 1 ignored= |
+| ghost | =FAILED ¦ 42 passed (147 steps) ¦ 5 failed (16 steps)= | =FAILED ¦ 42 passed (147 steps) ¦ 5 failed (16 steps)= |
+| hello-world | =FAILED ¦ 18 passed (63 steps) ¦ 1 failed (1 step)= | =FAILED ¦ 18 passed (63 steps) ¦ 1 failed (1 step)= |
+
+Reds, the same by name on both copies: paladin =vault.test.js= (the twin, =known-issues.org:134=) · ghost's five (=ghost-base-tree-reds-11-06=) · hello-world =research.snapshot.test.js= S4 was MY census, no defect: both copies carried a stale gitignored snapshot (it lacks =primer_preload= · =primer_unload=); after =SNAPSHOT_HOT=1= once, as =methods/census-suites.sh= says, the pristine copy answers =ok ¦ 19 passed (64 steps)=. paladin's +4 are =telemetry.test.js=; a fifth step joined at the fold (the empty =Instance= presets nothing: =ok ¦ 4 passed (17 steps)=, red under a mutant that presets =logger: {}=), the suite then =62 passed (275 steps) ¦ 1 failed=. A mutant (a trailing =(.*)= also taking zero segments) turned two of its steps red, then restored. Lone runs of =ghost/tests/subjects/shell/lifecycle.test.js=: red 4 of 7 on the replayed copy, 0 of 3 on the pristine — the filed =client.factory= flake (=known-issues.org:125=, the store =[]= at the timeout, no throw in the runtime); the whole ghost suite is equal by name. Not run: dapper · drapes · hallucinators · memo · stub; anima in a browser (its beat is cut, never mounted); =viva instance/tail= against a live file.
+
+Before 11-20's replay: no suite ran; the one proof on his side was a boot (=* changelog=, the =tiers= cut).
+
+| gap | catches | home | state |
+|---+---+---+---|
+| the sieve's cases | a key that stops winning where it should (the 11 paths of =* as code=, =(.*)= one or more, a =*= mid-key) | =subsystems/paladin/tests/telemetry.test.js= | WRITTEN 11-20, in the tangle |
+| the trie's wildcard fallback | a mid-route =*= dropping an outer =/*= (known issue =wildcard-shadows-a-later-sibling=) | =subsystems/typology/tests/vector.test.js= | owed |
+| a call before its routes mount | the 404 window and the unapplied write (known issue =runtime-answers-before-its-routes-mount=) | =systems/runtime/tests/runtime/beats.coverage.test.js= (its =integration.serve= case runs the beat alone) | owed |
+| a mode's status | =/metadata/status= answering a code outside the machine (known issue =mode-status-never-leaves-uninitialized=) | no suite greps =metadata/status= under =systems/runtime/tests= · =subsystems/typology/tests= | owed |
+| a span read as a source | a reader missing the past, or a tap left on the pipe after its reader left (Q21's =drain=; today only =cast.probe.js= proves it) | =subsystems/typology/tests/span.test.js= | WRITTEN 11-21, in the tangle; red under a mutant without =drain= |
+| a queue nobody drains | its writer slowing by the square of the depth (known issue =queue-copies-its-backlog-per-record=; =queue.probe.js= is its case) | =subsystems/typology/tests/queue.test.js= | owed, his (typology) |
+| the listen side across a restart | a listener silent after the runtime came back (=* open= 30; =restart.probe.js= is its case) | =subsystems/paladin/tests/telemetry.test.js= | WRITTEN 11-21, in the tangle (one process, a second root word standing in for the next pid); the real restart is only =live.probe.js= |
+| a pipe on a stream | the process dying when the stream's other end leaves (known issue =pipe-dies-with-its-stream=; the probe under =* open= 27 is its case) | =subsystems/typology/tests/pipe.test.js= | owed, his (typology) |
+| the two commands as commands | a =viva instance/tail= that prints nothing or outlives its stop (only =telemetry.test.js= and a live run cover them) | =systems/ghost/tests/subjects/shell/= | owed |
+| the hand-over | a root followed twice or never (nothing calls =paladin.control= in a suite) | =subsystems/paladin/tests/telemetry.test.js= | owed |
+| the browser's paladin | =mod.client.js= failing to load once it wears =control= and =Telemetry= | =subsystems/paladin/tests/vault.test.js:87= | cannot START: red at base (=paladin-vault-twin-deno-not-defined=) |
+| a =log='s object on the console | a nested object printed as one JSON row again, or a flat one broken over rows | =subsystems/paladin/tests/telemetry.test.js= | WRITTEN 11-21, landed; red on the old product |
+| the multiplex's records | an upgrade with no record · a client's drop that reaches no span · a print on the console | =subsystems/typology/tests/multiplex.test.js= | WRITTEN 11-21, landed; both cases red on the old product |
+| ghost's client handing its span over | =factory.js= dropping =trace= (nothing asserts a socket record under =clientDie.controller.stdout=) | =systems/ghost/tests/subjects/client/factory.test.js= | owed |
+
+11-21, the second land (=* the dialogue= 30), ten suites on the edited copy (=pretty/census.out=), beside the land's replayed copy: typology =ok ¦ 168 passed (737 steps) ¦ 0 failed= (736 before, one new case) · paladin =FAILED ¦ 62 passed (282 steps) ¦ 1 failed (1 step)= (281 before, one new case; the vault twin) · runtime =ok ¦ 112 passed (710 steps) ¦ 0 failed ¦ 1 ignored= · ghost =FAILED ¦ 42 passed (147 steps) ¦ 5 failed (16 steps)= (the filed =client.factory= flake red at the land, green here) · dapper · hello-world · stub green · drapes · hallucinators · memo the same reds by name. No suite ran on his live tree.
+
+COVERAGE GAP: nothing asserts WHERE a call's records sit; Q2 moves them with no suite to go red.
+
+* review — 11-20
+| S | stop | rides | verdict | his words |
+|---+---+---+---+---|
+| 1 | the recipe says who reads what | Q4 · Q5 · Q5A · Q6 | amen | /"i did not agree to more than one telemetry? what are those??"/ (answered: one key, the three schematics that must each name it; he amen'd the mask's row only, the two recipe rows are Q4's, mine) · /"amen"/ |
+| 2 | the sieve picks the records | Q1 · Q1A · Q1B · Q1C · Q5 | amen | /"amen"/ (shown: =* open= 16) |
+| 3 | the console prints one line | Q9 | amen | (on =KIND=) /"also apterture, harness, and the other standard words."/ · /"amen s3"/ — landed: =aperture= → =a= · =harness= → =h= (the literal two; the others listed to him with counts, none added unasked) |
+| 4 | a process hands its root to paladin (was: taps two sinks) | Q10 → Q15 · Q16 | RE-CUT on Q15 11-21, re-shown; /"why […] and not paladin.control? either or, then follow, but no duplicates."/ → Q17 /"a"/, re-cut again and re-shown; 11-21 the pass tightened two hunks (=control.js= · =attach=), re-shown, /"amen"/ 11-21; before that: amen | (the other words) /"entities metadata userspace"/ · /"amen"/ · /"s4 amen"/ — landed: =entities= → =e= · =metadata= → =md= (=m= is mode's) · =userspace= → =u=, letters mine |
+| 5 | the browser keeps a file's rows | Q11 | amen | (on the beat's =sinks= · replay · =untaps=) /"this is more logic than the statement deserves. be simple. be direct. be plain and obvious"/ · /"s5 amen"/ — re-cut: two taps at the root's mint, the =logging= beat dead |
+| 6 | the two commands from another terminal | Q8 → Q13 · Q14 → Q15 → Q21 · Q22 · Q22A | RE-CUT 11-21 on law 19, its hunks shown, /"amen"/ 11-21; before that: REFUSED as re-shown (the runtime's routes), drilling → Q15 → Q18 /"b"/; re-cut, passed and SHOWN 11-21 → Q19 /"b"/, redrawn and re-shown: /"amen"/ 01:18, then /"no. something isnt right."/ 01:20 — REFUSED, =* open= 27 | /"to be clear. this viva /instance/tail [] command is not scoped by what the instance.telemetry declares, rihgt?"/ · /"this must be a really smart interface. tail to console, pipe to file. instance/tail vs instance/pipe track selection and encoding is interesting. needs to be nicely encoded for cli. think about it. whats the most beautiful way others have solved this?"/ |
+| 7 | a call's records sit under its subject | Q2 · Q3 · Q3A, after his Q12 | — | |
+
+* release — lifted into =.ikiro/release.md= =## unreleased= 11-21
+
+- changed =viva instance/tail= — takes a sieve as one word and follows every running process of the instance over its socket; before, it followed ghost's =spans.log= · migrate: name =telemetry.logger.socket= in the recipe ⟨Q14 · Q22⟩
+- added =viva instance/pipe <file>.jsonl '<sieve>'= — the same records into a file under the instance's logs · migrate: none ⟨Q13⟩
+- removed =viva instance/tail/ghost= · =instance/tail/client= · migrate: a sieve key =/ghost/(.*)= ⟨Q14⟩
+- added =telemetry.logger= on a ledger · instance recipe — ={ <target>: { <path pattern>: [tracks] } }=, a target is =console= · =socket= · a =.jsonl= path · migrate: none ⟨Q4 · Q5 · Q22⟩
+- changed what a process writes when its recipe says nothing — the runtime's console prints one row a record, =status= · =fault= · =log= only; =logs/<slug>/spans.jsonl= and =<process>.spans.log= are no longer written; a browser prints nothing · migrate: name a logger in the recipe ⟨Q6 · Q16⟩
+- added =paladin.telemetry=; =paladin.control(controller)= hands a root's records to it, in a browser too ⟨Q15 · Q17⟩
+- added =Span.drain(signal)= and async iteration — a span read as a source hands its past, then its live records ⟨Q21⟩
+- changed =v.record(key, value, options)= — a third argument · migrate: none ⟨Q5A⟩
+- changed the console's =log= row — an object prints its keys (=key value · key value=, a row per key when one holds an object); before, one row of JSON · migrate: none; the =.jsonl= and socket records are unchanged ⟨dialogue 30⟩
+- removed the =[multiplex …]= console prints — an upgrade and a drop are =log= records on the socket's span, an answered miss a =response= 404, a failure a =fault= · migrate: a sieve key for =/runtime/:runtime/socket/(.*)= (or =/anima/(.*)= · =/ghost/(.*)= on a client) ⟨dialogue 30⟩
+- added =trace= on =shard.transmitter.multiplex({ … })= — the span a client's sockets hang under · migrate: none ⟨dialogue 30⟩
+
+* handoff
+
+- DONE 11-21 on his /"move to done"/; this file now lives at =quests/done/instance-telemetry.org=. Not done inside it, each named on the frontier's tails row: stop 7 (DESIGNED, waits on his Q12, the Q2 · Q3 · Q3A blocks of =* as code= unlanded) · his look (=* QA=, six markers pending) · his ruling on the answered miss (below) · the owed tests of =* testing assessment=. A session picking stop 7 up opens a NEW live quest and points here.
+- LANDED 11-21, after the first land (=* the dialogue= 30, =* changelog= last row): a =log='s object prints its keys; the six =[multiplex]= prints are records; the client's multiplex takes =trace=. Seven files, on his tree, his =:2501= restarted =RUNNING=. Owed: his look (=T-patrol-row= · =T-multiplex-rows=) · HIS ruling if the answered miss should show on the default console again (today a =response= 404 only; one =trace.log= row in =socket.js= =#answer= would print it, a second record for one fact) · a ghost test for the handed span (=* testing assessment=). =socket.js= now holds TWO blocks in =* as code=: the stop-7 SKETCH (not landed) and the landed removals; =apply-diffs.py --skip= is by path, so a stop-7 replay on today's tree skips or misses the second. Scratchpad, while it lives: =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/122e6c14-135c-4616-875d-3945bdf38999/scratchpad/pretty/= — =base/= (the tree before this land) · =tree/= (the edit) · =edit.py= · =hunks.org= + =replay.sh= · =two.sh= · =census.sh= + =census/= · =live.probe.js= + =live.tree.log= · =format.probe.js= · =land.sh=. To take it back by hand: the seven paths of =land.sh= from =base/=; VCS is his.
+- LANDED 11-21 (/"land telemetry"/): stops 1–6 are on his tree; what follows below =done= describes the day before the land where it says "zero product code". Next: his look (=* QA=, four markers pending — they need a =socket= · a =.jsonl= logger in HIS recipe, his to write) · his Q12 → stop 7. The land's scratchpad, while it lives: =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/122e6c14-135c-4616-875d-3945bdf38999/scratchpad/land/= — =rig/= (today's tree, pristine) · =tree/= (replayed, byte-equal to his tree on the 25 files) · =build.sh= · =census.sh= + =census/= · =reds.sh= · =flake.sh= + =flake/= · =anima.world.js= + =anima.sh= + =anima.log= · =land.sh= (=drift= · =write= · bare = compare). A replay of =* as code= on TODAY's tree now MISSES the landed hunks (their old rows are gone): stop 7's blocks replay with the 25 landed paths skipped, or on =rig/=. To take the land back by hand: the 23 pre-land files are under =rig/=, the two new ones (=paladin/prototypes/telemetry.js= · =paladin/tests/telemetry.test.js=) are removed; the VCS is his.
+- goal: every subject emits; a sieve on the ledger/instance decides what each reader sees; paladin owns it.
+- done: Q1–Q22A with his words (=* the dialogue=, laws 1–19); every block of =* as code= replayed 11-21 from the quest onto a fresh copy (22 files · 34 hunks · 2 new · 1 replaced, 0 missed); the show (=* review= · =* milestones=): stops 1–5 amen; stop 6 RE-CUT on law 19 (a =socket= logger · =Span= ⟷ =Span= over =belt.sse= · the listen side redials) and /"amen"/ 11-21, then run live (=* open= 32); stop 7 DESIGNED, waits on Q12. Suites on that copy: typology =ok ¦ 168 passed (736 steps)= · runtime =ok ¦ 112 passed (710 steps) ¦ 0 failed ¦ 1 ignored= · paladin =62 passed (281 steps) ¦ 1 failed= (the vault twin) · ghost =42 passed (147 steps) ¦ 5 failed (16 steps)=, the 16 names of the pristine copy. Then LANDED 11-21 (the row above; =* changelog= last row).
+- next: his Q12 (=* open= 12: how a call's record learns the route below its subject, typology core; A the dispatcher marks the depth · B the mounting beat binds the mount) → the Q2 · Q3 · Q3A blocks replay with it (seven files skipped at every replay today) → stop 7 shown → its own land (stops 1–6 LANDED 11-21) and the things to see before he rules (=* open= 13–19 · 21). Done at the land of 1–6: =* open= 28's unread (no effect returns a bare span) · the organs =* blast table= · =* QA= · =* release= · the census on today's tree (=* open= 7); the same owed again before stop 7 lands. The scratchpads, while they live: this session's (11-21 02:30) =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/122e6c14-135c-4616-875d-3945bdf38999/scratchpad/= — =recut/= (=replay.sh=: replay + the suites named as its arguments · =suites.sh= · =live.sh= + =live.probe.js= + =live.log= · =mutant.sh=) · =pair/= (Q21) · =q22/= · =q26/=; they run against =rig/= (pristine) and =replay/= in the 11-20 session's scratchpad, named in the last row but one.
+- never: =tail= as a NOUN for the listen side (=a tail holds=), in a reply · a row · a test local; the COMMANDS stay =instance/tail= · =instance/pipe= (his 11-21 /"tail doesnt exist here."/ · /"instance/tail and instance/pipe still exists. those are the names."/, =* open= 31); a key-wise fold of =telemetry= (his /"later"/); a controller minted inside typology (Q3A); the level ladder of m89; a route on the runtime or a signed proof for the tail (REFUSED 11-21 /"i dont want to ask the runtime. i said paladin."/); a tail reading a logger's file (/"why does tail read from file?"/); a telemetry row in a system beside =paladin.control= (/"either or, then follow, but no duplicates."/); a build on a question of his; a hand loop over a socket where a pair of prototypes interlocks, and a fork of mine asked before his core mechanism is carried clause by clause (/"no. something isnt right."/ 11-21); a mechanism noun of his decided "mine".
+- owed: HIS: Q12 · the unruled words ="watched"= · ="socket"= (the two spans) · =REREAD= · the wire's bound · a test for =pipe-dies-with-its-stream= (=subsystems/typology/tests/pipe.test.js=) and for =queue-copies-its-backlog-per-record= (=queue.test.js=), both typology. MINE: typology · ghost · runtime suites ran one replay BEFORE two reflowed rows of =telemetry.js= (=telemetry.test.js= · paladin re-run after them, equal); the two commands run only in =live.probe.js=, no suite; the root's own =STOPPED= never reaches a listener (=* open= 14, seen again live); the frontier's whole rewrite (a sibling session live again 11-21, only this quest's line written); =* open= 1 · 2 · 3 · 5 · 6 · 12–19 · 21; stop 5's text re-read against Q17 (anima's row is =paladin.control= now); tests: nothing calls =paladin.control= · nothing runs =viva instance/tail= · =pipe= as commands · the rigs' ready hangs on the console's sieve (=* open= 18) · anima in a browser · ghost's terminal UI under a recipe naming =/ghost=; unfiled, no cause found: a streamed call whose =input:= fails its schema never answered its caller (seen on the refused route only).
+- scratchpad of 11-21's later session, while it lives: =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/8d8d26fb-fe34-4389-8211-0412b7bed4e1/scratchpad/= — =pair.probe.js= + =pair.queued.log= · =pair.bare.log= (=* open= 27) · =zero/= (the Q19 build: =telemetry.js= · =tail.js= · =telemetry.test.js=) · =is/= (the cut before it) · =s6.effect.sh= (replay + three live probes on a short temp folder) · =s6.suites.sh= (ghost · runtime) · =s6.fork.probe.js= (Q18's scenario) · their logs beside them. It runs against the session before it, whose scratchpad holds the copies: =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/4b2a6b20-b8b4-42aa-bec0-9b7301aef783/scratchpad/= — =rig/= (pristine copy) · =replay/= (the quest replayed) · =show.sh= (replay + paladin's suites) · =q15.verify.sh= (both live probes + four suites) · =show.s1.probe.js= … =show.s6.probe.js= · =census/= (every log) · =hand/= (the refused runtime-route build, evidence only).
+- a sibling session (m127) was live on this tree and on =~/.viva= all through; this quest's writes outside itself: =known-issues.org= (4 entries + 2 evidence rows; 11-21 =pipe-dies-with-its-stream=), =~/.viva/ledger.viva.json= (the =tiers= cut), the rule files of three folds (11-21: =drill-me= · =bird= · =connoisseur= · =show-me= · =codestyle=).

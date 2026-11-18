@@ -1,0 +1,2270 @@
+#+title: file drop — a file dropped on the dock becomes a File the thread holds, the turn carries its reference, the harness swaps reference and bytes in and out of the model
+#+filetags: :file:thread:turn:part:harness:dock:userspace:attached:mime:
+#+status: DONE on his word 11-21 (/"move file drop to done"/), NOT whole: milestones 1 · 2 · 4 · 5 · 6 · 7 · 8 LANDED (8 = a refused upload lands nothing · =/attached/file= · =/attached/view= ask for login, the token rides the address · memo · =@media= · =@vcompany= hand File ids); milestone 3 UNCAST (=known-issues.org= =registry-views-throw-on-a-mode-less-file=); no drop seen on a DOM; no test for =paladin.state.land= · =FileRepository.upload= · =shard.datamap.files=; tails: =* handoff= last rows
+# writer: agent · limit: 160000 chars
+
+Owners beside it: =m126-facutly-unfolding.org= (cortex · harness; its =never= binds here) · =done/m113-file-rows.org= (the File entity, =/attached/file/:id=) · =done/m118-darkroom.org= (the =picture= faculty; its Q15 /how the MODEL sees a picture it made/, =:362=, is answered by milestone 5).
+
+* intent
+
+11-20, beef verbatim:
+
+- /"i will from now on want to be able to drag and drop files into chat and send them as context. this has never been done yet. there are two parts to this. a: the file side. b: the harness side."/
+- /"file side means when a file like picture is dropped into the window or specifically the dock, i expect that file to be uploaded and stored as a file. and then attach the file ref to the turn."/
+- /"harness side means that from now on i want to use the document and picture channels of my models. never done that except for a diffusion thing. in and out! and then of course attached to turn."/
+- /"important: i want the experience of file upload on the mode to be as siiimple and straightforward as possible from both code and ux side. because f.e. others might use the cortex.hallucination and they should still have a easy time of passing files, the same way the harness does. file up, harness in/out."/
+
+* the dialogue
+
+| his turn | what it ruled |
+|---|---|
+| /"a is viable if there never is a different encoding for an api other than we provide."/ | the encoding per API is each translator's, never the step's |
+| /"!!!media: "image/png", why is this called media and not mime. this is mime no? should be mime inside viva"/ · /"rewrite to mime. … subagent. full blast change. opus medium"/ | the rename, LANDED |
+| /"We really need a file part. … Isn't file a little bit too general? The upload of a file certainly doesn't happen through the harness. That is handled on the aperture. … So where do files go? That are dropped on the a mode that isn't file syncable."/ | opened Q1 · Q2 |
+| /"i like c but what if daemon is absent? runtime modes. and where then do we open the file receiving?"/ | the home is the RUNTIME (my "daemon's mountpoint" was wrong) |
+| /"i dont like that attachment being open. you have to be logged in for that. otherwise its fine."/ · /"└── thread_<id>/<sha256>.png … no. not like this."/ | Q1 · the =/attached= login · the folder KILLED |
+| /"shouldnt a file be in many threads and a thread have many files?"/ · /"maybe thats a bit too far down the chain and might constrain other functionality? check."/ · /"q3 a"/ | Q1A opened · the wide login check refuted by probe · Q3 |
+| /"attached amen. many many amen."/ | the narrow login check · Q1A |
+| /"did we settle on file as a part type? what part types we got? … is file a type that our providers will be able to handle?"/ · /"i dont mean today. i am askingif file si a reasonable long term ecosystem 5 year style type? you are proposeing a as api sugar?? will providers support it? is that where he ecosysteme is going?"/ · /"amen"/ | Q2, after the docs survey |
+| /"harenss."/ | Q0A |
+| 11-21 /"why not upload? why attach? maybe file/upload ? yeah better. and if no path is given, the command opens the uplaod dialogue / drag n drop prompt. maybe we can set relations in there or something in the furter.e"/ · /"these will be root. straight interface for file/upload. called in differnt contexts. flexible expressive layerable api."/ | Q18; =/attach= KILLED as the command's name |
+| 11-21, on Q19 (where the dock learns which files ride the next turn: A the thread's unsent files · B a list beside the draft) /"different frame. we might just await the upload and disable sending while upload not done and file not resolved. no?"/ | his reframe, then /"a list beside the draft)"/ = Q19 B |
+
+* terrain — measured 11-20
+
+- the part kinds, ten, bytes inline; no kind held a File before this quest:
+#+BEGIN_SRC js
+// subsystems/typology/schematics/primitives/hallucination.js:97
+Part.Any = v.union([
+  Part.Text,
+  Part.Image,
+  Part.Audio,
+  Part.Video,
+  Part.Document,
+  Part.Object,
+  Part.ToolUse,
+  Part.ToolResult,
+  Part.Thinking,
+  Part.Alien,
+]);
+#+END_SRC
+- both translators already send =image= · =document= IN (=commons/hallucinators/anthropic/provider/translate.js:54= · =openrouter/provider/translate.js:77=); neither parses one OUT; an unknown part falls to text, silently, in BOTH:
+#+BEGIN_SRC js
+// commons/hallucinators/anthropic/provider/translate.js:79
+    default:
+      return { type: "text", text: typeof part === "string" ? part : JSON.stringify(part) };
+#+END_SRC
+- the user turn stores whatever parts arrive (=systems/runtime/subjects/mode/traits/harness.js:140=); a stored turn is checked against no part list (=subsystems/typology/schematics/entities/turn.js:10=).
+- ONE db per instance, the runtime's (=~/.viva/instances/localhost/mountpoint/localhost.viva.db=): =File= · =Thread= · =Turn= · =Mode= live there; the runtime serves every file (=systems/runtime/subjects/runtime/attachment.js:29=); =/userspace= is signed in and user-bound (=systems/runtime/subjects/runtime/lifecycle/3-integration.js:59=).
+- a File must have a mode today, dies with it (=subsystems/typology/entities/File.ts:91=); a thread changes mode (=systems/ghost/gestalten/commands/content/mode.js:25=), his db holds 3 threads whose turns span more than one mode.
+- 29 modes wear =HARNESS=, one of them =FILESINK= (vcompany =vdex=); =/files/receive= has zero product callers.
+- the dock already draws an empty attachment strip and a =/detach= that throws (=systems/anima/src/surfaces/chrome/panels/dock/textarea.jsx:223= · =systems/ghost/gestalten/commands/content/detach.js:10=); =/attach= · =/paste= sit in both clients' menus with no command; zero drop · paste · file-input handler for files in =systems/anima/src= and =systems/ghost=.
+- services mount UNDER =/attached= (=systems/runtime/subjects/runtime/lifecycle/2-resolution.js:37=, a reference =/attached/process/service/…=), after =integration.attached= (=lifecycle/index.js:25= before =:34=).
+- the login check takes the token as a URL param too (=systems/runtime/subjects/lighthouse/signer.js:49=).
+- nobody removes a File's bytes (zero =Deno.remove= under =systems/runtime/subjects= · =subsystems/typology/entities=).
+- the ecosystem, from docs (Anthropic Files API · OpenAI file inputs · Gemini generate-content · MCP schema · OpenRouter pdfs): every API holds "a reference to stored bytes, with a mime" (=source.type: "file"= · =input_file= · =fileData= · =file= · =resource_link=) and references only ITS OWN store; Anthropic: /"keep the mapping between your users and their files in your application"/.
+
+* rulings
+
+| Q | lock | his words |
+|---|---|---|
+| — | =media= → =mime= | /"rewrite to mime."/ |
+| Q1 | runtime holds · =/userspace= receives · signed in | /"i like c"/ · /"otherwise its fine."/ |
+| Q1A | File ⟷ Thread m:n | /"many many amen."/ |
+| Q3 | =mountpoint/files/<sha256>.<ext>= | /"q3 a"/ |
+| — | =/attached= byte branches ask for login | /"attached amen."/ |
+| Q2 | stored ={ type: "file", file }= | /"amen"/ |
+| Q0A | the harness wears the step | /"harenss."/ |
+| Q4A | =mountpoint/files/<name>.<hash 8>.<ext>= (re-cuts Q3) · a clash on the 8 throws · no overwrite, no dialog | /"what if we keep <name>.<hash>.<f(mime)> ??"/ · /"8. loud crash"/ |
+
+| Q5 | two ways up, both built: whole (JSON, base64, schema'd) · open + send (raw, streamed); =thread= · =buffer= · =mode= each optional on the input | /"yeah lets just implement both and see what sitcks."/ · /"also mode! optional"/ · /"or buffer"/ · /"full range"/ |
+| Q6 | a dedicated branch, never a File repository method on the datamap shard | /"no."/ · /"dedicated for now."/ |
+| Q7 | ONE raw call, the fields in the URL query (=/userspace/file/send?thread=…&buffer=…&name=…=); the ticket (open + send, the =Map=) DIES; the branch is =/userspace/file=, beside =/entities=, never under it | /"no fuck i decided against the fucking entity level. idiot"/ · /"amen."/ |
+
+Q7 probed (=scratchpad/s2/query.probe.js=): a URL's query arrives decoded as =ctx.signal.flags= (=prototypes/signal.js:26=); =ctx.input= is null on a raw body; =Dropped.check(ctx.signal.flags)= true with a name, false without; path params have NO optional form. MINE 11-20: Q6's routes kept on =owned= (=/userspace/entities=) three replies after his "dedicated".
+| Q8 | raw = =POST /userspace/file/upload/:name?thread=…&buffer=…&mode=…= · JSON = =POST /userspace/file/paste= | /"lets rename into /upload/:upload for and /paste for json."/ · /"POST /userspace/file/upload/cat.png?thread=…&buffer=…"/ |
+
+| Q9 | REVERSES Q6 · Q8's routes: upload · paste ride the File datamap under =/entities/file=, per scope (runtime · daemon · mode); folders are the path, =/upload/(.*)= | /"makes me think back at the choice to not make file receiving a property of the repositrory and the datamaps."/ · /"aka (.*) on upload."/ · /"amen s1"/ |
+| Q10 | typology writes no disk: =paladin.state.land(root, dropped, body)= lands (stream · hash · Q4A name · no overwrite), =FileRepository.upload(landed)= records + links, =shard.datamap.files(repository, land)= serves; =land= is the mount site's thunk | /"i dont want typology to write to disk. that pure paladin territory!"/ · /"very pretty. good solution."/ |
+| Q11 | no =File.daemon=: a daemon's File is the runtime's, its path under the daemon's folder | /"no  File.daemon"/ |
+
+Q9–Q11 as code, the CURRENT truth of file-up (11-21, SUPERSEDES =s2/file.js= and Q8's routes): =scratchpad d6f3ab2f…/d2/= — =land.js= · =files.js= · =apply.py= (the =upload= method · =unique= with =mode ?? null=) · =run.js=, RUN: three scopes answer a File; runtime and mode hold =files/cat.49779094.png= as two Files; paste of the same bytes and path = the same File; a stranger 404; =..%2F..= 500 =leaves <root>=. Also his: =fromm.params(…).URIC= (a getter, the remainder URI-decoded) · the shard takes the repository plain, no =of(ctx)= (zero function callers, grepped). Owed: the client's =upload= · =paste= on its File repository · the real =paladin.state= entry (probe used a stub) · the four old hands onto =land= + =upload= · a mode scope's user check on =thread= · the name-clash branch unrun.
+
+| Q12 | the harness step, re-cut (SUPERSEDES =** the step= below): =filing= innermost on =/dialogue= (=.use(chaining).use(persisting).use(filing)=), reads =ctx.hallucination.turns=; =HANDED= one table by mime; out = =paladin.state.land= + =file.upload({ …landed, thread })=; a byte part is one with a =mime= (no =BYTES= list); a text File keeps its =file= key; the lookup holds =threads: ctx.thread.id= | /"can we improve unify or simplify this s2 code?"/ · /"yes. amen."/ |
+
+Q12 as code: =scratchpad d6f3ab2f…/d3/filing.js= + =run.js=, RUN 11-21 on real mikro · =land= · the real =Cortex=, a stand-in harness chain: provider received =image= + =text= each with =file=; stored answer ={ type: "file", file }=; the model's File =files/image.a86fc9c7.png= linked to the thread; another thread's File → =NotFoundError=. Mine, unruled: the model's file named after its kind · thread-held-only lookup. Unrun: the real =HARNESS= · the stream arm · =images= of the picture faculty · =meta: null= on a handed turn.
+
+| Q13 | a mode is not a required relation of a File; a view's File has one | /"modes are not a required relation. any view file would have it. but can do files without modes."/ |
+| Q14 | CLIENT: owners list their files, readers ask the owner. =mode.$files= = the Files naming it; =daemon.$files= · =runtime.$files= = a reduction over their modes' sets, INLINE at each site (no shared fn), a plain =files= getter each; the 11 registry rows become =buffer.mode.daemon.files= | /"so the reducer from set makes more sense than the relationship."/ · /"cut. do inline. not everythign must be a module."/ |
+| Q15 | the daemon upload scope DIES (re-cuts Q9 to runtime + mode); a daemon's file goes up through one of its modes | /"either we drop daemons upload or we make daemon a relation … which ever. one of them."/ → A, mine |
+
+| Q16 | REVERSES Q11 · Q15: =File.daemon= m:1 nullable (twin =Mode.ts:52=); the daemon upload scope lives, landing under the daemon's own mountpoint, stamping =daemon=; =unique= = ={ mode ?? null, daemon ?? null, path }= | /"i think we need the modeless daemon file."/ |
+| Q17 | =mode= and =daemon= on a File are NOT exclusive; a set is one predicate, a File once per set: daemon = =file.daemon === daemon ‖ daemon.modes.includes(file.mode)= · runtime = =runtime.modes.includes(file.mode) ‖ (mode === null && daemon === null)= (SUPERSEDES Q14's reduction rows) | /"a file might name multiple. they are not exclusive."/ · /"amen"/ |
+| Q18 | CLIENT: the repl command is =/file/upload=, root, never =/attach=; a straight face of the repository's =upload=: body = Files · paths, flags = the holders (=--thread= · =--buffer=), none = a loose File, no implied thread (AS READ of /"straight interface"/); bare = it opens the prompt (=repl.narrow=, twin =shard/chooser.js:12=); the prompt's drawing · relations set inside it: UNDRAWN | /"why not upload? why attach? maybe file/upload ? yeah better."/ · /"if no path is given, the command opens the uplaod dialogue / drag n drop prompt"/ · /"these will be root. straight interface"/ |
+| Q19 | CLIENT: the dock learns the next turn's files from a list beside the draft (B), never from the thread's unsent files (A dead); a drop is awaited, send is disabled while an upload is in flight and its File unresolved; the send reads the list and empties it. The store's name (=bridge.$attachments=, the probe's) is MINE, unruled | /"different frame. we might just await the upload and disable sending while upload not done and file not resolved. no?"/ · /"a list beside the draft)"/ |
+| Q20 | the list beside the draft is =bridge.$uploads= (+ getter =uploads=), an entry ={ name, file }=, =file: null= while in flight; the kit's prop =attachments= stays (design markup). Principle: one noun across the wire, the store named after its writer (=/file/upload= → =FileRepository.upload=). =attachment= means three things on disk (=/attached= · =2-resolution.js:41= · the chips) | /"q20 amen"/ |
+| Q21 | the chip's ✕ is =/upload/trash <name>= (twin =/dictate/trash=); =/detach= DIES. It takes the upload off the list only, the File stays linked to its thread (mine, unasked). As code: =d12/trash.js= (a copy of =detach.js=, 4 hunks), RUN: named entry leaves · one in flight leaves, its late answer maps nothing · unknown name = nothing · bare = VALIDATION. Mine, open: the same name twice leaves twice · the file + export still =detach= | /"amen"/ |
+| Q22 | a File has an OPTIONAL =user= of its own (m:1, nullable, twin =Thread.ts:56=): set → only that user's requests find it; unset → every signed-in user's. No walk through its thread · buffer (the holder-walk filter of =** the 11-21 show · S7= is DEAD) | /"simplify. there is always a user. no auth by proxy."/ · /"i dont think files need users after all."/ RETRACTED by /"or actually, thast weird for privacy. files have users. must not. optiooooonal. but if set then filter by it. files w/o user availabel to everyone."/ |
+
+Q19 as code: =d11/run.js= option B, RUN on stand-in atoms (list after the drop · the parts the send builds · list after the send); the in-flight state and the disabled send are UNDRAWN, unprobed.
+
+Q18 as code: =scratchpad 8983b50e…/d10/= (=file.js= · =run.js=, RUN 11-21 with the real =Repl=): a dock drop with ={ thread }= · a typed path with =--thread= =--buffer= land and link; =--thread=nobody= 404; bare with a surface narrows the repl, its flags kept in the draft; bare without one answers a sentence. =d9/= (=/attach=) is its SUPERSEDED history.
+
+Q16 · Q17 as code: =d5/= (runtime side, RUN: one path on three scopes = three Files told apart by =mode= · =daemon=) · =d7/run.js= (client sets, RUN: eight Files, three naming two owners, none in no set, none twice in one). Unruled: who stamps both · a daemon named beside another daemon's mode · =runtime.files= holds every dropped photo.
+
+Q13–Q15 as code (Q15 and the reduction rows SUPERSEDED above): =scratchpad d6f3ab2f…/d4/run.js=, RUN 11-21 on stand-in Mode · Daemon · Runtime with real =nanostores=: today's row (=file.mode.daemon=) throws =TypeError: Cannot read properties of null (reading 'daemon')= at the first mode-less File; =buffer.mode.daemon.files= stays right and live; a dropped File sits in NO owner's set (reached by =thread.files= · =buffer.files=). Twins: =ghost/entities/daemon/prototype.js:21= · =runtime/prototype.js:25= (=modes=). Homes: =mode/hydration.js= after =:8= · =daemon/lifecycle/index.js= after =:5= · the runtime's site unread. Owed: client =Thread= has no =$files= (Buffer has, =buffer/prototype.js:13=) · the 11 edits · a real Svelte view on the getter.
+
+Q8 as code, SUPERSEDED by Q9 (history): =scratchpad/s2/final.probe.js= (RUN 11-20: =Dropped= · =Pasted= · =checked= · =holders= · =received= · the two routes on =userspace.branch("/file")=). Printed: upload on thread + buffer answers the File =files/my cat.49779094.png=; a paste of the same bytes and name is the same File; a mode drop another File; on nothing =files/loose.49779094.png=; 200 MB → =files/holiday clip.ed3d9e5a.mp4=, resident 167 → 274 MB; a stranger 500 =ThreadEntity not found=; a paste without a name 500 =Validation failed: must have required properties name=; =../../evil.png= → =files/evil.49779094.png=. MISWIRE met: a drop on a buffer answered the whole buffer → thread → USER inside the File; =hidden: true= on =File.buffers= too (=File.ts:112=, zero =file.buffers= readers in anima · ghost · registry, grepped), re-run clean.
+
+S2's routes, the HOME (11-20, his /"are we inline here? what. show me more context."/): a NEW file =systems/runtime/subjects/runtime/file.js= exporting the Vector =file=, twin of =attachment.js=, grafted in the =userspace= beat (=userspace.branch("/file").use(shard.context.bind("runtime", die.runtime)).graft(file)=); whole at =scratchpad/s2/file.js=, RUN by =scratchpad/s2/file.probe.js=: upload 200, paste same File, a stranger 404 =NOT_FOUND=, a paste without a name 400 =VALIDATION= (=shard.datamap.errors()= on the vector). It SUPERSEDES =final.probe.js='s inline routes. MINE: "3-integration.js, received" was written on four fences while =received= existed only in a probe.
+
+Q5 · Q6 as code: =scratchpad/s2/both.probe.js=, RUN 11-20 (the =received= fn · =Dropped= · =Whole= · =Upload= · the three routes; the earlier single-route fence under =* as code= is SUPERSEDED by it). Printed: whole on thread · buffer · mode · all three · nothing each answer a File; thread and buffer drops of the same bytes share one File; a mode drop is its own File; 200 MB over open + send: resident 174 → 256 MB (not whole-buffered, not proven flat). Met: an =input= schematic is NOT enforced over =shape.http= (open without =name= answered 200; only =strategy.guarded= checks, =steer/strategy.js:52=, tools · MCP) — the frontier's =harness-input-unvalidated=; a Buffer's owner is =thread.user= (=Buffer.ts:68=); open uploads live in a =Map= in the beat, gone at a restart.
+
+* the law
+
+1. a file dropped into a conversation is held by the runtime and linked to its thread; a mode owns only its own files (=FILESET= · =FILESINK=, untouched).
+2. a stored turn holds the reference, never the bytes; a provider is handed the specific part (=image= · =document= · =text=), its reference kept beside the bytes.
+3. which part a File becomes is ONE table, by mime; no arm → a throw.
+4. the encoding per API is each translator's.
+5. the harness converts its own turns, in and out; the cortex takes bytes and refuses a reference by its schema.
+6. bytes go up on the runtime's aperture, signed in; never through the harness, never on a mode.
+
+* as code
+
+** S1 · a turn carries a file as a part — sandbox-probed (=scratchpad/s1/=)
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/hallucination.js:59
+   mime: v.string(),
+ });
+
++Part.File = v.object({
++  type: v.const("file"),
++  file: v.string(),
++});
++
+ Part.Object = v.object({
+#+END_SRC
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/harness.js:19
+-  parts: v.array(hallucination.Part.Any).desc('The user turn\'s parts. Example: [{ "type": "text", "text": "ciao" }]'),
++  parts: v.array(v.union([hallucination.Part.Any, hallucination.Part.File])).desc('The user turn\'s parts. Example: [{ "type": "text", "text": "ciao" }]'),
+#+END_SRC
+#+BEGIN_SRC diff
+// subsystems/typology/tests/harness.snapshot.test.js:44
+     expect(v.primitives.harness.Request.check({ thread: "th3" })).toBe(false);
++    expect(v.primitives.harness.Request.check({ thread: "th3", parts: [{ type: "file", file: "01a1bd04" }] })).toBe(true);
++    expect(v.primitives.harness.Request.check({ thread: "th3", parts: [{ type: "file" }] })).toBe(false);
+   });
+#+END_SRC
+The two expects RUN 11-20 (=scratchpad/s1/after/= on the copy: =ok | 1 passed (2 steps) | 0 failed=; =scratchpad/s1/before/= on the live schematic, read-only: red on the first new expect). =Part.Any= keeps ten kinds. Probe printed: =Request.check= true on a file part, false without its =file=; the real =Cortex= answered =[cortex] invalid dialogue hallucination /turns/0/parts/0: must have required properties text= (loud, worded for the first kind it tried).
+
+** the =/attached= login, narrow — probed (=scratchpad/attached-reach.probe.js=)
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/3-integration.js:101
+ export const attached = async (die, next) => {
+   die.runtime.attachment.use(shard.context.bind("runtime", die.runtime)).graft(attachment);
++  die.runtime.attachment.branch("/file").use(die.runtime.lighthouse.authenticate);
++  die.runtime.attachment.branch("/view").use(die.runtime.lighthouse.authenticate);
+   die.aperture.branch("/attached", die.runtime.attachment);
+#+END_SRC
+The same check on the whole vector answers =401 MISSING_TOKEN= on =/attached/process/service/lighthouse/multiplayer/auth/login= (probe, run). The client half is unwritten: a File's =url= becomes a getter carrying the live token (today frozen once, =systems/ghost/entities/file/hydration.js:5=).
+
+** Q1 · Q1A · Q3 — PROBED 11-20 on a copy (=scratchpad/s2/=: =apply.py= · =memory.probe.js= · =migrate.probe.js= · =receive.probe.js=)
+
+Run: a File with no mode records, dedupes on a second drop (=same entity: true=), links two threads, survives one thread's delete (its pivot row goes). His real db, COPIED, migrated by the boot's own migrator: =File= 331 → 331 · =buffer_files= 1 → 1 · broken foreign keys 0 → 0 · =thread_files= born · =File.mode= nullable (the File table is REBUILT, =File__temp_alter=). The receive route answered the File over =shape.http=, wrote =files/<sha256>.png=, one =thread_files= row; a stranger on the thread: 500 =ThreadEntity not found= (the sibling =/activity/:id= shape, =3-integration.js:85=). MISWIRE met: without =hidden: true= on =File.threads= the answer carried the whole thread; the twin is =Mode.ts:109=. The class also gains =mode?:= · =threads = new Collection<ThreadEntity>(this)= · =files = new Collection<FileEntity>(this)= and one import each (=apply.py= holds every anchor).
+BREAKS at land, READ: 11 registry views read =file.mode.daemon= over the client's WHOLE file store (assembly ×4 · education ×7, e.g. =~/.viva/registry/education/modes/games/dojo/buffer/Dojo.svelte:19=); =/userspace/entities/file= is unscoped (=3-integration.js:70=), so one mode-less File reaches them and throws on =null.daemon=.
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/File.ts:91
+     mode: {
+       kind: "m:1",
+       entity: () => ModeEntity,
+       fieldName: "mode",
+       inversedBy: (mode) => mode.files,
++      nullable: true,
+       updateRule: "cascade",
+       deleteRule: "cascade",
+     },
+…
+     buffers: { kind: "m:n", entity: () => BufferEntity, mappedBy: (buffer) => buffer.files },
++    threads: { kind: "m:n", entity: () => ThreadEntity, mappedBy: (thread) => thread.files },
+#+END_SRC
+#+BEGIN_SRC js
+// subsystems/typology/entities/Thread.ts — NEW property, twin of Buffer.ts:82, anchor unread
+    files: {
+      kind: "m:n",
+      entity: () => FileEntity,
+      owner: true,
+      pivotTable: "thread_files",
+      joinColumns: ["thread_id"],
+      inverseJoinColumns: ["file_id"],
+    },
+#+END_SRC
+#+BEGIN_SRC js
+// systems/runtime/subjects/runtime/lifecycle/3-integration.js — inside userspace; body is darkroom's upload (commons/editors/darkroom/aperture/index.js:17-24 · :55-60)
+  owned.branch("/file").open({ nature: "/receive/:thread/:name", output: v.file() }, async (ctx) => {
+    const thread = await entities.thread.findOneOrFail({ id: ctx.params.thread, user: ctx.user.id });
+    const bytes = new Uint8Array(await new Response(ctx.request.raw.body).arrayBuffer());
+    const type = ctx.request.headers.get("content-type");
+    const hash = await crypto.digestBytes(bytes);
+    const stem = basename(decodeURIComponent(ctx.params.name)).replace(/\.[^.]+$/, "");
+    const path = `files/${stem}.${hash.slice(0, 8)}.${mime.extension(type)}`;
+    const held = await entities.file.findOne({ path, mode: null });
+    if (held && held.hash !== hash) throw new Error(`[file] '${path}' is held by other bytes: ${held.hash}`);
+    const mount = join(new Path(die.runtime.mountpoint).absolute, path);
+    await paladin.state.store(mount, bytes);
+    const file = await entities.file.record({ path, mount, mime: type, bytes });
+    thread.files.add(file);
+    await entities.em.flush();
+    return file;
+  });
+#+END_SRC
+
+** the step — EVIDENCE: run on the real =Cortex= (the shape Q0A did NOT take), never on the harness
+
+=systems/runtime/gestalten/shard/filing.js=, NEW (=filing= is the agent's word). Copied whole from =scratchpad/q0/filing.js=; its typology import there is the sandbox path. Under Q0A it hangs on the harness and must read =ctx.hallucination.turns= (Turn ENTITIES from =history=, =harness.js:139=), not =ctx.input.turns=: that re-cut is unprobed.
+#+BEGIN_SRC js
+import { join } from "@std/path";
+import { decodeBase64, encodeBase64 } from "@std/encoding/base64";
+import paladin from "@vivalence/paladin";
+import { Path, crypto, mime } from "@vivalence/typology";
+
+const inline = (type) => (file, bytes) => ({
+  type,
+  mime: file.mime,
+  data: encodeBase64(bytes),
+  file: file.id,
+});
+
+const text = (file, bytes) => ({ type: "text", text: new TextDecoder().decode(bytes) });
+
+const PARTS = [
+  [(held) => held.startsWith("image/"), inline("image")],
+  [(held) => held.startsWith("audio/"), inline("audio")],
+  [(held) => held.startsWith("video/"), inline("video")],
+  [(held) => held === "application/pdf", inline("document")],
+  [(held) => held.startsWith("text/") || held === mime.json, text],
+];
+
+const BYTES = ["image", "audio", "video", "document"];
+
+const part = (runtime) => async (held) => {
+  if (held.type !== "file") return held;
+  const file = await runtime.entities.file.findOneOrFail({ id: held.file });
+  const found = PARTS.find(([carries]) => carries(file.mime));
+  if (!found) throw new Error(`[filing] no part carries '${file.mime}': ${file.path}`);
+  return found[1](file, await paladin.read.bytes(file.mount));
+};
+
+const filed = (runtime) => async (held) => {
+  if (!BYTES.includes(held.type)) return held;
+  const bytes = decodeBase64(held.data);
+  const path = `files/${await crypto.digestBytes(bytes)}.${mime.extension(held.mime)}`;
+  const mount = join(new Path(runtime.mountpoint).absolute, path);
+  await paladin.state.store(mount, bytes);
+  const file = await runtime.entities.file.record({ path, mount, mime: held.mime, bytes });
+  return { type: "file", file: file.id };
+};
+
+const each = (turns, step) =>
+  Promise.all(turns.map(async (turn) => ({ ...turn, parts: await Promise.all(turn.parts.map(step)) })));
+
+export const filing = (runtime) => async (ctx, next) => {
+  ctx.input = { ...ctx.input, turns: await each(ctx.input.turns, part(runtime)) };
+  await next();
+  ctx.output = { ...ctx.output, turns: await each(ctx.output.turns, filed(runtime)) };
+};
+#+END_SRC
+Its mount under Q0A, READ, never run:
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/harness.js:315
+-  harness.branch("/dialogue").use(chaining).use(persisting);
++  harness.branch("/dialogue").use(chaining).use(persisting).use(filing(ctx.runtime));
+#+END_SRC
+
+** Q9–Q17 · the bird walk's hunks — EVIDENCE, copied 11-21 from their probes (=/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/d6f3ab2f-e60b-444d-a8f3-9cee03009232/scratchpad/= =d2 · d3 · d5 · d7=), uncast, gone at a reboot
+
+#+BEGIN_SRC ts
+// subsystems/typology/entities/File.ts — NEW method before rewrite (:31); + =unique= → { mode: query.mode ?? null, daemon: query.daemon ?? null, path: query.path }; + =daemon= m:1 nullable above =view= (twin Mode.ts:52); d5/apply.py holds every anchor
+  async upload({ thread, buffer, ...landed }) {
+    const clashing = await this.findOne(this.unique(landed));
+    if (clashing && clashing.hash !== landed.hash)
+      throw new Error(`[file] '${landed.path}' is held by other bytes: ${clashing.hash}`);
+    const file = await this.ensure({ ...landed, integrity: `sha256-${landed.hash}` });
+    if (thread) (await this.em.getRepository(ThreadEntity).findOneOrFail({ id: thread })).files.add(file);
+    if (buffer) (await this.em.getRepository(BufferEntity).findOneOrFail({ id: buffer })).files.add(file);
+    await this.em.flush();
+    return file;
+  }
+#+END_SRC
+#+BEGIN_SRC js
+// subsystems/paladin/gestalten/belt/state.js — NEW entry beside store (:52); probe d2/land.js ran it standalone, the =paladin.state= wiring UNRUN
+export const land = async (path, dropped, body) => {
+  const root = resolve(path);
+  const seat = parse(dropped.path);
+  const folder = join(root, seat.dir);
+  if (relative(root, folder).startsWith("..")) throw new Error(`[state] '${dropped.path}' leaves ${root}`);
+  await fs.ensureDir(folder);
+  const partial = join(folder, `.${crypto.randomUUID()}.partial`);
+  const sink = await Deno.open(partial, { create: true, write: true });
+  const writing = new TransformStream({
+    async transform(chunk, controller) {
+      await sink.write(chunk);
+      controller.enqueue(chunk);
+    },
+  });
+  const hash = encodeHex(await streaming.subtle.digest("SHA-256", body.pipeThrough(writing)));
+  sink.close();
+  const { size } = await Deno.stat(partial);
+  const mount = join(folder, `${seat.name}.${hash.slice(0, 8)}.${mime.extension(dropped.mime)}`);
+  if (await fs.pathExists(mount)) await Deno.remove(partial);
+  else await Deno.rename(partial, mount);
+  return { path: relative(root, mount), mount, mime: dropped.mime, hash, bytes: size };
+};
+#+END_SRC
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shard/datamap.js — NEW export (d2/files.js); + fromm/index.js:62 params gains: get URIC() { return decodeURIComponent(this.path.absolute); }
+export function files(repository, land) {
+  const aperture = new Aperture();
+
+  aperture.use(errors());
+  aperture.use(async (ctx, next) => {
+    await next();
+    ctx.output = serialize(ctx.output, { populate: ["threads:ref", "buffers:ref"] });
+  });
+
+  aperture.post("/upload/(.*)", async (input, ctx) => {
+    const dropped = {
+      path: fromm.params(ctx.params).URIC,
+      mime: ctx.request.headers.get("content-type"),
+    };
+    return repository.upload({
+      ...(await land(ctx, dropped, ctx.request.raw.body)),
+      thread: ctx.signal.flags.thread,
+      buffer: ctx.signal.flags.buffer,
+    });
+  });
+
+  aperture.post("/paste", async (input, ctx) => {
+    const dropped = { path: input.path, mime: input.mime };
+    return repository.upload({
+      ...(await land(ctx, dropped, new Blob([decodeBase64(input.data)]).stream())),
+      thread: input.thread,
+      buffer: input.buffer,
+    });
+  });
+
+  return aperture;
+}
+#+END_SRC
+#+BEGIN_SRC js
+// the three mount sites, as the probes ran them (d2/run.js · d5/rig.py); tree homes: runtime 3-integration.js:71 · daemon 3-integration.js:22 · mode 1-population.js:44
+  files(repository, (ctx, dropped, body) =>
+    paladin.state.land(runtime.mountpoint, { ...dropped, path: join("files", dropped.path) }, body),
+  )
+  files(repository, async (ctx, dropped, body) => ({
+    ...(await paladin.state.land(daemon.mountpoint, { ...dropped, path: join("files", dropped.path) }, body)),
+    daemon: spanish.slug,
+  }))
+  files(repository, async (ctx, dropped, body) => ({
+    ...(await paladin.state.land(mode.mountpoint, { ...dropped, path: join("files", dropped.path) }, body)),
+    mode: mode.entity.id,
+  }))
+#+END_SRC
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/harness.js — NEW beside persisting (:160), d3/filing.js; mount :315 .use(chaining).use(persisting).use(filing)
+const inline = (kind) => (file, bytes) => ({
+  type: kind,
+  mime: file.mime,
+  data: encodeBase64(bytes),
+  file: file.id,
+});
+
+const spelled = (file, bytes) => ({
+  type: "text",
+  text: new TextDecoder().decode(bytes),
+  file: file.id,
+});
+
+const HANDED = [
+  [(type) => type.startsWith("image/"), inline("image")],
+  [(type) => type.startsWith("audio/"), inline("audio")],
+  [(type) => type.startsWith("video/"), inline("video")],
+  [(type) => type === "application/pdf", inline("document")],
+  [(type) => type.startsWith("text/") || type === mime.json, spelled],
+];
+
+const handed = (ctx) => async (part) => {
+  if (part.type !== "file") return part;
+  const file = await ctx.entities.file.findOneOrFail({ id: part.file, threads: ctx.thread.id });
+  const found = HANDED.find(([carries]) => carries(file.mime));
+  if (!found) throw new Error(`[harness] no part carries '${file.mime}': ${file.path}`);
+  return found[1](file, await paladin.read.bytes(file.mount));
+};
+
+const filed = (ctx) => async (part) => {
+  if (!("mime" in part)) return part;
+  const landed = await paladin.state.land(
+    ctx.runtime.mountpoint,
+    { path: join("files", part.type), mime: part.mime },
+    new Blob([decodeBase64(part.data)]).stream(),
+  );
+  const file = await ctx.entities.file.upload({ ...landed, thread: ctx.thread.id });
+  return { type: "file", file: file.id };
+};
+
+const swapped = (turns, swap) =>
+  Promise.all(
+    turns.map(async (turn) => ({
+      role: turn.role,
+      parts: await Promise.all(turn.parts.map(swap)),
+      meta: turn.meta,
+    })),
+  );
+
+export const filing = async (ctx, next) => {
+  ctx.hallucination.turns = await swapped(ctx.hallucination.turns, handed(ctx));
+  await next();
+  if (ctx.output.turns) ctx.output.turns = await swapped(ctx.output.turns, filed(ctx));
+};
+#+END_SRC
+#+BEGIN_SRC js
+// CLIENT, d7/run.js on stand-ins, the probe's local names — homes: ghost/entities/mode/hydration.js after :8 · daemon/lifecycle/index.js after :5 · the runtime's site unread; each prototype: $files = null + get files() { return this.$files.get(); }
+  mode.$files = computed(mode.entities.file.$entities, (files) => files.filter((file) => file.mode === mode));
+
+  daemon.$files = computed([daemon.entities.mode.$entities, daemon.entities.file.$entities], (modes, files) =>
+    files.filter((file) => file.daemon === daemon || daemon.modes.includes(file.mode)),
+  );
+
+runtime.$files = computed([runtime.entities.mode.$entities, runtime.entities.file.$entities], (modes, files) =>
+  files.filter((file) => runtime.modes.includes(file.mode) || (file.mode === null && file.daemon === null)),
+);
+#+END_SRC
+
+** the 11-21 show · S1 · S2 — EVIDENCE, copied from their probes (=/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/8983b50e-6228-421f-b587-b2525f83bb63/scratchpad/= =d8 · d10=), amen'd, uncast, gone at a reboot
+
+RUN on the =d2= rig (real mikro · =land= · the =files= shard) with a real client =Dataspace=; =d10= with the real =Repl=. Printed: an upload of =pictures/holiday/my cat #1?.png= on thread + buffer answers the File =files/pictures/holiday/my cat #1?.49779094.png=; a paste of the same bytes and path =toBe= that client File; =/file/upload "<path>" --thread=… --buffer=…= links both; no flag = a loose File; =--thread=nobody= → =404 — ThreadEntity not found=; bare with a surface → the repl's catalog =[{ nature: "/file/upload", options: [], args: true }]=, draft =/file/upload --thread=…=; bare without → the sentence. =d11/run.js= (Q19's two options, RUN): a client File's =threads= ARE the client's Thread objects.
+#+BEGIN_SRC js
+// systems/ghost/entities/file/repository.js:4 — NEW class above =repository=, which mints it: new FileRepository(File).connect(…)
+export class FileRepository extends RemoteRepository {
+  async upload({ path, mime, body, ...holders }) {
+    const seat = path.split("/").map(encodeURIComponent).join("/");
+    const file = await this.connection.call(
+      `/upload/${seat}?${new URLSearchParams(holders)}`,
+      {},
+      { headers: { "content-type": mime }, raw: { body } },
+    );
+    return await this.merge(file);
+  }
+
+  async paste(data) {
+    return await this.merge(await this.connection.call("/paste", data));
+  }
+}
+#+END_SRC
+#+BEGIN_SRC js
+// systems/ghost/gestalten/commands/content/file.js — NEW (imports: basename @std/path · paladin · Vector, is, mime, monad); grafted at subjects/terminal/repl.js:59 + content/index.js
+const UPLOAD = {
+  nature: "/file/upload",
+  rank: "hidden",
+  valence:
+    "files go up; a flag names what holds them, none leaves them loose; no file opens the prompt. " +
+    "Example: /file/upload /tmp/cat.png --thread=01a1fb69",
+};
+
+const DROPPED = [
+  [
+    (datum) => datum instanceof File,
+    (datum) => ({ path: datum.name, mime: datum.type, body: datum.stream() }),
+  ],
+  [
+    (datum) => is.string(datum),
+    async (datum) => ({
+      path: basename(datum),
+      mime: mime.of(datum),
+      body: new Blob([await paladin.read.bytes(datum)]).stream(),
+    }),
+  ],
+];
+
+const dropped = (datum) => {
+  const found = DROPPED.find(([carries]) => carries(datum));
+  if (!found) throw new Error(`/file/upload takes a file or a path, got: ${JSON.stringify(datum)}`);
+  return found[1](datum);
+};
+
+export const file = new Vector().open(UPLOAD, async (ctx) => {
+  if (ctx.signal.body.length === 0) {
+    if (ctx.client.app === null) return "/file/upload needs a path: no surface to prompt on";
+    return ctx.terminal.repl.narrow({ ...UPLOAD, options: [] }, ctx.signal.argv.slice(1));
+  }
+  const files = await monad.traverse(ctx.signal.body, async (datum) =>
+    ctx.runtime.entities.file.upload({ ...(await dropped(datum)), ...ctx.signal.flags }),
+  );
+  return files.map((held) => held.path);
+});
+#+END_SRC
+Its first caller, READ, never on a DOM: =systems/anima/src/surfaces/chrome/panels/dock/dock.jsx:213=, =onDragOver= (=preventDefault=) + =onDrop= dispatching ={ nature: "/file/upload", body: [...event.dataTransfer.files], flags: { thread: thread().id } }=; both menus' =a= row (=ghost …/dock/textarea.jsx:23= · =anima …/sidebar/sections.js:10=) renamed onto =/file/upload=. Shown to him as open: the prompt's DRAWING (today only the narrowed repl line) · =file.js= exporting =file= against this quest's =never= (codestyle's command rule, mine as read) · flags unchecked (a bare =--thread= sends =thread=true=) · =thread().id= on a threadless dock · =/detach= · =/paste= unnamed in the new family · =dataspace.js:43= mints plain repositories per mode route (no =upload= there) · a caller's =thread: undefined= sends =?thread=undefined=.
+
+** the 11-21 show · S3 — EVIDENCE, copied from its probe (=/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/a8fa2141-03a4-4a4f-b7a6-c946ae7f2d4c/scratchpad/d12/= =copy.js · run.js · out.txt=), SHOWN, unruled, uncast, gone at a reboot
+
+RUN on the =d2= rig, a COPY of the real =Bridge=, the =d10= command answering Files, the upload held behind a gate. Printed: right after a drop of two pictures the list is two entries =file: null=, =uploading= true; both answered → each entry holds its client File (=threads= = the thread), =uploading= false; a drop the runtime refuses (=thread= of nobody) sits in the list in flight, then leaves it, the fault on stdout; a typed =/file/upload= answering Files prints a wide File table (=belt.outline=), not one path. READ, never on a DOM: the JSX rows (=dock.jsx= section · =textarea.jsx:223= · =:281=). The repl path ran through =steer.strategy.direct= on the command, not =Repl.dispatch=.
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/prototypes/bridge.js:10 — under =$draft=; the getter beside =get draft()=
+  $uploads = atom([]);
+  get uploads() {
+    return this.$uploads.get();
+  }
+#+END_SRC
+#+BEGIN_SRC js
+// systems/anima/src/surfaces/chrome/panels/dock/dock.jsx — in =Dock=, above its =return=; the section wears onDragOver={(event) => event.preventDefault()} onDrop={dropped}
+  const dropped = (event) => {
+    event.preventDefault();
+    for (const datum of event.dataTransfer.files) {
+      const flying = { name: datum.name, file: null };
+      app.bridge.$uploads.set([...app.bridge.uploads, flying]);
+      terminal.repl
+        .dispatch({ nature: "/file/upload", body: [datum], flags: { thread: thread().id } })
+        .then(([file]) =>
+          app.bridge.$uploads.set(
+            app.bridge.uploads.map((held) => (held === flying ? { ...flying, file } : held)),
+          ),
+        )
+        .catch((error) => {
+          app.bridge.$uploads.set(app.bridge.uploads.filter((held) => held !== flying));
+          terminal.controller.stdout.fault(error);
+        });
+    }
+  };
+#+END_SRC
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/commands/content/file.js (S2's fence above) — the dock needs the File
+-  return files.map((held) => held.path);
++  return files;
+// systems/anima/src/surfaces/chrome/panels/dock/textarea.jsx:183 · :203 · :223 · :281
++  const uploads = from(app.bridge.$uploads);
++  const uploading = () => uploads().some((upload) => upload.file === null);
++    if (uploading()) return;
+-          <parts.Atts attachments={[]} onDrop={(attachment) => sent(`/detach ${attachment.name}`)} />
++          <parts.Atts attachments={uploads()} onDrop={(attachment) => sent(`/detach ${attachment.name}`)} />
+-                  <button class="send" aria-label="send" title="send · enter" onClick={() => submit(draft())}>
++                  <button class="send" classList={{ off: uploading() }} aria-disabled={String(uploading())} aria-label="send" title="send · enter" onClick={() => submit(draft())}>
+#+END_SRC
+Mine, shown as open: the list is per APP like the draft, a thread switch between drop and send carries a File the new thread does not hold · =thread().id= on a threadless dock throws · the chip's ✕ still runs =/detach= (throws, S4) · ghost's TTY has no drop, a typed =/file/upload= fills no list (Q18) · no chip differs in flight (the kit draws a name only) · the list is never emptied until S4's send.
+
+** the 11-21 show · S4 — EVIDENCE, copied from its probe (same =d12/=: =copy.js= cuts =turn.js=, =run.js= steps 5–8), SHOWN, unruled, uncast
+
+RUN on a copy of the real =turn.js=, a stand-in mode whose =harness.dialogue.stream= records its request. Printed: two answered uploads + ="look at these"= → the harness is handed =text= + two ={ type: "file", file: <id> }=, the list is =[]= after; a second send = text only; a client with no surface (=client.app === null=, reached by =systems/ghost/subjects/client/prototype.js:15=) = text only; a send while one upload is in flight throws, the list untouched, no request handed. MINE, decided unasked (he sees one request either way): the COMMAND reads the list, not the dock's submit, because the draft has a second sender (=dictate.js:16=).
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/commands/content/turn.js:10
+-    return stream(ctx.terminal.mode, ctx.terminal, ctx.signal.body);
++    const uploads = ctx.client.app.bridge.uploads;
++    if (uploads.some((upload) => upload.file === null))
++      throw new Error("an upload is still going up — send when it has landed");
++    ctx.client.app.bridge.$uploads.set([]);
++    return stream(ctx.terminal.mode, ctx.terminal, [
++      ...ctx.signal.body,
++      ...uploads.map((upload) => ({ type: "file", file: upload.file.id })),
++    ]);
+#+END_SRC
+RE-CUT on his /"if (ctx.client.app !== null) { i ssupects thats not needed."/ · /"this could be prettier."/ · /"amen"/: the no-surface arm is CUT (both product mints seat an app: =subjects/shell/commands/chrome.js:15= · =anima/src/client.js:70=); re-run, steps 5 · 6 · 8 print as before, step 7 (a client with no app) now faults and hands no request. BREAKS at the cast, READ: =systems/ghost/tests/subjects/client/client.test.js:61= · =:71= send ="ciao"= on a factory client with no app; the test gets an app, mine.
+Mine, shown as open: files alone cannot be sent (=textarea.jsx:204= returns on an empty draft) · the journal draws a file part as the word =[file]= (=anima …/dock/journal.jsx:105=, READ) · the list empties BEFORE the stream, a failed send loses it (the Files stay on the thread) · the dictation's send clears the draft before this throw (=dictate.js:15=) · on today's tree the harness schema refuses a file part until S1's rows are cast.
+
+** the 11-21 show · S5 — EVIDENCE, copied from its probe (=…/a8fa2141-03a4-4a4f-b7a6-c946ae7f2d4c/scratchpad/d13/= =copy.js · run.js · out.txt=: a copy of =d3/filing.js= + 2 hunks), SHOWN, unruled, uncast
+
+Census: stream IN already rides Q12's =filing= (it swaps =ctx.hallucination.turns= before =next=); stream OUT has ZERO producers today (grepped: neither translator emits a byte part, =commons/hallucinators/*/provider/index.js= emit =object= only). RUN on the =d3= rig, the real =Cortex=, a provider =via.stream= of scripted packets, a stand-in chain: the provider's stream received the =image= with its =file=; a =/part/full= picture came out as =/part/full { type: "file", file }=, folded (=soma.transcript=) into the turn's parts; its File =files/image.a86fc9c7.png= linked to the thread; one =/turn/full= swapped whole, the same bytes = the same File; a picture grown by =/part/open= + deltas THROWS =[harness] bytes stream whole, as /part/full: got /part/open 'image'=.
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/harness.js — beside Q12's filing (NEW, beside persisting :160)
+const WHOLE = {
+  "/part/full": async (packet, file) => ({ ...packet, part: await file(packet.part) }),
+  "/turn/full": async (packet, file) => ({
+    ...packet,
+    turn: { ...packet.turn, parts: await Promise.all(packet.turn.parts.map(file)) },
+  }),
+};
+
+async function* landing(ctx, packets) {
+  for await (const packet of packets) {
+    if (packet.event === "/part/open" && "mime" in packet.part)
+      throw new Error(`[harness] bytes stream whole, as /part/full: got /part/open '${packet.part.type}'`);
+    yield packet.event in WHOLE ? await WHOLE[packet.event](packet, filed(ctx)) : packet;
+  }
+}
+#+END_SRC
+#+BEGIN_SRC diff
+// same file, in filing (Q12's fence above)
+-  if (ctx.output.turns) ctx.output.turns = await swapped(ctx.output.turns, filed(ctx));
++  if (ctx.output[Symbol.asyncIterator]) ctx.output = landing(ctx, ctx.output);
++  else if (ctx.output.turns) ctx.output.turns = await swapped(ctx.output.turns, filed(ctx));
+#+END_SRC
+Mine, shown as open: "bytes stream whole" is a contract on every translator, unenforced by a schematic · no real provider packet seen (the LIVE capture, =* deferred=) · the real =recording= (=harness.js:169=) and =HARNESS= unrun · =/call= (=.use(persisting)=, =:309=) wears no =filing= · =landing= is my name.
+
+** the 11-21 show · S6 — EVIDENCE, copied from its probe (=…/a8fa2141-03a4-4a4f-b7a6-c946ae7f2d4c/scratchpad/d14/run.js · out.txt=; census =hands.sh=), SHOWN, unruled, uncast
+
+Census (repo + =~/.viva/registry=, grepped): FIVE sites record a File. =fileset.js:10= writes no bytes (untouched). TWO overwrite in place and stay on =store= + =record=, by law 1 and this =never= (=FILESINK= re-cut): =filesink.js:18= (one File per =(mode, path)=) · =generative.js:133= (=<buffer id>.<ext>=, rewritten by =tools/buffer.js:42=); =land= never overwrites and names by content, so milestone 6's "four old hands" was MINE and wrong by two. TWO are content-named already and move: darkroom =filed= (=:17=) · reader =stored= (=:54=). RUN on the =d2= rig (darkroom's shape, today beside after): today =pictures/<sha256 64>.png=; after =pictures/picture.49779094.png=, linked to the desk buffer, stamped with the mode; the same bytes again = the same File; as a reference =references/reference.49779094.png=. Reader's hunk READ, unrun.
+#+BEGIN_SRC diff
+// commons/editors/darkroom/aperture/index.js:17
+-const filed = async (ctx, buffer, folder, type, bytes) => {
+-  const path = `${folder}/${await crypto.digestBytes(bytes)}.${mime.extension(type)}`;
+-  const mount = join(ctx.mode.mountpoint.absolute, path);
+-  await paladin.state.store(mount, bytes);
+-  const file = await ctx.entities.file.record({ mode: ctx.mode.id, path, mount, mime: type, bytes });
+-  buffer.files.add(file);
+-  return file;
+-};
++const filed = async (ctx, buffer, seat, type, bytes) => {
++  const landed = await paladin.state.land(
++    ctx.mode.mountpoint,
++    { path: seat, mime: type },
++    new Blob([bytes]).stream(),
++  );
++  return await ctx.entities.file.upload({ ...landed, mode: ctx.mode.id, buffer: buffer.id });
++};
+// :48 · :58 — the caller names the seat
+-      const file = await filed(ctx, buffer, "pictures", image.mime, decodeBase64(image.data));
++      const file = await filed(ctx, buffer, "pictures/picture", image.mime, decodeBase64(image.data));
+-    const file = await filed(ctx, buffer, "references", ctx.request.headers.get("content-type"), bytes);
++    const file = await filed(ctx, buffer, "references/reference", ctx.request.headers.get("content-type"), bytes);
+#+END_SRC
+Reader (=commons/reader/reader/aperture/index.js:54= =stored= · =:79= ="originals/original"= · =:173= ="books/book"=): the same body; its own =extension= argument DIES (=land= reads the extension off the mime), =EXTENSIONS[kept.held]= against =mime.extension= UNCOMPARED. BREAKS, RUN: =commons/reader/reader/tests/reader.test.js:219= · =:246= match =/^originals\/[0-9a-f]+\.html$/=, false on a landed name. Mine, open: the seat names (=picture= · =reference= · =original= · =book=) · old Files keep their 64-hex paths, the same bytes painted after the cast are a SECOND File · the File → part readers (darkroom =part= =:11= · ocr =tools/index.js:22= · reader =:166= · =:200=) onto =HANDED=: unplaced, its home is a question.
+
+** the 11-21 show · S7, first cut: the holder-walk filter — DEAD by Q22 (history, never cast; its =lighthouse.bind= row survives) — copied from its probe (=…/a8fa2141-03a4-4a4f-b7a6-c946ae7f2d4c/scratchpad/d15/= =typology/= (a copy of =d2/typology= + the filter) · =run.js= · =out.txt=), SHOWN, unruled, uncast
+
+Census: TWO doors hand a File to any signed-in user today. =/attached/file/:id= (=attachment.js:29=, by id) and =/userspace/entities/file= (=3-integration.js:68=, the one userspace route beside =intent= · =view= with no =scope=). A File names no user; its holders do (=Thread.user= · =Buffer.thread.user=). Twins: =Thread.ts:56= · =Buffer.ts:67=, a default =user= filter fed per request by =lighthouse.bind= (=lighthouse/lifecycle/1-population.js:8=). RUN, real mikro, two users, five Files: with no user named (a boot · the patrol's sweep) all five; as beef his drop · the picture on his buffer · the mode's freight · the loose one; as guest never beef's drop nor beef's picture; beef asking guest's drop by id = =NotFoundError=. =$none= inside a filter WORKS on 7.2.3 (the map's "filters skip =$none/$some=" did not bite here).
+#+BEGIN_SRC diff
+// subsystems/typology/entities/File.ts:82
+-  filters: { mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false } },
++  filters: {
++    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
++    user: {
++      cond: (args: any) =>
++        args?.user
++          ? {
++              $or: [
++                { threads: { user: args.user } },
++                { buffers: { thread: { user: args.user } } },
++                { threads: { $none: {} }, buffers: { $none: {} } },
++              ],
++            }
++          : {},
++      default: true,
++      args: false,
++    },
++  },
+// systems/runtime/subjects/runtime/lifecycle/3-integration.js:101 — on the amen'd narrow hunk
+-  die.runtime.attachment.branch("/file").use(die.runtime.lighthouse.authenticate);
++  die.runtime.attachment.branch("/file").use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
+#+END_SRC
+Mine, shown as open: a File NOBODY holds (a loose upload · a mode's freight) is every signed-in user's · the filter rides EVERY File query of a user-bound request (darkroom · =filing= · the client's up-front download), each unrun · cost unmeasured on his db (331 Files, 1 User) · =/attached/view= stays login-only · the real route unrun (the probe set the filter by hand, no =lighthouse.bind=) · UNPLACED: the client's =url= carrying the token (=systems/ghost/entities/file/hydration.js:5= · =belt/view.js:22= · =:44= · 7 browser tags).
+
+** the 11-21 show · S7, second cut (Q22) — EVIDENCE, copied from its probe (=…/a8fa2141-03a4-4a4f-b7a6-c946ae7f2d4c/scratchpad/d16/= =copy.js · run.js · out.txt · strict.txt=, typology copy =d15/typology=), SHOWN, unruled, uncast
+
+RUN through the =files= shard (=d2/files.js= + the stamp), the datamap's =find=, a stand-in bytes route, real mikro, two users, each request naming its user: beef's drop answers a File with =user: <beef>=; guest dropping the same bytes and name gets a SECOND File (one byte file on disk, =files/cat.49779094.png=); each list shows its own cat + the mode's freight (=user: null=); guest asking beef's cat by id = =404 FileEntity not found=; boot's =record= and the patrol's =sweep=, naming no user, work. =strict.txt= = the same run with the no-user arm cut (his /"there is always a user"/): boot's =record= and =sweep= both throw =No arguments provided for filter 'user'=, so the arm stays, the shape of the =mode= filter one row above it.
+#+BEGIN_SRC diff
+// subsystems/typology/entities/File.ts:82
+-  filters: { mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false } },
++  filters: {
++    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
++    user: {
++      cond: (args: any) => (args?.user ? { $or: [{ user: args.user }, { user: null }] } : {}),
++      default: true,
++      args: false,
++    },
++  },
+// same file, properties, above mode (+ user?: Rel<UserEntity> on the class, the UserEntity import)
++    user: {
++      kind: "m:1",
++      entity: () => UserEntity,
++      fieldName: "user",
++      nullable: true,
++      updateRule: "cascade",
++      deleteRule: "cascade",
++    },
+// the files shard (Q9–Q11's fence, d2/files.js), both routes
++      user: ctx.user.id,
+// systems/runtime/subjects/runtime/lifecycle/3-integration.js:101 — on the amen'd narrow hunk, both branches
+-  die.runtime.attachment.branch("/file").use(die.runtime.lighthouse.authenticate);
+-  die.runtime.attachment.branch("/view").use(die.runtime.lighthouse.authenticate);
++  die.runtime.attachment.branch("/file").use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
++  die.runtime.attachment.branch("/view").use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
+#+END_SRC
+Mine, shown as open: who else stamps (the model's picture in =filing= · darkroom · reader write none today = everyone's) · the migration (one nullable column; his 331 Files stay everyone's) unrun · =deleteRule: cascade= removes a user's File entities with the user, bytes stay · the mode · daemon upload scopes' =ctx.user= unread · =lighthouse.bind= on the real =/attached= unrun · the client's =url= still unplaced.
+
+** the cast — 11-21, his /"cast to quest"/ · /"i eqpepct you to maintain quest in the background"/
+
+Every block below is GENERATED, never typed: =…/a8fa2141-03a4-4a4f-b7a6-c946ae7f2d4c/scratchpad/cast/build.py= copies each tree file, applies each amen'd edit as an asserted replace (one hit or it stops), and prints the diff. Each =** milestone N= replays with =python3 .ikiro/methods/apply-diffs.py .ikiro/quests/file-drop.org "** milestone N — …" --root <copy> --write=, in order 1 · 2 · 4 · 5 · 6 · 7; a NEW file is its whole fence. The evidence sections above stay as history. UNCAST, by name, under =* handoff=.
+
+** milestone 1 — a turn carries a file
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/hallucination.js:56
+   type: v.const("document"),
+   data: v.string(),
+   mime: v.string(),
++});
++
++Part.File = v.object({
++  type: v.const("file"),
++  file: v.string(),
+ });
+
+ Part.Object = v.object({
+#+END_SRC
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/harness.js:16
+   thread: v.string().desc('The thread the turn appends to. Example: "th3"'),
+   terminal: v.string().optional().desc('The calling terminal, whenever a terminal calls. Example: "t1"'),
+   turn: v.string().optional().desc('The id the user turn is minted under; the caller picks it to find the turn again. Example: "6f1c0d2e"'),
+-  parts: v.array(hallucination.Part.Any).desc('The user turn\'s parts. Example: [{ "type": "text", "text": "ciao" }]'),
++  parts: v.array(v.union([hallucination.Part.Any, hallucination.Part.File])).desc('The user turn\'s parts. Example: [{ "type": "text", "text": "ciao" }]'),
+   ...hallucination.Selector,
+   config: v.record(v.string(), v.unknown()).optional().desc('Policy overrides. Example: { "rounds": 2 }'),
+   system: v.record(v.string(), v.unknown()).optional().desc('Named primer sections, each a string or a Primer. Example: { "system": "You are memo." }'),
+#+END_SRC
+#+BEGIN_SRC diff
+// subsystems/typology/tests/harness.snapshot.test.js:42
+     expect(v.primitives.harness.Request.check({ thread: "th3", parts: [{ type: "text", text: "ciao" }] })).toBe(true);
+     expect(v.primitives.harness.Request.check({ thread: "th3", terminal: "t1", turn: "6f1c0d2e", parts: [{ type: "text", text: "ciao" }] })).toBe(true);
+     expect(v.primitives.harness.Request.check({ thread: "th3" })).toBe(false);
++    expect(v.primitives.harness.Request.check({ thread: "th3", parts: [{ type: "file", file: "01a1bd04" }] })).toBe(true);
++    expect(v.primitives.harness.Request.check({ thread: "th3", parts: [{ type: "file" }] })).toBe(false);
+   });
+ });
+
+#+END_SRC
+
+** milestone 2 — a file goes up
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/File.ts:5
+ import { ModeEntity } from "./index.ts";
+ import { BufferEntity } from "./index.ts";
+ import { ViewEntity } from "./index.ts";
++import { DaemonEntity } from "./index.ts";
++import { ThreadEntity } from "./index.ts";
+
+ const present = async (mount) => {
+   try {
+…
+
+ export class FileRepository extends DataRepository {
+   unique(query) {
+-    return { mode: query.mode, path: query.path };
++    return { mode: query.mode ?? null, daemon: query.daemon ?? null, path: query.path };
+   }
+
+   async record({ bytes, ...data }) {
+     const hash = await crypto.digestBytes(bytes);
+     const file = await this.ensure({ ...data, hash, integrity: `sha256-${hash}`, bytes: bytes.length });
++    await this.em.flush();
++    return file;
++  }
++
++  async upload({ thread, buffer, ...landed }) {
++    const held = await this.findOne(this.unique(landed));
++    if (held && held.hash !== landed.hash)
++      throw new Error(`[file] '${landed.path}' is held by other bytes: ${held.hash}`);
++    const file = held ?? (await this.create({ ...landed, integrity: `sha256-${landed.hash}` }));
++    if (thread) (await this.em.getRepository(ThreadEntity).findOneOrFail({ id: thread })).files.add(file);
++    if (buffer) (await this.em.getRepository(BufferEntity).findOneOrFail({ id: buffer })).files.add(file);
+     await this.em.flush();
+     return file;
+   }
+…
+   traits: string[] & Opt = [];
+   trait: any & Opt = {};
+
+-  mode!: Rel<ModeEntity>;
++  mode?: Rel<ModeEntity>;
++  daemon?: Rel<DaemonEntity>;
+   view?: Rel<ViewEntity>;
+
+   buffers = new Collection<BufferEntity>(this);
++  threads = new Collection<ThreadEntity>(this);
+   [EntityRepositoryType]?: FileRepository;
+ }
+
+…
+       entity: () => ModeEntity,
+       fieldName: "mode",
+       inversedBy: (mode) => mode.files,
++      nullable: true,
++      updateRule: "cascade",
++      deleteRule: "cascade",
++    },
++
++    daemon: {
++      kind: "m:1",
++      entity: () => DaemonEntity,
++      nullable: true,
+       updateRule: "cascade",
+       deleteRule: "cascade",
+     },
+…
+     },
+
+     buffers: { kind: "m:n", entity: () => BufferEntity, mappedBy: (buffer) => buffer.files },
++    threads: { kind: "m:n", entity: () => ThreadEntity, mappedBy: (thread) => thread.files },
+   },
+ });
+
+#+END_SRC
+#+BEGIN_SRC diff
+// subsystems/typology/entities/Thread.ts:11
+ import { IntentEntity } from "./index.ts";
+ import { BufferEntity } from "./index.ts";
+ import { TurnEntity } from "./index.ts";
++import { FileEntity } from "./index.ts";
+
+ export enum ThreadPhaseEnum {
+   INERT = "inert", // app/target self-manages; deliberate-empty respected
+…
+
+   buffers = new Collection<BufferEntity>(this);
+   turns = new Collection<TurnEntity>(this);
++  files = new Collection<FileEntity>(this);
+
+   counter: number & Opt = 0; // these two might be candidates for a trait?!
+
+…
+       mappedBy: (turn) => turn.thread,
+     },
+
++    files: {
++      kind: "m:n",
++      entity: () => FileEntity,
++      owner: true,
++      pivotTable: "thread_files",
++      joinColumns: ["thread_id"],
++      inverseJoinColumns: ["file_id"],
++    },
++
+     parent: {
+       kind: "m:1",
+       entity: () => ThreadEntity,
+#+END_SRC
+#+BEGIN_SRC diff
+// subsystems/typology/entities/Mode.ts:108
+     notes: { kind: "1:m", entity: () => NoteEntity, mappedBy: (note) => note.mode, hidden: true },
+-    files: { kind: "1:m", entity: () => FileEntity, mappedBy: (file) => file.mode, hidden: true },
++    files: {
++      kind: "1:m",
++      entity: () => FileEntity,
++      mappedBy: (file) => file.mode,
++      cascade: [Cascade.REMOVE],
++      orphanRemoval: true,
++      hidden: true,
++    },
+   },
+ });
+#+END_SRC
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/fromm/index.js:68
+       const path = new Path(segments);
+       return path.fin ?? path;
+     },
++    get URIC() {
++      return decodeURIComponent(this.path.absolute);
++    },
+   };
+ };
+
+#+END_SRC
+#+BEGIN_SRC diff
+// subsystems/paladin/gestalten/belt/state.js:1
+ import fs from "fs-extra";
+-import { dirname } from "@std/path";
++import { dirname, join, parse, relative } from "@std/path";
++import { crypto as streaming } from "@std/crypto";
++import { encodeHex } from "@std/hex";
++import { mime } from "@vivalence/typology";
+
+ export default function state(paladin) {
+   const resolve = (path) => (typeof path === "function" ? path() : path?.absolute ?? path);
+…
+       await Deno.rename(`${file}.tmp`, file);
+       return true;
+     },
++    land: async (path, dropped, body) => {
++      const root = resolve(path);
++      const seat = parse(dropped.path);
++      const folder = join(root, seat.dir);
++      if (relative(root, folder).startsWith("..")) throw new Error(`[state] '${dropped.path}' leaves ${root}`);
++      await fs.ensureDir(folder);
++      const partial = join(folder, `.${crypto.randomUUID()}.partial`);
++      const sink = await Deno.open(partial, { create: true, write: true });
++      try {
++        const writing = new TransformStream({
++          async transform(chunk, controller) {
++            await sink.write(chunk);
++            controller.enqueue(chunk);
++          },
++        });
++        const hash = encodeHex(await streaming.subtle.digest("SHA-256", body.pipeThrough(writing)));
++        const { size } = await Deno.stat(partial);
++        const mount = join(folder, `${seat.name}.${hash.slice(0, 8)}.${mime.extension(dropped.mime)}`);
++        if (!(await fs.pathExists(mount))) await Deno.rename(partial, mount);
++        return { path: relative(root, mount), mount, mime: dropped.mime, hash, bytes: size };
++      } finally {
++        sink.close();
++        await paladin.state.remove(partial);
++      }
++    },
+     open: async (path) => {
+       const file = resolve(path);
+       await parent(file);
+#+END_SRC
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shard/datamap.js:3
+ import { Broadcaster } from "../../prototypes/broadcaster.js";
+ import * as object from "../belt/object.js";
+ import * as steer from "../steer/index.js";
++import * as fromm from "../fromm/index.js";
+ import { RequestContext, serialize } from "@mikro-orm/core";
++import { decodeBase64 } from "@std/encoding/base64";
+
+ export function inject(datamap) {
+   return (ctx, next) => {
+…
+   };
+ }
+
++export function files(repository, land) {
++  const aperture = new Aperture();
++
++  aperture.use(errors());
++
++  aperture.post("/upload/(.*)", async (input, ctx) => {
++    const dropped = {
++      path: fromm.params(ctx.params).URIC,
++      mime: ctx.request.headers.get("content-type"),
++    };
++    const file = await repository.upload({
++      ...(await land(ctx, dropped, ctx.request.raw.body)),
++      thread: ctx.signal.flags.thread,
++      buffer: ctx.signal.flags.buffer,
++    });
++    return serialize(file, { populate: ["threads:ref", "buffers:ref"] });
++  });
++
++  aperture.post("/paste", async (input, ctx) => {
++    const dropped = { path: input.path, mime: input.mime };
++    const file = await repository.upload({
++      ...(await land(ctx, dropped, new Blob([decodeBase64(input.data)]).stream())),
++      thread: input.thread,
++      buffer: input.buffer,
++    });
++    return serialize(file, { populate: ["threads:ref", "buffers:ref"] });
++  });
++
++  return aperture;
++}
++
+ export function owned() {
+   return async (ctx, next) => {
+     const { meta, entity } = ctx.input ?? {};
+#+END_SRC
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/3-integration.js:1
++import { join } from "@std/path";
+ import paladin from "@vivalence/paladin";
+ import { shard, shape, v } from "@vivalence/typology";
+ import * as belt from "../../../gestalten/belt/index.js";
+…
+       .graft(shard.datamap.repository(repository))
+       .graft(shard.datamap.reactive(repository, twitch, reactive));
+   }
++  owned.branch("/file").graft(
++    shard.datamap.files(entities.file, (ctx, dropped, body) =>
++      paladin.state.land(die.runtime.mountpoint, { ...dropped, path: join("files", dropped.path) }, body),
++    ),
++  );
+
+   const activity = owned
+     .branch("/activity")
+#+END_SRC
+
+** milestone 4 — I drop a picture on the dock
+
+DIES: =systems/ghost/gestalten/commands/content/detach.js= (its word died, Q21; its command lives on as =/upload/trash= in =upload.js=). The NEW file's name and export (=upload.js= · =upload=) are MINE, unruled.
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/file/repository.js:1
+ import { RemoteRepository } from "@vivalence/typology";
+ import { File } from "./prototype.js";
+
+-export const repository = (dataspace) => new RemoteRepository(File).connect(dataspace.runtime.connection.branch("/userspace/entities/file"));
++export class FileRepository extends RemoteRepository {
++  async upload({ path, mime, body, ...holders }) {
++    const seat = path.split("/").map(encodeURIComponent).join("/");
++    const file = await this.connection.call(
++      `/upload/${seat}?${new URLSearchParams(holders)}`,
++      {},
++      { headers: { "content-type": mime }, raw: { body } },
++    );
++    return await this.merge(file);
++  }
+
++  async paste(data) {
++    return await this.merge(await this.connection.call("/paste", data));
++  }
++}
++
++export const repository = (dataspace) => new FileRepository(File).connect(dataspace.runtime.connection.branch("/userspace/entities/file"));
++
+#+END_SRC
+#+BEGIN_SRC js
+// systems/ghost/gestalten/commands/content/upload.js — NEW, whole
+import { basename } from "@std/path";
+import paladin from "@vivalence/paladin";
+import { Vector, is, mime, monad, v } from "@vivalence/typology";
+import * as belt from "../../belt/index.js";
+
+const UPLOAD = {
+  nature: "/file/upload",
+  rank: "hidden",
+  valence:
+    "files go up; a flag names what holds them, none leaves them loose; no file opens the prompt. " +
+    "Example: /file/upload /tmp/cat.png --thread=01a1fb69",
+};
+
+const DROPPED = [
+  [
+    (datum) => datum instanceof File,
+    (datum) => ({ path: datum.name, mime: datum.type, body: datum.stream() }),
+  ],
+  [
+    (datum) => is.string(datum),
+    async (datum) => ({
+      path: basename(datum),
+      mime: mime.of(datum),
+      body: new Blob([await paladin.read.bytes(datum)]).stream(),
+    }),
+  ],
+];
+
+const dropped = (datum) => {
+  const found = DROPPED.find(([carries]) => carries(datum));
+  if (!found) throw new Error(`/file/upload takes a file or a path, got: ${JSON.stringify(datum)}`);
+  return found[1](datum);
+};
+
+const Named = v.object({
+  name: v.string().desc('The waiting upload\'s file name, the rest of the line. Example: "notes.md"'),
+});
+
+export const upload = new Vector()
+  .open(UPLOAD, async (ctx) => {
+    if (ctx.signal.body.length === 0)
+      return ctx.terminal.repl.narrow({ ...UPLOAD, options: [] }, ctx.signal.argv.slice(1));
+    return monad.traverse(ctx.signal.body, async (datum) =>
+      ctx.runtime.entities.file.upload({ ...(await dropped(datum)), ...ctx.signal.flags }),
+    );
+  })
+  .open(
+    {
+      nature: "/upload/trash",
+      rank: "hidden",
+      valence:
+        "a waiting upload leaves the draft; its file stays where it landed. Example: /upload/trash notes.md",
+      input: Named,
+    },
+    (ctx) => {
+      const { name } = belt.input.cast(Named, belt.input.lined(ctx.signal));
+      ctx.client.app.bridge.$uploads.set(
+        ctx.client.app.bridge.uploads.filter((upload) => upload.name !== name),
+      );
+    },
+  );
+#+END_SRC
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/commands/content/index.js:1
+ export * from "./activity.js";
+ export * from "./buffer.js";
+ export * from "./call.js";
+-export * from "./detach.js";
+ export * from "./dictate.js";
+ export * from "./harness.js";
+ export * from "./mic.js";
+…
+ export * from "./terminal.js";
+ export * from "./thread.js";
+ export * from "./turn.js";
++export * from "./upload.js";
+
+#+END_SRC
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/repl.js:56
+       commands.content.activity,
+       commands.content.buffer,
+       commands.surface.cell,
+-      commands.content.detach,
++      commands.content.upload,
+       commands.surface.dock,
+       commands.surface.frame,
+       commands.content.harness,
+#+END_SRC
+#+BEGIN_SRC diff
+// systems/ghost/subjects/app/prototypes/bridge.js:8
+   $focusHistory = atom([]);
+   $sidebar = atom({ open: false, width: 39 });
+   $draft = atom("");
++  $uploads = atom([]);
+   $dictation = atom(null);
+   $dictationFault = atom(null);
+   $call = atom(null);
+…
+
+   get draft() {
+     return this.$draft.get();
++  }
++
++  get uploads() {
++    return this.$uploads.get();
+   }
+
+   get dictation() {
+#+END_SRC
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/commands/content/turn.js:7
+     if (ctx.signal.body.length === 0 || !is.object(ctx.signal.body[0])) throw new NotFound(ctx.signal);
+     if (!is.object(ctx.terminal.mode)) throw new Error("no mode attached — a turn needs a HARNESS mode. / for a command");
+     if (!ctx.terminal.mode.implements("HARNESS")) throw new Error(`${ctx.terminal.mode.type}/${ctx.terminal.mode.slug} takes no turn — not HARNESS. / for a command`);
+-    return stream(ctx.terminal.mode, ctx.terminal, ctx.signal.body);
++    const uploads = ctx.client.app.bridge.uploads;
++    if (uploads.some((upload) => upload.file === null))
++      throw new Error("an upload is still going up — send when it has landed");
++    ctx.client.app.bridge.$uploads.set([]);
++    return stream(ctx.terminal.mode, ctx.terminal, [
++      ...ctx.signal.body,
++      ...uploads.map((upload) => ({ type: "file", file: upload.file.id })),
++    ]);
+   },
+ );
+
+#+END_SRC
+#+BEGIN_SRC diff
+// systems/anima/src/surfaces/chrome/panels/dock/dock.jsx:207
+         return zone !== null && terminal.repl.dispatch("/dock docked").catch((error) => terminal.controller.stdout.fault(error)).then(() => terminal.repl.dispatch(`/dock ${zone}`).catch((error) => terminal.controller.stdout.fault(error)));
+       },
+     });
++  const dropped = (event) => {
++    event.preventDefault();
++    for (const datum of event.dataTransfer.files) {
++      const flying = { name: datum.name, file: null };
++      app.bridge.$uploads.set([...app.bridge.uploads, flying]);
++      terminal.repl
++        .dispatch({ nature: "/file/upload", body: [datum], flags: { thread: thread().id } })
++        .then(([file]) =>
++          app.bridge.$uploads.set(
++            app.bridge.uploads.map((held) => (held === flying ? { ...flying, file } : held)),
++          ),
++        )
++        .catch((error) => {
++          app.bridge.$uploads.set(app.bridge.uploads.filter((held) => held !== flying));
++          terminal.controller.stdout.fault(error);
++        });
++    }
++  };
+   return (
+     <>
+     <section
+…
+       class="pane dock"
+       classList={{ floating: props.floating, min: min() }}
+       data-zone="1"
++      onDragOver={(event) => event.preventDefault()}
++      onDrop={dropped}
+       style={props.floating ? parts.perch(props.dock.align, placed().float, placed().min) : props.basis}>
+       <div
+         class="dhead"
+#+END_SRC
+#+BEGIN_SRC diff
+// systems/anima/src/surfaces/chrome/panels/dock/textarea.jsx:186
+   const dictation = from(app.bridge.$dictation);
+   const dictationFault = from(app.bridge.$dictationFault);
+   const call = from(app.bridge.$call);
++  const uploads = from(app.bridge.$uploads);
++  const uploading = () => uploads().some((upload) => upload.file === null);
+   const hosted = createMemo(() =>
+     thread() === null || thread().mode === null
+       ? () => null
+…
+   const running = () => owned().some((activity) => activity.status === "RUNNING");
+   const sent = (signal) => terminal.repl.dispatch(signal).catch((error) => terminal.controller.stdout.fault(error));
+   const submit = (text) => {
++    if (uploading()) return;
+     if (dictation() !== null) return sent("/dictate/send");
+     if (text.trim() === "") return;
+     app.bridge.$draft.set("");
+…
+       keyed
+       fallback={
+         <>
+-          <parts.Atts attachments={[]} onDrop={(attachment) => sent(`/detach ${attachment.name}`)} />
++          <parts.Atts attachments={uploads()} onDrop={(attachment) => sent(`/upload/trash ${attachment.name}`)} />
+           <Show when={dictation()}>
+             {(held) => (
+               <parts.Dictline
+…
+               <Show
+                 when={running() && dictation() === null}
+                 fallback={
+-                  <button class="send" aria-label="send" title="send · enter" onClick={() => submit(draft())}>
++                  <button
++                    class="send"
++                    classList={{ off: uploading() }}
++                    aria-disabled={String(uploading())}
++                    aria-label="send"
++                    title="send · enter"
++                    onClick={() => submit(draft())}>
+                     <parts.Icon name="up" />
+                   </button>
+                 }>
+#+END_SRC
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panels/dock/textarea.jsx:20
+ ];
+
+ export const CONTROLS = [
+-  [() => true, "a", "attach", "", "/attach"],
++  [() => true, "a", "attach", "", "/file/upload"],
+   [
+     (voice) => voice.dictation === null && belt.dictation.offered(voice.commands, "/dictate"),
+     "d",
+#+END_SRC
+#+BEGIN_SRC diff
+// systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:7
+ };
+
+ export const CONTROLS = [
+-  [() => true, "a", "attach", "", "/attach"],
++  [() => true, "a", "attach", "", "/file/upload"],
+   [(commands, dictation) => dictation === null && resolves(commands, "/dictate"), "d", "dictate", "", "/dictate"],
+   [(commands, dictation) => dictation !== null, "d", "stop dictation", "live", "/dictate/stop"],
+   [(commands, dictation, call) => call === null && resolves(commands, "/call"), "l", "call", "", "/call"],
+#+END_SRC
+
+** milestone 5 — the model sees my picture, its picture lands on its turn
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/harness.js:1
+-import { belt, contexts, fromm, shape, shard, soma, steer, ToolCall, v, Vector } from "@vivalence/typology";
++import { join } from "@std/path";
++import { decodeBase64, encodeBase64 } from "@std/encoding/base64";
++import paladin from "@vivalence/paladin";
++import { belt, contexts, fromm, mime, shape, shard, soma, steer, ToolCall, v, Vector } from "@vivalence/typology";
+ import { v7 } from "uuid";
+ import { TurnEntity } from "@vivalence/runtime";
+ import * as gestalten from "../../../gestalten/index.js";
+…
+   else if (ctx.output?.turns) await appending(ctx, ctx.output.turns);
+ };
+
++const inline = (kind) => (file, bytes) => ({
++  type: kind,
++  mime: file.mime,
++  data: encodeBase64(bytes),
++  file: file.id,
++});
++
++const spelled = (file, bytes) => ({
++  type: "text",
++  text: new TextDecoder().decode(bytes),
++  file: file.id,
++});
++
++const HANDED = [
++  [(type) => type.startsWith("image/"), inline("image")],
++  [(type) => type.startsWith("audio/"), inline("audio")],
++  [(type) => type.startsWith("video/"), inline("video")],
++  [(type) => type === "application/pdf", inline("document")],
++  [(type) => type.startsWith("text/") || type === mime.json, spelled],
++];
++
++const handed = (ctx) => async (part) => {
++  if (part.type !== "file") return part;
++  const file = await ctx.entities.file.findOneOrFail({ id: part.file, threads: ctx.thread.id });
++  const found = HANDED.find(([carries]) => carries(file.mime));
++  if (!found) throw new Error(`[harness] no part carries '${file.mime}': ${file.path}`);
++  return found[1](file, await paladin.read.bytes(file.mount));
++};
++
++const filed = (ctx) => async (part) => {
++  if (!("mime" in part)) return part;
++  const landed = await paladin.state.land(
++    ctx.runtime.mountpoint,
++    { path: join("files", part.type), mime: part.mime },
++    new Blob([decodeBase64(part.data)]).stream(),
++  );
++  const file = await ctx.entities.file.upload({ ...landed, thread: ctx.thread.id });
++  return { type: "file", file: file.id };
++};
++
++const swapped = (turns, swap) =>
++  Promise.all(
++    turns.map(async (turn) => ({
++      role: turn.role,
++      parts: await Promise.all(turn.parts.map(swap)),
++      meta: turn.meta,
++    })),
++  );
++
++const WHOLE = {
++  "/part/full": async (packet, file) => ({ ...packet, part: await file(packet.part) }),
++  "/turn/full": async (packet, file) => ({
++    ...packet,
++    turn: { ...packet.turn, parts: await Promise.all(packet.turn.parts.map(file)) },
++  }),
++};
++
++async function* landing(ctx, packets) {
++  for await (const packet of packets) {
++    if (packet.event === "/part/open" && "mime" in packet.part)
++      throw new Error(`[harness] bytes stream whole, as /part/full: got /part/open '${packet.part.type}'`);
++    yield packet.event in WHOLE ? await WHOLE[packet.event](packet, filed(ctx)) : packet;
++  }
++}
++
++const filing = async (ctx, next) => {
++  ctx.hallucination.turns = await swapped(ctx.hallucination.turns, handed(ctx));
++  await next();
++  if (ctx.output[Symbol.asyncIterator]) ctx.output = landing(ctx, ctx.output);
++  else if (ctx.output.turns) ctx.output.turns = await swapped(ctx.output.turns, filed(ctx));
++};
++
+ const OPENING = ["/turn/open", "/turn/full"];
+ const SEALING = ["/turn/close", "/turn/full"];
+
+…
+         shard.hal.call({ polish: POLISH, tier: "fast" }),
+       );
+
+-  harness.branch("/dialogue").use(chaining).use(persisting);
++  harness.branch("/dialogue").use(chaining).use(persisting).use(filing);
+   harness.branch("/dialogue").open({ nature: "render", input: v.primitives.harness.Request, output: v.primitives.hallucination.Response }, async (ctx) => ctx.cortex.hallucinate.dialogue.render(await primed(ctx)));
+   harness.branch("/dialogue").open({ nature: "stream", input: v.primitives.harness.Request, yields: Packet.Response }, async (ctx) => ctx.cortex.hallucinate.dialogue.stream(await primed(ctx)));
+   harness.branch("/object").open({ nature: "render", input: v.primitives.harness.Request, output: v.primitives.hallucination.Response }, async (ctx) => ctx.cortex.hallucinate.object.render(await primed(ctx)));
+#+END_SRC
+
+** milestone 6 — darkroom rides it
+
+Reader is HELD OUT: =mime.extension("application/epub+zip")= answers ="bin"= (RUN, =cast/wired.txt=; =subsystems/typology/schematics/scalars/mime.js:63= knows no epub), so an epub original would land as =original.<hash>.bin=. Its move waits for an =epub= entry in typology's =EXTENSIONS= (his ruling, HOLY).
+
+#+BEGIN_SRC diff
+// commons/editors/darkroom/aperture/index.js:1
+-import { join } from "@std/path";
+ import { decodeBase64, encodeBase64 } from "@std/encoding/base64";
+ import paladin from "@vivalence/paladin";
+-import { Vector, crypto, mime, v } from "@vivalence/typology";
++import { Vector, v } from "@vivalence/typology";
+ import { Settings } from "../schematics.js";
+
+ const Desk = v.object({ buffer: v.string().desc('The desk buffer. Example: "01a1bd04-54c5-74ca-bc57-45381377cd82"') });
+…
+   return { type: "image", mime: file.mime, data: encodeBase64(bytes) };
+ };
+
+-const filed = async (ctx, buffer, folder, type, bytes) => {
+-  const path = `${folder}/${await crypto.digestBytes(bytes)}.${mime.extension(type)}`;
+-  const mount = join(ctx.mode.mountpoint.absolute, path);
+-  await paladin.state.store(mount, bytes);
+-  const file = await ctx.entities.file.record({ mode: ctx.mode.id, path, mount, mime: type, bytes });
+-  buffer.files.add(file);
+-  return file;
++const filed = async (ctx, buffer, seat, type, bytes) => {
++  const landed = await paladin.state.land(
++    ctx.mode.mountpoint,
++    { path: seat, mime: type },
++    new Blob([bytes]).stream(),
++  );
++  return await ctx.entities.file.upload({ ...landed, mode: ctx.mode.id, buffer: buffer.id });
+ };
+
+ export const aperture = new Vector()
+…
+     });
+     const pictures = [];
+     for (const image of rendered.images) {
+-      const file = await filed(ctx, buffer, "pictures", image.mime, decodeBase64(image.data));
++      const file = await filed(ctx, buffer, "pictures/picture", image.mime, decodeBase64(image.data));
+       pictures.push({ file: file.id, prompt: held.prompt, parent, references: held.references, model: held.model, aspect: held.aspect });
+     }
+     buffer.data = { ...held, prompt: "", pictures: [...held.pictures, ...pictures], shown: pictures[0].file };
+…
+   .open({ nature: "/picture/upload/:buffer", output: v.file() }, async (ctx) => {
+     const buffer = await desk(ctx, ctx.params.buffer);
+     const bytes = new Uint8Array(await new Response(ctx.request.raw.body).arrayBuffer());
+-    const file = await filed(ctx, buffer, "references", ctx.request.headers.get("content-type"), bytes);
++    const file = await filed(ctx, buffer, "references/reference", ctx.request.headers.get("content-type"), bytes);
+     await ctx.entities.em.flush();
+     return file;
+   });
+#+END_SRC
+
+** milestone 7 — a file asks for login, and may be mine alone
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/File.ts:7
+ import { ViewEntity } from "./index.ts";
+ import { DaemonEntity } from "./index.ts";
+ import { ThreadEntity } from "./index.ts";
++import { UserEntity } from "./index.ts";
+
+ const present = async (mount) => {
+   try {
+…
+   traits: string[] & Opt = [];
+   trait: any & Opt = {};
+
++  user?: Rel<UserEntity>;
+   mode?: Rel<ModeEntity>;
+   daemon?: Rel<DaemonEntity>;
+   view?: Rel<ViewEntity>;
+…
+   name: "File",
+   tableName: "File",
+   repository: () => FileRepository,
+-  filters: { mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false } },
++  filters: {
++    mode: { cond: (args: any) => (args?.mode ? { mode: args.mode } : {}), default: true, args: false },
++    user: {
++      cond: (args: any) => (args?.user ? { $or: [{ user: args.user }, { user: null }] } : {}),
++      default: true,
++      args: false,
++    },
++  },
+   properties: {
+     path: { type: types.string },
+     mount: { type: types.string },
+…
+     bytes: { type: types.integer, default: 0 },
+     traits: { type: types.json, defaultRaw: `'[]'` },
+     trait: { type: types.json, defaultRaw: `'{}'` },
++
++    user: {
++      kind: "m:1",
++      entity: () => UserEntity,
++      fieldName: "user",
++      nullable: true,
++      updateRule: "cascade",
++      deleteRule: "cascade",
++    },
+
+     mode: {
+       kind: "m:1",
+#+END_SRC
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shard/datamap.js:292
+     };
+     const file = await repository.upload({
+       ...(await land(ctx, dropped, ctx.request.raw.body)),
++      user: ctx.user.id,
+       thread: ctx.signal.flags.thread,
+       buffer: ctx.signal.flags.buffer,
+     });
+…
+     const dropped = { path: input.path, mime: input.mime };
+     const file = await repository.upload({
+       ...(await land(ctx, dropped, new Blob([decodeBase64(input.data)]).stream())),
++      user: ctx.user.id,
+       thread: input.thread,
+       buffer: input.buffer,
+     });
+#+END_SRC
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/3-integration.js:106
+
+ export const attached = async (die, next) => {
+   die.runtime.attachment.use(shard.context.bind("runtime", die.runtime)).graft(attachment);
++  die.runtime.attachment.branch("/file").use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
++  die.runtime.attachment.branch("/view").use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
+   die.aperture.branch("/attached", die.runtime.attachment);
+   await next();
+ };
+#+END_SRC
+
+** milestone 8 — a refused upload lands nothing; a file asks for login, its address carries the token (Q23 · Q24 · Q24A)
+
+EVIDENCE 11-21, =diff -u= of the tree against the copy it was built and run on (17 files, connoisseur 2 hunks tightened: =Url.with= · a =$url= store + plain getter; replay: =patch -p0= from the repository root, NOT =apply-diffs.py=). Holds milestone 7's two =/attached= rows. RUN on the copy: ten suites, reds equal by name to the tree's own (his wip) once =qa/memo.test.js= · =runtime/beats.coverage.test.js= · memo's domain snapshot were rewritten onto it. UNDRAWN: =~/.viva/registry/vcompany/modes/office/files.js:16= · =~/.viva/registry/media/modes/editor/media/files.js:19= and their views (they hand a served address; A1 wants the File id). UNSEEN: =Memo.svelte= on a DOM (its svelte suites are red on the base); a card whose File is not yet in the client's store throws at =.url=. Snapshot regenerated on the copy, not in this block: =commons/fixtures/memo/tests/snapshots/= (a card's =picture= is =<id:n>=).
+
+#+BEGIN_SRC diff
+--- commons/fixtures/memo/mode/buffer/Memo.svelte
++++ commons/fixtures/memo/mode/buffer/Memo.svelte
+@@ -11,6 +11,7 @@
+   if (dealt === undefined) buffer.mode.call.deck({ limit: 10 }).then((held) => (deck = held));
+   else deck = { language: buffer.data.language, cards: dealt };
+ 
++  const files = terminal.client.runtime.entities.file.$entities;
+   const literal = $derived(deck === null ? null : (deck.cards[index] ?? null));
+   const language = $derived(deck === null ? null : deck.language);
+   const total = $derived(deck === null ? 0 : deck.cards.length);
+@@ -86,10 +87,10 @@
+             <div class="example">{literal.example.learning} — {literal.example.known}</div>
+           {/if}
+           {#if literal.picture !== null}
+-            <img class="picture" src={literal.picture} alt={literal.learning} />
++            <img class="picture" src={$files.find((file) => file.id === literal.picture).url} alt={literal.learning} />
+           {/if}
+           {#if literal.voice !== null}
+-            <audio controls src={literal.voice}></audio>
++            <audio controls src={$files.find((file) => file.id === literal.voice).url}></audio>
+           {/if}
+         </div>
+       {/if}
+--- commons/fixtures/memo/mode/deal.js
++++ commons/fixtures/memo/mode/deal.js
+@@ -4,13 +4,13 @@
+   const dealt = rows.map(card);
+   const paths = dealt.flatMap((held) => [held.voice, held.picture]).filter((path) => path !== null);
+   const files = paths.length ? await ctx.entities.file.find({ path: { $in: paths } }) : [];
+-  const url = (path) => {
++  const filed = (path) => {
+     if (path === null) return null;
+     const file = files.find((held) => held.path === path);
+     if (file === undefined) throw new Error(`[memo] no File holds ${path} — the topography's FILESET did not record it`);
+-    return ctx.attach.branch(`/file/${file.id}`).absolute;
++    return file.id;
+   };
+-  return dealt.map((held) => ({ ...held, voice: url(held.voice), picture: url(held.picture) }));
++  return dealt.map((held) => ({ ...held, voice: filed(held.voice), picture: filed(held.picture) }));
+ };
+ 
+ export const where = (symbols) => (symbols === undefined ? {} : { symbols });
+--- subsystems/typology/gestalten/shard/datamap.js
++++ subsystems/typology/gestalten/shard/datamap.js
+@@ -276,7 +276,7 @@
+   };
+ }
+ 
+-export function files(repository, land) {
++export function files(entities, land) {
+   const aperture = new Aperture();
+ 
+   aperture.use(errors());
+@@ -286,22 +286,27 @@
+       path: fromm.params(ctx.params).URIC,
+       mime: ctx.request.headers.get("content-type"),
+     };
+-    const file = await repository.upload({
++    const { flags } = ctx.signal;
++    const thread = flags.thread ? await entities.thread.findOneOrFail({ id: flags.thread }) : undefined;
++    const buffer = flags.buffer ? await entities.buffer.findOneOrFail({ id: flags.buffer }) : undefined;
++    const file = await entities.file.upload({
+       ...(await land(ctx, dropped, ctx.request.raw.body)),
+       user: ctx.user.id,
+-      thread: ctx.signal.flags.thread,
+-      buffer: ctx.signal.flags.buffer,
++      thread,
++      buffer,
+     });
+     return serialize(file, { populate: ["threads:ref", "buffers:ref"] });
+   });
+ 
+   aperture.post("/paste", async (input, ctx) => {
+     const dropped = { path: input.path, mime: input.mime };
+-    const file = await repository.upload({
++    const thread = input.thread ? await entities.thread.findOneOrFail({ id: input.thread }) : undefined;
++    const buffer = input.buffer ? await entities.buffer.findOneOrFail({ id: input.buffer }) : undefined;
++    const file = await entities.file.upload({
+       ...(await land(ctx, dropped, new Blob([decodeBase64(input.data)]).stream())),
+       user: ctx.user.id,
+-      thread: input.thread,
+-      buffer: input.buffer,
++      thread,
++      buffer,
+     });
+     return serialize(file, { populate: ["threads:ref", "buffers:ref"] });
+   });
+--- systems/anima/src/surfaces/chrome/widgets/buffer/painters.jsx
++++ systems/anima/src/surfaces/chrome/widgets/buffer/painters.jsx
+@@ -25,7 +25,7 @@
+   };
+   const [module] = createResource(
+     () => settled() && [props.view, fingerprint()],
+-    ([view]) => load(view, props.terminal.client.runtime.attach),
++    ([view]) => load(view, props.terminal.client.runtime),
+   );
+   const loaded = createMemo(() => (module.error === undefined ? module.latest : undefined));
+   let element;
+@@ -64,7 +64,7 @@
+ };
+ 
+ export const SOURCES = [
+-  [(buffer) => buffer.files.length > 0, (buffer, attach) => bytes(buffer.files[0], attach)],
++  [(buffer) => buffer.files.length > 0, (buffer, runtime) => bytes(buffer.files[0], runtime)],
+   [() => true, (buffer) => Promise.resolve(JSON.stringify(buffer.data, null, 1))],
+ ];
+ 
+@@ -72,7 +72,7 @@
+   const settled = healthy(props);
+   return createResource(
+     () => settled() && props.buffer,
+-    (buffer) => SOURCES.find(([test]) => test(buffer))[1](buffer, props.terminal.client.runtime.attach),
++    (buffer) => SOURCES.find(([test]) => test(buffer))[1](buffer, props.terminal.client.runtime),
+   )[0];
+ };
+ 
+@@ -99,7 +99,7 @@
+   return <parts.Yield value={data() === undefined ? {} : data()} style={parts.YIELD_INSET} />;
+ };
+ 
+-export const Image = (props) => <parts.Image src={href(props.buffer.files[0], props.terminal.client.runtime.attach)} alt={named(props.buffer)} />;
++export const Image = (props) => <parts.Image src={href(props.buffer.files[0], props.terminal.client.runtime)} alt={named(props.buffer)} />;
+ 
+ export const Summary = (props) => (
+   <parts.Row key="▸" name={named(props.buffer)} onPick={() => props.terminal.repl.dispatch(`/buffer "${named(props.buffer)}"`).catch((error) => props.terminal.controller.stdout.fault(error))} />
+--- systems/anima/src/surfaces/chrome/widgets/buffer/view.js
++++ systems/anima/src/surfaces/chrome/widgets/buffer/view.js
+@@ -21,6 +21,6 @@
+ 
+ export const cell = (buffer, views) => views.find((view) => view.slug === buffer.trait.RENDERED.cell) ?? views[0];
+ 
+-export const href = (file, attach) => attach.url.branch(`/file/${belt.view.identity(file)}`).absolute;
++export const href = (file, runtime) => runtime.attached(`/file/${belt.view.identity(file)}`);
+ 
+ export const { bytes, load } = belt.view;
+--- systems/ghost/entities/file/hydration.js
++++ systems/ghost/entities/file/hydration.js
+@@ -1,6 +1,9 @@
++import { computed } from "nanostores";
+ import { Vector } from "@vivalence/typology";
+ 
+ export const hydration = new Vector().use(async (ctx, next) => {
+   await next();
+-  ctx.entity.url = ctx.runtime.attach.url.branch(`/file/${ctx.entity.id}`).absolute;
++  ctx.entity.$url = computed(ctx.runtime.lighthouse.$authority, () =>
++    ctx.runtime.attached(`/file/${ctx.entity.id}`),
++  );
+ });
+--- systems/ghost/entities/file/prototype.js
++++ systems/ghost/entities/file/prototype.js
+@@ -10,5 +10,14 @@
+   trait = {};
+   mode = null;
+   view = null;
+-  url = null;
++  $url = null;
++
++  get url() {
++    return this.$url.get();
++  }
++
++  toJSON() {
++    const { $url, ...base } = super.toJSON();
++    return base;
++  }
+ }
+--- systems/ghost/entities/runtime/prototype.js
++++ systems/ghost/entities/runtime/prototype.js
+@@ -28,6 +28,9 @@
+   get attach() {
+     return this.connection.branch("/attached");
+   }
++  attached(path) {
++    return this.attach.url.branch(path).with({ token: this.lighthouse.authority.access }).absolute;
++  }
+ 
+   get json() {
+     return { manifest: this.manifest, reference: this.reference === null ? null : this.reference.absolute, remote: this.remote, status: this.status };
+--- systems/ghost/gestalten/belt/view.js
++++ systems/ghost/gestalten/belt/view.js
+@@ -18,8 +18,8 @@
+ 
+ export const pick = (views) => views[0];
+ 
+-export const bytes = async (file, attach) => {
+-  const response = await fetch(attach.url.branch(`/file/${identity(file)}`).absolute);
++export const bytes = async (file, runtime) => {
++  const response = await fetch(runtime.attached(`/file/${identity(file)}`));
+   if (!response.ok) throw new Error(`[view] /attached/file/${identity(file)}: ${response.status}`);
+   const text = await response.text();
+   const digested = `sha256-${await crypto.digest(text)}`;
+@@ -39,9 +39,9 @@
+   }
+ };
+ 
+-export const load = async (view, attach) => {
++export const load = async (view, runtime) => {
+   const known = verified.get(view.id);
+-  const response = await fetch(attach.url.branch(`/view/${view.id}`).absolute, {
++  const response = await fetch(runtime.attached(`/view/${view.id}`), {
+     headers: known === undefined ? {} : { "if-none-match": `"${known.integrity}"` },
+   });
+   if (response.status === 304) return known.module;
+--- systems/ghost/surfaces/chrome/panels/frame/frame.jsx
++++ systems/ghost/surfaces/chrome/panels/frame/frame.jsx
+@@ -106,7 +106,7 @@
+   };
+   const [module] = createResource(
+     () => status().code === "HEALTHY" && [props.view, fingerprint()],
+-    ([view]) => belt.view.load(view, terminal.client.runtime.attach),
++    ([view]) => belt.view.load(view, terminal.client.runtime),
+   );
+   const loaded = createMemo(() => (module.error === undefined ? module.latest : undefined));
+   let element;
+--- systems/ghost/tests/entities/file/file.test.js
++++ systems/ghost/tests/entities/file/file.test.js
+@@ -24,9 +24,10 @@
+   specimen.it("a row carries /attached/file/:id and the client's own Mode, its Daemon beside; the bytes there are the row's, by length and integrity; every row carries a path", async () => {
+     await belt.atom.until(clientDie.runtime.entities.file.$entities, (files) => files.length > 0, AbortSignal.timeout(30000));
+     const [row] = clientDie.runtime.entities.file.$entities.get();
+-    specimen.expect(row.url).toMatch(/\/attached\/file\/[0-9a-f-]+$/);
++    specimen.expect(row.url).toMatch(/\/attached\/file\/[0-9a-f-]+\?token=[\w.-]+$/);
+     specimen.expect(clientDie.runtime.entities.mode.$entities.get()).toContain(row.mode);
+     specimen.expect(clientDie.runtime.entities.daemon.$entities.get()).toContain(row.mode.daemon);
++    specimen.expect(Object.keys(row.toJSON()).filter((key) => key.endsWith("url"))).toEqual([]);
+     const response = await fetch(row.url);
+     const bytes = new Uint8Array(await response.arrayBuffer());
+     specimen.expect(response.status).toBe(200);
+--- systems/ghost/tests/gestalten/belt/view.test.js
++++ systems/ghost/tests/gestalten/belt/view.test.js
+@@ -38,7 +38,7 @@
+       return new Response("nope", { status: 404 });
+     });
+     const url = new Url(`http://127.0.0.1:${server.addr.port}/attached`);
+-    attach = { url };
++    attach = { attached: (path) => url.branch(path).absolute };
+   });
+   specimen.afterAll(async () => {
+     await server.shutdown();
+--- systems/ghost/tests/subjects/client/client.test.js
++++ systems/ghost/tests/subjects/client/client.test.js
+@@ -85,7 +85,7 @@
+     specimen.expect(views.every((view) => view.slug === "memo")).toBe(true);
+     const picked = ghost.belt.view.pick(views.filter(chrome.runs));
+     specimen.expect(picked.mime).toBe(mime.tty.solid);
+-    const served = await fetch(clientDie.runtime.attach.url.branch(`/view/${picked.id}`).absolute);
++    const served = await fetch(clientDie.runtime.attached(`/view/${picked.id}`));
+     specimen.expect(served.status).toBe(200);
+     specimen.expect(await served.text()).toContain("export");
+   });
+--- systems/runtime/subjects/runtime/lifecycle/3-integration.js
++++ systems/runtime/subjects/runtime/lifecycle/3-integration.js
+@@ -76,7 +76,7 @@
+       .graft(shard.datamap.reactive(repository, twitch, reactive));
+   }
+   owned.branch("/file").graft(
+-    shard.datamap.files(entities.file, (ctx, dropped, body) =>
++    shard.datamap.files(entities, (ctx, dropped, body) =>
+       paladin.state.land(die.runtime.mountpoint, { ...dropped, path: join("files", dropped.path) }, body),
+     ),
+   );
+@@ -106,6 +106,8 @@
+ 
+ export const attached = async (die, next) => {
+   die.runtime.attachment.use(shard.context.bind("runtime", die.runtime)).graft(attachment);
++  die.runtime.attachment.branch("/file").use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
++  die.runtime.attachment.branch("/view").use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
+   die.aperture.branch("/attached", die.runtime.attachment);
+   await next();
+ };
+--- systems/runtime/tests/qa/memo.test.js
++++ systems/runtime/tests/qa/memo.test.js
+@@ -95,11 +95,14 @@
+     expect([stats.touched, stats.byStatus.UNKNOWN, stats.leeches.map((leech) => leech.slug), stats.suspended]).toEqual([2, 1, [], 0]);
+   });
+ 
+-  it("the topography's files ride the deck: a depicted card carries its picture's file url, and the url serves the png", async () => {
++  it("the topography's files ride the deck: a depicted card carries its picture's File id, and /attached/file/<id> serves the png to a token, 401 without", async () => {
+     const { cards } = await runtime.call(`${MODE}/deck`, { limit: 50, symbols: ["topic.bellum"] }, learner);
+     const gladius = cards.find((card) => card.slug === "gladius.noun");
+-    expect(gladius.picture).toMatch(/\/attached\/file\/[0-9a-f-]{36}$/);
+-    const served = await fetch(gladius.picture, { headers: { authorization: `Bearer ${learner}` } });
++    expect(gladius.picture).toMatch(/^[0-9a-f-]{36}$/);
++    const refused = await fetch(`${world.origin}/attached/file/${gladius.picture}`);
++    expect(refused.status).toBe(401);
++    await refused.body?.cancel();
++    const served = await fetch(`${world.origin}/attached/file/${gladius.picture}?token=${learner}`);
+     expect([served.status, served.headers.get("content-type")]).toEqual([200, "image/png"]);
+     await served.body?.cancel();
+   });
+--- systems/runtime/tests/runtime/beats.coverage.test.js
++++ systems/runtime/tests/runtime/beats.coverage.test.js
+@@ -2,8 +2,9 @@
+ import { atom } from "nanostores";
+ import { Aperture, Connection, crypto, mime, Mode, Path, shape, shard, specimen, Url, Vector } from "@vivalence/typology";
+ import { lifecycle, ViewEntity } from "@vivalence/runtime";
++import { signer } from "../../subjects/lighthouse/signer.js";
+ import { seed } from "../scenarios/datamap.js";
+-import { connector, lighthouseOf } from "../scenarios/daemon.js";
++import { connector, lighthouseOf, SECRET } from "../scenarios/daemon.js";
+ 
+ // the runtime's lifecycle beats over a hand-built die on :memory: — law 9 (/attached/file/:id with
+ // x-viva-integrity), the host metadata the beats open, the userspace routes, the patrol interval (process census + file sweep), Deno.serve on a free port
+@@ -92,18 +93,20 @@
+     await through(integration.attached, die, async () => {
+       const handler = shape.http(die.aperture);
+       specimen.expect((await handler(new Request("http://test/attached/process/service/voice/tts/ping"))).status).toBe(404);
+-      const served = await handler(new Request(`http://test/attached/file/${file.id}`));
++      const token = await signer(SECRET).access(fixtures.user);
++      specimen.expect((await handler(new Request(`http://test/attached/file/${file.id}`))).status).toBe(401);
++      const served = await handler(new Request(`http://test/attached/file/${file.id}?token=${token}`));
+       specimen.expect(served.status).toBe(200);
+       specimen.expect(served.headers.get("content-type")).toBe(mime.javascript);
+       specimen.expect(served.headers.get("x-viva-integrity")).toBe(integrity);
+       specimen.expect(await served.text()).toBe(text);
+ 
+-      specimen.expect((await handler(new Request("http://test/attached/file/nope"))).status).toBe(404);
++      specimen.expect((await handler(new Request(`http://test/attached/file/nope?token=${token}`))).status).toBe(404);
+ 
+       await through(resolution.attach, die, async () => {
+         specimen.expect(await (await handler(new Request("http://test/attached/process/service/voice/tts/ping"))).json()).toEqual({ pong: true });
+         specimen.expect(die.runtime.attachment.edge("process")).not.toBe(null);
+-        specimen.expect((await handler(new Request(`http://test/attached/file/${file.id}`))).status).toBe(200);
++        specimen.expect((await handler(new Request(`http://test/attached/file/${file.id}?token=${token}`))).status).toBe(200);
+       });
+     });
+   });
+--- systems/runtime/tests/runtime/hello.test.js
++++ systems/runtime/tests/runtime/hello.test.js
+@@ -101,7 +101,7 @@
+     expect(world.query("select user_entity_id as user, daemon_entity_slug as daemon from User_daemons")).toEqual([{ user: finn.user.id, daemon: "hello" }]);
+   });
+ 
+-  it("/attached/view/:id answers with no token — hello-world's declared view is built at its first fetch, its File served after, a held fingerprint answers 304", async () => {
++  it("/attached/view/:id answers a token in its address, 401 without — hello-world's declared view is built at its first fetch, its File served after, a held fingerprint answers 304", async () => {
+     const retired = await world.get("/daemon/hello/mode/demo/hello-world/metadata/application", finn.access);
+     expect(retired.status).toBe(404);
+     await retired.body?.cancel();
+@@ -110,7 +110,10 @@
+     expect(rows[0].entry).toBe("bundle/hello-world.dom.svelte.mjs");
+     const unbuilt = await (await world.post("/userspace/entities/file/find", { where: { view: rows[0].id } }, finn.access)).json();
+     expect(unbuilt.map((file) => file.path)).not.toContain(rows[0].entry);
+-    const built = await fetch(`${world.origin}/attached/view/${rows[0].id}`);
++    const refused = await fetch(`${world.origin}/attached/view/${rows[0].id}`);
++    expect(refused.status).toBe(401);
++    await refused.body?.cancel();
++    const built = await fetch(`${world.origin}/attached/view/${rows[0].id}?token=${finn.access}`);
+     expect(built.status).toBe(200);
+     expect(built.headers.get("content-type")).toBe("text/javascript");
+     await built.body?.cancel();
+@@ -118,10 +121,10 @@
+     const entry = files.find((file) => file.path === rows[0].entry);
+     expect(built.headers.get("x-viva-integrity")).toBe(entry.integrity);
+     expect(built.headers.get("etag")).toBe(`"${entry.integrity}"`);
+-    const held = await fetch(`${world.origin}/attached/view/${rows[0].id}`, { headers: { "if-none-match": `"${entry.integrity}"` } });
++    const held = await fetch(`${world.origin}/attached/view/${rows[0].id}?token=${finn.access}`, { headers: { "if-none-match": `"${entry.integrity}"` } });
+     expect(held.status).toBe(304);
+     await held.body?.cancel();
+-    const response = await fetch(`${world.origin}/attached/file/${entry.id}`);
++    const response = await fetch(`${world.origin}/attached/file/${entry.id}?token=${finn.access}`);
+     expect(response.status).toBe(200);
+     expect(response.headers.get("x-viva-integrity")).toBe(entry.integrity);
+     await response.body?.cancel();
+#+END_SRC
+
+** milestone 8, the registry half — two modes hand a File id, their views ask the client's File (Q24A · Q25)
+
+EVIDENCE 11-21, =diff -ru= of pristine copies of =~/.viva/registry/media= · =~/.viva/registry/vcompany= against the edited copies (11 files; paths relative to =~/.viva/registry/=, replay: =patch -p0= there; his registry UNTOUCHED, jj is his). Q25 /"a"/: the vdex tool's message names no address. RUN from the tree copy's root: media · vdex · email suites, reds EQUAL by name to the pristine copies' (the registry suites are red on the base: =SymbolEntity.daemon is required= stops =media aperture= · =media boot= · vdex boot); so =media/…/tests/aperture.test.js= (rewritten onto ids) NEVER RAN. A view's store read sits in a closure (=…file.$entities.get()=): a top-level =terminal= read fails svelte's =state_referenced_locally= (their =app.test.js=). UNSEEN: both views on a DOM; a File not yet in the client's store throws at =.url=; =email=: no view reads an attachment's address today.
+
+#+BEGIN_SRC diff
+diff --color -ru -x node_modules registry0/media/modes/editor/media/aperture/index.js registry/media/modes/editor/media/aperture/index.js
+--- media/modes/editor/media/aperture/index.js	2026-11-12 20:38:06.389332266 +0100
++++ media/modes/editor/media/aperture/index.js	2026-11-21 03:24:21.755295406 +0100
+@@ -8,7 +8,7 @@
+ import { ONTOLOGY, annotationRow, compositionPath, slugify } from "../rows.js";
+ import { fork, stamp, sync } from "../boot.js";
+ import { otio } from "../otio.js";
+-import { attached, recorded } from "../files.js";
++import { filed, recorded } from "../files.js";
+ 
+ const at = (ctx, path) => paladin.tools.resolve(ctx.mode.mountpoint.absolute, path);
+ 
+@@ -20,15 +20,15 @@
+ 
+ const served = async (ctx, literal) => {
+   const media = literal.trait.MEDIA;
+-  const url = await attached(ctx, [media.asset.path, media.derived?.peaks, media.derived?.proxy, ...(media.derived?.thumbs ? frames(media.derived.thumbs) : [])]);
++  const file = await filed(ctx, [media.asset.path, media.derived?.peaks, media.derived?.proxy, ...(media.derived?.thumbs ? frames(media.derived.thumbs) : [])]);
+   return {
+     literal,
+-    url: url(media.asset.path),
++    file: file(media.asset.path),
+     derived: {
+-      peaks: url(media.derived?.peaks),
+-      proxy: url(media.derived?.proxy),
++      peaks: file(media.derived?.peaks),
++      proxy: file(media.derived?.proxy),
+       thumbs: media.derived?.thumbs
+-        ? { ...media.derived.thumbs, frames: frames(media.derived.thumbs).map(url) }
++        ? { ...media.derived.thumbs, frames: frames(media.derived.thumbs).map(file) }
+         : null,
+     },
+   };
+diff --color -ru -x node_modules registry0/media/modes/editor/media/buffer/Media.svelte registry/media/modes/editor/media/buffer/Media.svelte
+--- media/modes/editor/media/buffer/Media.svelte	2026-10-26 17:43:32.280284211 +0100
++++ media/modes/editor/media/buffer/Media.svelte	2026-11-21 03:26:06.491070632 +0100
+@@ -25,7 +25,19 @@
+ 
+   const STILL = 5;
+   const past = history();
+-  const byslug = $derived(Object.fromEntries(bin.map((held) => [held.literal.slug, { ...held.literal.trait.MEDIA, url: held.url, derived: held.derived }])));
++  const address = (id) => (id === null ? null : terminal.client.runtime.entities.file.$entities.get().find((file) => file.id === id).url);
++  const shown = $derived(
++    bin.map((held) => ({
++      ...held,
++      url: address(held.file),
++      derived: {
++        peaks: address(held.derived.peaks),
++        proxy: address(held.derived.proxy),
++        thumbs: held.derived.thumbs === null ? null : { ...held.derived.thumbs, frames: held.derived.thumbs.frames.map(address) },
++      },
++    })),
++  );
++  const byslug = $derived(Object.fromEntries(shown.map((held) => [held.literal.slug, { ...held.literal.trait.MEDIA, url: held.url, derived: held.derived }])));
+   const total = $derived(composition ? duration(composition) : 0);
+   const narrow = $derived(width > 0 && width < 900);
+ 
+@@ -219,7 +231,7 @@
+     <span class="pip muted">{bin.length} in bin · {compositions.length} cuts</span>
+   </header>
+ 
+-  <section class="bin"><Bin {bin} daemon={buffer.mode.daemon} mode={buffer.mode} {busy} {derive} onarrived={refresh} onfault={(message) => (fault = message)} /></section>
++  <section class="bin"><Bin bin={shown} daemon={buffer.mode.daemon} mode={buffer.mode} {busy} {derive} onarrived={refresh} onfault={(message) => (fault = message)} /></section>
+   <section class="monitor"><Monitor {composition} {byslug} bind:playhead bind:playing /></section>
+   <section class="inspector"><Inspector {composition} {slug} {byslug} {selection} {edits} {stream} {call} onrendered={refresh} /></section>
+   <section class="timeline">
+diff --color -ru -x node_modules registry0/media/modes/editor/media/files.js registry/media/modes/editor/media/files.js
+--- media/modes/editor/media/files.js	2026-10-21 23:53:16.359108344 +0200
++++ media/modes/editor/media/files.js	2026-11-21 03:24:21.753924923 +0100
+@@ -10,12 +10,12 @@
+   return store.file.ensure({ mode: mode.id, path, mount, mime: mime.of(path), hash, integrity: `sha256-${hash}`, bytes: bytes.length });
+ };
+ 
+-// the urls a client reads File rows at — /attached/file/:id per path; null for a path no row holds
+-export const attached = async (ctx, paths) => {
++// the File row's id per path — the client reads its address off its own File; null for a path no row holds
++export const filed = async (ctx, paths) => {
+   const wanted = [...new Set(paths.filter((path) => path !== null && path !== undefined))];
+   const files = wanted.length ? await ctx.entities.file.find({ mode: ctx.mode.id, path: { $in: wanted } }) : [];
+   return (path) => {
+     const file = files.find((held) => held.path === path);
+-    return file === undefined ? null : ctx.attach.branch(`/file/${file.id}`).absolute;
++    return file === undefined ? null : file.id;
+   };
+ };
+diff --color -ru -x node_modules registry0/media/modes/editor/media/tests/aperture.test.js registry/media/modes/editor/media/tests/aperture.test.js
+--- media/modes/editor/media/tests/aperture.test.js	2026-11-10 17:33:04.667928697 +0100
++++ media/modes/editor/media/tests/aperture.test.js	2026-11-21 03:24:21.757333964 +0100
+@@ -11,7 +11,7 @@
+ 
+ specimen.describe("media aperture — the verbs by slug, over the wire", () => {
+   let scenario, root, teardown, outside, hash, cut;
+-  const fileUrl = async (path) => `http://test/attached/file/${(await scenario.daemon.entities.file.findOne({ path })).id}`;
++  const fileId = async (path) => (await scenario.daemon.entities.file.findOne({ path })).id;
+ 
+   const call = (route, input = {}) => scenario.conn.call(`${MOUNT}${route}`, input);
+   const handler = (route) => scenario.mode.aperture.branch(route).effect;
+@@ -39,9 +39,9 @@
+     const held = await call("/media/import", { path: `${outside}/interview.mp4` });
+     specimen.expect(held.literal.slug).toBe(hash);
+     specimen.expect(held.literal.trait.MEDIA.name).toBe("interview.mp4");
+-    specimen.expect(held.url).toBe(await fileUrl(`media/${hash}.mp4`));
+-    specimen.expect(held.derived.peaks).toBe(await fileUrl(`derived/${hash}/peaks.json`));
+-    specimen.expect(held.derived.thumbs.frames[0]).toBe(await fileUrl(`derived/${hash}/thumbs/00001.jpg`));
++    specimen.expect(held.file).toBe(await fileId(`media/${hash}.mp4`));
++    specimen.expect(held.derived.peaks).toBe(await fileId(`derived/${hash}/peaks.json`));
++    specimen.expect(held.derived.thumbs.frames[0]).toBe(await fileId(`derived/${hash}/thumbs/00001.jpg`));
+     specimen.expect(held.derived.proxy).toBe(null);
+     specimen.expect((await Deno.stat(`${outside}/interview.mp4`)).isFile).toBe(true);
+     const moved = await call("/media/import", { path: `${outside}/bed.wav`, move: true });
+@@ -75,9 +75,9 @@
+     const stages = steps.map((step) => step.stage).filter((stage, i, all) => all.indexOf(stage) === i);
+     specimen.expect(stages).toEqual(["peaks", "thumbs", "proxy", "derive"]);
+     const { output } = steps.at(-1);
+-    specimen.expect(output.derived.peaks).toBe(await fileUrl(`derived/${hash}/peaks.json`));
+-    specimen.expect(output.derived.proxy).toBe(await fileUrl(`derived/${hash}/proxy.mp4`));
+-    specimen.expect(output.derived.thumbs.frames[0]).toBe(await fileUrl(`derived/${hash}/thumbs/00001.jpg`));
++    specimen.expect(output.derived.peaks).toBe(await fileId(`derived/${hash}/peaks.json`));
++    specimen.expect(output.derived.proxy).toBe(await fileId(`derived/${hash}/proxy.mp4`));
++    specimen.expect(output.derived.thumbs.frames[0]).toBe(await fileId(`derived/${hash}/thumbs/00001.jpg`));
+     const read = await call("/media/read", { slug: hash });
+     specimen.expect(read.literal.trait.MEDIA.derived.proxy).toBe(`derived/${hash}/proxy.mp4`);
+   });
+diff --color -ru -x node_modules registry0/vcompany/modes/office/email/aperture/index.js registry/vcompany/modes/office/email/aperture/index.js
+--- vcompany/modes/office/email/aperture/index.js	2026-10-21 23:53:16.363295963 +0200
++++ vcompany/modes/office/email/aperture/index.js	2026-11-21 03:24:21.758217037 +0100
+@@ -1,6 +1,6 @@
+ import { Aperture } from "@vivalence/typology";
+ import { provider } from "../provider.js";
+-import { attached } from "../../files.js";
++import { filed } from "../../files.js";
+ 
+ const one = (ctx, slug) =>
+   ctx.entities.literal.findOne({ ontology: "message", slug }, { populate: ["symbols", "uses", "in"] });
+@@ -43,7 +43,7 @@
+   body: literal.trait.MESSAGE.body,
+   hold: literal.trait.MESSAGE.hold ?? null,
+   coord: literal.symbol?.vdex ? [literal.symbol.vdex.category, Object.values(literal.symbol.vdex.id ?? {})[0]].filter(Boolean).join(".") : null,
+-  attachments: await Promise.all((literal.trait.MAIL.attachments ?? []).map(async (attachment) => ({ ...attachment, url: await attached(ctx, attachment.path) }))),
++  attachments: await Promise.all((literal.trait.MAIL.attachments ?? []).map(async (attachment) => ({ ...attachment, file: await filed(ctx, attachment.path) }))),
+ });
+ 
+ export const aperture = new Aperture()
+diff --color -ru -x node_modules registry0/vcompany/modes/office/files.js registry/vcompany/modes/office/files.js
+--- vcompany/modes/office/files.js	2026-10-21 23:53:16.361708367 +0200
++++ vcompany/modes/office/files.js	2026-11-21 03:24:21.757640836 +0100
+@@ -10,8 +10,8 @@
+   return store.file.ensure({ mode: mode.id, path, mount, mime: mime.of(path), hash, integrity: `sha256-${hash}`, bytes: bytes.length });
+ };
+ 
+-// the url a client reads a File row at — /attached/file/:id; null when no row holds the path
+-export const attached = async (ctx, path) => {
++// the File row's id — the client reads its address off its own File; null when no row holds the path
++export const filed = async (ctx, path) => {
+   const file = await ctx.entities.file.findOne({ mode: ctx.mode.id, path });
+-  return file === null ? null : ctx.attach.branch(`/file/${file.id}`).absolute;
++  return file === null ? null : file.id;
+ };
+diff --color -ru -x node_modules registry0/vcompany/modes/office/vdex/aperture/index.js registry/vcompany/modes/office/vdex/aperture/index.js
+--- vcompany/modes/office/vdex/aperture/index.js	2026-11-12 20:38:06.388422265 +0100
++++ vcompany/modes/office/vdex/aperture/index.js	2026-11-21 03:24:21.759093318 +0100
+@@ -4,7 +4,7 @@
+ import { coordinate } from "../jd.js";
+ import { index } from "../index.js";
+ import { sync } from "../boot.js";
+-import { attached } from "../../files.js";
++import { filed } from "../../files.js";
+ 
+ const COORDINATE = /^vdex\.(area|category|id)\./;
+ const ID = /^\d\d\.\d\d$/;
+@@ -16,7 +16,7 @@
+   const { asset, format } = literal.trait.DOCUMENT;
+   return {
+     literal,
+-    url: await attached(ctx, asset.path),
++    file: await filed(ctx, asset.path),
+     text: TEXT.includes(format) ? await Deno.readTextFile(at(ctx, asset.path)) : null,
+   };
+ };
+diff --color -ru -x node_modules registry0/vcompany/modes/office/vdex/buffer/Vdex.svelte registry/vcompany/modes/office/vdex/buffer/Vdex.svelte
+--- vcompany/modes/office/vdex/buffer/Vdex.svelte	2026-11-19 14:06:04.253169967 +0100
++++ vcompany/modes/office/vdex/buffer/Vdex.svelte	2026-11-21 03:26:06.491613542 +0100
+@@ -31,6 +31,8 @@
+   let tab = $state("sections");
+ 
+   let open = $state.raw(null);
++  const address = (id) => (id === null ? null : terminal.client.runtime.entities.file.$entities.get().find((file) => file.id === id).url);
++  const opened = $derived(open === null ? null : { ...open, url: address(open.file) });
+   let reading = $state("read");
+   let draft = $state("");
+   let drafts = $state({});
+@@ -512,14 +514,14 @@
+     {#if showDocument}
+       <div class="stage">
+         {#if open}
+-          <Reader {open} {reading} bind:draft {folded} {dirty} {narrow} {documents} outline={outlineOn} actions={reader} />
++          <Reader open={opened} {reading} bind:draft {folded} {dirty} {narrow} {documents} outline={outlineOn} actions={reader} />
+         {:else}
+           <Empty verb="nothing open" trace="pick a document — a coordinate, a title, a slug" />
+         {/if}
+       </div>
+     {/if}
+     {#if outlineOn}
+-      <Outline {open} {folded} {tab} {documents} overlay={crowded} actions={outliner} />
++      <Outline open={opened} {folded} {tab} {documents} overlay={crowded} actions={outliner} />
+     {/if}
+   </div>
+ 
+diff --color -ru -x node_modules registry0/vcompany/modes/office/vdex/tests/snapshots/vdex-rows.snapshot.json registry/vcompany/modes/office/vdex/tests/snapshots/vdex-rows.snapshot.json
+--- vcompany/modes/office/vdex/tests/snapshots/vdex-rows.snapshot.json	2026-11-21 03:26:25.056027509 +0100
++++ vcompany/modes/office/vdex/tests/snapshots/vdex-rows.snapshot.json	2026-11-21 03:26:36.324089611 +0100
+@@ -113,7 +113,7 @@
+           "readable": true,
+           "bytes": 4,
+           "mtime": "<mtime>",
+-          "hash": "e3ef3cdd"
++          "hash": "72c79b39"
+         }
+       },
+       "symbol": {
+diff --color -ru -x node_modules registry0/vcompany/modes/office/vdex/tests/tools.test.js registry/vcompany/modes/office/vdex/tests/tools.test.js
+--- vcompany/modes/office/vdex/tests/tools.test.js	2026-11-17 17:44:37.177258334 +0100
++++ vcompany/modes/office/vdex/tests/tools.test.js	2026-11-21 03:26:06.492147869 +0100
+@@ -44,14 +44,14 @@
+     });
+   });
+ 
+-  specimen.it("read speaks the text by slug; a pdf answers binary with its File row's url", async () => {
++  specimen.it("read speaks the text by slug; a pdf answers binary and names no address: open puts it on screen", async () => {
+     await scenario.scoped(async () => {
+       const text = await tools.read({ slug: "readme.org" });
+       specimen.expect(text.product.message).toContain("#+TITLE: The company");
+       const binary = await tools.read({ slug: "22.04.re24-05277.pdf" });
+       specimen.expect(binary.product.message).toContain("binary");
+-      const file = await scenario.daemon.entities.file.findOne({ path: "20-29_koerperschaft/22_finance/22.04_accounting/Rechnungen/RE24-05277.pdf" });
+-      specimen.expect(binary.product.message).toContain(`http://test/attached/file/${file.id}`);
++      specimen.expect(binary.product.message).toMatch(/put it on screen with open\.$/);
++      specimen.expect(binary.product.message).not.toContain("/attached/");
+       specimen.expect((await tools.read({ slug: "nope.md" })).condition).toBe("ERROR");
+     });
+   });
+diff --color -ru -x node_modules registry0/vcompany/modes/office/vdex/tools/index.js registry/vcompany/modes/office/vdex/tools/index.js
+--- vcompany/modes/office/vdex/tools/index.js	2026-11-17 17:42:44.889123884 +0100
++++ vcompany/modes/office/vdex/tools/index.js	2026-11-21 03:24:21.759967682 +0100
+@@ -65,7 +65,7 @@
+         if (served.text === null)
+           return {
+             product: {
+-              message: `${served.literal.slug} · ${title} is ${format} — binary; put it on screen with open${served.url ? ` (file: ${served.url})` : ""}.`,
++              message: `${served.literal.slug} · ${title} is ${format} — binary; put it on screen with open.`,
+               literal: [served.literal],
+             },
+           };
+#+END_SRC
+
+* critical pass — 11-21, his /"work through tangle and test"/ (connoisseur · bird)
+
+Sandbox =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/f4e4abae-0334-479a-9a33-c8d11d1f86ba/scratchpad/= (gone at a reboot): =rig/= the tree untouched · =base/= the six milestones replayed + the fixes · =base2/= the RE-CUT fences replayed fresh, byte-equal to =base/= both ways (=verify.sh=: 48 hunks landed · 0 missed) · =fix.py= the five fixes as asserted replaces · =census/= before · =census2/= after · =probe.out.txt= before · =probe.fixed.txt= after. The tree: zero product code, the tangle dry-applies clean on it.
+
+The probe (=base/systems/runtime/tests/filedrop.probe.js=) is the FIRST run of the cast on the real =userspace= beat (=scenarios/activity.js=: real lighthouse, two users, real mikro) and the real =HARNESS= with a scripted provider. RUN, holds: upload answers the File stamped with its user, linked to the thread · a paste of the same bytes and path = the same File · a stranger's thread 404 · =..%2F..= 500 =leaves <root>= · a streamed turn hands the provider =image= + its =file= key, the caller drains =/turn/full= with ={ type: "file", file }=, both turns stored as references, the model's File =files/image.d9affaea.png= linked to the thread · the render arm the same · another thread's File = =NotFoundError=. =ctx.runtime= reaches the harness only by =carrying= (=lifecycle/2-resolution.js:48=); the probe repeats that act.
+
+Five winces, each fixed IN the fences above, effect run before · after:
+| # | hunk | before, RUN | trigger · twin | after, RUN |
+|---|---|---|---|---|
+| 1 | =shard.datamap.files=, its root =use= of the serializer | =graft= copies carry (=prototypes/vector.js:74=): every =/userspace/entities/file= route was serialized, a =findOne= of nothing 500 =reading '__helper'= | 15 · codestyle /"=use= PUSHES"/ | the two effects serialize their own answer; =findOne= answers =null= |
+| 2 | =FileRepository.upload= on =ensure= | two finds; =ensure= ASSIGNS the query: a stranger uploading the bytes and path of a File with no user became its user, the File left everyone else's list | 17 · =base/DataEntity.ts:45= | =held ?? create=: one find, the held File untouched, still everyone's |
+| 3 | =paladin.state.land= | a body faulting mid-stream left =.<uuid>.partial= and an open sink | codestyle /"closes what it opened in its OWN finally"/ · =lifecycle/2-resolution.js:11= · =state.remove= (=state.js:43=) | =try= · =finally=: sink closed, the partial gone |
+| 4 | =upload.js=, =ctx.client.app === null= | the arm S4 killed in the turn command, alive one file over; =narrow= reads the app itself (=terminal/repl.js:94=) | absence · this =never= | cut; the traverse returned straight |
+| 5 | =File.mode= nullable | mikro unsets a nullable inverse on remove (=UnitOfWork.js:413=): a removed Mode's loaded Files SURVIVED mode-less (=tests/entities/view.test.js:149= red), into the runtime's set by Q17 | twin =Mode.ts:87= (=views=) | =Mode.files= wears =cascade: [Cascade.REMOVE]= · =orphanRemoval= (MINE, typology, unruled); the test green |
+
+Census, ten suites, =rig= beside =base= (=methods/census-suites.sh=): typology =ok | 168 passed (735 steps) | 0 failed= both · dapper · stub green both · paladin · drapes · hello-world · hallucinators · memo red EQUAL on both, by name (his wip). NEW on =base=, eight, each a row the quest already owes: runtime =FAILED | 109 passed (706 steps) | 3 failed (4 steps)= — =harness.metadata.snapshot.test.js= (the pinned strip; =SNAPSHOT_HOT=1=) · =runtime/beats.coverage.test.js:96= · =runtime/hello.test.js:114= (401, milestone 7's login) — ghost +5: =entities/file/file.test.js:32= · =subjects/client/client.test.js:87= (401) · =client.test.js:62= · =entities/mode/traits/looping.test.js:120= (a client with no app sends a turn; the looping rig UNLISTED before this pass) · =terminal/commands.test.js:446= (=/detach=).
+
+OPEN, his: a REFUSED upload leaves its bytes — =land= runs before =upload= checks the holder; the stranger's 404 left =files/x.42eb69ec.png= with no File. Not fixable inside a hunk: removing would be a disk act in typology and could take bytes another File names. Lean: the holders are found BEFORE the land. LOCKED 11-21 Q23 (/"a but no dedicated holders method. stupid. just get teh two enttieis"/): the route fetches thread · buffer itself, then lands; the shard is handed =entities= (its one mount, =3-integration.js:79=); =upload= keeps its signature and takes the found entity where it took the id (the other three callers untouched). RUN on a copy (=scratchpad/q0.py= · =probe.A2.txt=, the kept probe): the stranger's 404 the same, the disk holds =files/pictures/cat.42eb69ec.png= alone, paste = same File, the thread holds its File. UNCAST, unlanded. REJECTED there: a =FileRepository.holders= method.
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shard/datamap.js:279
+-export function files(repository, land) {
++export function files(entities, land) {
+…
+-    const file = await repository.upload({
++    const { flags } = ctx.signal;
++    const thread = flags.thread ? await entities.thread.findOneOrFail({ id: flags.thread }) : undefined;
++    const buffer = flags.buffer ? await entities.buffer.findOneOrFail({ id: flags.buffer }) : undefined;
++    const file = await entities.file.upload({
+       ...(await land(ctx, dropped, ctx.request.raw.body)),
+       user: ctx.user.id,
+-      thread: ctx.signal.flags.thread,
+-      buffer: ctx.signal.flags.buffer,
++      thread,
++      buffer,
+     });
+…
+-    const file = await repository.upload({
++    const thread = input.thread ? await entities.thread.findOneOrFail({ id: input.thread }) : undefined;
++    const buffer = input.buffer ? await entities.buffer.findOneOrFail({ id: input.buffer }) : undefined;
++    const file = await entities.file.upload({
+       ...(await land(ctx, dropped, new Blob([decodeBase64(input.data)]).stream())),
+       user: ctx.user.id,
+-      thread: input.thread,
+-      buffer: input.buffer,
++      thread,
++      buffer,
+     });
+// systems/runtime/subjects/runtime/lifecycle/3-integration.js:79
+-    shard.datamap.files(entities.file, (ctx, dropped, body) =>
++    shard.datamap.files(entities, (ctx, dropped, body) =>
+#+END_SRC
+Q24 (11-21, the client =url= token): his /"a"/ = the token rides the url (=signer.js:49= already reads =?token==). FOUND AGAINST IT while building on the copy (=scratchpad/q1.py=, 9 swaps, suites UNRUN): three SERVER sites mint =/attached/file/<id>= addresses and hand them to views as data, no client token reaches them: =commons/fixtures/memo/mode/deal.js:11= · =~/.viva/registry/vcompany/modes/office/files.js:16= · =~/.viva/registry/media/modes/editor/media/files.js:19=; also two anima sites the first grep missed (=painters.jsx:28= · =:75=) and =systems/runtime/tests/runtime/hello.test.js:104= pins /"answers with no token"/. Re-asked as Q24A, LOCKED 11-21 /"a"/ = A1: the token rides the address, a mode hands a File id, never an address. Built + run on the copy, connoisseur'd on his /"there are better way to do this on the clietn"/ (=Object.defineProperty= in a hydration REJECTED → =$url= store + plain getter; =new URL= + =searchParams= → =Url.with=), /"amen"/ on that show, the client runtime's =attached(path)= kept (6 readers). The hunks: =** milestone 8=. The two registry modes READ 11-21, undrawn: media — ONE server site (=media/modes/editor/media/aperture/index.js:23=, the asset + =peaks= · =proxy= · thumb =frames=) and one view funnel (=buffer/Media.svelte:28=) + =Bin.svelte:66= · =:109= · =Inspector.svelte:109=; vcompany — =email/aperture/index.js:46= (attachments) · =vdex/aperture/index.js:19= → =Outline.svelte:84= · =Reader.svelte:101=, and a TOOL that writes the address into the model's message (=vdex/tools/index.js:68=): an id is no address there: Q25 LOCKED /"a"/, the address leaves the message. Drawn: =** milestone 8, the registry half=.
+Also met: a line posted to =/terminal/:terminal/repl= (LOOPING) sends and empties the dock's waiting uploads like a typed one.
+
+* milestones
+
+CAST 11-21 (=** the cast= · =** milestone N= under =* as code=): 1 · 2 · 4 · 5 · 6 · 7 as exact diffs, REPLAYED on tree copies by =apply-diffs.py= (47 hunks landed · 0 missed · 20 files byte-equal to the builder's, =cast/replay.sh=); three wirings RUN on the cast files (=cast/wired.js=: =paladin.state.land= inside =state.js= · =shard.datamap.files= loading with =fromm= · the composed =upload.js=). UNCAST by name: 2's daemon + mode upload mounts and the migration · 3 whole · 6's reader (epub lands as =.bin=) · 7's client =url= token · every test. The list below is the 11-21 re-cut, kept: where it says four hands, two move (S6); =/attach= · =/detach= are =/file/upload= · =/upload/trash=.
+
+Re-cut 11-21 by the bird walk (Q9–Q17); each names its probe folder under =scratchpad d6f3ab2f…/=.
+1. a turn carries a file — the two typology rows (S1, =85418c7e…/s1/=).
+2. a file goes up — =File.mode= · =File.daemon= nullable · =Thread.files= · =unique= · =FileRepository.upload= · =paladin.state.land= · =fromm.params(…).URIC= · =shard.datamap.files= grafted on runtime · daemon · mode (=d2/= · =d5/=); the migration on his db copy RE-RUN (two new columns' rebuild).
+3. owners list their files — client =mode.$files= · =daemon.$files= · =runtime.$files= + getters, client File =daemon=, the 11 registry rows (=d7/=).
+4. I drop a picture on the dock — client =upload= · =paste= on its File repository, client =Thread.$files=, drop · =/attach= · =/detach= on both clients, the sent turn carries the references. UNDRAWN.
+5. the model sees my picture, its picture lands on its turn — =filing= on =/dialogue= (=d3/=); the stream arm UNDRAWN.
+6. the old hands ride it — =filesink= · =generative= · reader · darkroom onto =land= + =upload=; darkroom · ocr · reader =pdf.js= File → part. UNDRAWN, mechanical.
+7. a file asks for login — the two =/attached= branches and the client's =url=; whose File it is (S3: any id serves today). UNDRAWN past the amen'd narrow check.
+
+* review — 11-20
+
+| S | stop | rides | verdict | his words |
+|---|---|---|---|---|
+| 1 | a turn carries a file as a part | Q2 · Q0A | amen | /"amne"/ |
+| 2 | file up: File ⟷ Thread, =files/<name>.<hash 8>.<ext>=, =/userspace/file/upload/:name= · =/paste= | Q1 · Q1A · Q4A · Q5–Q8 | drilled → Q4A · Q5 · Q6 · Q7 · Q8, amen; =hidden: true= on =File.buffers= · =File.threads= KILLED (his /"zero reader ... TODYA. cause werre just now building fucking upload. stupid."/): both lists stay readable, the route answers =serialize(file, { populate: ["threads:ref", "buffers:ref"] })= = holder IDS (probed, =scratchpad/s2/final.probe.js=) | /"s2 amen"/ |
+| 2′ | 11-21 bird walk S1: file up re-cut, paladin lands · the repository records · three scopes | Q9 · Q10 · Q11 | drilled, amen | /"amen s1"/ |
+| 3a | 11-21 show S1/7: the client's =FileRepository= learns =upload= · =paste= (=systems/ghost/entities/file/repository.js=; probe =scratchpad 8983b50e…/d8/=, RUN on the =d2= rig + a real =Dataspace=), uncast | Q9 · Q10 | amen | /"beautiful!! amen"/ |
+| 3b | 11-21 show S2/7: the repl command =/file/upload= (=systems/ghost/gestalten/commands/content/file.js=, NEW; probe =d10/=), the dock's drop its first caller (READ, no DOM), uncast | Q18 · Q9 | drilled → Q18, amen | /"amen"/ |
+| 3c | 11-21 show S3/7: the dock holds waiting files (=bridge.$uploads= · the drop on =dock.jsx= · strip + send on =textarea.jsx=; probe =scratchpad a8fa2141…/d12/=), uncast | Q19 · Q20 | amen | /"amen"/ |
+| 3d | 11-21 show S4/7: the sent turn carries the references (=systems/ghost/gestalten/commands/content/turn.js:10=; probe =d12/= steps 5–8), uncast; =/detach= cut out of the stop, its own question | Q2 · Q19 · Q20 | amen, the no-surface arm cut · re-cut flat | /"i ssupects thats not needed."/ · /"this could be prettier."/ · /"amen"/ |
+| 3e | 11-21 Q21: the chip's ✕ = =/upload/trash= (probe =d12/trash.js=) | Q21 | amen | /"amen"/ |
+| 3f | 11-21 show S5/7: the stream arm, =landing= beside =filing= (probe =d13/=), uncast | Q12 | amen | /"amen"/ |
+| 3g | 11-21 show S6/7: two old hands onto =land= + =upload= (darkroom · reader; filesink · generative STAY; probe =d14/=), uncast | Q10 · Q4A · law 1 | amen | /"amen"/ |
+| 3h | 11-21 show S7/7: whose File — a =user= filter on File + =lighthouse.bind= on =/attached/file= (probe =d15/=), uncast | the narrow login · Q1A | drilling: the holder walk REFUSED; Q22 asked (a File's own =user= · or only the no-user arm dies), =d15/own.js= RUN: own-user strict hides the mode's freight from everyone, a find naming no user throws; his db: 330 of 331 Files are held by no buffer → drilled → Q22: an optional =user= of the File's own; the holder walk dies | /"simplify. there is always a user. no auth by proxy."/ · /"files have users. must not. optiooooonal."/ |
+| 3i | 11-21 show S7/7 RE-SHOWN: an optional =user= on File, stamped at upload, filtered when set (probe =d16/=), uncast | Q22 · the narrow login | amen | /"amen"/ |
+
+11-21 the show CLOSED: 7 stops · 4 amen (S1 · S3 · S5 · S6) · 3 drilled (S2 → Q18 · S4 → the arm cut + Q21 · S7 → Q22) · 0 skipped; Q20 locked beside S3.
+| 3 | the dock: drop · =/attach= · =/detach= | — | — | |
+| 4 | harness in: reference → bytes before the model | Q0A | — | |
+| 5 | harness out: a model's picture → File → reference, stream too | Q0A | — | |
+| 6 | =/attached= asks for login | amen'd | — | |
+
+* blast table
+
+| change | consumers, grepped | breaks |
+|---|---|---|
+| =/attached/file= · =/view= ask for login | 7 browser tags (drapes =Asset.svelte= ×3 · =Darkroom.jsx= ×3 · =Reader.jsx= ×2 · assembly =StepTab.svelte=) · 2 fetches (=systems/ghost/gestalten/belt/view.js:22= · =:44=) · 6 test files | at land: every one answers 401 until it carries the token |
+| =File.mode= optional | every =file.mode= reader, UNGREPPED | unmeasured |
+| =harness.Request.parts= admits =file= | 4 routes (=harness.js:316-319=) · =harness.snapshot.test.js= · 2 gitignored snapshots | at land: the two snapshots regenerate |
+
+* testing assessment
+
+- COVERAGE GAP: the step has zero tests; the receive route has none; no test holds "an attached service's login answers without a token while =/attached/file/:id= refuses".
+- owed 11-21, the test that goes red FIRST per walk hunk, none written: the files shard (upload · paste same File · a stranger 404 · =..%2F..= refused · one path on three scopes = three Files) as cases in =systems/runtime/tests/datamap.test.js= · =URIC= beside =subsystems/typology/tests/gestalten/fromm.test.js:5= · =filing= round trip + another thread's File refused · the owners' sets (a mode-less File in the runtime's only; one naming two owners once per set) · "an old row =file.mode.daemon= throws on a mode-less File" dies with the 11 edits. Each exists today only as a probe print.
+- owed 11-21 with the show, none written, each only a probe print: =systems/ghost/tests/entities/file/file.test.js= (upload answers a File in the store · a paste of the same bytes and path =toBe= it · a name with =#= =?= keeps its path) · =systems/ghost/tests/subjects/terminal/commands.test.js= (=/file/upload=: a File with ={ thread }= lands on it · a typed path with two flags lands on both · no flag = loose · bare narrows the repl, flags in the draft · bare with no surface answers the sentence) · the limit =d11= found, kept as a test: a client File's =threads= hold the client's Thread OBJECTS (=toBe=), the premise of Q19's option A.
+- owed 11-21 with the closed show, none written, each only a probe print (the test that goes red FIRST): =bridge.$uploads= after a drop holds =file: null= per file, answered holds its File, a refused drop leaves (anima rig, =d12=) · the =*= command with two waiting uploads hands text + two file parts and empties the list, one in flight throws (beside =systems/ghost/tests/subjects/terminal/commands.test.js:591=) · =/upload/trash= named · in flight · unknown · bare (same suite, replacing =:445=) · the stream arm: a =/part/full= picture leaves as a file part, a =/turn/full= swapped, a grown byte part throws (=systems/runtime/tests/=, beside the harness suite; =d13=) · darkroom: the same bytes twice = one File (=commons/editors/darkroom/tests/picture.test.js=; =d14=) · a stamped File absent from a stranger's =find= and 404 by id, a File with no user in everyone's, =record= · =sweep= with no user named (=systems/runtime/tests/datamap.test.js=; =d16=, its =strict.txt= the limit kept).
+- owed 11-21 with the critical pass, the test that goes red FIRST per defect, none written bar one: a =findOne= of nothing on =/userspace/entities/file= answers =null= beside the files shard · a File with no user is still everyone's after a stranger uploads its bytes and path · a refused upload leaves no bytes (red today, his A or B) — cases in =systems/runtime/tests/datamap.test.js= · a body faulting mid-stream leaves no =.partial= (=subsystems/paladin/tests/=, zero =state.land= hits there) · a removed Mode takes its Files: EXISTS, =systems/runtime/tests/entities/view.test.js:149=, it caught the cast. The seam the cast's "wired RUN" skipped: a SECOND route on =/file= and a SECOND user on one File.
+- owed with S1: two expects beside =subsystems/typology/tests/harness.snapshot.test.js:44= (a file part checks true, one without its =file= false).
+- =subsystems/typology/tests/harness.snapshot.test.js= CAPTURES on every run: it rewrote three gitignored snapshots on the live tree under his watcher during the rename's baseline.
+
+* deferred
+
+- from S2 (11-20): =mode= in the upload's query has no owner check · 200 MB cost +107 MB resident (not proven flat) · resume (an offset on upload + an ask call) · 11 registry views throw on a mode-less File (=file.mode.daemon=), before the land · the real =lighthouse.authenticate= never in a probe run · an =input= schematic is unenforced over HTTP (=known-issues.org= =harness-input-unvalidated=): the routes check by hand (=checked=) · the same bytes under two names are two Files.
+- the stream arm of the step (a stream yields packets, not turns) · the =picture= faculty's =images= · the =/call= branch.
+- the file's own name (=cat.png=): OpenRouter falls back to ="document.pdf"= (=commons/hallucinators/openrouter/provider/translate.js:82=); the dock's strip shows =attachment.name=.
+- "is it yours": the thread must hold the file, checked where a client's reference enters (=harness.js:140=); linking a model's returned File to the thread at persist.
+- bytes of a File no thread holds: nobody removes bytes today.
+- a provider refusing one mime inside a kind (=image/heic=): its translator throws; conversion when a case arrives.
+- a translator uploading to its provider's own store, remembered by our File: the =file= key on the handed part is its hook.
+- OpenRouter's picture-out shape on chat completions: not in the docs reached, a LIVE capture before milestone 5.
+- whether any screen loads a view or a file BEFORE sign-in: unmeasured, before milestone 6.
+- the cortex's refusal wording for a reference.
+
+* changelog
+
+- 11-20 /"rewrite to mime. … subagent. full blast change. opus medium"/ — LANDED by the main session from the subagent's asserted script (=scratchpad/mime/rename.py=, dry then wet): 26 files + 2 snapshots, one pass, =:2501= restarted once. 26 suites on the live tree after: all =ok=, 0 failed, equal to the baseline; one forced red on the sandbox (=FAILED | 1 passed (37 steps) | 1 failed (2 steps)=), restored. Stored turns holding ="media"=: 0 (=localhost.viva.db=, 153 turns). Departures, mine, reported: landed on an unclean tree (454 paths his wip) · =testament/prototypes/ocr-corpus= renamed with no suite to run · prod dbs unread · built bundles hold the old schema until rebuilt · the baseline's capture test wrote three snapshots on the live tree.
+- 11-20 mine, reported: Option C first named the daemon's mountpoint (wrong: the runtime's) · a folder =thread_<id>/= coined inside a hunk (his kill) · a login check shown on the whole =/attached= vector before its mounts were read (his /"check"/, refuted by probe) · ={ type: "file" }= carried through four replies unruled · his ecosystem question answered from the tree twice before the docs.
+
+- 11-21 /"cast to quest"/ · /"i eqpepct you to maintain quest in the background"/ — the amen'd hunks cast as =** milestone N= by a builder, replayed: =files 3 · hunks landed 3 · missed 0= · =files 6 · hunks landed 15 · missed 0= · =files 9 · hunks landed 15 · missed 0= · =files 1 · hunks landed 3 · missed 0= · =files 1 · hunks landed 4 · missed 0= · =files 3 · hunks landed 7 · missed 0=. Departures, mine, reported: reader held out (=mime.extension("application/epub+zip")= = ="bin"=, RUN) · =upload.js= · =export const upload= minted unruled · the menu rows keep the label =attach=, only their signal moves · darkroom's orphaned imports (=join= · =crypto= · =mime=) cut with the hunk.
+- 11-21 mine, reported: a no-surface arm minted for a case only a test rig has (his /"i ssupects thats not needed."/) · a File's user first walked through its thread · buffer (/"no auth by proxy"/) · three snapshot fences reduced or typed (three keys · paths only · stamps from memory) · a census's stderr silenced, its =no tests · bak= false · one scripted replace inside a scratch file by heredoc · milestone 6's "four hands" refuted by the census (two).
+
+- 11-21 /"work through tangle and test"/ — connoisseur — 5 hunks tightened (=* critical pass=); the cast run end to end on the real =userspace= beat and =HARNESS=; census rig beside base. Mine, reported: the cast's "three wirings RUN" never met a second route on =/file= nor a second user on one File · =Mode.files= re-cut unasked.
+- 11-21 /"ok. land"/ — LANDED (=* handoff=). Departures, mine: the =/attached= hunk held out of a =land= · the latent =file.mode.daemon= break unsaid before the write · the six unfold rows printed after the pass · 25 reads under one line.
+
+* release
+
+- renamed =Part.Image= · =Part.Audio= · =Part.Video= · =Part.Document= key =media= → =mime= — a part's mime type reads =part.mime= · migrate: every stored or hand-built part (=Turn.parts= holding ="media"=: 0 on localhost, prod unread) ⟨file-drop⟩
+
+* handoff
+
+- goal: a file dropped on the dock is stored, linked to its thread, referenced on the turn; the harness hands the model its bytes and files what the model returns; a mode author writes nothing.
+- done: the rename, LANDED and green. S1 · S2 amen'd as probed hunks (S1: =scratchpad/s1/=; S2: =scratchpad/s2/= — =apply.py= the entity hunks · =migrate.probe.js= his db copied · =file.js= + =file.probe.js= the two routes, CURRENT truth; =both= · =final= · =plain= · =receive= probes are its history). Zero product code of this quest on the tree.
+- next (11-21, after the bird walk: 3 stops amen'd, Q9–Q17): the walk's hunks are PROBED, uncast; his =cast to quest= puts =d2 · d3 · d5 · d7= under =** milestone N= as exact diffs. Then milestone 4 (the dock) is the first undrawn thing he will SEE. The fork on the stored part is CLOSED without a question: Q2's ={ type: "file", file }= holds, a File's mime gives the kind back and a text File keeps its =file= key (Q12).
+- next (11-21, the show of the two undrawn rows, seven stops, =* review= 3a · 3b): S3 "the dock holds waiting files" is RULED (Q19: a list beside the draft, the drop awaited, send disabled while in flight) and UNMINTED: its stop owes the in-flight state drawn and probed (pending → resolved → sent), the store's name through skill =name=, the strip (=textarea.jsx:223=) and the send button (=:281=) on it, =turn.js:11= reading it. Then S4 the sent turn carries references · =/detach='s new name · S5 the stream arm · S6 the old hands · S7 whose File on =/attached= (S5–S7 UNCENSUSED). His =cast to quest= puts =d8 · d10= beside =d2 · d3 · d5 · d7=.
+- next (11-21, after the cast): the tangle is =** milestone 1 · 2 · 4 · 5 · 6 · 7=, generated by =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/a8fa2141-03a4-4a4f-b7a6-c946ae7f2d4c/scratchpad/cast/build.py= (asserted replaces of tree copies; gone at a reboot, the blocks in the quest are the truth) and replayed by =cast/replay.sh=. Before his =land=: the critical pass per hunk (skill =change=) · the suites on a sandbox (none run on the cast) · the UNCAST rows drawn: the daemon mount (=systems/runtime/subjects/daemon/lifecycle/3-integration.js:22=) and mode mount (=subjects/mode/lifecycle/1-population.js:44=) of =shard.datamap.files= · the migration (mikro's, two columns + =thread_files=) on his db copy · milestone 3 (owners' =$files=, the 11 registry rows) · reader, after an =epub= entry in =subsystems/typology/schematics/scalars/mime.js= (his ruling) · the client File =url= carrying the token. Dies at the land, tests: =systems/ghost/tests/subjects/terminal/commands.test.js:445= (=/detach=) · =systems/ghost/tests/subjects/client/client.test.js:61= · =:71= (a client with no app sends a turn). Left as is: =subsystems/drapes/Atts.jsx:8= title still says =/detach= (design markup + its oracle =tests/parts/journal.test.js:30=). His open rulings: the file + export name =upload.js= · =upload= · who else stamps =File.user= · the File → part table's home.
+- next (11-21, later session): Q20 locked (=bridge.$uploads=); S3/7 amen'd (=* review= 3c); S4/7 amen'd re-cut (3d, the no-surface arm cut); Q21 locked (=/upload/trash=); S5 · S6 amen'd (3f · 3g; S6: TWO hands move, filesink · generative stay); S7/7 drilled → Q22 (an optional =user= on File), re-shown from =d16/=, amen'd (3i): the show is CLOSED, every hunk PROBED + copied under =* as code= (=d12= S3 · S4 · Q21, =d13= S5, =d14= S6, =d16= S7), all UNCAST, the scratchpad =a8fa2141…= gone at a reboot. UNPLACED: the File → part readers' table home (darkroom · ocr · reader onto =HANDED=) · the client's =url= carrying the token · his =cast to quest=. Open, mine: the home + export name of the two commands (=content/file.js= · =export const file= breaks this =never=; =detach.js= · =detach= outlived its word): lean ONE =content/upload.js= exporting =upload=, unasked yet.
+- SUPERSEDED next (11-20): S2's file gets its NAME and HOME first — =file= is KILLED as a file · export name (an entity kind); codestyle's layout says =systems/runtime/subjects/runtime/apertures/<name>.js= + its =index.js= (twin =subjects/lighthouse/apertures/users.js=; =attachment.js= at the subject root is the older shape): skill =name= LOADED, candidates shown, his pick. Then S3/6 (the dock, both clients, unbuilt) … S6, one per turn, each minted from a probe on a copy. S4 owes the step re-cut onto the harness (Turn entities) and RUN; S6's code waits for his =go=.
+- LANDED 11-21 (his /"ok. land"/ on the critical pass's report; =Mode.files= cascade rode it): 21 files changed · =upload.js= born · =detach.js= gone, copied in ONE pass from a staged copy after every tree file still equalled the copy the pass ran on. MEASURED after: =:2501= restarted (pid 43686), =/beacon/status= 200, =POST /userspace/entities/file/paste= 404 → 401; his db migrated by the boot (=Migration20261121012746= in =~/.viva/instances/localhost/mountpoint/migrations/=): File 331 → 331, all keep their mode, columns =user · mode · daemon_slug=, =thread_files= born, 0 broken foreign keys. Backup BEFORE: =~/.viva/bak/instances/localhost-20261121/= (db + migrations). HELD, mine, said before the write: milestone 7's two =/attached= rows (=3-integration.js=): the client fetches =/attached/file= · =/attached/view= with no token (=systems/ghost/gestalten/belt/view.js:22= · =:44= · =entities/file/hydration.js:5=), landed they 401 every view and picture; they land WITH the client =url= token. UNSAID before the write, mine: =:177='s BREAKS row is LATENT on the tree now: his 331 Files all have a mode; the FIRST dropped file or model-made picture is mode-less and the registry views reading =file.mode.daemon= throw (milestone 3 uncast). UNRUN after the land: any suite on the tree (the census ran on the copy WITH the held rows); no drop on a DOM yet; expected red on the tree, four: =harness.metadata.snapshot.test.js= (=SNAPSHOT_HOT=1=) · =commands.test.js:446= (=/detach=) · =client.test.js:62= · =looping.test.js:120= (rigs with no app).
+- LANDED 11-21, milestone 8 both halves (his /"amen. land"/): 17 tree files + memo's snapshots + 10 files in =~/.viva/registry= (media · vcompany; backup =~/.viva/bak/registry/file-drop-20261121/=), ONE pass from the copies, after: only my 3 test files had moved on the tree, the registry equalled its pristine copy, no shelf copy of these modes under =~/.viva/instances=, his =localhost= instance names none of media · vcompany · memo. MEASURED after: tree == copy, registry == copy; =:2501= restarted (pid 17409), =/beacon/status= 200, bare =/attached/file/x= · =/attached/view/x= → =401 MISSING_TOKEN=, =:1794= 200. The land's four reds fixed before it (strip snapshot · =/upload/trash= case · two rigs seat an app around the bare line). UNRUN after: any suite on the tree itself (they ran on the copy the bytes came from); a request WITH a token on his =:2501= (his secret); any view on a DOM.
+- SUNSET 11-21 on his word, open tails BY NAME: milestone 3 → =known-issues.org= =registry-views-throw-on-a-mode-less-file= · a File not yet in the client's store throws at =.url= in =Memo.svelte= · =Media.svelte= · =Vdex.svelte= (window unmeasured) · a view drawing a File after logout: =authority= null throws inside =$url= · the registry views read the store with =.get()=, no re-draw when a File arrives · =media/…/tests/aperture.test.js= rewritten, never ran (its suite is red on the base) · reader (epub lands =.bin=) · the daemon + mode mounts of =shard.datamap.files= · tests owed (=* testing assessment=) · =* deferred= whole · prod =Turn.parts= read for ="media"= before a deploy · his first drop on the dock.
+- next: his first drop on the dock (anima, =:1794=) · his A or B on a refused upload's bytes (=* critical pass=, OPEN; lean: holders found before the land) · milestone 3 BEFORE he drops in a registry view's sight · the client =url= token, then the held =/attached= rows · the uncast rows as before. The pass's probe and its print are KEPT: =.ikiro/reference/file-drop/filedrop-11-21.probe.js= · =filedrop-11-21.txt=.
+- never: =ensure= inside =upload= (it assigns onto the held File) · a root =use= on a shard that is grafted beside another · a File's user borrowed from its thread · buffer (Q22) ·=/detach= (Q21) · the surface arm =ctx.client.app !== null= in the turn command (S4) · filesink · generative onto =land= (S6) · =/attach= as a command name · a command that implies the terminal's thread (Q18) · a disk write in typology (Q10) · a shared fn for the owners' sets, they sit inline (Q14) · =of(ctx)= on the files shard · a dedicated =/userspace/file= branch (Q9 reversed Q6) · the two-call ticket and its =Map= (Q7) · a full hash or a bare =<sha256>= in the path (Q4A) · an overwrite dialog · =hidden: true= on =File.buffers= · =File.threads= · a file or Vector named =file= · a tree path on a fence for a fn that lives in a probe · a step on the cortex · =Cortex.hallucinator= public (Q0A) · =thread_<id>/= folders (his kill) · =File.thread= as m:1 (Q1A) · an upload through the harness or on a mode · =FILESINK= re-cut · a login check on the whole =/attached= vector · =media= on a part · bytes stored inline on a turn.
+- owed: =* deferred= whole · prod =Turn.parts= read for ="media"= before a deploy · the testament port unproven · the six =/attached= test files · his restart-free check of pictures after milestone 6.
+- scratchpad, gone at a reboot (the hunks above are copied from it): =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/85418c7e-aa4e-4d9b-ade2-e1053a61beb3/scratchpad/= — =q0/= (typology copy with the cortex shape, =filing.js=, =run.js=) · =s1/= (typology copy with S1's two rows, =run.js=) · =mime/= (the rename's script, sandbox tree, logs) · =attached-reach.probe.js= · =late-use.probe.js=.

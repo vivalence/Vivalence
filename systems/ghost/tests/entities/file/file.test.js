@@ -9,9 +9,10 @@ specimen.describe("the client's File rows — every row at boot, each url servin
   specimen.beforeAll(async () => {
     world = await hello.boot({ recipe: hello.DEMO, prefix: "viva-file-" });
     paladin.assign(world.env, "flag");
-    const instance = await factories.instance(lifecycle.paladin.instance(paladin));
+    lifecycle.paladin.instance(paladin);
+    const instance = await factories.instance(paladin);
     await paladin.ledger.registry.supply();
-    const mask = instance.mask("ghost");
+    const mask = instance.client("ghost");
     clientDie = await ghost.client.factory({ controller: new Controller({ stdout: new Span("ghost") }), mask, register: await paladin.ledger.registry.wire(mask), instance });
   });
   specimen.afterAll(async () => {
@@ -23,9 +24,10 @@ specimen.describe("the client's File rows — every row at boot, each url servin
   specimen.it("a row carries /attached/file/:id and the client's own Mode, its Daemon beside; the bytes there are the row's, by length and integrity; every row carries a path", async () => {
     await belt.atom.until(clientDie.runtime.entities.file.$entities, (files) => files.length > 0, AbortSignal.timeout(30000));
     const [row] = clientDie.runtime.entities.file.$entities.get();
-    specimen.expect(row.url).toMatch(/\/attached\/file\/[0-9a-f-]+$/);
+    specimen.expect(row.url).toMatch(/\/attached\/file\/[0-9a-f-]+\?token=[\w.-]+$/);
     specimen.expect(clientDie.runtime.entities.mode.$entities.get()).toContain(row.mode);
     specimen.expect(clientDie.runtime.entities.daemon.$entities.get()).toContain(row.mode.daemon);
+    specimen.expect(Object.keys(row.toJSON()).filter((key) => key.endsWith("url"))).toEqual([]);
     const response = await fetch(row.url);
     const bytes = new Uint8Array(await response.arrayBuffer());
     specimen.expect(response.status).toBe(200);

@@ -39,7 +39,7 @@ export const standing = (ctx) => {
       traits: mode.manifest.traits ?? [],
       routes: routes(shape.strip(mode.aperture)),
     })),
-    faults: paladin.instance.faults,
+    faults: paladin.instance.paladin.faults,
   };
 };
 
@@ -103,10 +103,10 @@ export const report = async (ctx) => {
       // shape.cortex.strip reads cortex.faculties, so `?? []` hands it an array with no
       // .faculties and throws — the fallback WAS the crash. A cortexless daemon reports none.
       cortex: ctx.cortex ? cortex.strip(ctx.cortex) : [],
-      dormant: paladin.instance.dormant.map(({ at, module }) => ({
+      dormant: paladin.instance.paladin.dormant.map(({ at, module }) => ({
         at,
         module,
-        secrets: paladin.instance.requirements
+        secrets: paladin.instance.paladin.requirements
           .filter((held) => held.at.startsWith(`${at}.`))
           .flatMap(({ at: slot, read, unset }) =>
             read.map((key) => ({
@@ -116,7 +116,7 @@ export const report = async (ctx) => {
             }))
           ),
       })),
-      faults: paladin.instance.faults,
+      faults: paladin.instance.paladin.faults,
     },
 
     ledger: {
@@ -133,7 +133,7 @@ export const report = async (ctx) => {
         slug: held.manifest?.slug,
         traits: held.manifest?.traits ?? [],
       })),
-      requirements: paladin.instance.requirements.flatMap((
+      requirements: paladin.instance.paladin.requirements.flatMap((
         { at, read, unset },
       ) => read.map((key) => ({ at, key, unset: unset.includes(key) }))),
       environment: variables(),

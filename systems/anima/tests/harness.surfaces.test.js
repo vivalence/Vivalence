@@ -1,4 +1,3 @@
-import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { atom } from "nanostores";
 import { Cortex, soma, specimen, Vector } from "@vivalence/typology";
 import { mountMode } from "@vivalence/runtime/scenarios";
@@ -20,7 +19,7 @@ let scenario;
 const MOUNT = "/mode/chaosmonkey/oracle";
 
 specimen.beforeAll(async () => {
-  scenario = await mountMode(oracle, { cortex: new Cortex(TIER_POINTS).register([seer()]) });
+  scenario = await mountMode(oracle, { cortex: new Cortex().register([seer()]) });
 });
 specimen.afterAll(async () => {
   await scenario.orm.close();
@@ -33,17 +32,17 @@ const worlded = async (TOOLED, expand, turns = []) => {
     slug: "oracle",
     name: "oracle",
     version: "0.0.1",
-    traits: ["HARNESSED"],
+    traits: ["HARNESS"],
     daemon: null,
     reference: { absolute: metadata.home },
-    implements: (trait) => trait === "HARNESSED",
+    implements: (trait) => trait === "HARNESS",
     metadata: { harness: metadata },
     repl: scenario.mode.aperture,
     keymap: scenario.mode.aperture,
   };
   const thread = { id: "th1", word: "first words", mode, traits: ["HARNESSED"], trait: { HARNESSED: { tier: "fast", effort: "low", rounds: 6, slugging: "deep" }, TOOLED, PRIMED: {} } };
   const runtime = {
-    cortex: new Cortex(TIER_POINTS).register([seer()]),
+    cortex: new Cortex().register([seer()]),
     status: { code: "HEALTHY" },
     reference: { absolute: "/runtime/stub" },
     lighthouse: { isAuthorized: true, status: { code: "VERIFIED" }, user: { slug: "beef" } },

@@ -52,6 +52,33 @@ specimen.describe("Lighthouse", () => {
         await open.close();
       }
     });
+
+    specimen.it("AUTOSIGNUP enters under the typed name: minted on first entry, the same user after, a name holding a password refused", async () => {
+      const open = await lighthouse.create({ traits: ["AUTOSIGNUP", "JOINABLE"] });
+      try {
+        const entered = await open.conn.call("/lighthouse/autosignup", { username: "beef" });
+        specimen.expect(entered.status).toBe("SUCCESS");
+        specimen.expect(entered.user.slug).toBe("beef");
+        const verified = await open.conn.call("/lighthouse/verify", { access: entered.authority.access });
+        specimen.expect(verified.user.id).toBe(entered.user.id);
+        const again = await open.conn.call("/lighthouse/autosignup", { username: "beef" });
+        specimen.expect(again.user.id).toBe(entered.user.id);
+        await specimen.expect(open.conn.call("/lighthouse/login", { username: "beef", password: "anything-at-all" })).rejects.toThrow();
+        await open.conn.call("/lighthouse/signup", { username: "finn", password: "biggusdickus" });
+        await specimen.expect(open.conn.call("/lighthouse/autosignup", { username: "finn" })).rejects.toThrow();
+      } finally {
+        await open.close();
+      }
+    });
+
+    specimen.it("a lighthouse without AUTOSIGNUP grafts no /autosignup", async () => {
+      const closed = await lighthouse.create({ traits: ["JOINABLE"] });
+      try {
+        await specimen.expect(closed.conn.call("/lighthouse/autosignup", { username: "stranger" })).rejects.toThrow();
+      } finally {
+        await closed.close();
+      }
+    });
   });
 
   specimen.describe("auth", () => {

@@ -1,7 +1,0 @@
-export { default as Skin } from "./Skin.svelte"
-export { default as Tree } from "./Tree.svelte"
-export { default as Table } from "./Table.svelte"
-export { default as List } from "./List.svelte"
-export { default as Filter } from "./Filter.svelte"
-export { default as Palette } from "./Palette.svelte"
-export { default as Breadcrumb } from "./Breadcrumb.svelte"

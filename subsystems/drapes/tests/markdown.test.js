@@ -1,5 +1,5 @@
 import { specimen } from "@vivalence/typology";
-import { parseBlocks, parseInline } from "../display/markdown.js";
+import { parseBlocks, parseInline } from "../svelte/display/markdown.js";
 
 specimen.describe("markdown — parser", () => {
   specimen.it("inline: bold, italic, code, link", () => {

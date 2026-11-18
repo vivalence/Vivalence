@@ -1,4 +1,4 @@
-import { specimen, Vector, shape } from "@vivalence/typology";
+import { specimen, Vector, shape, Twitch } from "@vivalence/typology";
 import { RequestContext } from "@mikro-orm/core";
 import { atom } from "nanostores";
 import { VirtualRepository } from "@vivalence/runtime";
@@ -90,7 +90,7 @@ specimen.describe("VirtualRepository — the storage is the repository the conte
 specimen.describe("VirtualRepository — events through mikro's EventManager", () => {
   let twitch, seen;
   specimen.beforeAll(() => {
-    twitch = new Vector(); seen = [];
+    twitch = new Twitch(); seen = [];
     for (const op of ["create", "update", "delete"]) twitch.open(`/after/probe/${op}`, (ctx) => { seen.push([op, ctx.input.entity.id]); });
     world.datamap.registerSubscriber(twitch);
   });

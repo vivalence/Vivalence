@@ -1,13 +1,14 @@
 import { createSignal, For, Show } from "solid-js";
+import { parts } from "@vivalence/dapper";
 import { Caret } from "./Caret.jsx";
 import { Drill } from "./Drill.jsx";
 
 export const STATUS = {
-  run: { glyph: "◐", tone: "pri", duration: () => "…" },
-  ok: { glyph: "✓", tone: "pos", duration: (tool) => tool.dur },
-  wait: { glyph: "?", tone: "cau", duration: () => "waiting" },
-  skip: { glyph: "–", tone: "muted", duration: (tool) => tool.dur },
-  err: { glyph: "✕", tone: "neg", duration: (tool) => tool.dur },
+  run: { glyph: parts.turn.CALLS.run, tone: "pri", duration: () => "…" },
+  ok: { glyph: parts.turn.CALLS.ok, tone: "pos", duration: (tool) => tool.dur },
+  wait: { glyph: parts.turn.CALLS.wait, tone: "cau", duration: () => "waiting" },
+  skip: { glyph: parts.turn.CALLS.skip, tone: "muted", duration: (tool) => tool.dur },
+  err: { glyph: parts.turn.CALLS.err, tone: "neg", duration: (tool) => tool.dur },
 };
 
 const status = (name) => {

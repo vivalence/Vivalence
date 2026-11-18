@@ -58,6 +58,7 @@ All four BUILT in a sandbox 11-18, not landed: the row schema · the translators
 
 * handoff
 
+- OWNER 11-19: =m126-facutly-unfolding.org= =* owns= holds R6 and =* deferred=; its Q6 ends both (tiers live in code, no table in a recipe)
 - goal: the outside controls models · voices · tunes; a provider only translates
 - done: census 11-17 · R1–R8
 - next: his look (anima reloaded: five tiers, the model list) · =vcompany= (=education= · =chess= =master= pushed 11-18)

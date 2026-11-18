@@ -1,5 +1,4 @@
 import { v } from "../v.js";
-import { Timestamp } from "../scalars/index.js";
 
 export { Yield, Condition } from "./yield.js";
 export { Bundle } from "./bundle.js";
@@ -14,7 +13,7 @@ export const StatusCode = v.union([
 ]);
 
 export const Status = v.object({
-  timestamp: Timestamp,
+  timestamp: v.instant(),
   code: v.string().optional(),
 });
 

@@ -33,7 +33,7 @@ function captureDefault(cortex) {
 
 let scenario;
 
-specimen.describe("cortex integration — HARNESSED harness", () => {
+specimen.describe("cortex integration — HARNESS harness", () => {
 
   specimen.beforeAll(async () => {
     scenario = await create();

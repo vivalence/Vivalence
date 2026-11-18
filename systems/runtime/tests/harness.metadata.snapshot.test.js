@@ -1,4 +1,3 @@
-import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { join } from "@std/path";
 import { Cortex, specimen } from "@vivalence/typology";
 import { mountMode } from "@vivalence/runtime/scenarios";
@@ -12,7 +11,7 @@ const MOUNT = "/mode/chaosmonkey/oracle";
 let scenario;
 
 specimen.beforeAll(async () => {
-  scenario = await mountMode(oracle, { cortex: new Cortex(TIER_POINTS) });
+  scenario = await mountMode(oracle, { cortex: new Cortex() });
 });
 specimen.afterAll(async () => {
   await scenario.orm.close();
@@ -32,7 +31,7 @@ specimen.describe("harness — /metadata/harness is the strip a client wires: re
 specimen.describe("harness — /metadata/harness/primer/* reads one primer section as the model reads it", () => {
   let held;
   specimen.beforeAll(async () => {
-    held = await mountMode(root, { cortex: new Cortex(TIER_POINTS) });
+    held = await mountMode(root, { cortex: new Cortex() });
   });
   specimen.afterAll(async () => {
     await held.orm.close();

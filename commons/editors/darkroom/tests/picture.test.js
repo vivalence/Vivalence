@@ -1,4 +1,3 @@
-import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { decodeBase64 } from "@std/encoding/base64";
 import { Cortex, Path, specimen, v } from "@vivalence/typology";
 import { mountMode } from "@vivalence/runtime/scenarios";
@@ -14,14 +13,14 @@ const painter = () => ({
   via: {
     render: async (request) => {
       seen.push(request);
-      return { images: [{ type: "image", media: "image/png", data: PNG }] };
+      return { images: [{ type: "image", mime: "image/png", data: PNG }] };
     },
   },
 });
 
 let scenario;
 specimen.beforeAll(async () => {
-  scenario = await mountMode(darkroom, { cortex: new Cortex(TIER_POINTS).register([painter()]) });
+  scenario = await mountMode(darkroom, { cortex: new Cortex().register([painter()]) });
   scenario.mode.mountpoint = new Path(await Deno.makeTempDir({ prefix: "darkroom-" }));
 });
 specimen.afterAll(async () => {
@@ -30,7 +29,7 @@ specimen.afterAll(async () => {
 
 specimen.describe("darkroom — the runtime harness leaf /picture/render, called straight", () => {
   specimen.it("the mode declares one Solid dom view and four traits", () => {
-    specimen.expect(darkroom.manifest.traits).toEqual(["VIEWABLE", "HARNESSED", "CONVERSATIONAL", "EXPOSED"]);
+    specimen.expect(darkroom.manifest.traits).toEqual(["VIEWABLE", "HARNESS", "CONVERSATION", "EXPOSED"]);
     specimen.expect(darkroom.views.map((view) => [view.slug, view.mount])).toEqual([["darkroom", "buffer/Darkroom.jsx"]]);
   });
 
@@ -42,11 +41,11 @@ specimen.describe("darkroom — the runtime harness leaf /picture/render, called
       thread: scenario.fixtures.thread.id,
       id: "scripted-picture",
       prompt: "a red fox in loose watercolor",
-      images: [{ image: { type: "image", media: "image/png", data: PNG }, role: "subject" }],
+      images: [{ image: { type: "image", mime: "image/png", data: PNG }, role: "subject" }],
       settings: { aspect: "3:2", count: 1 },
     });
     specimen.expect([...v.primitives.hallucination.Picture.Response.errors(rendered)]).toEqual([]);
-    specimen.expect(rendered.images[0].media).toBe("image/png");
+    specimen.expect(rendered.images[0].mime).toBe("image/png");
     specimen.expect(rendered.id).toBe("scripted-picture");
     specimen.expect(seen[0].prompt).toBe("a red fox in loose watercolor");
     specimen.expect(seen[0].images).toHaveLength(1);
@@ -58,7 +57,7 @@ specimen.describe("darkroom — the runtime harness leaf /picture/render, called
       images: [],
       settings: { aspect: "3:2", count: 1 },
     });
-    specimen.expect(wired.images[0].media).toBe("image/png");
+    specimen.expect(wired.images[0].mime).toBe("image/png");
     specimen.expect(wired.id).toBe("scripted-picture");
   });
 
@@ -119,7 +118,7 @@ specimen.describe("darkroom — the desk aperture writes the buffer; every pictu
   specimen.it("iterating seeds the shown picture as init, then every reference by role, each read off its File", async () => {
     const iterated = await desk().call("/picture/hallucinate", { buffer: buffer.id });
     specimen.expect(seen.at(-1).images.map((held) => held.role)).toEqual(["init", "style"]);
-    specimen.expect(seen.at(-1).images.map((held) => held.image.media)).toEqual(["image/png", "image/png"]);
+    specimen.expect(seen.at(-1).images.map((held) => held.image.mime)).toEqual(["image/png", "image/png"]);
     specimen.expect(iterated.data.pictures).toHaveLength(2);
     specimen.expect(iterated.data.pictures[1].parent).toBe(painted.files[0].id);
     specimen.expect(iterated.data.pictures[1].references).toEqual([{ file: uploaded.id, role: "style" }]);

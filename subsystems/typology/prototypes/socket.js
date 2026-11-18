@@ -111,7 +111,6 @@ export class Socket {
     let packet;
     try { packet = JSON.parse(event.data); } catch { this.span.log({ drop: "parse" }); return; }
     if (!v.primitives.connection.Packet.check(packet)) {
-      console.warn(`[multiplex] rejected malformed packet`, packet);
       return void this.span.log({ drop: "malformed", packet });
     }
 
@@ -146,13 +145,11 @@ export class Socket {
     let signal;
     try { signal = v.decode(signalCodec(), packet.nature); }
     catch {
-      console.warn(`[multiplex] rejected bad signal "${packet.nature}"`);
       return void this.span.log({ drop: "bad-signal", signal: packet.nature });
     }
     Object.assign(signal, { body: packet.body, ...(packet.flags && { flags: packet.flags }) });
     const [effect, carry, steps] = steer.dispatch.traverse(this.vector, signal);
     if (!effect) {
-      console.warn(`[multiplex] no route for push "${packet.nature}"`);
       return void this.span.log({ drop: "no-route", signal: packet.nature });
     }
 
@@ -178,7 +175,6 @@ export class Socket {
       trace.request({ method: packet.verb ?? "POST", path: signal.pathname });
       const [effect, carry, steps] = steer.dispatch.traverse(this.vector, signal);
       if (!effect) {
-        console.warn(`[multiplex] no route for "${signal.pathname}"`);
         status = 404;
         return this.#send({ frame: id, error: { status, message: `not found ${signal.pathname}` } });
       }
@@ -245,7 +241,6 @@ export class Socket {
       }
       trace.fault(error);
       status = 500;
-      console.error(`[multiplex] "${packet.signal}" failed`, error);
       this.#send({ frame: id, error: { status, message: error.message } });
     } finally {
       this.answers.delete(id);

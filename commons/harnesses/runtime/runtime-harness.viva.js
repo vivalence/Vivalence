@@ -8,7 +8,7 @@ export const manifest = {
   name: "Runtime Harness",
   description: "default runtime harness",
   version: "0.3.0",
-  traits: ["HARNESSED", "TOOLING", "PRIMER"], //, "APPLICATION"],
+  traits: ["HARNESS", "CONVERSATION", "TOOLING", "PRIMER"], //, "APPLICATION"],
 };
 
 const read = (file) => () => paladin.read.text(new URL(file, import.meta.url));
@@ -34,7 +34,7 @@ export const primer = new Vector()
       `machine os ${Deno.build.os} · cwd ${ctx.mountpoint.absolute} · date ${new Date().toLocaleDateString("sv")} ${Intl.DateTimeFormat().resolvedOptions().timeZone}`,
     ].join("\n"))
   .open("daemons", async (ctx) => {
-    const daemons = await ctx.entities.daemon.find({}, { orderBy: { slug: "asc" } });
+    const daemons = Object.values(ctx.runtime.daemons);
     const [terminals, threads] = await Promise.all([ctx.entities.terminal.count({}), ctx.entities.thread.count({})]);
     return csv([
       ["host", "slug", "name", "version", "icon", "description", "consumes", "statics"],
@@ -52,11 +52,8 @@ export const primer = new Vector()
     ]);
   })
   .open("modes", async (ctx) => {
-    const [daemons, modes] = await Promise.all([
-      ctx.entities.daemon.find({}),
-      ctx.entities.mode.find({}, { populate: ["daemon"], orderBy: { daemon: "asc", type: "asc", slug: "asc" } }),
-    ]);
-    const modules = new Map(daemons.map((daemon) => [daemon.slug, daemon.mask.modes ?? []]));
+    const modes = await ctx.entities.mode.find({}, { populate: ["daemon"], orderBy: { daemon: "asc", type: "asc", slug: "asc" } });
+    const modules = new Map(Object.values(ctx.runtime.daemons).map((daemon) => [daemon.slug, daemon.mask.modes.map((mask) => mask.module)]));
     return csv([
       ["host", "path", "module", "name", "traits"],
       ...modes.map((mode) => [

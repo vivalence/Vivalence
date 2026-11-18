@@ -86,7 +86,7 @@ export default function check(config) {
             ? "optional"
             : "REQUIRED";
 
-    for (const entry of instance.requirements ?? []) {
+    for (const entry of instance.paladin.requirements) {
       for (const key of entry.read) {
         seen.add(key);
         const held = schema[key];
@@ -132,7 +132,7 @@ export default function check(config) {
         message: `${row.key} ${row.verdict}${row.at ? ` at ${row.at}` : ""}${row.reason ? ` — ${row.reason}` : ""}`,
       }));
     const named = new Set(environment(held).filter((row) => WRONG.includes(row.verdict)).map((row) => row.at));
-    const faults = (held.faults ?? [])
+    const faults = held.paladin.faults
       .filter((fault) => ![...named].some((at) => at && fault.startsWith(`${at} `)))
       .map((message) => ({ type: "instance", message }));
     return createResult([...faults, ...wrong], "viva instance/doctor");

@@ -1,6 +1,6 @@
 import {
   specimen, sleep, Aperture, Vector, Connection, Url,
-  shard, shape,
+  shard, shape, Twitch,
 } from "@vivalence/typology"
 import { datamap } from "@vivalence/runtime/scenarios"
 import { BufferEntity, ThreadEntity } from "@vivalence/runtime"
@@ -32,7 +32,7 @@ specimen.beforeAll(async () => {
   // reactive can read the owner back off the ORM context on broadcast.
   em.setFilterParams("user", { user: fixtures.user.id })
 
-  const twitch = new Vector()
+  const twitch = new Twitch()
   const aperture = new Aperture()
 
   // no ambient — the reactive reads the owner off the ORM context (the `user` filter param).
@@ -110,7 +110,7 @@ specimen.describe("shard.datamap.reactive — scoped broadcast", () => {
     // The owner rides the `user` filter param on the request context. A write whose context has
     // no owner (it escaped the request scope without `carry`) must fail loud, never drop. Fire the
     // twitch inside a FRESH context that never bound `user` — the reactive can't resolve the owner.
-    const twitchBare = new Vector()
+    const twitchBare = new Twitch()
     shard.datamap.reactive(scenario.repos.buffer, twitchBare, { scope: (ctx) => ({ user: ctx.user.id }) })
     const subscriber = shape.subscriber(twitchBare)
 

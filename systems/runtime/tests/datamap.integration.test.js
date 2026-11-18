@@ -1,6 +1,6 @@
 import {
   specimen, sleep, Aperture, Vector, Connection, Url,
-  shard, shape,
+  shard, shape, Twitch,
 } from "@vivalence/typology"
 import { datamap } from "@vivalence/runtime/scenarios"
 import { RemoteRepository } from "@vivalence/typology/prototypes"
@@ -13,7 +13,7 @@ specimen.beforeAll(async () => {
   scenario = await datamap.seed()
   const { repos, fixtures } = scenario
 
-  const twitch = new Vector()
+  const twitch = new Twitch()
   const aperture = new Aperture()
 
   aperture.branch("/literal")

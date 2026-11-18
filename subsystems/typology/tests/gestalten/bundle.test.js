@@ -18,4 +18,17 @@ specimen.describe("bundle", { sanitizeResources: false, sanitizeOps: false }, ()
     specimen.expect(outputFiles[0].text).toContain("mount");
     specimen.expect(outputFiles[0].path).toBe(entry);
   });
+
+  specimen.it("a view's style id follows its sheet: a changed sheet lands beside the one a page still holds, an unchanged one keeps its id", async () => {
+    const view = join(await Deno.makeTempDir({ prefix: "bundle-sheet-" }), "view.svelte");
+    const nodePaths = [new URL("../../../../node_modules", import.meta.url).pathname];
+    const styled = async (color) => {
+      await Deno.writeTextFile(view, `<p class="said">hello</p>\n\n<style>\n  .said {\n    color: ${color};\n  }\n</style>\n`);
+      const { outputFiles } = await bundle.svelte(view, { prod: false, nodePaths });
+      return /hash: "(svelte-[a-z0-9]+)"/.exec(outputFiles[0].text)[1];
+    };
+    const red = await styled("red");
+    specimen.expect(await styled("blue")).not.toBe(red);
+    specimen.expect(await styled("red")).toBe(red);
+  });
 });

@@ -21,6 +21,6 @@ export const frame = (buffer, views) => views.find((view) => view.slug === buffe
 
 export const cell = (buffer, views) => views.find((view) => view.slug === buffer.trait.RENDERED.cell) ?? views[0];
 
-export const href = (file, attach) => attach.url.branch(`/file/${belt.view.identity(file)}`).absolute;
+export const href = (file, runtime) => runtime.attached(`/file/${belt.view.identity(file)}`);
 
 export const { bytes, load } = belt.view;

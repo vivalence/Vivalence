@@ -1,18 +1,13 @@
 import { createEffect, For } from "solid-js";
-
-export const KEYS = { y: "onApprove", n: "onSkip", e: "onEdit" };
-const ACTS = [
-  ["y", "approve", "onApprove"],
-  ["n", "skip", "onSkip"],
-  ["e", "edit", "onEdit"],
-];
+import { parts } from "@vivalence/dapper";
 
 export const Consent = (props) => {
   const act = (name) => (event) => props[name] && props[name](props.call, event);
   const keydown = (event) => {
-    if (!(event.key in KEYS)) return;
+    const hit = parts.consent.ACTS.find(([key]) => key === event.key);
+    if (hit === undefined) return;
     event.preventDefault();
-    act(KEYS[event.key])(event);
+    act(hit[2])(event);
   };
   let element;
   createEffect(() => {
@@ -33,7 +28,7 @@ export const Consent = (props) => {
         {props.call.name} {props.call.argument}
       </span>
       <span class="keys">
-        <For each={ACTS}>
+        <For each={parts.consent.ACTS}>
           {([key, label, name]) => (
             <button onClick={act(name)}>
               <b>{key}</b>

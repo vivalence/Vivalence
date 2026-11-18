@@ -1,5 +1,5 @@
 import { createEffect, For, from, Show } from "solid-js";
-import * as parts from "@vivalence/drapes/parts";
+import * as parts from "@vivalence/drapes/solid";
 import { belt } from "@vivalence/typology";
 import * as ambient from "../../ambient/index.js";
 import { lookup, named, reference, short } from "../sidebar/sections.js";

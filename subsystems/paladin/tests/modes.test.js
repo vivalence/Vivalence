@@ -33,7 +33,8 @@ const mount = (mod) => {
   ]);
   paladin.find.recipe = (home) => home.branch("instance.viva.json");
   paladin.read.json = async () => JSON.parse(JSON.stringify(mod));
-  return factories.instance(lifecycle.paladin.instance(paladin));
+  lifecycle.paladin.instance(paladin);
+  return factories.instance(paladin);
 };
 
 describe("instance modes identifiers", () => {
@@ -43,9 +44,9 @@ describe("instance modes identifiers", () => {
     expect(daemon.modes[0].module).toBe("@commons/playground/spawner");
     expect(daemon.modes[1].module).toBe("/elsewhere/greeter.viva.js");
     expect(daemon.modes[2].module).toBe("/fixtures/probe/greeter/greeter.viva.js");
-    expect(instance.faults).toEqual([]);
+    expect(instance.paladin.faults).toEqual([]);
     const inline = { ...module, daemons: [{ ...module.daemons[0], modes: [{ manifest: { type: "game", slug: "hello" }, statics: {} }] }] };
-    await expect(mount(inline)).rejects.toThrow("/daemons/0/modes/0");
+    await expect(mount(inline)).rejects.toThrow("daemons.probe.modes.game.hello must be string");
   });
 
   it("every mode has a ground without the recipe saying one: <daemon mountpoint>/mode_<type>_<slug>; an identifier names both, a path names what it can, a declared mountpoint wins", async () => {
@@ -61,7 +62,7 @@ describe("instance modes identifiers", () => {
     expect(daemon.modes[2].mountpoint.absolute).toBe("/mountpoint/daemon_probe/mode_greeter");
     expect(daemon.modes[3].mountpoint.absolute).toBe("/mountpoint/daemon_probe/mode_editor_import");
     expect(daemon.modes[4].mountpoint.absolute).toBe("/Users/op/media");
-    expect(instance.faults).toEqual([]);
+    expect(instance.paladin.faults).toEqual([]);
   });
 
   it("a reference entry { module, mountpoint } names its module — no source is stamped on it, so the module's own file stays the citizen's source", async () => {
@@ -103,7 +104,7 @@ describe("client modes", () => {
       clients: [{ manifest: { type: "client", slug: "ghost", traits: ["HOME"] }, modes: ["@commons/home/console"], trait: { HOME: { reference: "/runtime/probe/mode/home/probe" } } }],
     });
     const [client] = instance.clients;
-    expect(instance.faults).toEqual([]);
+    expect(instance.paladin.faults).toEqual([]);
     expect(client.reference.absolute).toBe("/client/ghost");
     expect(client.mountpoint).toBeUndefined();
     expect(client.modes[0].module).toBe("@commons/home/console");

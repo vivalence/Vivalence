@@ -9,12 +9,15 @@
 # IKIRO_WATCH_LIVE=1|0 overrides the lsof probe (the exercise rig has no runtime).
 # 11-16: anima's vite on :1794 hot-deploys src · drapes · typology · dapper · ghost into his open page; a
 # 12-file inspector rework landed there file by file, unnamed.
+# 11-20: a scratchpad copy (`…/scratchpad/sb/subsystems/drapes/`) matched the vite arm: a sandbox under
+# /private/tmp is the build this guard asks for, never the watched tree.
 input=$(cat)
 path=$(jq -r '.tool_input.file_path // empty' <<<"$input")
 session=$(jq -r '.session_id // "nosession"' <<<"$input")
 log="$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log"
 
 case "$path" in
+  /private/tmp/*|/tmp/*) exit 0 ;;
   */.viva/registry/*) package=${path#*/.viva/registry/}; package="registry/${package%%/*}"; port=2501; watcher="runtime/watch" ;;
   */vivalence/commons/*) package=${path#*/vivalence/commons/}; package="commons/${package%%/*}"; port=2501; watcher="runtime/watch" ;;
   */systems/anima/src/*|*/systems/ghost/*|*/subsystems/drapes/*|*/subsystems/typology/*|*/subsystems/dapper/*)

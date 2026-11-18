@@ -61,4 +61,18 @@ specimen.describe("Span: the cursor", () => {
     specimen.expect(child.history).toEqual(root.history);
     specimen.expect(root.history[0].at).toBeGreaterThanOrEqual(before);
   });
+
+  specimen.it("read as a source it hands its past, then live; a reader leaving untaps", async () => {
+    const span = new Span("runtime");
+    span.log("before the reader");
+    const resting = span.pipe.listeners.size;
+    const said = [];
+    for await (const record of span) {
+      said.push(record.data);
+      if (said.length === 1) span.log("after the reader joined");
+      if (said.length === 2) break;
+    }
+    specimen.expect(said).toEqual(["before the reader", "after the reader joined"]);
+    specimen.expect(span.pipe.listeners.size).toBe(resting);
+  });
 });

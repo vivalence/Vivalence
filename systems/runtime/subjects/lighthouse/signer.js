@@ -18,7 +18,7 @@ export function signer(secret) {
     new jose.SignJWT(payload).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime(expiration).sign(key);
   return {
     access: (user) => sign({ id: user.id, type: "access" }, ACCESS_TTL),
-    refresh: (user) => sign({ id: user.id, type: "refresh" }, REFRESH_TTL),
+    refresh: (user) => sign({ id: user.id, type: "refresh", jti: crypto.randomUUID() }, REFRESH_TTL),
     operator: () => sign({ type: "operator" }, OPERATOR_TTL),
     verify: async (token, type) => {
       const payload = await jose.jwtVerify(token, key).then((result) => result.payload).catch(() => null);
@@ -39,7 +39,7 @@ export async function bearer({ secret, users }, refresh) {
   const payload = await signer(secret).verify(refresh, "refresh");
   if (!payload) return null;
   const user = await users.findOne({ id: payload.id }, { filters: { user: false } });
-  return user?.authentication?.tokens?.refresh === refresh ? user : null;
+  return user?.authentication?.tokens?.sessions?.includes(refresh) ? user : null;
 }
 
 export function authenticate({ secret, users }) {

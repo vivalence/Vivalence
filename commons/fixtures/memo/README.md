@@ -16,11 +16,11 @@ domain/                      @memo/domain/srs — EXPOSED · TOOLING, the daemon
   card.js                    one projection of a literal and its notes, for every deal and both views
   aperture/                  /pick/literal/* · /review/literal · /preview/literal · /history/literal · /suspend/literal · /resume/literal
   tools/                     srs_lookup · srs_sentences · srs_topics · srs_history · srs_leeches · srs_suspend · srs_resume
-  harness.js                 the SRS vocabulary, for every HARNESSED mode on the daemon
+  harness.js                 the SRS vocabulary, for every HARNESS mode on the daemon
 dataset/                     @memo/topography/latin — DATASET · FILESET
   entities/                  219 words, 50 sentences, 242 symbols, authored in words.js · sentences.js · symbols.js
   files/                     10 voices (sentences), 10 pictures (nouns) — placeholders; FILESET records each as a File row
-mode/                        @memo/srs/memo — APPLICATION · EMITTER · EXPOSED · HARNESSED · CONVERSATIONAL · TOOLING
+mode/                        @memo/srs/memo — APPLICATION · EMITTER · EXPOSED · HARNESS · CONVERSATION · TOOLING
   memo.viva.js               the App: the tty view and the tablet, one buffer schema
   aperture.js                /deck · /grade · /stats · /chat
   emitter.js                 /session — deals a deck as a buffer on the thread

@@ -224,6 +224,39 @@ specimen.describe("multiplex", () => {
     const responses = owner.history.filter((record) => record.track === "response").map((record) => [record.path[1], record.data.status]);
     specimen.expect(responses).toEqual([["socket", 200], ["socket", 404]]);
     specimen.expect(owner.history.filter((record) => record.track === "fault")).toEqual([]);
+    const logged = owner.history.filter((record) => record.track === "log").map((record) => [record.path[1], record.data]);
+    specimen.expect(logged).toEqual([["socket", { socket: "upgraded", open: 1 }]]);
+
+    transport.close();
+    await sleep.ms(300);
+  });
+
+  specimen.it("a push the client holds no route for climbs to the span its transmitter was handed", async () => {
+    const { gate } = build();
+    const owner = new Span("client");
+    const said = [];
+    const { warn, error } = console;
+    Object.assign(console, { warn: (...words) => said.push(words), error: (...words) => said.push(words) });
+    const transport = shard.transmitter.multiplex({
+      authority: { get: () => ({ access: "sesame" }) },
+      trace: owner,
+      connect: () => {
+        const { west, east } = stubPair();
+        gate.attend(east);
+        return west;
+      },
+    });
+    try {
+      const connection = new Connection(new Url("http://stub-mux"), transport);
+      specimen.expect(await connection.call("/marco")).toEqual({ ok: true });
+      await sleep.ms(50);
+    } finally {
+      Object.assign(console, { warn, error });
+    }
+
+    const logged = owner.history.filter((record) => record.track === "log").map((record) => [record.path[1], record.data]);
+    specimen.expect(logged).toEqual([["socket", { drop: "no-route", signal: "/polo" }]]);
+    specimen.expect(said).toEqual([]);
 
     transport.close();
     await sleep.ms(300);

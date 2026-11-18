@@ -1,5 +1,5 @@
 import { For, from, Show } from "solid-js";
-import * as parts from "@vivalence/drapes/parts";
+import * as parts from "@vivalence/drapes/solid";
 import * as ambient from "../../ambient/index.js";
 
 export const chordText = (crumbs) => crumbs.map((crumb) => (crumb === "leader" ? "ctrl-v" : crumb)).join(" ");

@@ -5,7 +5,6 @@
     ".": "./mod.js",
     "./contrast": "./lib/contrast.js",
     "./postcss": "./lifecycle/index.js",
-    "./tailwind": "./belt/tailwind-theme.js",
     "./assets/viket/pic-vinca-viket_white.svg": "./assets/viket/pic-vinca-viket_white.svg",
     "./assets/viket/pic-vinca-viket_black.svg": "./assets/viket/pic-vinca-viket_black.svg",
     "./assets/viket/pic-vinca-viket_white.png": "./assets/viket/pic-vinca-viket_white.png",

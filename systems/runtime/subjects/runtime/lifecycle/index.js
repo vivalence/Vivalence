@@ -13,7 +13,6 @@ export { population, resolution, integration };
 export const execution = new Vector()
   .use(process.settle)
   .use(population.validate)
-  .use(integration.ledger)
   .use(population.aperture)
   .use(integration.serve)
   .use(population.registry)
@@ -36,6 +35,7 @@ export const execution = new Vector()
   .use(resolution.expose)
   .use(resolution.metadata)
   .use(integration.prune)
-  .use(integration.patrol);
+  .use(integration.patrol)
+  .use(integration.booted);
 
 execution.affect(process.keepalive);

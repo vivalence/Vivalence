@@ -15,7 +15,9 @@ export function Signin() {
   const traits = () => lighthouse.manifest.traits;
   const submit = (event) => {
     event.preventDefault();
-    lighthouse.login(user(), pass()).catch((error) => app.client.controller.stdout.fault(error));
+    const named = pass() === "" && traits().includes("AUTOSIGNUP");
+    const access = named ? lighthouse.autosignup(user()) : lighthouse.login(user(), pass());
+    access.catch((error) => app.client.controller.stdout.fault(error));
   };
   return (
     <Island>
@@ -27,7 +29,13 @@ export function Signin() {
         </div>
         <div class="ff">
           <label for="si-pass">password</label>
-          <input id="si-pass" type="password" value={pass()} placeholder="••••••••" onInput={(event) => setPass(event.target.value)} />
+          <input
+            id="si-pass"
+            type="password"
+            value={pass()}
+            placeholder={traits().includes("AUTOSIGNUP") ? "none" : "••••••••"}
+            onInput={(event) => setPass(event.target.value)}
+          />
         </div>
         <Show when={status().code === "ERROR"}>
           <div class="fine neg">{status().message}</div>

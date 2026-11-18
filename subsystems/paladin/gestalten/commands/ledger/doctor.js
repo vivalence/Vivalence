@@ -13,7 +13,7 @@ const SCOPES = [
   ["mountpoint", 1],
 ];
 
-const SLOTS = Object.keys(v.primitives.instance.Ledger.properties).filter((slot) => slot !== "manifest");
+const SLOTS = Object.keys(v.primitives.instance.LedgerRecipe.properties).filter((slot) => slot !== "manifest");
 
 async function collectRecord(held) {
   const record = await held.tapped();
@@ -132,7 +132,7 @@ export const doctor = new Vector().open(
     input: v.object({}),
   },
   async () => {
-    if (paladin.scope.instance) await Promise.resolve(mount(paladin.instance)).catch(() => null);
+    if (paladin.scope.instance) await Promise.resolve(mount(paladin)).catch(() => null);
     const home = paladin.scope.ledger;
     const env = home.branch(".env");
     const record = await collectRecord(paladin.ledger.registry);

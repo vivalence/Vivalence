@@ -1,4 +1,4 @@
-import { specimen, traits, v, Aperture, Path, Vector, sleep } from "@vivalence/typology";
+import { specimen, traits, v, Aperture, Path, Vector, sleep, Twitch } from "@vivalence/typology";
 import { lifecycle, LiteralEntity, NoteEntity, UserEntity } from "@vivalence/runtime";
 import { lighthouse } from "../scenarios/index.js";
 
@@ -22,7 +22,7 @@ const PICKED = traits.define("PICKED", {
 });
 
 const stamped = [];
-const twitch = new Vector().open("/before/literal/create", (ctx) => stamped.push(`${ctx.input.entity.daemon.slug}:${ctx.input.entity.slug}`));
+const twitch = new Twitch().open("/before/literal/create", (ctx) => stamped.push(`${ctx.input.entity.daemon.slug}:${ctx.input.entity.slug}`));
 const domain = { traits: { literal: [PICKED], note: [RETAINED] }, twitch };
 
 specimen.describe("a domain's traits on two daemons — claims, the schematics a verb reads, a note on its literal", { sanitizeResources: false, sanitizeOps: false }, () => {

@@ -91,7 +91,7 @@ specimen.describe("LOOPING on the client — /terminal/:terminal/… answers the
     }
   });
 
-  specimen.it("a bare line posted to /terminal/t1/repl on a HARNESSED seat rides the harness request with terminal t1, its thread and a minted turn", async () => {
+  specimen.it("a bare line posted to /terminal/t1/repl on a HARNESS seat rides the harness request with terminal t1, its thread and a minted turn", async () => {
     const requests = [];
     const merged = [];
     const mode = {
@@ -100,7 +100,7 @@ specimen.describe("LOOPING on the client — /terminal/:terminal/… answers the
       slug: "harnessed",
       repl: new Vector(),
       keymap: new Vector(),
-      implements: (name) => name === "HARNESSED",
+      implements: (name) => name === "HARNESS",
       harness: {
         dialogue: {
           stream: async function* (request) {
@@ -112,9 +112,11 @@ specimen.describe("LOOPING on the client — /terminal/:terminal/… answers the
     };
     first.client.runtime.entities.turn = { merge: async (turn) => merged.push(turn) };
     first.terminal.thread = { id: "th1", mode, $buffers: atom([{ id: "b1" }]), $phase: atom("manual") };
+    first.client.app = new ghost.app.App({ client: first.client });
     try {
       await line.socket.call("/terminal/t1/repl", { nature: "*", body: [{ type: "text", text: "ciao" }], flags: {} });
     } finally {
+      first.client.app = null;
       first.terminal.thread = null;
     }
     specimen.expect(requests).toEqual([{ thread: "th1", terminal: "t1", turn: specimen.expect.stringMatching(/^[0-9a-f-]{36}$/), parts: [{ type: "text", text: "ciao" }] }]);

@@ -1,4 +1,3 @@
-import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import paladin from "@vivalence/paladin";
 import { Connection, contexts, Controller, Cortex, fromm, middleware, Path, shape, shard, Span, Twitch, Url } from "@vivalence/typology";
 import { Daemon, factories, lifecycle, sets, gestalten, ActivityEntity, ActivityRepository, UserEntity, DaemonEntity, traits as catalog } from "@vivalence/runtime";
@@ -58,8 +57,7 @@ export async function bench(spec = {}) {
   datamapInstance.registerSubscriber(runtimeTwitch);
 
   const daemon = Object.assign(new Daemon(), {
-    slug: "bench",
-    cortex: new Cortex(TIER_POINTS),
+    cortex: new Cortex(),
     statics: spec.statics ?? null,
     mask: {
       manifest: { type: "daemon", slug: "bench", version: "0.0.1", traits: [] },
@@ -93,7 +91,7 @@ export async function bench(spec = {}) {
   const die = {
     controller: new Controller({ stdout: new Span("bench") }),
     daemon,
-    mask: { manifest: daemon.manifest },
+    mask: { manifest: daemon.manifest, modes: modules.map((module) => ({ module: module.identifier })) },
     traits: catalog.mode,
     instance: { traits: catalog.mode, services: {} },
     register: { modes: modules },

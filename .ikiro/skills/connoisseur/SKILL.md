@@ -9,7 +9,7 @@ when_to_use: >-
   before "land" · an options bag growing on a positional call · a mode importing a trait internal · a hand loop
   where `steer.*` exists · a `?.` · `?? {}` about to be typed · a helper minted for one caller · a fix · a sibling cited as precedent (`show me`).
 ---
-<!-- limit: 5000 chars -->
+<!-- limit: 5800 chars -->
 # connoisseur — the hunk judged against its triggers; the tree is the canon
 
 /"something is off. let coneusseur have a pass."/ (m53) · /"conoisseur pass. then land."/ (10-28). Sibling of skill `bird`: the bird judges the WIRING against its demands, the connoisseur a HUNK against triggers 1–19. The law has ONE home, `codestyle.md` `## code`: this skill cites a trigger by number, never restates it. A hunk that merely works is below the bar.
@@ -28,7 +28,7 @@ when_to_use: >-
 1. **gate** — a hunk, or a wiring? Winces inside ONE hunk → here. 16 firing twice on one mechanism · a wince whose fix needs a new owner → skill `bird`. `git diff HEAD` first: a line he wrote or killed is out of the pass.
 2. **read cold** — the hunk as it IS (`jj diff` · the quest fence), printed, never recalled; its CALLER's site beside it. A hunk without a caller is judged on nothing.
 3. **walk** — 15 · 16 · 17 · 18 · 19 first (the ones he catches), then 9 · 10 · 14, then 1–8 · 11–13, then names · absence · no intermediary. Each fire is a wince, written down before any fix.
-4. **twin** — per wince, the surface GREPPED (19): `steer.*` · `shape.*` · `belt.*` · the nearest sibling subject · the std lib (`extname` over `.split(".").pop()`). The twin is quoted with its path.
+4. **twin** — per wince, the surface GREPPED (19): `steer.*` · `shape.*` · `belt.*` · `fromm.*` · the `prototypes/` a stream · a wire would mount (`Pipe.tap` ⟷ `Pipe.from` · `Queue.to` · `Span`; 11-21 two hand socket loops shown before `fromm.sink` was read) · the nearest sibling subject · the std lib (`extname` over `.split(".").pop()`). The twin is quoted with its path.
 5. **tighten** — one wince, one delta, onto the twin. No new primitive, no helper, no options key: thin first. A name I carried in is renamed in the same delta.
 6. **prove** — the effect, both sides: the hunk's test or a probe prints the consumer's object before and after. On the tree → bracketed by `change`. In a quest → the fence re-cut, the replay re-run.
 7. **report** — per hunk: code before · code after · the trigger number · the twin's `file:line`, one line. The quest's changelog carries the count (`connoisseur — 3 hunks tightened`). Zero winces is a CLAIM: name the hunks read and the triggers walked.
@@ -48,7 +48,7 @@ when_to_use: >-
 - **the doctrine restated** — a second home drifts; cite the number.
 - **his lines judged** — his edit is the spec; engagement only on HIS redesign ask (14).
 - **a rewrite proven by reading** — a clean compile is no evidence; the effect is RUN.
-- **an effect proven off the path** — a probe calling an inner fn (`belt.hallucinate.respond`); re-derive on the production path before a suite or valence repeats it (11-17).
+- **an effect proven off the path** — a probe calling an inner fn (`belt.hallucinate.respond`); re-derive on the production path before a suite or valence repeats it (11-17); a CLIENT chain's proof rides the client's own transport, read off its factory (socket · fetch), never a rig's in-process connection (11-21 an upload proven in-process and landed, 500 over the dock's socket).
 - **a caller patching a primitive** — `.filter(Boolean)` after `.absolute`: fix the owner (15; 11-17).
 - **a missing ctx key bolted on** — a self-getter (`get runtime() { return this }`) · a widened contract (`modeDie` `...runtime`); the twin is a `bind` where the host is exposed · a per-leaf rewrap (15 · 18; 11-17 /"stpid"/ · /"why ...????"/ · `bound` /"weird hacks"/).
 - **a wince answered with a mechanism** — a helper · a flag · a bag is the next wince.

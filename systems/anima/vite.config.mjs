@@ -1,6 +1,6 @@
 import solid from "vite-plugin-solid";
 import { transformWithOxc } from "vite";
-import { Status } from "@vivalence/typology";
+import { belt, Status } from "@vivalence/typology";
 import { dirname, join } from "@std/path";
 import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -9,7 +9,7 @@ const __ss = join(__repo, "./subsystems");
 
 async function serverConfig() {
   const { default: paladin, factories } = await import("@vivalence/paladin");
-  await factories.instance(paladin.instance);
+  await factories.instance(paladin);
   paladin.check.instance(paladin.instance).throw();
   const client = paladin.instance.clients.find((held) => held.manifest.slug === "anima");
 
@@ -102,7 +102,7 @@ const bake = () => ({
   async load(id) {
     if (id !== "paladin:baked") return null;
     const { default: paladin, factories, lifecycle } = await import("@vivalence/paladin");
-    await factories.instance(paladin.instance);
+    await factories.instance(paladin);
     await paladin.ledger.registry.supply();
     const { modes, ...data } = await lifecycle.paladin.bake(paladin, "anima");
     return `export default ${JSON.stringify(data)};
@@ -165,6 +165,44 @@ const jsr = () => {
   };
 };
 
+const CHUNKS = "/assets/members/";
+const members = () => {
+  const built = belt.fn.inflight(async () => {
+    const { default: paladin } = await import("@vivalence/paladin");
+    return await paladin.bundler.members();
+  });
+  return {
+    name: "viva:members",
+    configureServer(server) {
+      server.middlewares.use(async (request, response, next) => {
+        if (!request.url.startsWith(CHUNKS)) return next();
+        const { files } = await built();
+        const text = files[request.url.slice(CHUNKS.length)];
+        if (text === undefined) return next();
+        response.setHeader("content-type", "text/javascript");
+        response.end(text);
+      });
+    },
+    async generateBundle() {
+      const { files } = await built();
+      for (const [name, source] of Object.entries(files))
+        this.emitFile({ type: "asset", fileName: `${CHUNKS.slice(1)}${name}`, source });
+    },
+    async transformIndexHtml() {
+      const { imports } = await built();
+      const mapped = Object.entries(imports).map(([specifier, name]) => [specifier, `${CHUNKS}${name}`]);
+      return [
+        {
+          tag: "script",
+          attrs: { type: "importmap" },
+          children: JSON.stringify({ imports: Object.fromEntries(mapped) }),
+          injectTo: "head-prepend",
+        },
+      ];
+    },
+  };
+};
+
 const RESOLVE = /import\.meta\.resolve\((["'])([^"']+)\1\)/g;
 const resolving = () => ({
   name: "import.meta.resolve",
@@ -187,7 +225,7 @@ const resolving = () => ({
 export default async ({ command }) => ({
   root: join(__dirname, "./src"),
   publicDir: join(__dirname, "./static"),
-  plugins: [resolving(), solid(), jsr(), bake(), beacon()],
+  plugins: [resolving(), solid(), jsr(), bake(), beacon(), members()],
   logLevel: "info",
   define: {
     __VIVA_BUILD__: JSON.stringify(stamp()),
@@ -214,8 +252,7 @@ export default async ({ command }) => ({
       { find: "@vivalence/dapper/assets", replacement: join(__ss, "./dapper/assets") },
       { find: "@vivalence/dapper", replacement: join(__ss, "./dapper/mod.js") },
       { find: "@vivalence/drapes/parts.css", replacement: join(__ss, "./drapes/parts.css") },
-      { find: "@vivalence/drapes/parts", replacement: join(__ss, "./drapes/parts.js") },
-      { find: "@vivalence/drapes", replacement: join(__ss, "./drapes/mod.js") },
+      { find: "@vivalence/drapes/solid", replacement: join(__ss, "./drapes/parts.js") },
     ],
     extensions: [".ts", ".js", ".jsx", ".json", ".svg", ".mjs"],
   },

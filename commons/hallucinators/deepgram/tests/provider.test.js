@@ -161,3 +161,13 @@ specimen.describe("deepgram provider", () => {
     },
   );
 });
+
+specimen.describe("deepgram · a faculty carries its entry forward (m126 Q7A)", () => {
+  specimen.it("tier · provider, stamped on the entry by paladin, reach the built faculty; type · id · via stay the builder's", async () => {
+    const [entry] = FACULTIES;
+    const [faculty] = await provider({ secrets: { key: "fake-key" }, faculties: [{ ...entry, tier: "ear", provider: "deepgram" }] });
+    specimen.expect([faculty.type, faculty.id, faculty.tier, faculty.provider]).toEqual([entry.type, entry.id, "ear", "deepgram"]);
+    specimen.expect(Object.keys(faculty.via).length).toBeGreaterThan(0);
+    specimen.expect(entry.tier).toBeUndefined();
+  });
+});

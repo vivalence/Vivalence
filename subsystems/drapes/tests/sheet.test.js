@@ -12,6 +12,7 @@ const zones = (name) =>
 const INLINE = {
   "--sb-w": "the sidebar's drag width, inline on .sidebar (dom.js:382), falls back to 272px",
   "--sq": "the board's square, inline on .board .grid (dom.js:147)",
+  "--landed": "a flying upload's share landed, inline on .att.flying (Atts.jsx)",
   "--share": "the dock's share, inline on .dropzone while dragging (app.js:306), falls back to 42%",
   "--tty-bg": "ghost's face, set from zone 1's surface (tty.js:20)",
   "--tty-fg": "ghost's face, set from zone 1's text-ink (tty.js:21)",

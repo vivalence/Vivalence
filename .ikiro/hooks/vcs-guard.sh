@@ -25,7 +25,7 @@ deny() {
 # 11-03 (molt): the arguments of echo/printf are prose, not a command — `echo "== git holds =="` fired 24 denies in two
 # weeks. Stripped up to the next ; & | ` or $, so `echo "$(git push)"` and `echo x | git apply` still reach the match.
 spoken=$(sed -E 's/(^|[;&|(`[:space:]])(echo|printf)([[:space:]]+[^;&|`$]*)?/\1\2 /g' <<<"$command")
-normalized=$(sed -E 's/git[[:space:]]+((-C[[:space:]]+[^[:space:]]+|--no-pager|--paginate|-P|-c[[:space:]]+[^[:space:]]+)[[:space:]]+)+/git /g' <<<"$spoken")
+normalized=$(sed -E 's/git[[:space:]]+((-C[[:space:]]+[^[:space:]]+|--no-pager|--no-optional-locks|--paginate|-P|-c[[:space:]]+[^[:space:]]+)[[:space:]]+)+/git /g' <<<"$spoken")
 
 while read -r sub rest; do
   case "$sub" in

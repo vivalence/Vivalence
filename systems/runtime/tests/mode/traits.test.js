@@ -89,7 +89,7 @@ specimen.describe("mode traits", () => {
     });
 
     specimen.it("arity 2 handlers work through object compilation", async () => {
-      const mode = new Mode({ manifest: { type: "test", slug: "arity", traits: ["EXPOSED"] } });
+      const mode = new Mode({ module: { manifest: { type: "test", slug: "arity", traits: ["EXPOSED"] } } });
       mode.aperture = new Aperture();
       mode.aperture.open("/echo", (input, ctx) => ({ got: input, has: "entities" in ctx }));
       mode.aperture.use(async (ctx, next) => { ctx.entities = {}; await next(); });
@@ -101,7 +101,7 @@ specimen.describe("mode traits", () => {
     });
 
     specimen.it("context has the host words and mode, no request", async () => {
-      const mode = new Mode({ manifest: { type: "test", slug: "ctx-check", traits: ["EXPOSED"] } });
+      const mode = new Mode({ module: { manifest: { type: "test", slug: "ctx-check", traits: ["EXPOSED"] } } });
       mode.aperture = new Aperture();
       mode.aperture.open("/probe", (ctx) => ({
         hasDaemon: "entities" in ctx,
@@ -122,7 +122,7 @@ specimen.describe("mode traits", () => {
     });
 
     specimen.it("returns undefined when mode has no aperture", async () => {
-      const mode = new Mode({ manifest: { type: "test", slug: "no-ap", traits: ["EXPOSED"] } });
+      const mode = new Mode({ module: { manifest: { type: "test", slug: "no-ap", traits: ["EXPOSED"] } } });
       const result = await EXPOSED(mode);
       specimen.expect(result).toBeUndefined();
     });
@@ -205,7 +205,7 @@ specimen.describe("mode traits", () => {
 
     specimen.it("empty return yields EXHAUSTED", async () => {
       await scenario.scoped(async () => {
-        const emptyMode = new Mode({ manifest: { type: "game", slug: "empty", traits: ["EMITTER"] } });
+        const emptyMode = new Mode({ module: { manifest: { type: "game", slug: "empty", traits: ["EMITTER"] } } });
         emptyMode.aperture = new Aperture();
         emptyMode.entity = scenario.fixtures.mode;
         emptyMode.id = scenario.fixtures.mode.id;

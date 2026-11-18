@@ -1,7 +1,6 @@
-import { TIER_POINTS } from "@vivalence/typology/scenarios";
-import { belt, Controller, Cortex, Path, Span, soma, v, Vector, mime } from "@vivalence/typology";
+import { belt, Controller, Cortex, Path, Span, soma, Twitch, v, Vector, mime } from "@vivalence/typology";
 import { traits } from "@vivalence/runtime";
-const { EMITTER, GENERATIVE, HARNESSED } = traits.mode;
+const { EMITTER, GENERATIVE, HARNESS } = traits.mode;
 import { drawing, emitter } from "../page/index.js";
 import { web } from "../tools/web.js";
 
@@ -101,7 +100,7 @@ export const rig = async (script) => {
   const held = views();
   const daemon = {
     type: "daemon",
-    cortex: new Cortex(TIER_POINTS).register([scripted.faculty]),
+    cortex: new Cortex().register([scripted.faculty]),
     entities: {
       thread: threads,
       // the harness stamps the dock's turn id onto the row after chaining, so the stub takes the patch too.
@@ -136,12 +135,13 @@ export const rig = async (script) => {
     entity: { id: "mode-1" },
     tools: new Vector(),
     implements: () => false,
+    twitch: new Twitch(),
   };
   daemon.modes = { [mode.manifest.type]: { [mode.manifest.slug]: mode } };
   (await EMITTER(mode, daemon))();
   await GENERATIVE(mode, daemon);
   mode.tools.graft(web).graft(drawing);
   mode.generator.bundle = held.bundle;
-  (await HARNESSED(mode, daemon))();
+  (await HARNESS(mode, daemon))();
   return { row, daemon, mode, seen: scripted.seen, views: held.rows };
 };

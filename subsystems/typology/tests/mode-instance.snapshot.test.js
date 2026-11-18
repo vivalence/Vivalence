@@ -13,10 +13,10 @@ describe("snapshot demo: mode-instance", () => {
     aperture.get("board", () => ({}));
     aperture.post("board", () => ({}));
 
-    const mode = new Mode({
+    const mode = new Mode({ module: {
       manifest: { type: "game", slug: "nyan", traits: ["APPLICATION"] },
       aperture,
-    });
+    } });
 
     const { pojo, path } = snapshot(mode, {
       base,

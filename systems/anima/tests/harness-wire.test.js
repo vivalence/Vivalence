@@ -1,4 +1,3 @@
-import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { specimen, shape, soma, Cortex } from "@vivalence/typology";
 import { mountMode } from "@vivalence/runtime/scenarios";
 import { belt } from "@vivalence/ghost";
@@ -24,7 +23,7 @@ let scenario;
 const MOUNT = "/mode/chaosmonkey/oracle";
 
 specimen.beforeAll(async () => {
-  scenario = await mountMode(oracle, { cortex: new Cortex(TIER_POINTS).register([seer()]) });
+  scenario = await mountMode(oracle, { cortex: new Cortex().register([seer()]) });
 });
 specimen.afterAll(async () => {
   await scenario.orm.close();
@@ -48,7 +47,7 @@ specimen.describe("client harness wire — mode.harness.dialogue.stream streams 
     const metadata = await scenario.authedConn.branch(MOUNT).call("/metadata/harness");
     const lookup = `${metadata.home}/lookup`;
     const thread = (TOOLED) => ({
-      mode: { implements: (trait) => trait === "HARNESSED", metadata: { harness: metadata } },
+      mode: { implements: (trait) => trait === "HARNESS", metadata: { harness: metadata } },
       trait: { HARNESSED: { slugging: "deep" }, TOOLED, PRIMED: {} },
     });
     const offered = belt.harness.served(thread({}));

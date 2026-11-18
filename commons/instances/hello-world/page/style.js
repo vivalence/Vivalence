@@ -39,7 +39,7 @@ RULES
     colour. Every theme already states them.
   · the root element must fill and scroll: height 100% + overflow-y auto. It is a pane
     inside an application, not a page in a browser.
-  · imports allowed: "svelte", "nanostores", "@vivalence/typology", "@vivalence/drapes".
+  · imports allowed: "svelte", "nanostores", "@vivalence/typology", "@vivalence/drapes/svelte".
     Never a URL.
   · one column, max-width 720px, margin-inline auto, sections stacked with gap 26px.
     Prose measures about 70 characters. No grid unless you are showing a table.
@@ -129,7 +129,7 @@ PATTERNS — the house dialect. Copy these; do not invent a second one.
             font-size: var(--font-size-2xs); color: var(--text-light); }
 
   prose you already hold as markdown — do not re-implement it
-    import { Markdown } from "@vivalence/drapes";
+    import { Markdown } from "@vivalence/drapes/svelte";
     <Markdown text={buffer.data.body} />
     (headings, lists, quotes, tables, fenced code, links — all themed already)
 `;

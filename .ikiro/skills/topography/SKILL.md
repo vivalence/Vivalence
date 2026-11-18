@@ -11,7 +11,7 @@ when_to_use: >-
   `dataset/symbols/ontological.js` · "why is there data in the dataset" · shipping freight (audio, models,
   tablebases, manuals) · "FILESET" · a row is about to be written into `dataset/literals/`.
 ---
-<!-- limit: 5000 chars -->
+<!-- limit: 6800 chars -->
 # topography — "add a topography for X" · "harvest the corpus": vocabulary of a kind or a body
 
 Canon: `quests/done/m61-chess-domain.org:73` · `quests/done/m22-datasink.org` · the assembly ontology quest's ruling 19 and vocabulary law. Measured on disk: every `type: "topology"` declares exactly `["DATASET"]` (12/12); every `type: "topography"` declares `DATASET` plus optional `FILESET` (5) / `DATASINK` (3) (8/8). Both are modes → the path and export laws of skill `mode` apply. /"copus -> topography. ontology -> topology"/ — module TYPE only.
@@ -32,10 +32,15 @@ Payloads only (audio, tablebase, manual, 3D model) = a topography with `FILESET`
 
 ## Corpus builds — the standing laws
 
+- a second body of one daemon JOINS the sinking topography, a new file in its `harvest/`: a sink selects by ontology, two `"part"` sinks each drain BOTH bodies (rig 11-20; /"we just merge interceptor into … models"/).
+- a body's FIRST slice is its model part + ≥1 placement, never a bare part: the stage draws a fold's placements (`resolve` of an unplaced part = `placements: []`, an empty stage; REJECTED 11-20 `head` landed alone, /"there also was a failure when i tried to load the head piece"/); fold the slug in the rig before `he can use`.
+- a body is NESTED by build stage: a sub-assembly is a part with its own layer, placed once in each body that has it (`kit.assemblies`); a fastener keeps only the joins inside its own layer, the fold prefixes an interior's (`resolve.js:67`); a SECOND body shares a stage only where HE says the builds are equal, by reference, named by the guide's sections (11-20: shared on my read → /"NO copies from quadrocopter"/ → /"the first 3 steps and their parts and placements are equal from the quad"/); before a share lands, say what its SOURCE ships (the download held 9 prints, no frame).
+- every document of a source he hands is a deliverable until HE cuts it, never `* deferred` on my read (REJECTED 11-20 a soldering sheet, /"we got two guides"/).
 - read ≥3 entries (skill `change`), grep dataset + siblings before minting a slug or 'missing' row (/"read the fucking data. topology is full of fucking examples."/ 04-29); wordfreq per FORM, never lemma (/"all frequency data must come from wordfreq. allways!!!"/).
 - vocalized FIRST; its text follows its recording (/"the audio here says not fatto but finito."/) — slug + mp3 name stay.
 - no symbol guessed (09-21): every slug resolves against the ontology; absent slug · undeclared json key validate SILENTLY.
 - a rank-0 row loses `RANKED`, never the row (/"prune that."/): 23 deletions broke 351 bundles.
+- a seed I mint is READ as its reader before the land: a section holds what its name says, no cite of another source, no note of mine in a builder's field (11-20 head · VTX under `Tail`, another manual's page cites, a `Draft step` tip: all shipped, found on his /"do another pass"/).
 - a fixture slug through a lens is a WORD, never a letter · br vs pt before any Portuguese row · a form→lemma index is a multimap (`foi` → ir · ser) · snapshots = the corpus family · derived content never checked in.
 
 ## Layout

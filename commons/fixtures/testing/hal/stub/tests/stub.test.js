@@ -151,3 +151,13 @@ specimen.describe("stub · the faculties", () => {
     await specimen.expect(provider({ statics: {}, faculties: [{ ...deep, type: "picture" }] })).rejects.toThrow("[stub] faculties/0");
   });
 });
+
+specimen.describe("stub · a faculty carries its entry forward (m126 Q7A)", () => {
+  specimen.it("tier · provider, stamped on the entry by paladin, reach the built faculty; type · id · via stay the builder's", async () => {
+    const [entry] = STUB_FACULTIES;
+    const [faculty] = await provider({ statics: {}, faculties: [{ ...entry, tier: "actor", provider: "stub" }] });
+    specimen.expect([faculty.type, faculty.id, faculty.tier, faculty.provider]).toEqual([entry.type, entry.id, "actor", "stub"]);
+    specimen.expect(Object.keys(faculty.via).length).toBeGreaterThan(0);
+    specimen.expect(entry.tier).toBeUndefined();
+  });
+});

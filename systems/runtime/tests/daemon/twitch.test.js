@@ -1,4 +1,4 @@
-import { specimen, Aperture, Controller, Path, sleep, Span } from "@vivalence/typology";
+import { specimen, Aperture, Controller, Path, sleep, Span, Twitch } from "@vivalence/typology";
 import { lifecycle } from "@vivalence/runtime";
 import { lighthouse } from "../scenarios/index.js";
 
@@ -9,13 +9,14 @@ specimen.describe("a daemon's twitch — its own Twitch, the daemon bound, a for
   const daemons = {};
   const heard = Object.fromEntries(SLUGS.map((slug) => [slug, []]));
   const kernel = [];
+  const booted = [];
 
   specimen.beforeAll(async () => {
     scenario = await lighthouse.create();
     scenario.runtime.twitch.open("/after/literal/create", (ctx) => kernel.push(ctx.input.entity.slug));
     for (const slug of SLUGS) {
       await scenario.seedDaemon(slug);
-      const die = { runtime: scenario.runtime, daemon: { type: "daemon", slug, reference: new Path(`/daemon/${slug}`), domain: {}, aperture: new Aperture(), controller: new Controller({ stdout: new Span(slug) }) }, register: { modes: [] } };
+      const die = { runtime: scenario.runtime, daemon: { type: "daemon", slug, reference: new Path(`/daemon/${slug}`), domain: { twitch: new Twitch().open("/after/datamap/boot", (ctx) => booted.push(`datamap:${ctx.daemon.slug}`)) }, aperture: new Aperture(), controller: new Controller({ stdout: new Span(slug) }) }, register: { modes: [] } };
       await lifecycle.daemon.population.datamap(die, async () => {});
       die.daemon.twitch.open("/after/literal/create", (ctx) => heard[slug].push(`${ctx.input.entity.daemon.slug}:${ctx.input.entity.slug}`));
       daemons[slug] = die.daemon;
@@ -66,6 +67,28 @@ specimen.describe("a daemon's twitch — its own Twitch, the daemon bound, a for
     const faults = (daemon) => daemon.controller.stdout.$history.get().filter((record) => record.track === "fault");
     specimen.expect(faults(daemons.italian).map((record) => record.data.message)).toEqual([fault.message]);
     specimen.expect(faults(daemons.spanish)).toEqual([]);
+  });
+
+  specimen.it("a boot signal rides the entity twitch's own wiring: the daemon bound, never awaited, silence is no fault", async () => {
+    specimen.expect(booted).toEqual(["datamap:italian", "datamap:spanish"]);
+    daemons.italian.twitch.open("/after/daemon/boot", async (ctx) => {
+      await sleep.ms(5);
+      booted.push(`daemon:${ctx.daemon.slug}`);
+    });
+    const die = { runtime: scenario.runtime, daemon: daemons.italian };
+    let passed = false;
+    await lifecycle.daemon.integration.booted(die, async () => void (passed = true));
+    specimen.expect(passed).toBe(true);
+    specimen.expect(booted).toEqual(["datamap:italian", "datamap:spanish"]);
+    await sleep.ms(20);
+    specimen.expect(booted).toEqual(["datamap:italian", "datamap:spanish", "daemon:italian"]);
+    await lifecycle.daemon.integration.booted({ runtime: scenario.runtime, daemon: daemons.spanish }, async () => {});
+    await sleep.ms(20);
+    specimen.expect(booted.length).toBe(3);
+    const before = [];
+    daemons.italian.twitch.open("/before/daemon/boot", () => before.push("inline"));
+    await daemons.italian.twitch.dispatch("/before/daemon/boot");
+    specimen.expect(before).toEqual(["inline"]);
   });
 
   specimen.it("the runtime root hears every daemon's row", () => {

@@ -1,5 +1,5 @@
 import { createSignal, from, onCleanup, Show } from "solid-js";
-import * as parts from "@vivalence/drapes/parts";
+import * as parts from "@vivalence/drapes/solid";
 import { belt } from "@vivalence/ghost";
 import * as ambient from "./ambient/index.js";
 import { Booting } from "./panels/booting/booting.jsx";

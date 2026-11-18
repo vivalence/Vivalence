@@ -1,42 +1,49 @@
 import paladin, { factories } from "@vivalence/paladin";
-import { trace, Controller, Span, Vector, steer } from "@vivalence/typology";
+import { Connection, Controller, Span, Vector, control, sleep, steer } from "@vivalence/typology";
 import * as ghost from "@vivalence/ghost";
 import { chrome } from "./surfaces/index.js";
 
-const instance = await factories.instance(paladin.instance); // @beef still dont like this.
+const instance = await factories.instance(paladin); // @beef still dont like this.
 await paladin.ledger.registry.supply();
 
 const die = {
-  controller: new Controller({ stdout: new Span("anima") }),
+  controller: paladin.control(new Controller({ stdout: new Span("anima") })),
   instance,
-  mask: instance.mask("anima"),
+  mask: instance.client("anima"),
 };
 die.register = await paladin.ledger.registry.wire(die.mask);
 
-globalThis.addEventListener("pagehide", () => die.controller.kill("SIGTERM", "pagehide"));
-
-const logging = async (appDie, next) => {
-  const shown = (record) => {
-    const SHOWN = ["log", "fault"];
-    if (!SHOWN.includes(record.track)) return;
-    globalThis.console[record.track === "fault" ? "error" : "log"](
-      trace.pathname(record.path),
-      record.track,
-      record.data,
-    );
-  };
-
-  for (const record of appDie.client.controller.stdout.history) shown(record);
-  const untap = appDie.client.controller.stdout.pipe.tap(shown);
+const reported = async (appDie, next) => {
   try {
     await next();
-  } finally {
-    untap();
+  } catch (error) {
+    appDie.client.controller.stdout.fault(error);
+    await control.hold(appDie.controller);
   }
 };
 
+const reach = async (appDie, next) => {
+  const remote = appDie.client.runtime.remote;
+  for (let attempt = 1; ; attempt++) {
+    appDie.client.controller.stdout.log({ reaching: remote.absolute, attempt });
+    const status = await new Connection(remote).call("/beacon/status").then(
+      (held) => held,
+      () => null,
+    );
+    if (status !== null && status.code === "RUNNING") return next();
+    if (status !== null && status.code !== "IDLE")
+      throw new Error(`runtime ${remote.absolute} is ${status.code}`);
+    await sleep.ms(1000);
+  }
+};
+
+const connect = async (appDie, next) => {
+  await ghost.client.ready(appDie.client);
+  await next();
+};
+
 try {
-  const client = await ghost.client.factory(die);
+  const client = await ghost.client.minted(die);
 
   client.app = new ghost.app.App({
     // @beef maybe move app onto client die? not sure.
@@ -48,7 +55,9 @@ try {
   await steer.dispatch.execute(
     new Vector()
       .graft(ghost.app.lifecycle.execution) //
-      .use(logging),
+      .use(reported)
+      .use(reach)
+      .use(connect),
     client.app,
   );
 } catch (error) {

@@ -29,7 +29,7 @@ export async function create({ domain = {} } = {}) {
   const { orm, em, datamap, entities, runtime, fixtures, held } = world;
 
   const modeTraits = ["VIEWABLE", "INTENTED", "EMITTER"];
-  const mode = new Mode({ manifest: { type: "game", slug: "flashcard", traits: modeTraits } });
+  const mode = new Mode({ module: { manifest: { type: "game", slug: "flashcard", traits: modeTraits } } });
   mode.aperture = new Aperture();
   mode.reference = new Path(`/mode/${mode.manifest.type}/${mode.manifest.slug}`);
   mode.entity = fixtures.mode;

@@ -30,6 +30,7 @@ export async function seed(domain = {}) {
   const held = {
     slug: DAEMON,
     manifest: { slug: DAEMON, traits: [] },
+    mask: { manifest: { type: "daemon", slug: DAEMON }, modes: [] },
     reference: new Path(`/daemon/${DAEMON}`),
     entities,
     datamap,

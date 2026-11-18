@@ -22,7 +22,7 @@ async function effect(ctx) {
     if (!found.mount) return found;
     paladin.env.set("VIVA_INSTANCE_MOUNT", found.mount, "flag");
   }
-  const mount = paladin.instance.home.absolute;
+  const mount = paladin.scope.instance.absolute;
   const held = await paladin.ledger.instances.lookup(mount);
   if (!held) return { error: `instance: ${mount} not recorded — nothing to delete` };
   const { slug } = held;

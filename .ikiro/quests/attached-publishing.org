@@ -1,0 +1,752 @@
+#+title: attached publishing — a mode serves what it bundled, outside the login
+#+filetags: :attached:mode:publishing:blog:bundle:serve:aperture:
+#+status: =ATTACHED= on a mode + =flag= · =opaque= cut LANDED 11-21 (his /"Land teh parts that are ready."/; five files, census equal by red name, a real process answers both mounts, his =:2501= =RUNNING= after); =TWITCHY= LANDED 11-21 on his /"mode has to export it from module and then that gets mounted like the rest"/ (six files: population mints the mode's twitch as it mints aperture · tools, the trait grafts the module's export; census equal by red name, a real boot hears a grafted route once per seat, his =:2501= =RUNNING= after); the server measured (~14–19 k requests a second on loopback, no compression, no =Range=); the demo MODE unbuilt, waits on his thoughts on where files live
+# writer: agent · limit: 48000 chars
+
+* intent
+
+/"Okay, I have an idea. I would like to move my blogging from or into Vivalence. I think there's a way to do this via attachments. The key question is, can we, as a mode, expose specific endpoints as an attachment outside of authentication to serve bundles of rendered pages, and probably serve whole bundles so that we can break it up into multiple subpoints, so multiple files and a whole bundle, something for the engine and then something per article or something like that. And so that when that attachment point is running, we can use traffic or whatever routing to just look at that specific endpoint. So can we serve as attachments whole bundles? That would probably be a mode, and the same mode inside of the system could be used to, for example, write articles into that bundle. Maybe we create a whole ontology where we have a buffer per article and then a bundling step. So it's like split out. We have modes for editing, modes for bundling and serving, and we have this endpoint and bundles. And then the second question is the aperture at the moment, is the Vivalence runtime server performant? And does it have all of the features that we need, like whatever, gzip? Caching, asset serving, and so forth. Can it do all of these things? I think, yeah, this is two separate problems. One is the ontology of the daemon. So what's the domain? And then the second is, do we have the technical capabilities to serve compositions of files that are maybe the output of a specific render engine? Can we use that? And is it performant? And I want you to first dive into the feasibility and performance side. So I want you to, as a demo case, create a mode where I can add text, where when I hit bundle, something that is attached by the mode to outside of authentication, that it automatically, when called, responds with the correct bundles, the bundles which are the output of the mode bundling the text that I've added to the buffer. So very, very small demonstration, but testing all of the features that a bigger blogging domain or web publishing domain might take."/
+
+/"start a question called attached publishing"/
+
+* terrain — measured 11-21
+
+** a SERVICE attaches outside the login; a mode has no such surface
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/service/traits/attached.js:3
+export const ATTACHED = (service, mask) => {
+  service.attachment
+    .open("/status", () => service.controller.status)
+    .open("/manifest", () => service.manifest)
+    .use(shard.context.bind("service", service))
+    .use(shard.context.bind("mask", mask));
+  if (service.module.attachment) service.attachment.graft(service.module.attachment);
+};
+// systems/runtime/subjects/runtime/lifecycle/2-resolution.js:37
+export const attach = async (die, next) => {
+  for (const service of Object.values(die.runtime.services)) {
+    die.aperture.branch(service.reference, service.attachment);
+  }
+  await next();
+};
+// subsystems/typology/schematics/traits/index.js:98
+export const service = v.object({
+  ATTACHED: flag("hangs an attachment aperture (status · manifest) on its daemon"),
+#+END_SRC
+
+** a mode's routes sit under its owner's login
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/daemon/lifecycle/2-resolution.js:5
+  die.daemon.aperture.use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
+// systems/runtime/subjects/runtime/lifecycle/2-resolution.js:28
+  die.runtime.aperture.use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
+// systems/runtime/subjects/mode/lifecycle/1-population.js:43
+  if (modeDie.mode.module.aperture) modeDie.mode.aperture.graft(modeDie.mode.module.aperture);
+#+END_SRC
+
+** the runtime's own attachment: two branches, both under the login since file-drop
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/runtime/lifecycle/3-integration.js:101
+export const attached = async (die, next) => {
+  die.runtime.attachment.use(shard.context.bind("runtime", die.runtime)).graft(attachment);
+  die.runtime.attachment.branch("/file").use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
+  die.runtime.attachment.branch("/view").use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
+  die.aperture.branch("/attached", die.runtime.attachment);
+  await next();
+};
+#+END_SRC
+
+** the one caching site in the runtime: a view's bundle, by hand
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/runtime/attachment.js:41
+  ctx.response.headers.set("etag", `"${file.integrity}"`);
+  ctx.response.headers.set("x-viva-integrity", file.integrity);
+  if (ctx.request.headers.get("if-none-match") === `"${file.integrity}"`)
+    return new Response(null, { status: 304, headers: Object.fromEntries(ctx.response.headers) });
+  ctx.response.type = file.mime;
+  return await paladin.read.bytes(file.mount);
+#+END_SRC
+
+** the server: =Deno.serve= over one handler; a body is bytes · a stream · a =Response=
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/runtime/lifecycle/3-integration.js:38
+  const server = Deno.serve(
+    { port: Number(url.port), hostname: url.hostname, signal: die.controller.abort.signal, onListen: … },
+    shard.cors.wrap(shape.http(die.aperture)),
+  );
+// subsystems/typology/gestalten/shape/http.js:56
+  if (body instanceof Response) return body;
+…
+  if (body instanceof Uint8Array || body instanceof ReadableStream) {
+    return new Response(body, { status: s, headers });
+  }
+#+END_SRC
+
+** zeros, by grep
+
+=grep -rn -E 'gzip|compress|cache-control|Cache-Control'= over =systems/runtime= · =subsystems/typology/gestalten= · =subsystems/paladin= (tests · bak cut): no hit. =etag=: the one site above.
+
+* the probe — run 11-21
+
+=.ikiro/reference/attached-publishing/serve.probe.js= (the real =Aperture= · =shape.http= · =shard.cors.wrap= · the lighthouse's =authenticate=, free ports, a bare =Deno.serve= twin reading the same bytes) · =walk.sh <aperture port> <bare port>= (curl + =ab -k -n 20000 -c 50=, loopback, one run each). The bundle route in it is a stand-in: text → an index, a page per =# = heading, a sheet, solid's 51 KB build as the engine.
+
+| ask | answer | measured |
+|---|---|---|
+| a mode route under the login, no token | 401 | =MISSING_TOKEN= |
+| a branch beside it, no token | 200 | the index page |
+| nested paths under one route | yes | =open("/(.*)")= → =article/first-post.html= 200 |
+| content type per file | yes | html · js · css |
+| =etag= + =If-None-Match= | 304 | by hand in the effect |
+| =cache-control= | yes | by hand in the effect |
+| HEAD | 200, length, no body | |
+| missing · traversal | 404 · 401 | a lookup in the bundle's own table, never a path join |
+| re-bundle | the old page 404, the new 200 | |
+| compression | NONE | 51339 bytes on the wire under =Accept-Encoding: gzip= · =br= |
+| =Range= | NONE | 200, the whole body |
+
+Compression is Deno's, not the aperture's: a scratch =Deno.serve= on 2.9.7 sent 51339 bytes for a string · bytes · a stream · a file, with and without =etag= · =cache-control= · =vary=.
+
+| the engine, 51339 bytes | bytes | ms |
+|---|---|---|
+| gzip 6 | 12205 | 2.4 |
+| gzip 9 | 12089 | 1.2 |
+| brotli 5 | 12064 | 4.7 |
+| brotli 11 | 10889 | 52.4 |
+| =CompressionStream("gzip")= | 12205 | 7.0 |
+
+| speed, requests per second | aperture | bare |
+|---|---|---|
+| engine 51 KB | 13766 | 16642 |
+| page 247 bytes | 19417 | 45066 |
+| 304 | 30664 | — |
+
+The vector walk + cors + context costs ~0.03 ms a request (1/19417 − 1/45066); on a 51 KB body the disk read rules.
+
+* the dialogue
+
+** 11-21 — his ruling and his sketch
+
+/"So a obviously … for the feature implementation. but b is not wrong. its the how. B — bundle output = File entities, yes. a file entity is where the bundle stores its outputs, and takes some of its inputs. this will of course be a fileset and filesink as well as dataset/sink. then the internals of the mode or later domain work against this reality. question is how to wire this up in our dataspace."/
+
+/"for the demonstration, I would like to keep it entirely on a single mode."/
+
+/"I do think a mode can write twitches, so that might be very simple."/
+
+/"Maybe it's more of an interactive system where the file, where the actual file state is what is being served. It's always being served, and then buffers are just basically manipulative surfaces over the file tree. So open this, change it. Yeah, I actually like that better. That's way simpler. So the file set is the source of truth. The attachment just serves that."/
+
+/"it's just a self-written minimalist theme, entirely independent from our own and standalone, important, with HTML, CSS, and then all of the pages."/
+
+/"I think there should be a compilation step, because we want to be writing in .org or .md or .json, whatever. And then that needs to be translated into whatever the buffer attachment serves."/
+
+** what the tree answers — measured 11-21
+
+A buffer holds its files:
+
+#+BEGIN_SRC ts
+// subsystems/typology/entities/Buffer.ts:82
+    files: { kind: "m:n", eager: true, entity: () => FileEntity, owner: true, pivotTable: "buffer_files", joinColumns: ["buffer_id"], inverseJoinColumns: ["file_id"] }
+#+END_SRC
+
+A File is one per (mode, path), hashed on every record; a file with no =user= is everyone's:
+
+#+BEGIN_SRC ts
+// subsystems/typology/entities/File.ts:23
+  unique(query) {
+    return { mode: query.mode ?? null, daemon: query.daemon ?? null, path: query.path };
+  }
+  async record({ bytes, ...data }) {
+    const hash = await crypto.digestBytes(bytes);
+    const file = await this.ensure({ ...data, hash, integrity: `sha256-${hash}`, bytes: bytes.length });
+#+END_SRC
+
+FILESET records what the package ships, mounted in the PACKAGE; FILESINK writes into the mode's mountpoint and records it:
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/fileset.js:6
+  const directory = join(mode.module.source.dirname, mode.module.fileset.path);
+// systems/runtime/subjects/mode/traits/filesink.js:16
+      const mount = join(new Path(mode.mountpoint).absolute, ctx.input.path);
+      await paladin.state.store(mount, ctx.input.bytes);
+      return modeDie.entities.file.record({
+#+END_SRC
+
+A mode module's =twitch= export has no reader (the domain's has, =daemon/lifecycle/1-population.js:52=) /(pass 11-21: no reader, but a WRITER: =typology/prototypes/mode.js:20= =Object.assign(this, module)= lays it over the mode's own, see =** ruled=)/; a mode reaches its live =mode.twitch= in =boot=:
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/booted.js:9
+      teardown = await mode.module.boot(modeDie, mode);
+#+END_SRC
+
+DATASET · DATASINK take =symbol= · =literal= only (=datasink.js:5= =DATASPACE=): a File is neither's; the file tree needs neither.
+
+UNPROBED: that =/after/file/create= · =/after/file/update= reach =mode.twitch=.
+
+| his question | answer |
+|---|---|
+| a mode outside the login | A, his: =attachment= export, twin of the service's |
+| where the bundle lives | File entities of the mode, his |
+| the truth | the file tree, his |
+| a mode writes twitches | today not by export; in =boot=, on =mode.twitch= |
+
+** 11-21 — his second turn
+
+/"modes have twitches. obviously. attached and twitchy or whatever we use here. show me the status quo rn adn teh delta to what i want."/
+
+/"not exactly. id want the source files to come from mountpoint."/
+
+#+BEGIN_SRC js
+  ATTACHED: flag("serves routes outside the login"), // serves a aperture vector at /attached/:reference"
+#+END_SRC
+
+/"both possible. we have on the mode a aperture for building. the twitch triggers that aperture. the aperture is also callable by command, tool, or view."/
+
+** 11-21 — his third turn
+
+/"And why is there a dedicated function here called flag? Just declare the schematics. Don't be all clever."/
+
+/"call it TWITCHY."/
+
+/"then the big question. how do we structure/pattern the filesink vs mountpoint. whre do files live. i watn to collect my thoughts here before you work."/
+
+** the wiring as it stands, for the two deltas
+
+- paladin already pairs the word with its export: =subsystems/paladin/prototypes/integrity.js:8= =ATTACHED: "attachment"=.
+- =mode.twitch= is minted (=typology/prototypes/mode.js:17=), wired and subscribed (=mode/lifecycle/1-population.js:55-63=); traits open routes on it (=datasink.js:104=); the module's own =twitch= has no reader.
+- a twitch reaches every mode of the entity's daemon, not only its mode (=shard/datamap.js:337= =owned=): a mode's handler names its own files.
+- the mode die holds =attach= (a url) and =reference=, no runtime and no attachment vector (=contexts.js:98=): the mount is the runtime's, after its daemons resolved (=runtime/lifecycle/index.js:34-35=).
+
+| ruled 11-21 | his |
+|---|---|
+| a mode attaches | =ATTACHED= + =attachment=, at =/attached/:reference= |
+| a mode twitches | by its own =twitch= export, =TWITCHY= |
+| =flag= · =opaque= | /"yours. cut. thats not how we sturcutre schematics. be obvious."/ → every marker row =v.object({})…=, probed equal (=reference/attached-publishing/flag.probe.js=) |
+| =ATTACHED= · =TWITCHY= | /"amen to twitchy and attached."/ · /"work the attached nd twitch out to tangle adn /show-me in 1 or 2 s."/ |
+| sources | the mountpoint, never the package |
+| compile | ONE aperture route; the twitch calls it; a command · a tool · a view too |
+| where files live (filesink · mountpoint) | OPEN, his thoughts first |
+
+* as code
+
+** a mode attaches and twitches
+
+TANGLED 11-21 on a clone of the tree. =flag= · =opaque= leave with it (his /"yours. cut."/): each marker row declares its schematic, a row past 100 chars chain-broken as the house prettier would.
+
+LANDED 11-21, five files: every marker row + the mode's =ATTACHED= row (=typology/schematics/traits/index.js=) · =attached.js= · its export row · both mount rows of =expose= · the =beats.coverage= step. LANDED 11-21 later, six files, on his ruling (=** ruled=): the =TWITCHY= row · =integrity.js= · =twitchy.js= · its export row · the four =twitch.test.js= steps + the two hunks of =** ruled= (the population mint · its proof step). A replay of this section on today's tree meets every hunk already there; the two of =** ruled= ride outside the replay.
+
+*** subsystems
+
+**** typology/schematics/traits
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/traits/index.js:16
+
+-const opaque = v.object({}, { additionalProperties: true });
+ const open = { additionalProperties: true };
+-const flag = (meaning) => opaque.default({}).optional().desc(meaning).example({});
+ const DOCK = { align: "right", share: 0.38, view: "docked", lens: ["turns", "harness"], markdown: "pretty" };
+…
+ export const mode = v.object({
+-  EXPOSED: flag("serves http endpoints"),
+-  HARNESS: flag("runs under the daemon's harness: a model, a primer, tools"),
+-  CONVERSATION: flag("a human converses with it: typed, dictated, called"),
+-  HARNESSED: flag("runs under the daemon's harness: a model, a primer, tools"), //deprecated
+-  CONVERSATIONAL: flag("a human converses with it: typed, dictated, called"), //deprecated
+-  TOOLING: flag("brings tools the model can call"),
+-  EMITTER: flag("mints buffers on demand"),
+-  DATASET: flag("ships symbols and literals"),
+-  GENERATIVE: flag("its buffers are hallucinated at runtime"),
+-  REPLING: flag("has a repl"),
+-  BOOTED: flag("runs code once every mode is wired"),
+-  KEYMAPPED: flag("brings a keymap"),
+-  PRIMER: flag("brings primer prose"),
+-  LOOPING: flag("brings repl tools the loop can call"),
+-  VIEWABLE: flag("ships svelte views"),
+-  FILESET: flag("ships files"),
+-  FILESINK: flag("writes files into its mountpoint"),
++  EXPOSED: v.object({}).default({}).optional().desc("serves http endpoints").example({}),
++  HARNESS: v
++    .object({})
++    .default({})
++    .optional()
++    .desc("runs under the daemon's harness: a model, a primer, tools")
++    .example({}),
++  CONVERSATION: v
++    .object({})
++    .default({})
++    .optional()
++    .desc("a human converses with it: typed, dictated, called")
++    .example({}),
++  HARNESSED: v
++    .object({})
++    .default({})
++    .optional()
++    .desc("runs under the daemon's harness: a model, a primer, tools")
++    .example({}), //deprecated
++  CONVERSATIONAL: v
++    .object({})
++    .default({})
++    .optional()
++    .desc("a human converses with it: typed, dictated, called")
++    .example({}), //deprecated
++  TOOLING: v.object({}).default({}).optional().desc("brings tools the model can call").example({}),
++  EMITTER: v.object({}).default({}).optional().desc("mints buffers on demand").example({}),
++  DATASET: v.object({}).default({}).optional().desc("ships symbols and literals").example({}),
++  GENERATIVE: v
++    .object({})
++    .default({})
++    .optional()
++    .desc("its buffers are hallucinated at runtime")
++    .example({}),
++  REPLING: v.object({}).default({}).optional().desc("has a repl").example({}),
++  BOOTED: v
++    .object({})
++    .default({})
++    .optional()
++    .desc("runs code once every mode is wired")
++    .example({}),
++  KEYMAPPED: v.object({}).default({}).optional().desc("brings a keymap").example({}),
++  PRIMER: v.object({}).default({}).optional().desc("brings primer prose").example({}),
++  LOOPING: v
++    .object({})
++    .default({})
++    .optional()
++    .desc("brings repl tools the loop can call")
++    .example({}),
++  VIEWABLE: v.object({}).default({}).optional().desc("ships svelte views").example({}),
++  FILESET: v.object({}).default({}).optional().desc("ships files").example({}),
++  FILESINK: v
++    .object({})
++    .default({})
++    .optional()
++    .desc("writes files into its mountpoint")
++    .example({}),
++  ATTACHED: v
++    .object({})
++    .default({})
++    .optional()
++    .desc("serves an aperture vector at /attached/:reference")
++    .example({}),
++  TWITCHY: v
++    .object({})
++    .default({})
++    .optional()
++    .desc("grafts its twitch routes onto the mode's twitch")
++    .example({}),
+ }, open);
+…
+ export const view = v.object({
+-  FRAME: flag("drawn in the frame"),
+-  CELL: flag("drawn as a cell in the journal"),
++  FRAME: v.object({}).default({}).optional().desc("drawn in the frame").example({}),
++  CELL: v.object({}).default({}).optional().desc("drawn as a cell in the journal").example({}),
+ });
+…
+ export const lighthouse = v.object({
+-  JOINABLE: flag("signup is open"),
+-  INVITATIONAL: flag("signup by invitation"),
+-  AUTOLOGIN: flag("a terminal logs in without a password"),
+-  AUTOSIGNUP: flag("a visitor enters under the name they type, no password"),
++  JOINABLE: v.object({}).default({}).optional().desc("signup is open").example({}),
++  INVITATIONAL: v.object({}).default({}).optional().desc("signup by invitation").example({}),
++  AUTOLOGIN: v
++    .object({})
++    .default({})
++    .optional()
++    .desc("a terminal logs in without a password")
++    .example({}),
++  AUTOSIGNUP: v
++    .object({})
++    .default({})
++    .optional()
++    .desc("a visitor enters under the name they type, no password")
++    .example({}),
+ });
+ export const service = v.object({
+-  ATTACHED: flag("hangs an attachment aperture (status · manifest) on its daemon"),
+-  SERVER: flag("a server process the runtime starts"),
+-  DOCKER: flag("runs as a docker container"),
+-  COMPOSE: flag("runs as a docker compose stack"),
++  ATTACHED: v
++    .object({})
++    .default({})
++    .optional()
++    .desc("hangs an attachment aperture (status · manifest) on its daemon")
++    .example({}),
++  SERVER: v
++    .object({})
++    .default({})
++    .optional()
++    .desc("a server process the runtime starts")
++    .example({}),
++  DOCKER: v.object({}).default({}).optional().desc("runs as a docker container").example({}),
++  COMPOSE: v.object({}).default({}).optional().desc("runs as a docker compose stack").example({}),
+ });
+…
+   LABELED: Label.default({}).optional().desc("its name, read in the chrome").example({ name: "flamingo" }),
+-  ONTOLOGICAL: flag("a word of a topology's vocabulary"),
+-  TOPOGRAPHICAL: flag("a word of one body's vocabulary"),
+-  STRUCTURAL: flag("a structural marker of its corpus"),
++  ONTOLOGICAL: v
++    .object({})
++    .default({})
++    .optional()
++    .desc("a word of a topology's vocabulary")
++    .example({}),
++  TOPOGRAPHICAL: v
++    .object({})
++    .default({})
++    .optional()
++    .desc("a word of one body's vocabulary")
++    .example({}),
++  STRUCTURAL: v
++    .object({})
++    .default({})
++    .optional()
++    .desc("a structural marker of its corpus")
++    .example({}),
+ }, open);
+#+END_SRC
+
+**** paladin/prototypes
+
+#+BEGIN_SRC diff
+// subsystems/paladin/prototypes/integrity.js:22
+   FILESINK: null,
++  TWITCHY: "twitch",
+   SELFEVIDENT: null,
+#+END_SRC
+
+*** systems
+
+**** runtime/subjects/mode/traits
+
+#+BEGIN_SRC js :tangle systems/runtime/subjects/mode/traits/attached.js
+import { shard, Vector } from "@vivalence/typology";
+
+export const ATTACHED = (mode) => {
+  mode.attachment = new Vector().use(shard.context.bind("mode", mode)).graft(mode.module.attachment);
+};
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/index.js:18
+ export * from "./fileset.js";
++export * from "./attached.js";
++export * from "./twitchy.js";
+#+END_SRC
+
+#+BEGIN_SRC js :tangle systems/runtime/subjects/mode/traits/twitchy.js
+export const TWITCHY = (mode) => {
+  mode.twitch.graft(mode.module.twitch);
+};
+#+END_SRC
+
+**** runtime/subjects/runtime/lifecycle
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/2-resolution.js:44
+ const harnessed = (host) => fromm.modes(host.modes).flat.filter((mode) => mode.implements("HARNESS"));
++const attached = (modes) => fromm.modes(modes).flat.filter((mode) => mode.implements("ATTACHED"));
+…
+   runtime.open("/batch", shard.batch.route(runtime));
++  for (const mode of attached(die.runtime.modes)) {
++    die.runtime.attachment.branch(die.runtime.reference).branch(mode.reference, mode.attachment);
++  }
++
+   for (const daemon of Object.values(die.runtime.daemons)) {
+…
+     branch.open("/batch", shard.batch.route(branch));
++    for (const mode of attached(daemon.modes)) {
++      die.runtime.attachment.branch(daemon.reference).branch(mode.reference, mode.attachment);
++    }
+   }
++
+   await next();
+#+END_SRC
+
+**** runtime/tests
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/mode/twitch.test.js:1
+-import { specimen, Aperture, contexts, Controller, Mode, Path, shard, sleep, Span } from "@vivalence/typology";
+-import { lifecycle } from "@vivalence/runtime";
++import { specimen, Aperture, contexts, Controller, Mode, Path, shard, sleep, Span, Vector } from "@vivalence/typology";
++import { lifecycle, traits } from "@vivalence/runtime";
+ import { lighthouse } from "../scenarios/index.js";
+…
+     specimen.expect(faults(modes.listen)).toEqual([]);
+   });
++
++  specimen.it("TWITCHY grafts the module's twitch onto the mode's: a file recorded in its daemon is heard, the mode bound", async () => {
++    const recorded = [];
++    modes.listen.module.twitch = new Vector()
++      .open("/after/file/create", (ctx) => recorded.push(`create ${ctx.mode.manifest.slug}:${ctx.input.entity.path}`))
++      .open("/after/file/update", (ctx) => recorded.push(`update ${ctx.mode.manifest.slug}:${ctx.input.entity.path}`));
++    traits.mode.TWITCHY(modes.listen);
++    const written = { mode: modes.listen.id, daemon: "italian", path: "source/hello.md", mount: "/nowhere/hello.md", mime: "text/markdown" };
++    await scenario.datamap.shard.scope(async () => {
++      await daemons.italian.entities.file.record({ ...written, bytes: new TextEncoder().encode("# hello") });
++    });
++    await sleep.ms(20);
++    await scenario.datamap.shard.scope(async () => {
++      await daemons.italian.entities.file.record({ ...written, bytes: new TextEncoder().encode("# hello, again") });
++    });
++    await sleep.ms(20);
++    specimen.expect(recorded).toEqual(["create listen:source/hello.md", "update listen:source/hello.md"]);
++  });
++
++  specimen.it("a file's twitch reaches every TWITCHY mode of its daemon, a foreign daemon's file none; a route naming its own mode hears only its own", async () => {
++    const reached = [];
++    const own = [];
++    for (const slug of MODES) {
++      modes[slug].module.twitch = new Vector().open("/after/file/create", (ctx) => {
++        reached.push(`${ctx.mode.manifest.slug}:${ctx.input.entity.path}`);
++        if (ctx.input.entity.mode.id === ctx.mode.id) own.push(`${ctx.mode.manifest.slug}:${ctx.input.entity.path}`);
++      });
++      traits.mode.TWITCHY(modes[slug]);
++    }
++    const bytes = new TextEncoder().encode("# sibling");
++    await scenario.datamap.shard.scope(async () => {
++      await daemons.italian.entities.file.record({ mode: modes.flashcard.id, daemon: "italian", path: "source/sibling.md", mount: "/nowhere/sibling.md", mime: "text/markdown", bytes });
++      await daemons.spanish.entities.file.record({ daemon: "spanish", path: "source/foreign.md", mount: "/nowhere/foreign.md", mime: "text/markdown", bytes });
++    });
++    await sleep.ms(20);
++    specimen.expect(reached.sort()).toEqual(["flashcard:source/sibling.md", "listen:source/sibling.md"]);
++    specimen.expect(own).toEqual(["flashcard:source/sibling.md"]);
++  });
++
++  specimen.it("a twitch route calls its mode's own aperture: a recorded source is built once, the page it writes builds nothing", async () => {
++    const built = [];
++    modes.flashcard.aperture.open("/build", async (input, ctx) => {
++      built.push(input.path);
++      const page = input.path.replace(/^source\//, "public/").replace(/\.md$/, ".html");
++      const bytes = new TextEncoder().encode("<h1>built</h1>");
++      return await ctx.entities.file.record({ mode: ctx.mode.id, daemon: "italian", path: page, mount: `/nowhere/${page}`, mime: "text/html", bytes });
++    });
++    await (await traits.mode.EXPOSED(modes.flashcard))();
++    modes.flashcard.module.twitch = new Vector().open("/after/file/create", async (ctx) => {
++      if (ctx.input.entity.mode.id !== ctx.mode.id) return;
++      if (!ctx.input.entity.path.startsWith("source/")) return;
++      await ctx.mode.call.build({ path: ctx.input.entity.path });
++    });
++    traits.mode.TWITCHY(modes.flashcard);
++    await scenario.datamap.shard.scope(async () => {
++      await daemons.italian.entities.file.record({ mode: modes.flashcard.id, daemon: "italian", path: "source/built.md", mount: "/nowhere/built.md", mime: "text/markdown", bytes: new TextEncoder().encode("# built") });
++    });
++    await sleep.ms(60);
++    specimen.expect(built).toEqual(["source/built.md"]);
++    await scenario.datamap.shard.scope(async () => {
++      const page = await daemons.italian.entities.file.findOneOrFail({ path: "public/built.html" });
++      specimen.expect(page.mime).toBe("text/html");
++      specimen.expect(page.bytes).toBe(14);
++    });
++  });
++
++  specimen.it("a grafted route that throws after the write faults on its mode's stdout, never its sibling's; the file stays written", async () => {
++    const fault = new Error("the build failed");
++    const faults = (mode) => mode.stdout.$history.get().filter((record) => record.track === "fault").map((record) => record.data.message);
++    const before = { listen: faults(modes.listen), flashcard: faults(modes.flashcard) };
++    modes.listen.module.twitch = new Vector().open("/after/file/create", () => {
++      throw fault;
++    });
++    traits.mode.TWITCHY(modes.listen);
++    await scenario.datamap.shard.scope(async () => {
++      await daemons.italian.entities.file.record({ mode: modes.listen.id, daemon: "italian", path: "source/faulty.md", mount: "/nowhere/faulty.md", mime: "text/markdown", bytes: new TextEncoder().encode("# faulty") });
++    });
++    await sleep.ms(20);
++    specimen.expect(faults(modes.listen)).toEqual([...before.listen, fault.message]);
++    specimen.expect(faults(modes.flashcard)).toEqual(before.flashcard);
++    await scenario.datamap.shard.scope(async () => {
++      specimen.expect(await daemons.italian.entities.file.count({ path: "source/faulty.md" })).toBe(1);
++    });
++  });
+ });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/runtime/beats.coverage.test.js:2
+ import { atom } from "nanostores";
+-import { Aperture, Connection, crypto, mime, Mode, Path, shape, shard, specimen, Url, Vector } from "@vivalence/typology";
+-import { lifecycle, ViewEntity } from "@vivalence/runtime";
++import { Aperture, Connection, crypto, fromm, mime, Mode, Path, shape, shard, specimen, Url, Vector } from "@vivalence/typology";
++import { lifecycle, traits, ViewEntity } from "@vivalence/runtime";
+ import { signer } from "../../subjects/lighthouse/signer.js";
+…
++  specimen.it("resolution.expose: an ATTACHED mode answers under /attached/<its owner's reference>/<its own> with no token; its aperture stays behind the login", async () => {
++    const die = buildDie();
++    const attached = (type, slug) => {
++      const mode = buildMode(type, slug, {
++        manifest: { type, slug, traits: ["ATTACHED"] },
++        attachment: new Vector().open("/(.*)", (ctx) => `${ctx.mode.manifest.slug}:${fromm.params(ctx.params).path.absolute}`),
++      });
++      traits.mode.ATTACHED(mode);
++      return mode;
++    };
++    const blog = attached("publish", "blog");
++    const notes = attached("publish", "notes");
++    const plain = buildMode("publish", "plain");
++    const daemon = {
++      reference: new Path("/daemon/memo"),
++      aperture: new Aperture().use(die.runtime.lighthouse.authenticate),
++      $status: atom({ code: "RUNNING" }),
++      modes: { publish: { blog, plain } },
++    };
++    daemon.aperture.branch(blog.reference, blog.aperture.open("/build", () => "built"));
++    die.runtime.daemons = { memo: daemon };
++    die.runtime.modes = { publish: { notes } };
++    await through(integration.attached, die, async () => {
++      await through(resolution.expose, die, async () => {
++        const handler = shape.http(die.aperture);
++        const served = await handler(new Request("http://test/attached/daemon/memo/mode/publish/blog/article/hello.html"));
++        specimen.expect(await served.json()).toBe("blog:/article/hello.html");
++        const rooted = await handler(new Request("http://test/attached/runtime/house/mode/publish/notes/index.html"));
++        specimen.expect(await rooted.json()).toBe("notes:/index.html");
++        specimen.expect((await handler(new Request("http://test/attached/daemon/memo/mode/publish/plain/index.html"))).status).toBe(404);
++        specimen.expect((await handler(new Request("http://test/daemon/memo/mode/publish/blog/build"))).status).toBe(401);
++        specimen.expect((await handler(new Request("http://test/attached/file/nope"))).status).toBe(401);
++      });
++    });
++  });
++
+   specimen.it("resolution.metadata: the manifest under /beacon with no token; aperture · datamap · daemons · services under /metadata behind it", async () => {
+#+END_SRC
+
+** ruled — a mode's twitch is minted in population, the module's export grafted on
+
+The fault: a =Mode= mints =twitch= as a field (=typology/prototypes/mode.js:17=), then its constructor lays every module export over itself (=:20=): a module exporting =twitch= WAS the mode's twitch, shared by every seat of that module. A =new Vector()= export has no =dispatch=: the runtime exited, =status r/house │ FAILED= · =TypeError: twitch.dispatch is not a function= (=shape/subscriber.js:3=). The amen'd rig set =module.twitch= AFTER =new Mode=, never crossing the assign.
+
+Two mints shown (after the assign in the =Mode= constructor | in population as aperture =:37= · tools =:51= do). His ruling 11-21: /"mode has to export it from module and then that gets mounted like the rest"/ → population. LANDED. Twin: =daemon/lifecycle/1-population.js:44= mints, =:52= grafts its domain's. =mode.js= untouched: its field stays for the hand-built =new Mode(= of the rigs, population replaces it on every product path (no product row touches =mode.twitch= between the mint sites and =core=, grepped).
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/lifecycle/1-population.js:55 — =Twitch= joins the import
+-  modeDie.mode.twitch
++  modeDie.mode.twitch = new Twitch()
+     .use(shard.context.spread(contexts.modeDie, modeDie))
+     .use(shard.context.bind("mode", modeDie.mode))
+     .use(shard.datamap.owned());
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/mode/twitch.test.js — last step; =Twitch= joins the import
++  specimen.it("a module's twitch export is the declaration: population mints each seat a Twitch of its own, TWITCHY grafts the export on", async () => {
++    const heard = [];
++    const module = {
++      manifest: { type: "game", slug: "seated", traits: ["TWITCHY"] },
++      twitch: new Vector().open("/after/file/create", (ctx) => heard.push(`${ctx.mode.daemon}:${ctx.input.entity.path}`)),
++    };
++    const seats = [];
++    for (const slug of SLUGS) {
++      const mode = Object.assign(new Mode({ module }), { daemon: slug, stdout: new Span(`${slug}/mode/game/seated`) });
++      const modeDie = { ...shard.context.lift(contexts.modeDie, daemons[slug]), mode, traits: {} };
++      await lifecycle.mode.population.core(modeDie, async () => {});
++      traits.mode.TWITCHY(mode);
++      seats.push(mode);
++    }
++    specimen.expect(seats.map((mode) => mode.twitch instanceof Twitch)).toEqual([true, true]);
++    specimen.expect(seats.map((mode) => mode.twitch === module.twitch)).toEqual([false, false]);
++    specimen.expect(seats[0].twitch === seats[1].twitch).toBe(false);
++    const bytes = new TextEncoder().encode("# seat");
++    await scenario.datamap.shard.scope(async () => {
++      await daemons.italian.entities.file.record({ mode: seats[0].id, daemon: "italian", path: "source/seat.md", mount: "/nowhere/seat.md", mime: "text/markdown", bytes });
++    });
++    await sleep.ms(20);
++    specimen.expect(heard).toEqual(["italian:source/seat.md"]);
++  });
+#+END_SRC
+
+The step is red with the mint out (=twitch.dispatch is not a function=, the boot's own fault), green restored. The constructor reading ran on a clone too (green, boots =RUNNING=) and was not taken.
+
+* milestones
+
+| the page a stranger opens | DECLARED |
+| his text, his bundle press | DECLARED |
+| the domain (editing · bundling · serving) | DECLARED, after the two above |
+
+* testing assessment
+
+Run 11-21 on an APFS clone of the tree (no =.git= · =.jj= · =.env=), =HOME= empty, serial, pristine then changed:
+
+| suite | pristine | changed |
+|---|---|---|
+| =subsystems/typology/tests/traits.test.js= | ok, 2 passed (12 steps) | ok, 2 passed (12 steps) |
+| =subsystems/typology/tests/traits.snapshot.test.js= | ok, 2 passed (6 steps) | ok, 2 passed (6 steps) |
+| =systems/runtime/tests/mint.test.js= | ok, 6 passed (29 steps) | ok, 6 passed (29 steps) |
+| =systems/runtime/tests/mode/twitch.test.js= | ok, 1 passed (3 steps) | ok, 1 passed (7 steps) |
+| =systems/runtime/tests/mode/traits.test.js= | ok, 2 passed (24 steps) | ok, 2 passed (24 steps) |
+| =systems/runtime/tests/runtime/beats.coverage.test.js= | ok, 1 passed (10 steps) | ok, 1 passed (11 steps) |
+| =subsystems/paladin/tests/registry.integrity.test.js= | ok, 2 passed (10 steps) | ok, 2 passed (10 steps) |
+| =subsystems/paladin/tests/registry.wire.test.js= | ok, 3 passed (15 steps) | ok, 3 passed (15 steps) |
+| =subsystems/paladin/tests/settle.test.js= | ok, 2 passed (27 steps) | ok, 2 passed (27 steps) |
+| =systems/runtime/tests/modes.test.js= | ok, 4 passed (8 steps) | ok, 4 passed (8 steps) |
+
+Each new step went red once with its hunk out (the two mount rows · the graft row), green restored. The quest's blocks replayed on a fresh clone: 13 hunks · 2 new files · 0 missed, 8 of 8 files =cmp= equal to the tested clone.
+
+Expanded 11-21 on his /"expand testing here."/ · /"probe"/: a sibling mode of the file's daemon hears it, a foreign daemon's file reaches none, a route naming its own mode hears only its own · a twitch route calls =ctx.mode.call.build= and the page it records builds nothing (red with the =source/= guard out: built twice) · a grafted route that throws faults on its own mode's stdout, the file stays written.
+
+MEASURED, in no test: =TWITCHY= run twice on one mode stacks, a file is heard twice.
+
+The land, 11-21 evening, on fresh clones of that hour's tree (the six target files unmoved since the tangle; replay 14 hunks · 2 new files · 0 missed, 8 of 8 =cmp= equal to the morning's clone):
+
+| run | on | result |
+|---|---|---|
+| ten suites | the whole TANGLE | green, as the table above |
+| =boot.probe.js ATTACHED absent= | the whole TANGLE · the land set | =RUNNING=; =/attached/daemon/hello/mode/publish/attached/…= 200 =text/html= · =/attached/runtime/house/mode/publish/attached/…= 200 · a mode not wearing it 404 · its aperture 401 · =/attached/file= 401 |
+| =boot.probe.js ATTACHED,TWITCHY Vector= | the whole TANGLE | =FAILED=, =twitch.dispatch is not a function= |
+| ten suites | the land set (TANGLE minus =TWITCHY=) | green, =twitch.test.js= 3 steps · =beats.coverage= 11 |
+| =methods/census-suites.sh= | pristine vs the land set | ten suites equal by red name; runtime 710 → 711 steps; the reds are the base tree's (paladin 1 step · ghost 16 · drapes 5 · hello-world 1 · memo 2), in no touched file |
+| nine suites (the capture suite on a clone only) | the TREE after the land | green; =:2501= pid 6583 → 6841, =RUNNING= |
+
+The =TWITCHY= land, 11-21 later, on two fresh clones of that hour's tree (=base2= untouched · =b= = tree + the held hunks + the two of =** ruled=):
+
+| run | on | result |
+|---|---|---|
+| ten suites | =b= | green; =twitch.test.js= 8 steps |
+| =boot.probe.js ATTACHED,TWITCHY Vector= · =Twitch= · =ATTACHED absent= | =b= | =RUNNING= ×3, both mounts 200 |
+| =boot.probe.js ATTACHED,TWITCHY Heard= (a route on =/after/mode/boot= that prints) | =b= | =RUNNING=; heard twice, once per seat: =/mode/publish/attached under null= (the runtime's) · =under hello= (the daemon's) |
+| =twitch.test.js=, the population mint out | =b= | the proof step FAILED, the seven before it ok; green restored |
+| =methods/census-suites.sh= | =base2= vs =b= | ten suites equal by red name; runtime 711 → 716 steps |
+| nine suites (the capture suite on a clone only) | the TREE after the land | green; =:2501= pid 15158 → 37212, =RUNNING= |
+
+The boot closes the gap "no boot of a runtime with a real module" for =ATTACHED= · =TWITCHY=; it is a probe, in no suite.
+
+COVERAGE GAP: ten suites, not the census · no boot of a runtime with a real module (a mode's =reference= is hand-set in the rig, =beats.coverage.test.js:23=) · no browser · =traits.snapshot.test.js:37= CAPTURES the view vocabulary and expects its keys only: the printed schema of =FRAME= · =CELL= losing ="additionalProperties": true= can turn no step red, the land rewrites =trait-view.snapshot.json= · no test holds paladin's =TRAITS= pairing (a doubled key in that literal would win silently).
+
+* review — 11-21
+
+| S | stop | rides | verdict | his words |
+|---|---|---|---|---|
+| 1 | a mode serves outside the login | =ATTACHED= · the marker rows | amen, =expose= recast | /"amen. but make this functions a bit more readable"/ |
+| 2 | a mode hears its files | =TWITCHY= | amen | /"amen"/ |
+
+2 stops · 2 amen · 0 drilled · 0 skipped. Both LANDED 11-21 (stop 2 with the population mint, =** ruled=).
+
+* deferred
+
+- the domain's ontology: a buffer per article, the bundling step, which mode edits and which serves (his: second)
+
+* changelog
+
+- 11-21 /"start a question called attached publishing"/ → this file, terrain only
+- 11-21 /"How is this a prototype. wrong word."/ → the probe moved to =.ikiro/reference/attached-publishing/=
+- 11-21 /"So a obviously"/ · /"call it TWITCHY."/ · /"amen to twitchy and attached."/ · /"yours. cut."/ · /"work the attached nd twitch out to tangle adn /show-me in 1 or 2 s."/ → =* as code= TANGLED on a clone, shown; no file of the tree written
+- departure, mine, reported: =flag= was cut in the TANGLE, not on the tree (typology, under his watcher: it lands with the rest on his =land=)
+- 11-21 /"Land teh parts that are ready."/ → connoisseur · bird pass, then the land: =ATTACHED= + the marker rows, five files, one pass; =TWITCHY= held on a real boot's fault (stop 2 was amen'd on a rig that never crossed =mode.js:20=); the fix + its pin step PROPOSED in =** held=
+- connoisseur — 5 hunks read, 0 tightened, 1 handed to the bird (=twitchy.js=: its fix sits in another owner)
+- 11-21 /"mode has to export it from module and then that gets mounted like the rest"/ → the mint in =mode/lifecycle/1-population.js:55= (twin =daemon/lifecycle/1-population.js:44=), =mode.js= untouched; =TWITCHY= LANDED, six files, one pass; the proof step crosses real population with two seats of one module
+
+* handoff
+
+- goal: a page his mode bundled answers a stranger's GET, measured against what a blog needs
+- done: terrain · the probe (features · speed · compression sizes) · =* as code= TANGLED, both stops amen, ten suites green on a clone, replay equal (14 hunks · 2 new files)
+- ruled: a mode attaches by =ATTACHED= + =attachment= at =/attached/:reference= · twitches by =TWITCHY= + =twitch= · =flag= · =opaque= cut · sources live in the mountpoint · ONE build route on the mode's aperture, the twitch calls it, a command · a tool · a view too · the file tree is the truth, the attachment serves it, buffers are hands on files · a theme of its own, standalone html + css · the demo on ONE mode
+- open, HIS, his thoughts first: how filesink and mountpoint pattern, where files live
+- landed 11-21: =ATTACHED= on a mode · =flag= · =opaque= cut (five files) · =TWITCHY= + the population mint (six files, =** ruled=); nothing of =* as code= is off the tree
+- scratch (dies with a reboot): =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/4d66e216-9a49-46e0-8c48-d68573c5075e/scratchpad/= holds =pristine/= · =copy/= (the whole TANGLE) · =land/= (the first land) · =fix/= (the constructor reading, not taken) · =base2/= · =b/= (the =TWITCHY= land) · =census/= · =censusb/= · the =.sh= that ran them; nothing there the quest's blocks do not carry
+- next: HIS thoughts on where files live (filesink · mountpoint), nothing built before them · then the demo mode on a free port · compression (at compile time | at the proxy) · =Range=
+- never: a word about traits declared by a mode · traits on a buffer (his 11-21 /"Just ignore that entirely."/) · a probe under =testament/prototypes/= · a helper over a schematic (=flag=) · a rig step that sets =module.<export>= after =new Mode= as proof of a trait (it skips the assign)
+- owed: the boot in a SUITE (today a probe) · =typology/prototypes/mode.js:17= still presets a =Twitch= population replaces (kept for the rigs' hand-built modes; =aperture = null= is its sibling's form, his to rule, typology) · =commons/dashboards/dataspace/schema.js:11= hand-lists mode trait words, lacks =ATTACHED= · =TWITCHY= (and older ones) · an attachment's ctx holds =mode= · =runtime= only, no =entities= (the demo's first reader decides) · compression (at build time | at the proxy) · =Range= · =TWITCHY= twice stacks (measured, unpinned) · a mode's route names its own files (unenforced, pinned as such) · =trait-view.snapshot.json= on the tree is the pre-land capture (gitignored; his next snapshot run rewrites it)

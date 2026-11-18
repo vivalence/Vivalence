@@ -35,7 +35,7 @@ function mockFaculties() {
       type: "speech", id: "speech-5", tune: [0.3, 0.7, 0.2],
       channels: { in: ["text"], out: ["audio"] },
       via: {
-        render: async () => ({ role: "assistant", parts: [{ type: "audio", data: "abc", media: "audio/mp3" }], meta: {} }),
+        render: async () => ({ role: "assistant", parts: [{ type: "audio", data: "abc", mime: "audio/mp3" }], meta: {} }),
         stream: async function* () { yield { event: "/turn/open", turn: { role: "assistant" } }; yield { event: "/turn/close", meta: {} }; },
       },
     },
@@ -48,7 +48,7 @@ function mockFaculties() {
 }
 
 function populatedCortex() {
-  return new Cortex(TIER_POINTS).register(mockFaculties());
+  return new Cortex().register(mockFaculties());
 }
 
 specimen.describe("Cortex", () => {
@@ -63,28 +63,28 @@ specimen.describe("Cortex", () => {
     specimen.expect(populated.find()).toHaveLength(5);
     specimen.expect(populated.find({ type: "dialogue", via: "stream" })).toHaveLength(2);
 
-    const additive = new Cortex(TIER_POINTS);
+    const additive = new Cortex();
     specimen.expect(additive.register([mockFaculties()[0]])).toBe(additive);
     additive.register([mockFaculties()[1]]);
     specimen.expect(additive.find({ type: "dialogue" })).toHaveLength(2);
 
-    specimen.expect(new Cortex(TIER_POINTS).register(mockFaculties()[0]).find({ type: "dialogue" })).toHaveLength(1);
+    specimen.expect(new Cortex().register(mockFaculties()[0]).find({ type: "dialogue" })).toHaveLength(1);
 
     const supplied = {
       type: "dialogue", id: "kept", tune: [0.2, 0.8, 0.5],
       channels: { in: ["text"], out: ["text"] },
       via: { render: async () => ({}) },
     };
-    const padded = new Cortex(TIER_POINTS).register([supplied]);
+    const padded = new Cortex().register([supplied]);
     specimen.expect(supplied.tune).toEqual([0.2, 0.8, 0.5]);
     specimen.expect(padded.find({ type: "dialogue" })[0].tune).toEqual([0.2, 0.8, 0.5]);
 
     let long = null;
-    try { new Cortex(TIER_POINTS).register([{ ...supplied, tune: [0.2, 0.4, 0.8, 0.5] }]); } catch (thrown) { long = thrown; }
+    try { new Cortex().register([{ ...supplied, tune: [0.2, 0.4, 0.8, 0.5] }]); } catch (thrown) { long = thrown; }
     specimen.expect(long.message).toContain("invalid faculty");
 
     let error = null;
-    try { new Cortex(TIER_POINTS).register([{ type: "dialogue", id: "dialogue-7", tune: [0.5, 0.5, 0.5] }]); } catch (thrown) { error = thrown; }
+    try { new Cortex().register([{ type: "dialogue", id: "dialogue-7", tune: [0.5, 0.5, 0.5] }]); } catch (thrown) { error = thrown; }
     specimen.expect(error.message).toContain("invalid faculty");
   });
 
@@ -127,7 +127,7 @@ specimen.describe("Cortex", () => {
   });
 
   specimen.it("the object avenue derives from a dialogue donor; the provider owns structured output", async () => {
-    const donorOnly = new Cortex(TIER_POINTS).register([mockFaculties()[0]]);
+    const donorOnly = new Cortex().register([mockFaculties()[0]]);
     specimen.expect(donorOnly.find({ type: "object" })).toHaveLength(0);
     const derived = donorOnly.findOne({ type: "object" });
     specimen.expect(derived).toBeDefined();
@@ -136,7 +136,7 @@ specimen.describe("Cortex", () => {
 
     specimen.expect(populatedCortex().findOne({ type: "object" }).tune).toEqual([0.3, 0.8, 0.5]);
 
-    specimen.expect(new Cortex(TIER_POINTS).register([mockFaculties()[3]]).findOne({ type: "object" })).toBe(undefined);
+    specimen.expect(new Cortex().register([mockFaculties()[3]]).findOne({ type: "object" })).toBe(undefined);
   });
 
   specimen.it("hallucinate: gate → fill → lowered Request; verbatim.render derives from the stream", async () => {
@@ -156,9 +156,9 @@ specimen.describe("Cortex", () => {
       ],
       "verbatim",
     );
-    const cortex = new Cortex(TIER_POINTS).register([clock.faculty, spoken.faculty]);
+    const cortex = new Cortex().register([clock.faculty, spoken.faculty]);
     specimen.expect(cortex.hallucinator).toBe(undefined);
-    specimen.expect(new Cortex(TIER_POINTS).hallucinate).not.toBe(cortex.hallucinate);
+    specimen.expect(new Cortex().hallucinate).not.toBe(cortex.hallucinate);
     specimen.expect(cortex.hallucinate).toBe(cortex.hallucinate);
 
     await specimen.expect(cortex.hallucinate.dialogue.render({ turns: [] })).rejects.toThrow(/controller/);
@@ -199,7 +199,7 @@ specimen.describe("Cortex", () => {
       channels: { in: ["text", "object"], out: ["object"] },
       via: { render: async (round) => { seen.push(round); return Object.fromEntries(Object.entries(round.questions).map(([key, question]) => [key, answered(question)])); } },
     };
-    const cortex = new Cortex(TIER_POINTS).register([chooser]);
+    const cortex = new Cortex().register([chooser]);
     specimen.expect(cortex.findOne({ type: "choice", via: "stream" })).toBe(undefined);
     const system = { expected: "Vado al mercato.", answer: "Io vado al mercato domani." };
     await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), system, questions: {} })).rejects.toThrow(/a choice asks at least one question/);
@@ -232,20 +232,27 @@ specimen.describe("Cortex", () => {
     await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), system, questions: { wide: { ask: "?", options: four } } })).rejects.toThrow(/'bench\/chooser' holds 3 options; "wide" carries 4/);
     await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), system, questions: { a: { ask: "?" }, b: { ask: "?" }, c: { ask: "?" }, d: { ask: "?" } } })).rejects.toThrow(/'bench\/chooser' renders 3 question\(s\) at once; 4 asked/);
 
-    await specimen.expect(new Cortex(TIER_POINTS).hallucinate.choice.render({ controller: new Controller(), system, questions: { ok: { ask: "?" } } })).rejects.toThrow(/no 'choice' faculty resolves a 'render' avenue/);
+    await specimen.expect(new Cortex().hallucinate.choice.render({ controller: new Controller(), system, questions: { ok: { ask: "?" } } })).rejects.toThrow(/no 'choice' faculty resolves a 'render' avenue/);
   });
 
-  specimen.it("the ledger's tiers decide a pick; a cortex refuses tiers missing a name; eager is no tier", () => {
+  specimen.it("a tier is a name in typology's table: the faculty wearing it wins on its cortex, else the nearest to its point; a cortex is built from its faculties; eager is no tier (m126 Q3A · Q26 · Q27)", () => {
+    const { TIERS } = v.primitives.hallucination;
     const faculties = [
-      { type: "dialogue", id: "slow-smart", tune: TIER_POINTS.capable, via: { render: () => {} } },
-      { type: "dialogue", id: "fast-smart", tune: TIER_POINTS.unleashed, via: { render: () => {} } },
+      { type: "dialogue", id: "slow-smart", tune: TIERS.capable.tune, via: { render: () => {} } },
+      { type: "dialogue", id: "fast-smart", tune: TIERS.unleashed.tune, via: { render: () => {} } },
+      { type: "speech", id: "leandro", tune: TIERS.tongue.tune, via: { stream: () => {} } },
+      { type: "speech", id: "francesca", tune: [0.9, 0.1, 0.1], tier: "tongue", via: { stream: () => {} } },
     ];
-    const cortex = new Cortex(TIER_POINTS).register(faculties);
+    const cortex = new Cortex(faculties);
+    specimen.expect(cortex.find({ type: "dialogue" }).map((faculty) => faculty.id).sort()).toEqual(["fast-smart", "slow-smart"]);
     specimen.expect(cortex.findOne({ type: "dialogue", tier: "capable" }).id).toBe("slow-smart");
     specimen.expect(cortex.findOne({ type: "dialogue", tier: "unleashed" }).id).toBe("fast-smart");
-    specimen.expect(cortex.split([]).tiers).toBe(TIER_POINTS);
-    const { capable, ...partial } = TIER_POINTS;
-    specimen.expect(() => new Cortex(partial)).toThrow("[cortex] tiers/ must have required properties capable");
+    specimen.expect(cortex.findOne({ type: "speech", tier: "tongue" }).id).toBe("francesca");
+    specimen.expect(new Cortex(faculties.slice(0, 3)).findOne({ type: "speech", tier: "tongue" }).id).toBe("leandro");
+    specimen.expect(new Cortex().find({ type: "dialogue" })).toEqual([]);
+    specimen.expect(cortex.split).toBeUndefined();
+    specimen.expect(cortex.tiers).toBeUndefined();
+    specimen.expect(Object.keys(TIERS)).toEqual(["frugal", "fast", "balanced", "capable", "unleashed", "ear", "tongue", "actor", "director"]);
     specimen.expect(() => cortex.findOne({ type: "dialogue", tier: "eager" })).toThrow("[cortex] invalid query /tier");
   });
 });

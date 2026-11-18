@@ -1,4 +1,3 @@
-import { TIER_POINTS } from "./scenarios/tiers.js";
 import { join } from "@std/path";
 import { specimen, v, Controller, Cortex, Vector } from "@vivalence/typology";
 
@@ -26,7 +25,7 @@ function sealedTurn(text) {
 
 function scriptedCortex(script, seen) {
   let cursor = 0;
-  return new Cortex(TIER_POINTS).register([
+  return new Cortex().register([
     {
       type: "dialogue",
       id: "dialogue-1",
@@ -93,7 +92,7 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
     specimen.it("an invalid policy throws at the call, named", async () => {
       let error = null;
       try {
-        await new Cortex(TIER_POINTS).hallucinate.dialogue.render({ controller: new Controller(), policy: { rounds: 0 }, turns: [] });
+        await new Cortex().hallucinate.dialogue.render({ controller: new Controller(), policy: { rounds: 0 }, turns: [] });
       } catch (thrown) { error = thrown; }
       specimen.expect(error.message).toContain("invalid dialogue hallucination");
     });
@@ -171,7 +170,7 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
           ],
         ];
         let cursor = 0;
-        const cortex = new Cortex(TIER_POINTS).register([
+        const cortex = new Cortex().register([
           {
             type: "dialogue",
             id: "dialogue-2",
@@ -210,7 +209,7 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
       "the request carries output.schema with no respond splice; the structured turn folds",
       async () => {
         const seen = [];
-        const cortex = new Cortex(TIER_POINTS).register([
+        const cortex = new Cortex().register([
           {
             type: "dialogue",
             id: "dialogue-3",

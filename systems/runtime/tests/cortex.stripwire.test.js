@@ -1,4 +1,3 @@
-import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { specimen, Controller, soma, v, Url, Connection, Cortex, Vector, cortex, shard, shape } from "@vivalence/typology";
 import { gestalten } from "@vivalence/runtime";
 import { create } from "./scenarios/cortex.js";
@@ -30,7 +29,7 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
       shard.transmitter.inline(shape.http(daemon.aperture)),
     );
     const strip = await connection.call("/metadata/cortex");
-    remote = new Cortex(TIER_POINTS).register(cortex.wire(connection.branch("/cortex"), strip));
+    remote = new Cortex().register(cortex.wire(connection.branch("/cortex"), strip));
   });
 
   specimen.afterAll(async () => {

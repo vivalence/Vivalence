@@ -3,6 +3,8 @@ import * as shape from "../gestalten/shape/index.js";
 import * as datamap from "../gestalten/shard/datamap.js";
 
 export class Datamap {
+  migrated = [];
+
   constructor(orm) {
     this.orm = orm;
     this.entities = { em: orm.em };

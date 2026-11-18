@@ -56,7 +56,7 @@ export const harness = new Vector()
       const HARNESSED = belt.input.cast(Tiered, ctx.signal);
       await ctx.client.runtime.entities.thread.updateOne(
         { id: ctx.terminal.thread.id },
-        traits.patch(ctx.terminal.thread, { HARNESSED: { ...UNPINNED, ...HARNESSED, tune: minded(ctx).cortex.tiers[HARNESSED.tier] } }),
+        traits.patch(ctx.terminal.thread, { HARNESSED: { ...UNPINNED, ...HARNESSED, tune: v.primitives.hallucination.TIERS[HARNESSED.tier].tune } }),
       );
       return { HARNESSED };
     },

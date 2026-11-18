@@ -56,13 +56,14 @@ describe("ledger parts — a top-level slot is its content, or a path to it, or 
         "ledger/ledger.viva.json": {},
         "instance/instance.viva.json": { manifest, daemons: [daemon], datamap },
       });
-      return await factories.instance(lifecycle.paladin.instance(paladin));
+      lifecycle.paladin.instance(paladin);
+      return await factories.instance(paladin);
     };
     const string = await settled("@commons/datamap/libsql");
     const object = await settled(DATAMAP);
     expect(string.datamap).toEqual(object.datamap);
     expect(string.daemons[0].datamap.module).toBe("@commons/datamap/libsql");
-    expect(string.inherited).toEqual([]);
+    expect(string.paladin.inherited).toEqual([]);
   });
 
   it("an unset ${KEY} throws naming the key; a missing file throws naming the path", async () => {
@@ -101,9 +102,10 @@ describe("ledger parts — a top-level slot is its content, or a path to it, or 
       "instance/instance.viva.json": { manifest: { type: "instance", slug: "probe", version: "0.0.1" }, daemons: [daemon], environment: "./environment.json" },
       "instance/environment.json": ENVIRONMENT,
     });
-    const instance = await factories.instance(lifecycle.paladin.instance(paladin));
+    lifecycle.paladin.instance(paladin);
+    const instance = await factories.instance(paladin);
     expect(Object.keys(instance.environment.properties)).toEqual(["VIVA_PROBE_A"]);
     expect(instance.datamap.module).toBe("@commons/datamap/libsql");
-    expect(instance.inherited).toEqual(["datamap"]);
+    expect(instance.paladin.inherited).toEqual(["datamap"]);
   });
 });

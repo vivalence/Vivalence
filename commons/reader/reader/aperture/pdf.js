@@ -16,7 +16,7 @@ export const pdf = async (bytes) => {
 
 export async function* scanned(bytes, ctx) {
   if (ctx.providers.ocr === undefined) throw new Error("reader: this mode consumes no ocr service");
-  const source = { type: "document", media: "application/pdf", data: encodeBase64(bytes) };
+  const source = { type: "document", mime: "application/pdf", data: encodeBase64(bytes) };
   const blocks = [];
   let page = 1;
   for await (const block of ctx.providers.ocr(source)) {
@@ -195,7 +195,7 @@ export const chaptered = (blocks, title) =>
 const reading = (cortex) => {
   const documents = cortex.find({ type: "dialogue", via: "render" }).filter((faculty) => faculty.channels.in.includes("document"));
   if (documents.length === 0) throw new Error("reader: no dialogue faculty in this cortex reads documents");
-  return nearest(documents, cortex.tiers.capable);
+  return nearest(documents, v.primitives.hallucination.TIERS.capable.tune);
 };
 
 const excerpt = async (source, from, until) => {
@@ -241,7 +241,7 @@ export async function* modeled(bytes, ctx) {
       turns: [{
         role: "user",
         parts: [
-          { type: "document", media: "application/pdf", data: encodeBase64(await excerpt(source, from, until)) },
+          { type: "document", mime: "application/pdf", data: encodeBase64(await excerpt(source, from, until)) },
           { type: "text", text: asked({ from, to, until, total, previous }) },
         ],
       }],

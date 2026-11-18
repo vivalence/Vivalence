@@ -14,7 +14,7 @@ import {
 const { http } = shape;
 
 // ---------------------------------------------------------------------------
-// Server side — minimal mode stub matching the CONVERSATIONAL trait contract.
+// Server side — minimal mode stub matching the CONVERSATION trait contract.
 // mode.harness.dialogue.stream({ parts, thread, tune? }) → async generator of packets.
 // ---------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ function makeMode() {
   return { harness, aperture: new Aperture() };
 }
 
-function CONVERSATIONAL(mode) {
+function CONVERSATION(mode) {
   const conversation = new Vector();
 
   conversation.branch("dialogue").open("open", async (ctx) => {
@@ -108,12 +108,12 @@ function deactivateInsitu(terminal) {
 
 // ---------------------------------------------------------------------------
 
-specimen.describe("conversation — CONVERSATIONAL × INSITU", () => {
+specimen.describe("conversation — CONVERSATION × INSITU", () => {
   const PORT = 9885;
   const abort = new AbortController();
   const mode = makeMode();
 
-  CONVERSATIONAL(mode);
+  CONVERSATION(mode);
 
   specimen.beforeAll(async () => {
     Deno.serve({ port: PORT, signal: abort.signal, onListen() {} }, http(mode.aperture));

@@ -6,7 +6,10 @@ export const MEMO = await paladin.read.json(paladin.scope.repository.branch("com
 
 export const RECIPE = {
   ...hello.RECIPE,
-  hallucinators: [{ module: "@commons/hallucinator/stub", faculties: STUB_FACULTIES }],
+  runtime: {
+    ...hello.RECIPE.runtime,
+    hallucinators: [{ module: "@commons/hallucinator/stub", faculties: STUB_FACULTIES }],
+  },
   daemons: [...hello.RECIPE.daemons, ...MEMO.daemons],
 };
 

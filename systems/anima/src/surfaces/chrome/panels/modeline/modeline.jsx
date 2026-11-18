@@ -1,5 +1,5 @@
 import { createMemo, from, Show } from "solid-js";
-import * as parts from "@vivalence/drapes/parts";
+import * as parts from "@vivalence/drapes/solid";
 import * as ambient from "../../ambient/index.js";
 import { belt } from "@vivalence/ghost";
 import {
@@ -68,8 +68,17 @@ export const marked = (app, terminal) => {
   };
 };
 
+const steps = (seated) => seated.find((activity) => activity.status === "RUNNING").steps.length;
+
 const SEATED = [
-  [(seated) => loudness(seated).tone !== "idle", (seated) => ({ tone: loudness(seated).tone, text: tool(seated) === null ? loudness(seated).text : `${tool(seated)} · ${loudness(seated).text}` })],
+  [
+    (seated) => tool(seated) !== null,
+    (seated) => ({ tone: loudness(seated).tone, text: `${steps(seated)} steps` }),
+  ],
+  [
+    (seated) => loudness(seated).tone !== "idle",
+    (seated) => ({ tone: loudness(seated).tone, text: loudness(seated).text }),
+  ],
   [(seated) => seated.some((activity) => activity.status === "FAILED"), () => ({ tone: "negative", text: "fault" })],
   [() => true, () => ({ tone: "idle", text: "" })],
 ];
@@ -203,8 +212,9 @@ export function Widget() {
   const terminal = ambient.terminal.consume();
   const world = watched(app, terminal);
   const widget = from(app.bridge.$widget);
+  const frames = from(app.bridge.$frames);
   const viewport = from(app.bridge.$viewport);
-  const heard = voiced(app).map((store) => from(store));
+  const heard =voiced(app).map((store) => from(store));
   const section = createMemo(() => {
     if (widget() === null) return undefined;
     for (const read of heard) read();
@@ -212,7 +222,17 @@ export function Widget() {
   });
   return (
     <Show when={widget() !== null && section() !== undefined}>
-      <parts.Wid section={section()} at={widget()} viewport={{ width: viewport().width, height: viewport().height }} onClose={() => app.bridge.$widget.set(null)} onAct={act(app, terminal)} onFilter={filtered(app)} />
+      <parts.Wid
+        section={section()}
+        at={widget()}
+        frame={frames()[widget().id]}
+        phone={viewport().narrow}
+        viewport={{ width: viewport().width, height: viewport().height }}
+        onClose={() => app.bridge.$widget.set(null)}
+        onAct={act(app, terminal)}
+        onFilter={filtered(app)}
+        onPlace={(frame) => app.bridge.$frames.set({ ...app.bridge.frames, [widget().id]: frame })}
+      />
     </Show>
   );
 }

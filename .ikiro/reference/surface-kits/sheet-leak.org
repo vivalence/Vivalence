@@ -1,0 +1,26 @@
+#+title: surface-kits — the kit's sheet and a view, moved whole 11-19
+# limit: 2500 chars
+
+The Svelte set shares no sheet with the Solid set: 41 of 61 =.svelte= carry their own =<style>= over dapper's variables. =parts.css= is loaded once, global, by anima, and reaches a Svelte view by leak:
+
+#+BEGIN_SRC text
+~/.viva/registry/education/modes/games/wakaru/buffer/parts/Duel.svelte:422
+  the host sheet (drapes parts.css:7) sets every button text-align: left · padding: 0
+#+END_SRC
+
+A =dom.solid= view escapes it in a shadow root and brings its own:
+
+#+BEGIN_SRC js
+// commons/reader/reader/buffer/Reader.jsx
+export default (element, props) => {
+  const shadow = element.attachShadow({ mode: "open" });
+  const style = document.createElement("style");
+  style.textContent = sheet;
+  shadow.append(style);
+  const dispose = render(() => <Held {...props} />, shadow);
+  return { destroy: dispose };
+};
+#+END_SRC
+
+So a view is its OWN root with its OWN runtime, bridged by atoms (=from(props.buffer.$data)=). A second =solid-js= in the page is weight, not a fault.
+

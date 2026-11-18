@@ -21,7 +21,7 @@ export const tools = new Vector().open(
     const file = await ctx.entities.file.findOneOrFail({ id });
     const source = {
       type: file.mime.startsWith("image/") ? "image" : "document",
-      media: file.mime,
+      mime: file.mime,
       data: encodeBase64(await paladin.read.bytes(file.mount)),
     };
     const blocks = await Array.fromAsync(ctx.service(source, settings));

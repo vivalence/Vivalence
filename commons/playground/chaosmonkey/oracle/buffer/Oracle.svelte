@@ -1,6 +1,6 @@
 <script>
   import { v, Controller, Span, trace } from "@vivalence/typology";
-  import { Helpdesk } from "@vivalence/drapes";
+  import { Helpdesk } from "@vivalence/drapes/svelte";
   import { atom } from "nanostores";
   import Trace from "./Trace.svelte";
 

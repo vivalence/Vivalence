@@ -68,6 +68,14 @@ specimen.describe("Lighthouse Auth", () => {
       specimen.expect(verified.user.id).toBe(user.id);
       tokens.access = result.access;
     });
+
+    specimen.it("a second device's login keeps the first device's refresh alive", async () => {
+      const phone = await scenario.conn.call("/lighthouse/login", { username: "finn", password: "biggusdickus" });
+      const desktop = await scenario.conn.call("/lighthouse/login", { username: "finn", password: "biggusdickus" });
+      const result = await scenario.conn.call("/lighthouse/refresh", { refresh: phone.authority.refresh });
+      specimen.expect(result.access).toBeDefined();
+      specimen.expect(desktop.authority.refresh).not.toBe(phone.authority.refresh);
+    });
   });
 
   specimen.describe("logout", () => {
@@ -77,6 +85,16 @@ specimen.describe("Lighthouse Auth", () => {
       const revoked = await scenario.conn.fetch("/lighthouse/refresh", { refresh: tokens.refresh });
       specimen.expect(revoked.status).toBe(401);
       specimen.expect(revoked.body.error.code).toBe("INVALID_TOKEN");
+    });
+
+    specimen.it("one device's logout leaves the other device seated", async () => {
+      const phone = await scenario.conn.call("/lighthouse/login", { username: "finn", password: "biggusdickus" });
+      const desktop = await scenario.conn.call("/lighthouse/login", { username: "finn", password: "biggusdickus" });
+      await scenario.conn.call("/lighthouse/logout", { refresh: phone.authority.refresh });
+      const revoked = await scenario.conn.fetch("/lighthouse/refresh", { refresh: phone.authority.refresh });
+      specimen.expect(revoked.status).toBe(401);
+      const kept = await scenario.conn.call("/lighthouse/refresh", { refresh: desktop.authority.refresh });
+      specimen.expect(kept.access).toBeDefined();
     });
   });
 });

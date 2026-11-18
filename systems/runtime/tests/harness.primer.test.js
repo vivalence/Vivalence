@@ -28,11 +28,11 @@ specimen.describe("harness — the request's primer", () => {
     const { daemon, dewey } = scenario;
     dewey.module.primer = new Vector().open("dewey", "You are Dewey.");
     PRIMER(dewey);
-    const harvest = new Mode({ manifest: { type: "tactics", slug: "harvest", traits: ["PRIMER"] } });
+    const harvest = new Mode({ module: { manifest: { type: "tactics", slug: "harvest", traits: ["PRIMER"] } } });
     harvest.module.primer = new Vector().open({ nature: "archivist", valence: "the harvest persona" }, "ARCHIVIST");
     PRIMER(harvest);
     daemon.modes.tactics = { harvest };
-    const runtime = new Runtime({ slug: "runtime", reference: new Path("/runtime/runtime"), daemons: { [daemon.slug]: daemon } });
+    const runtime = new Runtime({ mask: { manifest: { slug: "runtime" }, reference: new Path("/runtime/runtime") }, daemons: { [daemon.slug]: daemon } });
     dewey.aperture.branch("/harness").use(shard.context.bind("runtime", runtime));
   });
   specimen.afterAll(async () => {
@@ -79,7 +79,7 @@ specimen.describe("harness — the request's primer", () => {
   });
 
   specimen.it("PRIMER on a mode that exports no primer is loud", () => {
-    const bare = new Mode({ manifest: { type: "tactics", slug: "bare", traits: ["PRIMER"] } });
+    const bare = new Mode({ module: { manifest: { type: "tactics", slug: "bare", traits: ["PRIMER"] } } });
     specimen.expect(() => PRIMER(bare)).toThrow("PRIMER: bare declares the trait and exports no primer");
   });
 });

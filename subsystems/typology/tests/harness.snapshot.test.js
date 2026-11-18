@@ -42,5 +42,7 @@ describe("snapshot: harness", () => {
     expect(v.primitives.harness.Request.check({ thread: "th3", parts: [{ type: "text", text: "ciao" }] })).toBe(true);
     expect(v.primitives.harness.Request.check({ thread: "th3", terminal: "t1", turn: "6f1c0d2e", parts: [{ type: "text", text: "ciao" }] })).toBe(true);
     expect(v.primitives.harness.Request.check({ thread: "th3" })).toBe(false);
+    expect(v.primitives.harness.Request.check({ thread: "th3", parts: [{ type: "file", file: "01a1bd04" }] })).toBe(true);
+    expect(v.primitives.harness.Request.check({ thread: "th3", parts: [{ type: "file" }] })).toBe(false);
   });
 });

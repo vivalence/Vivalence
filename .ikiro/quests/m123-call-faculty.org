@@ -1,7 +1,7 @@
 #+title: call faculty — two-way speech on one content grammar; verbatim · speech · call speak turns and parts, audio is medium
 #+filetags: :typology:cortex:hallucinators:ghost:runtime:voice:
 #+status: TANGLING 11-17 — Q0–Q32 LOCKED; milestones 0 · 2–7 LANDED 11-17 (=reference/call-faculty/milestone0-11-17.org= · =landed-11-17.org=); next: live QA · milestone 8
-# writer: agent · limit: 16000 chars
+# writer: agent · limit: 16500 chars
 
 * intent
 
@@ -47,7 +47,7 @@
 | Q9 | a mode trait carries voice (=/call= · =/dictate= on =mode.repl=), never a subject, never =box.converse=; the word → mode-traits cleanup | /"ok mode it is. conversational used to be  the marker for this. that was the idea. but conversation became a faculty and its kinda not clean rn."/ |
 | Q18 | one voice provider: elevenlabs hears (=scribe_v3_live=) and speaks; deepgram leaves the ledger | /"elevenlabs new faculty is a win. lets just have one. simpler faster not multiple keys to manage."/ |
 | Q19 | a draft lives on its part (=part.draft=): =pour= holds it, a delta · a full replaces it, =/part/close= deletes it; =Packet.Any= cut, zero readers | /"a."/ |
-| Q20 | a draft carries the part's provisional fields, a bag as the delta's; text ={ text }=, an image ={ data, media }= | /"b. but i dont like draft.draft nesting on name level"/ |
+| Q20 | a draft carries the part's provisional fields, a bag as the delta's; text ={ text }=, an image ={ data, mime }= (=media= → =mime= 11-20) | /"b. but i dont like draft.draft nesting on name level"/ |
 | Q21 | every =/part/*= packet carries =part=, the event names how =pour= applies it; =delta:= → =part:= renamed whole: typology · runtime · providers | /"b. full rename. full runtime and typology"/ · /"and providers"/ |
 | Q22 | a voice provider takes the signal, never the controller: the belt owns the session; a branch renames the exit's reason (=controller.js:28=) | /"why not pass a controller tho?"/ · /"a"/ |
 | Q23 | no caret: a dictation's words append to =dock.input=; Q14 dies, Q10 · Q12 land at the end | /"i dont like this caret systmem. rip it out. we just append for now. today -> simple and working. trim and slim"/ |
@@ -146,8 +146,9 @@ S1–S14 moved whole to =reference/call-faculty/review-11-17-ledger.org= (cap).
 
 * handoff
 
+- OWNER 11-19: =m126-facutly-unfolding.org= =* owns= holds this quest's open tails (campaign C3 · C5 · C6 · C7 · milestone 8 · next · owed below); this file is the landed record
 - goal: dictation and a call work in anima AND the tty; the system is whole without an ear
 - done: Q0–Q35 · six laws; milestones 0 · 2–7 · ui LANDED 11-17 (=milestone0-11-17.org= · =landed-11-17.org=); design pass (=design-pass-11-17.org=); 11-18 his screen: one stop, the mic · the card trash only · send while dictating; the input's commands re-key on the host =$status= (/"why cant i dictate? i could two seconds ago"/: a reload built them before HARNESSED grafted =/dictate=); the deaf tooltip names the mechanism
 - next: the live campaign (=* testing assessment=): C3 on =:2501= (elevenlabs row in 11-17, runtime restarted on it 11-18) · C5 his walk · Q35 tty · panels strip|widget · milestone 8
 - never: a second fold beside =soma.pour= · a guard for a missing ear (the route is absent) · a subject for voice · =CONVERSATIONAL= as a voice marker · =VOCAL= as living · =composer= · a migration for a stored trait (Q16C) · a client without dictation · a dictation object · pause · a controller to a provider (Q22) · a caret for a dictation (Q23)
-- owed: tty capture (his mic, his go) · the tty's live words · level · a client's devices plane (his, S14) · the tty's recorder faults (=microphone.sketch.js=, shown, no amen) · the sketch's unprobed names · prod threads storing =polish= (stored =false= heals ON) · Q8's =:memory:= probe · scribe live (no key read) · =/metadata/harness= live (401) · =soma.drain='s =/part/open= for a =tool_use= fails =Packet.PartOpen= (no =input=, =walk-11-17/packets.probe.js=) · a named native call absent cascades silently (=where.probe.js=) · the mic stop live: the card stays till the server closes its stream, unverified · /"daemon.mode.slug is weird"/: where? (asked 11-18) · tty twins of 11-18 unverified (known-issues:2332) · timing 11-18 (=dictate-performance-11-18.org=): journal rebuilt per Activity · polish 5–20 s holds the card
+- owed: tty capture (his mic, his go) · the tty's live words · level · a client's devices plane (his, S14) · the tty's recorder faults (=microphone.sketch.js=, shown, no amen) · the sketch's unprobed names · prod threads storing =polish= (stored =false= heals ON) · Q8's =:memory:= probe · scribe live (no key read) · a named native call absent cascades silently (=where.probe.js=) · the mic stop live: the card stays till the server closes its stream, unverified · /"daemon.mode.slug is weird"/: where? (asked 11-18) · tty twins of 11-18 unverified (known-issues:2332) · timing 11-18 (=dictate-performance-11-18.org=): journal rebuilt per Activity · polish 5–20 s holds the card

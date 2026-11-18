@@ -1,0 +1,587 @@
+#+title: upload progress — a file going up shows how much has landed; the dock's drop works over the socket at all
+#+filetags: :file:upload:dock:socket:multiplex:progress:
+#+status: DONE 11-21 on his /"move to done"/ — every milestone LANDED and seen by him (/"looks like its working."/); NOT whole: tails by name in =* handoff= owed, the typed upload filed as =typed-file-upload-sends-nothing=
+# writer: agent · limit: 70000 chars
+
+* intent
+
+/"do i get a nice streaming interface during upload?"/ → /"go drill upload progress"/ (11-21).
+
+* rulings
+
+| Q | ruling | his words |
+|---+--------+-----------|
+| Q0 | the SERVER reports bytes landed; the socket stays unpaced | /"b"/ |
+| Q1 | the chip above the draft FILLS left to right, solid when landed; no numbers | /"a"/ |
+
+Not taken, Q0 A: pacing =Socket.feed= on =bufferedAmount= (probe: 64 MB handed, 64 MB queued, server holds 0; paced: 2 MB queued). The memory of a big drop stays as =done/file-drop.org= =* deferred= has it.
+
+* terrain — measured 11-21
+
+- the dock's upload rides the multiplex WebSocket (=systems/ghost/subjects/client/factory.js:21=), never =fetch=; every probe of =done/file-drop.org= ran the in-process connection.
+- DEFECT, landed 11-21, live on the tree: over the socket =ctx.signal.flags= is =undefined= (=subsystems/typology/prototypes/socket.js:177=, the signal is decoded from the path alone) → =subsystems/typology/gestalten/shard/datamap.js= =flags.thread= throws → 500. The runtime's own word: =TypeError: Cannot read properties of undefined (reading 'thread')=.
+- the client glued =?thread=…= into the path (=systems/ghost/entities/file/repository.js:8=): the socket sends a request's query apart (=transmitter.js:93= =request.url.search=) and found none; the file's name carried it.
+- =shard.transmitter.retry= re-sent a request whose body stream was already read: =TypeError: ReadableStream is locked=, uncaught.
+
+* as code
+
+EVIDENCE, =diff -u= of the tree against the copy it was built and run on (10 files, an ALLOW-list: a sibling session landed 25 other files on the tree while this was built, none of these ten; replay: =patch -p0= from the repository root). Mine, unasked, inside it: =Connection.fetch= honours a request's =query= (=Request= already declared the field, nobody read it) · the route reads =ctx.request.url.searchParams= (twin =systems/runtime/subjects/lighthouse/signer.js:49=) · =retry= leaves a request with a body stream alone. All three are typology core.
+
+#+BEGIN_SRC diff
+--- subsystems/drapes/Atts.jsx
++++ subsystems/drapes/Atts.jsx
+@@ -5,7 +5,13 @@
+     <div class="atts">
+       <For each={props.attachments}>
+         {(attachment) => (
+-          <button class="att" title={`drop · /detach ${attachment.name}`} onClick={() => props.onDrop(attachment)}>
++          <button
++            class="att"
++            classList={{ flying: attachment.file === null }}
++            style={attachment.file === null ? { "--landed": attachment.landed / attachment.bytes } : undefined}
++            title={`drop · /detach ${attachment.name}`}
++            onClick={() => props.onDrop(attachment)}
++          >
+             {attachment.name}
+             <span class="x">✕</span>
+           </button>
+--- subsystems/drapes/parts.css
++++ subsystems/drapes/parts.css
+@@ -251,6 +251,7 @@
+ .atts { display: flex; gap: .25rem; flex-wrap: wrap; }
+ .att { height: 1.375rem; padding: 0 .5rem; display: inline-flex; align-items: center; gap: .375rem; font-family: var(--font-family-code), monospace; font-size: .71875rem; color: var(--text-ink); background: var(--surface-sunk); border-radius: var(--shape-radius-pill); box-shadow: inset 0 0 0 1px var(--divider); }
+ .att .x { color: var(--text-muted); }
++.att.flying { color: var(--text-muted); background: linear-gradient(to right, var(--surface-lift) calc(var(--landed) * 100%), var(--surface-sunk) 0); }
+ .field { display: flex; align-items: flex-end; min-height: 0; gap: .375rem; background: var(--control-field); border-radius: var(--shape-radius-field); box-shadow: inset 0 0 0 1px var(--boundary); padding: .25rem .375rem .25rem .625rem; position: relative; }
+ .field.dict { box-shadow: inset 0 0 0 1px var(--signal-negative); }
+ .field .pc { font-family: var(--font-family-code), monospace; font-size: .8125rem; line-height: 1.25rem; color: var(--text-muted); padding: .25rem 0; flex-shrink: 0; }
+--- subsystems/drapes/tests/parts/journal.test.js
++++ subsystems/drapes/tests/parts/journal.test.js
+@@ -120,6 +120,13 @@
+   specimen.it("Atts (dom.js:284) · Dictline (call-faculty prototype.dc.html:33): chips that drop; the spoken words solid, the tail muted, trash only — the mic is the stop", () => {
+     specimen.expect(painted(() => parts.Atts({ attachments: [{ name: "notes.txt" }], onDrop: () => {} }))).toBe(oracle(ATTS));
+     specimen.expect(painted(() => parts.Atts({ attachments: [], onDrop: () => {} }))).toBe("");
++    const flying = screen(() => parts.Atts({ attachments: [{ name: "cat.png", bytes: 200, landed: 50, file: null }], onDrop: () => {} }));
++    const chip = flying.target.querySelector(".att");
++    specimen.expect([chip.classList.contains("flying"), Number(chip.style.getPropertyValue("--landed"))]).toEqual([true, 0.25]);
++    flying.close();
++    const landed = screen(() => parts.Atts({ attachments: [{ name: "cat.png", bytes: 200, landed: 200, file: { id: "f1" } }], onDrop: () => {} }));
++    specimen.expect(landed.target.querySelector(".att").classList.contains("flying")).toBe(false);
++    landed.close();
+     specimen.expect(painted(() => parts.Dictline({ text: "", tail: "", onTrash: () => {} }))).toBe(oracle(DICTLINE("", "listening")));
+     specimen.expect(painted(() => parts.Dictline({ text: "", tail: "vado al", onTrash: () => {} }))).toBe(oracle(DICTLINE("", "vado al")));
+     const exits = [];
+--- subsystems/typology/gestalten/shard/datamap.js
++++ subsystems/typology/gestalten/shard/datamap.js
+@@ -1,6 +1,7 @@
+ import { Vector } from "../../prototypes/vector.js";
+ import { Aperture } from "../../prototypes/aperture.js";
+ import { Broadcaster } from "../../prototypes/broadcaster.js";
++import { Queue } from "../../prototypes/queue.js";
+ import * as object from "../belt/object.js";
+ import * as steer from "../steer/index.js";
+ import * as fromm from "../fromm/index.js";
+@@ -286,16 +287,35 @@
+       path: fromm.params(ctx.params).URIC,
+       mime: ctx.request.headers.get("content-type"),
+     };
+-    const { flags } = ctx.signal;
+-    const thread = flags.thread ? await entities.thread.findOneOrFail({ id: flags.thread }) : undefined;
+-    const buffer = flags.buffer ? await entities.buffer.findOneOrFail({ id: flags.buffer }) : undefined;
+-    const file = await entities.file.upload({
+-      ...(await land(ctx, dropped, ctx.request.raw.body)),
+-      user: ctx.user.id,
+-      thread,
+-      buffer,
+-    });
+-    return serialize(file, { populate: ["threads:ref", "buffers:ref"] });
++    const holders = ctx.request.url.searchParams;
++    const thread = holders.has("thread") ? await entities.thread.findOneOrFail({ id: holders.get("thread") }) : undefined;
++    const buffer = holders.has("buffer") ? await entities.buffer.findOneOrFail({ id: holders.get("buffer") }) : undefined;
++    const progress = new Queue();
++    let bytes = 0;
++    const counted = ctx.request.raw.body.pipeThrough(
++      new TransformStream({
++        transform(chunk, controller) {
++          bytes += chunk.length;
++          progress.enqueue({ event: "/landed", bytes });
++          controller.enqueue(chunk);
++        },
++      }),
++    );
++    const landing = land(ctx, dropped, counted);
++    landing.then(
++      () => progress.close(),
++      () => progress.close(),
++    );
++    return (async function* () {
++      yield* progress;
++      const file = await entities.file.upload({
++        ...(await landing),
++        user: ctx.user.id,
++        thread,
++        buffer,
++      });
++      yield { event: "/file", file: serialize(file, { populate: ["threads:ref", "buffers:ref"] }) };
++    })();
+   });
+ 
+   aperture.post("/paste", async (input, ctx) => {
+--- subsystems/typology/gestalten/shard/transmitter.js
++++ subsystems/typology/gestalten/shard/transmitter.js
+@@ -203,6 +203,7 @@
+       await transport(ctx);
+       if (!ctx.response.error || ctx.request.aborted || attempt >= maxRetries || !shouldRetry(ctx))
+         return;
++      if (ctx.request.stream()) return;
+       const delay = Math.round(Math.min(baseDelay * 2 ** attempt + Math.random() * 500, maxDelay));
+       ctx.span?.log({
+         message: `retry ${attempt + 1}/${maxRetries} after ${ctx.response.error.type}`,
+--- subsystems/typology/prototypes/connection.js
++++ subsystems/typology/prototypes/connection.js
+@@ -86,10 +86,11 @@
+ 
+   async fetch(endpoint, body = {}, options = {}) {
+     const node = this.resolve(endpoint);
++    const url = this.url.branch(endpoint);
+     const request = new Request({
+-      url: this.url.branch(endpoint),
+       body,
+       ...options,
++      url: options.query ? url.with(options.query) : url,
+     });
+     return node.request(request);
+   }
+@@ -112,12 +113,13 @@
+     };
+   }
+ 
+-  async *stream(endpoint, signal, { method = "GET", body, headers, opened, raw } = {}) {
++  async *stream(endpoint, signal, { method = "GET", body, headers, opened, raw, query } = {}) {
+     const response = await this.fetch(endpoint, body ?? {}, {
+       method,
+       headers: { accept: "text/event-stream", ...headers },
+       signal,
+       ...(raw && { raw }),
++      ...(query && { query }),
+     });
+     if (response.error) throw response.error;
+     if (response.body?.[Symbol.asyncIterator] && !response.body.getReader) {
+--- systems/anima/src/surfaces/chrome/panels/dock/dock.jsx
++++ systems/anima/src/surfaces/chrome/panels/dock/dock.jsx
+@@ -78,6 +78,11 @@
+   };
+ };
+ 
++const TOLD = {
++  "/landed": (packet) => ({ landed: packet.bytes }),
++  "/file": (packet) => ({ file: packet.file }),
++};
++
+ const Head = (props) => {
+   const app = ambient.app.consume();
+   const terminal = ambient.terminal.consume();
+@@ -210,15 +215,17 @@
+   const dropped = (event) => {
+     event.preventDefault();
+     for (const datum of event.dataTransfer.files) {
+-      const flying = { name: datum.name, file: null };
++      let flying = { name: datum.name, bytes: datum.size, landed: 0, file: null };
++      const told = (next) => {
++        app.bridge.$uploads.set(app.bridge.uploads.map((held) => (held === flying ? next : held)));
++        flying = next;
++      };
+       app.bridge.$uploads.set([...app.bridge.uploads, flying]);
+       terminal.repl
+         .dispatch({ nature: "/file/upload", body: [datum], flags: { thread: thread().id } })
+-        .then(([file]) =>
+-          app.bridge.$uploads.set(
+-            app.bridge.uploads.map((held) => (held === flying ? { ...flying, file } : held)),
+-          ),
+-        )
++        .then(async (packets) => {
++          for await (const packet of packets) told({ ...flying, ...TOLD[packet.event](packet) });
++        })
+         .catch((error) => {
+           app.bridge.$uploads.set(app.bridge.uploads.filter((held) => held !== flying));
+           terminal.controller.stdout.fault(error);
+--- systems/ghost/entities/file/repository.js
++++ systems/ghost/entities/file/repository.js
+@@ -2,14 +2,16 @@
+ import { File } from "./prototype.js";
+ 
+ export class FileRepository extends RemoteRepository {
+-  async upload({ path, mime, body, ...holders }) {
++  async *upload({ path, mime, body, ...holders }) {
+     const seat = path.split("/").map(encodeURIComponent).join("/");
+-    const file = await this.connection.call(
+-      `/upload/${seat}?${new URLSearchParams(holders)}`,
+-      {},
+-      { headers: { "content-type": mime }, raw: { body } },
+-    );
+-    return await this.merge(file);
++    const packets = this.connection.stream(`/upload/${seat}`, undefined, {
++      method: "POST",
++      headers: { "content-type": mime },
++      raw: { body },
++      query: holders,
++    });
++    for await (const packet of packets)
++      yield packet.event === "/file" ? { ...packet, file: await this.merge(packet.file) } : packet;
+   }
+ 
+   async paste(data) {
+--- systems/ghost/gestalten/commands/content/upload.js
++++ systems/ghost/gestalten/commands/content/upload.js
+@@ -1,13 +1,13 @@
+ import { basename } from "@std/path";
+ import paladin from "@vivalence/paladin";
+-import { Vector, is, mime, monad, v } from "@vivalence/typology";
++import { Vector, is, mime, v } from "@vivalence/typology";
+ import * as belt from "../../belt/index.js";
+ 
+ const UPLOAD = {
+   nature: "/file/upload",
+   rank: "hidden",
+   valence:
+-    "files go up; a flag names what holds them, none leaves them loose; no file opens the prompt. " +
++    "files go up, each answering its bytes landed, then its File; a flag names what holds them, none leaves them loose; no file opens the prompt. " +
+     "Example: /file/upload /tmp/cat.png --thread=01a1fb69",
+ };
+ 
+@@ -40,9 +40,10 @@
+   .open(UPLOAD, async (ctx) => {
+     if (ctx.signal.body.length === 0)
+       return ctx.terminal.repl.narrow({ ...UPLOAD, options: [] }, ctx.signal.argv.slice(1));
+-    return monad.traverse(ctx.signal.body, async (datum) =>
+-      ctx.runtime.entities.file.upload({ ...(await dropped(datum)), ...ctx.signal.flags }),
+-    );
++    return (async function* () {
++      for (const datum of ctx.signal.body)
++        yield* ctx.runtime.entities.file.upload({ ...(await dropped(datum)), ...ctx.signal.flags });
++    })();
+   })
+   .open(
+     {
+--- systems/ghost/tests/subjects/client/client.test.js
++++ systems/ghost/tests/subjects/client/client.test.js
+@@ -89,4 +89,32 @@
+     specimen.expect(served.status).toBe(200);
+     specimen.expect(await served.text()).toContain("export");
+   });
++  specimen.it("a file goes up over the socket: its bytes landed count up WHILE the body is still coming, then its File, in the client's store and on its thread", async () => {
++    const thread = first(clientDie).thread;
++    const began = Date.now();
++    let pieces = 0;
++    let ended = null;
++    const body = new ReadableStream({
++      async pull(controller) {
++        await new Promise((wake) => setTimeout(wake, 60));
++        if (pieces === 5) {
++          ended = Date.now() - began;
++          return controller.close();
++        }
++        pieces++;
++        controller.enqueue(new Uint8Array(1024).fill(pieces));
++      },
++    });
++    const arrived = [];
++    for await (const packet of clientDie.runtime.entities.file.upload({ path: "slow.bin", mime: "application/octet-stream", body, thread: thread.id }))
++      arrived.push({ at: Date.now() - began, packet });
++    specimen.expect(arrived.map((held) => held.packet.event)).toEqual(["/landed", "/landed", "/landed", "/landed", "/landed", "/file"]);
++    specimen.expect(arrived.slice(0, 5).map((held) => held.packet.bytes)).toEqual([1024, 2048, 3072, 4096, 5120]);
++    specimen.expect(arrived[0].at).toBeLessThan(ended);
++    specimen.expect(arrived[2].at).toBeLessThan(ended);
++    const file = arrived.at(-1).packet.file;
++    specimen.expect(clientDie.runtime.entities.file.$entities.get().includes(file)).toBe(true);
++    specimen.expect([file.bytes, file.path]).toEqual([5120, specimen.expect.stringMatching(/^files\/slow\.[0-9a-f]{8}\.bin$/)]);
++    specimen.expect(file.url).toMatch(/\/attached\/file\/[0-9a-f-]+\?token=/);
++  });
+ });
+#+END_SRC
+
+* landed 11-21 — what the tree holds beyond the block above
+
+The block above is the delta as drilled. The land differs from it in three places, each run on the copy first:
+- connoisseur, 2 hunks tightened (trigger 17 · names): the count packet is ={ event: "/landed", landed }= (was =bytes=, the chip's word for the file's size), so the dock's =TOLD= table died:
+#+BEGIN_SRC diff
+// systems/anima/src/surfaces/chrome/panels/dock/dock.jsx:226
+-          for await (const packet of packets) told({ ...flying, ...TOLD[packet.event](packet) });
++          for await (const { event, ...change } of packets) told({ ...flying, ...change });
+#+END_SRC
+- a sibling session landed on the tree twice while this was built (=instance-telemetry=, 13:20 the second): =transmitter.js= took its =trace= rows, my one row was re-laid on its text; the land was a hash check of the tree's eleven against what the copy was tested on, then one pass.
+- FOUND, live on the tree before this land: the sibling's land cut =import paladin= from =systems/runtime/subjects/runtime/lifecycle/3-integration.js=, the upload mount at =:73= still calls =paladin.state.land= → every upload answered =500 paladin is not defined=. The import row is back (the eleventh file).
+
+Run on the copy, caught up with the tree: =client.test.js= =ok | 1 passed (5 steps)= · =journal.test.js= =ok | 1 passed (7 steps)= · =commands.test.js= =ok | 1 passed (35 steps)= · =file.test.js= =ok | 1 passed (1 step)= · =connection.test.js= =ok | 2 passed (6 steps)= · =hello.test.js= =ok | 3 passed (24 steps)= · =multiplex.test.js= =ok | 1 passed (7 steps)= · =socket.test.js= =ok | 1 passed (3 steps)=. No whole census after the tightening.
+
+BREAKS, said before the write: a typed =/file/upload <path>= (the tty's =attach= word, =systems/ghost/surfaces/chrome/panels/dock/textarea.jsx:23=) answers a stream the repl never reads (=systems/ghost/subjects/terminal/repl.js:83=), so nothing goes up: LATENT (that path answered 500 before). The route answering a stream: HELD, its one caller is in the delta.
+
+* run — on the copy
+
+The client's own repository over the REAL socket, a body handing 1 KB every 60 ms (=socket.probe.js=, kept in the scratchpad):
+#+BEGIN_SRC text
+## 3 the client's own repository, stamped
+    63 ms the body hands piece 1
+    64 ms /landed 1024
+   126 ms the body hands piece 2
+   127 ms /landed 2048
+   189 ms the body hands piece 3
+   190 ms /landed 3072
+   252 ms the body hands piece 4
+   253 ms /landed 4096
+   313 ms the body hands piece 5
+   314 ms /landed 5120
+   374 ms the body closes
+   379 ms /file 
+   380 ms the loop ended
+#+END_SRC
+Ten suites (=methods/census-suites.sh=): reds equal by name to the tree's own before milestone 8, minus the four fixed since; one extra red in one run of three, =systems/ghost/tests/subjects/shell/lifecycle.test.js= /"client.factory"/ = the filed flake (=known-issues.org:153=).
+Kept tests, green: =systems/ghost/tests/subjects/client/client.test.js= /"a file goes up over the socket…"/ (counts arrive before the body ends; the File is in the client's store, its =url= carries the token) · =subsystems/drapes/tests/parts/journal.test.js= (a flying chip wears =flying= + =--landed=, a landed one neither).
+The server half on the real =userspace= beat (=progress.probe.js=): 8 MB → 128 counts + the File; a foreign thread a plain 404 before the stream; a torn body throws, the disk holds nothing of it.
+
+* file cards — LANDED 11-21 on his /"land"/ (seven files; vite serves the journal · the card · the sheet · the belt; NOT seen on a DOM)
+
+His, after my A|B (a File on the turn, or a buffer cell): /"think again. the tool image output is pulled onto the turn output, which arrives as file as sibling of buffers and ltierals on the dock. allwe need now is for files to be displayed in the dock with a little renderer component card dedicated to ecah mime. we dont need frame integration for now. no dedicated buffers for dispaying files."/
+
+Read as: a turn's files are its =file= parts (a drop, a model's own picture, =systems/runtime/subjects/mode/traits/harness.js:197=) and the =file= key of its tool calls' products, beside =buffer=; the dock draws each as a card picked by mime. No buffer, no frame.
+
+EVIDENCE, =diff -uN= of the tree against the copy (7 files, an allow-list; replay =patch -p0=):
+
+#+BEGIN_SRC diff
+--- subsystems/drapes/Filecard.jsx
++++ subsystems/drapes/Filecard.jsx
+@@ -0,0 +1,31 @@
++import { Dynamic } from "solid-js/web";
++import { Image } from "./Image.jsx";
++
++const Picture = (props) => <Image src={props.src} alt={props.name} />;
++
++const Sound = (props) => <audio src={props.src} controls preload="metadata" />;
++
++const Film = (props) => <video src={props.src} controls preload="metadata" />;
++
++const Plain = () => null;
++
++export const FILECARDS = [
++  [(mime) => mime.startsWith("image/"), Picture],
++  [(mime) => mime.startsWith("audio/"), Sound],
++  [(mime) => mime.startsWith("video/"), Film],
++  [() => true, Plain],
++];
++
++const card = (mime) => FILECARDS.find(([carries]) => carries(mime))[1];
++
++export const Filecard = (props) => (
++  <figure class="filecard">
++    <Dynamic component={card(props.mime)} src={props.src} name={props.name} />
++    <figcaption>
++      <a href={props.src} target="_blank" rel="noopener">
++        {props.name}
++      </a>
++      <span class="fm">{props.mime}</span>
++    </figcaption>
++  </figure>
++);
+--- subsystems/drapes/parts.css
++++ subsystems/drapes/parts.css
+@@ -214,6 +214,12 @@
+ .artcard { border-radius: var(--shape-radius-card); background: var(--surface-sunk); box-shadow: inset 0 0 0 1px var(--boundary); overflow: hidden; }
+ .cells { display: flex; flex-wrap: wrap; gap: .375rem; }
+ .cells > .artcard { flex-basis: 100%; }
++.files { display: flex; flex-wrap: wrap; gap: .375rem; }
++.filecard { margin: 0; display: flex; flex-direction: column; gap: .25rem; max-width: 20rem; padding: .375rem; background: var(--surface-sunk); border-radius: var(--shape-radius-card); box-shadow: inset 0 0 0 1px var(--divider); }
++.filecard .image { max-height: 15rem; }
++.filecard audio, .filecard video { max-width: 100%; }
++.filecard figcaption { display: flex; gap: .5rem; min-width: 0; font-family: var(--font-family-code), monospace; font-size: .71875rem; color: var(--text-muted); }
++.filecard figcaption a { color: var(--text-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+ .artchip { display: inline-flex; align-items: center; max-width: 100%; height: 1.5rem; padding: 0 .125rem 0 .5rem; border-radius: var(--shape-radius-pill); background: var(--surface-sunk); box-shadow: inset 0 0 0 1px var(--boundary); font-family: var(--font-family-code), monospace; font-size: .71875rem; }
+ .artchip.inframe { box-shadow: inset 0 0 0 1px var(--signal-primary); }
+ .artchip .open { display: inline-flex; align-items: center; gap: .375rem; min-width: 0; height: 100%; padding-right: .25rem; white-space: nowrap; }
+--- subsystems/drapes/parts.js
++++ subsystems/drapes/parts.js
+@@ -36,6 +36,7 @@
+ export { Drill } from "./Drill.jsx";
+ export { Caret } from "./Caret.jsx";
+ export { Image } from "./Image.jsx";
++export { Filecard, FILECARDS } from "./Filecard.jsx";
+ export { Html } from "./Html.jsx";
+ export { Tele, TABS as TELE_TABS, placed } from "./Tele.jsx";
+ export { Logger, Spans, Told, DOTS as LOGGER_DOTS, ms } from "./Logger.jsx";
+--- subsystems/drapes/tests/parts/journal.test.js
++++ subsystems/drapes/tests/parts/journal.test.js
+@@ -120,6 +120,18 @@
+   specimen.it("Atts (dom.js:284) · Dictline (call-faculty prototype.dc.html:33): chips that drop; the spoken words solid, the tail muted, trash only — the mic is the stop", () => {
+     specimen.expect(painted(() => parts.Atts({ attachments: [{ name: "notes.txt" }], onDrop: () => {} }))).toBe(oracle(ATTS));
+     specimen.expect(painted(() => parts.Atts({ attachments: [], onDrop: () => {} }))).toBe("");
++    const shown = (mime) => {
++      const rig = screen(() => parts.Filecard({ name: "cat.bin", mime, src: "/attached/file/f1?token=t" }));
++      const held = [...rig.target.querySelector(".filecard").children].map((node) => node.tagName.toLowerCase());
++      rig.close();
++      return held;
++    };
++    specimen.expect(["image/png", "audio/mpeg", "video/mp4", "application/zip"].map(shown)).toEqual([
++      ["img", "figcaption"],
++      ["audio", "figcaption"],
++      ["video", "figcaption"],
++      ["figcaption"],
++    ]);
+     const flying = screen(() => parts.Atts({ attachments: [{ name: "cat.png", bytes: 200, landed: 50, file: null }], onDrop: () => {} }));
+     const chip = flying.target.querySelector(".att");
+     specimen.expect([chip.classList.contains("flying"), Number(chip.style.getPropertyValue("--landed"))]).toEqual([true, 0.25]);
+--- systems/anima/src/surfaces/chrome/panels/dock/journal.jsx
++++ systems/anima/src/surfaces/chrome/panels/dock/journal.jsx
+@@ -12,7 +12,7 @@
+ export const clock = (ms) => new Date(ms).toTimeString().slice(0, 5);
+ 
+ const SPOKEN = ["text"];
+-const UNSPOKEN = ["tool_use", "tool_result", "thinking"];
++const UNSPOKEN = ["tool_use", "tool_result", "thinking", "file"];
+ 
+ export const prose = (parts) =>
+   parts.filter((part) => !UNSPOKEN.includes(part.type)).map((part) => (SPOKEN.includes(part.type) ? part.text : `[${part.type}]`)).join("\n");
+@@ -105,7 +105,9 @@
+   text: (part) => (SPOKEN.includes(part.type) ? part.text : `[${part.type}]`),
+ };
+ 
+-const silent = (part) => part.type === "tool_result" || (part.type === "text" && part.text === "");
++const DRAWN_APART = ["tool_result", "file"];
++
++const silent = (part) => DRAWN_APART.includes(part.type) || (part.type === "text" && part.text === "");
+ 
+ const merged = (segments, segment) => {
+   const prior = segments.at(-1);
+@@ -284,6 +286,13 @@
+     onPick={props.onPick}
+     onLine={props.onLine}>
+     <For each={props.entry.row.blocks}>{(block) => <parts.Block block={block} onLine={props.onLine} />}</For>
++    <Show when={props.files.length > 0}>
++      <div class="files">
++        <For each={props.files}>
++          {(file) => <parts.Filecard name={file.path.split("/").at(-1)} mime={file.mime} src={file.url} />}
++        </For>
++      </div>
++    </Show>
+     <Show when={props.cells.length > 0}>
+       <div class="cells">
+         <For each={props.cells}>{(buffer) => <Cell buffer={buffer} onLine={props.onLine} />}</For>
+@@ -298,6 +307,7 @@
+   const terminals = from(app.client.runtime.entities.terminal.$entities);
+   const thread = from(terminal.$thread);
+   const activities = from(app.client.runtime.entities.activity.$entities);
++  const files = from(app.client.runtime.entities.file.$entities);
+   const records = from(computed(terminal.controller.stdout.$history, (held) => held.filter((record) => record.track === "log" || record.track === "fault")));
+   const user = from(app.client.runtime.lighthouse.$user);
+   const selection = from(app.bridge.$selection);
+@@ -336,6 +346,7 @@
+           lens={lens()}
+           markdown={markdown()}
+           cells={entry.turns === undefined ? [] : rows.buffers.filter((buffer) => entry.turns.some((turn) => ghost.journal.cells(turn, [buffer], rows.yields).length > 0))}
++          files={entry.turns === undefined ? [] : entry.turns.flatMap((turn) => ghost.journal.files(turn, rows.files, rows.yields))}
+           selected={selection() === index()}
+           onPick={pick(index())}
+           onLine={sent}
+@@ -352,6 +363,7 @@
+       <Rows
+         entries={held()}
+         buffers={parts.listing(buffers)}
++        files={parts.listing(files)}
+         yields={results(parts.listing(turns))}
+       />
+     );
+@@ -359,7 +371,7 @@
+ 
+   const Unseated = () => {
+     const held = createMemo((prior) => listed(prior, [], []), []);
+-    return <Rows entries={held()} buffers={[]} yields={[]} />;
++    return <Rows entries={held()} buffers={[]} files={[]} yields={[]} />;
+   };
+ 
+   return (
+--- systems/ghost/gestalten/belt/journal.js
++++ systems/ghost/gestalten/belt/journal.js
+@@ -11,15 +11,20 @@
+ 
+ export const yields = (turns) => turns.flatMap((turn) => turn.parts.filter((part) => part.type === "tool_result"));
+ 
+-const surfaced = (turn, yields) =>
++const surfaced = (turn, yields, kind) =>
+   turn.parts
+     .filter((part) => part.type === "tool_use")
+     .map((call) => yields.find((result) => result.id === call.id))
+-    .filter((result) => result !== undefined && is.object(result.product) && "buffer" in result.product)
+-    .flatMap((result) => result.product.buffer.map((buffer) => buffer.id));
++    .filter((result) => result !== undefined && is.object(result.product) && kind in result.product)
++    .flatMap((result) => result.product[kind].map((entity) => entity.id));
+ 
+ export const cells = (turn, buffers, yields) =>
+-  buffers.filter((buffer) => surfaced(turn, yields).includes(buffer.id));
++  buffers.filter((buffer) => surfaced(turn, yields, "buffer").includes(buffer.id));
++
++const attached = (turn) => turn.parts.filter((part) => part.type === "file").map((part) => part.file);
++
++export const files = (turn, known, yields) =>
++  known.filter((file) => [...attached(turn), ...surfaced(turn, yields, "file")].includes(file.id));
+ 
+ export const streamed = (turn) => turn.createdAt === undefined;
+ 
+--- systems/ghost/tests/gestalten/belt/journal.test.js
++++ systems/ghost/tests/gestalten/belt/journal.test.js
+@@ -38,6 +38,25 @@
+   { id: "01a1d570-6e78-723d-bc61-511c20784646", turns: [] },
+ ];
+ 
++specimen.describe("belt.journal.files — a turn shows the files it carries as parts and the files its own tool calls yielded", () => {
++  const known = [{ id: "f-dropped" }, { id: "f-painted" }, { id: "f-elsewhere" }];
++  const dropping = { id: "t-dropping", role: "user", parts: [{ type: "text", text: "look" }, { type: "file", file: "f-dropped" }] };
++  const painting = { id: "t-painting", role: "assistant", parts: [{ type: "tool_use", id: "toolu_paint", name: "paint", input: {} }] };
++  const painted = { id: "t-painted", role: "user", parts: [{ type: "tool_result", id: "toolu_paint", condition: "NOMINAL", product: { file: [{ id: "f-painted" }] } }] };
++  const yields = ghost.belt.journal.yields([dropping, painting, painted]);
++
++  specimen.it("a file part is the turn's file; a yielded file is its calling turn's; a file nobody names is no turn's", () => {
++    specimen.expect(ghost.belt.journal.files(dropping, known, yields)).toEqual([known[0]]);
++    specimen.expect(ghost.belt.journal.files(painting, known, yields)).toEqual([known[1]]);
++    specimen.expect(ghost.belt.journal.files(painted, known, yields)).toEqual([]);
++  });
++
++  specimen.it("a named file the store does not hold yet shows nothing; a yield of buffers alone names no file", () => {
++    specimen.expect(ghost.belt.journal.files(dropping, known.slice(1), yields)).toEqual([]);
++    specimen.expect(ghost.belt.journal.files(caller, known, ghost.belt.journal.yields([caller, answer]))).toEqual([]);
++  });
++});
++
+ specimen.describe("belt.journal.cells — a turn shows the buffers its own tool calls yielded, read off the results, never buffer.turns", () => {
+   const yields = ghost.belt.journal.yields([caller, answer, elsewhere]);
+ 
+#+END_SRC
+
+Run on the copy: =systems/ghost/tests/gestalten/belt/journal.test.js= =ok | 3 passed (10 steps)= · =subsystems/drapes/tests/parts/journal.test.js= =ok | 1 passed (7 steps)=.
+NOT run: the anima journal's rows (every suite over =systems/anima/tests/world.js= dies at setup, =known-issues.org:2432=); no DOM.
+Open: nothing writes a =file= key into a product today (the reader waits for its tool) · the tty still says =[file]= (=systems/ghost/gestalten/belt/journal.js:9=) · the card's look is mine, no design handed · a text file gets the plain card.
+
+* dock file UI — LANDED 11-21 on his order (seven files, vite serves each; NOT seen on a DOM)
+
+His, on two screenshots of the working drop: /"give me toggleable preview on the pasted images. while dragging the image into dock, give me some sort of ui interaction showing me what i amdoingk. maek teh turn image toggleable between collapse, small, full (dock width) and cover (popover) and remove the "image/png" and clear the url reference of its token. the toggleables should be the typical multi icon controllers"/
+
+Read as, and built:
+- =subsystems/drapes/Toggles.jsx= takes =icons= (an option → an icon name): the =.tg= group with icons, its text path unchanged.
+- =subsystems/drapes/Filecard.jsx=: each mime's card is whole; the picture's holds =SIZES = ["collapse", "small", "full", "cover"]= as that icon group, starts =small=, =cover= lays the picture fixed over the window and a click closes it; no mime, no link (a plain file keeps its link: its only way open).
+- =subsystems/drapes/Atts.jsx=: a waiting picture shows a thumbnail above the chips, one icon toggle hides them; starts shown; a flying upload has none (its File is not there yet).
+- =systems/anima/src/surfaces/chrome/panels/dock/dock.jsx=: a file dragged over the dock lights =.dropzone.whole= /"drop to attach"/, gone on leave and on drop.
+- =subsystems/drapes/tests/sheet.test.js=: =--landed= declared inline (mine since the chip's fill; the suite's other four are =drapes-sheet-test-red-on-inline-vars=).
+
+Run on the copy, all of =subsystems/drapes/tests/=: =FAILED | 36 passed (254 steps) | 1 failed (5 steps)=, the one = the filed sheet red.
+Mine, unruled: sizes kept per card in memory, lost on reload · the cover is =position: fixed= in the card, no portal (the rig has no =HTMLHeadElement=).
+
+His three corrections on his screen, each LANDED 11-21 the turn it came (drapes only, =subsystems/drapes/tests/= the same one filed red):
+- /"how does this make sense?? way smaller. no borders on teh controller. and collapsed shoudl be smaller and multiple small ones should be inline row list. … the two middle ones dont make senes.."/ → =.files= a wrapping row · small = a 9rem card, its picture ≤ 6.5rem tall · collapse = a pill ≤ 14rem · full takes its own row · the control inside a card wears no box · icons =thumb= · =wide= drawn in =subsystems/drapes/Icon.jsx= (the numbers are mine).
+- /"make click on minimized move to small card, click on image move to large card, and on large card click on image go full screen. in card small and large clik on the topbar goes a step down."/ → the ladder IS =SIZES=: the pill and the picture step up, the topbar steps down, =cover= its last step (=subsystems/drapes/Filecard.jsx= =stepped=); =Image= passes =onClick= through.
+- /"hovering the name should tooltip it full"/ → =title= on every card's name.
+His, on the first cards: /"looks like its working."/ (a dropped picture drew on his turn, the model answered about it).
+
+* handoff
+
+- goal: a dropped file's chip fills as its bytes land on the runtime; a drop works over the socket.
+- done: both locks LANDED · file cards LANDED · dock file UI LANDED and corrected three times on his screen; he saw a drop land, draw and reach the model.
+- next: the tool that yields a =file= (his: /"the tool image output is pulled onto the turn output, which arrives as file as sibling of buffers and ltierals"/; nothing writes that key today, the picture faculty's route =systems/runtime/subjects/mode/traits/harness.js:410= has one caller, darkroom) · his look at the chip's fill on a big file.
+- never: a buffer · the frame for showing a file (his) · a mime or a link under a picture (his) · a percent on the chip (Q1) · pacing =Socket.feed= for this (Q0) · the query glued into an endpoint string · =ctx.signal.flags= on a route a socket reaches.
+- owed: =typed-file-upload-sends-nothing= (known issue) · files alone cannot be sent (=systems/anima/src/surfaces/chrome/panels/dock/textarea.jsx:204=) · the tty says =[file]= · tests: the anima journal's file rows · the dock's drop overlay and =dropped= (rig dead, =anima-rig-entry-names-dead-files=) · a typed =/file/upload= case · no whole census since the first tightening · =/paste= reports nothing (one frame) · a cancel of a flight (✕ drops the chip, the request runs on) · the chip's tooltip still says =/detach= (design markup, its oracle) · the tty shows no upload at all · 3200 count packets on a 200 MB drop, unmeasured on a browser · =registry-views-throw-on-a-mode-less-file=.

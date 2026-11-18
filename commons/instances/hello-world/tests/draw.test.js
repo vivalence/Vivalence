@@ -6,7 +6,7 @@ import { external, refuse } from "../page/draw.js";
 // passes through has to be caught, not just `from`.
 const CLEAN = `<script>
   import { onMount } from "svelte";
-  import { Markdown } from "@vivalence/drapes";
+  import { Markdown } from "@vivalence/drapes/svelte";
   let { buffer, terminal } = $props();
 </script>
 

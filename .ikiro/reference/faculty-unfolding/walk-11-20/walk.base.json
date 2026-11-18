@@ -1,0 +1,89 @@
+{
+ "label": "base",
+ "port": 56050,
+ "ready": "2.8s",
+ "status": "RUNNING",
+ "dormant": [
+  "daemon[spanish].consume.nlp"
+ ],
+ "hosts": {
+  "/runtime/runtime": {
+   "cortex": "choice:1 dialogue:7 picture:3 speech:2 verbatim:1",
+   "tiers": 200,
+   "modes": 3,
+   "modeCortex": [
+    "3\u00d7 status 404"
+   ],
+   "modeList": "harness/runtime editor/darkroom reader/reader",
+   "harnessed": 2,
+   "conversational": 2
+  },
+  "/daemon/chess": {
+   "cortex": "choice:1 dialogue:7 picture:3 speech:2 verbatim:1",
+   "tiers": 200,
+   "modes": 13,
+   "modeCortex": [
+    "13\u00d7 status 404"
+   ],
+   "modeList": "domain/chess topology/game topology/position topology/opening topology/puzzle topography/openings topography/puzzles board/play study/analysis riddle/puzzles coach/practice coach/coach library/games",
+   "harnessed": 4,
+   "conversational": 2
+  },
+  "/daemon/droneaid": {
+   "cortex": "choice:1 dialogue:7 picture:3 speech:2 verbatim:1",
+   "tiers": 200,
+   "modes": 12,
+   "modeCortex": [
+    "12\u00d7 status 404"
+   ],
+   "modeList": "domain/assembly topology/part topology/placement topology/step topology/guide topography/models topography/guides model/import model/editor guide/editor guide/player dashboard/dataspace",
+   "harnessed": 3,
+   "conversational": 3
+  },
+  "/daemon/spanish": {
+   "cortex": "choice:1 dialogue:7 picture:3 speech:2 verbatim:1",
+   "tiers": 200,
+   "modes": 10,
+   "modeCortex": [
+    "10\u00d7 status 404"
+   ],
+   "modeList": "domain/language-learning topology/word topology/sentence topology/conjugation topography/english-to-spanish homepage/aprende dashboard/dataspace game/dojo game/nyan game/wakaru",
+   "harnessed": 3,
+   "conversational": 1
+  }
+ },
+ "sample": [
+  {
+   "type": "dialogue",
+   "id": "claude-opus-5-5",
+   "provider": "anthropic",
+   "tune": [
+    1,
+    0.8,
+    0.1
+   ]
+  },
+  {
+   "type": "dialogue",
+   "id": "claude-sonnet-5-5",
+   "provider": "anthropic",
+   "tune": [
+    0.6,
+    0.6,
+    0.5
+   ]
+  }
+ ],
+ "harness": {
+  "keys": [
+   "references",
+   "primer",
+   "tools",
+   "home",
+   "index"
+  ],
+  "tools": 9
+ },
+ "warnings": [],
+ "exit": 0
+}

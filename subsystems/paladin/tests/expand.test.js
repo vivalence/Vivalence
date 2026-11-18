@@ -13,12 +13,12 @@ const RECIPE = {
     manifest: { slug: "runtime" },
     statics: { serve: "${VIVA_PROBE_SERVE}", remote: "${PUBLIC_VIVA_PROBE_REMOTE}", port: 2501 },
     secrets: { jwt: "${SECRET_VIVA_PROBE_JWT}" },
+    hallucinators: [
+      { module: "@commons/hallucinator/anthropic", secrets: { key: "${SECRET_VIVA_PROBE_A}" }, faculties: [{ type: "dialogue", id: "claude" }] },
+      { module: "@commons/hallucinator/openrouter", secrets: { key: "${SECRET_VIVA_PROBE_B}" }, faculties: [{ type: "dialogue", id: "gemini" }] },
+    ],
   },
   datamap: { module: "@commons/datamap/libsql" },
-  hallucinators: [
-    { module: "@commons/hallucinator/anthropic", secrets: { key: "${SECRET_VIVA_PROBE_A}" } },
-    { module: "@commons/hallucinator/openrouter", secrets: { key: "${SECRET_VIVA_PROBE_B}" } },
-  ],
   clients: [{ manifest: { type: "client", slug: "anima" }, statics: { serve: "${VIVA_PROBE_CLIENT}" } }],
   daemons: [
     {
@@ -57,7 +57,8 @@ const mount = async (paladin, home, recipe = null) => {
     ["instance", () => true, () => new Path(home)],
     ["mountpoint", () => true, () => new Path("/mountpoint")],
   ]);
-  return await factories.instance(lifecycle.paladin.instance(paladin));
+  lifecycle.paladin.instance(paladin);
+  return await factories.instance(paladin);
 };
 
 const shelf = async (recipe) => {
@@ -67,7 +68,6 @@ const shelf = async (recipe) => {
 };
 
 const keys = (rows) => rows.flatMap((row) => row.read ?? [row.key]).sort();
-const body = ({ environment, manifest, source, ...rest }) => rest;
 
 describe("paladin.expand — a ${KEY} is read through the strata and recorded, no thunk fires", () => {
   it("a whole-string reference keeps the value's type; a blank one is null and named unset", () => {
@@ -109,14 +109,11 @@ describe("paladin.expand — a ${KEY} is read through the strata and recorded, n
 });
 
 describe("the read — one recipe fixture, the mount's record", () => {
-  it("the file stays as authored — instance.raw keeps every ${KEY}, the record holds what was read", async () => {
+  it("the mount's record holds what was read", async () => {
     const paladin = mk({ VIVA_PROBE_SERVE: "http://localhost:2501/" }, { SECRET_VIVA_PROBE_A: "shh" });
     const instance = await mount(paladin, await shelf(RECIPE));
-    expect(instance.raw.runtime.statics.serve).toBe("${VIVA_PROBE_SERVE}");
-    expect(instance.raw.hallucinators[0].secrets.key).toBe("${SECRET_VIVA_PROBE_A}");
-    expect(instance.requirements[0]).toEqual({ at: "runtime.statics.serve", read: ["VIVA_PROBE_SERVE"], unset: [] });
-    expect(instance.raw.daemons[0].mountpoint).toBeUndefined();
-    expect(JSON.stringify(body(instance.raw))).not.toContain("shh");
+    expect(instance.raw).toBeUndefined();
+    expect(instance.paladin.requirements[0]).toEqual({ at: "runtime.statics.serve", read: ["VIVA_PROBE_SERVE"], unset: [] });
   });
 
   it("an unset reference the schema requires is a REQUIRED row at its path; one outside required is not owed", async () => {
@@ -124,9 +121,9 @@ describe("the read — one recipe fixture, the mount's record", () => {
     const instance = await mount(paladin, await shelf(RECIPE));
     const rows = Object.fromEntries(paladin.check.environment(instance).map((row) => [`${row.key}@${row.at}`, row.verdict]));
     expect(rows["VIVA_PROBE_SERVE@runtime.statics.serve"]).toBe("REQUIRED");
-    expect(rows["VIVA_PROBE_SERVE@daemon[probe].consume.reader.statics.remote"]).toBe("REQUIRED");
-    expect(rows["VIVA_PROBE_CLIENT@client[anima].statics.serve"]).toBe("optional");
-    expect(rows["SECRET_VIVA_PROBE_A@hallucinators[0].secrets.key"]).toBe("optional");
+    expect(rows["VIVA_PROBE_SERVE@daemons.probe.consume.reader.statics.remote"]).toBe("REQUIRED");
+    expect(rows["VIVA_PROBE_CLIENT@clients.anima.statics.serve"]).toBe("optional");
+    expect(rows["SECRET_VIVA_PROBE_A@runtime.hallucinators[0].secrets.key"]).toBe("optional");
   });
 });
 
@@ -140,8 +137,8 @@ const THUNKED = [
   { at: "hallucinators[1].secrets.key", read: ["SECRET_VIVA_OPENROUTER_API_KEY"], unset: ["SECRET_VIVA_OPENROUTER_API_KEY"] },
   { at: "hallucinators[2].secrets.key", read: ["SECRET_VIVA_ELEVENLABS_API_KEY"], unset: ["SECRET_VIVA_ELEVENLABS_API_KEY"] },
   { at: "hallucinators[3].secrets.key", read: ["SECRET_VIVA_DEEPGRAM_API_KEY"], unset: ["SECRET_VIVA_DEEPGRAM_API_KEY"] },
-  { at: "client[anima].statics.serve", read: ["VIVA_CLIENT_ANIMA_SERVE"], unset: ["VIVA_CLIENT_ANIMA_SERVE"] },
-  { at: "service[multiplayer].secrets.jwt", read: ["SECRET_VIVA_JWT"], unset: ["SECRET_VIVA_JWT"] },
+  { at: "clients.anima.statics.serve", read: ["VIVA_CLIENT_ANIMA_SERVE"], unset: ["VIVA_CLIENT_ANIMA_SERVE"] },
+  { at: "services.multiplayer.secrets.jwt", read: ["SECRET_VIVA_JWT"], unset: ["SECRET_VIVA_JWT"] },
 ];
 const DOCTORED = [
   { key: "PUBLIC_VIVA_LIGHTHOUSE_REMOTE", at: "lighthouse.statics.remote", verdict: "REQUIRED", required: true },
@@ -149,10 +146,10 @@ const DOCTORED = [
   { key: "SECRET_VIVA_ANTHROPIC_API_KEY", at: "hallucinators[0].secrets.key", verdict: "ok", required: false },
   { key: "SECRET_VIVA_DEEPGRAM_API_KEY", at: "hallucinators[3].secrets.key", verdict: "optional", required: false },
   { key: "SECRET_VIVA_ELEVENLABS_API_KEY", at: "hallucinators[2].secrets.key", verdict: "optional", required: false },
-  { key: "SECRET_VIVA_JWT", at: "service[multiplayer].secrets.jwt", verdict: "REQUIRED", required: true },
+  { key: "SECRET_VIVA_JWT", at: "services.multiplayer.secrets.jwt", verdict: "REQUIRED", required: true },
   { key: "SECRET_VIVA_OPENROUTER_API_KEY", at: "hallucinators[1].secrets.key", verdict: "optional", required: false },
   { key: "VIVA_CLIENT_ANIMA_ORIGIN", at: null, verdict: "REQUIRED", required: true },
-  { key: "VIVA_CLIENT_ANIMA_SERVE", at: "client[anima].statics.serve", verdict: "REQUIRED", required: true },
+  { key: "VIVA_CLIENT_ANIMA_SERVE", at: "clients.anima.statics.serve", verdict: "REQUIRED", required: true },
   { key: "VIVA_RUNTIME_ORIGIN", at: null, verdict: "REQUIRED", required: true },
   { key: "VIVA_RUNTIME_SERVE", at: "runtime.statics.serve", verdict: "ok", required: true },
 ];
@@ -161,22 +158,23 @@ const LEDGERED = [
 ];
 const FLAGS = { VIVA_RUNTIME_SERVE: "http://localhost:2501/", PUBLIC_VIVA_RUNTIME_REMOTE: "${VIVA_RUNTIME_SERVE}" };
 const SECRETS = { SECRET_VIVA_ANTHROPIC_API_KEY: "sk-probe" };
-const DYING = /^(lighthouse|service\[multiplayer\])\./;
-const MOVED = (row) => (row.at === "service[multiplayer].secrets.jwt" ? { ...row, at: "lighthouse.secrets.jwt" } : row);
+const DYING = /^(lighthouse|services\.multiplayer)\./;
+const MOVED = (row) => (row.at === "services.multiplayer.secrets.jwt" ? { ...row, at: "lighthouse.secrets.jwt" } : row);
+const UNFOLDED = (row) => (row.at?.startsWith("hallucinators[") ? { ...row, at: `runtime.${row.at}` } : row);
 
 describe("doctor parity — hello-world's thunk record against its instance.viva.json", () => {
-  it("the requirements rows are today's, less the lighthouse service, the jwt moved from it to the lighthouse slot", async () => {
+  it("the requirements rows are today's, less the lighthouse service, the jwt moved from it to the lighthouse slot, the ledger's hallucinators read on the runtime", async () => {
     const instance = await mount(mk(FLAGS, SECRETS), HELLO, SHIPPED);
-    const kept = THUNKED.filter((row) => !DYING.test(row.at));
-    const jwt = MOVED(THUNKED.find((row) => row.at === "service[multiplayer].secrets.jwt"));
-    expect(instance.requirements).toEqual([...kept.slice(0, 2), jwt, ...kept.slice(2)]);
+    const kept = THUNKED.filter((row) => !DYING.test(row.at)).map(UNFOLDED);
+    const jwt = MOVED(THUNKED.find((row) => row.at === "services.multiplayer.secrets.jwt"));
+    expect(instance.paladin.requirements).toEqual([...kept.slice(0, 6), jwt, ...kept.slice(6)]);
   });
 
   it("the doctor's env rows carry today's verdicts, key by key", async () => {
     const paladin = mk(FLAGS, SECRETS);
     const instance = await mount(paladin, HELLO, SHIPPED);
     const rows = paladin.check.environment(instance).map(({ key, at, verdict, required }) => ({ key, at, verdict, required }));
-    const kept = DOCTORED.filter((row) => row.key !== "PUBLIC_VIVA_LIGHTHOUSE_REMOTE").map(MOVED);
+    const kept = DOCTORED.filter((row) => row.key !== "PUBLIC_VIVA_LIGHTHOUSE_REMOTE").map(MOVED).map(UNFOLDED);
     expect(rows).toEqual([...kept, ...LEDGERED].sort((a, b) => (a.key < b.key ? -1 : 1)));
   });
 });

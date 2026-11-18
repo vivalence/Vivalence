@@ -14,27 +14,79 @@ import { Rendered } from "./rendered.js";
 
 export { Docked, Themed, Harnessed, Conversational, Aimed, Masked, Queueing, Rendered };
 
-const opaque = v.object({}, { additionalProperties: true });
 const open = { additionalProperties: true };
-const flag = (meaning) => opaque.default({}).optional().desc(meaning).example({});
 const DOCK = { align: "right", share: 0.38, view: "docked", lens: ["turns", "harness"], markdown: "pretty" };
 
 export const mode = v.object({
-  EXPOSED: flag("serves http endpoints"),
-  HARNESSED: flag("runs under the daemon's harness: a model, a primer, tools"),
-  CONVERSATIONAL: flag("a human converses with it: typed, dictated, called"),
-  TOOLING: flag("brings tools the model can call"),
-  EMITTER: flag("mints buffers on demand"),
-  DATASET: flag("ships symbols and literals"),
-  GENERATIVE: flag("its buffers are hallucinated at runtime"),
-  REPLING: flag("has a repl"),
-  BOOTED: flag("runs code once every mode is wired"),
-  KEYMAPPED: flag("brings a keymap"),
-  PRIMER: flag("brings primer prose"),
-  LOOPING: flag("brings repl tools the loop can call"),
-  VIEWABLE: flag("ships svelte views"),
-  FILESET: flag("ships files"),
-  FILESINK: flag("writes files into its mountpoint"),
+  EXPOSED: v.object({}).default({}).optional().desc("serves http endpoints").example({}),
+  HARNESS: v
+    .object({})
+    .default({})
+    .optional()
+    .desc("runs under the daemon's harness: a model, a primer, tools")
+    .example({}),
+  CONVERSATION: v
+    .object({})
+    .default({})
+    .optional()
+    .desc("a human converses with it: typed, dictated, called")
+    .example({}),
+  HARNESSED: v
+    .object({})
+    .default({})
+    .optional()
+    .desc("runs under the daemon's harness: a model, a primer, tools")
+    .example({}), //deprecated
+  CONVERSATIONAL: v
+    .object({})
+    .default({})
+    .optional()
+    .desc("a human converses with it: typed, dictated, called")
+    .example({}), //deprecated
+  TOOLING: v.object({}).default({}).optional().desc("brings tools the model can call").example({}),
+  EMITTER: v.object({}).default({}).optional().desc("mints buffers on demand").example({}),
+  DATASET: v.object({}).default({}).optional().desc("ships symbols and literals").example({}),
+  GENERATIVE: v
+    .object({})
+    .default({})
+    .optional()
+    .desc("its buffers are hallucinated at runtime")
+    .example({}),
+  REPLING: v.object({}).default({}).optional().desc("has a repl").example({}),
+  BOOTED: v
+    .object({})
+    .default({})
+    .optional()
+    .desc("runs code once every mode is wired")
+    .example({}),
+  KEYMAPPED: v.object({}).default({}).optional().desc("brings a keymap").example({}),
+  PRIMER: v.object({}).default({}).optional().desc("brings primer prose").example({}),
+  LOOPING: v
+    .object({})
+    .default({})
+    .optional()
+    .desc("brings repl tools the loop can call")
+    .example({}),
+  VIEWABLE: v.object({}).default({}).optional().desc("ships svelte views").example({}),
+  FILESET: v.object({}).default({}).optional().desc("ships files").example({}),
+  FILESINK: v
+    .object({})
+    .default({})
+    .optional()
+    .desc("writes files into its mountpoint")
+    .example({}),
+  ATTACHED: v
+    .object({})
+    .default({})
+    .optional()
+    .desc("serves an aperture vector at /attached/:reference")
+    .example({}),
+  TWITCHY: v
+    .object({})
+    .default({})
+    .optional()
+    .desc("grafts its twitch routes onto the mode's twitch")
+    .example({}),
 }, open);
 export const thread = v.object({
   LABELED: Label.default({}).optional().desc("its name, read in the chrome").example({ name: "Q3 filings", description: "Third-quarter filings, due Friday" }),
@@ -70,8 +122,8 @@ export const buffer = v.object({
   RENDERED: Rendered.default({}).optional().desc("which views draw it: one in the frame, one as its cell").example({ frame: "play", cell: "board" }),
 });
 export const view = v.object({
-  FRAME: flag("drawn in the frame"),
-  CELL: flag("drawn as a cell in the journal"),
+  FRAME: v.object({}).default({}).optional().desc("drawn in the frame").example({}),
+  CELL: v.object({}).default({}).optional().desc("drawn as a cell in the journal").example({}),
 });
 export const terminal = v.object({
   LABELED: Label.default({}).optional().desc("its name, read in the chrome").example({ name: "desk" }),
@@ -88,21 +140,57 @@ export const client = v.object({
   THEMED: Themed.optional().desc("the dapper theme").example("northsea"),
 });
 export const lighthouse = v.object({
-  JOINABLE: flag("signup is open"),
-  INVITATIONAL: flag("signup by invitation"),
-  AUTOLOGIN: flag("a terminal logs in without a password"),
+  JOINABLE: v.object({}).default({}).optional().desc("signup is open").example({}),
+  INVITATIONAL: v.object({}).default({}).optional().desc("signup by invitation").example({}),
+  AUTOLOGIN: v
+    .object({})
+    .default({})
+    .optional()
+    .desc("a terminal logs in without a password")
+    .example({}),
+  AUTOSIGNUP: v
+    .object({})
+    .default({})
+    .optional()
+    .desc("a visitor enters under the name they type, no password")
+    .example({}),
 });
 export const service = v.object({
-  ATTACHED: flag("hangs an attachment aperture (status · manifest) on its daemon"),
-  SERVER: flag("a server process the runtime starts"),
-  DOCKER: flag("runs as a docker container"),
-  COMPOSE: flag("runs as a docker compose stack"),
+  ATTACHED: v
+    .object({})
+    .default({})
+    .optional()
+    .desc("hangs an attachment aperture (status · manifest) on its daemon")
+    .example({}),
+  SERVER: v
+    .object({})
+    .default({})
+    .optional()
+    .desc("a server process the runtime starts")
+    .example({}),
+  DOCKER: v.object({}).default({}).optional().desc("runs as a docker container").example({}),
+  COMPOSE: v.object({}).default({}).optional().desc("runs as a docker compose stack").example({}),
 });
 export const symbol = v.object({
   LABELED: Label.default({}).optional().desc("its name, read in the chrome").example({ name: "flamingo" }),
-  ONTOLOGICAL: flag("a word of a topology's vocabulary"),
-  TOPOGRAPHICAL: flag("a word of one body's vocabulary"),
-  STRUCTURAL: flag("a structural marker of its corpus"),
+  ONTOLOGICAL: v
+    .object({})
+    .default({})
+    .optional()
+    .desc("a word of a topology's vocabulary")
+    .example({}),
+  TOPOGRAPHICAL: v
+    .object({})
+    .default({})
+    .optional()
+    .desc("a word of one body's vocabulary")
+    .example({}),
+  STRUCTURAL: v
+    .object({})
+    .default({})
+    .optional()
+    .desc("a structural marker of its corpus")
+    .example({}),
 }, open);
 export const literal = v.object({ LABELED: Label.default({}).optional().desc("its name, read in the chrome").example({ name: "Flamingo — six species" }) }, open);
 export const note = v.object({ LABELED: Label.default({}).optional().desc("its name, read in the chrome").example({ name: "On flamingos" }) }, open);

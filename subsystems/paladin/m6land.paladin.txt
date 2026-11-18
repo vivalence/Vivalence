@@ -1,0 +1,579 @@
+running 1 test from ./tests/baked.test.js
+paladin bake ⟷ baked — the instance crosses to a browser as strings and comes back as prototypes ...
+  bake: every Signature is its absolute string, PUBLIC_VIVA_ expanded, the process fields under instance.paladin, the citizen its wire fields; the live instance is not mutated ... ok (23ms)
+  bake: an unknown client is loud ... ok (10ms)
+  baked: the instance decodes through its schema — remote a Url with the origin, references Paths; the wire revives a citizen as namespace + Mode ... ok (23ms)
+paladin bake ⟷ baked — the instance crosses to a browser as strings and comes back as prototypes ... ok (62ms)
+running 1 test from ./tests/boot.test.js
+paladin boot: constructed mountables, no ikiro ...
+  constructor wires the ledger; the registry is the ledger's, held once — the lifecycle populates the instance ... ok (1ms)
+  a fresh paladin carries no ikiro promise ... ok (0ms)
+  the booted default export carries no ikiro promise ... ok (0ms)
+  the booted default export holds one registry and an instance from the lifecycle ... ok (0ms)
+  factories.instance is memoized per instance — the same promise twice, a fresh instance mounts anew ... ok (0ms)
+paladin boot: constructed mountables, no ikiro ... ok (9ms)
+running 1 test from ./tests/bundler.test.js
+paladin.bundler ...
+  a svelte source bundles to a content-addressed Bundle ... ok (55ms)
+  an on-disk entry bundles the same way (the app path) ... ok (7ms)
+  a solid dom source bundles to a browser module ... ok (168ms)
+  a dom entry names its members and carries none of them ... ok (11ms)
+  a runtime subpath that is no member fails loud at the bundle ...
+------- post-test output -------
+✘ [ERROR] [bundler] "svelte/compiler" is no member — one of svelte · svelte/animate · svelte/attachments · svelte/easing · svelte/events · svelte/internal/client · svelte/internal/disclose-version · svelte/internal/flags/async · svelte/internal/flags/legacy · svelte/internal/flags/tracing · svelte/legacy · svelte/motion · svelte/reactivity · svelte/reactivity/window · svelte/store · svelte/transition · solid-js · solid-js/store · solid-js/web · three · @vivalence/dapper · @vivalence/drapes/svelte [plugin member]
+
+    tests/bundler-cb6b71c08d8a949/Compiler.svelte:7:24:
+      7 │ import { VERSION } from "svelte/compiler";
+        ╵                         ~~~~~~~~~~~~~~~~~
+
+----- post-test output end -----
+  a runtime subpath that is no member fails loud at the bundle ... ok (5ms)
+  the members build once: every member a file, every chunk a member names a file ... ok (638ms)
+  a solid dom source carries its sheet as text ... ok (4ms)
+  an html source wraps into a module ... ok (1ms)
+  prune removes every hash-named build without its source; a view's named bundle and every sourced page stay ... ok (15ms)
+  refuses what it must ...
+------- post-test output -------
+✘ [ERROR] Unexpected token
+https://svelte.dev/e/js_parse_error [plugin esbuild-svelte]
+
+    tests/bundler-cb6b71c08d8a949/bundle/2162c3ec0fdc6a1d.dom.svelte:1:14:
+      1 │ <script>let { = $props();</script>
+        ╵               ^
+
+  The plugin "esbuild-svelte" was triggered by this import
+
+    <stdin>:2:22:
+      2 │ import Component from "./2162c3ec0fdc6a1d.dom.svelte";
+        ╵                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+----- post-test output end -----
+  refuses what it must ... ok (7ms)
+paladin.bundler ... ok (918ms)
+running 1 test from ./tests/check.environment.test.js
+check.environment ...
+  described and set → ok ... ok (2ms)
+  read by a thunk but described nowhere → UNDOCUMENTED, and it FAILS ... ok (0ms)
+  unset and not optional → REQUIRED, and it FAILS — however well the thunk coped ... ok (1ms)
+  unset and .optional() → optional, and it does not fail ... ok (0ms)
+  set but failing its type → INVALID with the reason, and it FAILS ... ok (0ms)
+  a secret is validated against its real value and still reported as *** ... ok (1ms)
+  described, unread, blank, not optional → REQUIRED — the publish() and container consumers ... ok (0ms)
+  described, unread, blank, .optional() → documented, NOT an error ... ok (1ms)
+  a documented row carries its VALUE — which is how the wizard knows what is still owed ... ok (8ms)
+  a secret is reported as PRESENT, never as itself ... ok (0ms)
+  a secret read by a thunk carries its at, and being unset makes it REQUIRED ... ok (0ms)
+  one key read from several places yields one row per site — that IS the per-consumer set ... ok (0ms)
+  a thunk reading several keys yields a row for each ... ok (0ms)
+  no schema and no requirements is empty and clean, not a failure ... ok (0ms)
+  tolerates an instance with neither field — a declaration may carry no environment at all ... ok (0ms)
+  a string that converts to the declared type is ok — a .env holds strings, the schema holds types ... ok (0ms)
+  the wrong-list is published once, for doctor and init to read ... ok (0ms)
+check.environment ... ok (21ms)
+running 1 test from ./tests/corpus.test.js
+global ...
+  reading a topography off disk ...
+    walks the words tree, reaches the default export, and skips index.js ... ok (5ms)
+    never descends a bak/ tree, which the first draft's walker did ... ok (0ms)
+    reads an emitted json corpus through the same walk ... ok (1ms)
+  reading a topography off disk ... ok (6ms)
+  writing files that are a pure function of the rows ...
+    emits the same bytes regardless of the order the rows arrived in ... ok (1ms)
+    reaches a fixpoint — a second write of unchanged rows touches nothing ... ok (1ms)
+    round-trips EVERY write codec back through find.data — no one-way doors ... ok (4ms)
+    round-trips through the reader it will be re-installed by ... ok (0ms)
+  writing files that are a pure function of the rows ... ok (6ms)
+global ... ok (24ms)
+running 3 tests from ./tests/expand.test.js
+paladin.expand — a ${KEY} is read through the strata and recorded, no thunk fires ...
+  a whole-string reference keeps the value's type; a blank one is null and named unset ... ok (2ms)
+  a reference inside a string interpolates as text, a blank one as empty, and every key it names is recorded ... ok (0ms)
+  arrays label by index, objects by key; without a record nothing is recorded and the value still expands ... ok (0ms)
+  expand has no scan — the mount's record is the only reading of a recipe ... ok (0ms)
+paladin.expand — a ${KEY} is read through the strata and recorded, no thunk fires ... ok (10ms)
+the read — one recipe fixture, the mount's record ...
+  the mount's record holds what was read ...
+------- post-test output -------
+[instance] runtime.hallucinators[1] filtered, @commons/hallucinator/openrouter — empty key
+----- post-test output end -----
+  the mount's record holds what was read ... ok (13ms)
+  an unset reference the schema requires is a REQUIRED row at its path; one outside required is not owed ...
+------- post-test output -------
+[instance] runtime.hallucinators[0] filtered, @commons/hallucinator/anthropic — empty key
+[instance] runtime.hallucinators[1] filtered, @commons/hallucinator/openrouter — empty key
+----- post-test output end -----
+  an unset reference the schema requires is a REQUIRED row at its path; one outside required is not owed ... ok (4ms)
+the read — one recipe fixture, the mount's record ... ok (19ms)
+doctor parity — hello-world's thunk record against its instance.viva.json ...
+  the requirements rows are today's, less the lighthouse service, the jwt moved from it to the lighthouse slot, the ledger's hallucinators read on the runtime ...
+------- post-test output -------
+[instance] runtime.hallucinators[1] filtered, @commons/hallucinator/openrouter — empty key
+[instance] runtime.hallucinators[2] filtered, @commons/hallucinator/elevenlabs — empty key
+[instance] runtime.hallucinators[3] filtered, @commons/hallucinator/deepgram — empty key
+----- post-test output end -----
+  the requirements rows are today's, less the lighthouse service, the jwt moved from it to the lighthouse slot, the ledger's hallucinators read on the runtime ... ok (7ms)
+  the doctor's env rows carry today's verdicts, key by key ...
+------- post-test output -------
+[instance] runtime.hallucinators[1] filtered, @commons/hallucinator/openrouter — empty key
+[instance] runtime.hallucinators[2] filtered, @commons/hallucinator/elevenlabs — empty key
+[instance] runtime.hallucinators[3] filtered, @commons/hallucinator/deepgram — empty key
+----- post-test output end -----
+  the doctor's env rows carry today's verdicts, key by key ... ok (4ms)
+doctor parity — hello-world's thunk record against its instance.viva.json ... ok (10ms)
+running 1 test from ./tests/find.test.js
+paladin find — describe · index · the ignore list ...
+  describe stats one file, null for what is not a file ... ok (1ms)
+  index walks the root sorted under the house list ... ok (1ms)
+  a caller's list is the whole list — nothing is unioned in ... ok (1ms)
+  skip compiles the list once and answers names ... ok (0ms)
+paladin find — describe · index · the ignore list ... ok (14ms)
+running 1 test from ./tests/instance.snapshot.test.js
+snapshot demo: paladin ...
+  instance — the resolved deployment, secrets redacted, the paladin spine cut ...
+------- post-test output -------
+
+===BEGIN paladin.instance → /Users/finn/vivalence/code/vivalence/subsystems/paladin/tests/snapshots/paladin-instance.snapshot.json===
+{
+  "manifest": {
+    "type": "instance",
+    "slug": "hello-world",
+    "version": "0.0.1",
+    "traits": []
+  },
+  "environment": {
+    "type": "object",
+    "properties": {},
+    "additionalProperties": false
+  },
+  "clients": [],
+  "services": [],
+  "daemons": [
+    {
+      "manifest": {
+        "type": "daemon",
+        "slug": "hello",
+        "version": "0.0.1",
+        "traits": []
+      },
+      "consume": {
+        "reader": {
+          "module": "@commons/service/reader"
+        }
+      },
+      "modes": [
+        {
+          "module": "/Users/finn/vivalence/code/vivalence/commons/instances/hello-world/mode.viva.js",
+          "mountpoint": "/Users/finn/vivalence/code/vivalence/commons/instances/hello-world/mountpoint/daemon_hello/mode_mode",
+          "hallucinators": [],
+          "traits": [],
+          "trait": {},
+          "consume": {}
+        }
+      ],
+      "mountpoint": "/Users/finn/vivalence/code/vivalence/commons/instances/hello-world/mountpoint/daemon_hello",
+      "reference": "/daemon/hello",
+      "hallucinators": [],
+      "statics": {}
+    }
+  ]
+}
+===END===
+
+----- post-test output end -----
+  instance — the resolved deployment, secrets redacted, the paladin spine cut ... ok (25ms)
+  scope — the resolved directory paths ...
+------- post-test output -------
+
+===BEGIN paladin.scope → /Users/finn/vivalence/code/vivalence/subsystems/paladin/tests/snapshots/paladin-scope.snapshot.json===
+{
+  "ledger": "/var/folders/v6/n_bph68x415ftwrk_xvn2wwm0000gn/T/tmp.UTw9VNaPLn/.viva",
+  "instance": "/Users/finn/vivalence/code/vivalence/commons/instances/hello-world",
+  "mountpoint": "/Users/finn/vivalence/code/vivalence/commons/instances/hello-world/mountpoint",
+  "repository": "/Users/finn/vivalence/code/vivalence",
+  "registry": "/registry",
+  "credentials": "/credentials.json"
+}
+===END===
+
+----- post-test output end -----
+  scope — the resolved directory paths ... ok (0ms)
+snapshot demo: paladin ... ok (32ms)
+running 1 test from ./tests/ledger.parts.test.js
+ledger parts — a top-level slot is its content, or a path to it, or a ${KEY} naming either ...
+  a relative path reads beside the recipe, an absolute one reads where it says ... ok (8ms)
+  ${KEY} resolves before the parse — its value is a path, or the content itself ... ok (7ms)
+  a registry identifier is no path — the slot is { module }, on the ledger and on the instance ... ok (29ms)
+  an unset ${KEY} throws naming the key; a missing file throws naming the path ... ok (2ms)
+  records: absent is the file beside the ledger; a declared path is written there; inline reads and refuses a write ... ok (4ms)
+  a declared record whose file is gone throws naming it — no silent empty ... ok (0ms)
+  the instance reads its parts the same way; a record never falls through to it ... ok (11ms)
+ledger parts — a top-level slot is its content, or a path to it, or a ${KEY} naming either ... ok (68ms)
+running 2 tests from ./tests/ledger.recipe.test.js
+ledger recipe — ledger → instance falls through by SLOT, environment by KEY, before a thunk fires ...
+  no ledger module: nothing inherited, the instance is what it declares ... ok (21ms)
+  a declared slot is the instance's; an undeclared one is the ledger's; the runtime is the instance's own ... ok (16ms)
+  a declared [] is 'none' — the ledger's list does not merge in ... ok (2ms)
+  the ledger's thunks fire ONCE, at the instance's own label (clients.anima), and an overridden slot's thunk never fires ... ok (2ms)
+  environment folds by KEY — the ledger's keys are documented, the instance's key wins a collision ... ok (2ms)
+  environment composes as an interface — an instance narrows a ledger key's default; a retyped key throws naming it ... ok (2ms)
+  the ledger is read ONCE per paladin — a second mount folds from the memo, find is not asked again ... ok (3ms)
+  the manifest derives from the file's place — type ledger, slug from the stem — and an exported manifest LOCKS a field ... ok (0ms)
+  a manifest that says it is something else throws naming the file; a bad slug throws through the schematic ... ok (1ms)
+ledger recipe — ledger → instance falls through by SLOT, environment by KEY, before a thunk fires ... ok (56ms)
+faculty unfolding — extend(below, above), the one fold every level runs; ledger → runtime in the recipe beat (m126 Q2) ...
+  nothing below: the level holds what is above, the same masks ... ok (0ms)
+  a provider named below joins by module — it keeps the key above and adds its faculty; an untagged faculty above is kept ... ok (0ms)
+  a restated id is ONE faculty: its keys above, the keys below over them ... ok (1ms)
+  a tier worn below is unique in the set: the faculty wearing it above leaves, under any provider ... ok (0ms)
+  a provider only below is added whole, after those above ... ok (0ms)
+  source is not mutated ... ok (0ms)
+  the ledger's hallucinators are the runtime's — an inherited runtime holds them, a declared one adds to them; the root holds none ... ok (23ms)
+faculty unfolding — extend(below, above), the one fold every level runs; ledger → runtime in the recipe beat (m126 Q2) ... ok (24ms)
+running 6 tests from ./tests/ledger.test.js
+belt: read/state json + jsonl ...
+  state.json writes, read.json reads back ... ok (1ms)
+  read.json returns fallback for missing file ... ok (0ms)
+  state.jsonl appends one line per call, read.jsonl returns the list ... ok (0ms)
+  state.remove deletes, read.json falls back after ... ok (1ms)
+belt: read/state json + jsonl ... ok (16ms)
+Ledger.lock — one per instance, read prunes the dead ...
+  write then read roundtrips a live claim ... ok (1ms)
+  read is null after remove ... ok (0ms)
+  a dead pid is not a lock — read returns null and removes the file ... ok (1ms)
+Ledger.lock — one per instance, read prunes the dead ... ok (3ms)
+Ledger.instances ...
+  write stamps createdAt/updatedAt and read returns the entry ... ok (1ms)
+  second write merges, preserves createdAt ... ok (0ms)
+  read returns null for an unknown slug ... ok (0ms)
+  lookup finds the slug by mount; miss is null ... ok (1ms)
+  rename moves the record key, keeps createdAt, refuses collisions and ghosts ... ok (2ms)
+  remove drops the entry and nothing else ... ok (1ms)
+  resolve: a recorded slug is its record; an unrecorded slug throws, never a shelf guess ... ok (0ms)
+  resolve: an absolute path finds the record holding it, or slug null when untapped ... ok (1ms)
+  resolve: a ./relative path lands in the operator's cwd frame ... ok (0ms)
+  resolve: nothing selected is the one voice ... ok (0ms)
+Ledger.instances ... ok (7ms)
+Ledger.registry ...
+  seed writes absolute locations from the registry scope and read round-trips ... ok (7ms)
+  read returns null before any seed ... ok (1ms)
+Ledger.registry ... ok (8ms)
+scope conventions — the ledger is the home ...
+  registry store defaults to <ledger>/registry ... ok (1ms)
+  VIVA_REGISTRY_MOUNT from paladin.env wins over the convention ... ok (1ms)
+  VIVA_INSTANCE_MOUNT bare slug THROWS — a *_MOUNT is always a path ... ok (1ms)
+  ledger.instances.shelf maps a slug onto the shelf — the ONE place that does ... ok (0ms)
+  VIVA_INSTANCE_MOUNT absolute path stays verbatim ... ok (1ms)
+scope conventions — the ledger is the home ... ok (4ms)
+Ledger.log ...
+  append writes a jsonl span line readable via read.jsonl ... ok (1ms)
+  open returns an appendable file handle for a child stream ... ok (0ms)
+Ledger.log ... ok (1ms)
+running 3 tests from ./tests/modes.test.js
+instance modes identifiers ...
+  the three modes forms resolve: bare kept, absolute kept, relative vs the instance file — an inline module object is refused by the mask ... ok (30ms)
+  every mode has a ground without the recipe saying one: <daemon mountpoint>/mode_<type>_<slug>; an identifier names both, a path names what it can, a declared mountpoint wins ... ok (14ms)
+  a reference entry { module, mountpoint } names its module — no source is stamped on it, so the module's own file stays the citizen's source ... ok (11ms)
+instance modes identifiers ... ok (61ms)
+registry.accio — the citizen ...
+  an absolute path reads the module and stamps its source ... ok (1ms)
+  a mask folds over what it names — the module's statics sit under the mask's, key by key; module is the object, identifier the string ... ok (0ms)
+registry.accio — the citizen ... ok (1ms)
+client modes ...
+  a client is a host: /client/<slug>, every mode referenced under it as /mode/<type>/<slug>, no mountpoint on either ... ok (12ms)
+client modes ... ok (11ms)
+running 1 test from ./tests/paladin.split.test.js
+paladin.split — a blank never claims ...
+  a blank at a higher stratum does not shadow a real value below it ... ok (1ms)
+  a blank voiced nowhere else stays absent, not empty ... ok (1ms)
+  reports the blank keys beside held, secrets and ignored ... ok (1ms)
+paladin.split — a blank never claims ... ok (10ms)
+running 1 test from ./tests/pensieve.test.js
+Pensieve ...
+  keys by manifest owner→type→slug→version ... ok (0ms)
+  does NOT default a missing owner — mount must stamp ... ok (0ms)
+  two packages shipping the same type/slug do not collide ... ok (0ms)
+  a second file claiming a held identity cannot register — the same file re-registers idempotently ... ok (0ms)
+  latest() resolves the highest semver within a slug ... ok (1ms)
+Pensieve ... ok (3ms)
+running 1 test from ./tests/populate.test.js
+populate — binding: each channel lands in its declared stratum ...
+  os: VIVA_/PUBLIC_VIVA_ → env@os · SECRET_VIVA_ → secret@os · junk → neither ... ok (5ms)
+  ./ scan: a cwd .env lands @.env, filtered and split; absence is silent ... ok (5ms)
+  VIVA_ENV_FILE: filtered+split @.env · knowledge-free throws · secrets-only passes ... ok (2ms)
+  tails: sessions/<pid>.json → @session · <ledger>/.env → @ledger · no shell → no session ... ok (2ms)
+  a SECRET_* in a session record goes to the SECRET bag, not the env one ... ok (1ms)
+  standing in the ledger does not promote its .env above the session that selected an instance ... ok (2ms)
+  divergence regression: mountpoint scope resolves through paladin.env, not Deno.env ... ok (0ms)
+  a cwd holding instance.viva.json is the instance scope when no VIVA_INSTANCE_MOUNT says otherwise ...
+------- post-test output -------
+paladin.scope overwrite
+paladin.scope overwrite
+paladin.scope overwrite
+paladin.scope overwrite
+paladin.scope overwrite
+paladin.scope overwrite
+----- post-test output end -----
+  a cwd holding instance.viva.json is the instance scope when no VIVA_INSTANCE_MOUNT says otherwise ... ok (2ms)
+  mounts: every declared *_MOUNT is a scope of its name, and that scope reads exactly that key; the one declared *_FILE is the credentials scope ... ok (1ms)
+  a KEY decides secrecy — never the file it arrived in ... ok (1ms)
+populate — binding: each channel lands in its declared stratum ... ok (26ms)
+running 1 test from ./tests/prime.test.js
+paladin prime — a directory is a Primer, the frontmatter sniffed per file ...
+  no frontmatter is eager text; ours is the pattern; the standard's description is the valence, lazy ... ok (1ms)
+  a body is read per call — an edit shows on the next read, no restart ... ok (0ms)
+  read.frontmatter splits a file; a file without frontmatter is all body ... ok (0ms)
+paladin prime — a directory is a Primer, the frontmatter sniffed per file ... ok (15ms)
+running 2 tests from ./tests/registry.integrity.test.js
+integrity — the fold over pairs ...
+  a domain validates against Domain; its trait lists default, so a bare domain passes (the sentence arrives with typology's line) ... ok (4ms)
+  a trait names the export it travels with — missing is a fault, present is silence ... ok (1ms)
+  a marker trait carries nothing and asks nothing ... ok (0ms)
+  a manifest the schematic refuses is a fault, not a throw — only a missing slug throws ... ok (1ms)
+  order is authored order: a rule that rewrites the module is read by the rule after it ... ok (0ms)
+integrity — the fold over pairs ... ok (12ms)
+registry — integrity at mount and at accio ...
+  mount: a faulted module registers and is listed; a slugless file faults under its own path; siblings register ... ok (31ms)
+  accio of a faulted module throws its sentences; a clean sibling resolves ... ok (7ms)
+  a trait the MASK adds throws on the entry — the module itself still resolves ... ok (6ms)
+  a manifest-less file under ledger/ registers as ledger/<name>: its manifest derives from its place; its own word overwrites ... ok (7ms)
+  the index outlives the journal cap: 1 200 modules, one fault each, every one in the map ... ok (1s)
+registry — integrity at mount and at accio ... ok (1s)
+running 1 test from ./tests/registry.mount.test.js
+Registry.mount ...
+  a mount with modules but no package declaration throws — no owner to stamp ... ok (3ms)
+  the package's authored owner stamps every module in the mount ... ok (1ms)
+  a package declaration WITHOUT owner throws — presence alone stamps nothing ... ok (0ms)
+  a module's own manifest.owner overrides the package-stamped owner ... ok (0ms)
+  a package nested under the mount is its own: the walk stops at its declaration, its modules stay out ... ok (1ms)
+  demand outrunning supply throws 'not supplied' — distinct from Module 404 (fork 8) ... ok (1ms)
+Registry.mount ... ok (12ms)
+running 1 test from ./tests/registry.tap.test.js
+Registry.tap — materialize + record, never mount ...
+  tap of an external checkout records owner → slug and the absolute mount ... ok (15ms)
+  tap of a store location beside the record records the mount relative to the record file ... ok (4ms)
+  tap of a directory without a package declaration throws ... ok (3ms)
+  remote tap without a store scope throws before any clone ... ok (1ms)
+  untap removes the record and leaves the store untouched ... ok (3ms)
+  tap → supply → accio: a mixed-kind record mounts at boot; untap starves the next boot ... ok (14ms)
+  clone.remote classifies every remote spelling, so a caller can skip path resolution ... ok (1ms)
+  tap of a declaration file records the declaration's dirname ... ok (5ms)
+  tap of a directory above the declaration records the declaration's dirname, store-relative ... ok (3ms)
+  tap of a directory holding two package declarations throws naming both ... ok (3ms)
+  tap of a directory whose root declares a package takes that one — a package nested under it is its own ... ok (6ms)
+  a second checkout of a tapped owner throws — one owner, one mount ... ok (6ms)
+  tap of a location with nothing behind it names what it looked for ... ok (1ms)
+Registry.tap — materialize + record, never mount ... ok (71ms)
+running 4 tests from ./tests/registry.test.js
+Registry — the record, owner → { slug, mount, remote? } ...
+  add is idempotent ... ok (17ms)
+  add of an owner tapped at another mount throws and leaves the record ... ok (1ms)
+  remove drops exactly the named owner; an unrecorded owner is a no-op ... ok (2ms)
+  resolve — absolute verbatim, relative against the record file ... ok (1ms)
+  locate — beside the record file is relative, anywhere else absolute ... ok (1ms)
+  a tap location without a store scope throws ... ok (0ms)
+  the file is a plain JSON object keyed by owner ... ok (2ms)
+  a record in the list shape throws naming the file — no dual read ... ok (1ms)
+Registry — the record, owner → { slug, mount, remote? } ... ok (32ms)
+Registry.seed — discovery keeps only package declarations ...
+  a child without a package manifest never becomes a location ... ok (5ms)
+Registry.seed — discovery keeps only package declarations ... ok (5ms)
+Registry.reconcile — a dead location never breaks supply ...
+  a dead location anywhere under the checkout is replaced by rediscovering <checkout>/commons ... ok (4ms)
+  a dead location outside the checkout is skipped, kept recorded, and reported stale ... ok (2ms)
+  a record with every location present is returned as-is and not rewritten ... ok (1ms)
+  no record at all returns null — supply seeds instead ... ok (1ms)
+  discovery over a missing root yields nothing, never a stack trace ... ok (1ms)
+Registry.reconcile — a dead location never breaks supply ... ok (10ms)
+Registry.supply — boots over a stale record ...
+  mounts the healed checkout package and skips the dead external one ... ok (6ms)
+  a record the package's own declaration contradicts throws at mount, naming both ... ok (3ms)
+  no record seeds from <checkout>/commons ... ok (3ms)
+  a checkout without commons/ supplies nothing and names the absence at accio ... ok (3ms)
+Registry.supply — boots over a stale record ... ok (17ms)
+running 3 tests from ./tests/registry.wire.test.js
+registry.accio — mask ⊕ module, once ...
+  a bare identifier is the module, untouched ... ok (3ms)
+  a mode entry folds statics by key, the entry winning, and adds its traits; secrets and the mountpoint are the entry's; module and identifier ride along (m126 Q43 · Q44) ... ok (2ms)
+  a mask without statics or secrets still yields both keys — no ?? downstream ... ok (1ms)
+  an inline module is its own citizen ... ok (0ms)
+registry.accio — mask ⊕ module, once ... ok (15ms)
+registry.wire — a daemon mask to its bag ...
+  every slot is a citizen; the modes keeps its order; the domain is picked from it ... ok (2ms)
+  a modes without a domain wires an empty domain, not a throw ... ok (1ms)
+  an entry that arrives unplaced is placed in wire from the folded manifest; a placed one is left alone ... ok (2ms)
+  a mode wires its own mask — its consume each a citizen; its parent's bag leaves the entry's consume as authored ... ok (2ms)
+  a hallucinator is a citizen carrying its mask's faculties, each stamped with its provider's slug (m126 Q7A) ... ok (1ms)
+  a mode wearing HARNESS · CONVERSATION without the faculties it needs is REPORTED at its lookup path, never refused — its module's word or its entry's, the faculties its own folded list (m126 Q41) ...
+------- post-test output -------
+[instance] daemons.d.modes.game.talker dormant, HARNESS — no dialogue among its faculties
+[instance] daemons.d.modes.game.talker dormant, CONVERSATION — no call, nor verbatim + dialogue + speech among its faculties
+[instance] runtime.modes.game.talker dormant, CONVERSATION — no call, nor verbatim + dialogue + speech among its faculties
+----- post-test output end -----
+  a mode wearing HARNESS · CONVERSATION without the faculties it needs is REPORTED at its lookup path, never refused — its module's word or its entry's, the faculties its own folded list (m126 Q41) ... ok (2ms)
+  trait config for a trait the mode does not wear refuses the bag, the stray word named; worn, it rides the citizen as written (m126 Q40) ...
+------- post-test output -------
+[instance] daemons.d.modes.game.board dormant, HARNESS — no dialogue among its faculties
+----- post-test output end -----
+  trait config for a trait the mode does not wear refuses the bag, the stray word named; worn, it rides the citizen as written (m126 Q40) ... ok (1ms)
+  a slot naming an unsupplied package throws that package, not the whole bag silently ... ok (0ms)
+registry.wire — a daemon mask to its bag ... ok (14ms)
+registry.accio — a service mask ...
+  the declared manifest is the identity; the module's traits ride under it ... ok (0ms)
+  a settled mask carries traits: [] — the schematic's fill, not its word: the module's traits stay; a mask's own add, never strip ... ok (0ms)
+  a consumed-only service folds like any other — the runtime, not the registry, decides not to spawn it ... ok (1ms)
+registry.accio — a service mask ... ok (1ms)
+running 2 tests from ./tests/settle.test.js
+settle — the schematic fills, mints and judges what the pinhole fired ...
+  a typed static decodes to its prototype: serve arrives as a Url, the recipe handed a string ... ok (23ms)
+  runtime.statics.remote is a Url when declared and absent without a fault when not ... ok (23ms)
+  daemons without runtime.statics.remote is a fault; a blank remote is the env row's, said once ... ok (4ms)
+  a blank address is a fault, never a throw — the doctor mounts a bare recipe ... ok (1ms)
+  statics, consume, hallucinators and modes need not be authored — the schematic fills them ... ok (9ms)
+  the root datamap is a service's default: a COPY, placed in the service's directory, its file named for it — a daemon opens none of its own ... ok (9ms)
+  a daemon declaring its own datamap is refused at mount — the runtime has ONE datamap ... ok (2ms)
+  a mounting's own mountpoint wins over the derived one, thunk fired, and its datamap follows it ... ok (8ms)
+  the runtime's hallucinators unfold onto every host below — a daemon and its modes hold them, a level adds a faculty or a provider, the key stays the level's above ... ok (13ms)
+  a mode entry's trait config stays as written through settle, its traits beside it; a value outside the twin's shape is the schematic's fault, said at the entry's lookup path (m126 Q40 · Q43 · Q46) ... ok (11ms)
+  a tier worn below takes it off the faculty above; a tier on the wrong type is a fault, said once, at the level that declared it ... ok (13ms)
+  a hallucinator whose secret is blank is dormant: off the roster, named on the instance, still in the record ...
+------- post-test output -------
+[instance] daemons.probe.hallucinators[1] filtered, @commons/hallucinator/deepgram — empty key
+----- post-test output end -----
+  a hallucinator whose secret is blank is dormant: off the roster, named on the instance, still in the record ... ok (8ms)
+  a runtime hallucinator whose secret is blank is dormant on the runtime, so on every host below; named once, still in the record ...
+------- post-test output -------
+[instance] runtime.hallucinators[1] filtered, @commons/hallucinator/deepgram — empty key
+----- post-test output end -----
+  a runtime hallucinator whose secret is blank is dormant on the runtime, so on every host below; named once, still in the record ... ok (10ms)
+  a consumed service whose secret is blank is dormant: off the daemon, named on the instance ...
+------- post-test output -------
+[instance] daemons.probe.consume.nlp filtered, @commons/service/nlp-stanza — empty key
+----- post-test output end -----
+  a consumed service whose secret is blank is dormant: off the daemon, named on the instance ... ok (9ms)
+  bootable = no fault and no wrong env row; a required blank refuses, an optional blank does not ...
+------- post-test output -------
+[instance] daemons.probe.hallucinators[1] filtered, @commons/hallucinator/deepgram — empty key
+[instance] daemons.probe.hallucinators[0] filtered, @commons/hallucinator/anthropic — empty key
+----- post-test output end -----
+  bootable = no fault and no wrong env row; a required blank refuses, an optional blank does not ... ok (26ms)
+  a faulted slot stays as hydrated — decode never runs on a value the schematic refused; one sentence per location ... ok (1ms)
+  identity is a manifest everywhere — runtime, client and service rows are labeled by it ... ok (8ms)
+settle — the schematic fills, mints and judges what the pinhole fired ... ok (185ms)
+settle — a modes entry in object form fires at the pinhole like any mask ...
+  the mountpoint thunk fires and lands as a Path; the entry keeps its module and statics; the string entry beside it is placed under the daemon ... ok (10ms)
+  an unset mountpoint is REQUIRED at its slot — the doctor names the entry; nothing is minted over it ... ok (10ms)
+  an entry without a mountpoint is placed under its daemon — mode_<type>_<slug>; a declared one, blank or not, is never placed over ... ok (9ms)
+  a relative mountpoint is refused at mount — declared means absolute ... ok (1ms)
+  the daemon's own mountpoint is unchanged by the entries under it ... ok (9ms)
+  a daemon is addressed from its slug and the runtime's reach; its entries under it, typed from the identifier ... ok (9ms)
+  a runtime naming no manifest lands at /runtime/runtime — its slug is the schematic's default before its reference is written ... ok (8ms)
+  no remote → no url, no attach; the reference still lands; a path entry without a type carries only its mountpoint ... ok (1ms)
+  a service attaches at /attached/process/service/<type>/<slug>; the lighthouse slot folds from the runtime's secret when the recipe says none ... ok (8ms)
+  a migrated shelf that still says lighthouse is refused at mount, the key named ... ok (1ms)
+settle — a modes entry in object form fires at the pinhole like any mask ... ok (66ms)
+running 1 test from ./tests/skills.test.js
+paladin tools — fs + shell ...
+  fs_tree lists an absolute directory and skips bak ... ok (2ms)
+  fs_find matches by name and answers absolute paths ... ok (1ms)
+  fs_read slices by range ... ok (0ms)
+  fs_read of an empty file says so ... ok (0ms)
+  a relative path is refused, naming where the places are ... ok (1ms)
+  fs_write creates parents and reports bytes ... ok (1ms)
+  fs_stat describes a file ... ok (0ms)
+  fs_move renames and creates the parent ... ok (1ms)
+  fs_delete removes a file and refuses a directory ... ok (0ms)
+  fs_tree skips the house list when nothing is bound, files included ... ok (1ms)
+  shell_run runs in the given cwd, returns the tail and exit code, nonzero stays NOMINAL ... ok (10ms)
+paladin tools — fs + shell ... ok (31ms)
+running 1 test from ./tests/source.test.js
+paladin.source ...
+  absolute string — as-is ... ok (0ms)
+  ./ and ../ — relative to CLI execution (INIT_CWD wins) ... ok (0ms)
+  {file, source} — relative to the declaring file ... ok (0ms)
+  bare segment — repo-root-relative via scope.repository ... ok (0ms)
+paladin.source ... ok (8ms)
+running 13 tests from ./tests/spawn.test.js
+ledger.boot: SPAWNED lock with every pid; integrate once every served child answers → ALIVE lock; perpetuate folds exits and clears the lock ... ok (453ms)
+ledger.boot: a served child that exits before answering makes integrate reject, the sibling is disintegrated, the lock is gone ... ok (21ms)
+ledger.boot: a served child that never answers within the deadline rejects and tears down ... ok (306ms)
+die.disintegrate: SIGTERM within grace stops a sleeper, the lock is gone, the exit is not success ... ok (3ms)
+a child without serve is alive at spawn — integrate resolves without waiting ... ok (227ms)
+attachment logged: lines land in <ledger>/logs/<instance>/<process>.out.log ... ok (431ms)
+a second die for a held instance refuses at resolve, spawns nothing, and the first claim survives ... ok (3ms)
+a die releases only its own claim — a foreign live claim survives its teardown ... ok (2ms)
+a die without an instance writes no lock ... ok (424ms)
+the lock carries a row per process — each one's serve and status, re-claimed when one exits while its sibling lives ... ok (332ms)
+ledger.boot refuses a port another instance's lock holds, naming the holder; spawns nothing; the holder's claim survives ... ok (13ms)
+ledger.locks reaps a dead supervisor's lock and lists nothing on a ledger without locks/ ... ok (929µs)
+lock.read asks every process pid: a dead one reads EXITED; all dead reaps the lock though its supervisor lives (a --watch restart keeps the pid) ... ok (1ms)
+running 2 tests from ./tests/state.env.test.js
+state.env ...
+  creates the file when absent ... ok (2ms)
+  replaces a value IN PLACE, keeping comments, blanks and order ... ok (1ms)
+  appends a key it has never seen, after the existing content ... ok (1ms)
+  writes several keys in one pass, replacing and appending as needed ... ok (1ms)
+  matches an exported line and rewrites it in the same shape ... ok (1ms)
+  does not match a key that merely PREFIXES another ... ok (0ms)
+  does not disturb a commented-out line of the same key ... ok (0ms)
+  writes an unset value as a commented line — unset documents, never claims ... ok (4ms)
+  uncomments a scaffolded blank IN PLACE — same slot, same group, no twin ... ok (1ms)
+  unsetting a live key comments it in place ... ok (0ms)
+  line is the one grammar: a value is claimed, a blank is commented ... ok (0ms)
+  keeps ${VAR} verbatim — expansion is Env.get's job, not the writer's ... ok (1ms)
+  is idempotent — writing the same bag twice changes nothing ... ok (1ms)
+  normalises a missing trailing newline before appending ... ok (0ms)
+state.env ... ok (20ms)
+publish ...
+  publishes the EXPANDED value — the receiving process cannot expand ${VAR} itself ... ok (0ms)
+publish ... ok (383µs)
+running 1 test from ./tests/state.test.js
+state.store — bytes land once ...
+  writes fresh bytes, skips identical bytes, replaces changed bytes ... ok (5ms)
+state.store — bytes land once ... ok (10ms)
+running 2 tests from ./tests/vault.test.js
+belt/vault — one slot, the backend resolved at first call ...
+  under Deno the file backend: an unknown origin is null; a store is held back; the file is the credentials scope at mode 0600; a null store removes the row ... ok (11ms)
+  VIVA_CLIENT_GHOST_CREDENTIALS_FILE moves the file; paladin.files declares the key beside paladin.mounts ... ok (1ms)
+  the slot resolves once: resolved without Deno it is localStorage, and stays so after Deno returns — no file is written ... ok (1ms)
+  no Deno and no localStorage is loud, and the slot stays empty for the next call ... ok (1ms)
+belt/vault — one slot, the backend resolved at first call ... ok (19ms)
+mod.client.js — the browser twin of mod.js ...
+  loads under a DOM-ish global with Deno gone: vault on localStorage, the baked instance and env, one memoized factory, wire from the baked modes, no fs ... FAILED (357ms)
+mod.client.js — the browser twin of mod.js ... FAILED (due to 1 failed step) (356ms)
+
+ ERRORS 
+
+mod.client.js — the browser twin of mod.js ... loads under a DOM-ish global with Deno gone: vault on localStorage, the baked instance and env, one memoized factory, wire from the baked modes, no fs => ext:cli/40_test.js:239:28
+error: Error: twin exited 1
+Warning the configuration file "file:///Users/finn/vivalence/code/vivalence/deno.jsonc" contains an entry for "importMap" that is being ignored.
+error: Uncaught (in promise) ReferenceError: ReferenceError: Deno is not defined
+    at isWarmupPhase (ext:deno_node/internal/options.ts:1:309)
+    at getOptionsFromBinding (ext:deno_node/internal/options.ts:1:363)
+    at getOptionValue (ext:deno_node/internal/options.ts:1:464)
+    at ext:deno_node/crypto.ts:1:2573
+    at ext:deno_node/crypto.ts:1:6895
+    at Object.loadExtScript (ext:core/01_core.js:990:20)
+    at node:crypto:1:50
+    at Object.loadExtScript (ext:core/01_core.js:990:20)
+    at node:crypto:1:50
+
+  if (code !== 0) throw new Error(`twin exited ${code}\n${err}`);
+                        ^
+    at twin (file:///Users/finn/vivalence/code/vivalence/subsystems/paladin/tests/scenarios/twin.js:38:25)
+    at async Object.<anonymous> (file:///Users/finn/vivalence/code/vivalence/subsystems/paladin/tests/vault.test.js:87:21)
+    at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.19/_test_suite.ts:437:7)
+    at async TestSuiteInternal.runTest (https://jsr.io/@std/testing/1.0.19/_test_suite.ts:425:9)
+    at async fn (https://jsr.io/@std/testing/1.0.19/_test_suite.ts:386:13)
+    at async innerWrapped (ext:cli/40_test.js:300:5)
+    at async exitSanitizer (ext:cli/40_test.js:201:27)
+    at async Object.outerWrapped [as fn] (ext:cli/40_test.js:239:22)
+    at async TestContext.step (ext:cli/40_test.js:855:22)
+    at async TestSuiteInternal.run (https://jsr.io/@std/testing/1.0.19/_test_suite.ts:402:7)
+
+ FAILURES 
+
+mod.client.js — the browser twin of mod.js ... loads under a DOM-ish global with Deno gone: vault on localStorage, the baked instance and env, one memoized factory, wire from the baked modes, no fs => ext:cli/40_test.js:239:28
+
+FAILED | 58 passed (258 steps) | 1 failed (1 step) (12s)
+
+error: Test failed

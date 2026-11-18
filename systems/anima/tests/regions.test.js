@@ -48,8 +48,8 @@ const ORACLE = {
   split: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.frame(div.fhead, div.fbody), div.seam.v, section.pane.dock(div.dhead, div@strip, div.journal, div.textarea))), ${SLOTS})`,
   closed: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.frame(div.fhead, div.fbody))), ${SLOTS})`,
   full: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.dock(div.dhead, div@strip, div.journal, div.textarea))), ${SLOTS})`,
-  messenger: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.frame(div.fhead, div.fbody), section.pane.dock.floating(div.dhead, div@strip, div.journal, div.textarea, span.dgrip))), ${SLOTS})`,
-  minimised: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.frame(div.fhead, div.fbody), section.pane.dock.floating.min(div.dhead, div@strip, div.journal, div.textarea, span.dgrip))), ${SLOTS})`,
+  messenger: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.frame(div.fhead, div.fbody), section.pane.dock.floating(div.dhead, div@strip, div.journal, div.textarea, span.dgrip.top, span.dgrip.right, span.dgrip.bottom, span.dgrip.left, span.dgrip.top.left, span.dgrip.top.right, span.dgrip.bottom.left, span.dgrip.bottom.right), div.dropzone)), ${SLOTS})`,
+  minimised: `div.client(nav.tabs, div.body(aside.sidebar, div.sbseam, div.split(section.pane.frame(div.fhead, div.fbody), section.pane.dock.floating.min(div.dhead, div@strip, div.journal, div.textarea, span.dgrip.top, span.dgrip.right, span.dgrip.bottom, span.dgrip.left, span.dgrip.top.left, span.dgrip.top.right, span.dgrip.bottom.left, span.dgrip.bottom.right), div.dropzone)), ${SLOTS})`,
   phoneDock: `div.client.phone(div.body(div.split(section.pane.dock(div.dhead, div@strip, div.journal, div.textarea))), ${SLOTS})`,
   phoneFrame: `div.client.phone(div.body(div.split(section.pane.frame(div.fhead, div.fbody))), ${SLOTS})`,
   phoneSidebar: `div.client.phone(div.body(aside.sidebar, div.split), ${SLOTS})`,
@@ -168,7 +168,7 @@ specimen.describe("anima regions — the design's skeleton (dom.js skeleton) ove
     await settle();
     specimen.expect(client.surface.float[terminal.id].float).toEqual({ x: 400, y: 80, w: 380, h: 480 });
     specimen.expect([dock.style.left, dock.style.top, dock.style.width, dock.style.height]).toEqual(["400px", "80px", "380px", "480px"]);
-    fire(root().querySelector(".dgrip"), "pointerdown", { clientX: 780, clientY: 560 });
+    fire(root().querySelector(".dgrip.bottom.right"), "pointerdown", { clientX: 780, clientY: 560 });
     fire(globalThis.window, "pointermove", { clientX: 2000, clientY: 2000 });
     fire(globalThis.window, "pointerup", { clientX: 2000, clientY: 2000 });
     await settle();

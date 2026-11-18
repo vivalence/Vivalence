@@ -21,11 +21,11 @@ export async function viewed() {
   await Deno.writeTextFile(join(directory, "board", MOUNT), board(""));
   await Deno.writeTextFile(join(directory, "board", IMPORT), part(""));
 
-  const mode = new Mode({
+  const mode = new Mode({ module: {
     manifest: { type: "test", slug: "board", traits: [] },
     source: { dirname: join(directory, "board") },
     views: [{ slug: "board", mime: mime.tty.solid, mount: MOUNT }],
-  });
+  } });
   mode.aperture = new Aperture();
   mode.entity = scenario.fixtures.mode;
   mode.mountpoint = join(directory, "board", "mountpoint");

@@ -1,0 +1,262 @@
+
+## 1 beef uploads pictures/cat.png on his thread
+{
+  "id": "01a1fbb0-d396-7569-8f4b-07c8299ac2f1",
+  "createdAt": "2026-11-21T01:20:32.150Z",
+  "updatedAt": "2026-11-21T01:20:32.150Z",
+  "path": "files/pictures/cat.42eb69ec.png",
+  "mount": "/var/folders/v6/n_bph68x415ftwrk_xvn2wwm0000gn/T/filedrop-5114b3934abe99c0/files/pictures/cat.42eb69ec.png",
+  "mime": "image/png",
+  "hash": "42eb69ec379e5a1308558dac560940d96ab5a0981bfc10b6df218611eacfba9a",
+  "integrity": "sha256-42eb69ec379e5a1308558dac560940d96ab5a0981bfc10b6df218611eacfba9a",
+  "bytes": 16,
+  "traits": [],
+  "trait": {},
+  "user": "01a1fbb0-d323-7401-9215-d858700221ff",
+  "buffers": [],
+  "threads": [
+    "01a1fbb0-d388-721e-a3b4-a864e82a0e84"
+  ]
+}
+
+## 2 a paste of the same bytes and path — same File id
+{
+  "same": true,
+  "id": "01a1fbb0-d396-7569-8f4b-07c8299ac2f1"
+}
+
+## 3 stranger uploads on beef's thread
+THROWN ConnectionError: Client error: 404 — ThreadEntity not found ({ id: '01a1fbb0-d388-721e-a3b4-a864e82a0e84' }) @ /userspace/entities/file/upload/x.png?thread=01a1fbb0-d388-721e-a3b4-a864e82a0e84
+Error: [state] '../evil.png' leaves /var/folders/v6/n_bph68x415ftwrk_xvn2wwm0000gn/T/filedrop-5114b3934abe99c0
+    at Object.land (file:///private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/f4e4abae-0334-479a-9a33-c8d11d1f86ba/scratchpad/base/subsystems/paladin/gestalten/belt/state.js:68:58)
+    at file:///private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/f4e4abae-0334-479a-9a33-c8d11d1f86ba/scratchpad/base/systems/runtime/subjects/runtime/lifecycle/3-integration.js:80:21
+    at file:///private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/f4e4abae-0334-479a-9a33-c8d11d1f86ba/scratchpad/base/subsystems/typology/gestalten/shard/datamap.js:290:17
+    at fire (file:///private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/f4e4abae-0334-479a-9a33-c8d11d1f86ba/scratchpad/base/subsystems/typology/gestalten/steer/strategy.js:10:10)
+    at fn (file:///private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/f4e4abae-0334-479a-9a33-c8d11d1f86ba/scratchpad/base/subsystems/typology/prototypes/aperture.js:37:12)
+    at Module.fire (file:///private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/f4e4abae-0334-479a-9a33-c8d11d1f86ba/scratchpad/base/subsystems/typology/gestalten/steer/strategy.js:9:35)
+    at file:///private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/f4e4abae-0334-479a-9a33-c8d11d1f86ba/scratchpad/base/subsystems/typology/gestalten/shape/http.js:26:45
+    at dispatch (file:///private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/f4e4abae-0334-479a-9a33-c8d11d1f86ba/scratchpad/base/subsystems/typology/gestalten/belt/middleware.js:17:32)
+    at file:///private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/f4e4abae-0334-479a-9a33-c8d11d1f86ba/scratchpad/base/subsystems/typology/gestalten/belt/middleware.js:23:12
+    at file:///private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/f4e4abae-0334-479a-9a33-c8d11d1f86ba/scratchpad/base/subsystems/typology/gestalten/belt/middleware.js:28:24
+
+## 4 a path leaving the root
+THROWN ConnectionError: Server error: 500 — [state] '../evil.png' leaves /var/folders/v6/n_bph68x415ftwrk_xvn2wwm0000gn/T/filedrop-5114b3934abe99c0 @ /userspace/entities/file/upload/..%2F..%2Fevil.png
+
+## 5 stranger finds beef's File by id
+null
+
+## 6 disk under the runtime mountpoint
+[
+  "files/pictures/cat.42eb69ec.png",
+  "files/x.42eb69ec.png"
+]
+[hal hallucination] log {
+  activity: "01a1fbb0-d3a6-7618-90ca-f5b703ca4f90",
+  user: "01a1fbb0-d323-7401-9215-d858700221ff",
+  mode: "01a1fbb0-d348-742d-a1a6-c76e29a7abb9",
+  thread: "01a1fbb0-d388-721e-a3b4-a864e82a0e84"
+}
+[hal hallucination] status {
+  timestamp: "2026-11-21T01:20:32.176Z",
+  code: "RUNNING",
+  error: undefined
+}
+[hal hallucination] start 
+[hal hallucination] log { streamOrRender: "stream", faculty: "dialogue" }
+[hal hallucination] log { round: 1, state: "complete", usage: undefined }
+[hal hallucination] stop 
+[hal hallucination] status {
+  timestamp: "2026-11-21T01:20:32.181Z",
+  code: "DONE",
+  error: undefined
+}
+
+## 7 a streamed turn carrying the reference
+drained
+
+## 7a what the provider was handed (data cut to its length by this probe)
+[
+  {
+    "role": "user",
+    "parts": [
+      {
+        "type": "text",
+        "text": "look"
+      },
+      {
+        "type": "image",
+        "mime": "image/png",
+        "data": "<24 chars>",
+        "file": "01a1fbb0-d396-7569-8f4b-07c8299ac2f1"
+      }
+    ]
+  }
+]
+
+## 7b the packets the caller drained
+[
+  {
+    "event": "/turn/full",
+    "parts": [
+      {
+        "type": "text",
+        "text": "here"
+      },
+      {
+        "type": "file",
+        "file": "01a1fbb0-d3b3-701f-8d1b-f769b522fcc4"
+      }
+    ]
+  },
+  {
+    "event": "/response/close"
+  }
+]
+
+## 7c the stored turns
+[
+  {
+    "role": "user",
+    "parts": [
+      {
+        "type": "text",
+        "text": "look"
+      },
+      {
+        "type": "file",
+        "file": "01a1fbb0-d396-7569-8f4b-07c8299ac2f1"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "parts": [
+      {
+        "type": "text",
+        "text": "here"
+      },
+      {
+        "type": "file",
+        "file": "01a1fbb0-d3b3-701f-8d1b-f769b522fcc4"
+      }
+    ]
+  }
+]
+
+## 7d the Files the thread holds
+[
+  {
+    "id": "01a1fbb0-d396-7569-8f4b-07c8299ac2f1",
+    "createdAt": "2026-11-21T01:20:32.150Z",
+    "updatedAt": "2026-11-21T01:20:32.150Z",
+    "path": "files/pictures/cat.42eb69ec.png",
+    "mount": "/var/folders/v6/n_bph68x415ftwrk_xvn2wwm0000gn/T/filedrop-5114b3934abe99c0/files/pictures/cat.42eb69ec.png",
+    "mime": "image/png",
+    "hash": "42eb69ec379e5a1308558dac560940d96ab5a0981bfc10b6df218611eacfba9a",
+    "integrity": "sha256-42eb69ec379e5a1308558dac560940d96ab5a0981bfc10b6df218611eacfba9a",
+    "bytes": 16,
+    "traits": [],
+    "trait": {},
+    "user": "01a1fbb0-d323-7401-9215-d858700221ff",
+    "mode": null,
+    "daemon": null,
+    "view": null
+  },
+  {
+    "id": "01a1fbb0-d3b3-701f-8d1b-f769b522fcc4",
+    "createdAt": "2026-11-21T01:20:32.179Z",
+    "updatedAt": "2026-11-21T01:20:32.179Z",
+    "path": "files/image.d9affaea.png",
+    "mount": "/var/folders/v6/n_bph68x415ftwrk_xvn2wwm0000gn/T/filedrop-5114b3934abe99c0/files/image.d9affaea.png",
+    "mime": "image/png",
+    "hash": "d9affaea2b9863eec1349402463508b24ee1b979c2f5b782757e2a2edbc23664",
+    "integrity": "sha256-d9affaea2b9863eec1349402463508b24ee1b979c2f5b782757e2a2edbc23664",
+    "bytes": 12,
+    "traits": [],
+    "trait": {},
+    "user": null,
+    "mode": null,
+    "daemon": null,
+    "view": null
+  }
+]
+
+## 7e disk after the turn
+[
+  "files/image.d9affaea.png",
+  "files/pictures/cat.42eb69ec.png",
+  "files/x.42eb69ec.png"
+]
+[hal hallucination] log {
+  activity: "01a1fbb0-d3bb-7416-9975-efb061156d17",
+  user: "01a1fbb0-d323-7401-9215-d858700221ff",
+  mode: "01a1fbb0-d348-742d-a1a6-c76e29a7abb9",
+  thread: "01a1fbb0-d388-721e-a3b4-a864e82a0e84"
+}
+[hal hallucination] status {
+  timestamp: "2026-11-21T01:20:32.194Z",
+  code: "RUNNING",
+  error: undefined
+}
+[hal hallucination] start 
+[hal hallucination] log { streamOrRender: "render", faculty: "dialogue" }
+[hal hallucination] log { round: 1, state: "complete", usage: undefined }
+[hal hallucination] stop 
+[hal hallucination] status {
+  timestamp: "2026-11-21T01:20:32.195Z",
+  code: "DONE",
+  error: undefined
+}
+
+## 8 a rendered turn — the answer's parts
+[
+  [
+    {
+      "type": "text",
+      "text": "here"
+    },
+    {
+      "type": "file",
+      "file": "01a1fbb0-d3b3-701f-8d1b-f769b522fcc4"
+    }
+  ]
+]
+[hal hallucination] log {
+  activity: "01a1fbb0-d3ca-7623-83ab-94646a87fc87",
+  user: "01a1fbb0-d323-7401-9215-d858700221ff",
+  mode: "01a1fbb0-d348-742d-a1a6-c76e29a7abb9",
+  thread: "01a1fbb0-d3c8-717f-9586-23c41a4123c3"
+}
+
+## 9 a reference another thread holds
+THROWN NotFoundError: FileEntity not found ({
+  id: '01a1fbb0-d396-7569-8f4b-07c8299ac2f1',
+  threads: '01a1fbb0-d3c8-717f-9586-23c41a4123c3'
+})
+
+## 10 a File with no user (a mode's hand)
+{
+  "id": "01a1fbb0-d3cf-7653-97f1-d18459de5130",
+  "user": null
+}
+
+## 10a stranger uploads the same bytes and path
+{
+  "same": true,
+  "user": null
+}
+
+## 10b beef asks for that File by id
+01a1fbb0-d3cf-7653-97f1-d18459de5130
+
+## 11 a body that faults mid-stream
+THROWN Error: the wire died
+
+## 11a what it left under torn/
+[]
+[hal hallucination] status {
+  timestamp: "2026-11-21T01:20:32.215Z",
+  code: "ABORTED",
+  error: undefined,
+  reason: "activity removed"
+}

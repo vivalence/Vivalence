@@ -11,6 +11,8 @@ export const ICONS = {
   stop: '<rect x="4" y="4" width="8" height="8" rx="1"></rect>',
   trash: '<path d="M3.25 4.75h9.5M6.5 4.75v-2h3v2M4.75 4.75l.75 8.5h5l.75-8.5"></path>',
   minimize: '<path d="M3.5 11.5h9"></path>',
+  thumb: '<rect x="5" y="5" width="6" height="6" rx="1"></rect>',
+  wide: '<rect x="2" y="4.5" width="12" height="7" rx="1"></rect>',
   restore: '<rect x="3" y="3.5" width="10" height="9" rx="1"></rect><path d="M3 6.5h10"></path>',
   find: '<circle cx="7" cy="7" r="4.5"></circle><path d="M10.5 10.5 14 14"></path>',
   side: '<rect x="2" y="3" width="12" height="10" rx="1"></rect><path d="M6 3v10"></path>',

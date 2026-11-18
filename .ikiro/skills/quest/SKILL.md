@@ -4,21 +4,21 @@ description: >-
   Write a quest beef accepts, sunset or revive it by `mv`, lift `* release` into the interface ledger, file
   outliving defects in the OPEN-only known-issues — never a quest section.
 when_to_use: >-
-  "write a quest" · "crystallize this" · "add this to the quest" · design settled, code unauthorized · closing a quest ·
+  "write a quest" · "crystallize this" · "add this to the quest" · "update the quest" · a drill's locks about to land in one · design settled, code unauthorized · closing a quest ·
   "sunset this quest" · "revive <quest>" · "bench it" · urge to rm a quest · `* release` · `release.md` ·
   "cut a release" · tags vs jj bookmarks · "mark as known issue" · "known issues!" · a defect outside the quest ·
   a pass's base-tree red · a fix needing his ruling · "mark the issue itself without your approach".
 ---
-<!-- limit: 6000 chars -->
+<!-- limit: 7600 chars -->
 # quest — the decision trail
 ## author
 Head: `#+title: <name>` · `#+filetags: :<tags>:` · `#+status: <ONE line, what IS, his /"…"/>` rewritten WHOLE each land · `mv`.
-Organs: `* intent` (beef VERBATIM) · `* the dialogue` (his turn + my code) · `* terrain — measured` · rulings (rule 1) · `* the law` · `* deliverables` · `* milestones` (capabilities, each green) · `* blast table` (+ `~/.viva`; BREAKS: now | at land; consumers = the grep's, rigs · seeds · pinned lists too (11-06 · 11-14)) · `* testing assessment` (`COVERAGE GAP:`) · `* QA` (/"I type X, I see Y"/ + `#+marker_qa: <quest>/<T|P>-<slug> · pending · <what>`, → `held | broken | revised`) · `* deferred` · `* changelog` (each go verbatim; pasted counts, attributed reds; departures `mine, reported`) · `* release` · `* handoff`.
-Tangle: new files whole; edits = `#+BEGIN_SRC diff` hunks (`apply-diffs.py` lands): line 1 `// <path>:<line>`, `…` between sub-hunks, one file a block, old rows exact, a `…` inside one a wildcard (a word-guard cut, 11-09; REJECTED `@@`); a move = a `Moves` row, `mv` first, block on the NEW path; the tangle IS the filesystem: `***` system · `****` dir · `*****` file, `ls` order, each file naming its source (REJECTED 10-12).
+Organs: `* intent` (beef VERBATIM) · `* the dialogue` (his turn + my code) · `* terrain — measured` · rulings (rule 1) · `* the law` · `* deliverables` · `* milestones` (capabilities, each green, each named for what HE opens, never a mechanism noun of mine: 11-20 `the freight` /"i dont understand freight."/) · `* blast table` (+ `~/.viva`; BREAKS: now | at land; consumers = the grep's, rigs · seeds · pinned lists too (11-06 · 11-14)) · `* testing assessment` (`COVERAGE GAP:`) · `* QA` (/"I type X, I see Y"/ + `#+marker_qa: <quest>/<T|P>-<slug> · pending · <what>`, → `held | broken | revised`) · `* deferred` · `* changelog` (each go verbatim; pasted counts, attributed reds; departures `mine, reported`) · `* release` · `* handoff`.
+Tangle: new files whole; edits = `#+BEGIN_SRC diff` hunks (`apply-diffs.py` lands): line 1 `// <path>:<line>`, `…` between sub-hunks, one file a block, old rows exact, a blank context row EMPTY (the Edit tool strips a lone space), each NEW hunk dry-run on a copy the turn it is written (11-20 an anchor matching twice · a `const` read above its row, both found hours later), a `…` inside one a wildcard (a word-guard cut, 11-09; REJECTED `@@`), a hunk that opens on a blank row and deletes to the file's END leaves one blank (the replay trims a trailing blank pair): anchor it on the row above (11-21); a copy that lives only in a scratchpad is TANGLED before a walk opens on it, its builder · probes · land scripts in `.ikiro/reference/<quest>/`: the scratchpad can be withdrawn mid-session, the replay rebuilt the copy (11-21); a move = a `Moves` row, `mv` first, block on the NEW path; the tangle IS the filesystem: `***` system · `****` dir · `*****` file, `ls` order, each file naming its source (REJECTED 10-12).
 his corrections:
 1. /"gimme table high level serialized enums numbers. then in depth sections!"/ — no prose in cells; a ruling row = his words only, its hunk under `* as code`, no REJECTED trail — /"full of code, not full of yap"/. Terrain + questions = verbatim fences (/"all yap and no code. idiot"/); a quoted dead-word line → `…`.
 2. grep the quest for new `@beef` marks each reply; marks survive re-cuts VERBATIM (/"dont cut my comments idiot"/); treated → prepend `// -- `.
-3. remove as much as you add; removed = MOVED whole to `reference/<quest>/`. REJECTED 10-12 /"nonono dont cut."/ · 10-20 /"not just my yap also your code"/
+3. over cap: RAISE `limit:`, keep the quest together; never a new side file (11-19 /"dont keep creating new peripheral files. instead, adjust limits"/), never a cut. REJECTED 10-12 /"nonono dont cut."/ · 10-20 /"not just my yap also your code"/
 4. never shorthand (M2, MP) — nouns, paths; a milestone is a NOUN; numbering is his.
 5. a decision carries `quest.org:LINE` + `file:LINE`, grepped.
 6. a killed name — his, or a sibling's ruled death — leaves every block that turn (REJECTED 10-23 `/chrome/on`: /"there is no chrome on/off atm"/). A re-tangle replays EVERY ruling on every block; a relabeled header is no rewrite. An edit anchors a line-start heading, never a bare name (m118 shred 11-09).

@@ -1,25 +1,31 @@
 import { For, mergeProps, Show } from "solid-js";
+import { parts } from "@vivalence/dapper";
 import { Line } from "./Line.jsx";
 import { Markdown } from "./Markdown.jsx";
 import { lookup } from "./lookup.js";
 
 export const REGISTERS = {
-  you: { glyph: "<<", ink: "textStrong", body: "textStrong", headed: true, render: Line },
-  agent: { glyph: ">>", ink: "textMuted", body: "textInk", headed: true, render: Markdown },
-  cmd: { glyph: "<<", ink: "signalPrimaryInk", body: "textStrong", headed: false, render: Line },
-  msg: { glyph: "·", ink: "textMuted", body: "textMuted", headed: false, render: Line },
-  fault: { glyph: "!", ink: "signalNegativeInk", body: "signalNegativeInk", headed: false, render: Line },
-  trace: { glyph: "·", ink: "textMuted", body: "textMuted", headed: false, render: Line },
+  you: { ...parts.turn.REGISTERS.you, ink: "textStrong", body: "textStrong", render: Line },
+  agent: { ...parts.turn.REGISTERS.agent, ink: "textMuted", body: "textInk", render: Markdown },
+  cmd: { ...parts.turn.REGISTERS.cmd, ink: "signalPrimaryInk", body: "textStrong", render: Line },
+  msg: { ...parts.turn.REGISTERS.msg, ink: "textMuted", body: "textMuted", render: Line },
+  fault: {
+    ...parts.turn.REGISTERS.fault,
+    ink: "signalNegativeInk",
+    body: "signalNegativeInk",
+    render: Line,
+  },
+  trace: { ...parts.turn.REGISTERS.trace, ink: "textMuted", body: "textMuted", render: Line },
 };
 
 export const register = (name) => lookup(REGISTERS, name, "register");
 
 export const CALLS = {
-  run: { glyph: "◐", ink: "signalPrimaryInk", tail: "…" },
-  ok: { glyph: "✓", ink: "signalPositiveInk", tail: "" },
-  wait: { glyph: "?", ink: "signalCautionInk", tail: "waiting" },
-  skip: { glyph: "–", ink: "textMuted", tail: "skipped" },
-  err: { glyph: "✕", ink: "signalNegativeInk", tail: "" },
+  run: { glyph: parts.turn.CALLS.run, ink: "signalPrimaryInk", tail: "…" },
+  ok: { glyph: parts.turn.CALLS.ok, ink: "signalPositiveInk", tail: "" },
+  wait: { glyph: parts.turn.CALLS.wait, ink: "signalCautionInk", tail: "waiting" },
+  skip: { glyph: parts.turn.CALLS.skip, ink: "textMuted", tail: "skipped" },
+  err: { glyph: parts.turn.CALLS.err, ink: "signalNegativeInk", tail: "" },
 };
 
 export const call = (status) => lookup(CALLS, status, "call status");

@@ -251,7 +251,7 @@ const harnessed = (id, mode, world) => {
       title: `${mode.type}/${mode.slug}`,
       ref,
       quiet: `${count(tools)} tools`,
-      secs: [["own", [row("landed with", "HARNESSED", { q: "metadata.harness" }), row("counts", { tools: count(tools), primer: count(primers), references: count(references) })]]],
+      secs: [["own", [row("landed with", "HARNESS", { q: "metadata.harness" }), row("counts", { tools: count(tools), primer: count(primers), references: count(references) })]]],
     },
     [
       ...(world.thread !== null && world.thread.mode === mode ? [served(`${id}/map`, world.thread)] : []),

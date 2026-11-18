@@ -11,15 +11,20 @@ export const prose = (parts) =>
 
 export const yields = (turns) => turns.flatMap((turn) => turn.parts.filter((part) => part.type === "tool_result"));
 
-const surfaced = (turn, yields) =>
+const surfaced = (turn, yields, kind) =>
   turn.parts
     .filter((part) => part.type === "tool_use")
     .map((call) => yields.find((result) => result.id === call.id))
-    .filter((result) => result !== undefined && is.object(result.product) && "buffer" in result.product)
-    .flatMap((result) => result.product.buffer.map((buffer) => buffer.id));
+    .filter((result) => result !== undefined && is.object(result.product) && kind in result.product)
+    .flatMap((result) => result.product[kind].map((entity) => entity.id));
 
 export const cells = (turn, buffers, yields) =>
-  buffers.filter((buffer) => surfaced(turn, yields).includes(buffer.id));
+  buffers.filter((buffer) => surfaced(turn, yields, "buffer").includes(buffer.id));
+
+const attached = (turn) => turn.parts.filter((part) => part.type === "file").map((part) => part.file);
+
+export const files = (turn, known, yields) =>
+  known.filter((file) => [...attached(turn), ...surfaced(turn, yields, "file")].includes(file.id));
 
 export const streamed = (turn) => turn.createdAt === undefined;
 

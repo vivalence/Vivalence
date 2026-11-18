@@ -7,9 +7,9 @@ const { describe, it, expect } = specimen;
 
 const fixture = (name) => new URL(`./fixtures/${name}`, import.meta.url);
 
-const part = async (name, type, media) => ({
+const part = async (name, type, mime) => ({
   type,
-  media,
+  mime,
   data: encodeBase64(await Deno.readFile(fixture(name))),
 });
 
@@ -27,18 +27,18 @@ describe("ocr provider — refusals, no engine reached", () => {
     await expect(gathered(transcribe({ type: "text", text: "Tides" }))).rejects.toThrow("ocr: invalid source");
   });
 
-  it("a part that is neither a pdf nor an image is refused by its media", async () => {
-    const source = { type: "document", media: "text/plain", data: encodeBase64("Tides") };
+  it("a part that is neither a pdf nor an image is refused by its mime", async () => {
+    const source = { type: "document", mime: "text/plain", data: encodeBase64("Tides") };
     await expect(gathered(provider(unreached)(source))).rejects.toThrow("ocr: text/plain is neither a pdf nor an image");
   });
 
   it("an image that is a list of paths never reaches the engine, which would open each path", async () => {
-    const source = { type: "image", media: "image/png", data: encodeBase64(`${fixture("one-word.png").pathname}\n`) };
+    const source = { type: "image", mime: "image/png", data: encodeBase64(`${fixture("one-word.png").pathname}\n`) };
     await expect(gathered(provider(unreached)(source))).rejects.toThrow("ocr: this image/png holds no image the engine reads");
   });
 
   it("a pdf that holds no pdf is refused before anything is drawn", async () => {
-    const source = { type: "document", media: "application/pdf", data: encodeBase64("<!doctype html><h1>Tides</h1>") };
+    const source = { type: "document", mime: "application/pdf", data: encodeBase64("<!doctype html><h1>Tides</h1>") };
     await expect(gathered(provider(unreached)(source))).rejects.toThrow("ocr: this application/pdf holds no pdf");
   });
 

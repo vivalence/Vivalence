@@ -24,7 +24,7 @@ const bytes = (text) => new TextEncoder().encode(text);
 const receive = (mode, input) => steer.dispatch.invoke(mode.aperture, "/files/receive", steer.strategy.guarded)(input);
 
 const buildMode = (slug, module = {}) => {
-  const mode = new Mode({ manifest: { type: "test", slug, traits: [] }, source: { dirname: join(directory, slug) }, ...module });
+  const mode = new Mode({ module: { manifest: { type: "test", slug, traits: [] }, source: { dirname: join(directory, slug) }, ...module } });
   mode.aperture = new Aperture();
   mode.entity = scenario.fixtures.mode;
   mode.mountpoint = join(directory, slug, "mountpoint");

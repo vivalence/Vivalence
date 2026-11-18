@@ -54,12 +54,12 @@ function partToAnthropic(part) {
     case "image":
       return {
         type: "image",
-        source: { type: "base64", media_type: part.media, data: part.data },
+        source: { type: "base64", media_type: part.mime, data: part.data },
       };
     case "document":
       return {
         type: "document",
-        source: { type: "base64", media_type: part.media, data: part.data },
+        source: { type: "base64", media_type: part.mime, data: part.data },
       };
     case "tool_use":
       return {

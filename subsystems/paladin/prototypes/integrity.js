@@ -15,12 +15,15 @@ export const TRAITS = {
   VIEWABLE: "views",
   TOOLING: "tools",
   FILESET: "fileset",
-  HARNESSED: null,
+  HARNESS: null,
+  HARNESSED: null, //deprecated
   REPLING: "repl",
   GENERATIVE: null,
   FILESINK: null,
+  TWITCHY: "twitch",
   SELFEVIDENT: null,
-  CONVERSATIONAL: null,
+  CONVERSATION: null,
+  CONVERSATIONAL: null, //deprecated
 };
 
 const SCHEMATICS = { domain: v.primitives.kernel.Domain };

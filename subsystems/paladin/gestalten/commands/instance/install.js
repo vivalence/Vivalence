@@ -87,9 +87,10 @@ const signup = async (values) => {
 const settled = (work) => work.then((value) => ({ status: "fulfilled", value }), (reason) => ({ status: "rejected", reason }));
 
 async function effect(ctx) {
-  const home = paladin.instance.home.absolute;
-  const file = paladin.instance.home.branch(".env");
-  await mount(populate(paladin));
+  const home = paladin.scope.instance.absolute;
+  const file = paladin.scope.instance.branch(".env");
+  populate(paladin);
+  await mount(paladin);
 
   const absent = !(await paladin.read.text(file).catch(() => null));
   const owing = () =>
@@ -97,12 +98,14 @@ async function effect(ctx) {
   const scaffolded = absent && Object.keys(paladin.instance.environment?.properties ?? {}).length > 0 && owing();
   if (scaffolded) {
     await paladin.state.text(file, paladin.envfile.scaffold(paladin.instance.environment));
-    await mount(populate(paladin));
+    populate(paladin);
+    await mount(paladin);
   }
   const minted = paladin.envfile.mint(paladin.instance.environment, await dotenv.load({ envPath: file.absolute }));
   if (Object.keys(minted).length) {
     await paladin.state.env(file, minted);
-    await mount(populate(paladin));
+    populate(paladin);
+    await mount(paladin);
   }
 
   const rows = paladin.check.environment(paladin.instance);
@@ -113,7 +116,8 @@ async function effect(ctx) {
 
   const commit = async (values) => {
     await paladin.state.env(file, values);
-    await mount(populate(paladin));
+    populate(paladin);
+    await mount(paladin);
     return { env: "written", filled: Object.keys(values) };
   };
 

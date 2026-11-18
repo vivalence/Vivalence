@@ -59,6 +59,10 @@ export class Lighthouse {
     return this.access("/lighthouse/autologin", {});
   }
 
+  autosignup(username) {
+    return this.access("/lighthouse/autosignup", { username });
+  }
+
   async access(route, credentials) {
     this.$status.set({ code: "AUTHENTICATING" });
     const response = await this.connection.fetch(route, credentials);

@@ -1,5 +1,6 @@
 import { Env, v } from "@vivalence/typology";
 import { Ledger } from "../ledger/index.js";
+import { Telemetry } from "../prototypes/telemetry.js";
 
 const STRATA = ["flag", "cwd", "instance", ".env", "os", "session", "ledger"];
 
@@ -79,6 +80,7 @@ export class Paladin {
 
   constructor() {
     this.ledger = new Ledger(this);
+    this.telemetry = new Telemetry(this);
   }
 
   get role() {

@@ -10,7 +10,7 @@ export const manifest = {
   description:
     "Conversational UI craftsman — describe any interface in chat and it is bundled live into your frame, then reshaped wish by wish.",
   version: "0.1.0",
-  traits: ["VIEWABLE", "EMITTER", "HARNESSED", "GENERATIVE"],
+  traits: ["VIEWABLE", "EMITTER", "HARNESS", "GENERATIVE"],
 };
 
 export const buffer = v.buffer({ data: {} });

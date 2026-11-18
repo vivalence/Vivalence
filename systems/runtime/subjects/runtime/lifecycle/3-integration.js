@@ -1,3 +1,4 @@
+import { join } from "@std/path";
 import paladin from "@vivalence/paladin";
 import { shard, shape, v } from "@vivalence/typology";
 import * as belt from "../../../gestalten/belt/index.js";
@@ -9,9 +10,8 @@ export const prune = async (die, next) => {
   await next();
 };
 
-export const ledger = async (die, next) => {
-  const log = paladin.ledger.log(die.runtime.instance.manifest.slug);
-  die.controller.stdout.pipe.tap((record) => log.append({ json: record }));
+export const booted = async (die, next) => {
+  await die.runtime.datamap.shard.scope(() => die.runtime.twitch.dispatch("/after/runtime/boot"));
   await next();
 };
 
@@ -69,6 +69,11 @@ export const userspace = async (die, next) => {
       .graft(shard.datamap.repository(repository))
       .graft(shard.datamap.reactive(repository, twitch, reactive));
   }
+  owned.branch("/file").graft(
+    shard.datamap.files(entities, (ctx, dropped, body) =>
+      paladin.state.land(die.runtime.mountpoint, { ...dropped, path: join("files", dropped.path) }, body),
+    ),
+  );
 
   const activity = owned
     .branch("/activity")
@@ -95,6 +100,8 @@ export const userspace = async (die, next) => {
 
 export const attached = async (die, next) => {
   die.runtime.attachment.use(shard.context.bind("runtime", die.runtime)).graft(attachment);
+  die.runtime.attachment.branch("/file").use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
+  die.runtime.attachment.branch("/view").use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
   die.aperture.branch("/attached", die.runtime.attachment);
   await next();
 };

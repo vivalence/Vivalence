@@ -106,7 +106,7 @@ export function Mounted(props) {
   };
   const [module] = createResource(
     () => status().code === "HEALTHY" && [props.view, fingerprint()],
-    ([view]) => belt.view.load(view, terminal.client.runtime.attach),
+    ([view]) => belt.view.load(view, terminal.client.runtime),
   );
   const loaded = createMemo(() => (module.error === undefined ? module.latest : undefined));
   let element;

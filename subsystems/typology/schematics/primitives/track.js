@@ -8,3 +8,8 @@ export const Fault = v.object({ type: v.string(), message: v.string(), code: v.s
 export const Log = v.union([v.string(), v.object({}, { additionalProperties: true })]).desc('A line or any object. Example: "seated on probe"');
 export const Entity = v.object({ schema: v.string(), id: v.string() }).desc('The row a span touched. Example: { "schema": "thread", "id": "42" }');
 export const Status = v.object({ code: v.string() }, { additionalProperties: true }).desc('A status as its owner holds it. Example: { "code": "STOPPED" }');
+
+export const Track = v
+  .enum(["start", "stop", "request", "response", "fault", "log", "entity", "status"])
+  .desc("The eight tracks a span writes.")
+  .example("fault");

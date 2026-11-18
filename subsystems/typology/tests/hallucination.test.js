@@ -1,4 +1,3 @@
-import { TIER_POINTS } from "./scenarios/tiers.js";
 import { belt, specimen, Controller, Cortex, Vector, v } from "@vivalence/typology";
 
 const { Packet } = v.primitives.hallucination;
@@ -51,7 +50,7 @@ function toolVector(nature, execute) {
 }
 
 function populatedCortex() {
-  return new Cortex(TIER_POINTS).register([
+  return new Cortex().register([
     {
       type: "dialogue",
       id: "dialogue-1",
@@ -106,7 +105,7 @@ specimen.describe("Hallucination", () => {
   specimen.describe("the request record — WHAT rides the invocation", () => {
     specimen.it("system sections cross keyed and ordered; turns carry no system turn", async () => {
       let seen = null;
-      const cortex = new Cortex(TIER_POINTS).register([{
+      const cortex = new Cortex().register([{
         type: "dialogue", id: "dialogue-5", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text"], out: ["text"] },
         via: { render: async (request) => ((seen = request), { role: "assistant", parts: [{ type: "text", text: "ok" }], meta: { state: "complete" } }) },
@@ -125,7 +124,7 @@ specimen.describe("Hallucination", () => {
 
     specimen.it("an explicit cache.marks wins over the derived marks", async () => {
       let seen = null;
-      const cortex = new Cortex(TIER_POINTS).register([{
+      const cortex = new Cortex().register([{
         type: "dialogue", id: "dialogue-6", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text"], out: ["text"] },
         via: { render: async (request) => ((seen = request), { role: "assistant", parts: [{ type: "text", text: "ok" }], meta: { state: "complete" } }) },
@@ -198,7 +197,7 @@ specimen.describe("Hallucination", () => {
 
     specimen.it("an unknown tool becomes an error result and the response still completes", async () => {
       let toolResultTurn = null;
-      const cortex = new Cortex(TIER_POINTS).register([{
+      const cortex = new Cortex().register([{
         type: "dialogue", id: "dialogue-7", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text"], out: ["text"] },
         via: {
@@ -218,7 +217,7 @@ specimen.describe("Hallucination", () => {
     });
 
     specimen.it("rounds ceiling closes length and render throws", async () => {
-      const cortex = new Cortex(TIER_POINTS).register([{
+      const cortex = new Cortex().register([{
         type: "dialogue", id: "dialogue-8", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text"], out: ["text", "tool_use"] },
         via: { render: async () => ({ role: "assistant", parts: [{ type: "tool_use", id: "t1", name: "loop", input: {} }], meta: { state: "tools" } }) },
@@ -262,7 +261,7 @@ specimen.describe("Hallucination", () => {
     });
 
     specimen.it("throws when no speech faculty carries a render avenue", async () => {
-      const cortex = new Cortex(TIER_POINTS).register([{
+      const cortex = new Cortex().register([{
         type: "speech", id: "speech-9", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text"], out: ["audio"] },
         via: { stream: async function* () {} },
@@ -281,7 +280,7 @@ specimen.describe("Hallucination", () => {
     });
 
     specimen.it("the object avenue resolves the dialogue faculty and folds its structured turn", async () => {
-      const cortex = new Cortex(TIER_POINTS).register([{
+      const cortex = new Cortex().register([{
         type: "dialogue", id: "dialogue-10", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text"], out: ["object"] },
         via: {
@@ -303,7 +302,7 @@ specimen.describe("Hallucination", () => {
     specimen.it("output.schema reaches the provider on request.output", async () => {
       let seenSchema = null;
       const schema = { marker: "OUT" };
-      const cortex = new Cortex(TIER_POINTS).register([{
+      const cortex = new Cortex().register([{
         type: "dialogue", id: "dialogue-11", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text"], out: ["object"] },
         via: {
@@ -323,7 +322,7 @@ specimen.describe("Hallucination", () => {
     });
 
     specimen.it("object synthesis runs real tools before the structured turn, lexicon-native", async () => {
-      const cortex = new Cortex(TIER_POINTS).register([{
+      const cortex = new Cortex().register([{
         type: "dialogue", id: "dialogue-12", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text", "tool_result"], out: ["text", "tool_use", "object"] },
         via: {

@@ -31,7 +31,7 @@ specimen.describe("Cortex hallucinators", () => {
       },
     ];
 
-    const cortex = new Cortex(TIER_POINTS);
+    const cortex = new Cortex();
     for (const { service, mask } of services) {
       cortex.register(await service.provider(mask));
     }
@@ -50,7 +50,7 @@ specimen.describe("Cortex hallucinators", () => {
   });
 
   specimen.it("an empty roster leaves the cortex barren", async () => {
-    const cortex = new Cortex(TIER_POINTS);
+    const cortex = new Cortex();
     for (const { service, mask } of []) {
       cortex.register(await service.provider(mask));
     }
@@ -74,7 +74,7 @@ specimen.describe("Cortex hallucinators", () => {
       },
     ];
 
-    const cortex = new Cortex(TIER_POINTS);
+    const cortex = new Cortex();
     for (const { service, mask } of services) {
       cortex.register(await service.provider(mask));
     }

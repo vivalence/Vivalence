@@ -1,7 +1,7 @@
 import { createEffect, createMemo, from, on, Show, untrack } from "solid-js";
 import { computed } from "nanostores";
 import { Dynamic } from "solid-js/web";
-import * as parts from "@vivalence/drapes/parts";
+import * as parts from "@vivalence/drapes/solid";
 import { belt as typology } from "@vivalence/typology";
 import * as ambient from "../../ambient/index.js";
 import { lookup } from "../sidebar/sections.js";

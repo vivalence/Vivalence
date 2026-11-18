@@ -38,6 +38,25 @@ const buffers = [
   { id: "01a1d570-6e78-723d-bc61-511c20784646", turns: [] },
 ];
 
+specimen.describe("belt.journal.files — a turn shows the files it carries as parts and the files its own tool calls yielded", () => {
+  const known = [{ id: "f-dropped" }, { id: "f-painted" }, { id: "f-elsewhere" }];
+  const dropping = { id: "t-dropping", role: "user", parts: [{ type: "text", text: "look" }, { type: "file", file: "f-dropped" }] };
+  const painting = { id: "t-painting", role: "assistant", parts: [{ type: "tool_use", id: "toolu_paint", name: "paint", input: {} }] };
+  const painted = { id: "t-painted", role: "user", parts: [{ type: "tool_result", id: "toolu_paint", condition: "NOMINAL", product: { file: [{ id: "f-painted" }] } }] };
+  const yields = ghost.belt.journal.yields([dropping, painting, painted]);
+
+  specimen.it("a file part is the turn's file; a yielded file is its calling turn's; a file nobody names is no turn's", () => {
+    specimen.expect(ghost.belt.journal.files(dropping, known, yields)).toEqual([known[0]]);
+    specimen.expect(ghost.belt.journal.files(painting, known, yields)).toEqual([known[1]]);
+    specimen.expect(ghost.belt.journal.files(painted, known, yields)).toEqual([]);
+  });
+
+  specimen.it("a named file the store does not hold yet shows nothing; a yield of buffers alone names no file", () => {
+    specimen.expect(ghost.belt.journal.files(dropping, known.slice(1), yields)).toEqual([]);
+    specimen.expect(ghost.belt.journal.files(caller, known, ghost.belt.journal.yields([caller, answer]))).toEqual([]);
+  });
+});
+
 specimen.describe("belt.journal.cells — a turn shows the buffers its own tool calls yielded, read off the results, never buffer.turns", () => {
   const yields = ghost.belt.journal.yields([caller, answer, elsewhere]);
 

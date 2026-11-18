@@ -3,7 +3,7 @@ import { RequestContext } from "@mikro-orm/core";
 import { seed } from "./fixtures.js";
 import { gestalten, Runtime, traits } from "@vivalence/runtime";
 import { connector, lighthouseOf } from "./daemon.js";
-const { VIEWABLE, INTENTED, EMITTER, EXPOSED, HARNESSED, TOOLING, PRIMER } = traits.mode;
+const { VIEWABLE, INTENTED, EMITTER, EXPOSED, HARNESS, TOOLING, PRIMER } = traits.mode;
 const { stagger } = gestalten.belt;
 
 function buildDaemon({ datamap, runtime, held }) {
@@ -20,7 +20,7 @@ function buildDaemon({ datamap, runtime, held }) {
   });
 
   const lighthouse = lighthouseOf(datamap, runtime.user);
-  const host = new Runtime({ slug: "runtime", reference: new Path("/runtime/runtime"), daemons: { [daemon.slug]: daemon } });
+  const host = new Runtime({ mask: { manifest: { slug: "runtime" }, reference: new Path("/runtime/runtime") }, daemons: { [daemon.slug]: daemon } });
   daemon.aperture.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.context.bind("runtime", host)).use(shard.datamap.inject(datamap)).use(lighthouse.authenticate).use(lighthouse.bind);
 
   return { daemon, lighthouse };
@@ -28,7 +28,7 @@ function buildDaemon({ datamap, runtime, held }) {
 
 async function wireMode(viva, daemon) {
   const em = daemon.entities.em;
-  const mode = new Mode({ manifest: viva.manifest });
+  const mode = new Mode({ module: { manifest: viva.manifest } });
   mode.aperture = new Aperture();
   mode.aperture.use(shard.context.spread(contexts.daemonDie, daemon));
   mode.aperture.use(shard.context.bind("mode", mode));
@@ -61,7 +61,7 @@ async function wireMode(viva, daemon) {
   daemon.modes[viva.manifest.type] ??= {};
   daemon.modes[viva.manifest.type][viva.manifest.slug] = mode;
 
-  const finalizers = await stagger(mode, daemon, { VIEWABLE, INTENTED, EMITTER, EXPOSED, TOOLING, PRIMER, ...(daemon.cortex && { HARNESSED }) });
+  const finalizers = await stagger(mode, daemon, { VIEWABLE, INTENTED, EMITTER, EXPOSED, TOOLING, PRIMER, ...(daemon.cortex && { HARNESS }) });
   for (const finalize of finalizers) await finalize();
 
   daemon.aperture.branch(mode.reference.absolute, mode.aperture);

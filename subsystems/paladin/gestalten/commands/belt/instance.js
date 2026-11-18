@@ -15,7 +15,7 @@ export async function locate(ctx, token) {
 }
 
 export async function register() {
-  const mount = paladin.instance.home.absolute;
+  const mount = paladin.scope.instance.absolute;
   const held = await paladin.ledger.instances.lookup(mount);
   if (!held) {
     throw new Error(`instance: mount ${mount} not recorded — viva instance/clone records one, viva instance/tap records a dir placed by hand`);
@@ -26,9 +26,9 @@ export async function register() {
 
 export function specs(param) {
   const target = param ?? "all";
-  const known = ["all", ...paladin.instance.processes];
+  const known = ["all", ...paladin.ledger.processes];
   if (!known.includes(target)) throw new Error(`instance: unknown target '${target}' — expected ${known.join(" | ")}`);
-  return paladin.instance.specs(...(target === "all" ? paladin.instance.processes : [target]));
+  return paladin.ledger.specs(...(target === "all" ? paladin.ledger.processes : [target]));
 }
 
 export async function until(check, deadline, every = 200) {

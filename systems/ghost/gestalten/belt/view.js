@@ -18,8 +18,8 @@ export const entry = (view) => {
 
 export const pick = (views) => views[0];
 
-export const bytes = async (file, attach) => {
-  const response = await fetch(attach.url.branch(`/file/${identity(file)}`).absolute);
+export const bytes = async (file, runtime) => {
+  const response = await fetch(runtime.attached(`/file/${identity(file)}`));
   if (!response.ok) throw new Error(`[view] /attached/file/${identity(file)}: ${response.status}`);
   const text = await response.text();
   const digested = `sha256-${await crypto.digest(text)}`;
@@ -39,9 +39,9 @@ const evaluate = async (text) => {
   }
 };
 
-export const load = async (view, attach) => {
+export const load = async (view, runtime) => {
   const known = verified.get(view.id);
-  const response = await fetch(attach.url.branch(`/view/${view.id}`).absolute, {
+  const response = await fetch(runtime.attached(`/view/${view.id}`), {
     headers: known === undefined ? {} : { "if-none-match": `"${known.integrity}"` },
   });
   if (response.status === 304) return known.module;

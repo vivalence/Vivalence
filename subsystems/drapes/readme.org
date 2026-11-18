@@ -167,35 +167,6 @@ Composite components. Internal structure.
 <Icon emoji="🚀" size="lg" />
 #+end_src
 
-** triage
-
-Layout primitives. BSP-inspired.
-
-- Plane :: Base grid container (bsp-node class)
-- Shelve :: Directional layout (across=horizontal, down=vertical)
-- Box :: Semantic container for children
-
-#+begin_src svelte
-<Shelve across class="h-screen">
-  <Box class="w-52">Sidebar</Box>
-  <Box class="flex-1">Main</Box>
-</Shelve>
-
-<Shelve down>
-  <Box class="h-16">Header</Box>
-  <Box class="flex-1">Content</Box>
-  <Box class="h-12">Footer</Box>
-</Shelve>
-
-<Plane class="h3 gap-4">
-  <Box>Col 1</Box>
-  <Box>Col 2</Box>
-  <Box>Col 3</Box>
-</Plane>
-#+end_src
-
-BSP grid classes from dapper: h2/h3/h4 (columns), v2/v3/v4 (rows)
-
 * Patterns
 
 ** Semantic Tokens
@@ -225,26 +196,6 @@ Leverage Svelte 5 snippets:
 
 Named snippets make intent explicit.
 
-** Nested Layouts
-
-Complex layouts via Shelve nesting:
-
-#+begin_src svelte
-<Shelve across class="h-screen">
-  <Box class="w-64">Sidebar</Box>
-  
-  <Shelve down class="flex-1">
-    <Box class="h-16">Header</Box>
-    <Shelve across class="flex-1">
-      <Box class="flex-[2]">Main</Box>
-      <Box class="flex-1">Aside</Box>
-    </Shelve>
-  </Shelve>
-</Shelve>
-#+end_src
-
-Binary space partitioning in practice.
-
 * Integration with Dapper
 
 Drapes consumes dapper's design system:
@@ -257,10 +208,6 @@ Drapes consumes dapper's design system:
 <Button variant="primary">
   <!-- bg-theme-primary-surface from dapper -->
 </Button>
-
-<Shelve across>
-  <!-- .bsp-node from dapper/bsp.css -->
-</Shelve>
 #+end_src
 
 No direct dapper import. Design system compiled at build time.
@@ -268,12 +215,10 @@ No direct dapper import. Design system compiled at build time.
 * Exports
 
 #+begin_src js
-import { Button, Text, Card, Shelve } from "@vivalence/drapes";
-import { skins } from "@vivalence/drapes";
+import { Button, Text, Card } from "@vivalence/drapes";
 #+end_src
 
-Single entry point, flat imports. =skins= is the one namespace export;
-everything else is flat, so =import * as controls from "@vivalence/drapes"=
+Single entry point, flat imports. Everything is flat, so =import * as controls from "@vivalence/drapes"=
 never gave a =controls= namespace — it gave the whole barrel, and
 materializing it pins every module. Name what you import.
 

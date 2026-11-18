@@ -1,7 +1,7 @@
 import { Cortex, belt, shape, traits } from "@vivalence/typology";
-import { EXPOSED, HARNESSED, KEYMAPPED, REPLING } from "../../entities/mode/traits/index.js";
+import { EXPOSED, HARNESS, HARNESSED, KEYMAPPED, REPLING } from "../../entities/mode/traits/index.js";
 
-const catalog = { REPLING, KEYMAPPED, EXPOSED, HARNESSED };
+const catalog = { REPLING, KEYMAPPED, EXPOSED, HARNESS, HARNESSED };
 
 export const SETTLED = ["HEALTHY", "ERROR"];
 
@@ -37,7 +37,7 @@ export const metadata = (type) => async (die, next) => {
 };
 
 export const cortex = (type) => async (die, next) => {
-  die[type].cortex = new Cortex(await die[type].aperture.call("/metadata/tiers")).register(belt.cortex.wire(die[type].aperture.branch("/cortex"), await die[type].aperture.call("/metadata/cortex")));
+  die[type].cortex = new Cortex(belt.cortex.wire(die[type].aperture.branch("/cortex"), await die[type].aperture.call("/metadata/cortex")));
   await next();
 };
 

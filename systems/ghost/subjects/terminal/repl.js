@@ -56,7 +56,7 @@ export class Repl {
       commands.content.activity,
       commands.content.buffer,
       commands.surface.cell,
-      commands.content.detach,
+      commands.content.upload,
       commands.surface.dock,
       commands.surface.frame,
       commands.content.harness,

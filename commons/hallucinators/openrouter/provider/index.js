@@ -33,6 +33,8 @@ const Tune = v.primitives.hallucination.Tune;
 const Dialogue = v.object({
   type: v.const("dialogue"),
   id: v.string(),
+  model: v.string().optional(),
+  upstream: v.string().optional(),
   tune: Tune,
   context: v.integer(),
   thinking: v.boolean().optional(),
@@ -144,8 +146,11 @@ export default async function provider(service) {
   const dialogue = (model) => {
     const { render, stream } = makeDialogue(model);
     return {
+      ...model,
       type: "dialogue",
       id: model.id,
+      ...(model.model && { model: model.model }),
+      ...(model.upstream && { upstream: model.upstream }),
       tune: model.tune,
       context: model.context,
       channels: {
@@ -163,6 +168,7 @@ export default async function provider(service) {
   };
 
   const choice = (model) => ({
+    ...model,
     type: "choice",
     id: model.id,
     tune: model.tune,
@@ -174,6 +180,7 @@ export default async function provider(service) {
   });
 
   const picture = (model) => ({
+    ...model,
     type: "picture",
     id: model.id,
     tune: model.tune,

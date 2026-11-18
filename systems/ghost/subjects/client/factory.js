@@ -18,7 +18,11 @@ import { Lighthouse } from "../../entities/lighthouse/prototype.js";
 
 export const connected = async (clientDie) => {
   const runtime = clientDie.runtime;
-  runtime.multiplex = shard.transmitter.multiplex({ authority: runtime.lighthouse.$authority, vector: clientDie.aperture });
+  runtime.multiplex = shard.transmitter.multiplex({
+    authority: runtime.lighthouse.$authority,
+    vector: clientDie.aperture,
+    trace: clientDie.controller.stdout,
+  });
   runtime.connection = new Connection(runtime.remote, shard.transmitter.retry(runtime.multiplex, { maxRetries: 2 }))
     .use(shard.track.request())
     .use(shard.track.fault())
@@ -43,7 +47,7 @@ export const connected = async (clientDie) => {
   return clientDie;
 };
 
-export const factory = monad.kleisli([
+export const minted = monad.kleisli([
   (shellDie) => new Client({ controller: shellDie.controller.branch("client"), mask: shellDie.mask, register: shellDie.register, instance: shellDie.instance }),
   (clientDie) =>
     Object.assign(clientDie, {
@@ -52,6 +56,8 @@ export const factory = monad.kleisli([
         lighthouse: Object.assign(new Lighthouse(), { stdout: clientDie.controller.stdout.branch("lighthouse") }),
       }),
     }),
-  connected,
-  ...shape.monad.ready(execution),
 ]);
+
+export const ready = monad.kleisli([connected, ...shape.monad.ready(execution)]);
+
+export const factory = monad.kleisli([minted, ready]);

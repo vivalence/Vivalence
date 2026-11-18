@@ -1,39 +1,36 @@
 import paladin, { factories } from "@vivalence/paladin";
-import { Vector, control, trace } from "@vivalence/typology";
+import { Vector, control } from "@vivalence/typology";
 
-const decoder = new TextDecoder();
+const follow = async (shellDie) => {
+  const [sieve] = shellDie.signal.body;
+  if (!sieve) throw new Error(`usage: viva instance/tail '{"<path>":["<track>", …]}'`);
+  await factories.instance(paladin);
+  await paladin.telemetry.watch({ console: sieve }, control.hold(shellDie.controller));
+};
 
-const said = (record) => `${trace.pathname(record.path)} ${record.track}${"data" in record ? ` ${JSON.stringify(record.data)}` : ""}`;
-
-const follow = (process, kept) => async (shellDie) => {
-  const instance = await factories.instance(paladin.instance);
-  const log = paladin.ledger.log(instance.manifest.slug);
-  (await log.open(process, "spans")).close();
-  const path = log.base.branch(`${process}.spans.log`).absolute;
-  const reader = await Deno.open(path, { read: true });
-  await reader.seek(0, Deno.SeekMode.End);
-  const held = control.hold(shellDie.controller).then(() => true);
-  shellDie.controller.stdout.log({ tail: path });
-  console.log(`tail ${path}`);
-  const chunk = new Uint8Array(65536);
-  let pending = "";
-  try {
-    do {
-      for (let read = reader.readSync(chunk); read !== null && read > 0; read = reader.readSync(chunk)) {
-        const texts = (pending + decoder.decode(chunk.subarray(0, read), { stream: true })).split("\n");
-        pending = texts.pop();
-        for (const text of texts) {
-          const record = JSON.parse(text);
-          if (kept(record)) console.log(said(record));
-        }
-      }
-    } while (!(await Promise.race([held, new Promise((resolve) => setTimeout(resolve, 100, false))])));
-  } finally {
-    reader.close();
-  }
+const pipe = async (shellDie) => {
+  const [target, sieve] = shellDie.signal.body;
+  if (!target || !sieve) throw new Error(`usage: viva instance/pipe <file>.jsonl '{"<path>":["<track>", …]}'`);
+  await factories.instance(paladin);
+  await paladin.telemetry.watch({ [target]: sieve }, control.hold(shellDie.controller));
 };
 
 export const tail = new Vector()
-  .open({ nature: "/instance/tail", valence: "follow a running ghost's spans from another terminal. Example: viva instance/tail" }, follow("ghost", () => true))
-  .open({ nature: "/instance/tail/ghost", valence: "follow a running ghost's spans, every branch. Example: viva instance/tail/ghost" }, follow("ghost", () => true))
-  .open({ nature: "/instance/tail/client", valence: "follow a running ghost's client spans only. Example: viva instance/tail/client" }, follow("ghost", (record) => record.path[1] === "client"));
+  .open(
+    {
+      nature: "/instance/tail",
+      valence:
+        "follow this instance's running processes through a sieve, on this terminal. " +
+        'Example: viva instance/tail \'{"/runtime/runtime/daemon/droneaid/(.*)":["request","response"]}\'',
+    },
+    follow,
+  )
+  .open(
+    {
+      nature: "/instance/pipe",
+      valence:
+        "follow this instance's running processes through a sieve into a file under its logs, while this runs. " +
+        'Example: viva instance/pipe calls.jsonl \'{"/runtime/runtime/daemon/droneaid/(.*)":["request","response"]}\'',
+    },
+    pipe,
+  );

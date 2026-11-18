@@ -4,7 +4,7 @@ const { Part } = v.primitives.hallucination;
 
 export const Source = v
   .union([Part.Document, Part.Image])
-  .desc('A scan, base64: a pdf, or one page as an image. Example: { type: "image", media: "image/png", data: "iVBORw0KGgo=" }');
+  .desc('A scan, base64: a pdf, or one page as an image. Example: { type: "image", mime: "image/png", data: "iVBORw0KGgo=" }');
 
 export const Settings = v.object(
   {

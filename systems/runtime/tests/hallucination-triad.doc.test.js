@@ -1,4 +1,3 @@
-import { TIER_POINTS } from "@vivalence/typology/scenarios";
 // TANGLED from docs/40-49_repository/47_integration/47.02_hallucination-triad.org
 // Didactic, runnable guide to the cortex → hallucination → harnessed triad.
 // Edit the .org, re-tangle; or edit here and keep the .org src blocks in sync.
@@ -49,7 +48,7 @@ function tutor() {
 
 specimen.describe("47.02 hallucination triad — the request in isolation (typology only)", () => {
   // Cortex is a faculty repository. Register providers, then SPAWN a request through it.
-  const cortex = () => new Cortex(TIER_POINTS).register([tutor()]);
+  const cortex = () => new Cortex().register([tutor()]);
 
   specimen.it("cortex.hallucinate is the typed-fetch surface — ONE record describes the call", async () => {
     const folded = await cortex().hallucinate.dialogue.render({

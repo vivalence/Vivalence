@@ -11,6 +11,7 @@ import { ModeEntity } from "./index.ts";
 import { IntentEntity } from "./index.ts";
 import { BufferEntity } from "./index.ts";
 import { TurnEntity } from "./index.ts";
+import { FileEntity } from "./index.ts";
 
 export enum ThreadPhaseEnum {
   INERT = "inert", // app/target self-manages; deliberate-empty respected
@@ -35,6 +36,7 @@ export class ThreadEntity extends DataEntity {
 
   buffers = new Collection<BufferEntity>(this);
   turns = new Collection<TurnEntity>(this);
+  files = new Collection<FileEntity>(this);
 
   counter: number & Opt = 0; // these two might be candidates for a trait?!
 
@@ -91,7 +93,6 @@ export const ThreadSchema = new EntitySchema<ThreadEntity, DataEntity>({
         // labeled trait
       },
       (args: any) => {
-        Object.assign(args.entity, belt.traits.patch(args.entity, { HARNESSED: {}, CONVERSATIONAL: {} }));
         args.entity.trait = belt.traits.cast(args.entity, v.thread.traits);
       },
     ],
@@ -149,6 +150,15 @@ export const ThreadSchema = new EntitySchema<ThreadEntity, DataEntity>({
       kind: "1:m",
       entity: () => TurnEntity,
       mappedBy: (turn) => turn.thread,
+    },
+
+    files: {
+      kind: "m:n",
+      entity: () => FileEntity,
+      owner: true,
+      pivotTable: "thread_files",
+      joinColumns: ["thread_id"],
+      inverseJoinColumns: ["file_id"],
     },
 
     parent: {

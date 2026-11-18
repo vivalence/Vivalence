@@ -1,6 +1,6 @@
 import { For, mergeProps } from "solid-js";
 import { Dynamic } from "solid-js/web";
-import { parseBlocks } from "./display/markdown.js";
+import { parseBlocks } from "./svelte/display/markdown.js";
 
 const INLINE = {
   text: (segment) => segment.text,

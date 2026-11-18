@@ -6,6 +6,7 @@ export { population, resolution };
 
 export const execution = new Vector()
   .use(population.stdout)
+  .use(population.acid)
   .use(population.providers)
   .use(population.core);
 

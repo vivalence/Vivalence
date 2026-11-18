@@ -61,7 +61,7 @@ describe("T-fresh — a clean ledger, ghost's verbs, hello-world from the JSON r
     expect(effect?.manifest?.slug ?? err).toBe("hello-world");
     expect(effect.faults).toEqual([]);
     expect(effect.problems).toEqual([]);
-    expect(Object.keys(effect.dormant).sort()).toEqual(["hallucinators[0]", "hallucinators[1]", "hallucinators[2]", "hallucinators[3]"]);
+    expect(Object.keys(effect.dormant).sort()).toEqual(["runtime.hallucinators[0]", "runtime.hallucinators[1]", "runtime.hallucinators[2]", "runtime.hallucinators[3]"]);
     expect(Object.keys(effect.daemons)).toEqual(["hello"]);
     expect(effect.services).toEqual({});
     expect("lighthouse" in effect).toBe(false);

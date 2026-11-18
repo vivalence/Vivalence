@@ -2,6 +2,9 @@ export const strip = (cortex) =>
   [...cortex.faculties.values()].flat().map((faculty) => ({
     type: faculty.type,
     id: faculty.id,
+    ...(faculty.model && { model: faculty.model }),
+    ...(faculty.upstream && { upstream: faculty.upstream }),
+    ...(faculty.tier && { tier: faculty.tier }),
     tune: faculty.tune,
     context: faculty.context,
     ...(faculty.options !== undefined && { options: faculty.options }),

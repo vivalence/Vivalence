@@ -1,7 +1,7 @@
 ---
 paths: ["subsystems/typology/**", "systems/runtime/**", "systems/anima/**", "systems/ghost/**"]
 ---
-<!-- writer: agent · limit: 9100 chars · per item from methods/census.py · code is the map · paths relative to subsystems/typology -->
+<!-- writer: agent · limit: 9400 chars · per item from methods/census.py · code is the map · paths relative to subsystems/typology -->
 # codemap: typology — HOLY; ask before touching core types
 Less is More, Code is Data, Schema is God · `cast` or die · `as` however · `fromm` from inside. The CONTAINER: imports no runtime·paladin, `Deno.*` only in server `shard/`; a prototype is /"functions on top of data"/ (10-03).
 
@@ -74,7 +74,7 @@ export * from "./prototypes/index.client.js";
 export * from "./gestalten/index.client.js";
 export * from "./schematics/index.js";
 ```
-**`prototypes/` → `mod.ts`.** `vector.js`: `branch(sig, vector)` ATTACHES live, RETURNS the child; `graft` copies (/"always attach. but lets have one dedicated for deep copy."/ 10-01), `trie` = `Map<Pattern, Vector>`, by nature = `edge(nature)`; `seat` merges declared keys INTO the trie's OWN pattern; `trim("/a/b")` drops along a path; ONE effect per node `signature.js:16`'s ctor RETURNS a same-class arg: subclasses declare no fields.
+**`prototypes/` → `mod.ts`.** `vector.js`: `branch(sig, vector)` ATTACHES live, RETURNS the child; onto a SEATED path it COPIES (11-19: a later `open` is lost); `graft` copies (/"always attach. but lets have one dedicated for deep copy."/ 10-01), `trie` = `Map<Pattern, Vector>`, by nature = `edge(nature)`; `seat` merges declared keys INTO the trie's OWN pattern; `trim("/a/b")` drops along a path; ONE effect per node `signature.js:16`'s ctor RETURNS a same-class arg: subclasses declare no fields.
 **`dataspace.js` — ONE identity map per runtime**: `branch` mints a repository per route, one `em`; `literal:<id>` is one object whichever route loaded it. A load is one `/find`; a push needs an open `.subscribe(where)` on a route with `datamap.reactive`; mode routes have none (runtime `mode/lifecycle/1-population.js:36`). Probed 11-14.
 ```js
 // subsystems/typology/prototypes/dataspace.js:43

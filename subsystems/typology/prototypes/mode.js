@@ -11,11 +11,15 @@ export class Mode {
   aperture = null;
   stdout = null;
   daemon = null;
+  cortex = null;
+  mask = null;
+  trait = {};
   twitch = new Twitch();
 
-  constructor(module) {
+  constructor({ module, mask }) {
     Object.assign(this, module);
     this.module = module;
+    this.mask = mask;
   }
 
   implements(trait) {

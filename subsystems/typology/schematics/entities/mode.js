@@ -13,7 +13,7 @@ export const ModeSchematic = {
     description: v.string().optional().desc("one sentence on what it does").example("default runtime harness"),
     version: v.string().optional().desc("semver").example("0.3.0"),
     installed: v.string().optional().desc("the install stamp, empty until installed").example("2026-11-09T16:11:21.476Z"),
-    traits: traits.names.mode.optional().desc("the trait names declared").example(["HARNESSED", "TOOLING", "PRIMER"]),
+    traits: traits.names.mode.optional().desc("the trait names declared").example(["HARNESS", "TOOLING", "PRIMER"]),
   },
   relations: {
     daemon: () => v.rel().optional().desc("the daemon it belongs to; null for the runtime's own").example("test-daemon"),
@@ -28,5 +28,5 @@ export const ModeSchematic = {
   },
   traits: traits.mode,
   narrowable: ["traits"],
-  examples: [{ id: "01a1b1c0-f0c1-7559-a38c-d59d34854a75", type: "game", slug: "dojo", daemon: "spanish", name: "Dojo", description: "One rep machine over words, sentences and conjugation forms — prompt, gameplay, preview, streak, continuous and limit all free to combine.", installed: "a4d2781b", version: "0.1.0", traits: ["VIEWABLE", "EMITTER", "INTENTED", "EXPOSED", "TOOLING", "HARNESSED"] }],
+  examples: [{ id: "01a1b1c0-f0c1-7559-a38c-d59d34854a75", type: "game", slug: "dojo", daemon: "spanish", name: "Dojo", description: "One rep machine over words, sentences and conjugation forms — prompt, gameplay, preview, streak, continuous and limit all free to combine.", installed: "a4d2781b", version: "0.1.0", traits: ["VIEWABLE", "EMITTER", "INTENTED", "EXPOSED", "TOOLING", "HARNESS"] }],
 };

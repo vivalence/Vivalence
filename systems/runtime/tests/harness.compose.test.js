@@ -1,4 +1,3 @@
-import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { belt, Cortex, Mode, Path, shape, shard, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
 import { Runtime, ThreadEntity, TurnEntity, traits } from "@vivalence/runtime";
 import { textTurn, toolUseTurn } from "../../../commons/fixtures/testing/data/faculties.js";
@@ -60,10 +59,10 @@ specimen.describe("the composer — every request rebuilt from TOOLED · PRIMED 
     });
     scenario = await create({ harness });
     const { daemon, dewey } = scenario;
-    daemon.cortex = new Cortex(TIER_POINTS).register([scripted]);
+    daemon.cortex = new Cortex().register([scripted]);
     dewey.module.primer = new Vector().open("dewey", "You are Dewey.");
     PRIMER(dewey);
-    const harvest = new Mode({ manifest: { type: "tactics", slug: "harvest", traits: ["PRIMER", "TOOLING"] } });
+    const harvest = new Mode({ module: { manifest: { type: "tactics", slug: "harvest", traits: ["PRIMER", "TOOLING"] } } });
     harvest.module.primer = new Vector().open({ nature: "archivist", valence: "the harvest persona" }, "ARCHIVIST");
     harvest.module.tools = new Vector().open({ nature: "/drain", valence: "Writes the dataset." }, () => ({ output: {} }));
     harvest.tools = new Vector();
@@ -72,8 +71,7 @@ specimen.describe("the composer — every request rebuilt from TOOLED · PRIMED 
     daemon.modes.tactics = { harvest };
     const runtimeHarness = await accio("@commons/harness/runtime");
     const runtime = new Runtime({
-      slug: "runtime",
-      reference: new Path("/runtime/runtime"),
+      mask: { manifest: { slug: "runtime" }, reference: new Path("/runtime/runtime") },
       modes: { harness: { runtime: { manifest: runtimeHarness.manifest, tools: runtimeHarness.tools } } },
       daemons: { [daemon.slug]: daemon },
     });

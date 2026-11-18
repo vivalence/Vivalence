@@ -1,4 +1,3 @@
-import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { specimen, soma, Cortex } from "@vivalence/typology";
 import { mountMode } from "@vivalence/runtime/scenarios";
 import * as oracle from "../../../commons/playground/chaosmonkey/oracle/oracle.viva.js";
@@ -31,7 +30,7 @@ const seer = () => ({
 let scenario;
 
 specimen.beforeAll(async () => {
-  scenario = await mountMode(oracle, { cortex: new Cortex(TIER_POINTS).register([seer()]) });
+  scenario = await mountMode(oracle, { cortex: new Cortex().register([seer()]) });
 });
 
 specimen.afterAll(async () => {

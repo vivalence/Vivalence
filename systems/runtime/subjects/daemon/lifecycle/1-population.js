@@ -1,11 +1,12 @@
 import paladin from "@vivalence/paladin";
-import { contexts, control, Mode, shard, Twitch } from "@vivalence/typology";
+import { contexts, control, Cortex, Mode, shard, Twitch } from "@vivalence/typology";
 import { sets, wrap } from "@vivalence/typology/entities";
 import { gather, mint, strike } from "../../../gestalten/belt/index.js";
 import * as traits from "../../mode/traits/index.js";
 
 export const core = async (die, next) => {
   die.register = await paladin.ledger.registry.wire(die.mask);
+  paladin.instance.paladin.dormant.push(...die.register.dormant);
   die.daemon.domain = die.register.domain;
   die.traits = traits;
   die.daemon.entity = await die.runtime.datamap.shard.scope(async () =>
@@ -50,6 +51,11 @@ export const datamap = async (die, next) => {
     .use(control.fault((die) => die.daemon.controller));
   if (die.daemon.domain.twitch) die.daemon.twitch.graft(die.daemon.domain.twitch);
   die.daemon.datamap.registerSubscriber(die.daemon.twitch);
+  await die.daemon.datamap.shard.scope(async () => {
+    await die.daemon.twitch.dispatch("/after/datamap/boot");
+    if (die.daemon.datamap.migrated.length)
+      await die.daemon.twitch.dispatch("/after/datamap/migrate", { migrations: die.daemon.datamap.migrated });
+  });
 
   die.daemon.aperture
     .use(shard.datamap.inject(die.daemon.datamap))
@@ -59,17 +65,10 @@ export const datamap = async (die, next) => {
 };
 
 export const acid = async (die, next) => {
-  const faculties = [];
-  for (const [index, citizen] of die.register.hallucinators.entries()) {
-    try {
-      const supplied = await citizen.provider(citizen);
-      faculties.push(...supplied.map((faculty) => ({ ...faculty, provider: citizen.manifest.slug })));
-    } catch (error) {
-      const at = `daemon[${die.daemon.slug}].hallucinators[${index}]`;
-      console.warn(`[provider] ${at} ${citizen.manifest.slug} refused — ${error.message}`);
-    }
-  }
-  die.daemon.cortex = die.runtime.cortex.split(faculties);
+  const supplied = await Promise.all(
+    die.register.hallucinators.map((citizen) => citizen.provider(citizen)),
+  );
+  die.daemon.cortex = new Cortex(supplied.flat());
   await next();
 };
 
@@ -84,8 +83,10 @@ export const providers = async (die, next) => {
 };
 
 export const modes = async (die, next) => {
-  for (const mask of die.register.modes) {
-    (die.daemon.modes[mask.manifest.type] ??= {})[mask.manifest.slug] = Object.assign(new Mode(mask), { stdout: die.daemon.controller.stdout.branch(mask.reference.absolute) });
+  for (const [index, module] of die.register.modes.entries()) {
+    const mode = new Mode({ module, mask: die.mask.modes[index] });
+    mode.stdout = die.daemon.controller.stdout.branch(mode.reference.absolute);
+    (die.daemon.modes[mode.manifest.type] ??= {})[mode.manifest.slug] = mode;
   }
   await next();
 };

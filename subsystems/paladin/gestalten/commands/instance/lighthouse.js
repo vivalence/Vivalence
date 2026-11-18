@@ -18,7 +18,7 @@ const operator = (secret) =>
 const called = (route, proof) => async (ctx) => {
   const [username, password] = ctx.signal.body;
   if (!username || !password) throw new Error(`usage: viva instance/lighthouse${route} <username> <password>`);
-  await mount(paladin.instance);
+  await mount(paladin);
   return new Connection(paladin.instance.runtime.statics.remote).call(`/lighthouse${route}`, { ...(await proof()), username, password });
 };
 

@@ -13,10 +13,17 @@ export const respond = {
 
 export const card = (user) => ({ id: user.id, slug: user.slug, traits: user.traits, trait: user.trait });
 
+const SEATS = 8;
+
 export const authority = async (ctx, user) => {
   const sign = signer(ctx.lighthouse.secret);
   return { access: await sign.access(user), refresh: await sign.refresh(user) };
 };
+
+export const seated = (user, authority) => ({
+  access: authority.access,
+  sessions: [authority.refresh, ...(user.authentication.tokens?.sessions ?? [])].slice(0, SEATS),
+});
 
 export const aperture = new Vector()
   .open("/login", async ({ username, password }, ctx) => {
@@ -24,7 +31,7 @@ export const aperture = new Vector()
     const user = await identify(ctx.lighthouse, { username, password });
     if (!user) return respond.error(ctx, "INVALID_CREDENTIALS", "Invalid username or password", 401);
     const tokens = await authority(ctx, user);
-    wrap(user).assign({ authentication: { tokens } }, { merge: true, mergeObjectProperties: true });
+    wrap(user).assign({ authentication: { tokens: seated(user, tokens) } }, { merge: true, mergeObjectProperties: true });
     await ctx.lighthouse.users.em.flush();
     return respond.success({ authority: tokens, user: card(user) });
   })
@@ -34,7 +41,7 @@ export const aperture = new Vector()
     const user = await ctx.lighthouse.users.byUsername(username);
     if (!user) return respond.error(ctx, "USER_NOT_FOUND", "User not found", 404);
     wrap(user).assign(
-      { authentication: { credentials: { password: await argon2.hash(password) }, tokens: { access: null, refresh: null } } },
+      { authentication: { credentials: { password: await argon2.hash(password) }, tokens: { access: null, sessions: [] } } },
       { merge: true, mergeObjectProperties: true },
     );
     await ctx.lighthouse.users.em.flush();
@@ -44,7 +51,8 @@ export const aperture = new Vector()
     if (!refresh) return respond.error(ctx, "MISSING_TOKEN", "Refresh token required");
     const user = await bearer(ctx.lighthouse, refresh);
     if (!user) return respond.error(ctx, "INVALID_TOKEN", "Invalid refresh token", 401);
-    wrap(user).assign({ authentication: { tokens: { access: null, refresh: null } } }, { mergeObjectProperties: true });
+    const sessions = user.authentication.tokens.sessions.filter((token) => token !== refresh);
+    wrap(user).assign({ authentication: { tokens: { access: null, sessions } } }, { mergeObjectProperties: true });
     await ctx.lighthouse.users.em.flush();
     return respond.success({ message: "Logged out" });
   })

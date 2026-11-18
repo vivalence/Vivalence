@@ -24,7 +24,7 @@ async function effect(ctx) {
   const { target, filter } = found;
   if (target) paladin.env.set("VIVA_INSTANCE_MOUNT", target, "flag");
 
-  await mount(paladin.instance);
+  await mount(paladin);
   const home = paladin.scope.instance.absolute;
   const slug = (await paladin.ledger.instances.lookup(home))?.slug ?? basename(home);
 
@@ -58,8 +58,8 @@ async function effect(ctx) {
     mount: home,
     manifest: paladin.instance.manifest,
     runtime: paladin.instance.runtime?.manifest?.slug ?? null,
-    ledger: paladin.instance.inherited.length ? paladin.scope.ledger.branch(RECIPE).absolute : null,
-    inherited: voice.spoken(paladin.instance, paladin.instance.inherited),
+    ledger: paladin.instance.paladin.inherited.length ? paladin.scope.ledger.branch(RECIPE).absolute : null,
+    inherited: voice.spoken(paladin.instance, paladin.instance.paladin.inherited),
     clients: paladin.instance.clients.map((client) => client.manifest?.slug),
     mountpoint: root,
     daemons: grounds(paladin.instance.daemons),
@@ -68,9 +68,9 @@ async function effect(ctx) {
     problems: rows
       .filter((row) => paladin.check.wrong.includes(row.verdict))
       .map((row) => ({ "!": "!", key: row.key, at: row.at, verdict: row.verdict, reason: row.reason })),
-    faults: paladin.instance.faults,
+    faults: paladin.instance.paladin.faults,
     dormant: Object.fromEntries(
-      paladin.instance.dormant.map(({ at, module, empty, why }) => [
+      paladin.instance.paladin.dormant.map(({ at, module, empty, why }) => [
         at,
         `${module ?? "nothing declared"}${empty.length ? ` — empty ${empty.join(", ")}` : ""}${why ? ` — ${why}` : ""}`,
       ]),

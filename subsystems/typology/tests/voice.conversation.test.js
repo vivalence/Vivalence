@@ -1,4 +1,3 @@
-import { TIER_POINTS } from "./scenarios/tiers.js";
 import {
   specimen,
   sleep,
@@ -59,7 +58,7 @@ function stubVerbatimFaculty() {
 }
 
 function makeMode() {
-  const cortex = new Cortex(TIER_POINTS).register([stubSpeechFaculty(), stubVerbatimFaculty()]);
+  const cortex = new Cortex().register([stubSpeechFaculty(), stubVerbatimFaculty()]);
   const harness = {
     dialogue: {
       stream: async ({ parts }) => {
@@ -76,14 +75,14 @@ function makeMode() {
   };
 
   return {
-    manifest: { type: "teacher", slug: "voice", traits: ["CONVERSATIONAL", "VOCALIZED"] },
+    manifest: { type: "teacher", slug: "voice", traits: ["CONVERSATION", "VOCALIZED"] },
     harness,
     aperture: new Aperture(),
     cortex,
   };
 }
 
-function CONVERSATIONAL(mode) {
+function CONVERSATION(mode) {
   const conversation = new Vector();
   const vocalized = mode.manifest.traits.includes("VOCALIZED");
 
@@ -192,7 +191,7 @@ specimen.describe("voice conversation — dialogue + speech + verbatim", () => {
   const abort = new AbortController();
   const mode  = makeMode();
 
-  CONVERSATIONAL(mode);
+  CONVERSATION(mode);
 
   specimen.beforeAll(async () => {
     Deno.serve({ port: PORT, signal: abort.signal, onListen() {} }, http(mode.aperture));

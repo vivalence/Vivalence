@@ -1,6 +1,6 @@
 import { from, Show } from "solid-js";
 import { Dynamic } from "solid-js/web";
-import * as parts from "@vivalence/drapes/parts";
+import * as parts from "@vivalence/drapes/solid";
 import * as ambient from "../../ambient/index.js";
 import { candidates, cell, cells, renderer, surfaced } from "../../widgets/buffer/index.js";
 import { named, reference, short } from "../sidebar/sections.js";

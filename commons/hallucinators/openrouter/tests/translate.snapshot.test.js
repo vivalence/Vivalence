@@ -50,6 +50,16 @@ const conversation = {
 specimen.describe(
   "openrouter translate snapshot — pure outbound/inbound pins, offline",
   () => {
+    specimen.it("a faculty with an upstream pins the request to it, no fallback", () => {
+      const seat = { id: "oss-groq", model: "openai/gpt-oss-120b", upstream: "groq", tune: [0.4, 1.0, 0.4], thinking: true };
+      const pinned = buildParams(seat, conversation);
+      specimen.expect(pinned.model).toBe("openai/gpt-oss-120b");
+      specimen.expect(pinned.provider).toEqual({ only: ["groq"], allow_fallbacks: false });
+      const free = buildParams(light, conversation);
+      specimen.expect(free.model).toBe(light.id);
+      specimen.expect("provider" in free).toBe(false);
+    });
+
     specimen.it(
       "buildParams across plain, reasoning, effort, tools, structured, stream, cache marks",
       () => {

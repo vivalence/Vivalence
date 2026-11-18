@@ -19,7 +19,7 @@ const STANDING = {
   modes: [
     {
       slug: "hello-world",
-      traits: ["APPLICATION", "CONVERSATIONAL"],
+      traits: ["APPLICATION", "CONVERSATION"],
       routes: ["/hello/doctor", "/hello/bot", "/hello/agent"],
     },
     { slug: "runtime", traits: [], routes: [] },
@@ -28,7 +28,7 @@ const STANDING = {
 };
 
 // the thread and buffer primers hello imports are lazy: the eager strip carries their listing only.
-const MODE = { manifest: { type: "demo", slug: "hello-world", name: "hello-world", traits: ["HARNESSED", "TOOLING"] } };
+const MODE = { manifest: { type: "demo", slug: "hello-world", name: "hello-world", traits: ["HARNESS", "TOOLING"] } };
 const THREAD = { id: "thread-1", phase: "manual", counter: 0, traits: [], user: { id: "user-1" } };
 
 // the REAL middleware chain, not a hand-composed object: section ORDER is what the root-use-

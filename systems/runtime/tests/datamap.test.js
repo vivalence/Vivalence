@@ -1,6 +1,6 @@
 import {
   specimen, Aperture, Vector, Connection, Url,
-  shard, shape, RemoteRepository, RemoteEntityManager,
+  shard, shape, RemoteRepository, RemoteEntityManager, Twitch,
 } from "@vivalence/typology"
 import { datamap } from "@vivalence/runtime/scenarios"
 
@@ -11,7 +11,7 @@ specimen.beforeAll(async () => {
   scenario.em.setFilterParams("user", { user: scenario.fixtures.user.id })
   const { repos, fixtures } = scenario
 
-  twitch = new Vector()
+  twitch = new Twitch()
   const aperture = new Aperture()
 
   aperture.branch("/literal")

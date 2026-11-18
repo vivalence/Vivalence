@@ -1,19 +1,14 @@
 import { For } from "solid-js";
 import { useKeyboard } from "@opentui/solid";
-
-export const BINDINGS = [
-  ["y", "approve", (props) => props.onApprove()],
-  ["n", "skip", (props) => props.onSkip()],
-  ["e", "edit", (props) => props.onEdit()],
-];
+import { parts } from "@vivalence/dapper";
 
 export const Consent = (props) => {
   useKeyboard((key) => {
     if (key.defaultPrevented) return;
-    const hit = BINDINGS.find(([name]) => name === key.name);
+    const hit = parts.consent.ACTS.find(([name]) => name === key.name);
     if (hit === undefined) return;
     key.stopPropagation();
-    hit[2](props);
+    props[hit[2]]();
   });
   return (
     <box style={{ flexDirection: "row", height: 1, gap: 1, paddingLeft: 1, backgroundColor: props.palette.signalCautionTint }}>
@@ -21,7 +16,7 @@ export const Consent = (props) => {
         <b>? approve</b>
       </text>
       <text fg={props.palette.textStrong}>{`${props.name} ${props.argument}`}</text>
-      <For each={BINDINGS}>
+      <For each={parts.consent.ACTS}>
         {([name, label]) => (
           <text>
             <span style={{ fg: props.palette.signalPrimaryInk }}>

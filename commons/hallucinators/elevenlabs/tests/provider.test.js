@@ -532,3 +532,13 @@ specimen.describe("elevenlabs scribe — the ear speaks the one content grammar"
     specimen.expect(flow.fault()).toBe(null);
   });
 });
+
+specimen.describe("elevenlabs · a faculty carries its entry forward (m126 Q7A)", () => {
+  specimen.it("tier · provider, stamped on the entry by paladin, reach the built faculty; type · id · via stay the builder's", async () => {
+    const [entry] = FACULTIES;
+    const [faculty] = await provider({ secrets: { key: "fake-key" }, faculties: [{ ...entry, tier: "tongue", provider: "elevenlabs" }] });
+    specimen.expect([faculty.type, faculty.id, faculty.tier, faculty.provider]).toEqual([entry.type, entry.id, "tongue", "elevenlabs"]);
+    specimen.expect(Object.keys(faculty.via).length).toBeGreaterThan(0);
+    specimen.expect(entry.tier).toBeUndefined();
+  });
+});

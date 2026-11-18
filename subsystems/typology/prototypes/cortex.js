@@ -7,7 +7,7 @@ import * as hallucinate from "../gestalten/shard/hallucinate.js";
 import * as steer from "../gestalten/steer/index.js";
 import { Vector } from "./vector.js";
 import { v } from "../schematics/index.js";
-import { FacultyType, Selector, Tiers } from "../schematics/primitives/hallucination.js";
+import { FacultyType, Selector, TIERS } from "../schematics/primitives/hallucination.js";
 
 export function nearest(faculties, target) {
   return recipe.nearest(faculties, target);
@@ -22,11 +22,11 @@ const WHERE = v.object({
   speak: v.object({ ...Selector }).optional(),
 });
 
-const where = (tiers, supplied = {}) => {
+const where = (supplied = {}) => {
   const query = v.cast(WHERE, { ...supplied });
   const [fault] = v.faults(WHERE, query);
   if (fault) throw new Error(`[cortex] invalid query ${fault.at}: ${fault.reason}`);
-  return query.tier && !query.tune ? { ...query, tune: tiers[query.tier] } : query;
+  return query.tier && !query.tune ? { ...query, tune: TIERS[query.tier].tune } : query;
 };
 
 export class Cortex {
@@ -34,10 +34,7 @@ export class Cortex {
   hallucinate = null;
   #hallucinator = new Vector();
 
-  constructor(tiers) {
-    const [fault] = v.faults(Tiers, tiers);
-    if (fault) throw new Error(`[cortex] tiers${fault.at} ${fault.reason}`);
-    this.tiers = tiers;
+  constructor(faculties = []) {
     const { Audio, Packet, Response } = v.primitives.hallucination;
     for (const avenue of ["dialogue", "object"]) {
       this.#hallucinator
@@ -76,6 +73,7 @@ export class Cortex {
       .open({ nature: "render", output: v.primitives.hallucination.Picture.Response }, hallucinate.depicting(this));
 
     this.hallucinate = compile(this.#hallucinator);
+    this.register(faculties);
   }
 
   register(supplied) {
@@ -88,14 +86,8 @@ export class Cortex {
     return this;
   }
 
-  split(supplied) {
-    const cortex = new Cortex(this.tiers);
-    for (const [type, held] of this.faculties) cortex.faculties.set(type, [...held]);
-    return cortex.register(supplied);
-  }
-
   find(supplied) {
-    const query = where(this.tiers, supplied);
+    const query = where(supplied);
     const stored = query.type
       ? (this.faculties.get(query.type) ?? [])
       : [...this.faculties.values()].flat();
@@ -108,8 +100,10 @@ export class Cortex {
   }
 
   findOne(supplied) {
-    const query = where(this.tiers, supplied);
+    const query = where(supplied);
     const found = this.find(query);
+    const worn = query.tier ? found.find((faculty) => faculty.tier === query.tier) : undefined;
+    if (worn) return worn;
     if (query.tune) return nearest(found, query.tune) ?? DERIVATIONS[query.type]?.(this, query);
     if (found.length > 1) throw new Error(`[cortex] ${found.length} '${query.type}' faculties match — name a tier, a tune or an id`);
     return found[0] ?? DERIVATIONS[query.type]?.(this, query);

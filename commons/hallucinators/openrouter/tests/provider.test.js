@@ -160,7 +160,7 @@ specimen.describe("openrouter provider", () => {
         const messages = translateTurns([
           {
             role: "user",
-            parts: [{ type: "image", data: "abc", media: "image/png" }],
+            parts: [{ type: "image", data: "abc", mime: "image/png" }],
           },
           {
             role: "assistant",
@@ -710,7 +710,7 @@ specimen.describe("openrouter provider", () => {
     const original = globalThis.fetch;
     const service = { secrets: { key: "sk-or-test" }, faculties: FACULTIES };
     const PNG = "iVBORw0KGgo";
-    const picture = (data) => ({ type: "image", media: "image/png", data });
+    const picture = (data) => ({ type: "image", mime: "image/png", data });
     const OK = {
       created: 1762700000,
       data: [{ b64_json: PNG, media_type: "image/png" }],
@@ -764,7 +764,7 @@ specimen.describe("openrouter provider", () => {
       const gpt = await faculty("openai/gpt-image-2.6-sunburst");
       await gpt.via.render({
         prompt: "put the mug on the desk",
-        images: [{ image: picture("AAAA"), role: "init" }, { image: { type: "image", media: "image/jpeg", data: "BBBB" }, role: "subject" }],
+        images: [{ image: picture("AAAA"), role: "init" }, { image: { type: "image", mime: "image/jpeg", data: "BBBB" }, role: "subject" }],
         settings: { format: "webp", background: "opaque", size: "1536x1024" },
       });
       specimen.expect(calls[0].body).toEqual({
@@ -780,12 +780,12 @@ specimen.describe("openrouter provider", () => {
       });
     });
 
-    specimen.it("the answer is a valid Picture.Response, media from media_type", async () => {
+    specimen.it("the answer is a valid Picture.Response, mime from media_type", async () => {
       stub(200, OK);
       const gemini = await faculty("google/gemini-nano-banana-2.1");
       const response = await gemini.via.render({ prompt: "a red fox", images: [] });
       specimen.expect(response).toEqual({
-        images: [{ type: "image", media: "image/png", data: PNG }],
+        images: [{ type: "image", mime: "image/png", data: PNG }],
         meta: { usage: { input: 12, output: 4160, cost: 0.04 }, provider: { usage: OK.usage } },
       });
       specimen.expect([...v.primitives.hallucination.Picture.Response.errors(response)]).toEqual([]);
@@ -840,5 +840,15 @@ specimen.describe("openrouter provider", () => {
     specimen.it("fetch is restored after each step", () => {
       specimen.expect(globalThis.fetch).toBe(original);
     });
+  });
+});
+
+specimen.describe("openrouter · a faculty carries its entry forward (m126 Q7A)", () => {
+  specimen.it("tier · provider, stamped on the entry by paladin, reach the built faculty; type · id · via stay the builder's", async () => {
+    const [entry] = FACULTIES;
+    const [faculty] = await provider({ secrets: { key: "fake-key" }, faculties: [{ ...entry, tier: "director", provider: "openrouter" }] });
+    specimen.expect([faculty.type, faculty.id, faculty.tier, faculty.provider]).toEqual([entry.type, entry.id, "director", "openrouter"]);
+    specimen.expect(Object.keys(faculty.via).length).toBeGreaterThan(0);
+    specimen.expect(entry.tier).toBeUndefined();
   });
 });

@@ -12,6 +12,11 @@ export const prune = async (die, next) => {
   await next();
 };
 
+export const booted = async (die, next) => {
+  await die.daemon.datamap.shard.scope(() => die.daemon.twitch.dispatch("/after/daemon/boot"));
+  await next();
+};
+
 export const datamap = async (die, next) => {
   die.daemon.aperture.open("/datamap", () => shard.datamap.strip(die.daemon.datamap.getMetadata()));
   for (const kind of ["literal", "symbol", "note", "mode"]) {

@@ -11,6 +11,7 @@
   if (dealt === undefined) buffer.mode.call.deck({ limit: 10 }).then((held) => (deck = held));
   else deck = { language: buffer.data.language, cards: dealt };
 
+  const files = terminal.client.runtime.entities.file.$entities;
   const literal = $derived(deck === null ? null : (deck.cards[index] ?? null));
   const language = $derived(deck === null ? null : deck.language);
   const total = $derived(deck === null ? 0 : deck.cards.length);
@@ -86,10 +87,10 @@
             <div class="example">{literal.example.learning} — {literal.example.known}</div>
           {/if}
           {#if literal.picture !== null}
-            <img class="picture" src={literal.picture} alt={literal.learning} />
+            <img class="picture" src={$files.find((file) => file.id === literal.picture).url} alt={literal.learning} />
           {/if}
           {#if literal.voice !== null}
-            <audio controls src={literal.voice}></audio>
+            <audio controls src={$files.find((file) => file.id === literal.voice).url}></audio>
           {/if}
         </div>
       {/if}

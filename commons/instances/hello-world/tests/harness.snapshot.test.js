@@ -32,7 +32,7 @@ const STANDING = {
   modes: [
     {
       slug: "hello-world",
-      traits: ["APPLICATION", "CONVERSATIONAL"],
+      traits: ["APPLICATION", "CONVERSATION"],
       routes: ["/hello/doctor", "/hello/bot", "/hello/agent"],
     },
     { slug: "runtime", traits: [], routes: [] },

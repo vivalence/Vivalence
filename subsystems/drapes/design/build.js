@@ -15,6 +15,10 @@ await esbuild.build({
   platform: "browser",
   outfile: `${OUT}design.js`,
   nodePaths: [NODE_MODULES],
+  alias: {
+    "@vivalence/dapper": new URL("../../dapper/mod.js", import.meta.url).pathname,
+    "@vivalence/typology": new URL("../../typology/mod.client.js", import.meta.url).pathname,
+  },
   plugins: [compile],
   logLevel: "warning",
 });

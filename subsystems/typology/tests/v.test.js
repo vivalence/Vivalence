@@ -2,6 +2,38 @@ import { Path, specimen, v, Url } from "@vivalence/typology";
 import * as domain from "./scenarios/domain/index.js";
 
 specimen.describe("v", () => {
+  specimen.it("a time scalar takes its Temporal type's JSON and refuses its neighbours'", () => {
+    const zone = "Europe/Berlin";
+    const zoned = Temporal.Instant.from("2026-11-19T10:00:00.123Z").toZonedDateTimeISO(zone);
+    const json = {
+      instant: zoned.toInstant().toJSON(),
+      date: zoned.toPlainDate().toJSON(),
+      duration: Temporal.Duration.from({ hours: 1, minutes: 30 }).toJSON(),
+      datetime: zoned.toPlainDateTime().toJSON(),
+      zoned: zoned.toJSON(),
+    };
+    specimen.expect(json).toEqual({
+      instant: "2026-11-19T10:00:00.123Z",
+      date: "2026-11-19",
+      duration: "PT1H30M",
+      datetime: "2026-11-19T11:00:00.123",
+      zoned: "2026-11-19T11:00:00.123+01:00[Europe/Berlin]",
+    });
+    for (const scalar of Object.keys(json))
+      for (const [type, text] of Object.entries(json))
+        specimen.expect([scalar, type, v[scalar]().check(text)]).toEqual([scalar, type, scalar === type]);
+
+    specimen.expect(v.instant().check("2026-11-19T10:00:00+01:00")).toBe(true);
+    specimen.expect(v.instant().check("2026-13-19T10:00:00Z")).toBe(false);
+    specimen.expect(v.date().check("2026-02-31x")).toBe(false);
+    specimen.expect(v.datetime().check("2026-11-19T24:00:00")).toBe(false);
+    specimen.expect(v.datetime().check("2026-11-19T11:00:00[u-ca=hebrew]")).toBe(true);
+    specimen.expect(v.zoned().check("2026-11-19T11:00:00+01:00[+01:00]")).toBe(true);
+    specimen.expect(v.zoned().check("2026-11-19T11:00:00[Europe/Berlin]")).toBe(false);
+    specimen.expect(v.zoned().faults("tomorrow")[0].reason).toBe("must be RFC 9557 date-time with an offset and a zone");
+    specimen.expect(v.object({ at: v.instant().optional() }).check({})).toBe(true);
+  });
+
   specimen.it("a schema judges every shape", () => {
     specimen.expect(v.string().check("hello")).toBe(true);
     specimen.expect(v.string().check(42)).toBe(false);
@@ -371,20 +403,20 @@ specimen.describe("v", () => {
   });
 
   specimen.it("instance statics are typed where typology knows the key — serve and remote, everything else rides along", () => {
-    const { Runtime, Client, Service, Daemon } = v.primitives.instance;
+    const { RuntimeMask, ClientMask, ServiceMask, DaemonMask } = v.primitives.instance;
     const runtime = { slug: "runtime" };
     const secrets = { jwt: "a-signing-secret-of-twenty-four-or-more" };
-    specimen.expect([...Runtime.errors({ manifest: runtime, statics: { serve: "NaN" }, secrets })][0].instancePath).toBe("/statics/serve");
-    specimen.expect([...Runtime.errors({ manifest: runtime, statics: { serve: "http://localhost:2501/", extra: 1 }, secrets })].length).toBe(0);
-    specimen.expect([...Runtime.errors({ manifest: runtime, statics: { serve: "http://localhost:2501/" } })]).toEqual([]);
-    specimen.expect([...Client.errors({ manifest: { type: "client", slug: "ghost" }, statics: {} })].length).toBe(0);
-    specimen.expect([...Service.errors(Service.cast({ manifest: { type: "service", slug: "svc" }, module: "m", mountpoint: "/m/service_svc", datamap: { module: "m" } }))].length).toBe(0);
+    specimen.expect([...RuntimeMask.errors(RuntimeMask.cast({ manifest: runtime, statics: { serve: "NaN" }, secrets }))][0].instancePath).toBe("/statics/serve");
+    specimen.expect([...RuntimeMask.errors(RuntimeMask.cast({ manifest: runtime, statics: { serve: "http://localhost:2501/", extra: 1 }, secrets }))].length).toBe(0);
+    specimen.expect([...RuntimeMask.errors(RuntimeMask.cast({ manifest: runtime, statics: { serve: "http://localhost:2501/" } }))]).toEqual([]);
+    specimen.expect([...ClientMask.errors({ manifest: { type: "client", slug: "ghost" }, statics: {} })].length).toBe(0);
+    specimen.expect([...ServiceMask.errors(ServiceMask.cast({ manifest: { type: "service", slug: "svc" }, module: "m", mountpoint: "/m/service_svc", datamap: { module: "m" } }))].length).toBe(0);
     const daemon = {
       manifest: { type: "daemon", slug: "d", version: "0.0.1" },
       mountpoint: "/m/daemon_d",
       datamap: { module: "m" },
     };
-    const cast = Daemon.cast(daemon);
+    const cast = DaemonMask.cast(daemon);
     specimen.expect(cast.hallucinators).toEqual([]);
     specimen.expect(cast.statics).toEqual({});
     specimen.expect(cast.consume).toEqual({});
@@ -392,8 +424,8 @@ specimen.describe("v", () => {
   });
 
   specimen.it("faults — errors with the scalar's title in place of its regex, addressed by pointer", () => {
-    const { Instance } = v.primitives.instance;
-    const faults = Instance.faults({ manifest: { type: "instance", slug: "i" }, environment: {}, runtime: { manifest: { slug: "runtime" }, statics: { serve: "nope" }, secrets: { jwt: "a-signing-secret-of-twenty-four-or-more" } }, daemons: [], services: [], clients: [] });
+    const { InstanceMask } = v.primitives.instance;
+    const faults = InstanceMask.faults(InstanceMask.cast({ manifest: { type: "instance", slug: "i" }, environment: {}, runtime: { manifest: { slug: "runtime" }, statics: { serve: "nope" }, secrets: { jwt: "a-signing-secret-of-twenty-four-or-more" } }, daemons: [], services: [], clients: [] }));
     specimen.expect(faults).toEqual([{ at: "/runtime/statics/serve", reason: "must be RFC 3986 URI with an authority (scheme://…)" }]);
     specimen.expect(v.faults(v.object({ a: v.string() }), {})).toEqual([{ at: "/", reason: "must have required properties a" }]);
   });

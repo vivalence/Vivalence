@@ -50,7 +50,7 @@ describe("T-demo — a clean ledger, ghost's verbs, the memo demo instance: the 
     expect(effect?.manifest?.slug ?? err).toBe("memo");
     expect([effect.faults, effect.problems]).toEqual([[], []]);
     expect(Object.keys(effect.daemons)).toEqual(["memo"]);
-    expect(Object.keys(effect.dormant).sort()).toEqual(["hallucinators[0]", "hallucinators[1]", "hallucinators[2]", "hallucinators[3]"]);
+    expect(Object.keys(effect.dormant).sort()).toEqual(["runtime.hallucinators[0]", "runtime.hallucinators[1]", "runtime.hallucinators[2]", "runtime.hallucinators[3]"]);
   });
 
   it("run.js on the shelf installs the Latin core — 269 literals, 242 symbols, every literal a word or a sentence", async () => {
@@ -95,11 +95,14 @@ describe("T-demo — a clean ledger, ghost's verbs, the memo demo instance: the 
     expect([stats.touched, stats.byStatus.UNKNOWN, stats.leeches.map((leech) => leech.slug), stats.suspended]).toEqual([2, 1, [], 0]);
   });
 
-  it("the topography's files ride the deck: a depicted card carries its picture's file url, and the url serves the png", async () => {
+  it("the topography's files ride the deck: a depicted card carries its picture's File id, and /attached/file/<id> serves the png to a token, 401 without", async () => {
     const { cards } = await runtime.call(`${MODE}/deck`, { limit: 50, symbols: ["topic.bellum"] }, learner);
     const gladius = cards.find((card) => card.slug === "gladius.noun");
-    expect(gladius.picture).toMatch(/\/attached\/file\/[0-9a-f-]{36}$/);
-    const served = await fetch(gladius.picture, { headers: { authorization: `Bearer ${learner}` } });
+    expect(gladius.picture).toMatch(/^[0-9a-f-]{36}$/);
+    const refused = await fetch(`${world.origin}/attached/file/${gladius.picture}`);
+    expect(refused.status).toBe(401);
+    await refused.body?.cancel();
+    const served = await fetch(`${world.origin}/attached/file/${gladius.picture}?token=${learner}`);
     expect([served.status, served.headers.get("content-type")]).toEqual([200, "image/png"]);
     await served.body?.cancel();
   });

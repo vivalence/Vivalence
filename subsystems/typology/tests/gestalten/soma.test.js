@@ -122,7 +122,7 @@ specimen.describe("soma", () => {
       role: "user",
       parts: [
         { type: "text", text: "what is casa" },
-        { type: "image", data: "base64abc", media: "image/png" },
+        { type: "image", data: "base64abc", mime: "image/png" },
       ],
       meta: { provider: { custom: "value" } },
     };
@@ -134,7 +134,7 @@ specimen.describe("soma", () => {
     specimen.expect(reconstructed.parts).toHaveLength(2);
     specimen.expect(reconstructed.parts[0].text).toBe("what is casa");
     specimen.expect(reconstructed.parts[1].data).toBe("base64abc");
-    specimen.expect(reconstructed.parts[1].media).toBe("image/png");
+    specimen.expect(reconstructed.parts[1].mime).toBe("image/png");
     specimen.expect(reconstructed.meta.provider.custom).toBe("value");
 
     const hylomorphic = {
@@ -231,7 +231,7 @@ specimen.describe("soma", () => {
 
     const layered = await soma.bridge(asStream(packets("assistant", [
       { type: "text", text: "first" },
-      { type: "audio", data: "YXVkaW8=", media: "audio/mp3" },
+      { type: "audio", data: "YXVkaW8=", mime: "audio/mp3" },
     ])));
     specimen.expect(layered.parts).toHaveLength(2);
     specimen.expect(layered.parts[0].text).toBe("first");

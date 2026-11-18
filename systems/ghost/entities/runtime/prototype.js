@@ -28,6 +28,9 @@ export class Runtime {
   get attach() {
     return this.connection.branch("/attached");
   }
+  attached(path) {
+    return this.attach.url.branch(path).with({ token: this.lighthouse.authority.access }).absolute;
+  }
 
   get json() {
     return { manifest: this.manifest, reference: this.reference === null ? null : this.reference.absolute, remote: this.remote, status: this.status };

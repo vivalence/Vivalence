@@ -7,7 +7,7 @@ export const resolves = (commands, signal) => {
 };
 
 export const CONTROLS = [
-  [() => true, "a", "attach", "", "/attach"],
+  [() => true, "a", "attach", "", "/file/upload"],
   [(commands, dictation) => dictation === null && resolves(commands, "/dictate"), "d", "dictate", "", "/dictate"],
   [(commands, dictation) => dictation !== null, "d", "stop dictation", "live", "/dictate/stop"],
   [(commands, dictation, call) => call === null && resolves(commands, "/call"), "l", "call", "", "/call"],
@@ -87,7 +87,7 @@ const UNMINDED = {
   rounds: v.primitives.hallucination.Policy.dialogue.properties.rounds.default,
   model: undefined,
   models: [],
-  tiers: {},
+
 };
 
 export const harness = (runtime, thread) => {
@@ -105,7 +105,7 @@ export const harness = (runtime, thread) => {
     tier: nearest === undefined ? UNCLAIMED : nearest,
     model,
     models: cortex.find({ type: "dialogue", via: "stream" }),
-    tiers: cortex.tiers,
+
   };
 };
 
@@ -675,7 +675,7 @@ const activity = (world) => {
 
 const pointed = (held) => {
   if (Array.isArray(held.tune)) return held.tune;
-  return Object.hasOwn(held.tiers, held.tier) ? held.tiers[held.tier] : null;
+  return Object.hasOwn(v.primitives.hallucination.TIERS, held.tier) ? v.primitives.hallucination.TIERS[held.tier].tune : null;
 };
 
 const harnessed = (world) => {
@@ -691,7 +691,7 @@ const harnessed = (world) => {
       ? held.models.map((model) =>
           item({
             label: model.id,
-            sub: model.provider,
+            sub: model.upstream ? `${model.provider} · ${model.upstream}` : model.provider,
             mark: model === held.model ? "◉" : "●",
             mk: "glyph",
             cur: model === held.model,

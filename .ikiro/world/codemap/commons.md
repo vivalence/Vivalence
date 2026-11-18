@@ -1,7 +1,7 @@
 ---
 paths: ["commons/**", "**/registry/**"]
 ---
-<!-- writer: agent · limit: 5500 chars · code is the map · commons = the checkout's package; registry = ~/.viva/registry -->
+<!-- writer: agent · limit: 5800 chars · code is the map · commons = the checkout's package; registry = ~/.viva/registry -->
 # codemap: commons · registry packages
 
 A `*.viva.js` = a package entry at `@commons/<type>/<slug>`; svelte/jsx mount by string.
@@ -48,7 +48,7 @@ export { instance, stack, tiers } from "./tiers.js";
   specimen.it("reads flags out of prose and leaves the prose alone", () => {
     const held = plan({ turns: [said("tell me about flamingos --deltas 6 --stall 3s")] });
 ```
-**hallucinators/*** — `service.viva.js` (provider · manifest · docs) ← `provider/index`, + `translate.js` in anthropic · openrouter (MINE, /"i've never read openrouter. yours."/).
+**hallucinators/*** — `service.viva.js` (provider · manifest · docs) ← `provider/index`, + `translate.js` in anthropic · openrouter (MINE, /"i've never read openrouter. yours."/). A faculty's `model` · `upstream` (11-19): `id` OURS, the request pinned `provider.only`, no fallback (`translate.js:107-111`).
 ```js
 // commons/hallucinators/openrouter/tests/provider.test.js:10
   translateTurns,

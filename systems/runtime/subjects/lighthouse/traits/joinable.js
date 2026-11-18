@@ -1,7 +1,7 @@
 import { Vector } from "@vivalence/typology";
 import { wrap } from "@mikro-orm/core";
 import * as argon2 from "argon2";
-import { authority, card, respond } from "../apertures/users.js";
+import { authority, card, respond, seated } from "../apertures/users.js";
 
 export const signup = new Vector().open("/signup", async ({ username, password }, ctx) => {
   if (!username || !password) return respond.error(ctx, "INVALID_INPUT", "Username and password required");
@@ -12,7 +12,7 @@ export const signup = new Vector().open("/signup", async ({ username, password }
   await ctx.lighthouse.users.em.flush();
   const tokens = await authority(ctx, user);
   wrap(user).assign({
-    authentication: { provider: "password", credentials: { username, password: await argon2.hash(password) }, tokens },
+    authentication: { provider: "password", credentials: { username, password: await argon2.hash(password) }, tokens: seated(user, tokens) },
   });
   await ctx.lighthouse.users.em.flush();
   return respond.success({ user: card(user), authority: tokens });

@@ -4,14 +4,15 @@ import * as resolution from "./lifecycle/2-resolution.js";
 import * as integration from "./lifecycle/3-integration.js";
 
 export const factory = fn.memo(
-  async (instance) => {
-    await population.environment(instance);
-    await population.recipe(instance);
-    resolution.defaults(instance);
-    resolution.mountpoints(instance);
-    integration.settle(instance);
-    instance.paladin.publish();
-    return instance;
+  async (paladin) => {
+    await population.environment(paladin);
+    await population.recipe(paladin);
+    resolution.defaults(paladin);
+    resolution.mountpoints(paladin);
+    integration.settle(paladin);
+    await paladin.telemetry.attach();
+    paladin.publish();
+    return paladin.instance;
   },
-  ([instance]) => instance,
+  ([paladin]) => paladin.instance,
 );

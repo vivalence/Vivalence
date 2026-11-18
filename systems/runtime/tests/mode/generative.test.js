@@ -6,9 +6,9 @@ const SOURCE =
   "<script>let { buffer } = $props();</script><h1>{buffer.data.title}</h1>";
 
 function buildMode({ slug = "gen-test", directory } = {}) {
-  const mode = new Mode({
+  const mode = new Mode({ module: {
     manifest: { type: "chaosmonkey", slug, traits: ["GENERATIVE"] },
-  });
+  } });
   mode.aperture = new Aperture();
   mode.reference = new Path(`/mode/chaosmonkey/${slug}`);
   mode.mountpoint = `${directory}/mode_chaosmonkey_${slug}`;

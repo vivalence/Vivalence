@@ -34,7 +34,7 @@ async function supervise(ctx, slug, attachment) {
 
 async function effect(ctx) {
   const slug = await instance.register();
-  await mount(paladin.instance);
+  await mount(paladin);
   const attachment = ctx.signal.flags.logged === true ? "logged" : "inherit";
   try {
     return await supervise(ctx, slug, attachment);

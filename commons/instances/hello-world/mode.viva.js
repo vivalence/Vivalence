@@ -9,8 +9,8 @@ export const manifest = {
   type: "demo",
   slug: "hello-world",
   traits: [
-    "HARNESSED",      // mode has access to the daemon's harness
-    "CONVERSATIONAL", // mode can be chatted with
+    "HARNESS",      // mode has access to the daemon's harness
+    "CONVERSATION", // mode can be chatted with
     "GENERATIVE",     // buffers hallucinated at runtime
     "TOOLING",         // mode provides agentic tools
     "PRIMER",

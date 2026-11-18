@@ -9,16 +9,18 @@ export function inherit(below, above, slot, clone = (value) => value) {
   return true;
 }
 
-export function defaults(instance) {
-  if (instance.runtime) instance.runtime.manifest ??= v.primitives.instance.Runtime.properties.manifest.fill();
+export function defaults(paladin) {
+  const { instance } = paladin;
+  if (instance.runtime) instance.runtime.manifest ??= v.primitives.instance.RuntimeMask.properties.manifest.fill();
   for (const daemon of instance.daemons) {
     for (const slot of ["datamap"]) inherit(daemon, instance, slot, v.clone);
   }
   for (const service of instance.services) inherit(service, instance, "datamap", v.clone);
 }
 
-export function mountpoints(instance) {
-  const point = (kind, slug) => instance.paladin.scope.mountpoint.branch(`/${kind}_${slug}`).absolute;
+export function mountpoints(paladin) {
+  const { instance } = paladin;
+  const point = (kind, slug) => paladin.scope.mountpoint.branch(`/${kind}_${slug}`).absolute;
   const reach = instance.runtime?.statics?.remote && new Url(instance.runtime.statics.remote);
   const mountpoint = (kind) => (mounting) => {
     const slug = mounting.manifest?.slug;
@@ -45,7 +47,7 @@ export function mountpoints(instance) {
   instance.services.forEach(mountpoint("service"));
   instance.services.forEach(attach);
   const root = (runtime) => {
-    runtime.mountpoint ??= instance.paladin.scope.mountpoint.absolute;
+    runtime.mountpoint ??= paladin.scope.mountpoint.absolute;
     runtime.reference ??= `/runtime/${runtime.manifest?.slug}`;
     if (!reach) return;
     runtime.url ??= reach.branch(runtime.reference).absolute;
@@ -87,6 +89,32 @@ const identity = (entry) => {
   }
   return null;
 };
+
+export const named = (entry, index) => {
+  const [type, slug] = identity(entry) ?? [];
+  return type ? `.${type}.${slug}` : `[${index}]`;
+};
+
+const hosted = (declaration, index) => {
+  const slug = declaration?.manifest?.slug;
+  return slug ? `.${slug}` : `[${index}]`;
+};
+
+export const label = (instance, pointer) =>
+  pointer
+    .split("/")
+    .slice(1)
+    .reduce(
+      ({ at, node, key }, part) => {
+        const next = node?.[part];
+        if (!/^\d+$/.test(part)) return { at: at ? `${at}.${part}` : part, node: next, key: part };
+        if (key === "modes") return { at: at + named(next, part), node: next, key };
+        if ([instance.daemons, instance.services, instance.clients].includes(node))
+          return { at: at + hosted(next, part), node: next, key };
+        return { at: `${at}[${part}]`, node: next, key };
+      },
+      { at: "", node: instance, key: "" },
+    ).at || "instance";
 
 const referencing = (declaration, daemon) => (entry) => {
   const held = { ...(is.string(entry) ? { module: entry } : entry), daemon };

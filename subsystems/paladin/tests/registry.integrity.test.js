@@ -28,7 +28,7 @@ describe("integrity — the fold over pairs", () => {
 
   it("a marker trait carries nothing and asks nothing", () => {
     const held = span();
-    probe(RULES)({ manifest: { type: "game", slug: "g", version: "0.0.1", traits: ["HARNESSED", "CONVERSATIONAL"] } }, held);
+    probe(RULES)({ manifest: { type: "game", slug: "g", version: "0.0.1", traits: ["HARNESS", "CONVERSATION"] } }, held);
     expect(said(held, "fault")).toEqual([]);
   });
 
@@ -108,7 +108,7 @@ describe("registry — integrity at mount and at accio", () => {
     });
     const registry = boot(store);
     await registry.mount(new Path(`${store}/pack`));
-    await expect(registry.accio({ module: "@pack/game/fine", manifest: { traits: ["BOOTED"] } })).rejects.toThrow("/entry/game/fine: BOOTED: no boot export");
+    await expect(registry.accio({ module: "@pack/game/fine", traits: ["BOOTED"] })).rejects.toThrow("/entry/game/fine: BOOTED: no boot export");
     expect((await registry.accio("@pack/game/fine")).manifest.slug).toBe("fine");
   });
 

@@ -5,6 +5,14 @@ export const resolve = async (context, factory, traits) => {
     await factory(mode, traits)(context);
   }
   await context.datamap.shard.scope(() => Promise.all(fromm.modes(context.modes).flat.flatMap((mode) => mode.finalizers).map((finalize) => finalize())));
+  await context.datamap.shard.scope(async () => {
+    for (const mode of fromm.modes(context.modes).flat) {
+      await mode.twitch.dispatch("/after/datamap/boot");
+      if (context.datamap.migrated.length)
+        await mode.twitch.dispatch("/after/datamap/migrate", { migrations: context.datamap.migrated });
+      await mode.twitch.dispatch("/after/mode/boot");
+    }
+  });
   for (const mode of fromm.modes(context.modes).flat) {
     context.aperture.branch(mode.reference, mode.aperture);
   }

@@ -1,7 +1,7 @@
 #+title: harness layout — one word per subject on mode AND thread; TOOLED · PRIMED compose the hallucination
 #+filetags: :typology:runtime:harness:traits:
 #+status: TANGLING 11-17 — Q0 – Q40 LOCKED; code 5 · ui 5 · stop 9 · Q19 · gaps LANDED (=milestones.org= · =ui.org= · =pass-11-17.org=); comp INTEGRATED; walk owed; /"heavy on testing and snapshotting throughout!"/
-# writer: agent · limit: 16000 chars
+# writer: agent · limit: 16500 chars
 
 * intent
 
@@ -119,6 +119,7 @@ Scope: /"drop the emitter stuff from scope here."/
 
 * handoff
 
+- OWNER 11-19: =m126-facutly-unfolding.org= =* owns= holds this quest's open tails (deferred · next · owed below); this file is the landed record
 - goal: the layout above, drilled to the end, then tangled
 - done: Q0 – Q39A locked, the drill ENDS, R9 – R15 · Q9A closed in probes; =v.eg= · =.signal= drop LANDED; the walk, 9 amen (=* review=); 10 milestones LANDED 11-17; the pass: stop 9 · Q19 · wins; 11-18 primer preload · unload · reset, writes silent (=pass-11-17.org=); 11-18 =pass-11-18.org=
 - next: =converse= declares once a session (his: =pass-11-17.org=); the anima walk; tty waits on known-issues:2341

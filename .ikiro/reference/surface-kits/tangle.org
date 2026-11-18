@@ -1,0 +1,69 @@
+#+title: surface-kits — the tangle as designed, moved whole 11-19 on /"go whole"/; what landed differs where the quest says so
+# limit: 4500 chars
+
+* as code
+
+Nothing below is on disk.
+
+*** subsystems
+**** drapes
+***** deno.jsonc — Q1, the solid subpath
+#+BEGIN_SRC diff
+// subsystems/drapes/deno.jsonc:4
+     "./svelte": "./svelte/index.js",
+-    "./parts": "./parts.js",
++    "./solid": "./parts.js",
+     "./parts.css": "./parts.css",
+#+END_SRC
+**** dapper
+***** mod.js — the root
+#+BEGIN_SRC diff
+// subsystems/dapper/mod.js:6
+ export { THEMES } from "./themes/index.js";
++export * as parts from "./parts/index.js";
+#+END_SRC
+***** parts/index.js — NEW, one namespace per part, twin =subsystems/sheets/index.js:1=
+#+BEGIN_SRC js
+export * as meter from "./meter.js";
+#+END_SRC
+***** parts/meter.js — NEW, from =subsystems/sheets/Meter.jsx:3,9=
+#+BEGIN_SRC js
+export const CAUTION = 0.85;
+
+export const filled = (value, width) => Math.round(Math.max(0, Math.min(1, value)) * width);
+#+END_SRC
+**** sheets
+***** Meter.jsx
+#+BEGIN_SRC diff
+// subsystems/sheets/Meter.jsx:1
+ import { mergeProps } from "solid-js";
++import { parts } from "@vivalence/dapper";
+-
+-export const CAUTION = 0.85;
+…
+-export const filled = (value, width) => Math.round(Math.max(0, Math.min(1, value)) * width);
+…
+-      <span style={{ fg: held.value >= CAUTION ? held.palette.signalCaution : held.palette.textInk }}>{FILL.repeat(filled(held.value, held.width))}</span>
+-      <span style={{ fg: held.palette.divider }}>{TRACK.repeat(held.width - filled(held.value, held.width))}</span>
++      <span style={{ fg: held.value >= parts.meter.CAUTION ? held.palette.signalCaution : held.palette.textInk }}>
++        {FILL.repeat(parts.meter.filled(held.value, held.width))}
++      </span>
++      <span style={{ fg: held.palette.divider }}>
++        {TRACK.repeat(held.width - parts.meter.filled(held.value, held.width))}
++      </span>
+#+END_SRC
+***** index.js — one reader of the two, =subsystems/sheets/tests/meter.test.js:12=
+#+BEGIN_SRC diff
+// subsystems/sheets/index.js:5
+-export { Meter, CAUTION, FILL, TRACK, filled } from "./Meter.jsx";
++export { Meter, FILL, TRACK } from "./Meter.jsx";
+#+END_SRC
+**** paladin
+***** gestalten/belt/bundler.js — the map learns the root
+#+BEGIN_SRC diff
+// subsystems/paladin/gestalten/belt/bundler.js:44
+   const imports = () => ({
+     "@vivalence/typology": paladin.scope.repository.branch("subsystems/typology/mod.client.js").absolute,
++    "@vivalence/dapper": paladin.scope.repository.branch("subsystems/dapper/mod.js").absolute,
+#+END_SRC
+=subsystems/drapes/Meter.jsx= is NOT in the tangle: it takes =pct= 0–100 and lights a ring on =(index + 1) / rings <= pct / 100 + 0.001=; =filled= rounds. At =value 0.4=, 4 rings: 1 lit today, 2 on =filled=. His screen changes — his pick, per part.

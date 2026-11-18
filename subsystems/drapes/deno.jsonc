@@ -2,8 +2,8 @@
   "name": "@vivalence/drapes",
   "version": "0.0.1",
   "exports": {
-    ".": "./mod.js",
-    "./parts": "./parts.js",
+    "./svelte": "./svelte/index.js",
+    "./solid": "./parts.js",
     "./parts.css": "./parts.css",
     "./scenarios": "./tests/scenarios/index.js",
   },

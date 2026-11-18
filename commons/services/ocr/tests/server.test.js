@@ -18,7 +18,7 @@ describe("ocr server — real ink through the container", { ignore: !listening |
     const service = { statics: { remote: `http://localhost:${PORT}` }, secrets: { key: Deno.env.get("SERVICE_KEY") } };
     const data = encodeBase64(await Deno.readFile(new URL("./fixtures/one-word.png", import.meta.url)));
     const held = [];
-    for await (const block of provider(service)({ type: "image", media: "image/png", data })) held.push(block);
+    for await (const block of provider(service)({ type: "image", mime: "image/png", data })) held.push(block);
     expect(held.map((block) => block.text)).toEqual(["Tides"]);
   });
 });

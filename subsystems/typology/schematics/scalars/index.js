@@ -10,8 +10,6 @@ export const Slug = slug();
 
 export const JWTToken = v.string({ pattern: "^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]*$" }).desc("JWT token string");
 
-export const Timestamp = v.string({ format: "date-time" }).desc("ISO 8601 timestamp");
-
 export const Username = v.string({ minLength: 1, maxLength: 64 }).desc("User identifier");
 
 export const Password = v.string({ minLength: 1 }).desc("Password string");

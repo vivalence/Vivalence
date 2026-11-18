@@ -30,7 +30,7 @@ async function effect(ctx) {
     if (!found.mount) return found;
     paladin.env.set("VIVA_INSTANCE_MOUNT", found.mount, "flag");
   }
-  await mount(paladin.instance);
+  await mount(paladin);
   return sweep(ctx, [paladin.scope.mountpoint.absolute], "instance");
 }
 

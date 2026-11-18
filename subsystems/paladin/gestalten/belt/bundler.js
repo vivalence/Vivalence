@@ -1,4 +1,4 @@
-import { dirname, join, resolve } from "@std/path";
+import { basename, dirname, join, resolve } from "@std/path";
 import * as esbuild from "esbuild";
 import { Bundle, bundle as compiler, crypto, mime } from "@vivalence/typology";
 
@@ -40,11 +40,68 @@ const solid = (filter, options) => ({
 const universal = solid(/\.jsx$/, { generate: "universal", moduleName: "@opentui/solid" });
 const dom = solid(/\.(jsx|dom\.solid)$/, { generate: "dom" });
 
+export const MEMBERS = [
+  "svelte",
+  "svelte/animate",
+  "svelte/attachments",
+  "svelte/easing",
+  "svelte/events",
+  "svelte/internal/client",
+  "svelte/internal/disclose-version",
+  "svelte/internal/flags/async",
+  "svelte/internal/flags/legacy",
+  "svelte/internal/flags/tracing",
+  "svelte/legacy",
+  "svelte/motion",
+  "svelte/reactivity",
+  "svelte/reactivity/window",
+  "svelte/store",
+  "svelte/transition",
+  "solid-js",
+  "solid-js/store",
+  "solid-js/web",
+  "three",
+  "@vivalence/dapper",
+  "@vivalence/drapes/svelte",
+];
+const RUNTIME = /^(svelte|solid-js)(\/|$)/;
+const member = {
+  name: "member",
+  setup(build) {
+    build.onResolve({ filter: /^[^./]/ }, (args) => {
+      if (MEMBERS.includes(args.path)) return { path: args.path, external: true };
+      if (!RUNTIME.test(args.path)) return null;
+      const text = `[bundler] "${args.path}" is no member — one of ${MEMBERS.join(" · ")}`;
+      return { errors: [{ text }] };
+    });
+  },
+};
+const ENTRY = /^member:/;
+const entries = (directory) => ({
+  name: "member entries",
+  setup(build) {
+    build.onResolve({ filter: ENTRY }, (args) => ({
+      path: args.path.replace(ENTRY, ""),
+      namespace: "member",
+    }));
+    build.onLoad({ filter: /.*/, namespace: "member" }, (args) => ({
+      contents: `export * from ${JSON.stringify(args.path)};`,
+      resolveDir: directory,
+      loader: "js",
+    }));
+  },
+});
+const flat = (specifier) => specifier.replace(/^@/, "").replaceAll("/", ".");
+
 export default function bundler(paladin) {
   const imports = () => ({
     "@vivalence/typology": paladin.scope.repository.branch("subsystems/typology/mod.client.js").absolute,
-    "@vivalence/drapes": paladin.scope.repository.branch("subsystems/drapes/mod.js").absolute,
     "@vivalence/drapes/": `${paladin.scope.repository.branch("subsystems/drapes").absolute}/`,
+  });
+  const origins = () => ({
+    ...imports(),
+    "@vivalence/dapper": paladin.scope.repository.branch("subsystems/dapper/mod.js").absolute,
+    "@vivalence/drapes/svelte": paladin.scope.repository.branch("subsystems/drapes/svelte/index.js").absolute,
   });
 
   const rows = {
@@ -53,6 +110,7 @@ export default function bundler(paladin) {
         prod: paladin.is.prod,
         imports: imports(),
         nodePaths: [paladin.scope.repository.branch("node_modules").absolute],
+        plugins: [member],
       });
       return {
         text: built.outputFiles.find((output) => output.path === entry).text,
@@ -79,13 +137,14 @@ export default function bundler(paladin) {
         platform: "browser",
         nodePaths: [paladin.scope.repository.branch("node_modules").absolute],
         alias: {
+          "@vivalence/drapes/solid": paladin.scope.repository.branch("subsystems/drapes/parts.js").absolute,
           "@vivalence/drapes": paladin.scope.repository.branch("subsystems/drapes").absolute,
           "@vivalence/typology": paladin.scope.repository.branch("subsystems/typology/mod.client.js").absolute,
         },
         loader: { ".css": "text" },
         write: false,
         metafile: true,
-        plugins: [dom],
+        plugins: [member, dom],
         logLevel: "silent",
       })),
     [mime.dom.html]: async (entry) => {
@@ -179,6 +238,28 @@ export default function bundler(paladin) {
     };
 
     return { directory, bundle, fresh, serve, inspect, prune };
+  };
+
+  paladin.bundler.members = async () => {
+    const built = await compiler.members(
+      Object.fromEntries(MEMBERS.map((specifier) => [flat(specifier), `member:${specifier}`])),
+      {
+        prod: paladin.is.prod,
+        imports: origins(),
+        nodePaths: [paladin.scope.repository.branch("node_modules").absolute],
+        plugins: [entries(paladin.scope.repository.absolute)],
+      },
+    );
+    return {
+      imports: Object.fromEntries(
+        Object.entries(built.metafile.outputs)
+          .filter(([, output]) => output.entryPoint !== undefined)
+          .map(([path, output]) => [output.entryPoint.replace(ENTRY, ""), basename(path)]),
+      ),
+      files: Object.fromEntries(
+        built.outputFiles.map((output) => [basename(output.path), output.text]),
+      ),
+    };
   };
 
   paladin.bundler.under = async (root) => {

@@ -22,7 +22,6 @@ The token space is the contract: seven groups (shape · size · text · control 
 - =lib/system.js= :: =design()=
 - =themes/<name>/theme.js= :: one theme, written in the steps of its own =gradients.js=
 - =themes/index.js= :: =THEMES=, the theme list
-- =belt/tailwind-theme.js= :: slots and scales as tailwind classes
 - =lifecycle/index.js= :: the postcss plugin; prepends the sheet at build time
 - =primitives/font.css= · =primitives/bsp.css= :: reached through anima's aliases
 

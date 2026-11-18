@@ -13,7 +13,7 @@ export const placed = (frame, bounds) => {
   return { x, y, w, h };
 };
 
-const tracked = (event, moved) => {
+export const tracked = (event, moved) => {
   event.preventDefault();
   const view = event.currentTarget.ownerDocument.defaultView;
   const origin = { x: event.clientX, y: event.clientY };

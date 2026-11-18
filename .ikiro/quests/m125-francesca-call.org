@@ -1,0 +1,287 @@
+#+title: francesca call — a language coach on the call faculty: identity · orientation · routines · her own tools, reviews by tool, a Solid coach view with a debug overlay
+#+filetags: :education:francesca:call:harness:voice:anima:
+#+status: DESIGNING 11-19 — 30 rulings his words, no code authorized; the call's speed (milestone 6) and director · actor (milestone 9) are m126's, his /"m6 and m9 are moving in ownership to m126."/; here: the learning loop · the assessment · the mode · the view · the overlay
+# writer: agent · limit: 25000 chars
+
+* intent
+
+/"I want to test our new call faculty."/
+
+/"we reactivate Francesca, which hasn't been used in a while, is out of date, is not as good as we need it to be, and I want you to do a pass on that and rewrite it. Basically, to have a buffer, a view where I have some avatar of Francesca and some like 2-3 different game interaction modes, or like conversations where she switches between English and Spanish in order to teach me Spanish, to get me to talk. Meanwhile, updating the mistakes that I make in the background and review the units that I make, pull from the feed, pull from the general, like my capabilities, and then constantly I assume that in the conversation we can do something like a dozen reviews a minute."/
+
+/"I would like the mode to have a debugging view or debugging phase or debugging overlay where I can see what actions are happening in the background, what the call stream gets, what tools are being called, what the instructions for Francesca are, and all of that."/
+
+/"we want her to have an identity, tools, orientation in terms of what does the learner already know, then some steering in the direction of this is what you sound like, and these are some of the routines and methods that are available to you."/
+
+/"how does any conversation start? Probably a greeting, and then we get into the flow. We try in the beginning ultra simple because we don't yet know how good the user is."/
+
+* rulings — his words
+
+| title | Q | his words |
+|---+---+---|
+| name | 1 | /"amen: m125-francesca-call"/ |
+| recast | 2 | /"We can basically recast this from scratch."/ |
+| view | 3 | /"rewrite for solid. take this as opportunity to rewrite the mode entirely. i'd liek a propper language coach ui with avatar and a full ux you know."/ |
+| reviews | 4 | /"i dont want to go via middlewares on the harness - thats not very agentic at all. so, if possible, call invoke review calls."/ |
+| games | 5 | /"your three games are actually already quite good. A role-playing scene. Free talk. And rapid fire."/ |
+| overlay | 6 | /"the debugging overlay should be on Francesca's view and specific for this."/ |
+| mixed turn | 7 | /"a turn can mix English and Spanish. I would love if that's for both the user speaking as well as the agent speaking."/ |
+| tools | 8 | /"we provide tools to the call and they are executed."/ |
+| two setups | 9 | /"calls might also be straight from cortex.hallucinate but i'd like to look at both harness.call and cortex.call - which forces differeent setsups."/ |
+| primer | 10 | /"primer looks good on structure. keep content hypothetical for now, but keep improving our shared mental model of its functionality."/ |
+| her tools | 11 | /"francesca will need her own tools. dedicated to the job. maybe some per game?"/ |
+| assessment | 12 | /"Maybe we add a new note trait where we keep an assessment of the user's level. We can use this A1 to C2 plus some assessment in plain text written by an agent, and then when we call it, we respond with that note. And and some entities from the feed and stuff like that. And then we probably also need a tool to write that assessment."/ |
+| stored traits | 13 | /"i dont like to use the typology for migration stuff. thast an antipattern. i feel like thats something the runtime does. maybe a twitch."/ · /"we can create that twitch and fire it ourselves. and i dont want to force the conversational trait onto every thread."/ · /"Yes, we add the conversational trait if the mode is conversational."/ · /"for now i am ok with losing harnessed and conversational and harnessed unless those are set."/ |
+| quiet tool | 14 | /"no, not on the tool vector. makes no sense. quietness is a function of the invoker, not the tool itslef. if we want a quiet tool we just dont return anythign."/ |
+| order | 15 | /"i think we should get the learning loop out of the way first."/ |
+| per-game tools | 17 | /"bit of both. we load whats essential but also handle restarts."/ |
+| soft interruption | 18 | /"Softer interruption - amen."/ |
+| echo | 19 | /"Echo gating - fix."/ · /"ignore terminal echo mark udner known issues."/ |
+| warm mouth | 20 | /"too long. can we either open it earlier not just on demand or just keep open?"/ |
+| latency | 21 | /"we dont fucking want .7 not to speak of 4.8!! thast shit!!!"/ · /"we must get this right in m125."/ |
+| scalars | 22 | /"add v.timestamp v.date v.datetime"/ · /"how does typebox, zod, z, and jsonschema handle timestamps? what about this new js timestamp dattime library that was recently accepted into standard json? i watn to express /that/!"/ · /"amen."/ · /"Temporal's names (v.instant)  patterns. big blast change."/ |
+| the mind | 23 | /"then we use groq or something openrouter comparable. what do we use for utter speed. speed 1. brain .4 thrift .4"/ · /"ok we use gpt-oss-120b · Groq."/ · /"i dont like the upstream definition tho. naming and schema. this will become long term core schematic of our hallucination primitive."/ · /"not substrate. upstream is better."/ · /"two faculties each one upstream."/ |
+| director · actor | 24 | /"we call it Director and actor"/ · /"we would not need any tools on the actor. we'd just expect the actor to act adn respond based on [system identity world] [director directions tool-results context] [history user agent user agent user]"/ · /"so director has a dual role of controlling tools invocation and the speakers context."/ |
+| turn end: Scribe decides, a patience setting on top | 25 | /"q11 amen"/ |
+| the cut told to the mind | 26 | /"q13 amen"/ |
+| latency compromise | 27 | /"without specilation seems reasonable for today. i assume its easier to impleent. cleaner code. and speculation can be embedded later? maybe even asa settting."/ |
+| the conversational trait owns director · actor | 28 | /"we will take all this logic and wiring and express it as property and function of the conversational trait."/ · /"maybe a lot of belt cascade actually belongs in the conversational trait."/ |
+| faculty unfolding | 29 | /"so some traits can travel. imprint downwards. like harnessed and conversational."/ · /"call it faculty unfolding."/ |
+| titles | 30 | /"lets give each q and s and m a title going forward. i can not track numbers."/ |
+| benched | 16 | /"maybe then later the dojo can get a game mode where I have to speak Spanish ... Let's put that on the bench for now. Let's just do Francesca."/ |
+
+* terrain — measured 11-18
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/harnessed.js:297 — /call exists for every HARNESSED mode: native `call`, else the cascade
+// subsystems/typology/prototypes/cortex.js:146
+cascade(ear, mind, mouth)
+// subsystems/typology/gestalten/belt/cascade.js:32 — system · tools are captured ONCE a call
+async function* session(ear, mind, mouth, { source, system, turns, tools, settings }, signal) {
+// subsystems/typology/gestalten/belt/cascade.js:65 — a typed turn enters a live call
+        case "/turn/full":
+          history = [...history, packet.turn];
+          speaking = answer();
+// subsystems/typology/gestalten/belt/hallucinate.js:270 — a tool round inside a call
+      if (packet.event !== "/turn/close" || state(turn) !== "tools") continue;
+      const answered = { event: "/turn/full", turn: await answer(policy, turn) };
+      yield answered;
+      answers.enqueue(answered);
+// subsystems/typology/tests/call.conversation.test.js:142
+  specimen.it("a tool round speaks once as /turn/full, the mind answers on it (Q25)", async () => {
+#+END_SRC
+
+#+BEGIN_SRC js
+// ~/.viva/registry/education/domain/aperture/index.js:16-51 — what the domain serves
+// /pick/literal/{feed,novel,due,byStrength,byStatus} · /review/literal · /scale/literal · /language
+// ~/.viva/registry/education/domain/tools/ — queue · review (1–10) · progress · lookup · scale
+// ~/.viva/registry/education/domain/traits/literal/retained.js:76 — recent misses, no route yet
+literal.byLastSignal(["MISTAKE", "FAILURE"])
+// ~/.viva/registry/education/domain/traits/literal/retained.js:102-111 — a review writes
+// Note retention.<slug> (RETAINED) + a child Note trace.<uuid> (TRACED { signal, snapshot }) + em.flush()
+#+END_SRC
+
+#+BEGIN_SRC js
+// commons/editors/darkroom/darkroom.viva.js:15 — the Solid DOM sibling
+export const views = [{ slug: "darkroom", mount: "buffer/Darkroom.jsx", mime: mime.dom.solid }];
+// ~/.viva/registry/education/modes/games/cocina/cocina.viva.js:22 — the buffer + harness + tools sibling
+#+END_SRC
+
+Struck from m123's owed 11-18: =/metadata/harness= 401 (=MISSING_TOKEN=, a probe without a token; his =/dictate= on 11-18 is the proof) · =soma.drain= =tool_use= (valid with =input=; every provider fills it, =anthropic/provider/translate.js:178= · =openrouter/provider/translate.js:172=).
+
+ElevenLabs Agents (docs read 11-18, the agent's report in the session): feasible as m123 milestone 8 — the runtime holds the conversation WS, primer as a per-call override, tools as client tools the runtime answers, =expects_response: false= per tool; the mind must be ElevenLabs-hosted (a custom mind needs a public URL); $0.08/min + the mind. Voice-loop reference: =reference/call-faculty/voice-loops-11-18.md= (agent 11-18, latencies inferred, no live call).
+
+voice loops: =reference/call-faculty/voice-loops-11-18.md=
+
+* the two setups (Q9)
+
+#+BEGIN_SRC js
+// A · harness.call — the thread owns it: primer · tools · stored turns; the client's /call, anima's call card
+// systems/ghost/gestalten/commands/content/call.js:53
+ctx.terminal.mode.harness.call.stream(source, { input: { thread } })
+// B · cortex.call — the mode owns it: its own route streams the call, its own system · tools · storage
+// subsystems/typology/gestalten/shard/hal.js:93
+await ctx.cortex.hallucinate.call.stream({ ...request, controller, source, settings, policy })
+#+END_SRC
+
+A first (/"Yes, we are going to use the harness. And thus we're going to be relying on turns."/); B studied beside it.
+
+* the quiet tool (Q14) — SKETCH, the invoker's, m123's scope
+
+A tool that returns nothing yields an empty product (=subsystems/typology/gestalten/fromm/yield.js:72=, the =opaque= arm). The result joins the history; the invoker answers only a round that said something.
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/belt/cascade.js:65 — SKETCH
+        case "/turn/full":
+          history = [...history, packet.turn];
+          if (packet.turn.parts.some((part) => Object.keys(part.product).length > 0)) speaking = answer();
+          break;
+#+END_SRC
+
+* the mind — measured 11-19 (whole)
+
+First text through OpenRouter, 3 runs, ms: =openai/gpt-oss-120b= on Groq 202 · 232 · 203 (whole sentence by 302) · =llama-3.3-70b= on Groq 740 · 241 · 231 · =qwen3.8-27b= on Cerebras 302 · 324 · 1370 · =gpt-oss-120b= on Cerebras 418 · 416 · empty · =claude-haiku-5.5= 598 · 573 · 586 · =llama-3.1-8b= on Groq 323 · 328 · 179, wrong Spanish · =minimax-m2.7= on Groq 400, reasoning mandatory. Needs: a faculty entry with tune =[0.4, 1.0, 0.4]= · the upstream pinned (=commons/hallucinators/openrouter/provider/translate.js:106=, no such key today) · effort low on the call.
+
+* stored traits — the 11-19 ruling and its blast (whole, superseded by faculty unfolding)
+
+Ruled 11-19: a thread wears =CONVERSATIONAL= when its mode does (=subsystems/typology/entities/Thread.ts:93= patches it onto EVERY new thread today). Blast: =commons/harnesses/runtime/runtime-harness.viva.js= · dojo · wakaru · the readers · chess coach are HARNESSED without it — his =/dictate= lives on the runtime harness; =/verbatim= · =/call= (=systems/runtime/subjects/mode/traits/harnessed.js:289-305=) then graft only for a mode that wears it, so =hal.js:53= · =:74= · =:89= never read null. To rule: the twitch signal's name.
+
+* as code — SKETCH, hypothetical (Q10 · Q11)
+
+#+BEGIN_SRC text
+~/.viva/registry/education/modes/teacher/francesca/
+  francesca.viva.js
+  primer/
+    identity.md          who she is · her voice · the English↔Spanish rule by level
+    method.md            one rep = prompt → attempt → recast → reuse in a sentence
+    review.md            the SIGNAL rubric
+    games/
+      charla.md          lazy: free talk
+      ronda.md           lazy: rapid fire
+      escena.md          lazy: a role-play scene
+    director.md          the director: read the turn · grade · deal · write the directions (Q24)
+  orientation.js         the learner at call start: the assessment · misses · a deck of 12
+  tools/                 the DIRECTOR's; the actor holds none (Q24)
+    index.js
+    play.js              game · scene · level → the buffer
+    deal.js              the next cards: feed + recent misses → the buffer's deck
+    grade.js             reviews → /review/literal → the buffer's tally · journal
+    direct.js            the directions the actor reads on its next reply
+    games/               per game, Q11: ronda · escena · charla
+  buffer/
+    Francesca.jsx        Solid: avatar · game · deck · tally · the overlay
+#+END_SRC
+
+#+BEGIN_SRC js
+// ~/.viva/registry/education/modes/teacher/francesca/francesca.viva.js — SKETCH
+export const manifest = {
+  type: "teacher",
+  slug: "francesca",
+  name: "Francesca",
+  traits: ["VIEWABLE", "CONVERSATIONAL", "HARNESSED", "TOOLING", "PRIMER"],
+};
+
+export const buffer = v.buffer({
+  data: {
+    game: v.enum(["CHARLA", "RONDA", "ESCENA"]).default("CHARLA"),
+    level: v.integer({ minimum: 0, maximum: 4 }).default(0),
+    deck: v.array(CARD).default([]),
+    tally: TALLY,
+    journal: v.array(ACT).default([]),
+  },
+});
+
+export const views = [
+  { slug: "francesca", mount: "buffer/Francesca.jsx", mime: mime.dom.solid },
+];
+#+END_SRC
+
+#+BEGIN_SRC text
+a rep, 6 seconds (RONDA, level 0) — the actor speaks, the director grades behind (Q24)
+0.0  A    "How do you say 'bread'?"
+1.4  you  "pan"
+1.7       the ear closes the turn → the actor, on the directions as they stand
+2.3  A    "¡Eso! Pan. Now say: I eat bread."       first audio ≈ 0.9 s after you stop
+2.3  D    wakes on your stored turn: grade [{ pan.noun, SUCCESS }] → /review/literal → the tally
+~4   D    deal · direct → the directions for the actor's NEXT reply
+6.0  you  "como pan"
+
+a session, 6 minutes
+0:00  greeting · one English question
+0:20  calibrate: 3 ultra-simple cards · level lands in the buffer
+1:00  RONDA ~2.5 min · ~25 reps · recognise → produce → in a sentence · a miss returns after 3 cards
+3:30  ESCENA · the deck's words in a scene · more Spanish · recasts
+5:30  wrap: 3 wins · 2 to practise · the assessment written (Q12)
+#+END_SRC
+
+** the assessment (Q12) — SKETCH, a domain capability, its own milestone
+
+#+BEGIN_SRC js
+// ~/.viva/registry/education/domain/traits/note/assessed.js — SKETCH, sibling of retained.js · traced.js
+export const ASSESSED = v.object({
+  level: v.enum(["A1", "A2", "B1", "B2", "C1", "C2"]),
+  text: v.string().desc("The learner in plain words, written by an agent."),
+  at: v.instant(),
+});
+// route /assessment → { note, feed, missed, counts } · tool assess({ level, text }) writes the note
+// route /pick/literal/missed → literal.byLastSignal(["MISTAKE", "FAILURE"])
+#+END_SRC
+
+** director · actor (Q24) — SKETCH
+
+#+BEGIN_SRC text
+the actor's request, every reply
+  system      identity · method · the game                 primed once
+  directions  the director's last word: card now · card next · the last miss · the level
+  history     user · agent · user · agent · user
+the actor     the call's mind: fast, no tools, speaks; judges right/wrong aloud by itself
+the director  an agent on its own thread: a slower mind, the tools, the stored grade, the directions
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/belt/cascade.js:50 — today `system` is captured once a call (:32): directions cannot move
+      for await (const packet of reply(mind, mouth, { system, turns: history, tools, settings }, cut)) {
+#+END_SRC
+
+The directions are one turn stale by design: the director writes AHEAD (card now + card next + what to do on a miss). Prior art, read 11-19: Talker–Reasoner (arXiv 2410.08328: the Reasoner calls tools and writes a belief state to memory, the Talker reads the latest, may wait on a flag) · OpenAI chat-supervisor (the actor PULLS through one tool — not ours) · ElevenLabs =contextual_update= (silent context into a live call).
+
+RULED 11-19 /"r7 your pick."/: a packet beside =/turn/full= (=cascade.js:65=). To rule: what wakes the director (each stored learner turn) · whether the actor ever waits for it.
+
+** the mind (Q23) — measured 11-19, =reference/call-faculty/timing-11-18/mind.txt=
+
+Winner: =openai/gpt-oss-120b= on Groq, first text 202 · 232 · 203 ms, the sentence done by 302; all seven candidates in =mind.txt=, the paragraph whole under =* the mind — measured 11-19= above.
+
+** stored traits (Q13) — SKETCH, a twitch the runtime fires, never typology
+
+/(11-19: LANDED since, the five boot signals; what follows is the terrain before)/ No boot twitch exists: a twitch fires on entity events (=subsystems/typology/gestalten/shape/subscriber.js:23=); the schema migrates in the datamap provider (=commons/datamaps/libsql/libsql.viva.js:30-32=). A new twitch signal, fired by a daemon beat once the datamap is up; a domain grafts its own assertion onto it.
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/daemon/lifecycle/1-population.js:51 — today, the domain's twitch is grafted here
+  if (die.daemon.domain.twitch) die.daemon.twitch.graft(die.daemon.domain.twitch);
+#+END_SRC
+
+Superseded 11-19 by faculty unfolding (=quests/faculty-unfolding.org=): a trait travels down from the faculties, nothing is patched per thread. His 11-19: /"we'd also want boot. daemon boot, runtime boot, mode boot. datamap boot and migrate."/
+
+* milestones
+
+1. the learning loop: primer structure · her tools · the 6-second rep · the 6-minute session, on paper (Q15)
+2. the assessment: =ASSESSED= · =/assessment= · =/pick/literal/missed= · =assess= (domain)
+3. francesca recast: manifest · primer · orientation · tools · buffer, on =harness.call=
+4. the coach view: Solid, avatar · games · deck · tally
+5. the debug overlay: instructions as rendered · tools · each tool call and its result · the call's packets · the buffer
+6. → =quests/m126-facutly-unfolding.org= (his, 11-19). the call's speed, no speculation (latency compromise): the mind on Groq · a warm mouth · the first clause flushed · a soft interruption · the cut told to the mind · the turn end's patience; target ≈ 0.9 s from his last word to her first audio, measured end to end
+7. the live walk on =:2501=, spanish
+8. =cortex.call= beside it (Q9) · the ElevenLabs native call (m123 milestone 8)
+9. → =quests/m126-facutly-unfolding.org= (his, 11-19). director · actor, in the conversational trait: the directions into a live call · the director's wake · the tools on the director
+10. scalars after Temporal · the faculty's runner key (the mind) · faculty unfolding: its own quest, =quests/faculty-unfolding.org=
+
+* deferred — open, unruled
+
+- probes, credits small: the mouth on one mixed sentence (/"How do you say 'pan'?"/) · the ear on one mixed utterance with =language: ["en", "es"]= · ElevenLabs Agents: one client tool round from Deno · a mixed turn · the learner's words verbatim
+- /"we probably need to adhere to their encoding"/ — which encoding marks a language span for the mouth: unread, a docs probe
+- a view button into a live call: a typed =/turn/full= through the call's source (=cascade.js:65=), unprobed from a view
+- the overlay's packet feed: whether a view can tap the call's stream, unread
+- a primer section as a function of =ctx= (=orientation.js=): =shape.primer.load(primer, ctx)= passes it, unprobed
+- her voice: which ElevenLabs voice is Francesca
+- dojo's speak game (Q16, benched)
+
+* changelog
+
+- 11-18 probe =reference/call-faculty/timing-11-18/clause.probe.js= → =clause.txt=, one run each: a 32-char reply plays first audio 270 ms AFTER its text ended (494 ms after the first text); with =flush: true= at the first clause 359 ms; a 131-char reply 576 → 360 ms; the socket opens in 254–724 ms.
+- 11-18 /"Echo gating - fix."/: =systems/ghost/subjects/app/prototypes/box/device/microphone/microphone.js:93= =getUserMedia({ audio: { echoCancellation: true } })=; ghost =call.test.js= 1/1 green; anima =call.test.js= 1 red, the journal's =.blocks= (known-issues:2713, base). The tty microphone (ffmpeg, =microphone.js:21-31=) has no echo cancellation: open.
+- 11-18 quest written on /"amen: m125-francesca-call"/. Before it: riddler · comando · cocina cut from =~/.viva/instances/localhost/instance.viva.jsonc= spanish (backup =~/.viva/bak/instances/localhost-20261118/=; the runtime on =:2501= not restarted).
+- 11-19 probe =reference/call-faculty/timing-11-18/mind.probe.js= → =mind.txt= (21 tiny completions): the numbers under Q23. Rulings 22–30 recorded. The quiet tool (Q14) stands; with a tool-less actor it is off Francesca's path.
+- 11-19 folded back: =reference/m125-francesca-call/moved-11-19.org= lives here again, whole (/"dont keep creating new peripheral files. instead, adjust limits and keep things together."/).
+- 11-19 his paste of =ears(signal)=: /"that dont exist. dont make it. ugly."/ → cut; =Twitch.dispatch= walks the trie itself. /"drop the required input. input optional."/ → a boot dispatch carries none, only =/after/datamap/migrate= carries ={ migrations }=. /"modes also now have datamaps /afaik?? why not wire those in?"/ → =systems/runtime/gestalten/belt/modes.js:8=: per mode, after its traits, =/after/datamap/boot= · =/after/datamap/migrate= (when pending ran) · =/after/mode/boot=. Asserted in =systems/runtime/tests/modes.test.js=, both rungs. =ok | 276 passed (1426 steps) | 0 failed | 1 ignored=.
+- 11-19 measured (in-memory sqlite, 300 creates each flushed alone, silent twitches): one =em.fork= 1.74 µs; one silent twitch ≈ 11 µs a create over its two events, ≈ 3.5 µs of it the two forks the =ears= cut made unconditional; 0 · 1 · 10 · 40 · 100 twitches → 0.528 · 0.544 · 0.644 · 0.985 · 1.636 ms. His /"important for measurement. this whole ambient forking and em shit with datamaps is becoming"/ (cut off) /"amen."/ Unmeasured: his live twitch count · libsql on disk.
+- 11-19 his /"m6 and m9 are moving in ownership to m126."/: milestones 6 · 9 owned by =quests/m126-facutly-unfolding.org=; the sketches (=** director · actor (Q24)= · =** the mind (Q23)=) and rulings 21 · 23 · 24 · 27 stay here as the source, read from there. Ruling 21's /"we must get this right in m125."/ is moved by this.
+
+* handoff
+
+- goal: he calls Francesca on spanish, she coaches by voice in three games, reviews land by her own tool calls, the view shows her and the overlay shows everything
+- done: terrain · 30 rulings · the sketches above · three timing probes (clause · mind · the 11-18 hallucinators)
+- landed 11-19: =v.instant · date · duration · datetime · zoned= (=Timestamp= cut) · =model= + =upstream= on a faculty, =oss-groq= in the ledger, one live reply
+- landed 11-19: =Twitch.dispatch= (input optional, no =ears=) · the five boot signals, a mode's twitch hears the datamap pair too (/"keep both."/ beside =BOOTED=; /"one coherent system."/), runtime + typology + datamaps 276 passed
+- next: the learning loop on paper (milestone 1)
+- never: a tool on the actor (Q24) · a review middleware on the harness (Q4) · a stored-trait repair in typology (Q13) · a Svelte view (Q3) · old Francesca as guidance (Q2) · =ctx.modes.tactic.impara= (a mode naming a mode, m122)
+- owed: tests for =/after/runtime/boot= · =/after/datamap/migrate= on real pending migrations · the ghost suite and the registry rigs after the twitch change · fallback to the next faculty · his commit of the =vcompany= recipe

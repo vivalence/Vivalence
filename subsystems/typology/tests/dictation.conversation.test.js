@@ -1,4 +1,3 @@
-import { TIER_POINTS } from "./scenarios/tiers.js";
 import { belt, specimen, v, Controller, Cortex, Span, shard, sse, Context, sleep } from "@vivalence/typology";
 import { Audio, Packet } from "../schematics/primitives/hallucination.js";
 
@@ -103,7 +102,7 @@ const source = (chunks) =>
 const POLISH = "Punctuate and capitalize. Output only the corrected transcript.";
 
 async function pipeline({ conversational = {}, hypotheses, final, correct, chunks = ["oi", "tudo", "bem"], polish = POLISH, delay, minds }) {
-  const cortex = new Cortex(TIER_POINTS).register([
+  const cortex = new Cortex().register([
     scriptedFaculty(hypotheses, final),
     ...(minds ?? [fastDialogue(correct ?? ((text) => text), delay)]),
   ]);
@@ -175,7 +174,7 @@ specimen.describe("dictation flow — hal.verbatim over the cortex", () => {
   });
 
   specimen.it("polish failure degrades silently, the words intact, the stream closes", async () => {
-    const cortex = new Cortex(TIER_POINTS).register([
+    const cortex = new Cortex().register([
       scriptedFaculty(["hi"], "hi there"),
       { ...fastDialogue((text) => text), via: { render: async () => { throw new Error("provider down"); } } },
     ]);
@@ -201,7 +200,7 @@ specimen.describe("dictation flow — hal.verbatim over the cortex", () => {
       }
     };
     const faculty = { ...scriptedFaculty([], ""), via: { stream: () => turns() } };
-    const cortex = new Cortex(TIER_POINTS).register([faculty, fastDialogue((text) => text.toUpperCase(), 60)]);
+    const cortex = new Cortex().register([faculty, fastDialogue((text) => text.toUpperCase(), 60)]);
     const ctx = new Context({ request: { url: "http://socket/harness/verbatim/stream", body: {}, raw: { body: source(["x"]) } } });
     ctx.cortex = cortex;
     ctx.controller = new Controller({ stdout: new Span("hallucination") });

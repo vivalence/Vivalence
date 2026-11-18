@@ -1,0 +1,44 @@
+#+title: surface-kits — Q1 as asked, moved whole 11-19 on /"q1 a."/
+# limit: 2500 chars
+
+* Q1 — what does bare =@vivalence/drapes= mean
+
+The disk is the same in both: Solid parts flat at the root as in =subsystems/sheets=, the nine Svelte dirs under =svelte/=. One export key differs.
+
+Option A — both frameworks a subpath, the root dead:
+
+#+BEGIN_SRC jsonc
+// subsystems/drapes/deno.jsonc
+"exports": {
+  "./solid": "./parts.js",
+  "./svelte": "./svelte/index.js",
+  "./parts.css": "./parts.css"
+}
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/anima/src/surfaces/chrome/panels/dock/dock.jsx
+import * as parts from "@vivalence/drapes/solid";
+#+END_SRC
+
+Option B — the house framework on the root, the second compiler the one subpath:
+
+#+BEGIN_SRC jsonc
+// subsystems/drapes/deno.jsonc
+"exports": {
+  ".": "./parts.js",
+  "./svelte": "./svelte/index.js",
+  "./parts.css": "./parts.css"
+}
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/anima/src/surfaces/chrome/panels/dock/dock.jsx
+import * as parts from "@vivalence/drapes";
+// systems/ghost/surfaces/chrome/panels/dock/dock.jsx
+import { Field } from "@vivalence/sheets";
+#+END_SRC
+
+A: an old Svelte import fails loud on a missing root; =subpath-imports= keeps =drapes/solid= 15. B: drapes twins sheets, =drapes/parts= 15 leaves =subpath-imports=; a bare import flips from Svelte to Solid, loud only as a missing export. Lean B.
+
+Ruled A: /"q1 a. maybe some shared components or logic can come from root later."/

@@ -2,8 +2,8 @@ import { specimen } from "@vivalence/typology";
 import { compile } from "svelte/compiler";
 
 const PARTS = ["controls/Key", "display/Tile", "display/Plate", "display/Entry", "display/Empty", "display/Pip"];
-const source = (part) => Deno.readTextFile(new URL(`../${part}.svelte`, import.meta.url));
-const barrel = (folder) => Deno.readTextFile(new URL(`../${folder}/index.js`, import.meta.url));
+const source = (part) => Deno.readTextFile(new URL(`../svelte/${part}.svelte`, import.meta.url));
+const barrel = (folder) => Deno.readTextFile(new URL(`../svelte/${folder}/index.js`, import.meta.url));
 const exported = (text, name) => new RegExp(`export \\{[^}]*\\b${name}\\b`).test(text);
 
 specimen.describe("parts — the office parts compile as runes components", () => {

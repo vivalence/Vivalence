@@ -71,8 +71,8 @@ import { stamp } from "../traits/dataset.js";
 ```
 **`service/` — `Service` (`die.runtime.services[slug]`), `ATTACHED` masks only: 0 wearers.** RULED (`reference/services/`): runtime RUNS · OWNS services, paladin hands tools, never spawns; type = ADDRESS, trait = EXPORT. THREE trait homes: `<subject>/traits/index.js`.
 ```js
-// subsystems/paladin/prototypes/integrity.js
-export const IMPLIED = { service: ["PROVIDER"], datamap: ["PROVIDER"], hallucinator: ["PROVIDER"] };
+// subsystems/paladin/prototypes/integrity.js:35 — no IMPLIED table on disk (11-19): a trait is DECLARED, RULES checks its export
+export const RULES = [
 ```
 **`typology.js` ← 6: `commons/fixtures/testing/data/{seed,tiers}.js` · 2 `testament/m76-probe` · `mode/traits/{harnessed,intented}.js` (by package name).**
 

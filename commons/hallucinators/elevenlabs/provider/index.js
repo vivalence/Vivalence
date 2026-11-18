@@ -218,6 +218,7 @@ export default async function provider(service) {
     };
 
     return {
+      ...entry,
       type: "speech",
       id: entry.id,
       tune: entry.tune,
@@ -245,6 +246,7 @@ export default async function provider(service) {
       );
 
     return {
+      ...entry,
       type: "verbatim",
       id: entry.id,
       tune: entry.tune,

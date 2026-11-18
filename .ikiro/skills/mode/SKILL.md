@@ -10,7 +10,7 @@ when_to_use: >-
   the mode" · "set the default policy" · a `<slug>.viva.js` under `modes/` is open · "buffer view" ·
   "application".
 ---
-<!-- limit: 7000 chars -->
+<!-- limit: 7300 chars -->
 # mode — closed exports, declared traits, never leave
 
 Canon = the runtime's read sites, never the nearest mode (09-21): `paladin/instance/lifecycle/2-resolution.js:68-111` · `runtime/subjects/mode/traits/*.js` · `commons/instances/hello-world/mode.viva.js`. Package → `package`; domain → `domain`.
@@ -45,11 +45,11 @@ Canon = the runtime's read sites, never the nearest mode (09-21): `paladin/insta
 
 ## Traits — declared, never deduced
 
-`stagger` iterates `mode.manifest.traits` only (`gestalten/belt/traits.js:3-16`). Trait → export is REQUIRED; export → trait is not. A new trait joins `ModeTraitsEnum` (`runtime/subjects/mode/Mode.ts:12`) or the mode faults at boot. The trait set IS the capability declaration — `traits: []` = no `mode.call`, tools, routes; a green test asserts the absence.
+`stagger` iterates `mode.manifest.traits` only (`gestalten/belt/traits.js:3-16`). Trait → export is REQUIRED; export → trait is not. A new trait joins `v.traits.mode` (`typology/schematics/traits/index.js:22`), paladin's `TRAITS` with its export's name (`paladin/prototypes/integrity.js:6`) and `runtime/subjects/mode/traits/index.js`; a word the runtime does not offer only WARNS (`mode/lifecycle/2-resolution.js:25`; 11-21 `ModeTraitsEnum` · `Mode.ts` were gone). The trait set IS the capability declaration — `traits: []` = no `mode.call`, tools, routes; a green test asserts the absence.
 
 ## `tier · rounds · effort` are the USER's, never the mode's
 
-A thread is born claiming `INTELLIGENT` (`capable` · 12 · `low`, `schematics/traits/intelligent.js`); `/tier · /effort · /rounds` change it; a mode sets none. REJECTED 10-24 m105 Q14 `shard.hal.defaults({ policy: { tier, rounds } })` in a mode — /"keep this under the control of users."/ Order `traits/harnessed.js:244-245`: domain's harness, mode's, `summarizing`.
+A thread is born claiming `INTELLIGENT` (`capable` · 12 · `low`, `schematics/traits/intelligent.js`); `/tier · /effort · /rounds` change it; a mode sets none. REJECTED 10-24 m105 Q14 `shard.hal.defaults({ policy: { tier, rounds } })` in a mode — /"keep this under the control of users."/ Order `traits/harness.js`: domain's harness, mode's, `summarizing`.
 
 ## No leaving the mode
 

@@ -61,7 +61,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
   lighthouse.$user.set({ slug: "beef", traits: [], trait: {} });
   lighthouse.$status.set({ code: "VERIFIED" });
 
-  const memo = Object.assign(new ghost.entities.mode.Mode(), { id: "m1", type: "srs", slug: "memo", traits: ["HARNESSED"], daemon: null, reference: new Path("/runtime/house/mode/srs/memo") });
+  const memo = Object.assign(new ghost.entities.mode.Mode(), { id: "m1", type: "srs", slug: "memo", traits: ["HARNESS"], daemon: null, reference: new Path("/runtime/house/mode/srs/memo") });
   const probe = Object.assign(new ghost.entities.mode.Mode(), { id: "m2", type: "home", slug: "probe", traits: ["EXPOSED"], daemon: null, reference: new Path("/runtime/house/mode/home/probe") });
   const REPLY = [
     { event: "/turn/open", turn: { role: "assistant", id: "a9" } },
@@ -442,9 +442,15 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     terminal.$buffer.set(buffer);
   });
 
-  specimen.it("/detach faults loudly with the design's valence: the wire has no attachments; no name is VALIDATION", async () => {
-    specimen.expect(await run("/detach my notes.md").catch((error) => error.message)).toBe("no attachments on this wire — /detach my notes.md: drop an attachment");
-    specimen.expect(await fault("/detach")).toBe("VALIDATION");
+  specimen.it("/upload/trash takes the named waiting upload off the bridge, the others stay; no name is VALIDATION", async () => {
+    const notes = { name: "my notes.md", file: null };
+    const cat = { name: "cat.png", file: { id: "f1" } };
+    client.app.bridge.$uploads.set([notes, cat]);
+    await run("/upload/trash my notes.md");
+    specimen.expect(client.app.bridge.uploads).toEqual([cat]);
+    specimen.expect(await fault("/upload/trash")).toBe("VALIDATION");
+    specimen.expect(client.app.bridge.uploads).toEqual([cat]);
+    client.app.bridge.$uploads.set([]);
   });
 
   specimen.it("owed · loudest: every activity not settled is owed any signal; the loudest live state", () => {
@@ -476,7 +482,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
   });
 
   specimen.it("/tier · /effort · /rounds claim HARNESSED on the seated thread, field-wise; a value outside the schema is VALIDATION", async () => {
-    client.runtime.cortex = new Cortex(TIER_POINTS);
+    client.runtime.cortex = new Cortex();
     specimen.expect(await run("/tier fast")).toEqual({ HARNESSED: { tier: "fast" } });
     specimen.expect(threads.writes.at(-1)).toMatchObject({ where: { id: "th1" }, data: { traits: ["LABELED", "HARNESSED"], trait: { LABELED: { name: "flamingo" }, HARNESSED: { tier: "fast" } } } });
     specimen.expect(threads.writes.at(-1).data.trait.HARNESSED.tune).toEqual(TIER_POINTS.fast);
@@ -522,7 +528,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
 
   specimen.it("/model pins HARNESSED.provider · id on the seated thread; /tier unpins", async () => {
     const pin = { provider: "openrouter", id: "openai/gpt-5" };
-    client.runtime.cortex = new Cortex(TIER_POINTS).register([{ type: "dialogue", ...pin, tune: TIER_POINTS.fast, via: { stream: {} } }]);
+    client.runtime.cortex = new Cortex().register([{ type: "dialogue", ...pin, tune: TIER_POINTS.fast, via: { stream: {} } }]);
     specimen.expect(await run("/model openrouter openai/gpt-5")).toEqual({ HARNESSED: pin });
     specimen.expect(threads.writes.at(-1).data.trait.HARNESSED).toMatchObject(pin);
     const seated = threads.$entities.get().find((thread) => thread.id === "th1");
@@ -537,7 +543,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
 
   specimen.it("/model narrows the cortex's dialogue models: words that name one pin it; none or several open the chooser over all of them and write nothing; its catalog entry takes no argument, so Enter on it dispatches", async () => {
     const faculty = (provider, id) => ({ type: "dialogue", provider, id, tune: TIER_POINTS.fast, via: { stream: {} } });
-    client.runtime.cortex = new Cortex(TIER_POINTS).register([faculty("openrouter", "openai/gpt-5"), faculty("openrouter", "openai/gpt-5-mini"), faculty("anthropic", "claude-opus")]);
+    client.runtime.cortex = new Cortex().register([faculty("openrouter", "openai/gpt-5"), faculty("openrouter", "openai/gpt-5-mini"), faculty("anthropic", "claude-opus")]);
     const written = threads.writes.length;
     specimen.expect(await run("/model opus")).toEqual({ HARNESSED: { provider: "anthropic", id: "claude-opus" } });
     specimen.expect(await run("/model openrouter openai/gpt-5")).toEqual({ HARNESSED: { provider: "openrouter", id: "openai/gpt-5" } });
@@ -588,7 +594,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     specimen.expect(message).toContain("terminal.dock.view · terminal.dock.align");
   });
 
-  specimen.it("* — a bare line streams to a HARNESSED mode: every packet merges into ONE turn under the runtime's id, no stream record; on a mode without HARNESSED it faults naming the mode", async () => {
+  specimen.it("* — a bare line streams to a HARNESS mode: every packet merges into ONE turn under the runtime's id, no stream record; on a mode without HARNESS it faults naming the mode", async () => {
     await run("ciao");
     specimen.expect(requests.at(-1)).toMatchObject({ thread: "th1", terminal: "t1" });
     specimen.expect(client.runtime.entities.turn.merges).toHaveLength(REPLY.length);
@@ -600,7 +606,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     terminal.$thread.set(other);
     const refused = await run("ciao").then(() => null, (error) => error.message);
     terminal.$thread.set(thread);
-    specimen.expect(refused).toBe(`${other.mode.type}/${other.mode.slug} takes no turn — not HARNESSED. / for a command`);
+    specimen.expect(refused).toBe(`${other.mode.type}/${other.mode.slug} takes no turn — not HARNESS. / for a command`);
   });
 
   specimen.it("every command of the three owners — client · app · terminal — carries a nature, a valence with an Example, and the chords of the keymap", () => {

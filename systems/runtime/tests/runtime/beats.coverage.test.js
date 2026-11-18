@@ -1,9 +1,10 @@
 import { join } from "@std/path";
 import { atom } from "nanostores";
-import { Aperture, Connection, crypto, mime, Mode, Path, shape, shard, specimen, Url, Vector } from "@vivalence/typology";
-import { lifecycle, ViewEntity } from "@vivalence/runtime";
+import { Aperture, Connection, crypto, fromm, mime, Mode, Path, shape, shard, specimen, Url, Vector } from "@vivalence/typology";
+import { lifecycle, traits, ViewEntity } from "@vivalence/runtime";
+import { signer } from "../../subjects/lighthouse/signer.js";
 import { seed } from "../scenarios/datamap.js";
-import { connector, lighthouseOf } from "../scenarios/daemon.js";
+import { connector, lighthouseOf, SECRET } from "../scenarios/daemon.js";
 
 // the runtime's lifecycle beats over a hand-built die on :memory: — law 9 (/attached/file/:id with
 // x-viva-integrity), the host metadata the beats open, the userspace routes, the patrol interval (process census + file sweep), Deno.serve on a free port
@@ -17,7 +18,7 @@ let killed;
 const controlled = (subject) => ({ ...subject, controller: { kill: async (signal) => killed.push(signal) } });
 
 const buildMode = (type, slug, module = {}) => {
-  const mode = new Mode({ manifest: { type, slug, traits: [] }, ...module });
+  const mode = new Mode({ module: { manifest: { type, slug, traits: [] }, ...module } });
   mode.aperture = new Aperture();
   mode.reference = new Path(`/mode/${type}/${slug}`);
   mode.entity = scenario.fixtures.mode;
@@ -44,7 +45,6 @@ const buildDie = () => {
     services: {},
     daemons: {},
     controller: { status: { $transient: status } },
-    instance: { manifest: { slug: "house" } },
   };
   const die = {
     aperture: new Aperture().use(shard.datamap.inject(scenario.datamap)),
@@ -93,18 +93,20 @@ specimen.describe("runtime lifecycle beats on a hand-built die", { sanitizeResou
     await through(integration.attached, die, async () => {
       const handler = shape.http(die.aperture);
       specimen.expect((await handler(new Request("http://test/attached/process/service/voice/tts/ping"))).status).toBe(404);
-      const served = await handler(new Request(`http://test/attached/file/${file.id}`));
+      const token = await signer(SECRET).access(fixtures.user);
+      specimen.expect((await handler(new Request(`http://test/attached/file/${file.id}`))).status).toBe(401);
+      const served = await handler(new Request(`http://test/attached/file/${file.id}?token=${token}`));
       specimen.expect(served.status).toBe(200);
       specimen.expect(served.headers.get("content-type")).toBe(mime.javascript);
       specimen.expect(served.headers.get("x-viva-integrity")).toBe(integrity);
       specimen.expect(await served.text()).toBe(text);
 
-      specimen.expect((await handler(new Request("http://test/attached/file/nope"))).status).toBe(404);
+      specimen.expect((await handler(new Request(`http://test/attached/file/nope?token=${token}`))).status).toBe(404);
 
       await through(resolution.attach, die, async () => {
         specimen.expect(await (await handler(new Request("http://test/attached/process/service/voice/tts/ping"))).json()).toEqual({ pong: true });
         specimen.expect(die.runtime.attachment.edge("process")).not.toBe(null);
-        specimen.expect((await handler(new Request(`http://test/attached/file/${file.id}`))).status).toBe(200);
+        specimen.expect((await handler(new Request(`http://test/attached/file/${file.id}?token=${token}`))).status).toBe(200);
       });
     });
   });
@@ -119,6 +121,42 @@ specimen.describe("runtime lifecycle beats on a hand-built die", { sanitizeResou
       specimen.expect(await (await handler(new Request("http://test/daemon/memo/status"))).json()).toEqual({ code: "BOOTING" });
       specimen.expect(await (await handler(new Request("http://test/daemon/memo/hello"))).json()).toBe("hi");
       specimen.expect(Object.keys(shape.strip(die.aperture.branch("/runtime/house")).branches)).toContain("batch");
+    });
+  });
+
+  specimen.it("resolution.expose: an ATTACHED mode answers under /attached/<its owner's reference>/<its own> with no token; its aperture stays behind the login", async () => {
+    const die = buildDie();
+    const attached = (type, slug) => {
+      const mode = buildMode(type, slug, {
+        manifest: { type, slug, traits: ["ATTACHED"] },
+        attachment: new Vector().open("/(.*)", (ctx) => `${ctx.mode.manifest.slug}:${fromm.params(ctx.params).path.absolute}`),
+      });
+      traits.mode.ATTACHED(mode);
+      return mode;
+    };
+    const blog = attached("publish", "blog");
+    const notes = attached("publish", "notes");
+    const plain = buildMode("publish", "plain");
+    const daemon = {
+      reference: new Path("/daemon/memo"),
+      aperture: new Aperture().use(die.runtime.lighthouse.authenticate),
+      $status: atom({ code: "RUNNING" }),
+      modes: { publish: { blog, plain } },
+    };
+    daemon.aperture.branch(blog.reference, blog.aperture.open("/build", () => "built"));
+    die.runtime.daemons = { memo: daemon };
+    die.runtime.modes = { publish: { notes } };
+    await through(integration.attached, die, async () => {
+      await through(resolution.expose, die, async () => {
+        const handler = shape.http(die.aperture);
+        const served = await handler(new Request("http://test/attached/daemon/memo/mode/publish/blog/article/hello.html"));
+        specimen.expect(await served.json()).toBe("blog:/article/hello.html");
+        const rooted = await handler(new Request("http://test/attached/runtime/house/mode/publish/notes/index.html"));
+        specimen.expect(await rooted.json()).toBe("notes:/index.html");
+        specimen.expect((await handler(new Request("http://test/attached/daemon/memo/mode/publish/plain/index.html"))).status).toBe(404);
+        specimen.expect((await handler(new Request("http://test/daemon/memo/mode/publish/blog/build"))).status).toBe(401);
+        specimen.expect((await handler(new Request("http://test/attached/file/nope"))).status).toBe(401);
+      });
     });
   });
 
@@ -226,7 +264,7 @@ specimen.describe("runtime lifecycle beats on a hand-built die", { sanitizeResou
   specimen.it("integration.entities · metadata · cortex: the host opens /entities/mode, /metadata/* for the runtime and each mode by trait, and the cortex avenues", async () => {
     const die = buildDie();
     const memo = buildMode("srs", "memo", { emitter: new Vector().open("/literal", () => "emitted") });
-    memo.manifest.traits = ["VIEWABLE", "EMITTER", "HARNESSED"];
+    memo.manifest.traits = ["VIEWABLE", "EMITTER", "HARNESS"];
     memo.manifest.name = "Memo";
     memo.statics = { language: "latin" };
     memo.mountpoint = new Path(join(directory, "memo"));
@@ -247,11 +285,11 @@ specimen.describe("runtime lifecycle beats on a hand-built die", { sanitizeResou
     specimen.expect(await read("/runtime/house/metadata/manifest")).toEqual({ type: "runtime", slug: "house" });
     specimen.expect(await read("/runtime/house/metadata/statics")).toEqual({ serve: "http://127.0.0.1:0" });
     specimen.expect(await read("/runtime/house/metadata/cortex")).toEqual([]);
-    specimen.expect(await read("/runtime/house/metadata/tiers")).toEqual({});
+    specimen.expect((await handler(new Request("http://test/runtime/house/metadata/tiers"))).status).toBe(404);
     specimen.expect(Object.keys(await read("/runtime/house/metadata/datamap"))).toContain("file");
     specimen.expect(Object.keys((await read("/runtime/house/metadata/aperture")).branches)).toContain("entities");
     specimen.expect(await read("/runtime/house/metadata/modes")).toEqual([
-      { type: "srs", slug: "memo", name: "Memo", traits: ["VIEWABLE", "EMITTER", "HARNESSED"], reference: "/runtime/house/mode/srs/memo", metadata: "/runtime/house/mode/srs/memo/metadata" },
+      { type: "srs", slug: "memo", name: "Memo", traits: ["VIEWABLE", "EMITTER", "HARNESS"], reference: "/runtime/house/mode/srs/memo", metadata: "/runtime/house/mode/srs/memo/metadata" },
       { type: "home", slug: "probe", name: "probe", traits: [], reference: "/runtime/house/mode/home/probe", metadata: "/runtime/house/mode/home/probe/metadata" },
     ]);
     for (const fact of ["statics", "mountpoint", "application", "aperture", "emitter", "harness"]) {

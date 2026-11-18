@@ -15,11 +15,9 @@ export const VENDOR = "application/vnd.viva";
 export const dom = {
   svelte: `${VENDOR}.dom.svelte+javascript`,
   html: `${VENDOR}.dom.html+javascript`,
-  react: `${VENDOR}.dom.react+javascript`,
   solid: `${VENDOR}.dom.solid+javascript`,
 };
 export const tty = {
-  react: `${VENDOR}.tty.react+javascript`,
   solid: `${VENDOR}.tty.solid+javascript`,
 };
 export const javascript = "text/javascript";

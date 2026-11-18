@@ -14,7 +14,7 @@ when_to_use: >-
   about to be swept · "remove the <field|trait|export>" in a registry package · migrating a key across
   recipes and `.env` files.
 ---
-<!-- limit: 5000 chars -->
+<!-- limit: 5576 chars -->
 # readme — "step through the readme" · `rm` under ~/.viva: walk the verbs, capture first
 
 Defects live between verbs, where no test looks.
@@ -53,6 +53,6 @@ Scratch variant: `viva instance/create <scratch> --init` → walk → `viva inst
 6. a hunk bound for `~/.viva/instances` is complete and reverse-appliable — no `…`.
 7. mikro half-applies an FK change: restore db + migrations from backup, never retry.
 8. price the asset before building a recovery harness.
-9. the wipe is HIS (/"i do the whipe"/): I capture (`cp -c`: free APFS clone) + measure; his `run` naming it = mine (11-16).
+9. the wipe is HIS (/"i do the whipe"/): I capture (`cp -c`: free APFS clone) + measure; his `run` naming it = mine (11-16). A live-db prune he ordered: `sqlite3 … ".backup"` → the SQL trialled on a copy (counts before · after, `foreign_key_check`) → ONE `BEGIN IMMEDIATE` → the files landed in the SAME pass; only what reinstalls goes (a topography's literals), his terminal · thread stay (11-20 ×3).
 
 Never swept, even under `cleanup`: beef's `// …` lines, his `console.log`s, `bak/`, `*.bak` beside in-flight work.

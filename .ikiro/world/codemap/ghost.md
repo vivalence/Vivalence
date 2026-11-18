@@ -1,7 +1,7 @@
 ---
 paths: ["systems/ghost/**"]
 ---
-<!-- writer: agent · limit: 5600 chars · code is the map · @vivalence/ghost = typology.js, paladin-free (deno info typology.js | grep -c paladin → 0); m91: subjects/shell pulls chrome/ in (opentui ×12 · solid-js ×6) -->
+<!-- writer: agent · limit: 5800 chars · code is the map · @vivalence/ghost = typology.js, paladin-free (deno info typology.js | grep -c paladin → 0); m91: subjects/shell pulls chrome/ in (opentui ×12 · solid-js ×6) -->
 # codemap: ghost — `run.js` · the client · the chrome (10-27)
 
 - **paladin mounts at `run.js` only**; `subjects/shell/lifecycle/` (11-04) `index.js` `execution` · `1-population.js` `seat` · `2-resolution.js` `runtime` (reach or `ledger.boot(instance.specs("runtime"))`) · `3-integration.js` `ledger · commanding` (prints an outline · `call` · `hold`, JSON on `--json`); `commands/` `help.js` `usage(shellDie, vector)` · `chrome.js` · `tail.js` · `index.js` `/help` + `paladin.commands` (m110); NO env · mask · spawn in the shell (cwd recipe = paladin's instance scope); bare `viva` RELAYS → `commands/chrome.js` → `subjects/client/factory.js` → `new App`. No `viva repl` · `/chrome/on|off` (m98 Q6 · Q7); REJECTED 10-25 app as a client beat /"why is app a lifecycle on client?"/
@@ -14,9 +14,9 @@ paths: ["systems/ghost/**"]
 - **the factory MINTS the runtime** (10-27): `connected` wires ONE multiplex (/"we multiplex on runtime"/) · the two manifest calls · `new Dataspace` (`file` rows /"download them all up front"/) before `execution`: `client.runtime` is a plain field, never `null`. REJECTED: `client.$runtime` atom — a once-set store is a suspension; `$entities` on `Runtime`. Nobody awaits the client; the app mounts after it, sign-in gates at `authorized`; past the lighthouse a beat marks, never throws; another user's sign-in DROPS every cached row, re-subscribes /"clients arent per user"/.
 ```js
 // systems/ghost/subjects/client/factory.js
-  (clientDie) => Object.assign(clientDie, { runtime: new Runtime({ remote, lighthouse }) }),
-  connected,
-  ...shape.monad.ready(execution),
+export const minted = monad.kleisli([…Client, …Runtime]);   // no wire: anima mounts over it (11-20)
+export const ready = monad.kleisli([connected, ...shape.monad.ready(execution)]);
+export const factory = monad.kleisli([minted, ready]);
 ```
 - **ONE deno per `viva`** (11-04; `piped` · `ROLES` · `stderrTerminal` cut): `ghost.sh` execs `deno run -q`, Deno silent on stderr; `run.js` = mint · `paladin.control` (signals, `paladin/gestalten/belt/control.js`) · execute · `fromm.controller(...).exit`; runtime's same, exit `STOPPED ? 0 : 1` (`runtime/tests/runtime/hello.test.js:184`).
 ```js

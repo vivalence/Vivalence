@@ -35,7 +35,7 @@ export const hallucination = { hallucination: v.union([Hallucination.dialogue, H
 export const policy = { policy: v.union([Policy.dialogue, Policy.verbatim, Policy.speech, Policy.choice, Policy.picture]).desc("The record's policy, lifted off the hallucination") };
 export const tools = { tools: v.unknown().desc("The armed Vector the model may call, never domain.tools") };
 export const harnessed = { harnessed: v.unknown().desc("The thread's HARNESSED, or null when it wears none") };
-export const conversational = { conversational: v.unknown().desc("The thread's CONVERSATIONAL, or null when it wears none") };
+export const conversational = { conversational: v.unknown().desc("The thread's CONVERSATIONAL config, every key filled") };
 export const activity = { activity: v.unknown().desc("The Activity row this exchange is written to") };
 export const screen = { screen: v.unknown().desc("A guide harness's current screen. Example: { id: 'intro', fields: [] }") };
 

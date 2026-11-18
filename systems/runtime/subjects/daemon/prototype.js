@@ -5,7 +5,6 @@ export class Daemon {
   aperture = new Aperture()
     .use(shard.context.spread(contexts.daemonDie, this))
     .use(shard.context.bind("daemon", this));
-  slug = null;
   mask = null;
   controller = null;
   connection = null;
@@ -24,6 +23,10 @@ export class Daemon {
 
   constructor(fields) {
     Object.assign(this, fields);
+  }
+
+  get slug() {
+    return this.mask.manifest.slug;
   }
 
   get manifest() {

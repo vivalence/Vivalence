@@ -88,6 +88,7 @@ specimen.describe("reconcile at boot — population.daemons reads the file again
   });
   const schemas = assemble([sets.identity, sets.composition, sets.traits, sets.userspace, sets.transient]).entities.map((descriptor) => descriptor.schema);
   let home;
+  let instance;
 
   const boot = async (slugs) => {
     const datamap = await provider({ mountpoint: new Path(home), statics: { db: { file: FILE } } }, { entities: schemas });
@@ -96,10 +97,10 @@ specimen.describe("reconcile at boot — population.daemons reads the file again
       runtime: {
         datamap,
         entities: datamap.entities,
-        instance: { daemons: slugs.map((slug) => expanded(raw[slug])), raw: { daemons: slugs.map((slug) => raw[slug]) } },
         daemons: {},
       },
     };
+    paladin.instance = { daemons: slugs.map((slug) => expanded(raw[slug])) };
     try {
       await lifecycle.runtime.population.daemons(die, async () => {});
       return { datamap, created: Object.keys(die.runtime.daemons) };
@@ -125,10 +126,12 @@ specimen.describe("reconcile at boot — population.daemons reads the file again
 
   specimen.beforeAll(async () => {
     home = await Deno.makeTempDir({ prefix: "viva-composition-" });
+    instance = paladin.instance;
   });
 
   specimen.afterAll(async () => {
     await Deno.remove(home, { recursive: true });
+    paladin.instance = instance;
   });
 
   specimen.it("a daemon in the file → its row and its process on boot", async () => {
@@ -138,13 +141,11 @@ specimen.describe("reconcile at boot — population.daemons reads the file again
     await datamap.close();
   });
 
-  specimen.it("a daemon added to the file → its row on the next boot; Daemon.mask is the raw entry, ${KEY} intact", async () => {
+  specimen.it("a daemon added to the file → its row on the next boot, its traits off the manifest", async () => {
     const { datamap, created } = await boot(["hello", "extra"]);
     specimen.expect(created).toEqual(["hello", "extra"]);
     specimen.expect((await census(datamap)).daemon).toEqual(["extra", "hello"]);
     const row = await datamap.shard.scope(() => datamap.entities.daemon.findOneOrFail({ slug: "extra" }));
-    specimen.expect(row.mask).toEqual(raw.extra);
-    specimen.expect(row.mask.consume.stockfish.statics.remote).toBe("${VIVA_STOCKFISH_REMOTE}");
     specimen.expect(row.traits).toEqual(["CHESS"]);
     await datamap.shard.scope(async () => {
       const em = datamap.entities.em;

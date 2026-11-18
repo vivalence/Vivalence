@@ -1,0 +1,181 @@
+{
+  "manifest": {
+    "type": "instance",
+    "slug": "brazilian",
+    "version": "0.0.1"
+  },
+  "clients": [
+    {
+      "manifest": {
+        "type": "client",
+        "slug": "ghost"
+      }
+    },
+    {
+      "manifest": {
+        "type": "client",
+        "slug": "anima",
+        "traits": [
+          "ATTACHED"
+        ]
+      },
+      "statics": {
+        "serve": "${VIVA_CLIENT_ANIMA_SERVE}"
+      }
+    }
+  ],
+  "services": [
+    {
+      "manifest": {
+        "type": "service",
+        "slug": "nlp-stanza"
+      },
+      "module": "@commons/service/nlp-stanza",
+      "secrets": {
+        "key": "${SECRET_VIVA_SERVICE_NLP_KEY}"
+      },
+      "statics": {
+        "serve": "${VIVA_SERVICE_NLP_SERVE}",
+        "processors": "tokenize,mwt,pos,lemma,depparse"
+      }
+    }
+  ],
+  "daemons": [
+    {
+      "manifest": {
+        "type": "daemon",
+        "slug": "brazilian",
+        "version": "0.0.1",
+        "name": "Português",
+        "description": "English → Brazilian Portuguese. The widest mode set — every game is mounted.",
+        "icon": {
+          "emoji": "🇧🇷"
+        }
+      },
+      "hallucinators": [
+        {
+          "module": "@commons/hallucinator/anthropic",
+          "secrets": {
+            "key": "${SECRET_VIVA_ANTHROPIC_API_KEY}"
+          },
+          "faculties": [
+            { "type": "dialogue", "id": "claude-opus-5-5", "tune": [1.0, 0.8, 0.1], "context": 1000000, "thinking": true },
+            { "type": "dialogue", "id": "claude-sonnet-5-5", "tune": [0.6, 0.6, 0.5], "context": 1000000, "thinking": true },
+            { "type": "dialogue", "id": "claude-haiku-5-5", "tune": [0.25, 0.95, 0.5], "context": 1000000, "thinking": true }
+          ]
+        },
+        {
+          "module": "@commons/hallucinator/elevenlabs",
+          "secrets": {
+            "key": "${SECRET_VIVA_ELEVENLABS_API_KEY}"
+          },
+          "faculties": [
+            { "type": "speech", "id": "luiza", "model": "eleven_flash_v2_5", "voice": "21m00Tcm4TlvDq8ikWAM", "tune": [0.3, 0.4, 0.1] },
+            { "type": "speech", "id": "leandro", "model": "eleven_flash_v2_5", "voice": "EXAVITQu4vr4xnSDxMaL", "tune": [0.5, 0.5, 0.1] },
+            { "type": "verbatim", "id": "scribe_v3_live", "model": "scribe_v3_live", "tune": [0.8, 0.9, 0.7] }
+          ]
+        },
+        {
+          "module": "@commons/hallucinator/deepgram",
+          "secrets": {
+            "key": "${SECRET_VIVA_DEEPGRAM_API_KEY}"
+          },
+          "faculties": [
+            { "type": "verbatim", "id": "nova-3", "model": "nova-3", "tune": [0.5, 0.9, 0.6] },
+            { "type": "verbatim", "id": "flux-general-multi", "model": "flux-general-multi", "tune": [0.6, 0.8, 0.4] }
+          ]
+        }
+      ],
+      "statics": {
+        "language": {
+          "known": {
+            "slug": "english",
+            "name": "English"
+          },
+          "learning": {
+            "slug": "brazilian",
+            "name": "Português"
+          }
+        }
+      },
+      "modes": [
+        "@education/domain/language-learning",
+        "@education/topology/word",
+        "@education/topology/sentence",
+        "@education/topology/conjugation",
+        "@education/topography/english-to-brazilian",
+        "@education/homepage/aprende",
+        "@commons/dashboard/dataspace",
+        "@education/game/nyan",
+        "@education/game/riddler",
+        "@education/tactic/clinic",
+        "@education/tactic/five-fold-session",
+        "@education/game/dojo",
+        "@education/game/judge",
+        "@education/game/match",
+        "@education/game/cloze",
+        "@education/game/exhibit"
+      ],
+      "consume": {
+        "nlp": {
+          "module": "@commons/service/nlp-stanza",
+          "secrets": {
+            "key": "${SECRET_VIVA_SERVICE_NLP_KEY}"
+          },
+          "statics": {
+            "remote": "${VIVA_SERVICE_NLP_REMOTE}",
+            "language": "pt",
+            "processors": "tokenize,mwt,pos,lemma,depparse"
+          }
+        }
+      }
+    }
+  ],
+  "environment": {
+    "type": "object",
+    "required": [
+      "PUBLIC_VIVA_CLIENT_ANIMA_REMOTE",
+      "VIVA_SERVICE_NLP_PORT",
+      "VIVA_SERVICE_NLP_SERVE",
+      "VIVA_SERVICE_NLP_REMOTE"
+    ],
+    "properties": {
+      "PUBLIC_VIVA_CLIENT_ANIMA_REMOTE": {
+        "type": "string",
+        "pattern": "^[A-Za-z][A-Za-z0-9+.\\-]*://(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:]|%[0-9A-Fa-f]{2})*@)?(?:\\[(?:[0-9A-Fa-f:.]+|v[0-9A-Fa-f]+\\.[A-Za-z0-9\\-._~!$&'()*+,;=:]+)\\]|(?:[A-Za-z0-9\\-._~!$&'()*+,;=]|%[0-9A-Fa-f]{2})*)(?::[0-9]*)?(?:/(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})*)*(?:\\?(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?(?:#(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?$",
+        "title": "RFC 3986 URI with an authority (scheme://…)",
+        "description": "The client's own public address, for links it prints about itself.",
+        "default": "${VIVA_CLIENT_ANIMA_SERVE}",
+        "group": "addresses"
+      },
+      "VIVA_SERVICE_NLP_PORT": {
+        "type": "integer",
+        "description": "Port the stanza NLP container binds.",
+        "default": "5555",
+        "group": "services"
+      },
+      "VIVA_SERVICE_NLP_SERVE": {
+        "type": "string",
+        "pattern": "^[A-Za-z][A-Za-z0-9+.\\-]*://(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:]|%[0-9A-Fa-f]{2})*@)?(?:\\[(?:[0-9A-Fa-f:.]+|v[0-9A-Fa-f]+\\.[A-Za-z0-9\\-._~!$&'()*+,;=:]+)\\]|(?:[A-Za-z0-9\\-._~!$&'()*+,;=]|%[0-9A-Fa-f]{2})*)(?::[0-9]*)?(?:/(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})*)*(?:\\?(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?(?:#(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?$",
+        "title": "RFC 3986 URI with an authority (scheme://…)",
+        "description": "Where the stanza NLP service binds when this instance hosts it.",
+        "default": "http://0.0.0.0:${VIVA_SERVICE_NLP_PORT}",
+        "group": "services"
+      },
+      "VIVA_SERVICE_NLP_REMOTE": {
+        "type": "string",
+        "pattern": "^[A-Za-z][A-Za-z0-9+.\\-]*://(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:]|%[0-9A-Fa-f]{2})*@)?(?:\\[(?:[0-9A-Fa-f:.]+|v[0-9A-Fa-f]+\\.[A-Za-z0-9\\-._~!$&'()*+,;=:]+)\\]|(?:[A-Za-z0-9\\-._~!$&'()*+,;=]|%[0-9A-Fa-f]{2})*)(?::[0-9]*)?(?:/(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})*)*(?:\\?(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?(?:#(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?$",
+        "title": "RFC 3986 URI with an authority (scheme://…)",
+        "description": "Where the daemon reaches the NLP service. Required — there is no fallback.",
+        "default": "http://localhost:${VIVA_SERVICE_NLP_PORT}",
+        "group": "services"
+      },
+      "SECRET_VIVA_SERVICE_NLP_KEY": {
+        "type": "string",
+        "description": "Shared secret between the runtime and the stanza NLP service.",
+        "group": "keys"
+      }
+    },
+    "additionalProperties": false
+  }
+}

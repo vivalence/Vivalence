@@ -29,7 +29,12 @@ specimen.describe("Consent — the design's .consent row (dom.js:282); y · n ·
     rig.close();
   });
 
-  specimen.it("binds y n e", () => {
-    specimen.expect(parts.CONSENT_KEYS).toEqual({ y: "onApprove", n: "onSkip", e: "onEdit" });
+  specimen.it("binds y n e", async () => {
+    const dapper = await import("@vivalence/dapper");
+    specimen.expect(dapper.parts.consent.ACTS.map(([key, , handler]) => [key, handler])).toEqual([
+      ["y", "onApprove"],
+      ["n", "onSkip"],
+      ["e", "onEdit"],
+    ]);
   });
 });

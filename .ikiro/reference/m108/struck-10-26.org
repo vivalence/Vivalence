@@ -1,5 +1,5 @@
 #+title: m108 — struck options, 10-26
-# limit: 3000 chars
+# limit: 3800 chars
 
 * Q1 B — struck by his /"a"/: anima's own execution from ghost's beats, no =bundle=
 

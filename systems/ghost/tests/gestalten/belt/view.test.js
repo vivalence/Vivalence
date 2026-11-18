@@ -38,7 +38,7 @@ specimen.describe("ghost belt/view — candidates · pick · entry · bytes · l
       return new Response("nope", { status: 404 });
     });
     const url = new Url(`http://127.0.0.1:${server.addr.port}/attached`);
-    attach = { url };
+    attach = { attached: (path) => url.branch(path).absolute };
   });
   specimen.afterAll(async () => {
     await server.shutdown();

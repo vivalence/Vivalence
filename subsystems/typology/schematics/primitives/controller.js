@@ -32,7 +32,7 @@ export const Record = v.object({
 export const Reflection = v.object({
   path: v.array(v.string()),
   code: State,
-  timestamp: v.string(),
+  timestamp: v.instant(),
   error: v.object({}, { additionalProperties: true }).optional(),
   children: v.array(v.unknown()),
 }).desc('A controller at rest, folded over its children. Example: { "path": ["hallucination"], "code": "RUNNING", "timestamp": "2026-09-14T10:00:00.000Z", "children": [] }');

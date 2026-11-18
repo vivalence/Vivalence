@@ -1,4 +1,5 @@
 import { Vector } from "./vector.js";
+import { shotgun } from "../gestalten/steer/dispatch.js";
 import { fire } from "../gestalten/steer/strategy.js";
 
 const sequence = (first, second) => async (ctx) => {
@@ -19,5 +20,9 @@ export class Twitch extends Vector {
     for (const [pattern, trajectory] of vector.trie) this.seat(pattern).graft(trajectory);
     this.carry.push(...vector.carry);
     return this;
+  }
+
+  async dispatch(signal, input) {
+    for (const ear of shotgun(this, signal)) await ear(input);
   }
 }

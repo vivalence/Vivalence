@@ -10,8 +10,8 @@ export const manifest = {
   traits: [
     "VIEWABLE",
     "EMITTER",
-    "HARNESSED",
-    "CONVERSATIONAL",
+    "HARNESS",
+    "CONVERSATION",
   ],
 };
 

@@ -1,6 +1,7 @@
 import { IsOptional, Type } from "typebox";
 import { Pointer, Value } from "typebox/value";
 import { Compile } from "typebox/compile";
+import { PLAIN_DATETIME, TITLES, ZONED } from "./scalars/temporal.js";
 
 const faults = (schema, value) =>
   [...Value.Errors(schema, value)].map((error) => {
@@ -152,10 +153,17 @@ export const v = {
         opts,
       ),
     ),
-  record: (keys, values) => enhance(Type.Record(keys, values)),
+  record: (keys, values, opts) => enhance(Type.Record(keys, values, opts)),
   any: () => enhance(Type.Any()),
   unknown: () => enhance(Type.Unknown()),
   null: () => enhance(Type.Null()),
+
+  instant: (opts) => enhance(Type.String({ format: "date-time", ...opts })),
+  date: (opts) => enhance(Type.String({ format: "date", ...opts })),
+  duration: (opts) => enhance(Type.String({ format: "duration", ...opts })),
+  datetime: (opts) =>
+    enhance(Type.String({ pattern: PLAIN_DATETIME, title: TITLES.datetime, ...opts })),
+  zoned: (opts) => enhance(Type.String({ pattern: ZONED, title: TITLES.zoned, ...opts })),
 
   $ref: (schema) => enhance(Type.Ref(schema)),
 

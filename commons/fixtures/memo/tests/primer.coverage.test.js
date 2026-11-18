@@ -26,7 +26,7 @@ const assemble = () => {
 specimen.describe("memo — the primer the Magister sees", () => {
   specimen.it("the mode declares PRIMER and exports the directory primer beside its harness", () => {
     specimen.expect(memo.manifest.traits).toContain("PRIMER");
-    specimen.expect(memo.manifest.traits).toContain("HARNESSED");
+    specimen.expect(memo.manifest.traits).toContain("HARNESS");
     specimen.expect(memo.primer).toBe(primer);
     specimen.expect(memo.harness).toBe(mode);
   });

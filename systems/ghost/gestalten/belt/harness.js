@@ -11,7 +11,7 @@ export const stream = async (mode, terminal, parts) => {
 const UNSERVED = { home: null, TOOLED: [], PRIMED: [] };
 
 export const mounted = (thread) =>
-  thread !== null && thread.mode !== null && thread.mode.implements("HARNESSED") && "harness" in thread.mode.metadata;
+  thread !== null && thread.mode !== null && thread.mode.implements("HARNESS") && "harness" in thread.mode.metadata;
 
 export const served = (thread) => {
   if (!mounted(thread)) return UNSERVED;

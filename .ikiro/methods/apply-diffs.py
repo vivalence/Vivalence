@@ -7,7 +7,8 @@ REJECTED 10-08: a hard-coded root — a replay run from a copy with --write land
 
 A block's first line is `// <path>:<line> …`; a `…` INSIDE a `-` or context row matches any text within that row (a word-guard cut, 11-09); a context row so cut writes back the text it MATCHED, never the `…` (11-09, two test names landed cut); `…` lines split sub-hunks (a sub-hunk may repeat the `// <path>:<line>` head, skipped); `-`/`+`/` ` prefixes are old/new/context,
 an empty line is empty context. Per file: every anchor must match exactly once BEFORE anything is written
-(apply-diffs law). Misses are listed by file and hunk head.
+(apply-diffs law), and once more AFTER each earlier hunk of that file is staged: a hunk that mints a second
+match for a later one is a MISS (11-20 a rename's `DaemonMask` turned twice, silently). Misses are listed by file and hunk head.
 """
 import re, sys
 
@@ -81,6 +82,14 @@ for path, hs in per_file.items():
     except FileNotFoundError: print(f"MISSING FILE {path}"); missed += len(hs); continue
     everywhere = "--replace-all" in sys.argv
     faults = [(h[2], count(content, h[0])) for h in hs if count(content, h[0]) != 1 and not (everywhere and count(content, h[0]) > 1)]
+    if not faults and not everywhere:
+        staged, met = content, set()
+        for old, new, head in hs:
+            if old in met: continue
+            met.add(old)
+            n = count(staged, old)
+            if n != 1: faults.append((f"{head}  (after an earlier hunk of this file landed)", n)); break
+            staged = pattern(old).sub(fill(old, new), staged, count=1)
     if faults:
         for head, n in faults: print(f"MISS {n}x  {head}")
         missed += len(faults); print(f"  → {path}: {len(hs) - len(faults)}/{len(hs)} would land, NOTHING WRITTEN"); continue

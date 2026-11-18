@@ -1,8 +1,8 @@
 import { specimen } from "@vivalence/typology";
 import { compile } from "svelte/compiler";
 import { declarations, THEMES } from "@vivalence/dapper";
-import { fit } from "../display/strip.js";
-import { place } from "../panels/float.js";
+import { fit } from "../svelte/display/strip.js";
+import { place } from "../svelte/panels/float.js";
 
 const KIT = {
   controls: ["Key", "Input", "Field", "Segmented", "Stepper"],
@@ -11,8 +11,8 @@ const KIT = {
 };
 const PARTS = Object.entries(KIT).flatMap(([folder, names]) => names.map((name) => `${folder}/${name}`));
 
-const source = (part) => Deno.readTextFileSync(new URL(`../${part}.svelte`, import.meta.url));
-const barrel = (folder) => Deno.readTextFileSync(new URL(`../${folder}/index.js`, import.meta.url));
+const source = (part) => Deno.readTextFileSync(new URL(`../svelte/${part}.svelte`, import.meta.url));
+const barrel = (folder) => Deno.readTextFileSync(new URL(`../svelte/${folder}/index.js`, import.meta.url));
 const exported = (text, name) => new RegExp(`export \\{[^}]*\\b${name}\\b`).test(text);
 const slots = new Set(declarations(THEMES.northsea.zones[1]).map(([name]) => name));
 const locals = (text) => new Set([...text.matchAll(/(?:^|[\s;{"':])(--[a-z0-9-]+)\s*[:=]/g)].map((match) => match[1]));

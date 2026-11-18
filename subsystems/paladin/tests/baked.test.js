@@ -40,13 +40,13 @@ const live = () => {
   const paladin = belt(new Paladin(), [vault, scope]);
   paladin.scopes([["instance", () => true, () => new Path("/live/probe")]]);
   paladin.assign({ VIVA_RUNTIME_SERVE: "http://localhost:2501/", PUBLIC_VIVA_RUNTIME_REMOTE: "${VIVA_RUNTIME_SERVE}", SECRET_VIVA_JWT: "never-baked" }, "ledger");
-  paladin.instance = Object.assign(new Instance(paladin), v.primitives.instance.Instance.decode(v.primitives.instance.Instance.cast(RECIPE)));
+  paladin.instance = Object.assign(new Instance(), v.primitives.instance.InstanceMask.decode(v.primitives.instance.InstanceMask.cast(RECIPE)));
   paladin.ledger = { registry: { wire: async (mask) => ({ hallucinators: [], consume: {}, domain: {}, modes: mask.modes.map(citizen) }) } };
   return paladin;
 };
 
 describe("paladin bake ⟷ baked — the instance crosses to a browser as strings and comes back as prototypes", () => {
-  it("bake: every Signature is its absolute string, PUBLIC_VIVA_ expanded, the paladin dropped, the citizen its wire fields; the live instance is not mutated", async () => {
+  it("bake: every Signature is its absolute string, PUBLIC_VIVA_ expanded, the process fields under instance.paladin, the citizen its wire fields; the live instance is not mutated", async () => {
     const paladin = live();
     expect(paladin.instance.runtime.statics.remote).toBeInstanceOf(Url);
     const data = await bake(paladin, "anima");
@@ -55,7 +55,7 @@ describe("paladin bake ⟷ baked — the instance crosses to a browser as string
     expect(data.instance.runtime.mountpoint).toBe("/mount/runtime");
     expect(data.instance.runtime.modes[0].url).toBe("http://localhost:2501/runtime/runtime/mode/harness/runtime");
     expect(data.instance.clients[0].reference).toBe("/client/anima");
-    expect("paladin" in data.instance).toBe(false);
+    expect(data.instance.paladin).toEqual({ requirements: [], faults: [], dormant: [], inherited: [] });
     expect(data.wired.modes).toEqual([]);
     expect(data.modes).toEqual([{
       identifier: "@probe/home/console",
@@ -72,7 +72,7 @@ describe("paladin bake ⟷ baked — the instance crosses to a browser as string
   });
 
   it("bake: an unknown client is loud", async () => {
-    await expect(bake(live(), "ghost")).rejects.toThrow("instance /live/probe masks no ghost client — anima");
+    await expect(bake(live(), "ghost")).rejects.toThrow("instance probe masks no ghost client — anima");
   });
 
   it("baked: the instance decodes through its schema — remote a Url with the origin, references Paths; the wire revives a citizen as namespace + Mode", async () => {

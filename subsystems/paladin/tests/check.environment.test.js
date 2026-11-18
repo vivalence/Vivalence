@@ -1,6 +1,7 @@
 // authored schema against observed record. three things are ever wrong: undocumented, required, invalid.
 import { specimen, v } from "@vivalence/typology";
 import { Paladin } from "@vivalence/paladin/typology";
+import { Instance } from "../instance/prototype.js";
 import { FULL } from "../gestalten/belt/index.js";
 import { belt } from "../paladin/lifecycle.js";
 
@@ -14,7 +15,7 @@ const mk = (pairs = {}, secrets = {}) => {
 };
 const rowsOf = (paladin, requirements, environment) =>
   Object.fromEntries(
-    paladin.check.environment({ requirements, environment }).map((row) => [row.key, row]),
+    paladin.check.environment({ paladin: { requirements }, environment }).map((row) => [row.key, row]),
   );
 const read = (at, key, extra = {}) => ({ at, read: [key], unset: [], ...extra });
 const unread = (at, key) => ({ at, read: [key], unset: [key] });
@@ -33,7 +34,7 @@ describe("check.environment", () => {
 
   it("read by a thunk but described nowhere → UNDOCUMENTED, and it FAILS", () => {
     const list = mk({ VIVA_A: "1" }).check.environment({
-      requirements: [read("runtime.serve", "VIVA_A")],
+      paladin: { requirements: [read("runtime.serve", "VIVA_A")] },
       environment: v.environment({}),
     });
     expect(list[0].verdict).toBe("UNDOCUMENTED");
@@ -42,7 +43,7 @@ describe("check.environment", () => {
 
   it("unset and not optional → REQUIRED, and it FAILS — however well the thunk coped", () => {
     const list = mk().check.environment({
-      requirements: [unread("runtime.serve", "VIVA_A")],
+      paladin: { requirements: [unread("runtime.serve", "VIVA_A")] },
       environment: v.environment({ VIVA_A: v.string().desc("a") }),
     });
     expect(list[0].verdict).toBe("REQUIRED");
@@ -51,7 +52,7 @@ describe("check.environment", () => {
 
   it("unset and .optional() → optional, and it does not fail", () => {
     const list = mk().check.environment({
-      requirements: [unread("daemon[hello].hallucinators", "SECRET_VIVA_K")],
+      paladin: { requirements: [unread("daemons.hello.hallucinators", "SECRET_VIVA_K")] },
       environment: v.environment({ SECRET_VIVA_K: v.string().desc("k").optional() }),
     });
     expect(list[0].verdict).toBe("optional");
@@ -61,7 +62,7 @@ describe("check.environment", () => {
 
   it("set but failing its type → INVALID with the reason, and it FAILS", () => {
     const list = mk({ VIVA_A: "localhost:2501" }).check.environment({
-      requirements: [read("runtime.serve", "VIVA_A")],
+      paladin: { requirements: [read("runtime.serve", "VIVA_A")] },
       environment: v.environment({ VIVA_A: v.url().desc("a") }),
     });
     expect(list[0].verdict).toBe("INVALID");
@@ -85,14 +86,14 @@ describe("check.environment", () => {
 
   it("described, unread, blank, not optional → REQUIRED — the publish() and container consumers", () => {
     const blank = mk().check.environment({
-      requirements: [],
+      paladin: { requirements: [] },
       environment: v.environment({ VIVA_SERVICE_NLP_PORT: v.string().desc("port") }),
     });
     expect(blank[0].verdict).toBe("REQUIRED");
     expect(blank.fails).toBe(true);
 
     const set = mk({ VIVA_SERVICE_NLP_PORT: "8080" }).check.environment({
-      requirements: [],
+      paladin: { requirements: [] },
       environment: v.environment({ VIVA_SERVICE_NLP_PORT: v.string().desc("port") }),
     });
     expect(set[0].verdict).toBe("documented");
@@ -102,7 +103,7 @@ describe("check.environment", () => {
 
   it("described, unread, blank, .optional() → documented, NOT an error", () => {
     const list = mk().check.environment({
-      requirements: [],
+      paladin: { requirements: [] },
       environment: v.environment({ SECRET_VIVA_DEEPGRAM_API_KEY: v.string().desc("d").optional() }),
     });
     expect(list[0].verdict).toBe("documented");
@@ -133,46 +134,46 @@ describe("check.environment", () => {
   it("a secret read by a thunk carries its at, and being unset makes it REQUIRED", () => {
     const rows = rowsOf(
       mk(),
-      [{ at: "service[lh].secrets.jwt", read: ["SECRET_VIVA_JWT"], unset: ["SECRET_VIVA_JWT"] }],
+      [{ at: "services.lh.secrets.jwt", read: ["SECRET_VIVA_JWT"], unset: ["SECRET_VIVA_JWT"] }],
       v.environment({ SECRET_VIVA_JWT: v.string().desc("jwt") }),
     );
-    expect(rows.SECRET_VIVA_JWT.at).toBe("service[lh].secrets.jwt");
+    expect(rows.SECRET_VIVA_JWT.at).toBe("services.lh.secrets.jwt");
     expect(rows.SECRET_VIVA_JWT.value).toBe(null);
     expect(rows.SECRET_VIVA_JWT.verdict).toBe("REQUIRED");
   });
 
   it("one key read from several places yields one row per site — that IS the per-consumer set", () => {
     const list = mk({ PUBLIC_VIVA_LH: "http://x" }).check.environment({
-      requirements: [
+      paladin: { requirements: [
         read("clients.anima.lighthouse.remote", "PUBLIC_VIVA_LH"),
-        read("daemon[education].lighthouse.remote", "PUBLIC_VIVA_LH"),
-      ],
+        read("daemons.education.lighthouse.remote", "PUBLIC_VIVA_LH"),
+      ] },
       environment: v.environment({ PUBLIC_VIVA_LH: v.url().desc("lh") }),
     });
     expect(list.length).toBe(2);
     expect(list.map((row) => row.at)).toEqual([
       "clients.anima.lighthouse.remote",
-      "daemon[education].lighthouse.remote",
+      "daemons.education.lighthouse.remote",
     ]);
     expect(list.every((row) => row.verdict === "ok")).toBe(true);
   });
 
   it("a thunk reading several keys yields a row for each", () => {
     const list = mk({ VIVA_A: "1", VIVA_B: "2" }).check.environment({
-      requirements: [{ at: "runtime.serve", read: ["VIVA_A", "VIVA_B"], unset: [] }],
+      paladin: { requirements: [{ at: "runtime.serve", read: ["VIVA_A", "VIVA_B"], unset: [] }] },
       environment: v.environment({ VIVA_A: v.string().desc("a"), VIVA_B: v.string().desc("b") }),
     });
     expect(list.map((row) => row.key)).toEqual(["VIVA_A", "VIVA_B"]);
   });
 
   it("no schema and no requirements is empty and clean, not a failure", () => {
-    const list = mk().check.environment({ requirements: [], environment: v.environment({}) });
+    const list = mk().check.environment({ paladin: { requirements: [] }, environment: v.environment({}) });
     expect(list.length).toBe(0);
     expect(list.fails).toBe(false);
   });
 
   it("tolerates an instance with neither field — a declaration may carry no environment at all", () => {
-    const list = mk().check.environment({});
+    const list = mk().check.environment(new Instance());
     expect(list.length).toBe(0);
     expect(list.fails).toBe(false);
   });

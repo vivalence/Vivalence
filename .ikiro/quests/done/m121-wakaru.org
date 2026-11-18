@@ -1,0 +1,334 @@
+#+title: m121 wakaru
+#+filetags: :education:game:mode:teardown:
+#+status: DONE 11-19 — /"ok. wind down then. copy to reference and move quest to done."/ v0.3 "the valley you walk" (0.3.0) live at =~/.viva/registry/education/modes/games/wakaru/=, 213 tests; research · contracts · visual rules in =reference/m121/=; tails in =known-issues.org=.
+
+* intent
+
+#+begin_quote
+what i wnat:
+i want a mode that runs this game, like each buffer being a game state / game run, where the language source and storage layer are bulit atop the vivalence language domain, where the interactions update the learners language state, where the llm interactions and such flow through vivalences cortex, and where there is a generally coherent integration into the langauge learnign system vivalence offers.
+
+this, while having excellent ui, gameloops, etc.
+i dont want a one to one clone.
+i want to steal like an artist.
+
+code quality is paramount. i want great fucking code. migrating the games world state into a buffer, stitching onto the domain and daemons, and implementing the minigames, interactions, gameloops, and gameui will be very challanging.
+getting the ui right alone is a development challange to itself.
+another is to know what to cut. we f.e. dont need the language choice stuff in the beginning, thats readable from daemon.
+big challange.
+
+thats what the quest if for.
+#+end_quote
+
+#+begin_quote
+pull the source code and analyze the game architecture.
+#+end_quote
+
+#+begin_quote
+i want a mode like that.
+#+end_quote
+
+#+begin_quote
+then build a quest. 121 i think.
+call it Wakaru
+#+end_quote
+
+#+begin_quote
+keep the quest in viva repo ikiro quest. teardown in code is fine
+#+end_quote
+
+
+* the goal
+
+| his clause | means | stands on | state |
+|---|---|---|---|
+| /"each buffer being a game state / game run"/ | the world state is =buffer.data=, whole | =* work 1= | viva's buffer limits unmeasured |
+| /"the language source and storage layer are bulit atop the vivalence language domain"/ | every word, sentence, line is a literal; no second store | =* work 2= | reads + the one write measured |
+| /"the interactions update the learners language state"/ | a graded answer → =literal.review= | =* work 2= | measured: =domain/aperture/index.js:38= |
+| /"the llm interactions and such flow through vivalences cortex"/ | NPC talk · grading by model → =ctx.cortex.hallucinate= | =* work 3= | one call site known, unread |
+| /"a generally coherent integration into the langauge learnign system"/ | launched and read like dojo: intents · tools · harness · aprende | =* work 2= · Q7 | unmeasured |
+| /"excellent ui, gameloops, etc."/ | the game itself | =* work 4= · =* work 5= | their engine names-only |
+| /"i dont want a one to one clone. i want to steal like an artist."/ | =* the law= 1 | | ruled |
+| /"code quality is paramount. i want great fucking code."/ | =* the law= 4 | | ruled |
+| /"another is to know what to cut"/ | =* the cut= | | his one row + what follows from it |
+
+* the dialogue
+
+| # | his words | lands at |
+|---|---|---|
+| 1 | /"pull the source code and analyze the game architecture."/ | =* work 4= · the teardown |
+| 2 | /"i want a mode like that."/ | Q0 |
+| 3 | /"i can give you docker."/ | =~/code/teardowns/second-language/tools/Dockerfile= |
+| 4 | /"is all that information accessible and your reference well indexed analyzed and annotated?"/ | =README.md= · =SYSTEMS.md= · =index/= |
+| 5 | /"then build a quest. 121 i think. call it Wakaru"/ | this file |
+| 6 | /"keep the quest in viva repo ikiro quest. teardown in code is fine"/ · /"vivalence/.ikiro/quests"/ | this path · the teardown stays out of every repo |
+| 7 | /"top-down RPGs or top-down adventure game for language learning built into viva."/ · /"load the ikiro skills bird, show-me and drill-me"/ | ruling 8 · =* review= |
+| 8 | /"lear about buffers, modes, and the language domain (readme)"/ | =~/.viva/registry/education/README.md= read whole · =* work 1= measured |
+| 9 | /"dojo is functinoal"/ | dojo is the working kin, read first |
+| 10 | /"cocina is trash. never ran."/ | ruling 9 · S1 drilled |
+| 11 | /"lets talk about our deconstructed source inspiratoin game. how does it work? tell me about the gameloop on player level and interaction levle aka 6 minutes and 6 seconds. and tell me about the datamodel. gimme a birds eye view."/ · /show-me/ · /socratic-tutor/ | =* review= T-tour · =* work 4= |
+| 12 | /fold/ /"your references and analysis and insigth into the quest or an appendix"/ | =reference/m121/teardown.org= · =* the steal= · Q14 · Q15 |
+| 13 | /"cast this game into vivalence. you have freedomn do interpret the source material for vivalence. go. single mode. all in the registry."/ | the round's Q1–Q15 overridden by his go; the cast, =* handoff= |
+| 14 | /"miportant: mobile must be GREAT"/ | tap-to-travel · swipe · thumb pad · retina canvas · haptics · the clock stops while away |
+| 15 | /"work out a full game based on second language"/ · /"full"/ · /"deeply integrated into the education domain"/ · /"with subagents and all"/ | =* the full game= · =reference/m121/contract.md= · six builders |
+| 16 | /"no edits outside this mode. if needed, we talk. inside mode - yours"/ | outside-mode finds proposed, never done → =known-issues.org= 11-19 |
+| 17 | /"Yeah, that's not it at all. We don't have the game yet. The whole outer world that I navigate is missing. … be pulled into mini games, more like the second language game actually is. I want you to do a deep pass on the bundle … Look for missing games, for missing levels of the games, or layers of the games, like this whole world. And then rebuild …"/ · /"send a subagent to do a visual pass … issues with contrast on the reviews … the surface levels that we have."/ | =* the valley= · =reference/m121/research-world.md= · =research-minigames.md= · =research-layers.md= · =world-contract.md= · =visual.md= |
+| 18 | /"done?"/ | re-measured: beacon 200 · 213 green; his registry index for wakaru is v0.2's =git add -N= |
+| 19 | /"ok. wind down then. copy to reference and move quest to done."/ | =reference/m121/= +5 · =known-issues.org= +5 · =done/= |
+
+* rulings
+
+| # | his words | lands at |
+|---|---|---|
+| 1 | /"i want a mode that runs this game, like each buffer being a game state / game run"/ | Q0 RULED: the whole game · the world state lives in =buffer.data= |
+| 2 | /"the language source and storage layer are bulit atop the vivalence language domain"/ | literals are the words, sentences, lines · =* the law= 3 |
+| 3 | /"the interactions update the learners language state"/ | every graded answer → =literal.review= |
+| 4 | /"the llm interactions and such flow through vivalences cortex"/ | =ctx.cortex.hallucinate= · no pre-baked dialogue |
+| 5 | /"i dont want a one to one clone. i want to steal like an artist."/ | =* the law= 1 |
+| 6 | /"code quality is paramount. i want great fucking code."/ | =* the law= 4 |
+| 7 | /"another is to know what to cut. we f.e. dont need the language choice stuff in the beginning, thats readable from daemon."/ | =* the cut= |
+| 8 | /"top-down RPGs or top-down adventure game for language learning built into viva."/ | the genre: a top-down world walked tile by tile; RPG or adventure — the line between them open |
+| 9 | /"cocina is trash. never ran."/ | cocina is no precedent: not for a world, a harness, a tool or a keeper |
+
+* the law
+
+1. Mechanics, never a copy: no name, map, monster, line, art or audio of theirs enters the registry.
+2. The teardown stays in =~/code/teardowns/second-language=, in no repo.
+3. A mode writes reviews through the literal; it never keeps a memory model of its own. Their ladder =collected → challenged → mastered= becomes a reading of =literal.assess()=, never a second store.
+4. Code quality is paramount: pure rules apart from the screen, one buffer schema, no second source of truth.
+5. A buffer is a game run: its =data= is the whole world state.
+
+* work 1 — the world state into a buffer
+
+/"migrating the games world state into a buffer"/
+
+#+begin_src text
+theirs   eight stores: session · world · gameplay · course · settings · ui · save · audio
+         world state shape                src/module-2168.js        names only
+         applyAction(state, action) → state + effects   src/module-2344.js   names only
+         save: grow-only sets + per-term counters + per-device xp logs   src/module-2135.js   read
+viva     the row: data is one json column, '{}' by default   subsystems/typology/entities/Buffer.ts:42 · :80
+         cast against the mode's v.buffer() at the mint only   README:641
+         the screen: buffer.data is a nanostores atom; a set persists nothing   systems/ghost/entities/buffer/prototype.js:21
+         the screen keeps the run (dojo): data.round, /round debounced 1.5 s, raw sql   modes/games/dojo/buffer/Dojo.svelte:328 · aperture/index.js:77
+         the daemon keeps the run (chess): /match/<verb>, flush, $data   ~/.viva/registry/chess/modes/board/play/aperture/index.js:274
+         sizes on localhost: dojo 12,305 B (a 20-card round) · chess 617 B · reader 247 B
+#+end_src
+
+Measured 11-16. Open: the write rate a walk needs against the daemon's round trip — probed before Q14.
+
+* work 2 — onto the domain and the daemons
+
+/"stitching onto the domain and daemons"/
+
+#+begin_src text
+modes/games/cloze/cloze.viva.js:50          .open("/feed", …)            draw a literal, mint a buffer
+modes/games/cloze/buffer/Cloze.svelte:62    connection.call("/review/literal", …)
+modes/games/cloze/buffer/Cloze.svelte:71    buffer.release()
+domain/aperture/index.js:38                 .open("/review/literal", …)  the only write a mode makes
+domain/traits/literal/retained.js:102       async review(row, signal)    RETAINED note, BAYESIAN driver
+modes/games/dojo/buffer/streak.js:3         export const begin = …       the pure rep queue
+modes/games/dojo/buffer/judge.js:64         export const evaluate = …    { signal, tokens }
+#+end_src
+
+| measured (=~/.viva/registry/education=) | |
+|---|---|
+| a game = | =<slug>.viva.js= (manifest · buffer · views) + =buffer/<Name>.svelte= |
+| smallest full loop | cloze: =/feed= → blanks → =/review/literal= → =release()= |
+| nearest kin | dojo: =streak.js= queue · =judge.js= ≈ their deferral run |
+| retention | viva BAYESIAN through =literal.review=; theirs a three-state ladder |
+| state across sessions | none on any entity — the buffer carries the run (=* the law= 5) |
+
+| theirs | on the domain |
+|---|---|
+| =TERM_GLOSSARY= concept → per-language surface | a literal, =TRANSLATED{known, learning}= |
+| term =status= | =literal.assess()= → ={status, due, strength}= |
+| sentences for reading · ordering | sentence literals, =ANNOTATED.tokens= |
+| line audio | =VOCALIZED.asset= |
+| difficulty bucket · frequency rank | =proficiency.cefr.*= symbols · =RANKED.rank= |
+| which word next | =feed= · =novel= · =due= · =byStrength= (=domain/traits/literal/retained.js:35=) |
+
+* work 3 — through the cortex
+
+/"the llm interactions and such flow through vivalences cortex"/
+
+#+begin_src text
+theirs   every line pre-rendered + timed       src/module-3143.js   DIALOG_CAPTIONS, 2.2 MB
+         speech graded locally                 src/module-2148.js   dice similarity
+viva     ctx.cortex.hallucinate.object.render({controller, policy, system, turns, output})
+         a judge on the aperture               modes/games/dojo/aperture/index.js:239   unread
+#+end_src
+
+Owed: latency a game beat tolerates · what is generated per run and what per visit.
+
+* work 4 — the game
+
+/"implementing the minigames, interactions, gameloops"/
+
+** the teardown — =~/code/teardowns/second-language=
+
+#+begin_src text
+raw/                 index.html · main bundle 19 MB · 10 lazy chunks      as served 2026-11-16, app 1.1.0
+src/                 9,025 modules, Wakaru 1.14.0, 0 failed                module-<metro id>.js + provenance.json
+index/modules.tsv    id · kind · tags · bytes · imports · imported_by · bundle · exports
+index/routes.md      68 Expo Router routes → module
+SYSTEMS.md           the annotated map, read vs names-only marked
+#+end_src
+
+Third-party code: reference only, in no repo, never executed. Source maps are not public; local names stay minified, export names are real.
+
+** the read — =reference/m121/teardown.org=
+
+Our reading of their beat · flags · both loops · the save · the pack, with pointers; =** Second Language — what it is= moved there whole 11-16.
+
+
+Read 11-16, three passes, spot-checked: engine · movement · flags · quests · gates · both question loops · the save · the pack — =SYSTEMS.md= =## Read 11-16=. Unread: audio runtime · vendor · fishing · mini-story · boot choice (=module-3414=).
+
+* work 5 — the screen
+
+/"getting the ui right alone is a development challange to itself."/
+
+#+begin_src text
+theirs   tiles as components, 1 MB of them     src/module-2527.js · 2528
+         appearance · outfits                  src/module-2518.js
+         battle view                           src/module-3602.js · 3621
+viva     buffer/<Name>.svelte gets {terminal, buffer, surface}
+         a terminal face beside it             buffer/<slug>.jsx, mime.tty.solid (dojo · comando)
+#+end_src
+
+Unmeasured whole. Waits on Q8 · Q9.
+
+* the steal — leads, mine, unruled
+
+Each rides a ruling or waits on its question. Long form: =reference/m121/teardown.org= =* insights=.
+
+| theirs | here | rides |
+|---|---|---|
+| one pure beat; =now= and =random= in =ctx= | the same beat, callable by the screen or the daemon, replayable | Q14 |
+| flags the spine; quest · inventory · dialog · presence derived | =data= = flags · counters · pose; the rest derived | law 5 |
+| effects apart from events | effects → the screen · events → the quests | law 4 |
+| battle answers write no memory | every graded answer → =literal.review= | ruling 3 |
+| a three-state ladder of counters | a reading of =literal.assess()= | law 3 |
+| gates by count | gates by status over a symbol set | law 3 |
+| terms bound three ways, no shared id | one binding: a literal slug or a symbol set | ruling 2 |
+| inventory = gained − consumed | the same | law 4 |
+| the world rebuilt on map entry | the same; no instances in =data= | law 5 |
+| dialogue pre-rendered | the cortex speaks | ruling 4 |
+| two question loops, no shared code | one loop, clocked and reviewing | Q10 |
+
+* the full game — 11-18, mine, unruled
+The contract the builders code against: =reference/m121/contract.md=. Its one idea: game state in the buffer, language state in the domain — the world READS memory.
+| theirs | the cast |
+|---|---|
+| maps by hand | places from symbol sets: 8 =domain.*= districts, wings =functional.*= (Hall of Forms) · conjugations (Forge) · =literal.feed= (Stacks) |
+| monsters roam | spirits = the learner's DUE words (=literal.due= per place): the review queue walks the map |
+| collected → challenged → mastered | the retention status picks the duel format: recognise (PICK · LISTEN) → CLOZE → produce (TYPE · BUILD · CONJUGATE) |
+| gates by count | a warden wakes at 60% of a place held (=share(memory)=); beating it restores the place, opening the next |
+| pre-rendered dialogue | keeper lines from the cortex over held words + one new (i+1); real corpus sentences with audio; a typed reply judged and reviewed server-side |
+| battles write no memory | every graded answer is a =literal.review= |
+| streak counter | streak read off TRACED notes (=/daily=) |
+
+* the valley — 11-18, v0.3, on his row 17
+The steal, made ours: =reference/m121/world-contract.md= (its table "What v0.3 adds"). The deep passes: =reference/m121/research-world.md= · =research-minigames.md= · =research-layers.md=. The theme law: =reference/m121/visual.md= — "surface levels" are each zone's depth steps, never zones; 14 rules.
+| layer | v0.3 |
+|---|---|
+| world | 22 authored maps: the square · 8 districts · 8 houses · shop · stacks · forms · forge · summit; a following camera framed between the HUD and the pad; portals onto named spawns |
+| spirits | due words: sight · alert · chase · leash · home; an arrival calm, a breath after each fight |
+| mini-games | trial (stones) · fishing (rod) · swarm (pair match); each graded answer a =literal.review= |
+| layers | chests · pots · shop · tools (lantern · rod · compass) · tracker + markers · atlas (fog, quick travel) · journal · codex · level from memory |
+| walked live | walk · portals · camera · tap-to-walk · trial review round-trip · duels · keeper talk ×2 via the cortex · pot · swarm timeout · atlas · journal · codex · absence pause · arrival calm · 390 px |
+| never walked live | interiors · fishing · chests · warden · summit darkness · quick travel · trial BUILD · touch pad |
+
+* the cut
+
+| theirs | here |
+|---|---|
+| language select · native language · onboarding setup | CUT — =ctx.statics.language=, the daemon knows |
+| account · backup · progress sync · device logs | CUT — the daemon's rows are the save |
+| paywall · leaderboard · statsig · sentry | CUT |
+| term progress record · mastery queue as stored state | CUT — retention through the literal |
+| pre-rendered dialogue + whisper timings | CUT — the cortex speaks; =VOCALIZED= assets where a literal has one |
+
+Unmeasured, so unruled: which minigames · how much world · which quests.
+
+* deferred
+
+** the round — asked 11-16, unruled
+
+#+begin_src text
+progress
+ Q1  first thing you play     a walk one map, one NPC, one battle (my lean) · b the battle alone, polished · c the world alone
+ Q2  your look                every milestone in the browser · only those that change the screen
+ Q3  where it mounts          slug wakaru under modes/games/, the spanish instance first?
+scope
+ Q4  what a run is            a long save, weeks, one world · a short outing, progress only in retention
+ Q5  world content            maps authored · generated; NPC talk live from the cortex · authored from literals
+ Q6  minigames, first cut     word match · sentence order · reading · listening · read aloud · character writing; speech at the start?
+ Q7  who else plays           the model acts through tools + a harness · learner only
+ Q8  terminal face            svelte only · a terminal view too
+dos and don'ts
+ Q9  how the world is drawn   svelte svg/css tiles · a canvas · the threlte stage; who makes the art
+ Q10 time pressure            keep their 3–8 s clocks · soften · drop
+ Q11 mando                    cocina RULED out (ruling 9) · comando world.js · cut clean
+ Q12 taste                    what he loved, what he hated in theirs
+ Q13 hard don'ts              dependencies · the platform · patterns
+#+end_src
+
+** filed 11-16 — the bird and the read, unruled
+
+#+begin_src text
+ Q14 who writes the run       the screen (dojo: data.round, /round) · the daemon (chess: /match/<verb>, $data) · the screen walks, the daemon rules
+ Q15 where the world lives    the mode's own files · a dataset of literals and symbols · generated by the cortex per run
+#+end_src
+
+** owed after the round
+
+Deliverables · milestones · blast table · testing assessment · QA — none written; each waits on the round and the owed terrain.
+
+* changelog
+
+- 11-19 DONE on his row 19: =reference/m121/= gains =research-world.md= · =research-minigames.md= · =research-layers.md= · =world-contract.md= (repointed at its siblings) · =visual.md=; tails → =known-issues.org= (=anima-dock-phone-width= · =apertures-name-the-cortex-tier= · =mode-skill-view-stack-drift= · =dapper-key-edge-under-3= · =spanish-me-literal-translated=); moved to =done/=.
+- 11-19 VISUAL 2 merged (agent: 58 states × 4 themes × 360 · 390 · 1280 px, 32 → 0): the camera frames the learner between the HUD and the pad (=buffer/camera.js= =look(…, inset)=; =tests/camera.test.js= "never under them", 2 mutants red) · sentence-word taps ≥ 2.75rem · the veil on =--scrim=; mine: the codex keeps its 5.5rem column, its due mark wraps as one unit; mine: =.arena= inert under a panel. His drapes flag day (=@vivalence/drapes/svelte=, 14:06) adopted before the land — the agent read it as "deleted", mine, reported. 213 tests; live 17:43.
+- 11-18 VALLEY v0.3 on his row 17: 3 deep passes → =reference/m121/world-contract.md= → 6 builders → lead integration (=* the valley=). Visual pass 1 (agent): 1502 pairs under their floor → 0, 14 rules. An independent review: 8 findings, all fixed (a keeper's late grade landing on a newer question · replies after the view closed · swarm's quit dropping owed reviews · one errand noun held by two places · …). My live walk wrote 22 reviews to his memory (buffer =01a1ebc5=, 19:28–19:45, 15 FAILURE/MISTAKE), mine, reported.
+- 11-18 FULL GAME v0.2 on his row 15: builders on =reference/m121/contract.md=, 101 tests, walked live desktop + 390 px; fixed live: the client bypassed =/begin=; cortex calls without a thread 500'd ("6 'dialogue' faculties match") → the thread's HARNESSED policy mirrored.
+- 11-18 CAST: =modes/games/wakaru/= — engine (world · run · duel · beat · path, pure, 13 tests), daemon (emitter /feed /literals · aperture /begin /words /keep /speak · tool /play · harness · intent wander, 7 mounted steps), screen (Wakaru.svelte · paint.js · Hud · Duel · Scroll · Pad). Mounted in =instances/spanish= + =~/.viva/instances/localhost=. Played: a tap walked to a stone, a spirit duel cleared, /keep survived a reload.
+- 11-18 MOBILE: the duel's clock ran while the tab was hidden — three FAILURE reviews landed unseen; fixed by a =resume= beat, tested pure, unproven live.
+
+- 11-16 FOLDED on his /"your references and analysis and insigth into the quest or an appendix"/: the read → =reference/m121/teardown.org= (references · shape · flags · both loops · the save · insights; =** Second Language — what it is= moved there whole); =* the steal= born; Q14 · Q15 filed. T1 shown, its question unanswered.
+- 11-16 RULED cocina out on his /"cocina is trash. never ran."/ (ruling 9): struck from work 1, Q7, Q11, S1. The buffer walk paused for his teardown tour (T-ledger in =* review=).
+- 11-16 RULED the genre on his /"top-down RPGs or top-down adventure game"/ (ruling 8). BIRD opened: work 1 measured (the row, the atom, two keepers — dojo · chess), the review ledger seeded, S1 shown.
+- 11-16 FOLDED: the 11-16 rework first cut on bare heading names (=s.index("* the cut")= hit a table cell) — terrain doubled, six ruling rows dropped; repaired on line-start anchors the same turn, mine, reported.
+- 11-16 REWORKED on his /"and rework the quest for this goal"/: the goal table, five works under his own nouns, the thirteen questions filed.
+- 11-16 RULED Q0 on his /"what i wnat"/: the whole game, a buffer a run. =* the cut= opened with his one row.
+- 11-16 SEEDED. Bundle pulled (source maps not public), regex pass, then Wakaru 1.14.0 in a linux/amd64 container: 9,025 modules, 0 failed. REA 6.9.0 could not carry it (10,000-entry staging cap, no override) — Wakaru ran direct, mine, reported. Teardown indexed and moved to =~/code/teardowns/second-language=. =~/dotfiles/.zprofile= lost its node 20 pin on his /"go"/.
+
+* review — 11-16, the bird's census of who keeps a run
+
+| S | stop | rides | verdict | his words |
+|---|---|---|---|---|
+| 1 | a buffer row: one json =data=, a screen atom | ruling 1 · law 5 | drilled → ruling 9 | /"cocina is trash. never ran."/ — its usage fence was cocina's =/begin=; re-shown on dojo's mint when the walk resumes |
+| 2 | dojo: the screen keeps the round | ruling 1 · his row 9 | — | |
+| 3 | chess: the daemon keeps the match | ruling 1 | — | |
+
+After S3: Q14 — who writes a run of the walk.
+
+The teardown tour — his row 11, paused S-walk resumes after it. Third-party code: never run, so no snapshot.
+
+Re-cut 11-16 on his /"run me again through the data, world, game, and event model … 6sec / 6 min"/ — T1–T7 (none ruled) replaced by his order.
+
+| T | stop | verdict | his words |
+|---|---|---|---|
+| 1 | the data model: one document per course, grow-only | — | |
+| 2 | the world model: a pack plus flags, rebuilt on map entry | — | |
+| 3 | the game model: one pure beat over a state nobody stores | — | |
+| 4 | the event model: effects go out, events feed quests | — | |
+| 5 | the 6 minutes: a step, a tile, a dialog, a fight, a gate | — | |
+| 6 | the 6 seconds: two question loops, one with memory | — | |
+
+* handoff
+
+- goal: a mode that runs the game, a buffer a game run, on the language domain and the cortex — =* the goal=.
+- done: v0.3 the valley (=* the valley=) over the full game and the cast; 0.3.0 live at =~/.viva/registry/education/modes/games/wakaru/=, 213 tests; the cast's owed proofs walked live: the away clock (absence pause) · =/speak= (keeper talk ×2).
+- next: — closed 11-19; tails by name in =known-issues.org=.
+- never: their names, maps, lines, art or audio in the registry; a second memory model beside the literal; cocina as a precedent.
+- owed: his — the 22 reviews my 11-18 walk wrote (keep | remove; a db backup first) · their three fences in the appendix · his registry index for wakaru (=git -C ~/.viva/registry/education add -A modes/games/wakaru=).

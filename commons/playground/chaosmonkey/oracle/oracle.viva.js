@@ -14,11 +14,11 @@ export const manifest = {
   version: "0.1.0",
   traits: [
     "VIEWABLE",
-    "HARNESSED",
+    "HARNESS",
     "TOOLING",
     "EXPOSED",
     "EMITTER",
-    "CONVERSATIONAL",
+    "CONVERSATION",
   ],
 };
 

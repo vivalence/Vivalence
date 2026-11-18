@@ -1,0 +1,15 @@
+#+title: surface-kits — three inline against three a member, moved whole 11-19
+# limit: 2000 chars
+
+Weighed 11-19, esbuild 0.28.2, minified, a replica of the =dom.solid= entry (=subsystems/paladin/gestalten/belt/bundler.js:74=), the scene file alone, =~/.viva/registry/assembly/modes=:
+
+| entry | three inline B | gzip | three external B | gzip |
+|---|---|---|---|---|
+| =guide/editor/buffer/kit/scene.js= | 746 360 | 194 277 | 11 224 | 4 879 |
+| =guide/player/buffer/kit/scene.js= | 746 360 | 194 277 | 11 224 | 4 879 |
+| =model/import/buffer/scene.js= | 641 479 | 164 305 | 3 506 | 1 741 |
+| =model/editor/buffer/scene.js= | 767 551 | 198 416 | 10 067 | 4 069 |
+| member =three=, whole | 742 291 | 192 068 | — | — |
+| member =solid-js= + =solid-js/web= | 39 504 | 15 158 | — | — |
+
+Four scenes: 2 901 750 B inline · 36 021 B + one 742 291 B member.

@@ -146,6 +146,7 @@ export default async function provider(service) {
   const protocols = ["token", apiKey];
 
   const novaFaculty = (entry) => ({
+    ...entry,
     type: "verbatim",
     id: entry.id,
     tune: entry.tune,
@@ -175,6 +176,7 @@ export default async function provider(service) {
   });
 
   const fluxFaculty = (entry) => ({
+    ...entry,
     type: "verbatim",
     id: entry.id,
     tune: entry.tune,

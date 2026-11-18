@@ -1,0 +1,584 @@
+#+title: faculty unfolding — hallucinators declared at ledger · runtime · daemon · mode, every level adding; HARNESS · CONVERSATION a mode's own, set by the mode (Q39, no travel), their config a thread's HARNESSED · CONVERSATIONAL; a tier is a role a faculty wears; each level contributes primer · tools to one contextmap
+#+filetags: :cortex:traits:harness:primer:runtime:typology:paladin:
+#+status: DESIGNING — 11-20: the TRAITS half LANDED and DRAINED to =done/m126-facutly-unfolding.org= on his /"you finish the registry migration and the traits deliverable"/ (68 repo files · 32 registry files, =:2501= RUNNING): Q42 a mode wears =HARNESS= · =CONVERSATION= (Q48 the old words =//deprecated= siblings) · Q43 · Q44 an entry holds =traits= at its top and no =manifest= · Q41 a mode's trait checked against its faculties · Q40 · Q46 · Q47 an entry's =trait= config, a thread seeded on its mode's twitch; walk CLOSED (6 stops). Before it the paladin half landed (115 files). Travel RULED OUT (Q39), no refusal on a runtime · a daemon (Q45). Still DESIGNING here: the RUNTIME · CLIENT side DRILLED 11-19 (=* the drill=: Q28 · Q29 · Q30 · Q30A · Q31 locked, UNCAST) · director · actor (D0 · D1 · D2A locked, D3 · D4 · Q33 open) · =* the shelf= before a deploy · one HELD hunk (=** the ledger file is a recipe=)
+# writer: agent · limit: 350000 chars · m126 (his =mv=, 11-19)
+
+* intent
+
+/"q4 is going to be solved using the ikiro guiding principle. we architect the system such that certain problems become not a problem by emergence."/
+
+/"namely that afaik (validatethis /afaik) hallucinators defined on ledger travel into runtime which balls them with its own and those travel up to daemons which balls and goess into modes. correct? at every stage we /metadata/cortex the faculties and capabilities. if this chain is cleanly implemented, we have our system. we check for capabilities on mode level, and defining checks on each level we can resovle these capabilities. meaning. we can make every mode harenssed and conversational if these traits are inferred properly. we can infer conversational from faculty set x and harnessed from set y where y is smaller than x. where we can also provide tools and primers at each level."/
+
+/"so some traits can travel. imprint downwards. like harnessed and conversational. if runtime sets it, the daemon and mode inherit it. but they can embedd themselves and overwrite and steer harness and conversation. very nice."/
+
+/"we will take all this logic and wiring and express it as property and function of the conversational trait. this is the system level hard wired architcture the presence of a trait engages. client side and runtime side, conversational engages entity and prototype and ui wiring, and apertuers and vectors adn processes. also, we used ot have a lot of this already. the conversational trait is what implements this actor-director system, provides contextual update style tools, wires primers and tools (via harness), and is the consumer of whatever system we come up with to declare specific faculties from provider.model for certain jobs."/
+
+/"maybe a lot of belt cascade actually belongs in the conversational trait. so, conversational trait triggers the inclusion into the harness of all the conversational wiring. runtimes, daemons, and modes are harnessed."/
+
+* rulings — his words
+
+| Q | title | his words |
+|---+---+---|
+| — | the name | /"call it faculty unfolding."/ |
+| — | for now | /"for now i am ok with losing harnessed and conversational and harnessed unless those are set."/ |
+| — | paladin resolves | /"trait inference happens in paladin. branch has it -> leafs get it."/ · /"the runtime owns cortex and implementation and the paladin owns  the configuration at each layer."/ |
+| — | the runtime level | /"add it. runtime has harnessed and conversational."/ · /"we can remove facutlries from other daemons then. but keep them on language learning"/ |
+| — | on top of the harness | /"a lot of stuff in the harness moves into conversational. conversational importanly running on top of harness."/ · /"steal."/ |
+| — | contextmap | /"or maybe we use primer vectors architecutre where lower levels define primer and tools to /a/level on our primer, and further down hosts overwrite those to /a/level or go /a/level/deeper"/ · /"i like the second."/ · /"contextmaps are a open flexible evolving system."/ |
+| — | the subject | /"The mode's CONVERSATIONAL engages nothing today. its subject of this quest to change that"/ |
+| — | which traits travel | SUPERSEDED by Q39 (none travel): /"trait inhertiance isnt a feature of all traits. just harnessed adn conversational."/ |
+| — | the thread patch | /"dont like. very bad. cut."/ |
+| Q8 | dysfunction is reported | /"if conversational trait present but no streamable audio, then what? ok. we solve that on the client. … wired into client via /metadata on /manifest and /cortex, and will result in ui state like disabled mic (shown because conversational trait but disabled because channel missing) and error messages on repl commands like /dictate or /call."/ · before it: /"paladin must protect against the case where a harness or conversational trait is define on runtime but the faculties are missing"/ |
+| — | two sessions | /"this relates to the new processing pipeline on paladin thats in scope for us. lets have 2 more sessions about this. one on paladin ledger adn instance and a second on runtime. i expect you to resolve the client side implications yourself. track changes."/ |
+| Q39 | no travel: a mode sets the two itself; a runtime · a daemon never wears them | /"this whole concept is shit. of traveling traits. stupid."/ · /"a runtime and daemon cant be harnessed or converstional. those are mode traits."/ · /"HARNESSED on runtime.manifest.traits refused by the schematic. this is correct. runtimes arent harnessed or converstional"/ · /"ok. lets do no travel for now. rip that out. if a mode wants harnessed and conversatoinal it gotta set it itself. easyer. RULED."/ · the schematic refusal as cast (=HostTraits= · =HostManifest=) KILLED 11-20: /"no. there is no fucking host. in our code. stuppid. this makes no sense. cut"/; whether any refusal returns is asked, unruled |
+| Q40 | a mode entry carries config for its four traits, in the thread's shapes; the default a thread takes when its own is empty | /"the recipie for mode allows for those 4 traits to be set on mode and that will be in hte shape of their thread trait counterparts and serve as automatic default if empty casts on mode mount be thread. amen."/ · before it: /"Do we even need a dedicated transmission here? … I don't know that we need additional machinery here."/ · /"it would make sense if that's fallback"/ |
+| Q41 | paladin checks the faculties a mode's trait needs, over runtime · daemon · the mode | /"this slightly changes some of the validation that the paladin must do - change vs travel: if a mode sets these, we need to make sure the required faculties are provided to runtime, daemon or the mode itself."/ |
+| Q42 | the mode's two words renamed: =HARNESS= · =CONVERSATION= | /"new deliverable: i want do adjust the mode names of harnessed and conversational. on mode rename them to HARNESS and CONVERSATION."/ |
+| Q43 | a mode entry's =traits= at its top, beside =trait= | /"a"/ · on the walk: /"rest s2 amen."/ |
+| Q52 | the process table · =processes= · =specs= live on the ledger, beside =boot= (A) | /"a"/ |
+| Q53 | a mode entry's =trait= config is keyed by the THREAD's words: =HARNESSED= · =CONVERSATIONAL= · =TOOLED= · =PRIMED=; OVERRIDES Q46's keys, the mode still wears =HARNESS= · =CONVERSATION= · =TOOLING= · =PRIMER= | /"What I want is that we have the conversational and harnessed and skilled and primed traits on the instances mode masks, and then those get used for adjusting the or casting to the threads when they're created or updated."/ · /"Just land all of it, and then I go over it. include the registry and commons for this"/ · "skilled" read as =TOOLED= (mine, no =SKILLED= in the tree, said to him) |
+| Q51 | "nothing selected" survives only where the settle beat runs; =stop= · =start= · =delete= outside an instance print the bare TypeError (A) | /"q51 a"/ |
+| Q50 | =client= stays on the instance; =home= drops; =specs= leaves the instance; where =specs= · =processes= live: OPEN, his bird | /"keep client on instance. drop home. move specs to belt. processes are instance properties too."/ · then /"ok. no specs and processes seem odd.  where should this go? /bird"/ |
+| Q49 | milestone 6: paladin comes first; the instance holds no paladin, its four process fields sit under =instance.paladin= (C) | /"where are the back references? we might just import paladin there."/ · /"c"/ |
+| Q48 | the mode's old words stay as deprecated siblings; the registry migrates whole; deleted later | /"ok. here we do the migration like this: keep the old trait names as //depracated in the entitiy. migrate the entire registry to the new. and at some point in the future we delete depracated."/ · on a =retired= map + heal: /"no special key for that. just keep them as siblings but with //depracated."/ · /"amen"/ · OVERRIDES Q42's "no alias" for these two words |
+| Q47 | where a thread is seeded: on the mode's twitch, each trait its own twin (B) | /"not sure this is the right place. feels like that should maybe be done else where. other place like if a mode receives a thread, it checks the thread. is there a twitch that reaches mode on thread set? or vice versa... otherwise maybe in the repl command that sets a thread/mode"/ · on A claiming · B the mode's twitch · C the repl command: /"b"/ |
+| Q46 | the entry's trait config: =ModeRecipeTrait= · =ModeMaskTrait=, =HARNESS= · =CONVERSATION= typed | /"ModeTrait - ModeRecipieTrait / ModeMaskTrait!"/ · on =HARNESS: Overwrite.optional(), CONVERSATION: Overwrite.optional()=: /"these two hsould bet specific."/ · /"s5 amen"/ |
+| Q44 | =manifest= leaves a mode entry, the entry alone (A) | /"no unheld. no manifest. lets be consistent. this is true for any recipie. no manifests. are there any?"/ · on how far it reaches (A the mode entry · B every recipe level · C A plus the client's traits lifted): /"a."/ |
+| Q45 | nothing refuses a mode's word on a runtime's · a daemon's manifest; no code | asked /does a runtime or a daemon recipe that writes HARNESS in its manifest.traits get refused at all? A no, nothing reads it/: /"a"/ |
+| Q24 | =INHERITED=, a primitive | SUPERSEDED by Q39 (the primitive never landed), on =const TRAVELLING = ["HARNESSED", "CONVERSATIONAL"]= in =3-integration.js=: /"call it "INHERITED" and move to primitives."/ |
+| — | asked, unruled | on a mode entry's =manifest: v.object({ traits … })=: /"why arent we using our standard manifest here?"/ · on ="daemon[spanish].modes[9]"=: /"why by number?? why not also build the .mode.type.slug map?"/ (=roadmap/modes-map.org=, his 10-09 strand, K1 the key) |
+| Q28 | one surface: the conversational trait writes its routes onto the harness's; the voice pieces move, the chat turn stays on =/harness/dialogue= | on the second surface: /"is it needed. does this split accomplish anything?"/ · /"ok. a then."/ |
+| Q29 | the thread carries config, the mode carries capability: the patch of both traits dies with no heir, a reader asks the config straight or the mode | /"first off the mode on a thread can change. does so all the time. what is it that the thread carries? it carries config! … i want the config to be persited. wouldnt want to have to rewrite my harness config every time i switch modes."/ · on the rework: /"amen"/ |
+| Q30 | the TERMINAL owns a running call on the client (neither the app nor the thread, his reframe) | /"q30 terminal owns it"/ |
+| Q30A | a call ends when its terminal seats another thread or its thread changes mode; the two dictation stores live on the terminal too | on A (either change ends it): /"a."/ · /"dictation also on terminal, yes"/ |
+| Q31 | nothing is handed down from the runtime, nothing replaces by name: a request carries its mode's and its daemon's domain's primer · tools and what the thread names, as today. Supersedes the =contextmap= row's /"i like the second."/ | on A (today) against B (the runtime's domain reaches every mode) and C (the deeper level replaces by name): /"a."/ |
+| — | =derive= | on =ledger/prototype.js:14=: /"what?? this makes no fucking sense. why is ther etype here??? brainfart."/ |
+
+* today — measured 11-19 (=reference/faculty-unfolding/terrain-11-19.md= · =synopsis-11-19.md=)
+
+#+BEGIN_SRC js
+// subsystems/paladin/instance/lifecycle/2-resolution.js:6 — ledger → instance: a declared slot REPLACES
+  if (below[slot] !== undefined || above?.[slot] === undefined) return false;
+// systems/runtime/subjects/runtime/lifecycle/1-population.js:85
+  die.runtime.cortex = new Cortex(die.runtime.instance.tiers);
+// systems/runtime/subjects/daemon/lifecycle/1-population.js:72 — the one level that adds
+  die.daemon.cortex = die.runtime.cortex.split(faculties);
+// systems/runtime/subjects/mode/factory.js:7 — a mode holds its parent's cortex by reference
+      ...shard.context.lift(contexts.modeDie, context),
+// systems/runtime/subjects/mode/traits/harnessed.js:297 — the one faculty rule, inside HARNESSED
+  if (streams("call") || (streams("verbatim") && streams("dialogue") && streams("speech")))
+// subsystems/typology/entities/Thread.ts:94 — every thread wears both
+        Object.assign(args.entity, belt.traits.patch(args.entity, { HARNESSED: {}, CONVERSATIONAL: {} }));
+#+END_SRC
+
+=~/.viva/instances/localhost/instance.viva.jsonc= declares no hallucinators at any level: runtime · chess · droneaid · spanish all hold the ledger's 14 (anthropic 3 · openrouter 8 · elevenlabs 3), none a =call=. A provider does no network at instantiation (read, not timed). Every voice path needs =via.stream= (=cortex.js:144-149= · =belt/cascade.js:11 · :22 · :75=); =channels= is read by the strip, the derived call and the reader's pdf pick only. Stale in the synopsis: =vcompany= inherits (it declares no hallucinators); =fast= resolves to =claude-haiku-5-5= today.
+
+* as code — ONE held hunk; the eleven landed sections live in =done/m126-facutly-unfolding.org= (two lands, 11-20); everything else below is SKETCH
+
+** the ledger file is a recipe — HELD 11-20, mine (my reading of his /"fix these. bring them into the fold."/, never ruled); lands after =~/.viva/ledger.viva.json:13= leaves
+
+=LedgerRecipe= the schematic is landed. This hunk makes =ledger.recipe()= refuse a key the recipe does not name. His own ledger holds one (=~/.viva/ledger.viva.json:13=, a stray ="traits": [],= directly under =runtime=): with this hunk his runtime would not boot. Old rows are the tree as landed 11-20.
+
+#+BEGIN_SRC diff
+// subsystems/paladin/ledger/prototype.js:87
+     const parts = await Promise.all(slots.map(async ([slot, value]) => [slot, await this.paladin.read.part(source, value, slot)]));
+-    return (this.declaration = { ...Object.fromEntries(parts), manifest, source });
++    const declared = { ...Object.fromEntries(parts), manifest };
++    const refused = v.primitives.instance.LedgerRecipe.faults(declared);
++    if (refused.length)
++      throw new Error(`ledger: ${source.absolute} ${refused.map((fault) => `${fault.at} ${fault.reason}`).join(" · ")}`);
++    return (this.declaration = { ...declared, source });
+   }
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/tests/ledger.recipe.test.js:205
+     expect(declared.runtime.hallucinators.map((mask) => mask.module)).toEqual([mind.module, voice.module]);
+   });
++
++  it("a ledger file is a recipe — a key its recipe does not name is refused at the read, the slot said (m126 Q37)", async () => {
++    const stray = (paladin) => ledger(paladin, { runtime: { ...ledger(paladin).runtime, traits: [] } });
++    const env = { VIVA_LEDGER_ANIMA: "http://anima:1794/", VIVA_LEDGER_SERVE: "http://ledger:1/" };
++    await expect(mount({ ledger: stray, instance: { daemons: [daemon] } }, env)).rejects.toThrow("/runtime must not have additional properties");
++  });
+ });
+#+END_SRC
+
+** Q8 · the report — hunks owed
+
+Anima already disables with a reason (=dock/textarea.jsx:28= =DEAF=, third entry); ghost hides the command (=ghost/entities/mode/traits/harnessed.js:37-39=). After: the mic shows on =CONVERSATIONAL=, disabled when no ear streams; =/dictate= · =/call= exist on every conversational mode and answer an error naming the missing faculty. Paladin checks a tier's =type= from the recipe; whether it streams is known only after the provider ran.
+
+** Q53 — LANDED 11-20 on his /"Just land all of it"/, 11 files, not walked by him yet
+
+=ModeMaskTrait= · =ModeRecipeTrait= (=subsystems/typology/schematics/primitives/instance.js:42 · :199=) hold the four thread words; the four seeding twitches read =mode.trait.HARNESSED= · =.CONVERSATIONAL= · =.TOOLED= · =.PRIMED= (=systems/runtime/subjects/mode/traits/{harness,conversation,tooling,primer}.js=). Mine, reported: paladin's check "a configured trait is worn" (=subsystems/paladin/prototypes/registry.js=, =wire=) kept, through a =SEEDER= table at the file's top (thread word → the mode trait whose twitch seeds it); its refusal now reads =trait HARNESSED configured, HARNESS not among its traits EXPOSED=. Tests: =typology/tests/schematics/instance.test.js= · =paladin/tests/settle.test.js= · =paladin/tests/registry.wire.test.js= · =runtime/tests/thread.starter.test.js=; doc =documentation/content/10-19_explanation/12_architecture/12.03_faculty-unfolding.mdx:41=. Registry · commons · his instances · his ledger: 0 writers, 0 readers of the old keys (grepped, quoted and bare), nothing migrated. Suites on the copy (= the tree, =cmp='d): typology =168 passed (734 steps) | 0 failed= · paladin =58 passed (258 steps) | 1 failed= (base red =mod.client.js=) · runtime =112 passed (710 steps) | 0 failed | 1 ignored= · ghost =42 passed (147 steps) | 5 failed= (base reds). His example, live on =:2501= (=~/.viva/instances/localhost/instance.viva.jsonc=, daemon =droneaid=, the entry =@droneaid/topography/models=: =traits: ["HARNESS", "CONVERSATION"]=, =trait.HARNESSED { tier: "fast", rounds: 6 }= · =trait.CONVERSATIONAL { language: ["en"], polish: { engaged: false } }=; backup =~/.viva/bak/instances/localhost-trait-config-20261120/=). My first cut added =TOOLING= and stopped his runtime (known issue =one-mode-entry-trait-without-its-export-stops-the-runtime=). UNVERIFIED: a thread created on that mode carrying the config (needs a signed-in call). Unrun: anima · commons · registry suites. Pre-land files: =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/fbd2f62b-6ff6-42bd-9bec-ab1ba897e240/scratchpad/q53.pre=.
+
+** Q49 · milestone 6 — LANDED 11-20 on his =land= (41 files, each =cmp='d to the copy, =:2501= answers; pre-land files in =scratchpad/m6.pre=); below: as built on the copy, SHOWN and amen'd, never cast
+
+Review 11-20: 3 stops · 3 amen · 1 drilled (stop 2 → Q50 · Q51 · Q52) · 0 skipped. 41 files differ from the repo (26 product, 15 tests; 0 new, 0 removed). The land waits on his =land=: it touches =systems/runtime/run.js= and =systems/anima/vite.config.mjs= under two live watchers.
+
+The copy: =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/fbd2f62b-6ff6-42bd-9bec-ab1ba897e240/scratchpad/z.m6= (the repo as of the traits land + =z.m6.py= · =z.m6b.py= beside it, then four hand edits: =tests/check.environment.test.js= · =tests/baked.test.js= · =commands/instance/install.js= · ghost =tests/subjects/shell/lifecycle.test.js=). After the recast: 41 files differ from the repo, 26 product, 15 tests.
+
+- RECAST on Q50 · Q51 · Q52 (=z.m6c.py= · =z.m6d.py=), the two entries below superseded: =Instance= keeps =client(slug)= alone, its sentence names =manifest.slug= (no mount to read; two test pins follow); =home= is gone, eight sites read =paladin.scope.instance= bare, the =NOTHING= throw one row in the recipe beat; =CHILDREN= · =processes= · =specs(…)= on =Ledger= (=ledger/prototype.js=), callers =paladin.ledger.specs(…)=; =Paladin= the class untouched; no belt file. Suites after the recast, same three envelopes as below.
+- =Instance=: no constructor argument, no method; =paladin = { requirements, faults, dormant, inherited }=.
+- =Paladin= gains =home= · =processes= · =specs(…)= · =client(slug)= (moved whole from =instance/prototype.js=, the =NOTHING= throw and the "masks no client" sentence unchanged).
+- the settle beats and =factory= take =paladin=; =factories.instance(paladin)=, memo key still =paladin.instance=.
+- the bake's =key === "paladin"= drop is cut: the bag crosses to the browser.
+- his "import paladin" (B) refused on two READ facts: 17 test files build their own =new Paladin()=; =baked= builds an =Instance= under =mod.client.js=.
+- mine, beyond what Q49's fence showed: =client(slug)= moved too (it reads =home= for its sentence); =paladin.home= instead of a bare =paladin.scope.instance= (keeps the =NOTHING= throw); =mount(populate(paladin))= ×4 in =install.js= became two rows; the Q49 count missed the factory's callers (11 product, 17 test).
+- on the copy, serial, =HOME= empty: paladin =58 passed (258 steps) | 1 failed= (the base red, =mod.client.js= twin) · runtime =112 passed (710 steps) | 0 failed | 1 ignored= · ghost =42 passed (147 steps) | 5 failed (16 steps)=, all five red on the untouched repo too (=OpenTUI native FFI is not available= ×15 steps, =renderers.test.js= mime =text/jsx=). UNRUN: anima · commons suites, anima in a browser (the bake now carries the bag), =~/.viva/registry= (0 hits for the old reads, grepped).
+- canon to re-stamp at the land: =codestyle.md= "a system's beat READS paladin" names =instance.specs(…)=.
+
+** Q42 · Q43 · Q44 · Q41 · Q40 · Q46 · Q47 · Q48 — LANDED 11-20, drained to =done/m126-facutly-unfolding.org= (=* as code — FIVE sections=)
+
+* owns — taken 11-19
+
+/"you take ownership of everything thats faculty,cortex,harness,conversational. take it away from the other quests. you are the owner of coherence of outcome and the quest."/
+
+| from | taken | at |
+|---+---+---|
+| =m125-francesca-call.org= | Q9 · Q13 · Q18–Q21 · Q23–Q29 · milestones 6 · 8 · 9 · 10 | =:30 · :34 · :38-41 · :43-49 · :251-256= |
+| =m123-call-faculty.org= | campaign C3 · C5 · C6 · C7 · milestone 8 · handoff next · owed | =:101 · :113-120 · :152-154= |
+| =m122-harness-layout.org= | deferred · handoff next · owed | =:105 · :125 · :127= |
+| =ledger-faculties.org= | R6 · deferred | =:19 · :52-55= |
+
+Stays: m125 = Francesca the mode (primer · her tools · the view · the overlay · the assessment · the games; milestones 1–5 · 7). m122 · m123 · ledger-faculties are landed records, closed by his =mv=. m125 and =frontier.md= had a live writer at 18:10: their pointers wait for its fold.
+
+* the pass — 11-19, measured over the four quests and the tree
+
+1. the cut and the mode's gift are ONE hunk: without the name =harnessed.js:30= hands =null= and =shard/hal.js:76= reads =conversational.hear= → TypeError (read, not run). Who gives is ruled: =m125-francesca-call.org:34= /"Yes, we add the conversational trait if the mode is conversational."/
+2. the mode's =CONVERSATIONAL= engages nothing: =mode/traits/conversational.js:1= is empty, zero =implements("CONVERSATIONAL")= under systems · subsystems · commons. Voice sits in =harnessed.js:287-305=, ghost =entities/mode/traits/harnessed.js:37-39=, anima =dock/textarea.jsx:28-32=
+3. "can it call" is written twice: =harnessed.js:297= · =prototypes/cortex.js:146-151=; a paladin check would be the third
+4. a missing ear, two quests: =m123-call-faculty.org:153= never /a guard for a missing ear (the route is absent)/ and its Q34, against Q8's command that answers an error. Q8's own words settle it on the client: /"wired into client via /metadata on /manifest and /cortex"/. A mode serves no =/metadata/cortex= (=mode/lifecycle/1-population.js:29-30=; =shard/host.js:20= runtime · daemon only)
+5. the served faculty drops its role: =belt/cortex.js:1-15= =strip= holds no =tier= key (probed, =scratchpad/mode-cortex.probe.js=: francesca's =tongue= gone on the wire)
+6. no branch can set a trait: =Runtime= · =Daemon= hold no =traits= key (=instance.js:45 · :111=) /(11-20: and never will, Q39; the travel sketch this finding judged is gone)/. /"add it"/ landed on a leaf (=runtime-harness.viva.js:11=). Twin: =Lighthouse.traits= (=instance.js:78=)
+7. "on top of the harness" hangs on the order of a list: =belt/traits.js:9= runs =manifest.traits= in order /(11-20: nothing reorders them, Q39; the order is the module's list, then its entry's, Q43)/; the francesca sketch in =m125-francesca-call.org= names =CONVERSATIONAL= before =HARNESSED=
+8. dead by Q6: =ledger-faculties.org:19= R6 · =:52-53= (the points served by the runtime). Stale since m122 Q0: =m123-call-faculty.org:153= never /=CONVERSATIONAL= as a voice marker/
+
+* open — unruled
+
+- RULED 11-19 /"q1 a."/ (Q25), kept for B's measure — his two questions are ONE: paladin cannot name a mode entry it only knows as a file. =identity= (=2-resolution.js:74=) reads type · slug off =@owner/type/slug= or =modes/<type>/<slug>/=; =commons/instances/hello-world/instance.viva.json:6= says ="modes": ["./mode.viva.js"]=, named only when =wire= folds its module (=placed=, =registry.js:273=). A: the entry's manifest stays an overlay (=Manifest='s keys, none required; probed =scratchpad/partial.probe.js=), =modes= an array, the host pairs by position. B: every entry is NAMED at settle (a file entry writes its =manifest: { type, slug }= in the recipe, else a fault), the mask holds the standard =Manifest=, paladin outputs =modes.<type>.<slug>= (array in, map out, his 10-09), =placed= dies, the host reads =die.mask.modes[type][slug]=. Probed (=scratchpad/keyed.probe.js=): his localhost keys whole, 3 · 13 · 12 · 10. B breaks the hello-world recipe and its slowstart page; it absorbs =roadmap/modes-map.org=
+
+- RULED elsewhere (the pass, 1): the mode gives a thread the two traits at create
+- RULED Q31 /"a."/ 11-19 (today stands, nothing handed down, nothing replaced by name) — was: the contextmap overlay against harness layout's references (m122 Q27 · Q34B: every level its own namespace, the nearest wins)
+- THE SUBJECT (his, 11-19): the conversational trait's wiring out of HARNESSED (=harnessed.js:153-208 · :287-305= · =belt/cascade.js=) on the runtime, ghost (=entities/mode/traits/harnessed.js:37-39=) and anima (=dock/textarea.jsx:28-32=), director · actor with it (m125 Q24–Q28); stop 6 carries it. Measured: =shape/object.js:6-15= folds the harness ONCE at HARNESSED's finalizer (=harnessed.js:348=), finalizers run in =manifest.traits= order (=mode/lifecycle/2-resolution.js:23=): a route grafted later is served, yet absent from =mode.harness=
+- the call's speed (m125 milestone 6) · the native call (m123 milestone 8) · =cortex.call= (m125 Q9): after the trait moves
+- m122's tails: =converse= declares once a session · examples · outputs into the signatures · the daemon run of the map · =drop_block=
+- three registry recipes (=brazilian= · =italian= · =spanish=) redeclare the ledger's faculties at the instance level: they move under =runtime= and shrink to what they add
+
+* the runtime · client side — his ask 11-19, the bird's demands
+
+/"so were done with the paladin side? we can move to runtime side and figure out how conversaitonal and harness can be torn appart? how their internals work. how conversational implement runs actor director. and how the clietn consumes this. how conversational runs on any mode in runtime or daemon."/
+
+/"and then the config side. that we can manage conversation on thread level and run turns and tools are called by director and the context  / primer of the actor is managed. and how we can steer this with the harness primer and tools. is there a conversation prototype that manages the consumer side?"/
+
+/"check out how this used to work. we had found a previous commit where before we had a differnt setup. i am sure teh Conversation prototype was involved."/
+
+/"i want a fresh agent to work out all the runtime adn client changes for m126 from scratch and birds eye"/
+
+Measured 11-19, READ off the tree, none run. =reference/faculty-unfolding/terrain-11-19.md= §7 · §8 and =synopsis-11-19.md:114-151= (the old trait, what to steal) hold the rest; this adds:
+
+- a call has ONE mind, HARNESSED's selector (=shard/hal.js:101=); its =system= · =tools= are captured once a call:
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/belt/cascade.js:32
+async function* session(ear, mind, mouth, { source, system, turns, tools, settings }, signal) {
+#+END_SRC
+
+- that mind's tool turn is answered inline; the mouth waits on it:
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/belt/hallucinate.js:274
+      if (packet.event !== "/turn/close" || state(turn) !== "tools") continue;
+      const answered = { event: "/turn/full", turn: await answer(policy, turn) };
+      yield answered;
+      answers.enqueue(answered);
+#+END_SRC
+
+- director · actor: zero whole-word hits under systems · subsystems · commons; in =~/.viva/registry= only vocabulary data (=education/topographies/*/dataset= · =.harvest=) and one firmware README. =schematics/traits/conversational.js:4-23= holds =language hear speak call harmonize polish=: no key for a director, for directions, for an actor's own primer. Nothing fires on a stored learner turn (=recording= seals at =mode/traits/harnessed.js:192-195=)
+- after show 5's hunks three voice pieces would still sit in =mode/traits/harnessed.js=: =:30= (=ctx.conversational= read off the thread, read by =shard.hal= only) · =:153= =attending= (=/call= only) · =:175-179= (the polish write-back, a call only). =persisting= · =recording= are shared with =/dialogue=
+- the consumer side of a call has NO owner: one command body, =ghost/gestalten/commands/content/call.js:43-71=, claims microphone · speaker, streams, plays, folds the transcript, merges turns, sets =bridge.$call= (=ghost/subjects/app/prototypes/bridge.js:13=; seven panel readers: anima =sidebar/sections.js:45= · =modeline/modeline.jsx:131= · =dock/textarea.jsx:188= · =dock/journal.jsx:304=, ghost =dock/textarea.jsx:274= · =modeline/modeline.jsx:54= · =dock/journal.jsx:182=). Ghost's mode trait catalog holds =exposed harnessed keymapped looping repling=, no =CONVERSATIONAL=; anima rides ghost (=anima/src/client.js:3=)
+- =Conversation= (=subsystems/typology/prototypes/conversation.js=) is a socket handshake (two vectors swap their strips, typed senders), on both barrels, zero product readers, two tests (=tests/conversation.test.js= · =tests/voice.conversation.test.js=). Product use =81c627d4a= 05-04 → =305701e90= 07-11. Killed by him, =done/m18_conversation_dissolves.quest.org:21-30=: /"what do we need conversation for anymore on the client??"/. Today's =/harness/call= is that quest's fork 2: one stream, frames up, packets down
+- the old client OWNER (=git show 305701e90~1:systems/kajuit/src/typology/entities/thread/traits/conversational.js=): =wire= (live = capability ∩ intent ∩ focus, =:155-157=) · =engage= · =release= (=:203-215=, the thread's trait word written through the repository) · =send= · =abort= · =$streaming= · =$pending= · =engageBox= (=:239=, commented out). Today the thread's word switches nothing: =entities/Thread.ts:94= patches it onto every thread
+
+Show 5 as SHOWN 11-19, never ruled: EVIDENCE for the bird, no milestone, not for =apply-diffs.py= (copied from =harnessed.after.js= · =conversational.after.js=; =REQUIRES= is Q41's typology primitive, keyed =HARNESS= · =CONVERSATION= since Q42, =POLISH= moves whole):
+
+#+BEGIN_SRC text
+// systems/runtime/subjects/mode/traits/harnessed.js:153
+-const attending = async (ctx, next) => {
++export const attending = async (ctx, next) => {
+…
+-const persisting = async (ctx, next) => {
++export const persisting = async (ctx, next) => {
+…  :8-14 POLISH and :287-306 (streams · /verbatim · /call) leave
+   harness.open({ nature: "/primer/reset", input: Loading }, resetting("PRIMED"));
++  mode.aperture.branch("/harness", harness);
++
+   return () => {
+-    mode.harness = shape.object(harness, steer.strategy.echo);
+-    mode.aperture.branch("/harness", harness);
++    mode.harness = shape.object(mode.aperture.branch("/harness"), steer.strategy.echo);
+#+END_SRC
+
+#+BEGIN_SRC text
+// systems/runtime/subjects/mode/traits/conversational.js — today: export const CONVERSATIONAL = () => {};
+export const CONVERSATIONAL = (mode, modeDie) => {
+  const harness = mode.aperture.branch("/harness");
+  const streams = (type) => modeDie.cortex.find({ type, via: "stream" }).length > 0;
+
+  if (streams("verbatim"))
+    harness
+      .branch("/verbatim")
+      .open(
+        { nature: "stream", feeds: Audio.Packet, yields: Packet.Response },
+        shard.hal.verbatim({ polish: POLISH, tier: "fast" }),
+      );
+
+  if (REQUIRES.CONVERSATIONAL.some((types) => types.every(streams)))
+    harness
+      .branch("/call")
+      .use(attending)
+      .use(persisting)
+      .open(
+        { nature: "stream", feeds: v.union([Audio.Packet, Audio.Played]), yields: Packet.Call },
+        shard.hal.call({ polish: POLISH, tier: "fast" }),
+      );
+};
+#+END_SRC
+
+Asked of him 11-19, unanswered: the director's wake · whether the actor waits (=m125-francesca-call.org:228=) · a client =CONVERSATIONAL= trait as a call's owner, =/call= only engaging it.
+
+* the drill — 11-19, the runtime · client side, in this session after its compact
+
+/"design first"/ · /"heavy design session"/ · /"pull context, work out the design, drill me on it, and keep track on all the cut stuff. cleanup time."/ · /"i assume lots of stuff will move from HARNESSED trait and belt.hal into CONVERSATIONAL trait"/
+
+LOOKUP, no question: the tear line is ruled. =m122-harness-layout.org:23= Q0 /"i would think for conversational to include chat turn stuff."/ · =:10= /"harnessed. means we have a place to put our tools and primer and stuff. its the thing we talk to. … we need another place to put allthe interaction stuff. conversation makes sense."/ · his assumption above. Show 5 tore by MEDIUM (voice routes only): against Q0. The tear is by STATE: HARNESSED = a primed, armed model call; CONVERSATIONAL = the turns of a thread, typed · dictated · called, on top of it.
+
+| piece | today | after |
+|---+---+---|
+| =normalizing= · =claiming= (thread · terminal · user · harnessed) · =activating= · =requesting= · =priming= · =armory= · =arming= · =composing= · =primed= · =marking= · =loading= · =resetting= | =mode/traits/harnessed.js:18-136 · :243-272= | HARNESSED |
+| =/object= · =choice= · =/picture/render= · =/tool/*= · =/primer/*= · =/metadata/harness= · the domain's and the module's graft | =harnessed.js:310-368= | HARNESSED |
+| the =ctx.conversational= read | =harnessed.js:30= | CONVERSATIONAL |
+| =chaining= · =attending= · =persisting= · =recording= · =verdict= · =appending= · =OPENING= · =SEALING= | =harnessed.js:138-241= | CONVERSATIONAL |
+| =POLISH= · the =streams= rule · =/verbatim= · =/call= · the chat turn on =/dialogue= | =harnessed.js:8-14 · :287-309= | CONVERSATIONAL |
+| =polishing= · =repairing= · =heard= · =verbatim= · =call= · =controlled= | =typology/gestalten/shard/hal.js:4-119= | CONVERSATIONAL |
+| =dictate= · =polish= · =call= · =mic= grafted off the served harness | =ghost/entities/mode/traits/harnessed.js:3-6 · :37-39= | the client's CONVERSATIONAL |
+
+Measured for it: twelve product callers of =mode.harness.object.render= pass =turns=, none stores a turn (commons 6 · registry 6); three call the chat turn from the runtime (=commons/instances/hello-world/tools/research.js:13= · =~/.viva/registry/chess/modes/coach/practice/aperture/index.js:98 · :117=); the client calls it once (=ghost/gestalten/belt/harness.js:5=). A director exists by hand: =~/.viva/registry/education/modes/teacher/francesca/harness.js:11-26= rides =/dialogue='s stream, fires =appraise= in its =finally= after =setTimeout(1000)=, never on =/call=.
+
+Q28 the surface (=/conversation= of its own, B, or grafted into =/harness=, A) — OPEN, his reading 11-19: /"q28 is interesting. conceptually i like b. but we'd implement a lot of overlap with the harness, no?"/ · /"i am still here"/. No lock. I withdrew it after his =/bird= and re-used its number for the question below: my error, reported; the surface keeps Q28. Measured for his worry: B's chain repeats five of the harness's seven =.use= (=harnessed.js:278-285=: the two context binds · =claiming= · the datamap bind · =activating=; not =normalizing=, not =requesting=) and reads the thread twice a typed turn (not timed); nothing of the primer, the armory, the model routes repeats. His own mark asks for the split: =harnessed.js:15-16= /"isolate some of the middlewares into shards.hal.["xyz"]() which would become our source of truth for cohesion in turn, hallucination etc implementation"/ — their home is Q28A. B's fence as first shown was short of the datamap bind and =activating=.
+
+His next turn on Q28: /"is it needed. does this split accomplish anything?"/ — my lean on B REVERSED (mine, reported): B changes nothing he or a mode author sees. Measured: no caller wants a =/dialogue= that stores nothing (twelve use =/object=, the four =/dialogue= callers all want the stored chat turn); the client already reads "can it call" off the served harness (=ghost/entities/mode/traits/harnessed.js:37-39=); the order A hangs on was paladin's while a branch could set the two /(11-20: no branch sets them, Q39)/, open only for a leaf that declares both itself in the other order (francesca). B's price: five repeated chain steps, a second thread read, four callers renamed, the client rewired. Offered instead: A sized down, ONE surface, the trait takes the voice pieces only (=/verbatim= · =/call= · =POLISH= · =attending= · the =ctx.conversational= read · =shard/hal.js:4-119=), the chat turn stays on =/harness/dialogue= until something needs otherwise.
+
+LOCKED Q28 A /"ok. a then."/ (=* rulings=); its hunk is owed: show 5's two hunks + the three leftovers (=harnessed.js:8-14 · :30 · :153-158=) + =shard/hal.js:4-119=, through =connoisseur=, cast on his word. CORRECTS my order claim above: on a MODE the inherited names land AFTER the module's own (milestone 3's probe, =* as code=: /inherited names land after the module's own (milestone 5 rules the order)/), so a module declaring =CONVERSATIONAL= alone and inheriting =HARNESSED= runs the conversation first. A needs the harness first: the order is this milestone's, mine, unsolved.
+
+His three questions 11-19 (high level, no code), answered from: =mode/lifecycle/1-population.js:58= (=entity.traits = [...modeDie.mode.manifest.traits]=, the folded manifest reaches the mode entity; today nothing is folded, milestones 1–3 are unlanded) · ghost =entities/mode/prototype.js:31= (=implements= reads the entity's =traits=) · a mode serves =/metadata/status= · =/metadata/manifest= only (=1-population.js:25-30=), no =/metadata/cortex=; the client holds a cortex per runtime · daemon (=ghost/gestalten/shard/host.js:40=) · =belt/cortex.js:1-15= the strip holds =type= · =via=, no =tier= · the client GRAFTS the call's commands or not (=ghost/entities/mode/traits/harnessed.js:37-39=): hidden, never disabled, no reason shown.
+
+His turn after the three answers, 11-19: on the runtime trait /"not just the voice pieces. everything needed for conversation / call with a actor/director setup. before this you must study the git references for this. shuo and another one https://github.com/KoljaB/RealtimeVoiceChat https://github.com/NickTikhonov/shuo"/ — Q28's hunk WAITS for the director · actor design. On director · actor /"this whole thing is for another session. send a subagent to do two things. first go through our conversations since m122 and find references to the actor/director model. we tlaked abotu this. and tehn second study the architecture examples we settled on. have that subagent 1: report the references and then 2: design our actor/director given a study of the code of the references."/ — SENT (opus, read-only; its report lands at =scratchpad/director-actor/report.md=). On the order · the thread · the served metadata /"lets work through these while the agent designs the actor/director model."/ On the clients /"client modes (if you mean modes defined in the instance as client modes) dnont get harnessed or conversational. if you mean mode entities - correct."/ — mode ENTITIES meant (=systems/ghost/entities/mode/traits/=); an instance's client modes wear neither.
+
+The order, DECIDED (mine, he never sees it; probed =scratchpad/order-free.probe.js=): HARNESSED attaches its Vector in its BODY (show 5's one moved step), the conversational trait writes its routes in its FINALIZER, onto the live =/harness=. Both orders printed =served: "call via harness"= · =strip: ["dialogue","call"]=. The in-process =mode.harness= lacks =call= when HARNESSED finalizes first: no in-process reader of the voice routes exists (grepped: runtime · commons · registry call =object= · =dialogue= only). Caveat: a middleware put onto an EXISTING route that late misses the in-process fold (=shape/object.js:6-15=).
+
+The thread, SHOWN 11-19, waits his amen: =Thread.ts:93-94= patches the two names its MODE entity wears /(11-20: superseded, the patch is CUT and the mode's =HARNESS= trait seeds the thread at its first request, =** Q40=)/, read in the hook as its sibling reads the intent (=:86=). Pure part probed (=scratchpad/gift.probe.js=): wakaru =["HARNESSED"]= · francesca =["HARNESSED","CONVERSATIONAL"]= · a mode wearing neither =[]=. Unrun: the hook's =em= read on mikro. Red at the cut: =systems/runtime/tests/thread.test.js:40 · :48 · :77=. Lands AFTER Q28's hunk, else a thread on a module that declares =HARNESSED= alone meets =/verbatim= without its config (=shard/hal.js:76=).
+
+T4 REJECTED by him 11-19, the gift from the mode: /"first off the mode on a thread can change. does so all the time. what is it that the thread carries? it carries config! like what model is used for what purpose, bla bla. but i want the config to be persited. wouldnt want to have to rewrite my harness config every time i switch modes. rework t4"/. REWORKED, shown, waits his amen: the patch dies with NO heir. Measured: =belt/traits.js:35-44= =cast= fills every declared thread trait from its schematic's =.default({})= whatever the =traits= list holds (=schematics/traits/index.js:44-49=); probed =scratchpad/config.probe.js=: a thread born with =traits: []= holds both configs whole, a chosen =tier: "fast"= survives a move to another mode. The WORD lands when the user chooses (every client writer goes through =traits.patch=: =ghost/gestalten/commands/content/harness.js:59-107= · =polish.js:18= · =system/set.js:33-41=) and means "claimed, so validated" (=traits.js:40=). The word's READERS turn to the config (straight, as =harnessed.js:112 · :119= read =TOOLED= · =PRIMED=) or to the MODE: =mode/traits/harnessed.js:29-30= (and the three =!== null= arms of =requesting=, =:58 · :59 · :65=) · anima =sidebar/sections.js:94 · :563= · =registry/education/modes/games/wakaru/aperture.js:48=; =Thread.ts:70= reads the word for a stored repair, kept. Red at the cut: =runtime/tests/thread.test.js:40 · :48 · :77= (the two words), =:49= stays. DEPARTS from m125 Q13 /"Yes, we add the conversational trait if the mode is conversational."/: nothing is added by a mode; said to him.
+
+LOCKED Q29 /"amen"/ (=* rulings=), UNCAST, the two hunks as shown; the follow-ons (=requesting='s three =!== null= arms · anima =sections.js:94 · :563= · wakaru =aperture.js:48= · =thread.test.js:40 · :48 · :77=) owed with the cast:
+
+#+BEGIN_SRC diff
+// subsystems/typology/entities/Thread.ts:93
+       (args: any) => {
+-        Object.assign(args.entity, belt.traits.patch(args.entity, { HARNESSED: {}, CONVERSATIONAL: {} }));
+         args.entity.trait = belt.traits.cast(args.entity, v.thread.traits);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/harnessed.js:29
+-  ctx.harnessed = ctx.thread.traits.includes("HARNESSED") ? ctx.thread.trait.HARNESSED : null;
+-  ctx.conversational = ctx.thread.traits.includes("CONVERSATIONAL") ? ctx.thread.trait.CONVERSATIONAL : null;
++  ctx.harnessed = ctx.thread.trait.HARNESSED;
++  ctx.conversational = ctx.thread.trait.CONVERSATIONAL;
+#+END_SRC
+
+His aside on the test's =slugging: "deep"=: /"wtf is slugging???"/ — answered: his own setting, =m122-harness-layout.org:44= Q19 /"i want the setting enum for flat, nested, deep (default) already in place for me to change when i want"/, narrowed by Q27 (=flat= dead).
+
+The served metadata (his third item) — NOTHING new on the runtime: milestone 4, cast, already serves a mode's faculties (=mode/lifecycle/1-population.js= =+ .open("/metadata/cortex", …)=) and its probe printed francesca's served entry holding =tier=; the pass's points 4 · 5 predate that cast. TWO claims of mine corrected to him: "the runtime side of served metadata is open" (it is designed) · "no disabled state, no reason on the client" (anima HAS both for dictation: =dock/textarea.jsx:28-32= =DEAF=, =:263= a disabled mic titled with the reason; read off ghost alone). Left, the clients': the mode ENTITY holds its mode's faculties (ghost builds a cortex per runtime · daemon only, =gestalten/shard/host.js:40=) · the reason names the missing faculty, not the missing route · a call gets the same. It waits for what a call REQUIRES, the director · actor design.
+
+The subagent RETURNED 11-19; its report file was denied by a guard (/Subagents should return findings as text/), so it is landed, condensed, as =reference/faculty-unfolding/terrain-11-19.md= §10 (his words by session · both repos read as code · the agent's design SKETCH · nine forks · the contradictions). Its core finding: neither repo holds a director, both are references for the ACTOR's loop; every reply there is a fresh request from system + history. The parked question below loses its number (Q29 is the thread's).
+
+His =/drill-me= 11-19 /"on everythign except agent/driector"/. The list, mine: Q30 who owns a running call on the client (the app as today, or the thread) · the shared middlewares' home (his mark =harnessed.js:15-16=, =shard.hal=) · the client's judgement and its reason (the mode entity's faculties) · the contextmap (overlay or references, =* open=) · paladin's tail (=misworn= · Q26's literal reading · milestones 6 · 7) · the three registry recipes. Measured for Q30, READ not run: a call ends only on =/call/end= or its stream's end (=ghost/gestalten/commands/content/call.js:66-75=), nothing ties it to a thread; all seven panels read the app's =bridge.$call=, so it shows on every thread; DEFECT: the thread is captured at the start for the runtime (=call.js:53=) yet read again on every packet for the local merge (=:64=, =ctx.terminal.thread.id= · =ctx.terminal.mode.id=), so after a thread switch mid-call the client files the call's turns under the NEW thread until a reload. A terminal's thread is a store (=ghost/subjects/terminal/prototype.js:22 · :28=, the setter writes =$thread=); that a re-seat reaches the setter is unrun.
+
+LOCKED Q30 /"q30 terminal owns it"/ — his reframe over my A (the app) and B (the thread). UNCAST, as shown: =$call= beside =$thread= · =$buffer= on =ghost/subjects/terminal/prototype.js:22-23= with its plain getter; the command writes =ctx.terminal.$call= (=call.js:50 · :61 · :69=) and captures its thread ONCE (the defect's fix); =bridge.js:13 · :66= die; the seven readers ask the shown terminal (ghost =modeline.jsx:54= · =dock/textarea.jsx:274= · =dock/journal.jsx:182=, anima =sidebar/sections.js:45 · :820= · =modeline.jsx:140= · =dock/textarea.jsx:188= · =dock/journal.jsx:304=). NOT locked, asked next: Q30A what ends a call besides =/call/end= (its terminal seating another thread · its thread changing mode) · whether =$dictation= · =$dictationFault= follow to the terminal.
+
+LOCKED Q30A /"a."/ · /"dictation also on terminal, yes"/ (=* rulings=), UNCAST: the command listens on its terminal's =$thread= and releases the microphone (=call.js:43=, torn down in its =finally=); a mode change on the SAME thread ends it too, its observation unrun; =$dictation= · =$dictationFault= leave =bridge.js:11-12= for the terminal, =dictate.js= writes there. Mine, said to him: a dictation ends on the same two changes (it is bound to a thread's config too). Q30 · Q30A as shown, UNCAST:
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/prototype.js:22
+   $thread = atom(null);
+   $buffer = atom(null);
++  $call = atom(null);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/commands/content/call.js:43
+     async (ctx) => {
++      const thread = ctx.terminal.thread;
++      const left = ctx.terminal.$thread.listen(() => microphone.release("end"));
+       const { microphone, speaker } = ctx.client.app.box.device;
+…
+-      ctx.client.app.bridge.$call.set(voice);
++      ctx.terminal.$call.set(voice);
+…
+-            await ctx.client.runtime.entities.turn.merge({ ...turn, thread: ctx.terminal.thread.id, mode: ctx.terminal.mode.id });
++            await ctx.client.runtime.entities.turn.merge({ ...turn, thread: thread.id, mode: thread.mode.id });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/app/prototypes/bridge.js:11
+-  $dictation = atom(null);
+-  $dictationFault = atom(null);
+-  $call = atom(null);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panels/dock/journal.jsx:182
+-  const call = from(ambient.app.consume().bridge.$call);
++  const call = from(ambient.terminal.consume().$call);
+#+END_SRC
+
+As shown the listener sat ABOVE the row that binds =microphone=: a use before its =const= (mine, caught at the fold); at the cast it goes below =:44=, torn down in the =finally=.
+
+Q31 ASKED 11-19 as a walk, the premise under the contextmap: does a level BELOW the mode put primer · tools into every request under it by default? His two rulings pull apart: =done/empty-armory.org:11= /"I want an entirely empty vessel. The system is an empty space, and then we add. Runtime tools do not enter the daemons. Runtime is its own thing."/ (11-12) against =* intent= /"where we can also provide tools and primers at each level."/ and =* rulings= /"lower levels define primer and tools to /a/level on our primer, and further down hosts overwrite those to /a/level or go /a/level/deeper"/ · /"i like the second."/ (11-19). Today, cited (=reference/faculty-unfolding/terrain-11-19.md= §5): a request carries its mode's primer · tools, its daemon's domain's (=harnessed.js:47 · :81=), three always-armed tools (=:83=) and the thread's =PRIMED= · =TOOLED= on top (=:117-136=); NOTHING from the runtime level, no two levels share a path, so nothing overwrites.
+
+Q31 as first asked: /"I don't understand really the question. … the way you express it and the way you present it is very unclear."/ → re-asked on a worked case, then his =/show-me the two options= · =/drill-me the two options=. SHOWN as three, smallest first, probed =scratchpad/handdown.probe.js= (the case's three texts are invented, the mechanism is the tree's): A today · B the runtime's domain reaches every mode too, under its own name, one added step beside =harnessed.js:47= (=ctx.runtime.domain= is already held: =runtime/lifecycle/1-population.js:111=) · C every handed-down piece lands in the mode's OWN names, the same name replaced by the deeper one. Measured: a mode's own place is the root under =deep=, =/teacher/francesca= under =nested= (=belt/reference.js:11-18=; settles terrain §9's open fact); the education domain's slug is =language-learning=. C breaks a ruled premise, said to him: =m122-harness-layout.org:61= Q34B (a name's length is its distance from the thread's mode) and renames every domain tool for the model (=language-learning_review= → =review=; francesca's own code names it, =harness.js:36=).
+
+LOCKED Q31 /"a."/ (=* rulings=): no hunk, today stands; the =* open= item on the contextmap overlay CLOSES, the title's last clause is met by the daemon's domain and the thread's =PRIMED= · =TOOLED=.
+
+Q32 ASKED 11-19: the home of the steps both traits need (=claiming= · =activating= · =chaining= · =persisting= · =recording=). Measured: the runtime's trait barrel is =export *= a file (=subjects/mode/traits/index.js=), so show 5's =export const attending= would land in the trait CATALOG every host is handed; =shard.hal= has ONE user, =harnessed.js:294 · :304=; =recording= imports the =TurnEntity= class (=harnessed.js:3 · :172-181=) and typology's entities import its belt (=entities/Thread.ts:3=): =shard.hal= taking =recording= as it stands would close a cycle, unrun. A: his mark (=harnessed.js:15-16=), typology =shard.hal.*=. B: the runtime's own =gestalten/shard/= (=cargo= · =host= · =process= live there).
+
+Q32 WITHDRAWN 11-19 on his /"I thought what the conversational trait did was wire into the harness. So why would we need to have duplication in the steps, since they have the same steps and they're running on the same harness? … I don't understand."/ — he is right and my premise was false: a route written onto the harness runs the harness's chain (=scratchpad/order-free.probe.js= printed =call via harness=), so =claiming= · =activating= · =requesting= are never repeated, and =chaining= is =/dialogue='s alone. ONE function is shared, =persisting= (with =recording= inside, =harnessed.js:160-208=): =/dialogue= and =/call= each put it on their own route. DECIDED, mine: =harnessed.js= exports it, the barrel names its trait as it already does for one sibling (=traits/index.js:17= =export { FILESINK } from "./filesink.js";=), so nothing leaks into the catalog. His mark on =shard.hal= (=harnessed.js:15-16=) stays his, unasked.
+
+His order 11-19: /"i dont think your mental model of actor and director is correct yet. i suspect you need to study the reference material for that one. lets first get harnessed vs conversational out of the way"/ — everything on director · actor below is MY reading, unverified; owed before it is asked again: =m125-francesca-call.org= read whole on Q23–Q28 and its references.
+
+PARKED by him, unnumbered (first asked under the number Q28), not to be leaned on: where the actor's context comes from on each reply of a call. A: frozen at the call's start (=belt/cascade.js:32 · :50=), the director's word PUSHED in as a packet (my r7 pick, =m125-francesca-call.org:228=). B: every reply is one call through the harness, the primer read again; the director's tools write state, a primer section reads it; no packet, no store of directions. Probed (=scratchpad/primer-live.probe.js=): =shape/primer.js:23= fires a section's effect on every load, the second load printed the changed state; one load of francesca's primer (16655 chars + one live section) 0.006 ms. NOT timed: the thread read (=harnessed.js:24=) and =arming= (=:86=) a reply through the harness adds. B moves =cascade='s =session= into the trait with the mind swapped for a harness call, and withdraws r7's packet for the derived call; a native call faculty (m123 milestone 8) still needs a packet at the provider's edge.
+
+Connoisseur over Q28's two hunks (his =/connoisseur=, 11-19) — B tightened, A no twin. B: the =acting= helper dies, the call sits in the loop's =answer= as =commons/instances/hello-world/tools/research.js:13 · :18= writes it (no intermediary); the loop mints the reply's controller and cuts THROUGH it, =AbortSignal.any= (=cascade.js:46-47=) dies (17 · 18; twin =prototypes/controller.js:28 · :66=, probed =scratchpad/actor-cut.probe.js=: one reply cut, the call lives; the call ended, the reply cut, reason =parent ABORTED=); =tier: "actor"= leaves the hunk, the mind stays the thread's selector as =shard/hal.js:101= (14: a second decision, the config question's). Standing, named: a =/dialogue= that takes =turns= and stores nothing does not exist today (=harnessed.js:307= · =primitives/harness.js:19=), B leans on the tear; a passed controller skips the activity (=harnessed.js:35=), so a reply adds the thread read (=:24=), =arming= and =mode.looping= (=:86-88=), not timed; =primed= cannot run twice on one ctx, =composing= pushes four =tools.use= a call (=:132-135=), hence a fresh request a reply. A: ="/system/full"= has zero hits under =typology/schematics= · =belt= (19), and it is a second writer of the actor's system beside =primed= (=harnessed.js:266-272=), the cache marks of =:270= left stale (15).
+
+The questions after it, mine, in order: the surface · one loop for a typed and a heard turn · the director's thread (its own, steered by its =PRIMED= · =TOOLED=) · its wake, whether the actor waits · the directions (a tool the director calls, where they are stored) · the thread's config after the tiers (=hear= · =speak= · =call= selectors beside =ear= · =tongue= · =actor= · =director=) and the mode's gift at create · the client's owner of a call and its state (=bridge.$call=) · dictation's home · =cortex.call= bare against the trait's call · a mode's =/metadata/cortex= (Q8).
+
+** director · actor, opened — 11-19, his /"m126 continue."/ + =/drill-me= · =/bird= after the fold's compact
+
+Read by me this time, not the agent: shuo whole (=shuo/state.py= · =agent.py= · =services/llm.py= · =conversation.py=), the second repo's request queue and its hold on the final (=speech_pipeline_manager.py:240-262= · =server.py:660-692=), francesca's hand-made director whole (=registry/education/modes/teacher/francesca/harness.js:11-129=). Held now: both repos are ONE speaker's loop, the same shape as =belt/cascade.js:59-91=; they differ from ours in two things only, the request rebuilt every reply (=llm.py:83-85= against =cascade.js:32=) and nothing ever waiting on a tool (=hallucinate.js:274-277=). The only director in any of it is his own: francesca's =appraise= runs after the reply, on the same thread, through the mode's harness (=harness.js:46=), and stores its tool call and result as parts on the sealed reply (=:119-127=).
+
+Q33 ASKED as a walk on one rep (the texts invented, the stored shape francesca's): what fills the block between the primer and the history of the actor's request. A: everything the director's last stored turn holds, its tools' results and its words, nothing written for it. B: only what the director passed through one tool of the trait (his /"provides contextual update style tools"/), the latest call. Probed =scratchpad/block.probe.js=, both requests printed; they differ in the one key. Premises shown with it, MINE, unruled: the director is the mode's harness as today on the SAME thread · it runs after the learner's turn is stored, never before the actor · its rounds are stored as a turn of the thread · a turn holding a tool call is the director's (the actor has none). Lean B, said with its price (one more tool round before the directions land).
+
+** director · actor, drilled — 11-19, a SECOND session (=5549aedc=) beside the one above; its questions are lettered D (its Q0 · Q1 met Q30–Q32 here)
+
+His opening: /"i want to build a actor director model for converstation calls. how do they work? research the current meta. go through ikiro for recent references"/. The meta, four families by who starts the slow mind: A the actor PULLS (a tool on the actor + filler; breaks =never: a tool on the actor=) · B the director PUSHES onto state the actor reads at every reply (Talker–Reasoner arXiv 2410.08328 · ConvFill) · C the director works AHEAD (VoiceAgentRAG, it predicts and prefetches) · D one model thinking behind its own speech. His: /"Combination of these two sounds exactly like what I want to do. C is more about the well, the identity of the director, the role of the director, and how the wiring works. And then the B is the implementation side."/ Held: B is the wire, C the director's job on it.
+
+LOCKED, his, all UNCAST, no =go=:
+- D0 /"q0 a"/ — the actor never waits; the director works behind it. SKETCH of the wake, twin =shard/hal.js:4-50=:
+#+begin_src js
+// subsystems/typology/gestalten/shard/hal.js — SKETCH, beside `polishing` (:4)
+async function* directed(packets, sealed) {
+  let turn = null;
+  try {
+    for await (const packet of packets) {
+      turn = soma.pour(turn, packet);
+      if (packet.event === "/turn/close" && turn.role === "user") sealed.enqueue(turn);
+      yield packet;
+    }
+  } finally {
+    sealed.close();
+  }
+}
+#+end_src
+- D1 /"ok."/ — each reply of a call is its own request; the primer is read when the reply starts; the call's loop leaves typology's belt for the conversational trait. It is the PARKED question's B (above). On a copy of =belt/cascade.js:50= the one row =system= → =system()=: reply 2 read what the director wrote during reply 1.
+- D2A /"amen."/ on six points, verbatim: /1. One thread per conversation. It is the record, and the dock shows it. 2. The thread's config is the director's. The director is the mind you configure; the actor is how the thread speaks. 3. Every spoken turn is stored as its own turn, one to one. 4. The director's work is stored on the same thread, as tool parts. 5. Each mind gets its own view of that record. The actor's is spoken turns only, and only the last few. 6. A subthread stays an isolated worker. Neither mind wants isolation from the other./
+
+His model, with the amen: /"the actor view must contain the context that the director decides for it. the directors role is to predict the conversation. to steer. and to call tool like for francesca run reviews. and pull games and feed fe."/ · before it /"new meta is that directors call tools and predict"/.
+
+REJECTED, his: the =/system/full= packet (/"It's not really an event. Declaring this as an event is mismodeled. Something is off."/; r7's packet dies with it for the derived call) · francesca's hand-made director as a reference (/"is shit and should be forgotten. thast old."/) · the director's word written into the primer (/"no. thats lossy on restarts."/) · a subthread for either mind (his own walk: a tool set in the config widget misses a subthread; a child actor leaves the dock off the conversation) · "the actor filters" (/"I don't think that the idea of the actor needing to filter them out is right"/).
+
+OPEN, asked, unanswered:
+- D3 how a primer section names its mind (his /"the actor needs identity and direction specific to it and not the director and vice versa. how? primer offers no way to do that."/ · /"maybe we expect certain primer keys for wiring?"/). A: a branch, =primer/actor/…= · =primer/director/…=, the rest shared, the other mind's branch trimmed (=prototypes/vector.js:47=). B: a header key =role: actor= (=paladin/gestalten/belt/prime.js= spreads every frontmatter key onto the section's pattern; =steer.trie.sieve=). C: the trait names the actor's sections, the primer stays flat (from the platypush reference, =terrain-11-19.md= §10); one misspelled reference dropped the section with no error. All three ran on paladin's loader. His /"not sure yet."/ Lean A, mine, no ruling.
+- D4 the director's word, HIS fork: /"is that always the last tool call input of the directors call set_actor_conversation_context? or maybe all of them as part of the turn history?"/ A: the last call only, one system section the next call replaces. B: every call as a turn at its place (the first direction had left a four-turn window; it sits as a =user= turn beside the learner's). Both fold the stored turns, both survive a restart. It PRESUMES Q33's B (one tool of the trait) and asks only Q33's residue; Q33 stands unanswered. Lean A, mine, no ruling.
+
+His scenario (/"francesca has neither harness nor converstional. but the harness and conversation get derived. whats in context??"/ · /"dont want the @runtime to hardcode any primers or tools other than whats absolutely required"/): by Q31 nothing of the runtime harness's primer · tools enters her request; the runtime arms three tool sets and no primer (=mode/traits/harnessed.js:83=); the actor holds none (m125 Q24).
+
+Found, unsolved, mine: a turn holds =role · parts · meta= (=typology/entities/Turn.ts:48-50=), nothing says which mind wrote it, so by part type the director's closing text leaks into the actor's view (=views.probe.js=) · the lazy listing (=shape/primer.js:59=) tells a tool-less actor to call =primer_load= · a primed request per reply on the real harness is NOT timed · a director round that outlives its request · ghost's dock pairs tool parts its own way (=systems/ghost/surfaces/chrome/panels/dock/journal.jsx:34=).
+
+Probes, copied out of the session's scratchpad and RUN from their new home at the fold: =reference/faculty-unfolding/director-actor-11-19/= — =probe.js= + =cascade.copy.js= (D0 · D1; this copy still cuts a running round, 1 superseded) · =pull.probe.js= (a lazy system refused at =prototypes/cortex.js:128=) · =views.probe.js= (D2A, the leak) · =split.probe.js= · =split.c.probe.js= + =primerA= · =primerB= · =primerC= (D3) · =word.probe.js= (D4). NOT kept: the packet's two probes; the serial director queue (4 of 4 graded) lived there.
+
+The tour cut for it, four stops: 1 the director's wake behind the actor · 2 the actor holds no tools · 3 the director's round, its storage, what the journal shows · 4 the client. Stop 1 drilling (D0 · D1 · D2A came out of it), 2–4 unshown.
+
+** the cut ledger — kept through the drill; RULED = his words exist, CANDIDATE = waits its question
+
+| what dies | where | readers, grepped 11-19 | state |
+|---+---+---+---|
+| the patch of both traits onto every thread | =typology/entities/Thread.ts:94= | — | RULED /"dont like. very bad. cut."/ · Q29 /"amen"/: no heir; waits =go= |
+| the thread's WORD asked as a gate | =mode/traits/harnessed.js:29-30 · :58 · :59 · :65= · anima =sidebar/sections.js:94 · :563= · wakaru =aperture.js:48= | 5 readers | RULED Q29 |
+| =Conversation= · its two barrel entries · its two suites | =typology/prototypes/conversation.js= · =index.ts:10= · =index.client.js:37= · =tests/conversation.test.js= · =tests/voice.conversation.test.js= | product 0 · tests 4 | RULED m18 |
+| the conversation primitive file | =typology/schematics/primitives/conversation.js= | no importer | CANDIDATE |
+| =voice= · =defaults= | =typology/gestalten/shard/hal.js:121-134= | =hal.voice= · =hal.defaults= 0 hits, repo + registry | CANDIDATE |
+| the call rule's second copy | =mode/traits/harnessed.js:297= (the one stays, =prototypes/cortex.js:146-151=) | — | CANDIDATE |
+| the hand-made director: the =finally= · the one-second sleep · the =meta.appraise= check | =registry/education/modes/teacher/francesca/harness.js:11-26 · :38= | — | CANDIDATE, the director's question |
+| the call's and the dictation's stores on the app | =ghost/subjects/app/prototypes/bridge.js:11-13= | =$call= product 12 · tests 22; =$dictation= 10 · 17; =$dictationFault= 6 · 4 | =$call= RULED Q30 (moves to the terminal); the two dictation stores CANDIDATE |
+| the mind's tool turn answered inside a call | =typology/gestalten/belt/hallucinate.js:274-277= | — | CANDIDATE, =cortex.call= bare may keep it |
+| already in the milestones: the instance's =tiers= (Q6) · =raw= (Q20) · its process fields (Q17) · the root =hallucinators= slot (milestone 2) · =split= · the tiers argument of =new Cortex= (milestone 4) | =* as code= | — | RULED |
+| three recipes redeclaring the ledger's faculties | =registry= =brazilian= · =italian= · =spanish= | — | CANDIDATE (=* open=) |
+
+* the shelf — what moves OUTSIDE the repo with the land (his registry · his ledger; listed, never written by a replay)
+
+Measured 11-20 through the replayed copy, his files read-only. The repo side LANDED 11-20; every row below is still OPEN (nothing under =~/.viva= was written). His =localhost= instance boots on the landed tree (=:2501= =RUNNING=).
+
+| file | at land | the move |
+|---+---+---|
+| =~/.viva/registry/vcompany/tests/scenarios.js:58= | its rig throws | =new Mode({ manifest })= → =new Mode({ module: { manifest } })= |
+| =~/.viva/registry/*= — 32 files, 73 words (Q42) | at the Q42 land a module that still says =HARNESSED= · =CONVERSATIONAL= wears an UNKNOWN trait: no harness, no chat | the mode's word turned by =y.reg.py= (below), per package, his =go= + his jj |
+| =~/.viva/registry/education/modes/games/wakaru/aperture.js:48= (Q40) | reads the thread's WORD; a thread no request has seeded yet reads =null= there, its own fallback runs | his: read the config straight, or leave |
+| =~/.viva/registry/vcompany/tests/scenarios.js= · =vcompany/modes/office/vdex/tests/*= · =education/domain/tests/kernel/datasink.test.js= (Q47) | a rig mode that is a plain object, or whose twitch never reaches the datamap: =mode.twitch.open= on =undefined=, or threads born without =HARNESSED= | UNRUN: give the rig mode a =Twitch= and register it, as =systems/runtime/tests/scenarios/cortex.js= does |
+| =~/.viva/registry/education/modes/games/dojo/bundle/*.mjs= · every built bundle | bakes typology's mode vocabulary | rebuilt by its build, never edited |
+| =~/.viva/registry/vcompany/modes/office/vdex/tests/snapshots/vdex-tools.snapshot.json= | 11 mode words | turned by the script; or regenerated |
+| =~/.viva/registry/education/instances/spanish/instance.viva.json= | REFUSES to mount | the root =hallucinators= onto =daemons[0]= |
+| =~/.viva/registry/education/instances/italian/instance.viva.json= | REFUSES to mount | the same |
+| =~/.viva/registry/education/instances/brazilian/instance.viva.json= | REFUSES to mount | the same |
+| =~/.viva/ledger.viva.json:30= | tolerated, dead | the =tiers= key leaves |
+| =~/.viva/ledger.viva.json:13= | tolerated, junk since Q39 (nothing reads a =traits= key under =runtime=) | PROPOSED, his: delete the ="traits": [],= row; then the held hunk (=** the ledger file is a recipe=) can land |
+| prod's ledger | UNREAD from here | any key its recipe does not name refuses the boot: read it before the deploy |
+| every instance recipe on prod | UNREAD from here | a root =hallucinators= or =tiers= refuses the boot: read each before the deploy |
+
+The three recipes, migrated WHOLE, his formatting kept, the list moved verbatim and every other key equal (asserted by parse): =.ikiro/reference/faculty-unfolding/shelf-11-20/{spanish,italian,brazilian}.instance.viva.json=. Each is his file with rows =:7-40= (=:7-51= italian) cut at the root and set, four spaces deeper, after its daemon's =manifest=:
+
+#+BEGIN_SRC sh
+# what moves, read, nothing written
+diff -U1 ~/.viva/registry/education/instances/spanish/instance.viva.json .ikiro/reference/faculty-unfolding/shelf-11-20/spanish.instance.viva.json
+#+END_SRC
+
+Settled through the replayed copy, 0 faults each: runtime =anthropic:3 openrouter:8 elevenlabs:3=, the daemon and every mode the same (italian's openrouter 9), deepgram dormant on this machine (no key). Before the move each held ONLY what it declared; after, the ledger's providers too (Q2).
+
+Q42 on the registry, 11-20: the script is =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/fbd2f62b-6ff6-42bd-9bec-ab1ba897e240/scratchpad/y.reg.py= (copy it out of the scratchpad before a reboot clears it). It turns every hit bar a built =bundle/=, the two files of thread words (=education/modes/games/wakaru/aperture.js= · =tests/mode.test.js=), three thread rows of =education/README.md= (=:729 · :732 · :742=) and comment rows (his =//=). Dry on his registry, read-only: =files 32 · words turned 73 · kept 14=. Run WET on a COPY (=…/scratchpad/y.world/viva/registry=), the copy booted (=* changelog=). No recipe under =~/.viva/instances= or =registry/*/instances= holds either word or an entry's =manifest.traits=: nothing of Q43 · Q39 moves there.
+
+#+BEGIN_SRC sh
+# dry, nothing written
+python3 <scratchpad>/y.reg.py ~/.viva/registry
+# wet, at the land, his go
+python3 <scratchpad>/y.reg.py ~/.viva/registry --write
+#+END_SRC
+
+The files it turns: =assembly= README · 3 modules · 3 tests · =chess= 4 modules · 4 tests · =education= README · aprende · harvest · comando · cocina · dojo · wakaru · francesca · =vcompany= calendar · chat · email · vdex (+ its snapshot) · cto · cfo · ceo · =young-ladys-primer= primer. UNRUN: each package's own suite on the renamed copy; any registry rig that hands the runtime's =HARNESS= trait a hand-built mode still works (=Mode.trait = {}=, Q40).
+
+* deferred
+
+- manifest dissolved at every recipe level, his /"this is true for any recipie"/, own quest (Q44 ruled A: the mode entry alone; daemons · clients · services · the runtime · the instance root keep theirs)
+
+* tests — owed with the code
+
+/(11-20: the cases of milestones 1 · 2 · 4 · Q36 · the pairs LANDED with their code, =done/m126-facutly-unfolding.org=; the first three rows and the milestone 4 row below are met. Travel's cases never landed, Q39.)/
+
+- Q42 · Q43 (+ Q44) · Q41 · Q40, CAST 11-20 with their code (each section's =tests= block), every new green made to fail once on the copy:
+  | Q | case | file |
+  |---+---+---|
+  | Q43 | an entry's traits at its top; under its manifest refused; the mask fills =[]= | =subsystems/typology/tests/schematics/instance.test.js= |
+  | Q43 | a trait the entry adds throws on the entry | =subsystems/paladin/tests/registry.integrity.test.js= |
+  | Q44 | a manifest on a mode entry is refused; an entry folds statics and adds traits, no manifest | =subsystems/typology/tests/schematics/instance.test.js= · =subsystems/paladin/tests/registry.wire.test.js= |
+  | Q41 | a mode without its faculties is reported at its lookup path, never refused | =subsystems/paladin/tests/registry.wire.test.js= |
+  | Q41 | =REQUIRES= is typology's | =subsystems/typology/tests/schematics/instance.test.js= |
+  | Q40 · Q46 | the entry's =trait=: four keys, typed by the twin, never filled; =rounds: 101= · =engaged: "yes"= · an unknown key are schematic faults; recipe and mask schematics equal | =subsystems/typology/tests/schematics/instance.test.js= |
+  | Q40 · Q46 | a valid overwrite stays as written through settle; a bad value surfaces at the entry's lookup path | =subsystems/paladin/tests/settle.test.js= |
+  | Q40 | config for an unworn trait refuses the bag | =subsystems/paladin/tests/registry.wire.test.js= |
+  | Q40 · Q47 | born on the mode a thread wears the four twins, each the entry's config · moved onto it, seeded at the move · a worn twin kept, the others seeded · no config, the bare word | =systems/runtime/tests/thread.starter.test.js= (new) |
+  | Q40 | a newborn thread wears its intent's words alone | =systems/runtime/tests/thread.test.js= |
+- COVERAGE GAP, Q40: the starter suite hands the mode's twitch to the datamap itself (=datamap.registerSubscriber(dewey.twitch)=, as =mode/lifecycle/1-population.js:63= does): the booted path is not driven by a test · no case drives =/verbatim= on a thread that never wore =CONVERSATIONAL= (the straight read) · anima's =sidebar/sections.js:94 · :563= on a thread without the word (no mind section): unpinned, its suite is red on this tree (=tests/= 12 FAILED · 1 ABORT · 8 ok on the pristine copy, the same per file after).
+- COVERAGE GAP, Q41: the runtime's and the daemon's beat's push of =bag.dormant= onto =paladin.instance.dormant= is not pinned by a test (two rows, read; the bag is pinned).
+
+- the fold: a mode's tier overwrites its daemon's · an untagged faculty is kept · a redeclared provider + id is one · source is not mutated; home: beside the ledger fold's cases, =subsystems/paladin/tests/ledger.recipe.test.js= · =ledger.parts.test.js= (they pin =inherited=, the whole-slot replace this quest ends for hallucinators)
+- the lookup: a worn tier beats the nearest · an unworn tier falls to the nearest of its type (=subsystems/typology/tests/cortex.test.js=; =:246= pins =split=)
+- a provider carries =tier= · =provider= through (each provider's suite + the stub)
+- milestone 4, owed: =new Cortex(faculties)= registers · a worn tier beats the nearest · no =split= (=subsystems/typology/tests/cortex.test.js=) · a mode's cortex holds what its daemon's lacks, served on its =/metadata/cortex= (=systems/runtime/tests/cortex-contract.snapshot.test.js=) · a wrong-type tier faults (=subsystems/paladin/tests/settle.test.js=) · a provider keeps =tier= · =provider= (each provider's suite)
+- show 5, owed: both list orders serve the four routes · HARNESSED alone serves no voice (=systems/runtime/tests/harness.compose.test.js=); the rig SKIPS the trait today: =scenarios/mode.js:64= staggers a catalog without =CONVERSATIONAL= · a vector attached onto a seated path keeps only what it held at that moment (=subsystems/typology/tests/vector.test.js:205=, the merge is pinned, the late addition is not)
+- the drill 11-19, owed with each cast: Q29 — =systems/runtime/tests/thread.test.js:40 · :48 · :77= turn (no word on a newborn thread; =:49= stays) + a case "a chosen tier survives a move to another mode" · Q30 · Q30A — =systems/ghost/tests/subjects/terminal/call.test.js=: the store sits on the terminal · a re-seat ends the call and frees both devices · a thread switch never re-files a turn (the known issue's first red); the 22 test hits on =$call=, 17 on =$dictation=, 4 on =$dictationFault= follow · the order — =scratchpad/order-free.probe.js= kept as a case of =systems/runtime/tests/harness.compose.test.js=: a route written in a finalizer is served under the harness's chain in either order · Q31 — none · director · actor — nothing to pin yet
+
+* changelog
+
+- 11-20 the recast on his walk (stop 6), Q47 B /"b"/: the seeding left =claiming= (=TWINS= · the filter · the flush gone) for four ears on the mode's twitch, each trait its own twin in its own file (=** Q40=, five probes run). Leftovers re-decided there: =ctx.harnessed= is the pre-Q40 row · =ctx.conversational= stays the one straight read · =Mode.trait = {}= stays · anima's gates untouched · the doc page says "created on that mode or moved onto it". Long new rows reflowed (=wire='s =above= · =held=, the stray throw, the four ears, the mask's =.desc=); left long: the comment row at =registry.js:248= and the =contexts.js= row (their files' own width). Replay of the four from this file onto a pristine clone: =88 · 10 · 10 · 27= hunks + 2 new files, 0 missed, =diff -rq= both ways empty. The final copy, whole, serial, =HOME= empty:
+  | suite | pristine | final copy |
+  |---+---+---|
+  | paladin | =58 passed (255 steps) · 1 failed= | =58 passed (258 steps) · 1 failed= |
+  | typology | =168 passed (731 steps) · 0 failed= | =168 passed (734 steps) · 0 failed= |
+  | runtime | =111 passed (703 steps) · 0 failed · 1 ignored= | =112 passed (707 steps) · 0 failed · 1 ignored= |
+  | ghost | =42 passed (146 steps) · 5 failed= | =42 passed (146 steps) · 5 failed= |
+  | commons | =65 passed (382 steps) · 5 failed · 2 ignored= | =64 passed (381 steps) · 6 failed · 2 ignored=, the sixth the stale gitignored =hello-world-draw.snapshot.json=; regenerated, hello-world's suites =18 passed · 1 failed= (the base red) |
+  | anima, per file | 12 FAILED · 1 ABORT · 8 ok | the same verdict per file (=call.test.js= · =harness.surfaces.test.js= equal) |
+  Reds equal by name. ORDER of those runs, said plainly: ghost and anima ran on the copy BEFORE the two rig rows landed in it (runtime then stood at 10 red, commons at 7); runtime and commons were re-run whole after; paladin · typology · ghost · anima were not (the two rows are test rigs of runtime and commons). Fail-once on the replayed copy: each trait's ear switched off in turn, its twin's cases red, restored green; NOT mutated: the "already wears it" guard. Boot: =:2611=, =RUNNING=, 0 faults, no dormant row for a mode, stopped by pid; his =:2501= · =:1794= untouched. Observed, not chased: a thread created with NO mode prints =[twitch:detached] Error: You cannot call 'EntityManager.findOne()' with empty 'where' parameter= in the rig (some after-ear reads the absent mode); not checked on the pristine copy. Mine, reported: three Q40 prose rows of this file were rewritten by script, not =Edit=.
+
+- 11-20 the recast on his walk (stop 5), Q46: =ModeTrait= · =Overwrite= died for =ModeRecipeTrait= · =ModeMaskTrait=, =HARNESS= · =CONVERSATION= typed through =schematics/traits/overwrite.js= (new, the one derivation =v= lacked); =SHAPES= · =misshapen= · =configured= left =paladin/instance/lifecycle/3-integration.js= (that file is no longer in Q40); the mask's =.desc= broken into rows. Replay of the four from this file onto a pristine clone: =88 · 10 · 10 · 21= hunks + 1 new file, 0 missed, =diff -rq= both ways empty. The final copy, whole: paladin =58 passed (258 steps) · 1 failed= (the base red) · typology =168 passed (734 steps) · 0 failed= · runtime =111 passed (705 steps) · 0 failed · 1 ignored=. NOT re-run: ghost · commons · anima · the boot · the fail-once mutations. Shifted, said to him: a bad =trait= value now refuses the MOUNT as a recipe fault (before: a settle fault), its sentence beside the union's two noise sentences.
+
+- 11-20 the recast on his walk (stops 2 · 3): Q44 A /"a."/ — =manifest= leaves a mode entry (=ModeRecipe= · =ModeMask=), =Unheld= gone, one fold case and one schematic row that pinned an entry overriding its module's manifest died (=** Q43=) · Q39's section CUT whole on /"no. there is no fucking host. in our code. stuppid. this makes no sense. cut"/, the chain is four · the two long rows in =claiming= reflowed. Replay of the four from this file onto a pristine clone: =88 · 10 · 10 · 23= hunks, 0 missed, =diff -rq= both ways empty. The final copy, whole: paladin =58 passed (258 steps) · 1 failed= (the base red) · typology =168 passed (734 steps) · 0 failed= · runtime =111 passed (705 steps) · 0 failed · 1 ignored=. NOT re-run after the recast: ghost · commons · anima · the boot · the fail-once mutations (the envelopes of the entry below stand for the five-section copy). Mine, reported: a Q43 case first pinned the cast mask whole and went red once Q40 added =trait= to it; loosened to the two facts it is about. New rows of mine holding =host=: none (two =+= rows of Q42 carry the word, both the tree's own rows with the trait word turned).
+
+- 11-20 the five sections cast to TANGLEABLE on his /"first persist to quest by a holistic pass on the new meta, up into tangleable. then /show-me me. then we land"/ (a fork of the session; quest only, nothing landed, nothing under =~/.viva= written). Envelopes, the pristine copy of the landed tree beside the worked copy, serial, =HOME= empty:
+  | suite | pristine | worked |
+  |---+---+---|
+  | paladin | =58 passed (255 steps) · 1 failed= | =58 passed (258 steps) · 1 failed= |
+  | typology | =168 passed (731 steps) · 0 failed= | =168 passed (735 steps) · 0 failed= |
+  | runtime | =111 passed (703 steps) · 0 failed · 1 ignored= | =111 passed (705 steps) · 0 failed · 1 ignored= |
+  | ghost | =42 passed (146 steps) · 5 failed= | =41 passed (145 steps) · 6 failed= on the last whole run, the sixth the filed =client.factory= flake; an earlier whole run of this copy =42 · 5= |
+  | commons | =65 passed (382 steps) · 5 failed · 2 ignored= | =65 passed (382 steps) · 5 failed · 2 ignored= |
+  | anima, per file | 12 FAILED · 1 ABORT · 8 ok | the same verdict per file |
+  Reds equal by name in every suite. The ghost flake: =tests/subjects/shell/lifecycle.test.js= /client.factory/ red 2 of 7 on the worked copy, 1 of 9 on the pristine one (=known-issues.org:93=). After the last two edits (anima's gates restored · the warn row in =wire=) paladin was re-run whole (=58 · 1=), anima's =call.test.js= re-run equal to its baseline, the whole census NOT re-run. Eight new greens were made to fail once on the replayed copy, each its case red, then restored (Q39's pattern · Q43's fold · Q41's check in =wire= and the table read in the trait · Q40's stray refusal, settle check, seed, and the cut); NOT mutated: Q43's schematic refusal · Q40's four schematic keys. Replay from this file onto a pristine clone: =88 · 7 · 6 · 10 · 23= hunks, 0 missed, =diff -rq= both ways empty bar gitignored =tests/snapshots=. Boot: the worked copy with a copy of his =localhost= recipe, his ledger, his databases and a registry copy renamed by =y.reg.py=, dummy keys, port =:2611=: =RUNNING=, 0 faults, no dormant row for a mode. Mine, reported: the first Q41 cut pushed onto =paladin.instance= inside =wire= (no instance in a rig: moved to =bag.dormant=) · Q40 first read =mode.mask.trait= (every hand-built rig mode holds no mask, 16 runtime suites red: moved to =Mode.trait=) · Q40 first made =ctx.harnessed= a straight read (an unworn rig thread then lost =config.rounds=, =research.test.js:88=: the claimed-or-null read restored) · Q40 first dropped anima's two word gates (four steps of =call.test.js= red: restored, the visible consequence said in =** Q40=) · a first quest replay moved whole directories on the SCRATCH clone (my census table stood under the word =Moves=; the Moves table is now the section's last) · the scratch runtime was stopped once by a =pkill= pattern, not its pid (his =:2501= untouched; his =:1794= listener was gone at the next look, a vite command line the pattern cannot match, a sibling session was live in his registry; unproven either way) · NOT found by this pass and still true: nothing in the runtime process READS =paladin.instance.dormant= (the doctor is another process), so the Q41 report reaches him as the boot's warn row alone.
+
+- 11-20 the land and the drain, on his /"first, you now land all the mask stuff. get that out of the way. open a clone of this quest in done, and moove whaterver is done in there and delete from the root m126 quest. drain and prune."/: six sections landed (its row with the envelopes: =done/m126-facutly-unfolding.org= =* changelog=); moved there with their rulings (Q1–Q7A · Q9–Q23 · Q25–Q27 · Q36–Q38), both review ledgers, session one and their changelog rows. Travel: /"this whole concept is shit. of traveling traits. stupid."/ → Q39 /"RULED."/; milestone 3's section, its blocks, the travel sketch and the "where a branch sets" row DELETED here, never landed. Held, mine: the ledger file's refusal (=** the ledger file is a recipe=)
+
+- 11-19 a fold of the SECOND session (=5549aedc=, director · actor only; =** director · actor, drilled=). LOCKED, his, uncast: D0 the actor never waits · D1 a reply is its own request · D2A one thread, two views, no subthread. REJECTED, his: the =/system/full= packet · francesca's director as a reference · the director's word in the primer · a subthread. OPEN: D3 · D4 (Q33's residue). Added by him as a reference: the platypush article (=terrain-11-19.md= §10). Mine, reported: the packet shown over the wince this file already held on it · the director's word dropped with the packet (m125 Q24) · "the actor filters" · D4 asked without naming Q33 · the tour's counter dropped after a compact · guards: agent-guard warned twice, vcs-guard denied one read. Rules: =skills/drill-me/SKILL.md= (four clauses) · =skills/show-me/SKILL.md= · =skills/unfold/SKILL.md= · =skills/bird/SKILL.md=. No product file touched.
+
+- 11-19 the fifth fold, on his /"we will next land the milestones we've already worked out"/. Since the fourth: his /"m126 continue."/ with =/drill-me= · =/bird=, no subject named; I opened director · actor (the handoff's next), read the references myself this time, asked Q33; he answered with the fold, so Q33 stands UNANSWERED. Mine, reported: a zero taken off a cut listing (=.tables | head -5= hid =Mode=; I concluded the daemons' turns live in another file and dropped a probe on a real thread of his; replayed whole: ONE db, no francesca turn on localhost, dojo 110 · the runtime's harness 14 · wakaru 4, so the probe's texts stay invented) → =codestyle.md:23= · two silent stretches of research → =skills/drill-me/SKILL.md:16= · one cwd-guard warn under this session's id. Nothing ruled, nothing cast, no product file touched.
+
+- 11-19 the fourth fold, after the drill on the runtime · client side (this session after its compact; =* the drill=). LOCKED, his: Q28 one surface · Q29 the thread carries config · Q30 the terminal owns a call · Q30A a re-seat or a mode change ends it, dictation's stores too · Q31 nothing handed down. All UNCAST, no =go=. Decided, mine: the trait writes in its finalizer (order-free) · =persisting= exported, the barrel naming its trait. Died, mine: a second surface (lean reversed on /"is it needed. does this split accomplish anything?"/) · the mode's gift to a thread (/"rework t4"/) · Q31 as first asked and Q32 whole (both /"I don't understand"/). Parked by him: director · actor; the subagent's report is =reference/faculty-unfolding/terrain-11-19.md= §10. His order, done: the word guard removed (script · both wirings · the doctrine clause · two frontier items). Filed: =known-issues.org= =call-files-its-turns-under-the-thread-shown-not-the-thread-called=. Claims of mine refuted in the session: "paladin orders the harness first on a mode" · "the served metadata is open" · "no disabled state on the client" · "five steps are shared". Rules: =codestyle.md:23 · :33 · :46 · :256= · =skills/drill-me/SKILL.md:37 · :44 · :51=. Guards: cap-guard warned four times on this file (inserted before the raise). Broken by me IN this fold, reported: five doctrine rows sharpened by a scripted replace in a heredoc (=codestyle.md:46= forbids it); sizes printed under their caps, nothing undone.
+
+- 11-19 terrain by one agent, spot-checked; the synopsis; =commons/harnesses/runtime/runtime-harness.viva.js:11= gains =CONVERSATIONAL= on his /"add it"/; the record: =documentation/content/10-19_explanation/12_architecture/12.03_faculty-unfolding.mdx=
+
+- 11-19 the drill: Q1–Q8 · Q3A · Q6A · Q7A. Departures, mine: old Q0 (a Vector in paladin against a plain fold) was never his to rule, decided plain · =TIERS= moved out of the trait's file (cycle) · tension 2 (inference against a declared trait) dissolved by /"branch has it -> leafs get it"/. The feasibility table and the milestones of the study died with the design.
+
+- 11-19 the take-over on /"you take ownership of everything thats faculty,cortex,harness,conversational"/: four sibling quests read whole, the tree measured, =* owns= · =* the pass= (8 findings) · the review re-cut to 11 stops. Departures, mine: the siblings keep their text, ownership is a pointer (no hunk moved) · m125 and =frontier.md= untouched, a live writer at 18:10 · the stored-trait assertion (m125 Q13) is not needed: a stored thread holds both names since the create patch
+
+- 11-19, from the m125 session, his /"m6 and m9 are moving in ownership to m126."/: m125's milestone 6 (the call's speed, no speculation: a warm mouth · the first clause flushed · a soft interruption · the cut told to the mind · the turn end's patience; ≈ 0.9 s to first audio; the mind =oss-groq= is in the ledger) and milestone 9 (director · actor: the directions as a packet beside =/turn/full=, =cascade.js:65=; unruled: the director's wake · whether the actor waits) are owned HERE. Source: =quests/m125-francesca-call.org= =** director · actor (Q24)= · =** the mind (Q23)= · rulings 21 · 23 · 24 · 27.
+
+- 11-19 the second fold: show 5 shown, unruled; Q27 locked. Mine, reported: the call's speed promised to show 5 in show 4, then cut from show 5 (now UNPLACED) · no connoisseur pass before shows 4 · 5, run at the fold: one wince, =conversational.js= imports =attending= · =persisting= from its sibling trait (18; shown as thing 4) · =unfold='s six facts skipped after the compact. Probes kept: =scratchpad/{acid,worn,traits,order.vector}.probe.js= · ={cortex,harnessed,conversational}.after.js= · =extend.lib.js=. Rules landed: =skills/show-me/SKILL.md:20= (a dying route says what it carried · green/red run or tagged · unplaced · the copy probe) · =codestyle.md= (no belt fn for rows a constructor absorbs · raise first) · =world/codemap/typology.md:77= (the seated attach)
+
+- 11-19 after the second fold: his ask for the runtime · client side (=* the runtime · client side=); the handoff redrawn as a fresh agent's brief, skill =bird=. Nothing run: every fact there is READ. Mine, reported: my first answer re-derived =reference/faculty-unfolding/terrain-11-19.md= §8 and =m125-francesca-call.org:222= after the compact, /"we talked baout this earlier"/ (rule: =skills/unfold/SKILL.md:38=). Read as mine, his to correct: milestone 4's runtime hunks stay RULED premises for the bird · the runtime replay offered to =vivalence-20= waits for the bird's delta
+
+- 11-19 the third fold: nothing ruled since the second; the handoff is a fresh agent's brief. Mine, reported: a zero-reader =Conversation= called "not this" before its history was read · the handoff first said show 5's hunks were in this file (they were only in the scratchpad; copied in now) · every =scratchpad/= pointer here was relative · the director · actor zero re-grepped: the registry holds the words as vocabulary data. Rules landed: =skills/unfold/SKILL.md:38 · :49 · :79= · =skills/fold/SKILL.md:46=
+
+* handoff
+
+- WHERE WE ARE, by his states (11-20 late, each LANDED grepped on the tree; mine: this file's CAST read as his DESIGNED, TANGLEABLE as his TANGLED): LANDED milestones 1 · 2 · 4 · 6, milestone 3's check half (Q41) with Q40 · Q42 · Q43 · Q48 · Q53, Q36 · Q37. TANGLED none waiting. DESIGNED in part milestone 5 (Q28–Q31 · D0 · D1 · D2A locked, D3 · D4 · Q33 open, zero hunks) · the held hunk (mine, unruled). DECLARED milestone 7 (the column stands, =subsystems/typology/entities/Daemon.ts:22 · :43=) · Q8's hunks · =* the shelf=. DEAD milestone 3's travel (Q39). Milestone 6 · Q53 landed from a copy: no tangle exists, their record is this file, not =done/=.
+- 11-20 late: milestone 6 LANDED (his =land=) and Q53 LANDED (=** Q53=); the "NOT landed" · "next: his =land=" below are history. next: his look at both · his restart of =anima/watch= (=systems/anima/vite.config.mjs= changed) · anima · commons · registry suites · anima in a browser; owed: a =ledger.specs= case in =subsystems/paladin/tests/spawn.test.js=.
+- milestone 6 (11-20): BUILT on a copy, three stops amen'd, Q49–Q52; NOT cast as diffs, NOT landed. The copy and its four scripts: =* as code=, =** Q49 · milestone 6=. next: his =land= (the 41 files copied from the copy, each =cmp='d; =systems/runtime/run.js= restarts =:2501=, =systems/anima/vite.config.mjs= is his restart) · then anima · commons suites and anima in a browser (the bake carries =instance.paladin= now). never: =home= back on paladin or the instance · =specs= · =processes= anywhere but the ledger · an import of the singleton into =instance/=. owed: a case for =ledger.specs= in =tests/spawn.test.js= (zero tests name it) · =codestyle.md= "a system's beat READS paladin" re-stamped to =ledger.specs(…)= at the land.
+- goal: four levels of hallucinators, every level adding; a tier a faculty wears; two traits set on a branch; a cortex per host from paladin's mask; a broken composition shown, never refused; the conversational trait owns voice on top of the harness, on the runtime and both clients; director · actor in a live call; a thread steers its conversation (config · primer · tools)
+- STATE 11-20, read this first: the paladin half is LANDED and lives in =done/m126-facutly-unfolding.org= (recipe in · mask out · a =.mask= on every host · hallucinators unfolding four levels · a cortex per host · faults by lookup path). NAMES: =xRecipe= the json as written, =xMask= what paladin hands a subject, =Faculty= what a provider built; prose dated before 11-20 in this file may say the old names
+- Q39, RULED 11-20: NO travel. A mode sets its two traits itself (its module's manifest, or its entry in a recipe); a runtime and a daemon never wear them. Travel was never landed and its hunks are gone from this file; a dated sentence below that still says "a branch sets the two" is DEAD
+- LANDED 11-20, the traits half (the second land), by the main session: 68 repo files in one pass (4 moved: =mode/traits/harness.js= · =conversation.js=, ghost =entities/mode/traits/harness.js= + its test) · registry 32 files · 73 words by =y.reg.py=, captured first to =~/.viva/bak/registry/m126-traits-20261120/= · =:2501= RUNNING after · three gitignored snapshots regenerated · repo tree: paladin =58 passed (258 steps) | 1 failed= the base =mod.client.js= red · typology =168 passed (734 steps) | 0 failed= · runtime =112 passed (710 steps) | 0 failed | 1 ignored=. No VCS write: his commits, repo and registry (jj)
+- UNRUN since the second land: ghost · commons · anima suites on the repo tree · every registry package suite · the registry rigs that build a mode by hand need the mode's twitch handed to the datamap (=vcompany/tests/scenarios.js= · =vcompany/modes/office/vdex/tests/*= · =education/domain/tests/kernel/datasink.test.js=) · =education/modes/games/wakaru/aperture.js:48= reads the thread's word (null on a thread of a mode without =CONVERSATION=) · anima in a browser · ghost tty
+- an OLD-word module (Q48 siblings, no dual read): =/harness= served and its threads seeded, but the runtime is not bound onto it (=runtime/lifecycle/2-resolution.js:44=), Q41 skips it, ghost · anima do not talk to it; none left in his registry
+- done 11-20: the land (115 files, one pass; paladin =58 passed (255 steps) | 1 failed= the base red · typology =168 passed (731 steps) | 0 failed= · runtime =111 passed (703 steps) | 0 failed= on the repo tree) · =release.md= lines · the drain
+- THE LAND'S HAND-OFF, 11-20 (the fork prepared it, landed NOTHING; scratchpad =S= = =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/fbd2f62b-6ff6-42bd-9bec-ab1ba897e240/scratchpad=):
+  - FIVE sections now, replay order Q42 → Q43 → Q41 → Q40 → Q48 (the bullet above still says four): =88 · 10 · 10 · 27 · 8= hunks + 2 new files, 0 missed, onto a pristine clone AND onto a clone of the repo as it stood at the end of the prep.
+  - land FROM =S/y.land= (a clone of the repo as it stood + the five replayed); restore FROM =S/y.nowbase= (that clone, untouched). =S/y.rp= is the same five on the OLDER pristine =S/y.base=: three touched files drifted since it (a sibling's =AUTOSIGNUP=: =typology/schematics/primitives/instance.js= · =schematics/traits/index.js= · =tests/schematics/instance.test.js=), so =y.rp= is NOT the land source.
+  - repo: =python3 S/y.land.py --from S/y.land --base S/y.nowbase --root <repo>= (dry: the allow-list counts, a DRIFT row per file the repo changed since =y.nowbase=, nothing written) · the same with =--write= (4 moves by rename, 66 edited + 2 new copied, a cmp of each; no touch, no VCS). A drift → rebuild =y.nowbase= · =y.land= (clone, replay the five) and run again.
+  - registry: =python3 S/y.reg.py --root ~/.viva/registry= (dry, the allow-list) · =--write= (wet). 32 files, 73 words: assembly 7 · chess 8 · education 8 · vcompany 8 · young-ladys-primer 1. It turns the mode's word alone; it OMITS every rig edit (a hand-built rig mode needs a =Twitch= handed to the datamap, =** Q40=) and =education/modes/games/wakaru/aperture.js:48=. No recipe under =~/.viva/instances= holds an old word.
+  - three gitignored snapshots, =SNAPSHOT_HOT=1= once on each test, then compare mode: =subsystems/typology/tests/mode-entity.snapshot.test.js= · =commons/instances/hello-world/tests/harness.snapshot.test.js= · =commons/instances/hello-world/tests/draw.snapshot.test.js=.
+  - UNRUN, by name: ghost · commons · anima on the five-section copy (their last whole runs were on the four-section copy: ghost =42 · 5= · commons =64 · 6= with the stale draw snapshot · anima equal per file) · every registry package's own suite · the registry rigs · fail-once beyond the sibling case · a boot against the RENAMED registry copy with Q48 in · =.ikiro= canon for the four moved files · =release.md= (=* release= is the four-section draft; Q48 adds: old words kept, deprecated).
+- next: (1) the land by the main session, as above · (2) his row 13 leaves, then the held hunk (=** the ledger file is a recipe=) · (3) =* the shelf= BEFORE a deploy: three education recipes refuse to mount, =vcompany/tests/scenarios.js:58=, prod's ledger and recipes unread · (4) the runtime · client side below
+- unrun since the land: the registry packages' own suites · anima's =sidebar/sections.js= in a browser · ghost's tty against the new runtime · =SNAPSHOT_HOT=1= over the wire snapshots
+- milestones, his five steps (Q16) + two; 5 is REDRAWN by the bird's pass: 1 the universal mask (CAST) · 2 faculty inheritance inside paladin (shown: =extend= merging by =module= and faculty =id=, probed =scratchpad/extend.probe.js=; the root =hallucinators= slot leaves =InstanceMask= · =InstanceRecipe= here) · 3 the two branching traits resolved, checked against the faculties · 4 a cortex per host (CAST; Q26 the acid inline, =new Cortex(faculties)=; =tiers= dies here) · 5 the branching traits on each host (the conversational trait; director · actor, m125 milestone 9; the call's speed, m125 milestone 6) · 6 the instance sheds its process fields and the paladin back-reference (Q17) · 7 the daemon entity's =mask= key (his order)
+- next, SECOND, SUPERSEDES the brief below where they differ (11-19, after the drill): director · actor is designed with him (his /"this whole thing is for another session"/; OPENED late 11-19 in this session, =** director · actor, opened=: Q33 ASKED, UNANSWERED, re-asked before anything leans on it, my lean B is no ruling), opening on =reference/faculty-unfolding/terrain-11-19.md= §10 and =* the drill=; locked there: Q28 (one surface, the trait writes onto =/harness=) · Q29 (the thread carries config, no patch, no gift); decided, mine: the trait writes in its finalizer, order-free. Waiting on that design: the runtime trait's hunk (/"not just the voice pieces. everything needed for conversation / call with a actor/director setup"/) · the clients' half of the served metadata · what a call requires. Not waiting: Q29's cast with its follow-ons, on his word
+- next, SECOND, where it stands (the second session's fold, 11-19): read =** director · actor, drilled= FIRST. Locked D0 · D1 · D2A; D1 withdraws the packet of m125 Q24–Q28 named in the brief's point 3. Re-ask D3 (a section's mind: branch · header key · the trait names it) and D4 (the director's word: the last call · every call), then Q33's rest, the turn's missing word (which mind wrote it), the director's wake and its own request, the client. Never: the =/system/full= packet · a subthread · francesca's hand-made director as a model · the word in the primer. Probes: =reference/faculty-unfolding/director-actor-11-19/=
+- the earlier brief — a FRESH agent, skill =bird=, zero edits: the runtime's and both clients' (ghost · anima) wiring for faculty · cortex · harness · conversational, derived from his demands, from scratch (his 11-19, =* the runtime · client side=)
+  1. open: skill =unfold=, then read in this order =* rulings= · =* the runtime · client side= · =* the pass= · =reference/faculty-unfolding/terrain-11-19.md= §3–§5 · §7 · §8 · =synopsis-11-19.md:114-151= · =m125-francesca-call.org:40-48 · :210-228= · =done/m18_conversation_dissolves.quest.org= · =done/conversation-dock-recast.quest.org=; the old trait by =git show 305701e90~1:<path>=. What these hold is CITED, only the gap is measured
+  2. the EDGE, fixed: paladin's output as milestones 1 · 2 · 3 cast it (a =.mask= on every host · =wire(mask)= → =hallucinators=, each faculty stamped =provider=; a mode's =HARNESS= · =CONVERSATION= its own, checked against =REQUIRES=, Q39 · Q41) and =TIERS= (milestone 4's typology hunk). Inside the runtime and the clients everything is free
+  3. RULED premises, his, broken only by a question to him: Q1–Q27 · milestone 4's runtime hunks (amen) · m125 Q24–Q28 (a tool-less actor · the director holds the tools and the actor's context · the directions a packet beside =/turn/full= · the trait owns both) · m18 (no =Conversation=, no second socket: a turn is a streaming request) · =never= below
+  4. NOT premises, evidence only: show 5's hunks (=scratchpad/{harnessed,conversational}.after.js= · =traits.probe.js= · =order.vector.probe.js=; /Measured for show 5/; every =scratchpad/= in this file is =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/849857cb-8c38-4690-aafd-afd1ee658351/scratchpad/=, gone at a reboot; show 5's two hunks are copied under =* the runtime · client side=, their measure is in =* session one=) · the eleven-stop =* review= · every block marked SKETCH
+  5. his demands, each answered as code: how harness and conversational come apart, internals included · how the conversational trait runs director · actor · how a client consumes it and who owns a call there · how it runs on any mode of the runtime or of a daemon · a conversation managed on the THREAD (config · turns) · tools called by the director, the actor's context · primer managed · steering through the harness's primer and tools
+  6. absorbs, each measured before it is placed: the =Thread.ts:94= cut with the mode's gift · Q8's client report (the mic off a mode's =/metadata/cortex=) · the call's speed (m125 milestone 6) · the native call (m123 milestone 8) · Q27's two readers (anima =sidebar/sections.js:455= its own five names · ghost =/tier= accepts all nine after) · ghost's cortex per runtime · daemon, none per mode (=gestalten/shard/host.js:40=) · anima =sidebar/sections.js:95= picks runtime | daemon · ghost's own modes take ={ module, mask }=, =instance.client(=
+  7. reports as skill =bird= step 7: the is as =show-me= stops, each fork ONE =drill-me= question; a lock lands in =* rulings=, hunks as =** milestone N= on his =amen= + =cast to quest=. A probe runs a scratchpad COPY of the file on his localhost instance read-only, never =:2501= · =:1794=
+- mine beside it, PALADIN's tail: =misworn='s call site · whether =fromm.mask(mask).faculties= was meant literally (Q26) · milestone 6 · milestone 7 · milestones 1 · 2 · 3 replayed on a copy (=methods/replay-quest.py=), their tests written; 2 · 4 land together. A sibling session (=vivalence-20=, his, 11-19) was offered the runtime replay (milestone 1's runtime hunks on a copy · the mode-holds-its-mask test · a booted runtime with the wire in =registry= · a provider throwing in a mode): unruled by him; it writes no entry here, findings arrive by message; the runtime hunks now wait for the bird's delta (mine, reported)
+- never: a trait patched onto every thread · a provider call inside typology · a tiers table in a recipe, a served one too (Q27) · trait inheritance for any trait but the two · a guard for a missing ear (m123) · a tool on the actor (m125 Q24) · a third copy of the call rule · a =Conversation= class or a second socket for a conversation (m18) · a belt fn for what a constructor absorbs (Q26) · a second surface beside =/harness= (Q28) · a mode giving a thread its traits, a hook too (Q29) · a call's state on the app or on the thread (Q30) · primer · tools handed down from the runtime, a deeper level replacing by name (Q31) · my nouns for director · actor taken as his (=an agent on its own thread= · =one turn stale by design=: mine)
+- owed: director · actor with him, the agent's nine forks (=terrain-11-19.md= §10: which turns run the split · whether the actor waits · what wakes the director · where its rounds are stored · its model · where the directions live · the first reply · the packet's name · how a trait attaches a primer section and a tool) · his word to cast Q29 · Q30 · Q30A (=cast to quest=), then =go= · unrun before those casts: the hook-free thread on mikro · a re-seat reaching the terminal's thread store · how a mode change on one thread is observed · the split with =vivalence-20= · his mark on =shard.hal= (=harnessed.js:15-16=), unasked · the clients' disabled state and its reason, mine, after the call's requirement is known · his points for =ear= · =tongue= · =actor= · =director= · his read of the architecture page · the pointers into =m125-francesca-call.org= (=:243 · :256= still name =quests/faculty-unfolding.org=) and =frontier.md=, after their live writer folds · this file's name (=facutly=, his =mv=)

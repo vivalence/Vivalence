@@ -21,6 +21,7 @@ export const execution = new Vector()
   .use(integration.metadata)
   .use(integration.cortex)
   .use(integration.call)
-  .use(integration.prune);
+  .use(integration.prune)
+  .use(integration.booted);
 
 execution.affect(process.keepalive);

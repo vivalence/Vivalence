@@ -71,6 +71,7 @@ export default async function provider(service) {
   const dialogue = (model) => {
     const { render, stream } = makeDialogue(model);
     return {
+      ...model,
       type: "dialogue",
       id: model.id,
       tune: model.tune,

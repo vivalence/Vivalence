@@ -43,7 +43,7 @@ export * as belt from "${GESTALTEN}belt/index.js";
 const seams = {
   name: "call-seams",
   setup(build) {
-    build.onResolve({ filter: /^@vivalence\/drapes\/parts$/ }, () => ({ path: PARTS }));
+    build.onResolve({ filter: /^@vivalence\/drapes\/solid$/ }, () => ({ path: PARTS }));
     build.onResolve({ filter: /^@vivalence\/ghost$/ }, () => ({ path: "ghost", namespace: "ghost" }));
     build.onLoad({ filter: /.*/, namespace: "ghost" }, () => ({
       contents: GHOST,

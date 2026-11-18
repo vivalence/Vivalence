@@ -1,5 +1,6 @@
 import { wrap } from "@mikro-orm/core";
-import { Aperture, contexts, control, shard, Vector } from "@vivalence/typology";
+import paladin from "@vivalence/paladin";
+import { Aperture, contexts, control, Cortex, cortex as faculties, shard, Twitch, Vector } from "@vivalence/typology";
 
 export const stdout = async (modeDie, next) => {
   try {
@@ -11,9 +12,19 @@ export const stdout = async (modeDie, next) => {
   }
 };
 
+export const acid = async (modeDie, next) => {
+  modeDie.register = await paladin.ledger.registry.wire(modeDie.mode.mask);
+  const supplied = await Promise.all(
+    modeDie.register.hallucinators.map((citizen) => citizen.provider(citizen)),
+  );
+  modeDie.mode.cortex = new Cortex(supplied.flat());
+  modeDie.cortex = modeDie.mode.cortex;
+  await next();
+};
+
 export const providers = async (modeDie, next) => {
   modeDie.providers = { ...modeDie.providers };
-  for (const [slug, citizen] of Object.entries(modeDie.mode.consume)) {
+  for (const [slug, citizen] of Object.entries(modeDie.register.consume)) {
     modeDie.providers[slug] = await citizen.provider(citizen);
     if (citizen.manifest.traits.includes("TOOLING") && citizen.tools) {
       modeDie.providers[slug].tools = citizen.tools;
@@ -27,7 +38,8 @@ export const core = async (modeDie, next) => {
     .use(shard.context.spread(contexts.modeDie, modeDie))
     .use(shard.context.bind("mode", modeDie.mode))
     .open("/metadata/status", (ctx) => ctx.mode.status.reflection)
-    .open("/metadata/manifest", (ctx) => ctx.mode.manifest);
+    .open("/metadata/manifest", (ctx) => ctx.mode.manifest)
+    .open("/metadata/cortex", (ctx) => faculties.strip(ctx.mode.cortex));
   if (modeDie.mode.module.aperture) modeDie.mode.aperture.graft(modeDie.mode.module.aperture);
   for (const kind of ["literal", "symbol", "view", "intent", "file", "note", "thread", "turn", "buffer"]) {
     modeDie.mode.aperture
@@ -40,7 +52,7 @@ export const core = async (modeDie, next) => {
     .use(shard.context.spread(contexts.modeDie, modeDie))
     .use(shard.context.bind("mode", modeDie.mode));
 
-  modeDie.mode.twitch
+  modeDie.mode.twitch = new Twitch()
     .use(shard.context.spread(contexts.modeDie, modeDie))
     .use(shard.context.bind("mode", modeDie.mode))
     .use(shard.datamap.owned());

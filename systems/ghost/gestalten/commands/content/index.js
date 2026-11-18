@@ -1,7 +1,6 @@
 export * from "./activity.js";
 export * from "./buffer.js";
 export * from "./call.js";
-export * from "./detach.js";
 export * from "./dictate.js";
 export * from "./harness.js";
 export * from "./mic.js";
@@ -10,3 +9,4 @@ export * from "./polish.js";
 export * from "./terminal.js";
 export * from "./thread.js";
 export * from "./turn.js";
+export * from "./upload.js";

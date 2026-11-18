@@ -14,7 +14,7 @@ let directory;
 let thread;
 
 const buildMode = (type, slug, mountpoint) => {
-  const mode = new Mode({ manifest: { type, slug, name: slug === "memo" ? "Memo" : undefined, traits: ["TOOLING"] }, source: { dirname: join(directory, slug) } });
+  const mode = new Mode({ module: { manifest: { type, slug, name: slug === "memo" ? "Memo" : undefined, traits: ["TOOLING"] }, source: { dirname: join(directory, slug) } } });
   mode.mountpoint = mountpoint === undefined ? undefined : new Path(mountpoint);
   mode.reference = new Path(`/mode/${type}/${slug}`);
   mode.entity = scenario.fixtures.mode;
@@ -131,9 +131,9 @@ specimen.describe("the harness tools — buffer · thread · mode", { sanitizeRe
     specimen.expect((await invoke(vector, "mode_find", { slug: "memo" })).product.message.split("\n")[1]).toMatch(/^srs\/memo/);
     specimen.expect((await invoke(vector, "mode_find", { slug: "nobody" })).product.message.split("\n")).toHaveLength(1);
 
-    const bare = new Mode({ manifest: { type: "home", slug: "bare" } });
+    const bare = new Mode({ module: { manifest: { type: "home", slug: "bare" } } });
     specimen.expect(paths(bare)).toBe("");
-    const read = new Mode({ manifest: { type: "home", slug: "read" }, source: { dirname: "/src" } });
+    const read = new Mode({ module: { manifest: { type: "home", slug: "read" }, source: { dirname: "/src" } } });
     read.mountpoint = new Path("/mnt");
     read.files = { directory: "/elsewhere" };
     specimen.expect(paths(read)).toBe("source /src · mountpoint /mnt · files /elsewhere");

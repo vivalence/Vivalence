@@ -4,7 +4,24 @@ import { Pensieve } from "./pensieve.js";
 import { probe, RULES } from "./integrity.js";
 import { derive } from "../ledger/prototype.js";
 
+const SEEDER = {
+  HARNESSED: "HARNESS",
+  CONVERSATIONAL: "CONVERSATION",
+  TOOLED: "TOOLING",
+  PRIMED: "PRIMER",
+};
+
+const { REQUIRES } = v.primitives.hallucination;
+
 const traits = (manifest) => manifest?.traits ?? [];
+
+const lacking = (citizen, name) => {
+  const faculties = citizen.hallucinators.flatMap((mask) => mask.faculties);
+  const held = new Set(faculties.map((faculty) => faculty.type));
+  return !REQUIRES[name].some((types) => types.every((type) => held.has(type)));
+};
+
+const needs = (name) => REQUIRES[name].map((types) => types.join(" + ")).join(", nor ");
 
 const normalize = (location) =>
   isAbsolute(location) ? location : location.replace(/^\.\//, "");
@@ -245,18 +262,19 @@ export class Registry {
   // mask ⊕ module, ONCE. a string is the module; an inline module (manifest, no identifier) is its own
   // citizen; a mask folds over what it names — its word whole (a service's datamap, a placed entry's
   // reference · url · mountpoint), manifest and statics by key (mask wins) — traits ACCUMULATE, a mask adds and never strips
-  // (settle fills traits: [] on every mask manifest) — secrets and the mountpoint the mask's alone.
+  // (a mode entry's own traits sit at its top, settle fills [] there) — secrets and the mountpoint the mask's alone.
   // module is the object, identifier the string.
   async accio(query) {
     if (is.string(query)) return this.module(query);
     if (!query.module) return { ...query, module: query, identifier: null };
     const module = await this.module(query.module);
+    const { traits: worn = [], ...mask } = query;
     const citizen = {
       ...module,
-      ...query,
+      ...mask,
       module,
       identifier: query.module,
-      manifest: v.primitives.Manifest.cast({ ...module.manifest, ...query.manifest, traits: [...new Set([...traits(module.manifest), ...traits(query.manifest)])] }),
+      manifest: v.primitives.Manifest.cast({ ...module.manifest, ...query.manifest, traits: [...new Set([...traits(module.manifest), ...traits(query.manifest), ...worn])] }),
       statics: { ...module.statics, ...query.statics },
       secrets: query.secrets ?? {},
     };
@@ -276,18 +294,38 @@ export class Registry {
       const reference = new Path(`/mode/${type}/${slug}`);
       return { ...citizen, reference, url: mask.url?.branch(reference.absolute) };
     };
-    const placedModes = (await many(mask.modes ?? [])).map(placed);
-    const modes = await Promise.all(
-      placedModes.map(async (citizen) => ({
-        ...citizen,
-        consume: await consumed(citizen.consume ?? {}),
-      })),
+    const modes = (await many(mask.modes ?? [])).map(placed);
+    for (const citizen of modes.filter((citizen) => citizen.trait)) {
+      const { type, slug, traits: worn } = citizen.manifest;
+      const stray = Object.keys(citizen.trait).filter((twin) => !worn.includes(SEEDER[twin]));
+      if (stray.length)
+        throw new Error(
+          `[registry] ${type}/${slug}: trait ${stray.join(" · ")} configured, ` +
+            `${stray.map((twin) => SEEDER[twin]).join(" · ")} not among its traits ${worn.join(" · ")}`,
+        );
+    }
+    const above = () =>
+      mask.manifest.type === "daemon" ? `daemons.${mask.manifest.slug}` : "runtime";
+    const unmet = modes.flatMap((citizen) =>
+      Object.keys(REQUIRES)
+        .filter((name) => citizen.manifest.traits.includes(name) && lacking(citizen, name))
+        .map((name) => ({
+          at: `${above()}.modes.${citizen.manifest.type}.${citizen.manifest.slug}`,
+          module: citizen.identifier,
+          empty: [],
+          why: `${name} — no ${needs(name)} among its faculties`,
+        })),
     );
+    for (const entry of unmet) console.warn(`[instance] ${entry.at} dormant, ${entry.why}`);
     return {
       ...(mask.datamap && { datamap: await this.accio(mask.datamap) }),
-      hallucinators: await many(mask.hallucinators ?? []),
+      hallucinators: (await many(mask.hallucinators ?? [])).map((citizen) => ({
+        ...citizen,
+        faculties: citizen.faculties.map((faculty) => ({ ...faculty, provider: citizen.manifest.slug })),
+      })),
       consume: await consumed(mask.consume ?? {}),
       modes,
+      dormant: unmet,
       domain: v.primitives.kernel.Domain.cast(modes.find((citizen) => citizen.manifest.type === "domain") ?? {}),
     };
   }

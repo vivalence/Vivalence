@@ -75,11 +75,11 @@ function partToContent(part) {
     case "text":
       return { type: "text", text: part.text };
     case "image":
-      return { type: "image_url", image_url: { url: `data:${part.media};base64,${part.data}` } };
+      return { type: "image_url", image_url: { url: `data:${part.mime};base64,${part.data}` } };
     case "document":
       return {
         type: "file",
-        file: { filename: part.filename ?? "document.pdf", file_data: `data:${part.media};base64,${part.data}` },
+        file: { filename: part.filename ?? "document.pdf", file_data: `data:${part.mime};base64,${part.data}` },
       };
     default:
       return { type: "text", text: typeof part === "string" ? part : JSON.stringify(part) };
@@ -104,10 +104,11 @@ export function buildParams(model, request, stream = false) {
     ? { type: "function", function: { name: RESPOND.name } }
     : settings.tool_choice;
   const params = {
-    model: model.id,
+    model: model.model ?? model.id,
     messages,
     max_tokens: settings.maxTokens ?? (model.thinking ? 32000 : 8192),
   };
+  if (model.upstream) params.provider = { only: [model.upstream], allow_fallbacks: false };
   if (marks.has("context")) {
     const system = messages.findLast((message) => message.role === "system");
     if (system?.content?.length) system.content.at(-1).cache_control = { type: "ephemeral" };
@@ -300,7 +301,7 @@ export function readChoice(response, { questions }) {
   );
 }
 
-const dataUrl = (image) => `data:${image.media};base64,${image.data}`;
+const dataUrl = (image) => `data:${image.mime};base64,${image.data}`;
 
 export function buildPicture(model, request) {
   const { size, aspect, count, format, background, ...rest } = request.settings ?? {};
@@ -319,7 +320,7 @@ export function buildPicture(model, request) {
 
 export function translatePicture(body) {
   return {
-    images: body.data.map(({ b64_json, media_type }) => ({ type: "image", media: media_type, data: b64_json })),
+    images: body.data.map(({ b64_json, media_type }) => ({ type: "image", mime: media_type, data: b64_json })),
     ...(body.usage && { meta: { usage: counted(body.usage), provider: { usage: body.usage } } }),
   };
 }

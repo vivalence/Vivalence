@@ -6,5 +6,5 @@ export const ATTACHED = (service, mask) => {
     .open("/manifest", () => service.manifest)
     .use(shard.context.bind("service", service))
     .use(shard.context.bind("mask", mask));
-  if (mask.attachment) service.attachment.graft(mask.attachment);
+  if (service.module.attachment) service.attachment.graft(service.module.attachment);
 };

@@ -1,5 +1,5 @@
-import { createEffect, For, from, on, onCleanup, onMount, Show } from "solid-js";
-import * as parts from "@vivalence/drapes/parts";
+import { createEffect, createSignal, For, from, on, onCleanup, onMount, Show } from "solid-js";
+import * as parts from "@vivalence/drapes/solid";
 import { belt } from "@vivalence/ghost";
 import * as ambient from "../../ambient/index.js";
 import { ALIGNS } from "../sidebar/sections.js";
@@ -178,6 +178,8 @@ export function Dock(props) {
   const thread = from(terminal.$thread);
   const activities = from(app.client.runtime.entities.activity.$entities);
   const float = from(app.bridge.$float);
+  const [taking, setTaking] = createSignal(null);
+  const [dropping, setDropping] = createSignal(false);
   let section;
   let journal;
   onMount(() => {
@@ -191,26 +193,63 @@ export function Dock(props) {
   };
   const lively = () => live(thread(), parts.listing(activities));
   const min = () => props.floating && placed().min;
-  const carried = (event, kind) =>
+  const carried = (event, kinds) =>
     props.floating &&
-    parts.carry(event, kind, {
+    parts.carry(event, kinds, {
       element: section,
       float: placed().float,
       min: placed().min,
-      onMove: (moved) => refloat(app.bridge, terminal, { float: moved }),
-      onDrop: (moved, zone) => zone !== null && terminal.repl.dispatch("/dock docked").catch((error) => terminal.controller.stdout.fault(error)).then(() => terminal.repl.dispatch(`/dock ${zone}`).catch((error) => terminal.controller.stdout.fault(error))),
+      onMove: (moved, zone) => {
+        setTaking(zone);
+        refloat(app.bridge, terminal, { float: moved });
+      },
+      onDrop: (moved, zone) => {
+        setTaking(null);
+        return zone !== null && terminal.repl.dispatch("/dock docked").catch((error) => terminal.controller.stdout.fault(error)).then(() => terminal.repl.dispatch(`/dock ${zone}`).catch((error) => terminal.controller.stdout.fault(error)));
+      },
     });
+  const hovered = (event) => {
+    if (!event.dataTransfer.types.includes("Files")) return;
+    event.preventDefault();
+    setDropping(true);
+  };
+  const left = (event) => section.contains(event.relatedTarget) || setDropping(false);
+  const dropped = (event) => {
+    event.preventDefault();
+    setDropping(false);
+    for (const datum of event.dataTransfer.files) {
+      let flying = { name: datum.name, bytes: datum.size, landed: 0, file: null };
+      const told = (next) => {
+        app.bridge.$uploads.set(app.bridge.uploads.map((held) => (held === flying ? next : held)));
+        flying = next;
+      };
+      app.bridge.$uploads.set([...app.bridge.uploads, flying]);
+      terminal.repl
+        .dispatch({ nature: "/file/upload", body: [datum], flags: { thread: thread().id } })
+        .then(async (packets) => {
+          for await (const { event, ...change } of packets) told({ ...flying, ...change });
+        })
+        .catch((error) => {
+          app.bridge.$uploads.set(app.bridge.uploads.filter((held) => held !== flying));
+          terminal.controller.stdout.fault(error);
+        });
+    }
+  };
   return (
+    <>
     <section
       ref={section}
       class="pane dock"
       classList={{ floating: props.floating, min: min() }}
       data-zone="1"
+      onDragOver={hovered}
+      onDragLeave={left}
+      onDrop={dropped}
       style={props.floating ? parts.perch(props.dock.align, placed().float, placed().min) : props.basis}>
       <div
         class="dhead"
         data-r="dhead"
-        onPointerDown={(event) => carried(event, "drag")}
+        onPointerDown={(event) => carried(event, ["drag"])}
         onDblClick={(event) => props.floating && event.target.closest("button, select") === null && refloat(app.bridge, terminal, { min: !placed().min })}>
         <Head dock={props.dock} thread={thread()} min={min()} live={lively()} />
       </div>
@@ -220,9 +259,19 @@ export function Dock(props) {
       <div class="textarea" data-r="textarea">
         <Textarea />
       </div>
+      <Show when={dropping()}>
+        <div class="dropzone whole">drop to attach</div>
+      </Show>
       <Show when={props.floating}>
-        <parts.Grip onGrip={(event) => carried(event, "resize")} />
+        <For each={parts.GRIPS}>{(edges) => <parts.Grip edges={edges} onGrip={(event) => carried(event, edges)} />}</For>
       </Show>
     </section>
+    <Show when={props.floating}>
+      <div
+        class={taking() === null ? "dropzone" : `dropzone ${taking()}`}
+        style={{ "--share": `${props.dock.share * 100}%` }}
+      />
+    </Show>
+    </>
   );
 }

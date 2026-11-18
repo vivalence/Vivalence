@@ -106,7 +106,14 @@ export const ModeSchema = new EntitySchema({
       hidden: true,
     },
     notes: { kind: "1:m", entity: () => NoteEntity, mappedBy: (note) => note.mode, hidden: true },
-    files: { kind: "1:m", entity: () => FileEntity, mappedBy: (file) => file.mode, hidden: true },
+    files: {
+      kind: "1:m",
+      entity: () => FileEntity,
+      mappedBy: (file) => file.mode,
+      cascade: [Cascade.REMOVE],
+      orphanRemoval: true,
+      hidden: true,
+    },
   },
 });
 

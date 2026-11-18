@@ -12,7 +12,7 @@ when_to_use: >-
   was already fixed" · before `Write` on frontier.md, MEMORY.md, quests/index.md or a codemap shard · `cap.py`
   prints OVER · "prune".
 ---
-<!-- limit: 5000 chars · lenses from github.com/cursor/plugins pstack/skills/reflect (MIT) -->
+<!-- limit: 5800 chars · lenses from github.com/cursor/plugins pstack/skills/reflect (MIT) -->
 # fold — the session improves the self; the archive is its by-product
 
 /"fold is for selfimprovement. fold is not only for archival stuff. its a self-improvement opportunity."/ · /"it has a recency bias … go message by message and section by section"/
@@ -33,7 +33,7 @@ THIS session's `<id>.jsonl`, oldest-first, each beef turn WITH the reply it answ
 5. **affirmed**: a non-default shape he took without correction lands too, one line, so it repeats.
 6. **report**: one row each: failure · root · the line, `path:line` · replay result; a quoted rule cuts its dead word `…` (11-14).
 
-A fold from recall, or one that leaves a cap IT pushed over, is re-run (REJECTED 11-13 `/fold` ×2 → /"just compact"/).
+A report's `deleted · moved · landed` is `ls`ed · grepped THAT turn, a summary's too (11-19 a side file "deleted", on disk). A fold from recall, or one that leaves a cap IT pushed over, is re-run (REJECTED 11-13 `/fold` ×2 → /"just compact"/; 11-21 again): its FIRST call is `python3 .ikiro/methods/walk.py <id>.jsonl`, read whole. The reply IS the fold: a design answer · an open question of the session lands in the handoff, never re-asked under it (11-21).
 
 Not failures: design leans · /"i suspect"/ · `wait` · a retraction (/"i retract the retard."/). A code defect → known issues.
 
@@ -43,10 +43,10 @@ Per failure and defect: that test, its home (a case in the sibling suite, never 
 
 ## 3 · archive — his work lands with its owners
 
-- **quest**: per live quest touched, affirmed fences → `* as code` (skill `quest`, Tangle), his words → `* the dialogue`, `* handoff` `goal · done · next · never · owed`; its absences re-grepped (2.2). Outlives it → known issues (dupe-grep first).
+- **quest**: per live quest touched, affirmed fences → `* as code` (skill `quest`, Tangle), his words → `* the dialogue`, `* handoff` `goal · done · next · never · owed`; its absences re-grepped (2.2). A handoff for ANOTHER agent names a scratchpad by its ABSOLUTE path, and an uncast hunk it leans on is copied into the quest as evidence first (11-19 show 5's hunks only under `/private/tmp`). Outlives it → known issues (dupe-grep first).
 - **frontier**: `quests/frontier.md` re-read, then WHOLE, ≤2000 chars, a pointer line per live quest (REJECTED 10-24 `next: go`).
 - **moved names**: skill `name`'s grep → zero bar the keep-list.
-- **caps**: `python3 .ikiro/methods/cap.py`, pasted; CHARS, never `wc -c` (11-17). Over → one fate each: DRAIN to its owner · TRASH what a grep answers · KEEP what is in flight and unowned; capture to `~/.viva/bak/ikiro/<slug>-<YYYYMMDD>/` first.
+- **caps**: `python3 .ikiro/methods/cap.py`, pasted; CHARS, never `wc -c` (11-17). Over → RAISE its `limit:` (11-19 /"adjust limits and keep things together"/); TRASH only what a grep answers; capture to `~/.viva/bak/ikiro/<slug>-<YYYYMMDD>/` first.
 
 ## siblings — another session is live
 

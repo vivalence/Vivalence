@@ -11,6 +11,17 @@ specimen.describe("client.factory — mints the Client and its Runtime, connects
     specimen.expect(root.status.is("IDLE")).toBe(true);
   });
 
+  specimen.it("minted: the Client and its Runtime over an unreachable remote, no wire — entities null, the lighthouse held, the controller IDLE", async () => {
+    const root = new Controller({ stdout: new Span("ghost") });
+    const instance = { runtime: { statics: { remote: "http://127.0.0.1:9/" } } };
+    const clientDie = await ghost.client.minted({ controller: root, mask: mask(), register: { modes: [] }, instance });
+    specimen.expect(clientDie.runtime.remote.absolute).toBe("http://127.0.0.1:9/");
+    specimen.expect(clientDie.runtime.entities).toBe(null);
+    specimen.expect(clientDie.runtime.multiplex).toBe(null);
+    specimen.expect(clientDie.runtime.lighthouse.status.code).toBe("IDLE");
+    specimen.expect(clientDie.controller.status.is("IDLE")).toBe(true);
+  });
+
   specimen.it("an unreachable remote rejects the factory at the lighthouse call; the multiplex closes, the client never starts", async () => {
     const root = new Controller({ stdout: new Span("ghost") });
     const instance = { runtime: { statics: { remote: "http://127.0.0.1:9/" } } };

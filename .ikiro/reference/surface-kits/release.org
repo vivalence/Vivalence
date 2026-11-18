@@ -1,0 +1,13 @@
+#+title: surface-kits — the interface changes, for =release.md= at the close
+# limit: 3000 chars
+
+*** api
+- removed mimes =dom.react= · =tty.react= — a view is Solid or Svelte · migrate: none, 0 readers ⟨surface-kits⟩
+- renamed =@vivalence/drapes= → =@vivalence/drapes/svelte= — the Svelte kit; the bare root resolves nothing · migrate: rewrite the import ⟨surface-kits⟩
+- renamed =@vivalence/drapes/parts= → =@vivalence/drapes/solid= — the Solid DOM kit · migrate: rewrite the import ⟨surface-kits⟩
+- removed =@vivalence/dapper= =postcssPlugin= · =tailwindClasses= · =./tailwind= — the plugin rides =./postcss=, tailwind is cut · migrate: =import plugin from "@vivalence/dapper/postcss"= ⟨surface-kits⟩
+- added =@vivalence/dapper= =parts= — =parts.meter.CAUTION= · =parts.consent.ACTS= · =parts.turn.REGISTERS= · =parts.turn.CALLS=, the models both kits paint · migrate: none ⟨surface-kits⟩
+- removed =@vivalence/sheets= =CAUTION= · =BINDINGS= and the drapes Solid barrel's =METER_CAUTION= · =CONSENT_KEYS= · =REGISTERS= — read =dapper= =parts= · migrate: the names above ⟨surface-kits⟩
+- changed a DOM view bundle — it carried its runtime, now it imports its members bare (=svelte= · =solid-js= · =three= · =@vivalence/dapper= · =@vivalence/drapes/svelte=) · migrate: a client serving DOM views serves the import map; anima does (=viva:members=) ⟨surface-kits⟩
+- added =paladin.bundler.members()= — ={ imports, files }=, the member chunks of one build ⟨surface-kits⟩
+- changed a bundle of a runtime subpath outside =MEMBERS= (=svelte/compiler=) — it bundled, now it fails =is no member= · migrate: none seen, 47 views build ⟨surface-kits⟩

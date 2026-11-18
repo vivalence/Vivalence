@@ -1,9 +1,10 @@
-import { For, mergeProps } from "solid-js";
+import { For, mergeProps, Show } from "solid-js";
+import { Icon } from "./Icon.jsx";
 
 export const Toggles = (props) => {
-  const held = mergeProps({ label: "", options: [], on: [], signal: (option) => option }, props);
+  const held = mergeProps({ label: "", options: [], on: [], icons: null, signal: (option) => option }, props);
   return (
-    <span class="tg" role="group" aria-label={held.label}>
+    <span class="tg" classList={{ icons: held.icons !== null }} role="group" aria-label={held.label}>
       <For each={held.options}>
         {(option) => (
           <button
@@ -13,8 +14,16 @@ export const Toggles = (props) => {
             data-signal={held.signal(option)}
             title={held.signal(option)}
             onClick={(event) => held.onPick && held.onPick(option, event)}>
-            <i class="tk" />
-            {option}
+            <Show
+              when={held.icons !== null}
+              fallback={
+                <>
+                  <i class="tk" />
+                  {option}
+                </>
+              }>
+              <Icon name={held.icons[option]} size={12} />
+            </Show>
           </button>
         )}
       </For>

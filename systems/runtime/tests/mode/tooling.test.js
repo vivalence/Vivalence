@@ -1,7 +1,7 @@
 import { contexts, shape, shard, specimen, v } from "@vivalence/typology";
 import { Vector, Mode, Aperture, Path } from "@vivalence/typology";
 import { traits } from "@vivalence/runtime";
-const { TOOLING, HARNESSED } = traits.mode;
+const { TOOLING, HARNESS } = traits.mode;
 import { create } from "../scenarios/cortex.js";
 
 function provision(mode, daemon) {
@@ -12,7 +12,7 @@ function provision(mode, daemon) {
 }
 
 function buildMode({ tools, harness, slug = "tooling-test", traits = [] } = {}) {
-  const mode = new Mode({ manifest: { type: "teacher", slug, traits } });
+  const mode = new Mode({ module: { manifest: { type: "teacher", slug, traits } } });
   mode.aperture = new Aperture();
   mode.reference = new Path(`/mode/teacher/${slug}`);
   mode.module.harness = harness ?? new Vector();
@@ -75,7 +75,7 @@ specimen.describe("tool provisioning + TOOLING marker", () => {
   specimen.describe("trait order independence", () => {
     async function applyTraits(mode, daemon, order) {
       const finalizers = [];
-      const traitsByName = { TOOLING, HARNESSED };
+      const traitsByName = { TOOLING, HARNESS };
       for (const name of order) {
         const result = await traitsByName[name](mode, daemon);
         if (typeof result === "function") finalizers.push(result);
@@ -83,25 +83,38 @@ specimen.describe("tool provisioning + TOOLING marker", () => {
       for (const finalize of finalizers) await finalize();
     }
 
-    specimen.it("['TOOLING', 'HARNESSED'] produces working harness", async () => {
+    specimen.it("['TOOLING', 'HARNESS'] produces working harness", async () => {
       const tools = new Vector();
       tools.open({ nature: "ping" }, () => "pong");
       const mode = buildMode({ tools });
       provision(mode, scenario.daemon);
 
-      await applyTraits(mode, scenario.daemon, ["TOOLING", "HARNESSED"]);
+      await applyTraits(mode, scenario.daemon, ["TOOLING", "HARNESS"]);
 
       specimen.expect(mode.harness).toBeDefined();
       specimen.expect(typeof mode.harness.dialogue.stream).toBe("function");
     });
 
-    specimen.it("['HARNESSED', 'TOOLING'] produces working harness too", async () => {
+    specimen.it("a module still on the deprecated HARNESSED is handed the same trait and serves its harness; no reader of the word sees it (m126 Q48)", async () => {
+      const mode = buildMode({ traits: ["HARNESSED"] });
+      provision(mode, scenario.daemon);
+      specimen.expect(traits.mode.HARNESSED).toBe(traits.mode.HARNESS);
+      specimen.expect(traits.mode.CONVERSATIONAL).toBe(traits.mode.CONVERSATION);
+
+      const finalize = await traits.mode[mode.manifest.traits[0]](mode, scenario.daemon);
+      await finalize();
+
+      specimen.expect(typeof mode.harness.dialogue.stream).toBe("function");
+      specimen.expect(mode.implements("HARNESS")).toBe(false);
+    });
+
+    specimen.it("['HARNESS', 'TOOLING'] produces working harness too", async () => {
       const tools = new Vector();
       tools.open({ nature: "ping" }, () => "pong");
       const mode = buildMode({ tools });
       provision(mode, scenario.daemon);
 
-      await applyTraits(mode, scenario.daemon, ["HARNESSED", "TOOLING"]);
+      await applyTraits(mode, scenario.daemon, ["HARNESS", "TOOLING"]);
 
       specimen.expect(mode.harness).toBeDefined();
       specimen.expect(typeof mode.harness.dialogue.stream).toBe("function");

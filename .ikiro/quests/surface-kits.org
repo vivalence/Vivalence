@@ -1,0 +1,155 @@
+#+title: surface kits — dapper the root, drapes · sheets by medium, a second framework a subpath, a heavy runtime a member
+#+filetags: :dapper:drapes:sheets:bundle:mime:engines:design:
+#+status: LANDED 11-19, all six milestones on /"go whole"/: 47 of 47 views build thin, Chrome 157 imports 45 of 45 and fetches each member once; census 59 of 95 green before and after; his =anima/watch= must restart (its vite holds the old config, the chrome 500s till then); QA is his walk; three screens asked
+# writer: agent · limit: 16000 chars
+
+* intent
+
+/"Now the question is, what is the proper UI library or tooling library or component library that we should provide from Vivalence, from the subsystems, now that we have this new meta? What do we export?"/
+
+/"the Solid is what the client itself uses, so that needs to be more fully featured."/
+
+/"we're going to add an arcade library that can be implemented by modes to implement like small games, like a platformer or a little adventure game."/
+
+/"Yeah, so this needs to be worked out once solidly, and then we're gonna scale."/
+
+/"i cant amke a choice. whats the right choice? lets say we start from scratch. what should we build given vivalence?"/
+
+* rulings
+
+| Q | his words |
+|---|---|
+| frameworks | /"drop. no react. just solid and svelte. tty and dom no react."/ |
+| the axis | /"it would probably make sense to have an export of @vivalence drapes /solid/svelte"/ · =done/m86-repl-loop-clients.s2.org:166= /"there is no /drapes/{dom,tty}. only solid,svelte"/ |
+| the tty kit | =done/m86-repl-loop-clients.s2.org:141= /"sheets is the interface/surface between dapper and ghost. abstract it as such."/ |
+| the root | /"dapper is that root, no?"/ · /"this looks right."/ |
+| members | /"if we accept three as a bundle member, we might be able to gain heavily on view bundle sizes if we declare three as a permanent member."/ · =done/m82-runtime-clients.org:18= /"We for sure go with thin faces, not a problem. That anima holds it."/ |
+| the member array | /"our array of [svelte,solid,@drapes,@dapper]"/ |
+| arcade | /"arcade standalone subsystem amen"/ |
+| Q1 | /"q1 a. maybe some shared components or logic can come from root later."/ |
+| the rest | /"go whole"/ |
+
+* the DAG
+
+#+BEGIN_SRC text
+typology
+   │
+dapper     tokens · themes · parts: the model of a part painted on both media
+   │
+   ├─ drapes   DOM   /solid (the clients' set, full) · /svelte (the mode set)
+   ├─ sheets   TTY   Solid
+   └─ arcade   its own subsystem
+          │
+ghost · anima · registry modes
+          │
+members    svelte · solid-js · three · dapper · drapes/svelte     built once, fetched once
+#+END_SRC
+
+* as it stands
+
+The terrain before any landing and the tangle as designed, moved whole: =reference/surface-kits/terrain.org= · =tangle.org=.
+
+A view names its members, the client builds and maps them:
+
+#+BEGIN_SRC js
+// subsystems/paladin/gestalten/belt/bundler.js:71
+    build.onResolve({ filter: /^[^./]/ }, (args) => {
+      if (MEMBERS.includes(args.path)) return { path: args.path, external: true };
+      if (!RUNTIME.test(args.path)) return null;
+// systems/anima/vite.config.mjs:171
+    const { default: paladin } = await import("@vivalence/paladin");
+    return await paladin.bundler.members();
+#+END_SRC
+
+=MEMBERS= (=bundler.js:43=) is the one table, 23 specifiers; =paladin.bundler.members()= builds them in ONE esbuild graph with splitting (=typology/gestalten/bundle/svelte.js= =members=), so every subpath shares one runtime; anima's =viva:members= serves =/assets/members/= and writes the import map ahead of the first module script, dev and build.
+
+The models both media paint, in =subsystems/dapper/parts/=, read as =parts.<part>.<NAME>= off the root:
+
+| model | readers |
+|---|---|
+| =meter.CAUTION= 0.85 | =drapes/Meter.jsx= · =sheets/Meter.jsx= · =sheets/Bar.jsx= ×2 |
+| =consent.ACTS= | =drapes/Consent.jsx= · =sheets/Consent.jsx= |
+| =turn.REGISTERS= glyph · headed | =drapes/Turn.jsx= · =sheets/Turn.jsx= |
+| =turn.CALLS= glyph | =drapes/Tool.jsx= · =sheets/Turn.jsx= |
+
+Of the 17 twins: 4 models moved, 3 differ on screen (asked, =* deferred=), 10 carry no model both media paint.
+
+Departures from the tangle, mine, reported:
+- =filled= stays in =sheets/Meter.jsx=: drapes floors, sheets rounds; one reader is no root model.
+- =@vivalence/drapes/solid= is no member: =drapes/Mark.jsx:4= resolves a dapper asset by =import.meta.resolve=, which a chunk cannot; a part's =ambient= would be a second copy beside anima's. It stays aliased into a =dom.solid= view.
+- the bundler holds no alias for a member; =dapper= needed none.
+
+* the law
+
+- A package where code is shared, a subpath where a compiler forces it. Medium is the package (the sheet · the cells), a second framework the subpath.
+- A model moves to dapper when BOTH media paint it and the screens stay equal. A DOM-only part keeps its tables; =sheets/text.js= · =gesture.js= · =pointer.js= · =drapes/hold.js= have one consumer each and stay.
+- Dapper carries no framework and no medium. Its build tooling rides its own subpaths, never the barrel.
+- A member is built from the =node_modules= the view was built from; a view names its members, a client maps them.
+- A member is an EXACT specifier in =MEMBERS=; a runtime subpath outside it fails the bundle, loud. A member holds no alias.
+- Arcade is a subsystem of its own: never in dapper, never under a kit's framework.
+
+* milestones
+
+| milestone | landed | green, measured |
+|---|---|---|
+| the subtraction | the two react mimes · dapper's two build exports off the barrel | 35 passed, 0 failed |
+| tailwind | 2 import-map entries · config · =dapper/belt/= · 3 directives | 34 passed, 0 failed |
+| the svelte move | nine dirs + barrel under =drapes/svelte/= · 38 importers | 40 of 40 views build |
+| the solid subpath | =./parts= → =./solid= · 15 anima files · 3 test rigs · 2 resolvers | anima's graph on a sandbox vite: 571 modules, 0 failed |
+| the models | 4 models in =dapper/parts/=, 9 kit files | probe on base and sandbox: registers · calls · consent equal; caution equal over 100 001 steps |
+| the members | =MEMBERS= · =member= plugin · =bundler.members()= · =viva:members= | 47 of 47 views; 40 Svelte views 12 562 808 → 5 124 124 chars at prod; Chrome 157: 45 of 45 imported, 3 mounted, 22 member files, each fetched once, dev and build |
+
+Members at prod: 38 files, 2 106 547 B, gzip 627 871 — =drapes/svelte= 898 389 · =three= 742 319 · =dapper= 269 270.
+
+* blast table
+
+| consumer | count | BREAKS |
+|---|---|---|
+| =from "@vivalence/drapes"= (Svelte) | 38 live | landed |
+| =@vivalence/drapes/parts= | 15 + 3 rig resolvers | landed |
+| =postcssPlugin= · =tailwindClasses= off the root | 3 + 1 pin | landed |
+| =paladin/tests/bundler.test.js:132= pinned a DOM bundle import-free | 2 assertions | rewritten to the member law |
+| his running =anima/watch= | 1 process | till restart: 15 chrome modules 500, no import map |
+| an open tab of the OLD anima against the new runtime | every rebuilt DOM view | at the ship |
+| commons · =~/.viva=: per package · caches · suites | =reference/surface-kits/blast.org= | the ship: repo + 3 packages + anima together |
+
+* testing assessment
+
+Census, 95 suites, serial, empty HOME: 59 green on the tree before, 59 on the sandbox and after; the one changed verdict is =paladin/tests/bundler.test.js= 7 → 10 steps (a view names its members · a non-member runtime subpath fails · the members build). Its new specs fail on a mutant (=plugins: []=: 2 steps red).
+
+Blind: every sheets render (=tty-chrome-opentui-node-ffi=); the 4 sheets edits are proven by import, effect probe and pure steps only. Dead before and after: 13 of 21 anima suites (=anima-tests-world-rig-dead=).
+
+COVERAGE GAP: no suite mounts a thin view in a real page; the Chrome probe lives in the scratchpad.
+
+* QA
+
+#+marker_qa: surface-kits/T-three-once · pending · I open two assembly views, the network panel shows =three= fetched once (held in my Chrome probe, not on his screen)
+#+marker_qa: surface-kits/T-svelte-views · pending · I open wakaru and a vcompany view, they paint as before
+#+marker_qa: surface-kits/T-meter · revised · anima's and ghost's meters turn caution at the same 0.85; the lit share is asked
+
+* deferred
+
+- asked, a changed screen each: Meter's lit share (=drapes/Meter.jsx:12= floors, =sheets/Meter.jsx:8= rounds) · JsonTree's root (=sheets/JsonTree.jsx:16= prints a summary and indents, =drapes/JsonTree.jsx:19= neither) · Markdown on the tty (=sheets/Markdown.jsx:5= folds by regex, drapes reads =parseBlocks=).
+- =drapes/solid= a member: needs anima to emit the chunk it also imports itself (=done/m82-runtime-clients.org:1451=) and an asset a chunk can resolve.
+- typology rides every thin view, about 100 kB each at prod; it is not in his array.
+- a cached view stays fat till one of its sources changes: =bundler.js:16= stamps sources, never the bundler.
+- =drapes/Markdown.jsx:3= reads =./svelte/display/markdown.js=: the first logic for the dead root.
+- any standalone bundle of the Solid kit now carries dapper's barrel and typology: =design/out/design.js= 233 467 → 874 419 B.
+- Split: one bound, two units (=drapes/Split.jsx:3= 0.2–0.8 clamps, =sheets/Split.jsx:13= 20–80 throws).
+- the kit's sheet in a view; =drapes/svelte/stage/= (echarts) in the barrel, now 898 kB of one member; a Svelte subset of the Solid set; arcade's own quest.
+
+* changelog
+
+- 11-19 /"this looks right. deesign /bird perspective /connoisseur system. unindexed quest."/ — census, the design, this file; connoisseur, 5 of mine tightened.
+- 11-19 /"q1 a."/ · /"arcade standalone subsystem amen"/ — Q1 into the tangle (=reference/surface-kits/q1.org=); arcade a node; his Q2 probed.
+- 11-19 /"go"/ — the subtraction. /"go. drop tw"/ — tailwind; =deno.lock= pruned itself, 314 rows. /"Next milestone: the svelte move … Go"/ — moved; 2 history files rewritten by my filter, reverted; 2 suites read old paths as strings, fixed.
+- 11-19 /"what kind of a blast change effect does this have on  the commons and registry? accounted for?"/ — mapped, 15 suites run, 1 issue filed; mine, wrong: a generated view never rebuilds.
+- 11-19 /"go whole"/ — the three waiting milestones, built in a sandbox copy, landed in one pass of 42 files, no drift. Mine, caught: the solid subpath landed straight on the tree first and his vite, deaf to its config, 500'd the chrome; reverted in a minute, then the sandbox. Mine, caught by the census: 3 rig resolvers and one pinned assertion my grep missed; the design build lost =@vivalence/dapper=, aliased. connoisseur — 4 tightened: a second hand-synced filter → the one table; a shadowed name; a =??= over an absent key; two wide rows.
+
+* release
+
+=reference/surface-kits/release.org=, lifted at the close.
+
+* handoff
+
+His: restart =anima/watch=, then the two pending walks. Open: three asked screens; the ship order. Unrun: =vite build= of the real entry (it bakes his instance); any walk on his =:1794=.

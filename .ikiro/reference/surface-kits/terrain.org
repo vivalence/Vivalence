@@ -1,0 +1,79 @@
+#+title: surface-kits — the terrain as measured before any landing, moved whole 11-19 on /"go whole"/
+# limit: 6000 chars
+
+* terrain — measured 11-19
+
+| package | export | what | importers |
+|---|---|---|---|
+| =drapes= | =.= | Svelte, 61 files, 9 dirs | 99 files: education 81 · vcompany 13 · young-ladys-primer 1 · commons 4 |
+| =drapes= | =./parts= | Solid, 42 files | 15, all =systems/anima/src/surfaces/chrome= |
+| =drapes= | =./parts.css= | 105 758 chars | =anima/src/surfaces/chrome/mount.jsx:4= |
+| =sheets= | =.= | Solid over OpenTUI, 18 files | ghost chrome · 4 registry |
+| =dapper= | =.= | tokens · themes · postcss · tailwind | 27 |
+
+Same part, both media, 17: =Bar Catalog Choice Consent Dot Field JsonTree Legend Mark Markdown Meter Panel Row Segment Split Tab Turn=. Same part, both DOM frameworks, 7: =Field Float Icon Image Markdown Meter Row=.
+
+One part, three models:
+
+#+BEGIN_SRC js
+// subsystems/drapes/Meter.jsx:3
+export const CAUTION = 85;
+// subsystems/sheets/Meter.jsx:3
+export const CAUTION = 0.85;
+// subsystems/sheets/Meter.jsx:9
+export const filled = (value, width) => Math.round(Math.max(0, Math.min(1, value)) * width);
+// subsystems/drapes/display/Meter.svelte:2
+  let { value = 0, tone = "primary" } = $props();
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/drapes/JsonTree.jsx:19
+export const rows = (value, key = null, depth = 0) =>
+// subsystems/sheets/JsonTree.jsx:12
+export const rows = (value, depth = 0, key = null) => {
+#+END_SRC
+
+A flat barrel renames to survive its own collisions:
+
+#+BEGIN_SRC js
+// subsystems/drapes/parts.js:3
+export { Dot, TONES as DOT_TONES, dotted } from "./Dot.jsx";
+export { Meter, CAUTION as METER_CAUTION } from "./Meter.jsx";
+// subsystems/drapes/parts.js:36
+export { JsonTree, rows as jsonRows } from "./JsonTree.jsx";
+#+END_SRC
+
+The Svelte set shares no sheet with the Solid set; =parts.css= reaches a Svelte view by leak, a shadow-rooted Solid view not at all. A view is its OWN root with its OWN runtime, bridged by atoms. Moved whole: =reference/surface-kits/sheet-leak.org=.
+
+Three resolvers hold the kit's exports by hand: =subsystems/drapes/deno.jsonc= · =systems/anima/vite.config.mjs:216-218= · =subsystems/paladin/gestalten/belt/bundler.js:44-48= + =:81-84=. The bundler maps =typology= and =drapes= only: a DOM view importing =@vivalence/dapper= does not resolve.
+
+Every DOM entry inlines its runtime; the tty entry already does not:
+
+#+BEGIN_SRC js
+// subsystems/paladin/gestalten/belt/bundler.js:62
+    [mime.tty.solid]: async (entry) =>
+      read(await esbuild.build({
+        entryPoints: [entry],
+        bundle: true,
+        format: "esm",
+        platform: "neutral",
+        packages: "external",
+#+END_SRC
+
+Weighed 11-19, four =@assembly= scenes: 2 901 750 B with three inline · 36 021 B + one 742 291 B member. The table, moved whole: =reference/surface-kits/weighed.org=.
+
+The mechanism is m82's, ruled and probed, never landed for a DOM entry: =done/m82-runtime-clients.org:352= (=external= per entry, a hashed vendor chunk per runtime, /"each chunk fetched once across 40 mounts"/) · =:2833= (=mime.dom.svelte= thin, Chrome 9/9, import map + blob import + integrity) · =:480= (7/7). =systems/anima/src/index.html= has no import map today.
+
+Standing against a subpath: =codestyle.md= /"A package's thing rides its ROOT barrel"/ · =known-issues.org:2314= =subpath-imports= OPEN. After Q1 its census reads =drapes/solid= 15 · =drapes/svelte= 99.
+
+His Q2, probed 11-19, esbuild 0.28.2, one entry importing =solid-js= · =solid-js/web= · =nanostores= · =@vivalence/typology=:
+
+| option | bundled B | left as imports |
+|---|---|---|
+| =packages: "external"= | 193 | all 4 |
+| =packages: "external"= + typology's alias | 101 450 | =solid-js= · =solid-js/web= · =nanostores= · =typebox= · =uuid= |
+| =external: ["solid-js"]= + the alias | 263 752 | =solid-js= · =solid-js/web= |
+| =external: ["@vivalence/typology"]= + its alias | 274 552 | 0 |
+| =external: ["@vivalence/typology", …]=, no alias | 193 | all 4 |
+
+=packages: "external"= takes no array: every package stays out. The array is =external=: the named stay out, the rest is bundled. A named package also takes its subpaths. An alias beats =external=: a member that keeps its alias is bundled, silent.

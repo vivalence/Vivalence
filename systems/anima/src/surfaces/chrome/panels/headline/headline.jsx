@@ -1,5 +1,5 @@
 import { For, from } from "solid-js";
-import * as parts from "@vivalence/drapes/parts";
+import * as parts from "@vivalence/drapes/solid";
 import * as ambient from "../../ambient/index.js";
 import { loudness, reference, UNCLAIMED } from "../sidebar/sections.js";
 

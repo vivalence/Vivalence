@@ -20,7 +20,7 @@ page of its own — and can hand all three to a second agent in one call.
 Armed names are `viva_doctor` · `web_search` · `web_read` · `research` ·
 `view_create` · `view_update` · `view_read` · `view_list` · `buffer_create`, plus the
 runtime's `entity_*` · `buffer_*` · `thread_update` · `mode_find` it grafts itself. A
-HARNESSED mode starts empty: no `fs_*`, no `shell_run` unless it grafts them.
+HARNESS mode starts empty: no `fs_*`, no `shell_run` unless it grafts them.
 `web_read` is dark until a reader service is consumed — it says so rather than
 pretending.
 

@@ -109,19 +109,18 @@ export async function scopes(paladin) {
 }
 
 export function instance(paladin) {
-  paladin.instance = new Instance(paladin);
+  paladin.instance = new Instance();
   return paladin.instance;
 }
 
 const PUBLIC = "PUBLIC_VIVA_";
 
 const absolute = function (key, value) {
-  if (key === "paladin") return undefined;
   return this[key] instanceof Signature ? this[key].absolute : value;
 };
 
 export async function bake(paladin, slug) {
-  const mask = paladin.instance.mask(slug);
+  const mask = paladin.instance.client(slug);
   const wired = await paladin.ledger.registry.wire(mask);
   const env = Object.fromEntries(Object.keys(paladin.env.vars).filter((key) => key.startsWith(PUBLIC)).map((key) => [key, paladin.env.get(key)]));
   const citizen = ({ identifier, manifest, statics, secrets, reference, url, source }) => ({ identifier, manifest, statics, secrets, reference, url, source });
@@ -130,10 +129,10 @@ export async function bake(paladin, slug) {
 
 export function baked(paladin, data) {
   paladin.assign(data.env, "ledger");
-  paladin.instance = Object.assign(new Instance(paladin), v.primitives.instance.Instance.decode(v.primitives.instance.Instance.cast(data.instance)));
+  paladin.instance = Object.assign(new Instance(), v.primitives.instance.InstanceMask.decode(v.primitives.instance.InstanceMask.cast(data.instance)));
   const revive = async (citizen) => {
     const namespace = await citizen.module();
-    return { ...namespace, ...v.primitives.instance.Mode.decode({ ...citizen, module: citizen.identifier }), module: namespace };
+    return { ...namespace, ...v.primitives.instance.ModeMask.decode({ ...citizen, module: citizen.identifier }), module: namespace };
   };
   paladin.ledger = {
     registry: {
@@ -145,7 +144,7 @@ export function baked(paladin, data) {
 }
 
 export async function statements(paladin) {
-  const { Instance, Mountpoint } = v.primitives.instance;
+  const { InstanceMask, Mountpoint } = v.primitives.instance;
   const mounts = [];
 
   if (paladin.is.citizen) {
@@ -154,7 +153,7 @@ export async function statements(paladin) {
       paladin.scope.repository,
       paladin.scope.registry,
       paladin.scope.instance,
-      ...v.collect(Instance, paladin.instance, Mountpoint).map(({ value }) => value),
+      ...v.collect(InstanceMask, paladin.instance, Mountpoint).map(({ value }) => value),
     ]);
   }
 

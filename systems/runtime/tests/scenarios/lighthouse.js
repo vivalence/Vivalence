@@ -1,4 +1,3 @@
-import { TIER_POINTS } from "@vivalence/typology/scenarios";
 import { Aperture, Connection, Controller, Cortex, Datamap, Path, Span, Twitch, Url, shape, shard, steer, v } from "@vivalence/typology";
 import { MikroORM } from "@mikro-orm/core";
 import { config } from "../../../../commons/datamaps/libsql/libsql.viva.js";
@@ -25,10 +24,10 @@ export async function create({ traits = ["JOINABLE"] } = {}) {
     entities: { ...datamap.entities },
     aperture: new Aperture(),
     twitch: new Twitch(),
-    cortex: new Cortex(TIER_POINTS),
+    cortex: new Cortex(),
     modes: {},
     daemons: {},
-    instance: { daemons: [], lighthouse: v.primitives.instance.Lighthouse.cast({ secrets: { jwt: SECRET }, traits }) },
+    instance: { daemons: [], lighthouse: v.primitives.instance.LighthouseMask.cast({ secrets: { jwt: SECRET }, traits }) },
   };
   runtime.entities.activity = new ActivityRepository(datamap.entities.em, ActivityEntity);
   for (const held of twitch) runtime.twitch.graft(held);

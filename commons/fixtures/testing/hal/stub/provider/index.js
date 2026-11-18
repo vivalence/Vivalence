@@ -110,6 +110,7 @@ export default async function provider(service) {
   const dialogueFaculty = (entry) => {
     const seat = { ...entry, statics };
     return {
+      ...entry,
       type: "dialogue",
       id: entry.id,
       tune: entry.tune,
@@ -123,6 +124,7 @@ export default async function provider(service) {
   };
 
   const verbatimFaculty = (entry) => ({
+    ...entry,
     type: "verbatim",
     id: entry.id,
     tune: entry.tune,
@@ -147,6 +149,7 @@ export default async function provider(service) {
   });
 
   const speechFaculty = (entry) => ({
+    ...entry,
     type: "speech",
     id: entry.id,
     tune: entry.tune,

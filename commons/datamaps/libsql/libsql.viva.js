@@ -25,13 +25,16 @@ const config = (datamap, options = {}) => {
 
 async function provider(datamap, options) {
   const orm = await MikroORM.init(config(datamap, options));
+  const held = new Datamap(orm);
   if (orm.config.get("dbName") === ":memory:") await orm.schema.create();
   else {
     const migrator = orm.migrator;
     if (await migrator.checkSchema()) await migrator.create();
-    if ((await migrator.getPending()).length) await migrator.up();
+    const pending = await migrator.getPending();
+    if (pending.length) await migrator.up();
+    held.migrated = pending.map((migration) => migration.name);
   }
-  return new Datamap(orm);
+  return held;
 }
 
 export { config, manifest, provider };

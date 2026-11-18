@@ -1,7 +1,7 @@
 #+title: m103 chrome panels — both chromes recast as app → panels → widgets → parts; one tree, two part libraries
 #+filetags: :chrome:anima:ghost:drapes:sheets:panels:widgets:
 #+status: BUILDING 10-27 — chess board/play under a from-scratch rebuild (agent, phased); ghost panels live: headline · sidebar · legend · repl · dock · modeline + popover + frame (telemetry · activity · harness still swatches); Q15 unruled
-<!-- limit: 40000 chars -->
+<!-- limit: 104000 chars -->
 
 * intent
 

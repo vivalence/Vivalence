@@ -4,6 +4,8 @@
 #     RIG=<untouched copy> BASE=<replayed copy> [ONLY="rig base"] OUT=<dir> sh .ikiro/methods/census-suites.sh
 #
 # One summary line per (copy, suite) in $OUT/summary.txt; the full log in $OUT/<copy>/<suite>.log.
+# Then the reds BY NAME into $OUT/reds.txt: rig vs base when both ran, or AGAINST=<an earlier census's copy dir> vs what ran.
+# ONLY=none runs no suite and compares the logs already under $OUT.
 # hello-world snapshots: a fresh tree runs SNAPSHOT_HOT=1 once on commons/instances/hello-world/tests before the census.
 # A suite walks a whole tests/ dir but memo (memo.test · memo.snapshot.test ride outside, green since m102 landed) and stub.
 OUT=${OUT:-/tmp/census}
@@ -28,12 +30,44 @@ run() {
   suite dapper        subsystems/dapper/tests
   suite drapes        subsystems/drapes/tests
   suite hello-world   commons/instances/hello-world/tests
-  suite hallucinators commons/hallucinators
+  suite hallucinators --ignore=commons/hallucinators/bak commons/hallucinators
   suite memo          commons/fixtures/memo/tests/dataset.test.js commons/fixtures/memo/tests/domain.snapshot.test.js commons/fixtures/memo/tests/sm2.test.js commons/fixtures/memo/tests/tablet.snapshot.test.js
   suite stub          commons/fixtures/testing/hal/stub/tests
 }
 
-: > "$OUT/summary.txt"
+[ "$ONLY" = none ] || : > "$OUT/summary.txt"
 case " $ONLY " in *" rig "*)  [ -n "$RIG" ]  || { echo "RIG=<dir> required";  exit 2; }; copy=rig;  dir=$RIG;  run;; esac
 case " $ONLY " in *" base "*) [ -n "$BASE" ] || { echo "BASE=<dir> required"; exit 2; }; copy=base; dir=$BASE; run;; esac
-echo DONE >> "$OUT/summary.txt"
+[ "$ONLY" = none ] || echo DONE >> "$OUT/summary.txt"
+
+failed() { # a suite's log → its red step names and the files that never loaded, timings off, sorted
+  grep -E '\.\.\. FAILED|\(uncaught error\)$' "$1" | sed -E 's/ \([0-9]+m?s\)$//; s/^ +//' | sort -u
+}
+
+compare() { # before-dir after-dir — per suite: equal by red NAME, or the names that differ
+  echo "== red step names: $1 (<) vs $2 (>)"
+  for log in "$2"/*.log; do
+    [ -f "$log" ] || continue
+    name=$(basename "${log%.log}")
+    [ -f "$1/$name.log" ] || { echo "$name: no log under $1"; continue; }
+    failed "$1/$name.log" > "$OUT/.before"
+    failed "$log" > "$OUT/.after"
+    if diff -q "$OUT/.before" "$OUT/.after" > /dev/null; then
+      echo "$name: equal by name ($(wc -l < "$OUT/.after" | tr -d ' ') red)"
+    else
+      echo "$name: DIFFER"
+      diff "$OUT/.before" "$OUT/.after" | cut -c1-260
+    fi
+  done
+  rm -f "$OUT/.before" "$OUT/.after"
+}
+
+{
+  if [ -n "$AGAINST" ]; then
+    for copy in rig base; do
+      ls "$OUT/$copy"/*.log > /dev/null 2>&1 && compare "$AGAINST" "$OUT/$copy"
+    done
+  elif ls "$OUT/rig"/*.log > /dev/null 2>&1 && ls "$OUT/base"/*.log > /dev/null 2>&1; then
+    compare "$OUT/rig" "$OUT/base"
+  fi
+} | tee "$OUT/reds.txt"

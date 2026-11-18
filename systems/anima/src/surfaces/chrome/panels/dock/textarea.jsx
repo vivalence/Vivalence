@@ -9,7 +9,7 @@ import {
   onMount,
   Show,
 } from "solid-js";
-import * as parts from "@vivalence/drapes/parts";
+import * as parts from "@vivalence/drapes/solid";
 import { belt } from "@vivalence/ghost";
 import * as ambient from "../../ambient/index.js";
 import { PROMPT } from "../repl/repl.jsx";
@@ -19,7 +19,7 @@ export const CONSENT = { onApprove: "/resume", onSkip: "/stop", onEdit: "/abort"
 
 export const PLACEHOLDERS = [
   [(draft) => draft.startsWith("/"), "a verb · tab completes · enter runs"],
-  [(draft, mode) => mode === null || !mode.implements("HARNESSED"), "/commands only"],
+  [(draft, mode) => mode === null || !mode.implements("HARNESS"), "/commands only"],
   [() => true, "say it, or / for a command"],
 ];
 
@@ -27,7 +27,7 @@ const placeholder = (draft, mode) => PLACEHOLDERS.find(([test]) => test(draft, m
 
 export const DEAF = [
   [(thread) => thread === null, "dictate · no thread on this terminal"],
-  [(thread) => thread.mode === null || !thread.mode.implements("HARNESSED"), "dictate · this thread's mode has no harness"],
+  [(thread) => thread.mode === null || !thread.mode.implements("HARNESS"), "dictate · this thread's mode has no harness"],
   [() => true, "dictate · this mode's harness has no verbatim"],
 ];
 
@@ -186,6 +186,8 @@ export const Textarea = () => {
   const dictation = from(app.bridge.$dictation);
   const dictationFault = from(app.bridge.$dictationFault);
   const call = from(app.bridge.$call);
+  const uploads = from(app.bridge.$uploads);
+  const uploading = () => uploads().some((upload) => upload.file === null);
   const hosted = createMemo(() =>
     thread() === null || thread().mode === null
       ? () => null
@@ -200,6 +202,7 @@ export const Textarea = () => {
   const running = () => owned().some((activity) => activity.status === "RUNNING");
   const sent = (signal) => terminal.repl.dispatch(signal).catch((error) => terminal.controller.stdout.fault(error));
   const submit = (text) => {
+    if (uploading()) return;
     if (dictation() !== null) return sent("/dictate/send");
     if (text.trim() === "") return;
     app.bridge.$draft.set("");
@@ -220,7 +223,7 @@ export const Textarea = () => {
       keyed
       fallback={
         <>
-          <parts.Atts attachments={[]} onDrop={(attachment) => sent(`/detach ${attachment.name}`)} />
+          <parts.Atts attachments={uploads()} onDrop={(attachment) => sent(`/upload/trash ${attachment.name}`)} />
           <Show when={dictation()}>
             {(held) => (
               <parts.Dictline
@@ -278,7 +281,13 @@ export const Textarea = () => {
               <Show
                 when={running() && dictation() === null}
                 fallback={
-                  <button class="send" aria-label="send" title="send · enter" onClick={() => submit(draft())}>
+                  <button
+                    class="send"
+                    classList={{ off: uploading() }}
+                    aria-disabled={String(uploading())}
+                    aria-label="send"
+                    title="send · enter"
+                    onClick={() => submit(draft())}>
                     <parts.Icon name="up" />
                   </button>
                 }>

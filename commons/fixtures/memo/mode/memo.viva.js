@@ -11,7 +11,7 @@ export const manifest = {
   name: "Memo",
   description: "Spaced-repetition flashcards on SM-2: drill in the frame (tab reveals, 1 again · 2 hard · 3 good · 4 easy) or in conversation with the Magister; both grade one schedule.",
   version: "0.1.0",
-  traits: ["VIEWABLE", "EMITTER", "EXPOSED", "HARNESSED", "CONVERSATIONAL", "TOOLING", "PRIMER"],
+  traits: ["VIEWABLE", "EMITTER", "EXPOSED", "HARNESS", "CONVERSATION", "TOOLING", "PRIMER"],
 };
 
 export const buffer = v.buffer({

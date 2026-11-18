@@ -41,7 +41,8 @@ export const attach = async (die, next) => {
   await next();
 };
 
-const harnessed = (host) => fromm.modes(host.modes).flat.filter((mode) => mode.implements("HARNESSED"));
+const harnessed = (host) => fromm.modes(host.modes).flat.filter((mode) => mode.implements("HARNESS"));
+const attached = (modes) => fromm.modes(modes).flat.filter((mode) => mode.implements("ATTACHED"));
 
 const carrying = (host, runtime) => {
   host.aperture.use(shard.context.bind("runtime", runtime));
@@ -53,12 +54,20 @@ export const expose = async (die, next) => {
   const runtime = die.aperture.branch(die.runtime.reference, die.runtime.aperture);
   runtime.branch("/status", shard.nano.atom(die.runtime.controller.status.$transient));
   runtime.open("/batch", shard.batch.route(runtime));
+  for (const mode of attached(die.runtime.modes)) {
+    die.runtime.attachment.branch(die.runtime.reference).branch(mode.reference, mode.attachment);
+  }
+
   for (const daemon of Object.values(die.runtime.daemons)) {
     carrying(daemon, die.runtime);
     const branch = die.aperture.branch(daemon.reference, daemon.aperture);
     branch.branch("/status", shard.nano.atom(daemon.$status));
     branch.open("/batch", shard.batch.route(branch));
+    for (const mode of attached(daemon.modes)) {
+      die.runtime.attachment.branch(daemon.reference).branch(mode.reference, mode.attachment);
+    }
   }
+
   await next();
 };
 

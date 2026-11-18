@@ -6,7 +6,7 @@ export const REPOSITORY = new URL("../../../../", import.meta.url).pathname;
 export const SHIPPED = join(REPOSITORY, "commons/instances/hello-world");
 export const LEDGER = join(REPOSITORY, "commons/ledger");
 const RUN = new URL("../../run.js", import.meta.url).pathname;
-export const READY = /^\[runtime\/[^/\]]+\] start\s*$/;
+export const READY = /^\d\d:\d\d:\d\d\.\d{3} status +r\/[^/ ]+ +│ +RUNNING$/;
 const WATCH = [`--watch=${join(REPOSITORY, "commons")}`, "--watch-exclude=**/dataset/**"];
 const DEADLINE = 90_000;
 export const SECRET = "hello-secret-hello-secret-hello-secret";
@@ -22,7 +22,6 @@ export const RECIPE = {
   },
   lighthouse: { secrets: { jwt: "${SECRET_VIVA_JWT}" }, traits: ["JOINABLE"] },
   datamap: { module: "@commons/datamap/libsql" },
-  hallucinators: [],
   clients: [],
   services: [],
   daemons: [

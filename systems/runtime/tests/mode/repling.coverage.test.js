@@ -10,7 +10,7 @@ specimen.describe("REPLING (runtime) — the stripwire routine's runtime half", 
     { nature: "/hello", valence: "the mode answers from inside its host's context. Example: /hello ciao" },
     (ctx) => `hello from ${ctx.mode.manifest.slug} on ${ctx.reference.absolute}: ${ctx.signal.body.join(" ")}`,
   );
-  const mode = new Mode({ manifest: { type: "home", slug: "console", traits: ["REPLING"] }, repl });
+  const mode = new Mode({ module: { manifest: { type: "home", slug: "console", traits: ["REPLING"] }, repl } });
   mode.aperture = new Aperture();
   const context = { reference: new Path("/daemon/probe") };
 

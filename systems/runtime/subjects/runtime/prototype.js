@@ -2,17 +2,11 @@ import { Aperture, Twitch, Vector } from "@vivalence/typology";
 
 export class Runtime {
   type = "runtime";
-  manifest = null;
-  slug = null;
-  reference = null;
-  url = null;
-  attach = null;
+  mask = null;
   mountpoint = null;
   call = null;
   statics = null;
   controller = null;
-  instance = null;
-  register = null;
   datamap = null;
   entities = {};
   minted = {};
@@ -30,4 +24,23 @@ export class Runtime {
     Object.assign(this, fields);
   }
 
+  get manifest() {
+    return this.mask.manifest;
+  }
+
+  get slug() {
+    return this.mask.manifest.slug;
+  }
+
+  get reference() {
+    return this.mask.reference;
+  }
+
+  get url() {
+    return this.mask.url;
+  }
+
+  get attach() {
+    return this.mask.attach;
+  }
 }

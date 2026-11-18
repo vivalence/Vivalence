@@ -4,11 +4,9 @@ import * as appProcess from "../../app/index.js";
 import * as clientProcess from "../../client/index.js";
 import { seat } from "../lifecycle/1-population.js";
 import { runtime } from "../lifecycle/2-resolution.js";
-import { ledger } from "../lifecycle/3-integration.js";
 
 const execution = new Vector()
   .use(seat)
-  .use(ledger)
   .use(runtime)
   .do(async (shellDie) => {
     const client = await clientProcess.factory(shellDie);

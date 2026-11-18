@@ -10,5 +10,14 @@ export class File extends Entity {
   trait = {};
   mode = null;
   view = null;
-  url = null;
+  $url = null;
+
+  get url() {
+    return this.$url.get();
+  }
+
+  toJSON() {
+    const { $url, ...base } = super.toJSON();
+    return base;
+  }
 }

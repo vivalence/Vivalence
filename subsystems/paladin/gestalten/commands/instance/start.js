@@ -8,7 +8,7 @@ async function effect(ctx) {
   if (held) throw new Error(`${slug} already running (supervisor ${held.pid}) — viva instance/stop`);
 
   const target = ctx.signal.body[0];
-  const home = paladin.instance.home.absolute;
+  const home = paladin.scope.instance.absolute;
   const repository = paladin.scope.repository.absolute;
   const supervisor = new Deno.Command(Deno.execPath(), {
     args: [

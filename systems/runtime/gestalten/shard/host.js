@@ -18,7 +18,7 @@ export const metadata = (context) => {
   root.open("/aperture", () => shape.strip(context.aperture));
 
   root.open("/cortex", () => (context.cortex ? faculties.strip(context.cortex) : []));
-  root.open("/tiers", () => (context.cortex ? context.cortex.tiers : {}));
+
   root.open("/modes", () => fromm.modes(context.modes).flat.map(listed(context)));
 };
 

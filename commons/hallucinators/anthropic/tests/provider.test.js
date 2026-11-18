@@ -141,7 +141,7 @@ specimen.describe("anthropic provider", () => {
         {
           role: "user",
           parts: [
-            { type: "image", data: "abc", media: "image/png" },
+            { type: "image", data: "abc", mime: "image/png" },
             { type: "thinking", text: "hmm", signature: "sig" },
           ],
         },
@@ -550,5 +550,15 @@ specimen.describe("anthropic provider", () => {
         specimen.expect(await provider(service([]))).toEqual([]);
       },
     );
+  });
+});
+
+specimen.describe("anthropic · a faculty carries its entry forward (m126 Q7A)", () => {
+  specimen.it("tier · provider, stamped on the entry by paladin, reach the built faculty; type · id · via stay the builder's", async () => {
+    const [entry] = FACULTIES;
+    const [faculty] = await provider(service([{ ...entry, tier: "actor", provider: "anthropic" }]));
+    specimen.expect([faculty.type, faculty.id, faculty.tier, faculty.provider]).toEqual([entry.type, entry.id, "actor", "anthropic"]);
+    specimen.expect(Object.keys(faculty.via).length).toBeGreaterThan(0);
+    specimen.expect(entry.tier).toBeUndefined();
   });
 });

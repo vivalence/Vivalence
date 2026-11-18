@@ -1,0 +1,77 @@
+---
+title: Faculty unfolding
+summary: An open design. How faculties travel from the ledger to a mode, and the two questions that follow — which AI traits a mode wears, and who writes its context.
+author: claude (agent)
+---
+
+> **Open design, 2026-11-19.** Nothing on this page is built beyond the sections marked *today*. It records two architectural questions and the direction preferred so far, so the next design pass starts from the same picture.
+
+A *faculty* is one thing a cortex can pick: a model, a voice, an ear. Faculties are declared in the ledger and handed down through the system. *Faculty unfolding* is the idea that this hand-down, done cleanly at every level, is enough to decide what a mode can do — and therefore which AI traits it wears — without anyone declaring them.
+
+## the chain, today
+
+The ledger's `hallucinators` become the runtime's cortex. A daemon copies that cortex and may add its own. A mode holds its parent's cortex and adds nothing.
+
+```js
+// systems/runtime/subjects/runtime/lifecycle/1-population.js
+die.runtime.cortex = new Cortex(die.runtime.instance.tiers);
+
+// systems/runtime/subjects/daemon/lifecycle/1-population.js
+die.daemon.cortex = die.runtime.cortex.split(faculties);
+
+// systems/runtime/subjects/mode/factory.js
+...shard.context.lift(contexts.modeDie, context),
+```
+
+The runtime and every daemon serve what they hold at `/metadata/cortex`. A mode serves none.
+
+Three gaps separate this from a clean chain: the runtime has no faculties of its own beside the ledger's, a mode cannot add any, and a mode does not publish what it holds.
+
+## answered — the AI traits are a mode's own
+
+Two traits describe a mode's AI surface. `HARNESS` means the mode has a model to talk to. `CONVERSATION` means a human converses there: typed, dictated, called. A thread carries their config under its own words, `HARNESSED` and `CONVERSATIONAL`, as it carries `TOOLED` and `PRIMED` for a mode's `TOOLING` and `PRIMER`.
+
+A mode wears a trait because its module declares it in `manifest.traits`, or because its entry in a recipe adds it. Nothing is inferred and nothing travels: a runtime and a daemon wear neither.
+
+```json
+{
+  "module": "@education/game/dojo",
+  "traits": ["HARNESS", "TOOLING"],
+  "trait": {
+    "HARNESSED": { "tier": "fast", "rounds": 6 },
+    "TOOLED": { "/daemon/spanish/mode/game/dojo": "eager" }
+  }
+}
+```
+
+`traits` adds to what the module declares. `trait` is optional: config for a trait the mode wears, in the shape of the thread's twin. A thread that does not wear the twin yet takes it as its starter when it is created on that mode or moved onto it; a thread that already wears it keeps its own, through every change of mode.
+
+What does travel is the faculties. Paladin checks each mode that wears `HARNESS` or `CONVERSATION` against the faculties folded down to it (ledger, runtime, daemon, mode) and reports a miss; the mode still mounts. The trait serves the routes its faculties allow, read off one table:
+
+```js
+// subsystems/typology/schematics/primitives/hallucination.js
+export const REQUIRES = {
+  HARNESS: [["dialogue"]],
+  CONVERSATION: [["call"], ["verbatim", "dialogue", "speech"]],
+};
+```
+
+## question two — who writes a mode's context?
+
+Every request to a model carries a primer (the sections of its system prompt) and tools. Call the whole of it the *contextmap*.
+
+Today a request carries its own mode's primer, its domain's primer, and whatever sections the request itself adds. Each level lives in its own namespace: another level's section sits under a longer, prefixed path, and reaches a request only when the thread loads it by reference. No level overwrites another's section.
+
+Two designs are on the table.
+
+**Declared sets.** Each level (runtime, domain, mode) declares its contextmap for two cases: when it is the last level in the chain, and when a level below it carries the trait instead.
+
+**Primer vectors.** Every level writes primer sections and tools into one tree of paths. A lower level overwrites a section by writing to the same path, or refines it by writing to a deeper one. A *collection strategy* then decides what a request receives — only the deepest sections, or the deepest together with everything above them.
+
+The second is preferred. The runtime can define a complete contextmap, anything inside it can overwrite a part, and no naming convention has to be fixed in advance: the tree stays open.
+
+It also meets an existing rule head-on. The harness layout gives every level its own namespace and resolves a clash by distance — the nearest name wins. An overlay writes all levels into one namespace. Whether the overlay covers only what a parent imprints by default, with references kept for what a thread loads on top, or replaces references altogether, is undecided.
+
+## where the conversational trait fits
+
+The direction for `CONVERSATION` is that the trait itself carries the wiring its presence implies, on the runtime and on the client: the voice routes, the storage of spoken turns, the selection of a faculty for each job (ear, voice, the mind that speaks), and the split of a call into an *actor* that speaks and a *director* that calls tools and updates the actor's context. Today the trait on a mode is an empty function; that wiring sits inside `HARNESS` and in typology.

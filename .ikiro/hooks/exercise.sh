@@ -100,6 +100,7 @@ IKIRO_WATCH_LIVE=1 expect deny  watch-guard.sh "$(edit_json $reg/buffer/fold.js 
 IKIRO_WATCH_LIVE=0 expect allow watch-guard.sh "$(edit_json $reg/schematics.js 'export const ISOLATES = {};')"  "no listener on :2501"
 IKIRO_WATCH_LIVE=1 expect allow watch-guard.sh "$(edit_json /Users/finn/.viva/registry/chess/mode.viva.js 'x')"  "first file of another package"
 IKIRO_WATCH_LIVE=1 expect allow watch-guard.sh "$(edit_json /r/systems/anima/src/app/x.svelte 'x')"              "outside the watched trees"
+IKIRO_WATCH_LIVE=1 expect allow watch-guard.sh "$(edit_json /private/tmp/s/scratchpad/sb/subsystems/drapes/a.jsx 'x')" "a sandbox copy is not the watched tree"
 rm -f "${TMPDIR:-/tmp}/ikiro-watch-exercise"
 
 # compact-gate — first /compact of a session refused; the retry passes once quests/frontier.md is newer than the stamp
@@ -124,20 +125,21 @@ expect deny  kernel-guard.sh "$(edit_session /r/documentation/src/content/docs/i
 expect allow kernel-guard.sh "$(edit_session /r/documentation/src/content/docs/index.mdx 'fair-source, source-available')" "public copy says fair-source"
 expect allow kernel-guard.sh "$(edit_session /r/.ikiro/codestyle.md 'never "open-source"')"                         "the kernel quoting the rule"
 
-# cap-guard — a write past `limit: N chars` is refused; a capped file without a limit is refused; quests are never capped
+# cap-guard — a write past `limit: N chars` WARNS and lands (cap-guard.sh:2); a capped file without a limit warns; quests are never capped
 cap_case() { # cap_case <want> <json> <label>
   out=$(IKIRO_GUARD_MODE=deny bash cap-guard.sh <<<"$2" 2>&1)
   got=allow; grep -q '"deny"' <<<"$out" && got=deny
+  [ "$got" = allow ] && [ -n "$out" ] && got=warn
   if [ "$got" = "$1" ]; then echo "PASS cap-guard.sh $1  $3"; else echo "FAIL cap-guard.sh want $1 got $got  $3"; fail=1; fi
 }
 capdir=$(mktemp -d); mkdir -p "$capdir/.ikiro/world" "$capdir/.ikiro/quests"
 { echo "<!-- limit: 100 chars -->"; printf 'y%.0s' $(seq 1 60); echo; } > "$capdir/.ikiro/world/small.md"
 export CLAUDE_PROJECT_DIR="$capdir"
-cap_case deny  "$(jq -cn --arg p "$capdir/.ikiro/world/small.md" --arg c "<!-- limit: 100 chars -->$(printf 'z%.0s' $(seq 1 120))" '{tool_name:"Write",session_id:"exercise",tool_input:{file_path:$p,content:$c}}')" "Write past the limit"
+cap_case warn  "$(jq -cn --arg p "$capdir/.ikiro/world/small.md" --arg c "<!-- limit: 100 chars -->$(printf 'z%.0s' $(seq 1 120))" '{tool_name:"Write",session_id:"exercise",tool_input:{file_path:$p,content:$c}}')" "Write past the limit"
 cap_case allow "$(jq -cn --arg p "$capdir/.ikiro/world/small.md" --arg c "<!-- limit: 100 chars -->short" '{tool_name:"Write",session_id:"exercise",tool_input:{file_path:$p,content:$c}}')" "Write under the limit"
-cap_case deny  "$(jq -cn --arg p "$capdir/.ikiro/world/small.md" --arg o "yyyy" --arg n "$(printf 'w%.0s' $(seq 1 80))" '{tool_name:"Edit",session_id:"exercise",tool_input:{file_path:$p,old_string:$o,new_string:$n}}')" "Edit whose result passes the limit"
+cap_case warn  "$(jq -cn --arg p "$capdir/.ikiro/world/small.md" --arg o "yyyy" --arg n "$(printf 'w%.0s' $(seq 1 80))" '{tool_name:"Edit",session_id:"exercise",tool_input:{file_path:$p,old_string:$o,new_string:$n}}')" "Edit whose result passes the limit"
 cap_case allow "$(jq -cn --arg p "$capdir/.ikiro/world/small.md" --arg o "yyyy" --arg n "yy" '{tool_name:"Edit",session_id:"exercise",tool_input:{file_path:$p,old_string:$o,new_string:$n}}')" "Edit that shrinks"
-cap_case deny  "$(jq -cn --arg p "$capdir/.ikiro/world/nolimit.md" --arg c "# no header" '{tool_name:"Write",session_id:"exercise",tool_input:{file_path:$p,content:$c}}')" "a capped file born without a limit"
+cap_case warn  "$(jq -cn --arg p "$capdir/.ikiro/world/nolimit.md" --arg c "# no header" '{tool_name:"Write",session_id:"exercise",tool_input:{file_path:$p,content:$c}}')" "a capped file born without a limit"
 cap_case allow "$(jq -cn --arg p "$capdir/.ikiro/quests/big.org" --arg c "$(printf 'q%.0s' $(seq 1 5000))" '{tool_name:"Write",session_id:"exercise",tool_input:{file_path:$p,content:$c}}')" "a quest is never capped"
 unset CLAUDE_PROJECT_DIR; rm -rf "$capdir"
 

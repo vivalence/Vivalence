@@ -66,7 +66,7 @@ specimen.describe("repl — a line runs on the terminal's Repl; its records land
     specimen.expect(tail.get().at(-1).path).toEqual(["ghost", "client", "terminal/t1", "/help"]);
   });
 
-  specimen.it("a bare line on a terminal whose mode is not HARNESSED is NotFound — a fault on the line's branch /*", async () => {
+  specimen.it("a bare line on a terminal whose mode is not HARNESS is NotFound — a fault on the line's branch /*", async () => {
     await terminal.repl.dispatch("ciao").catch(() => {});
     specimen.expect(tracks(tail)).toEqual(["log", "fault"]);
     specimen.expect(tail.get().at(-1).path).toEqual(["ghost", "client", "terminal/t1", "/*"]);

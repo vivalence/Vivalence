@@ -27,22 +27,49 @@ export const COVERS = [
 
 export const cover = (app) => COVERS.find(([test]) => test(app))[1];
 
-export function Cover() {
+function Reached() {
   const app = ambient.app.consume();
   const terminals = from(app.client.runtime.entities.terminal.$entities);
   const status = from(app.client.runtime.lighthouse.$status);
   const authorized = from(app.client.runtime.lighthouse.$isAuthorized);
-  const user = from(app.client.runtime.lighthouse.$user);
   const beats = from(app.telemetry.$logger);
-  const theme = from(app.bridge.$theme);
-  const font = from(app.bridge.$font);
-  const viewport = from(app.bridge.$viewport);
   const current = () => {
     terminals();
     status();
     authorized();
     beats();
     return cover(app);
+  };
+  return (
+    <>
+      <Show when={current() === Layout}>
+        <Layout />
+      </Show>
+      <div data-r="island" style={{ display: "contents" }}>
+        <Show when={current() !== Layout && current()} keyed>
+          {(Pane) => <Pane />}
+        </Show>
+      </div>
+    </>
+  );
+}
+
+const Reaching = () => (
+  <div data-r="island" style={{ display: "contents" }}>
+    <Booting />
+  </div>
+);
+
+export function Cover() {
+  const app = ambient.app.consume();
+  const user = from(app.client.runtime.lighthouse.$user);
+  const beats = from(app.telemetry.$logger);
+  const theme = from(app.bridge.$theme);
+  const font = from(app.bridge.$font);
+  const viewport = from(app.bridge.$viewport);
+  const reached = () => {
+    beats();
+    return app.client.runtime.entities !== null;
   };
   let root;
   createEffect(() => {
@@ -56,14 +83,9 @@ export function Cover() {
   });
   return (
     <div ref={root} class="client" classList={{ phone: viewport().narrow }}>
-      <Show when={current() === Layout}>
-        <Layout />
+      <Show when={reached()} fallback={<Reaching />}>
+        <Reached />
       </Show>
-      <div data-r="island" style={{ display: "contents" }}>
-        <Show when={current() !== Layout && current()} keyed>
-          {(Pane) => <Pane />}
-        </Show>
-      </div>
     </div>
   );
 }

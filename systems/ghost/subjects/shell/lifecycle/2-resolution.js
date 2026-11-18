@@ -24,11 +24,11 @@ export const runtime = async (shellDie, next) => {
 
   if (await reached(remote)) return next();
 
-  const held = await paladin.ledger.instances.lookup(shellDie.instance.home.absolute);
+  const held = await paladin.ledger.instances.lookup(paladin.scope.instance.absolute);
 
   if (held === null)
     throw new Error(
-      `runtime ${remote.absolute} unreachable, and ${shellDie.instance.home.absolute} is no instance of this ledger — not this machine's to start`,
+      `runtime ${remote.absolute} unreachable, and ${paladin.scope.instance.absolute} is no instance of this ledger — not this machine's to start`,
     );
 
   shellDie.controller.stdout.log({
@@ -36,7 +36,7 @@ export const runtime = async (shellDie, next) => {
     log: paladin.ledger.log(held.slug).base.branch("runtime.out.log").absolute,
   });
 
-  const booted = await paladin.ledger.boot(shellDie.instance.specs("runtime"), {
+  const booted = await paladin.ledger.boot(paladin.ledger.specs("runtime"), {
     instance: held.slug,
     attachment: "logged",
   });

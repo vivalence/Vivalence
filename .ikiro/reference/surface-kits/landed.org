@@ -1,0 +1,27 @@
+#+title: surface-kits — terrain the landings made false, moved whole 11-19
+# limit: 2000 chars
+
+Dapper's barrel carries its build tooling into the browser:
+
+#+BEGIN_SRC js
+// subsystems/dapper/mod.js:8
+export { plugin as postcssPlugin } from "./lifecycle/index.js";
+export { tailwindClasses } from "./belt/tailwind-theme.js";
+#+END_SRC
+
+=systems/anima/src/.vite/deps/postcss.js= exists: vite pre-bundled =postcss= for the client.
+
+Dead: =mime.dom.react= · =mime.tty.react= — zero readers outside =subsystems/typology/schematics/scalars/mime.js:18,22=.
+
+
+* as code, landed 11-19
+
+*** systems
+**** anima
+***** postcss.config.js
+#+BEGIN_SRC diff
+// systems/anima/postcss.config.js:3
+-import { postcssPlugin } from "@vivalence/dapper";
++import postcssPlugin from "@vivalence/dapper/postcss";
+#+END_SRC
+

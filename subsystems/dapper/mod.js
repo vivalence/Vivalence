@@ -4,6 +4,4 @@ export { emit, declarations } from "./lib/emit.js";
 export { contrast } from "./lib/contrast.js";
 export { FONTS, TOKENS, scales, tokens } from "./lib/tokens.js";
 export { THEMES } from "./themes/index.js";
-
-export { plugin as postcssPlugin } from "./lifecycle/index.js";
-export { tailwindClasses } from "./belt/tailwind-theme.js";
+export * as parts from "./parts/index.js";

@@ -26,10 +26,9 @@ function mapimports(imports = {}, baseUrl) {
   };
 }
 
-export async function svelte(entry, opts = {}) {
-  const { prod = false, imports = {}, baseUrl = new URL(import.meta.url), nodePaths = [] } = opts;
-
-  const config = {
+const settings = (name, opts) => {
+  const { prod = false, imports = {}, baseUrl = new URL(import.meta.url), nodePaths = [], plugins = [] } = opts;
+  return {
     nodePaths,
     mainFields: ["svelte", "browser", "module", "main"],
     conditions: ["svelte", "browser"],
@@ -41,8 +40,8 @@ export async function svelte(entry, opts = {}) {
     format: "esm",
     target: "esnext",
     treeShaking: true,
-    outdir: dirname(entry),
     plugins: [
+      ...plugins,
       mapimports(imports, baseUrl),
       pure,
       sveltePlugin({
@@ -54,13 +53,17 @@ export async function svelte(entry, opts = {}) {
         css: true,
         compilerOptions: {
           dev: !prod,
-          filename: basename(entry),
+          filename: name,
           css: "injected",
+          cssHash: ({ hash, css }) => `svelte-${hash(css)}`,
         },
       }),
     ],
   };
+};
 
+export async function svelte(entry, opts = {}) {
+  const config = settings(basename(entry), opts);
   config.stdin = {
     contents: [
       `import { mount, unmount } from "svelte";`,
@@ -74,7 +77,18 @@ export async function svelte(entry, opts = {}) {
     loader: "js",
   };
   config.outfile = entry;
-  delete config.outdir;
 
   return await esbuild.build(config);
+}
+
+export async function members(entries, opts = {}) {
+  return await esbuild.build({
+    ...settings("member", opts),
+    sourcemap: false,
+    entryPoints: entries,
+    splitting: true,
+    outdir: "members",
+    entryNames: "[name]-[hash]",
+    chunkNames: "chunk-[hash]",
+  });
 }

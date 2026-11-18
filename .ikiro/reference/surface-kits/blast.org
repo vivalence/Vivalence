@@ -1,0 +1,66 @@
+#+title: surface-kits — the blast on commons and ~/.viva, measured 11-19
+# limit: 4500 chars
+
+On /"what kind of a blast change effect does this have on the commons and registry? accounted for?"/. Grep over =commons= · =~/.viva/instances= · =~/.viva/registry=, =bak= · =bundle= · =mountpoint= out; =testament/= holds frozen trees, 97 files, untouched.
+
+* landed — live consumers
+
+| surface | commons | assembly | chess | droneaid | education | media | stucatch | vcompany | young-ladys-primer |
+|---|---|---|---|---|---|---|---|---|---|
+| =@vivalence/drapes/svelte= importers | 3 | 0 | 0 | 0 | 21 | 0 | 0 | 13 | 1 |
+| bare =@vivalence/drapes=, live | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| =@vivalence/drapes/parts= · =parts.css= imports | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Svelte views built, before · after | 12 · 12 | 4 · 4 | 5 · 5 | 0 | 12 · 12 | 1 · 1 | 1 · 1 | 3 · 3 | 2 · 2 |
+| =postcssPlugin= · =tailwindClasses= · =dapper/tailwind= | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| a react mime declared | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| VCS | repo | jj | jj | jj | jj | none | none | none | jj |
+
+Bare leftovers, not live: =commons/dashboards/dataspace/Dashboard.graph.bak.svelte:2= · =commons/dashboards/dataspace/design/dataspace-v2-data.md:2087= · =~/.viva/instances/bak= · =education/bak= · =education/modes/games/bak=.
+
+Dapper names read off the root by commons and registry: =tokens= · =design= · =contrast= · =THEMES=, all exported.
+
+* the caches
+
+#+BEGIN_SRC js
+// subsystems/paladin/gestalten/belt/bundler.js:16
+const fresh = async (sources) => {
+  if (!sources.length) return false;
+  const now = await Promise.all(sources.map((held) => stamped(held.path).catch(missing)));
+#+END_SRC
+
+A mounted view whose stored sources name a moved drapes file reads it missing, so it rebuilds once on its next attach: 5 =dom.svelte= bundles under =~/.viva/instances/localhost/mountpoint=. Unwalked on his =:2501=.
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/runtime/attachment.js:20
+    const build = view.mount === null
+      ? runtime.entities.file.findOneOrFail({ view: view.id, path: view.entry })
+      : runtime.entities.view.bundle(view, { bundler });
+#+END_SRC
+
+A generated view (=mount === null=) serves its stored file and never rebuilds: an old bare import in one keeps working. My earlier /"fails loud on a rebuild"/ was wrong. Stored sources naming the bare specifier under =~/.viva/instances=: 0.
+
+* the ship
+
+Old repo + new registry: =@vivalence/drapes/svelte= rides the prefix key to =subsystems/drapes/svelte=, absent. New repo + old registry: the bare key is gone. Either half alone faults every drapes view of =education= · =young-ladys-primer= · =vcompany= at attach. =vcompany= carries no VCS: my 13 edits there have no undo but the reverse rewrite.
+
+* suites, serial, empty HOME, 11-19
+
+| suite | verdict | red owner |
+|---|---|---|
+| =commons/instances/hello-world/tests/draw.test.js= | ok 1 passed (4 steps) | — |
+| =commons/instances/hello-world/tests/style.tokens.test.js= | ok 1 passed (5 steps) | — |
+| =chess/modes/board/play/tests/app.test.js= | ok 1 passed (1 step) | — |
+| chess =analysis= · =riddles= · =library= · =practice= | 1 failed each, =P-render= | =chess-render-rig-mixes-two-svelte-runtimes= |
+| =chess/tests/kit.test.js= | 0 passed, 2 steps red | =chess-board-themes-break-kit-no-hex= + the a11y warn |
+| =commons/fixtures/memo/tests/tablet.snapshot.test.js= | 0 passed, 2 steps red | =memo-tablet-snapshot-handler-undefined= |
+| memo =memo= · =memo.snapshot= · 4 registry =tty.render= | red | =tty-chrome-opentui-node-ffi= |
+
+No pre-edit baseline of these: each red is attributed by its stack and its known issue, none by a before · after pair.
+
+* waiting milestones
+
+| milestone | commons + registry consumers |
+|---|---|
+| the solid subpath | 0 |
+| the models | =@vivalence/sheets= 6 files, all test rigs; no view of commons or registry reads a sheets part |
+| the members | =three= assembly 6 · droneaid 1; =svelte= 51 files; =solid-js= 7 files; a DOM bundle mounted outside anima: =commons/fixtures/memo/tests/tablet.snapshot.test.js:96= |

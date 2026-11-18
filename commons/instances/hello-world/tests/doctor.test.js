@@ -11,7 +11,7 @@ const STANDING = {
   modes: [
     {
       slug: "hello-world",
-      traits: ["APPLICATION", "CONVERSATIONAL"],
+      traits: ["APPLICATION", "CONVERSATION"],
       routes: ["/hello/doctor", "/hello/bot"],
     },
     { slug: "runtime", traits: [], routes: [] },
@@ -32,7 +32,7 @@ specimen.describe("doctor — the standing projection", () => {
         "daemon runtime · entities buffer thread turn",
       );
       specimen.expect(lines[2]).toBe(
-        "mode hello-world [APPLICATION CONVERSATIONAL] /hello/doctor /hello/bot",
+        "mode hello-world [APPLICATION CONVERSATION] /hello/doctor /hello/bot",
       );
       specimen.expect(lines[3]).toBe("mode runtime [] no routes");
       specimen.expect(lines[4]).toBe("settled");

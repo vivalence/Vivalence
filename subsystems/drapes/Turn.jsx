@@ -1,16 +1,17 @@
 import { children, createSignal, For, mergeProps, Show } from "solid-js";
 import { Dynamic } from "solid-js/web";
+import { parts } from "@vivalence/dapper";
 import { Caret } from "./Caret.jsx";
 import { Markdown } from "./Markdown.jsx";
 import { Think } from "./Think.jsx";
 import { Thought, Tool } from "./Tool.jsx";
 
-export const REGISTERS = { you: "<<", agent: ">>", cmd: "<<", msg: "·", fault: "!", trace: "·" };
-const HEADED = ["you", "agent"];
-
 const register = (kind) => {
-  if (!Object.hasOwn(REGISTERS, kind)) throw new Error(`[drapes] not a journal register: ${JSON.stringify(kind)} · ${Object.keys(REGISTERS).join(" · ")}`);
-  return REGISTERS[kind];
+  if (!Object.hasOwn(parts.turn.REGISTERS, kind))
+    throw new Error(
+      `[drapes] not a journal register: ${JSON.stringify(kind)} · ${Object.keys(parts.turn.REGISTERS).join(" · ")}`,
+    );
+  return parts.turn.REGISTERS[kind];
 };
 
 const clip = (text) => (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject(new Error("no clipboard")));
@@ -47,7 +48,7 @@ export const Turn = (props) => {
   const [copied, setCopied] = createSignal(false);
   const [detailed, setDetailed] = createSignal(false);
   const blocks = children(() => held.children);
-  const headed = () => HEADED.includes(held.kind);
+  const headed = () => register(held.kind).headed;
   const written = () => held.text !== "" || held.tail !== "" || held.streaming;
   const line = (text) => held.onLine && held.onLine(text);
   const copy = () =>
@@ -73,9 +74,9 @@ export const Turn = (props) => {
   const open = () => line(`/buffer "${held.buffer}"`);
   return (
     <div class={`entry ${held.kind}`} classList={{ headed: headed(), sel: held.selected }} onClick={(event) => held.onPick && held.onPick(event)}>
-      <Show when={headed()} fallback={<div class="reg">{register(held.kind)}</div>}>
+      <Show when={headed()} fallback={<div class="reg">{register(held.kind).glyph}</div>}>
         <div class="ehead">
-          <span class="reg">{register(held.kind)}</span>
+          <span class="reg">{register(held.kind).glyph}</span>
           <Show when={held.kind === "you"}>
             <span class="who">{held.who}</span>
           </Show>

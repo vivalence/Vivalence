@@ -1,7 +1,57 @@
 # release
-<!-- writer: agent · kind: ledger · limit: 60000 chars — the interface changelog; quests feed it, a tag cuts it (skill quest) -->
+<!-- writer: agent · kind: ledger · limit: 80000 chars — the interface changelog; quests feed it, a tag cuts it (skill quest) -->
 
 ## unreleased
+
+### cli
+
+- changed `viva instance/tail` — takes a sieve as one word (`'{"/runtime/(.*)":["status","log"]}'`) and follows every running process of the instance over its socket; before, it followed ghost's `spans.log` · migrate: name `telemetry.logger.socket` in the recipe ⟨instance-telemetry Q14 · Q22⟩
+- added `viva instance/pipe <file>.jsonl '<sieve>'` — the same records into a file under the instance's logs · migrate: none ⟨instance-telemetry Q13⟩
+- removed `viva instance/tail/ghost` · `instance/tail/client` · migrate: a sieve key `/ghost/(.*)` ⟨instance-telemetry Q14⟩
+- removed `/detach` — a waiting upload leaves the draft with `/upload/trash <name>` · migrate: none ⟨file-drop Q21⟩
+- changed `/file/upload` — answers a stream, per file `{ event: "/landed", landed }` as its bytes land, then `{ event: "/file", file }`; before, a list of Files · migrate: read the stream ⟨upload-progress Q0⟩
+- added `/file/upload` — files go up, a flag names what holds them (`--thread=` · `--buffer=`), none leaves them loose; bare, it opens its prompt · migrate: none ⟨file-drop Q18⟩
+
+### route
+
+- changed `/attached/file/:id` · `/attached/view/:id` — both ask for a login: `Authorization: Bearer` or `?token=<access>`; before, anyone holding the id read it · migrate: a client reads a File's `url` (it carries the token) or `runtime.attached(path)`; a hand-built address answers `401 MISSING_TOKEN` ⟨file-drop Q24⟩
+- added `/userspace/entities/file/upload/<path>` (the body is the bytes, `?thread=` · `?buffer=`) · `/userspace/entities/file/paste` (`{ path, mime, data, thread?, buffer? }`) — answer the File; a thread or buffer that is not the caller's answers 404 before a byte lands · migrate: none ⟨file-drop Q9 · Q23⟩
+
+### api
+
+- added `telemetry.logger` on a ledger · instance recipe — `{ <target>: { <path pattern>: [tracks] } }`, a target is `console` · `socket` · a `.jsonl` path · migrate: none ⟨instance-telemetry Q4 · Q5 · Q22⟩
+- changed what a process writes when its recipe says nothing — the runtime's console prints one row a record, `status` · `fault` · `log` only; `logs/<slug>/spans.jsonl` and `<process>.spans.log` are no longer written; a browser prints nothing · migrate: name a logger in the recipe ⟨instance-telemetry Q6 · Q16⟩
+- added `paladin.telemetry`; `paladin.control(controller)` hands a root's records to it, in a browser too · migrate: none ⟨instance-telemetry Q15 · Q17⟩
+- added `Span.drain(signal)` and async iteration — a span read as a source hands its past, then its live records · migrate: none ⟨instance-telemetry Q21⟩
+- changed `v.record(key, value, options)` — a third argument · migrate: none ⟨instance-telemetry Q5A⟩
+- changed the console's `log` row — an object prints its keys (`key value · key value`, a row per key when one holds an object); before, one row of JSON · migrate: none; the `.jsonl` and socket records are unchanged ⟨instance-telemetry dialogue 30⟩
+- removed the `[multiplex …]` console prints — an upgrade and a drop are `log` records on the socket's span, an answered miss a `response` 404, a failure a `fault` · migrate: a sieve key for `/runtime/:runtime/socket/(.*)` (`/anima/(.*)` · `/ghost/(.*)` on a client) ⟨instance-telemetry dialogue 30⟩
+- added `trace` on `shard.transmitter.multiplex({ … })` — the span a client's sockets hang under · migrate: none ⟨instance-telemetry dialogue 30⟩
+- added a turn part `{ type: "file", file: <File id> }` — a stored turn carries a file as a reference; the harness hands the model its bytes and files what the model returns · migrate: none ⟨file-drop Q2 · Q12⟩
+- changed a mode's file address — a mode hands a view the File's id, the view reads `url` off the client's File; before, `ctx.attach.branch("/file/<id>").absolute` · migrate: every mode that mints an `/attached/file` address (memo · `@media` editor · `@vcompany` office turned 11-21) ⟨file-drop Q24A⟩
+- changed `File` — `user` optional (set, the File is that user's alone), `mode` · `daemon` nullable, `Thread.files` m:n (`thread_files`) · migrate: mikro's, on boot ⟨file-drop Q1A · Q22⟩
+- renamed a part's `media` key (`Part.Image` · `Part.Audio` · `Part.Video` · `Part.Document`) — a part's mime type reads `part.mime`, before `part.media` · migrate: every stored or hand-built part; `Turn.parts` holding `"media"` (0 on localhost, prod unread) ⟨file-drop⟩
+- renamed `HARNESSED` · `CONVERSATIONAL` (a mode's trait) — a module's `manifest.traits` says `HARNESS` · `CONVERSATION`; the thread's words and `thread.trait.HARNESSED` · `CONVERSATIONAL` are unchanged · migrate: turn the word in every module manifest and every `mode.implements("…")`; a module left on the old word: see Q48 ⟨m126 Q42⟩
+- changed a mode entry in a recipe — `traits` sits at the entry's top · migrate: move the list one level up ⟨m126 Q43⟩
+- added `trait` on a mode entry — config for `HARNESS` · `CONVERSATION` · `TOOLING` · `PRIMER` in the thread twin's shape; a thread that does not wear the twin takes it when it is created on that mode or moved onto it · migrate: none ⟨m126 Q40⟩
+- changed a newborn thread — it wears its intent's traits alone, before: `HARNESSED` · `CONVERSATIONAL` on every thread from birth · migrate: a thread on a mode that wears `HARNESS` · `CONVERSATION` wears the twin from birth; on any other mode it wears neither: a reader gating on the word reads the cast config there ⟨m126 Q40⟩
+- removed `manifest` on a mode entry — an entry no longer overrides its module's name · slug · type; the key is refused · migrate: none (no recipe holds one) ⟨m126 Q44⟩
+- added `v.primitives.hallucination.REQUIRES` and a report — a mode wearing `HARNESS` · `CONVERSATION` without the faculties it needs is listed dormant at its lookup path and warned at boot, it still mounts · migrate: none ⟨m126 Q41⟩
+- 11-20 the recast on his walk (stop 6), Q47 B /"b"/: the seeding left `claiming` (`TWINS` · the filter · the flush gone) for four ears on the mode's twitch, each trait its own twin in its own file (`** Q40`, five probes run). Leftovers re-decided there: `ctx.harnessed` is the pre-Q40 row · `ctx.conversational` stays the one straight read · `Mode.trait ` {}` stays · anima's gates untouched · the doc page says "created on that mode or moved onto it". Long new rows reflowed (`wire`'s `above` · `held`, the stray throw, the four ears, the mask's `.desc`); left long: the comment row at `registry.js:248` and the `contexts.js` row (their files' own width). Replay of the four from this file onto a pristine clone: `88 · 10 · 10 · 27` hunks + 2 new files, 0 missed, `diff -rq` both ways empty. The final copy, whole, serial, `HOME= empty:
+- changed a mode's `HARNESSED` · `CONVERSATIONAL` — kept as `//deprecated` siblings of `HARNESS` · `CONVERSATION` in the schematic and both trait catalogs: a module on the old word still mounts and serves `/harness`, no client talks to it · migrate: turn the word; the siblings are deleted later ⟨m126 Q48⟩
+- added `/lighthouse/autosignup` — grafted only when the lighthouse carries `AUTOSIGNUP`; takes `{ username }`, no password: mints that user on first entry, enters the same user after; a name holding a password answers `USERNAME_EXISTS`, and `/login` never reaches a passwordless user; the client's `Lighthouse.autosignup(username)`; anima's signin submits an empty password there · migrate: none ⟨autosignup 11-20⟩
+- renamed every schematic of `v.primitives.instance` to one law: `<Type>Recipe` = the json as written, `<Type>Mask` = what paladin hands a subject — `Instance` → `InstanceMask` · `Runtime` → `RuntimeMask` · `Daemon` → `DaemonMask` · `Mode` → `ModeMask` · `Modes` → `ModeMasks` · `Service` → `ServiceMask` · `Client` → `ClientMask` · `Lighthouse` → `LighthouseMask` · `Datamap` → `DatamapMask` · `Hallucinator` → `HallucinatorMask` · `Statics` → `StaticsMask` · `Secrets` → `SecretsMask`; the in-forms `InstanceMask` → `InstanceRecipe` · `DaemonMask` → `DaemonRecipe` · `ModeMask` → `ModeRecipe` · `HallucinatorMask` → `HallucinatorRecipe` · `MaskOf` → `Recipe` · `MaskStatics` → `StaticsRecipe` · `MaskSecrets` → `SecretsRecipe` · `Ledger` → `LedgerRecipe` · migrate: four names SWAP meaning (`InstanceMask` · `DaemonMask` · `ModeMask` · `HallucinatorMask` were the in-form) — rename every reader in one pass, old in-forms first ⟨m126 Q37⟩
+- added `v.primitives.instance` `RuntimeRecipe` · `ServiceRecipe` · `ClientRecipe` · `LighthouseRecipe` · `DatamapRecipe` · `EnvironmentRecipe` · `EnvironmentMask` · `ModeRecipes` — every type holds both forms; the ledger file is a recipe alone · migrate: none ⟨m126 Q37⟩
+- added `v.primitives.hallucination` `FacultyRecipe` (`{ id, tier? }`) · `FacultyMask` (`{ type, id, tier? }`); `Faculty` stays what a provider built · migrate: none ⟨m126 Q37⟩
+- changed an instance fault's label — a host and a mode are spelled by lookup path: `daemons.<slug>` · `services.<slug>` · `clients.<slug>` · `<host>.modes.<type>.<slug>`; was `daemon[<slug>]` · `modes[N]` (an entry with no type and slug keeps `modes[N]`) · migrate: a reader matching the old label text ⟨m126 Q36⟩
+- changed every host — runtime · daemon · mode · service carries `.mask`, what paladin settled for it, with `manifest` and `hallucinators`; a host is built from its module and its mask; `instance.raw` · `instance.mask(slug)` removed · migrate: read `<host>.mask` ⟨m126 milestone 1⟩
+- changed hallucinators — declared on ledger · runtime · daemon · mode, every level adds to the one above, unique by tier; root `hallucinators` and `tiers` on an instance recipe are refused · migrate: move a root `hallucinators` list under `runtime` ⟨m126 milestone 2⟩
+- changed `new Cortex(faculties)` — one cortex per host, built from its mask's faculties; the tiers argument and route `/metadata/tiers` removed, tiers are typology's fixed set · migrate: `new Cortex()` in a rig needs no table ⟨m126 milestone 4⟩
+
+- added `Twitch.dispatch(signal, input?)` — the one way a twitch fires, input optional; `shape.subscriber(twitch)` now needs a `Twitch`, was any Vector · migrate: `new Vector()` handed to `registerSubscriber` → `new Twitch()` ⟨m125⟩
+- added twitch signals `/after/runtime/boot` · `/after/daemon/boot` · `/after/mode/boot` · `/after/datamap/boot` · `/after/datamap/migrate` (input `{ migrations }`, only when pending ran) — the datamap pair fires on the runtime's, each daemon's and each mode's twitch; `Datamap.migrated` · migrate: none ⟨m125⟩
+- added `v.instant` · `v.date` · `v.duration` · `v.datetime` · `v.zoned`; removed scalar `Timestamp` · migrate: `Timestamp` → `v.instant()` ⟨m125⟩
+- added faculty keys `model` · `upstream` (openrouter dialogue: the request pinned to one upstream, no fallback) · migrate: none ⟨m125⟩
 
 ### client
 
@@ -49,6 +99,7 @@
 
 ### route
 
+- added mode `education/games/wakaru` (0.3.0) — a top-down language RPG over a buffer: the run in `buffer.data.run`, due words roam as spirits, every graded answer a `literal.review`; routes `/begin` · `/keep` · `/atlas` · `/memory` · `/spirits` · `/speak` · `/ask` · `/listen` · `/judge` · `/daily`, tool `/play`, emitter `/feed` (intent `wander`) · migrate: none ⟨m121⟩
 - added `/attached/view/:id` — a view's bundle, built at its first fetch, rebuilt when its `sources` changed; `ETag` + `x-viva-integrity`, `If-None-Match` → 304 · migrate: none ⟨m120⟩
 - removed `/userspace/entities/view/bundle` — no product caller · migrate: none ⟨m120⟩
 

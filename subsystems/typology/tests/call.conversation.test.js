@@ -1,4 +1,3 @@
-import { TIER_POINTS } from "./scenarios/tiers.js";
 import { Controller, Cortex, soma, Span, specimen, ToolCall, v, Vector } from "@vivalence/typology";
 
 const { Packet } = v.primitives.hallucination;
@@ -104,7 +103,7 @@ const said = (words) => [
 
 const call = async (script, hangup = 250) => {
   const controller = new Controller({ stdout: new Span("call") });
-  const cortex = new Cortex(TIER_POINTS).register([ear(), mind(), mouth()]);
+  const cortex = new Cortex().register([ear(), mind(), mouth()]);
   const tools = new Vector().open({ nature: new ToolCall("clock").signal.pathname }, () => ({ condition: "NOMINAL", product: { message: "15:00" } }));
   const microphone = (async function* () {
     for (const [wait, words] of script) {
@@ -124,11 +123,11 @@ const call = async (script, hangup = 250) => {
 
 specimen.describe("the cascaded call — ear · mind · mouth behind one stream (law 6 · Q0 · Q6)", () => {
   specimen.it("each organ is picked by its own selector; no ear, no call", () => {
-    const cortex = new Cortex(TIER_POINTS).register([ear(), mind("mind-a"), mind("mind-b", [0.9, 0.1, 0.1]), mouth("mouth-a"), mouth("mouth-b", [0.1, 0.9, 0.9])]);
+    const cortex = new Cortex().register([ear(), mind("mind-a"), mind("mind-b", [0.9, 0.1, 0.1]), mouth("mouth-a"), mouth("mouth-b", [0.1, 0.9, 0.9])]);
     specimen.expect(() => cortex.findOne({ type: "call", via: "stream" })).toThrow(/2 'dialogue' faculties match/);
     const picked = cortex.findOne({ type: "call", via: "stream", mind: { id: "mind-b" }, speak: { tier: "fast" } });
     specimen.expect(picked.id).toBe("scribe_v3_live+mind-b+mouth-b");
-    specimen.expect(new Cortex(TIER_POINTS).register([mind(), mouth()]).findOne({ type: "call", via: "stream" })).toBe(undefined);
+    specimen.expect(new Cortex().register([mind(), mouth()]).findOne({ type: "call", via: "stream" })).toBe(undefined);
   });
 
   specimen.it("a heard turn seals, the mind answers aloud; every packet one grammar, every turn an id", async () => {

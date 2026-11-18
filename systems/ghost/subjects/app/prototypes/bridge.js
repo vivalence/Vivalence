@@ -8,6 +8,7 @@ export class Bridge {
   $focusHistory = atom([]);
   $sidebar = atom({ open: false, width: 39 });
   $draft = atom("");
+  $uploads = atom([]);
   $dictation = atom(null);
   $dictationFault = atom(null);
   $call = atom(null);
@@ -19,6 +20,7 @@ export class Bridge {
   $phonePane = atom("dock");
   $widget = atom(null);
   $float = atom({});
+  $frames = persistentAtom("viva.bridge.frames", {}, { encode: JSON.stringify, decode: JSON.parse });
   $selection = atom(null);
   $signin = atom({ user: "", pass: "" });
   $sections = atom({ filter: {}, expand: {}, peeks: {}, views: {}, current: null, pick: null, hostsOff: { thread: [], mode: [] }, traits: { thread: [], mode: ["VIEWABLE"] } });
@@ -51,6 +53,10 @@ export class Bridge {
 
   get draft() {
     return this.$draft.get();
+  }
+
+  get uploads() {
+    return this.$uploads.get();
   }
 
   get dictation() {
@@ -95,6 +101,10 @@ export class Bridge {
 
   get float() {
     return this.$float.get();
+  }
+
+  get frames() {
+    return this.$frames.get();
   }
 
   get selection() {

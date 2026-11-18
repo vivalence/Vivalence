@@ -33,10 +33,12 @@ describe("paladin boot: constructed mountables, no ikiro", () => {
 
   it("factories.instance is memoized per instance — the same promise twice, a fresh instance mounts anew", async () => {
     const fresh = lifecycle.paladin.belt(new Paladin(), FULL);
-    const first = factories.instance(lifecycle.paladin.instance(fresh));
+    lifecycle.paladin.instance(fresh);
+    const first = factories.instance(fresh);
     await first.catch(() => null);
-    expect(factories.instance(fresh.instance)).toBe(first);
-    const second = factories.instance(lifecycle.paladin.instance(fresh));
+    expect(factories.instance(fresh)).toBe(first);
+    lifecycle.paladin.instance(fresh);
+    const second = factories.instance(fresh);
     await second.catch(() => null);
     expect(second).not.toBe(first);
   });

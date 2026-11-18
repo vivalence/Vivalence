@@ -20,7 +20,7 @@ export const DRAFTS = [
 ];
 
 export const CONTROLS = [
-  [() => true, "a", "attach", "", "/attach"],
+  [() => true, "a", "attach", "", "/file/upload"],
   [
     (voice) => voice.dictation === null && belt.dictation.offered(voice.commands, "/dictate"),
     "d",

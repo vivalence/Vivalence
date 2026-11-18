@@ -36,9 +36,10 @@ specimen.describe("the door against a world — boot passes a reachable runtime,
   specimen.beforeAll(async () => {
     world = await hello.boot({ recipe: hello.DEMO, prefix: "viva-door-" });
     paladin.assign(world.env, "flag");
-    instance = await factories.instance(lifecycle.paladin.instance(paladin));
+    lifecycle.paladin.instance(paladin);
+    instance = await factories.instance(paladin);
     await paladin.ledger.registry.supply();
-    mask = instance.mask("ghost");
+    mask = instance.client("ghost");
     register = await paladin.ledger.registry.wire(mask);
   });
   specimen.afterAll(async () => {
@@ -67,7 +68,7 @@ specimen.describe("the door against a world — boot passes a reachable runtime,
     const flagged = await logged(() => steer.dispatch.execute(shell.lifecycle.execution, { controller: new Controller({ stdout: new Span("ghost") }), signal: new Argv(["help", "--help", "--json"]), instance, mask, register }, "/help"));
     specimen.expect(flagged).toEqual(routed);
     const listed = await logged(() => steer.dispatch.execute(shell.lifecycle.execution, { controller: new Controller({ stdout: new Span("ghost") }), signal: new Argv(["help"]), instance, mask, register }, "/help"));
-    specimen.expect(listed[0].startsWith("viva · 26 commands\n")).toBe(true);
+    specimen.expect(listed[0].startsWith("viva · 25 commands\n")).toBe(true);
   });
 
   specimen.it("client.factory: hands back the Client RUNNING against the world; the runtime keeps the user a terminal — the last closed, a fresh one streams in; a kill settles it STOPPED", async () => {
@@ -95,8 +96,9 @@ specimen.describe("the door against a world — boot passes a reachable runtime,
     const reached = () => new Connection(remote).call("/beacon/status").then(() => true, () => false);
     specimen.expect(await reached()).toBe(false);
     for (const [key, value] of Object.entries(world.env)) Deno.env.set(key, value);
-    const listed = Object.create(instance, { home: { value: new Path(await Deno.realPath(instance.home.absolute)) } });
-    const shellDie = { controller: new Controller({ stdout: new Span("ghost") }), instance: listed, mask, register };
+    const listed = new Path(await Deno.realPath(paladin.scope.instance.absolute));
+    paladin.scopes([["instance", () => true, () => listed]]);
+    const shellDie = { controller: new Controller({ stdout: new Span("ghost") }), instance, mask, register };
     let inside = null;
     try {
       await door(shellDie, async () => {
@@ -133,9 +135,12 @@ const viva = async (home, args, env = {}) => {
 const SHELL = {
   help: "the shell's commands. Example: viva help",
   chrome: "the repl under the chrome — the dock paints. Example: viva chrome",
-  "instance/tail": "follow a running ghost's spans from another terminal. Example: viva instance/tail",
-  "instance/tail/ghost": "follow a running ghost's spans, every branch. Example: viva instance/tail/ghost",
-  "instance/tail/client": "follow a running ghost's client spans only. Example: viva instance/tail/client",
+  "instance/tail":
+    "follow this instance's running processes through a sieve, on this terminal. " +
+    'Example: viva instance/tail \'{"/runtime/runtime/daemon/droneaid/(.*)":["request","response"]}\'',
+  "instance/pipe":
+    "follow this instance's running processes through a sieve into a file under its logs, while this runs. " +
+    'Example: viva instance/pipe calls.jsonl \'{"/runtime/runtime/daemon/droneaid/(.*)":["request","response"]}\'',
 };
 const valences = (node, route = "") =>
   Object.entries(node.branches).reduce(
@@ -192,6 +197,6 @@ specimen.describe("the shell under an empty HOME — help answers without an ins
     await Deno.writeTextFile(join(mount, "instance.viva.json"), JSON.stringify({ manifest: { type: "instance", slug: "bare" } }));
     const ran = await viva(home, ["chrome"], { VIVA_INSTANCE_MOUNT: mount });
     specimen.expect(ran.code).toBe(1);
-    specimen.expect(ran.stderr).toContain(`[ERROR] /chrome: instance ${mount} masks no ghost client — no client at all`);
+    specimen.expect(ran.stderr).toContain(`[ERROR] /chrome: instance bare masks no ghost client — no client at all`);
   });
 });

@@ -50,9 +50,7 @@ export function multiplex(vector, trace) {
       bearer: ctx?.request?.url?.searchParams?.get("token") ?? null,
     });
     sockets.add(socket);
-    console.log(
-      `[multiplex ${new Date().toISOString().slice(11, 23)}] socket upgraded — ${sockets.size} open`,
-    );
+    socket.span.log({ socket: "upgraded", open: sockets.size });
     ws.addEventListener("close", () => sockets.delete(socket));
   });
   fn.sockets = sockets;

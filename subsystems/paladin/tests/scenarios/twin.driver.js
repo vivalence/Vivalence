@@ -21,8 +21,8 @@ const after = paladin.vault.held(origin);
 const stored = [...store.keys()];
 paladin.vault.store(origin, null);
 const removed = paladin.vault.held(origin);
-const first = factories.instance(paladin.instance);
-const second = factories.instance(paladin.instance);
+const first = factories.instance(paladin);
+const second = factories.instance(paladin);
 const wired = await paladin.ledger.registry.wire();
 
 console.log(JSON.stringify({

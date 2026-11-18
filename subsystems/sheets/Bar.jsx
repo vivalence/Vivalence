@@ -1,4 +1,5 @@
 import { mergeProps, Show } from "solid-js";
+import { parts } from "@vivalence/dapper";
 import { Dot, dot } from "./Dot.jsx";
 import { gesture } from "./gesture.js";
 import { Meter } from "./Meter.jsx";
@@ -13,8 +14,6 @@ export const DISPLAYS = {
 };
 
 export const display = (held) => lookup(DISPLAYS, held.view, "display view")(held.align);
-
-export const CONTEXT = 0.85;
 
 const ATTENTIONS = ["caution", "negative"];
 
@@ -40,9 +39,9 @@ export const Bar = (props) => {
         </Segment>
         <Show when={held.harness !== null}>
           <Segment palette={held.palette} id="segment-harness" open={opened("harness")} onPick={pick("harness")}>
-            <text fg={held.harness.context >= CONTEXT ? held.palette.signalCautionInk : held.palette.textInk}>{`{${held.harness.tier} `}</text>
+            <text fg={held.harness.context >= parts.meter.CAUTION ? held.palette.signalCautionInk : held.palette.textInk}>{`{${held.harness.tier} `}</text>
             <Meter palette={held.palette} value={held.harness.context} />
-            <text fg={held.harness.context >= CONTEXT ? held.palette.signalCautionInk : held.palette.textInk}>{` ${held.harness.eager}● ${held.harness.lazy}◇}`}</text>
+            <text fg={held.harness.context >= parts.meter.CAUTION ? held.palette.signalCautionInk : held.palette.textInk}>{` ${held.harness.eager}● ${held.harness.lazy}◇}`}</text>
           </Segment>
         </Show>
         <Show when={held.activity.signal !== "off"}>
