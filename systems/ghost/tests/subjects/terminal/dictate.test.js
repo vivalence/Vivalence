@@ -56,6 +56,8 @@ const world = (draft, { faulty = false, recorder = SPEAKING } = {}) => {
   const bridge = {
     $draft: atom(draft),
     $dictation: atom(null),
+    $dictationFault: atom(null),
+    get dictationFault() { return this.$dictationFault.get(); },
     get draft() { return this.$draft.get(); },
     get dictation() { return this.$dictation.get(); },
   };
@@ -133,11 +135,19 @@ specimen.describe("/dictate — the microphone is the switch, one bridge store h
     specimen.expect(bridge.draft).toBe("");
   });
 
-  specimen.it("the route faults mid-stream: a stop, the words heard so far kept (Q16B)", async () => {
-    const { bridge, fault, microphone } = await dictation("ciao", null, { faulty: true });
+  specimen.it("the route faults mid-stream: a stop, the words heard so far kept (Q16B); the fault stays on the bridge until trashed or the next dictation", async () => {
+    const { bridge, fault, microphone, run } = await dictation("ciao", null, { faulty: true });
     specimen.expect(fault).toBe("socket 1006");
     specimen.expect(bridge.draft).toBe("ciao vado al mercato");
     specimen.expect(microphone.claimed).toBe(false);
+    specimen.expect([bridge.dictation, bridge.dictationFault]).toEqual([null, { message: "socket 1006" }]);
+    await run("/dictate/trash");
+    specimen.expect(bridge.dictationFault).toBe(null);
+  });
+
+  specimen.it("a dictation that ends well leaves no fault", async () => {
+    const { bridge } = await dictation("", "/dictate/stop");
+    specimen.expect(bridge.dictationFault).toBe(null);
   });
 });
 

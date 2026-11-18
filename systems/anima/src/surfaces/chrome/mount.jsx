@@ -36,6 +36,29 @@ const painted = (document, appDie) => {
   };
 };
 
+const locked = (view) => {
+  const style = view.document.documentElement.style;
+  let frame = null;
+  const paint = () => {
+    frame = null;
+    style.setProperty("--viva-h", `${view.visualViewport.height}px`);
+    style.setProperty("--viva-t", `${view.visualViewport.offsetTop}px`);
+  };
+  const sync = () => {
+    frame ??= view.requestAnimationFrame(paint);
+  };
+  view.visualViewport.addEventListener("resize", sync);
+  view.visualViewport.addEventListener("scroll", sync);
+  paint();
+  return () => {
+    view.visualViewport.removeEventListener("resize", sync);
+    view.visualViewport.removeEventListener("scroll", sync);
+    view.cancelAnimationFrame(frame);
+    style.removeProperty("--viva-h");
+    style.removeProperty("--viva-t");
+  };
+};
+
 export const mount = (appDie) => {
   const narrow = globalThis.matchMedia("(max-width: 767px)");
   const resized = () =>
@@ -70,12 +93,14 @@ export const mount = (appDie) => {
     if (status.code === "LOGGED_OUT")
       appDie.bridge.$signin.set({ user: appDie.bridge.signin.user, pass: "" });
   });
+  const unlock = locked(globalThis);
   const style = dressed(globalThis.document);
   const erase = painted(globalThis.document, appDie);
   return () => {
     erase();
     style.remove();
     forget();
+    unlock();
     globalThis.document.removeEventListener("focusout", dropped);
     globalThis.document.removeEventListener("focusin", held);
     narrow.removeEventListener("change", resized);

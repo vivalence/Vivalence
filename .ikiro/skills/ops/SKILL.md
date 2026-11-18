@@ -27,23 +27,18 @@ V=$(docker volume ls -q | grep '_mountpoint$')
 docker inspect $C --format '{{.Config.Image}} {{.Image}}'
 docker exec $C env | grep -E '^(VIVA|PUBLIC_VIVA)_' | sort
 docker exec $C tree -d -L 1 /viva
-docker exec $C sh -c 'ls $VIVA_INSTANCE_MOUNT; cat $VIVA_INSTANCE_MOUNT/*.viva.js'
-docker run --rm -it -v $V:/m:ro registry.vivalence.org/beef/viva/vivalence/viva:alpine bash
+docker exec $C sh -c 'ls $VIVA_INSTANCE_MOUNT; cat $VIVA_INSTANCE_MOUNT/*.viva.js*'
+docker run --rm -i -v $V:/m:ro --entrypoint sqlite3 vivalence/prod-runtime:local -readonly /m/prod.viva.db < q.sql
 ```
 
-```bash
-du -sh /m/*
-sqlite3 -readonly /m/<instance>.viva.db "select slug, traits from Mode order by slug; select name from _mikro_migrations order by id;
-  select (select count(*) from Buffer),(select count(*) from Turn),(select count(*) from User);"
-```
+SQL rides stdin from a LOCAL file, never nested quotes; the runtime image IS the sidecar.
 
-SQL rides stdin, never nested quotes.
-
-- `_mikro_migrations`, not `mikro_orm_migrations`; tables Capitalised, as queried above.
+- `_mikro_migrations`, not `mikro_orm_migrations`; tables Capitalised.
 - **a recipe module is checked in the IMAGE first** (`docker exec $C ls /viva/repository/commons/<dir>`): absent = `Module 404`, exit 1. A REBUILT image re-taps registry HEAD: boot it on a CLONE before `up` (REJECTED 11-13: 3 min down).
 - **an outside probe = the hosts he NAMED** (11-13 /"no. vivalence.com and the runtime!"/).
-- **prod's trait data is cast on HEAD before a deploy** — `reference/prod-deploy/cast.probe.js` (11-12).
-- **Coolify's env table is the SOURCE, `.env` its output**; its deploy KEEPS anima's anon `build/` volume: `-V`. `Restart` KEEPS the container: env · healthcheck land by `docker compose up -d --force-recreate <svc>` in the service dir (`--no-build`). Healthcheck host `127.0.0.1`, never `localhost` (`::1`, 503). Anima compose sets `VIVA_MOUNTPOINT_MOUNT`.
+- **prod's rows LOAD on HEAD before a deploy** — `reference/prod-deploy/load.probe.js` (the `onLoad`s) · `recipe.probe.js` (11-18).
+- **"pushed" = the GitHub DEFAULT branch** (`api.github.com/repos/<r>/commits/HEAD`), what the build taps; `-c @` lands on `push-*` (11-18).
+- **Coolify's env table is the SOURCE, `.env` its output**: a hand row dies at his next deploy, his table row LEADS the report (11-18); its deploy KEEPS anima's anon `build/` volume: `-V`. `Restart` KEEPS the container: env · healthcheck land by `docker compose up -d --force-recreate <svc>` in the service dir (`--no-build`). Healthcheck host `127.0.0.1`, never `localhost` (`::1`, 503). Anima compose sets `VIVA_MOUNTPOINT_MOUNT`.
 - the HOSTS (root ssh · patch · reboot · sshd · rkhunter): skill `servers`.
 - **a hand-inserted row skips its entity's twitches** (11-06: User by SQL → no Terminal → anima boots forever): insert each twitch-minted sibling too (`typology/entities/*.ts` `/after/<entity>/create`).
 
@@ -67,10 +62,10 @@ mkdir -p tmp bak
 scp <SERVER>:/tmp/mountpoint.tgz tmp/
 tar -xzf tmp/mountpoint.tgz -C tmp/
 ls tmp/
-mv daemon_brazilian/ service_multiplayer/ bak/
-mv tmp/daemon_brazilian/ tmp/service_multiplayer/ .
+mv prod.viva.db daemon_*/ bak/
+mv tmp/prod.viva.db tmp/daemon_*/ .
 rm -rf tmp/
-sqlite3 daemon_brazilian/<dbname>.viva.db ".tables"
+sqlite3 prod.viva.db ".tables"
 ```
 
 `ls` before `tar`; swap each `daemon_<slug>/`; then `viva instance/use <slug> run`, report boot errors.

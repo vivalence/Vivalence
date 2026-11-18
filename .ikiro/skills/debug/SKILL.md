@@ -27,7 +27,7 @@ when_to_use: >-
 - `viva instance/doctor --json` (→ `mount`) + `viva ledger/doctor` (/"dont forget the pair"/); `ledger/doctor` MUTATES.
 - read-only sqlite — `sqlite3 "file:$HOME/.viva/instances/<slug>/mountpoint/<db>?mode=ro" "select …"`; bare path CREATES.
 - `curl` `/beacon/status` · `/metadata/aperture` (bearer); boot `run.js` foreground — a bad import dies SILENT under a task.
-- a walk/probe tears down in `finally`: SIGTERM its own pid, never SIGKILL (orphans the runtime), nor `ps | grep`.
+- a walk/probe tears down in `finally`: SIGTERM its own pid, never SIGKILL, nor `ps | grep`.
 
 ## recurring shapes
 
@@ -37,9 +37,9 @@ when_to_use: >-
 - blank `:1794`, clean console ⇒ `client.js` faulted untapped (`anima-entry-faults-unprinted`).
 - a 401 + 500 storm ⇒ an `$effect` writing the `$state` it reads — `untrack`, mount to prove.
 - a slow click ⇒ LoAF · `performance.measure` on HIS page: a CLOSED panel's memo (11-18).
-- "unwired" ⇒ `git log --all -S '<call>'` over dropped snaps (not a tree grep) · a chord that only toggles ⇒ its effect threw after `flush()`, unpainted on `terminal.controller.stdout`.
-- tty cells stale till a resize ⇒ a write between frames: pty record + pyte (10-27).
-- a screenshot naming a scaffold ⇒ mount its real part; no probe, no forks, no `return null` (10-26).
+- "unwired" ⇒ `git log --all -S '<call>'` over dropped snaps · a chord that only toggles ⇒ its effect threw after `flush()`, unpainted on `terminal.controller.stdout`.
+- tty stale till a resize ⇒ a write between frames: pty record + pyte.
+- a screenshot ⇒ its REAL mounted part FIRST, a replica isolates after; no forks, no `return null` (10-26 · 11-18).
 
 ## browser
 
@@ -56,10 +56,9 @@ diff -q ~/.viva/registry/<pkg>/modes/<type>/<slug>/<file> ~/.viva/instances/<ins
 ```
 
 1. capture to `~/.viva/bak/instances/<slug>-<YYYYMMDD>/`; `cp` touched files by name — never `rsync --delete`, never the shelf `instance.viva.json` blind.
-2. verify on the SHELF — `VIVA_SYSTEM_MODE=DEVELOPMENT` re-bundles on reload.
-3. say /"verified on the shelf bundle"/.
+2. verify on the SHELF — `VIVA_SYSTEM_MODE=DEVELOPMENT` re-bundles on reload; say /"verified on the shelf bundle"/.
 
-- **a walk opens the PRODUCT as it ships** — `deno task <container>/run` on the ledger's port, his ledger, no substitute (10-21); its restart MINE, DETACHED `nohup … & disown`. A live view BEFORE the act; a key types once `activeElement` is its target, a click on its rect read IN-batch; a precondition THROWS, never prints; a `viva.*` store I flip, I unflip (10-28 · 11-18).
+- **a walk opens the PRODUCT as it ships** — `deno task <container>/run` on the ledger's port, his ledger, no substitute (10-21); its restart MINE, DETACHED `nohup … & disown`. A live view BEFORE the act; a key types once `activeElement` is its target, a click on its rect read IN-batch; a precondition THROWS, never prints; a `viva.*` store I flip, I unflip; a WRITE gesture on a throwaway entity (10-28 · 11-18).
 
 ## report
 

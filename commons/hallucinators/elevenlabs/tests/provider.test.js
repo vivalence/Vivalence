@@ -433,6 +433,43 @@ specimen.describe("elevenlabs scribe — the ear speaks the one content grammar"
     valid(flow.collected);
   });
 
+  specimen.it("a tail too short to commit seals the turn empty: the refusal ends the stream, no fault, whatever the close code", async () => {
+    ScribeSocket.instances = [];
+    const source = new Queue();
+    const flow = listen(await faculty("verbatim"), source);
+    await sleep.ms(1);
+    const ws = ScribeSocket.instances[0];
+    ws.open();
+    source.enqueue({ event: "/audio/packet", audio: { data: PCM, rate: 16000 } });
+    ws.said({ message_type: "partial_transcript", text: "eh" });
+    await sleep.ms(1);
+    source.close();
+    await sleep.ms(1);
+    ws.said({
+      message_type: "commit_throttled",
+      error: "Session closed: only 0.13s of uncommitted audio. You need at least 0.3s of uncommitted audio before committing.",
+    });
+    await flow.done;
+    specimen.expect(flow.collected).toEqual([...OPENED, { event: "/part/draft", index: 0, part: { text: "eh" } }, ...SEALED]);
+    specimen.expect(flow.fault()).toBe(null);
+    specimen.expect(ws.readyState).toBe(3);
+    valid(flow.collected);
+  });
+
+  specimen.it("a commit refused while the source still speaks faults loudly", async () => {
+    ScribeSocket.instances = [];
+    const source = new Queue();
+    const flow = listen(await faculty("verbatim"), source);
+    await sleep.ms(1);
+    const ws = ScribeSocket.instances[0];
+    ws.open();
+    ws.said({ message_type: "commit_throttled", error: "too soon" });
+    await sleep.ms(1);
+    source.close();
+    await flow.done;
+    specimen.expect(flow.fault().message).toBe("[elevenlabs] commit_throttled: too soon");
+  });
+
   specimen.it("a spent source in silence closes the socket, no commit sent", async () => {
     ScribeSocket.instances = [];
     const source = new Queue();

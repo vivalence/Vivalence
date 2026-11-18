@@ -26,7 +26,7 @@ export { Prog, CAUTION as PROG_CAUTION } from "./Prog.jsx";
 export { Artcard } from "./Artcard.jsx";
 export { Artchip } from "./Artchip.jsx";
 export { Atts } from "./Atts.jsx";
-export { Dictline } from "./Dictline.jsx";
+export { Dictfault, Dictline } from "./Dictline.jsx";
 export { Consent, KEYS as CONSENT_KEYS } from "./Consent.jsx";
 export { Split, Seam, FLOOR, CEILING, ALONG, ORIENTATION, clamp } from "./Split.jsx";
 export { Grip, FLOAT, CORNERS, carry, perch } from "./Float.jsx";

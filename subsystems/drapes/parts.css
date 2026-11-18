@@ -1,7 +1,7 @@
 html, body { height: 100%; }
 body { margin: 0; background: var(--surface); color: var(--text-ink); font-family: var(--font-family-sans-text), system-ui, sans-serif; font-size: .8125rem; line-height: 1.45; -webkit-font-smoothing: antialiased; overflow: hidden; }
-#app { position: fixed; inset: 0; background: var(--surface); color: var(--text-ink); font-family: var(--font-family-sans-text), system-ui, sans-serif; padding-top: env(safe-area-inset-top, 0); box-sizing: border-box; }
-@media (display-mode: standalone) { #app { bottom: auto; height: 100lvh; } }
+#app { position: fixed; inset: var(--viva-t, 0) 0 auto 0; height: var(--viva-h, 100dvh); background: var(--surface); color: var(--text-ink); font-family: var(--font-family-sans-text), system-ui, sans-serif; padding-top: env(safe-area-inset-top, 0); box-sizing: border-box; }
+@media (display-mode: standalone) { #app { height: var(--viva-h, 100lvh); } }
 *, *::before, *::after { box-sizing: border-box; }
 button, input, textarea { font: inherit; color: inherit; }
 button { border: 0; background: transparent; padding: 0; margin: 0; cursor: pointer; text-align: left; border-radius: var(--shape-radius-key); }
@@ -268,6 +268,8 @@ svg.cv.open { transform: rotate(90deg); }
 .dictline .spoken { color: var(--text-strong); }
 .dictline .tail { color: var(--text-muted); }
 .dictline .live { color: var(--signal-negative); }
+.dictline.fault .spoken { color: var(--signal-negative); }
+.dictline.fault .words { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dictline .iconbtn { width: 1.25rem; height: 1.25rem; flex: none; }
 .dictline .iconbtn.trash { color: var(--text-light); }
 .dictline .iconbtn:hover { color: var(--text-strong); }

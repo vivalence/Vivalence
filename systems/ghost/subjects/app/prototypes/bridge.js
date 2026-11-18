@@ -9,6 +9,7 @@ export class Bridge {
   $sidebar = atom({ open: false, width: 39 });
   $draft = atom("");
   $dictation = atom(null);
+  $dictationFault = atom(null);
   $call = atom(null);
   $selected = atom(0);
   $hidden = atom([]);
@@ -54,6 +55,10 @@ export class Bridge {
 
   get dictation() {
     return this.$dictation.get();
+  }
+
+  get dictationFault() {
+    return this.$dictationFault.get();
   }
 
   get call() {

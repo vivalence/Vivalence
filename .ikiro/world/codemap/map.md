@@ -24,9 +24,9 @@ export async function accio(identifier) {
 "watch": "deno run -A --watch=../../commons,$HOME/.viva/registry --watch-exclude=**/dataset/** run.js",
 ```
 - **ports from the ledger recipe**: runtime `:2501`, anima `:1794`; `:2501/` 404 ≠ down. `viva --help` rc 0, HOME empty: `seat` runs after `help`; a shell verb is `.open`ed (`traverse` skips a leaf branch's steps, m96 #22). Ready = the `start` track (`process.js:6`); bind beat 4, `/beacon/status` `IDLE` before.
-- **VCS = jj colocated over git** — READ only, subcommand FIRST, cite CHANGE ids; `@` IS a commit, no staging; bookmarks only to push.
+- **VCS = jj colocated over git** — READ only, subcommand FIRST, cite CHANGE ids; `@` IS a commit a bare read amends; bookmarks only to push.
 ```sh
-jj log -n 8 --no-graph
+jj log --ignore-working-copy -n 8
 jj diff -r <change>
 git show <id>:<path>          # pre-edit text: <id> from jj evolog, HEAD is @-
 ```

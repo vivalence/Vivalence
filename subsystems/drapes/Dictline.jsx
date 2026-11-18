@@ -8,6 +8,22 @@ const TAILS = [
 
 const tailed = (text, tail) => TAILS.find(([test]) => test(text, tail))[1](text, tail);
 
+export const Dictfault = (props) => (
+  <div class="dictline fault">
+    <span class="words" title={props.message}>
+      <span class="spoken">dictation failed</span>
+      <span class="tail">{` ${props.message}`}</span>
+    </span>
+    <button
+      class="iconbtn trash"
+      aria-label="dismiss the fault"
+      title="dismiss · /dictate/trash"
+      onClick={() => props.onTrash()}>
+      <Icon name="trash" size={14} />
+    </button>
+  </div>
+);
+
 export const Dictline = (props) => (
   <div class="dictline">
     <span class="words">

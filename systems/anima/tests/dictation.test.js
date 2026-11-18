@@ -102,6 +102,7 @@ const seated = (mode) => {
       $focus: atom("dock.input"),
       $selected: atom(0),
       $dictation: atom(null),
+      $dictationFault: atom(null),
       $call: atom(null),
     },
     client: { runtime: { entities: { activity: { $entities: atom([]) } } } },
@@ -242,6 +243,24 @@ specimen.describe("anima dock.input — dictation (U1 · U2 · Q12 · Q15A) and 
     await settle();
     const dict = rig.target.querySelector(".field").classList.contains("dict");
     specimen.expect([absent(rig, ".dictline"), dict]).toEqual([true, false]);
+    rig.close();
+  });
+
+  specimen.it("a faulted dictation: the line stays and says why, the mic is /dictate again; its trash is /dictate/trash; a live dictation hides it", async () => {
+    const { rig, app, sent } = seated(EARED);
+    app.bridge.$dictationFault.set({ message: "socket 1006" });
+    await settle();
+    const line = rig.target.querySelector(".dictline.fault");
+    specimen.expect([line.querySelector(".spoken").textContent, line.querySelector(".tail").textContent, line.querySelector(".words").title])
+      .toEqual(["dictation failed", " socket 1006", "socket 1006"]);
+    specimen.expect(rig.target.querySelector(".mic").getAttribute("aria-label")).toBe("dictate");
+    specimen.expect(rig.target.querySelector(".field").classList.contains("dict")).toBe(false);
+    fire(line.querySelector(".trash"), "click");
+    await settle();
+    specimen.expect(sent).toEqual(["/dictate/trash"]);
+    app.bridge.$dictation.set(heard(0));
+    await settle();
+    specimen.expect(absent(rig, ".dictline.fault")).toBe(true);
     rig.close();
   });
 

@@ -1,6 +1,6 @@
 #+title: ledger faculties — the ledger row IS the catalog; a provider translates
 #+filetags: :hallucinators:ledger:cortex:
-#+status: LANDED 11-18 on /"go"/ — R1–R8; real-tree census 69 ok · 12 red = base reds by name (=vault= · 11 anima rig imports gone since m108); his look owed
+#+status: LANDED 11-18 on /"go"/, PROD 11-18 16:08 — R1–R8; real-tree census 69 ok · 12 red = base reds by name (=vault= · 11 anima rig imports gone since m108); his look owed
 # writer: agent · limit: 8000 chars · unnumbered
 
 * intent
@@ -60,6 +60,8 @@ All four BUILT in a sandbox 11-18, not landed: the row schema · the translators
 
 - goal: the outside controls models · voices · tunes; a provider only translates
 - done: census 11-17 · R1–R8
-- next: his look (anima reloaded: five tiers, the model list) · his VCS commit in =~/.viva/registry= =education= · =vcompany=
+- next: his look (anima reloaded: five tiers, the model list) · =vcompany= (=education= · =chess= =master= pushed 11-18)
 - never: a provider's default table · a fallback for a row without =faculties= · a per-provider override key · a package exporting =faculties= (=accio= spreads it under the row, =subsystems/paladin/prototypes/registry.js:256=)
-- owed: prod threads with =eager= measured before any deploy · unfiled reds (=known-issues.org= over cap): =vault.test.js= 1 step · 11 anima suites (=Could not resolve "./panes/index.js"= …) · =testament/= archives still import =tiers=
+- done 11-18 16:01: prod on =4d3eabb7= (his Coolify deploy, both hosts); R000 recipe = =tiers= + 3 rows (=.bak-20261118= beside); =Migration20261118150121= 2 =ALTER= =View=; HEAD's load hooks over prod's 9 Threads · 44 Turns: 0 faults
+- done 11-18 16:08: ElevenLabs on prod — his key in Coolify's env table + redeploy (image =bc750852=): =.env= row 5, no =filtered=, TTS from the live container 200 =audio/mpeg=
+- owed: R000 =.env.bak-20261118= (secrets) to trash on his word · unfiled reds (=known-issues.org= over cap): =vault.test.js= 1 step · 11 anima suites (=Could not resolve "./panes/index.js"= …) · =testament/= archives still import =tiers=

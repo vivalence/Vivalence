@@ -1,7 +1,7 @@
 # frontier — the live edge
 <!-- writer: agent, rewritten whole at every fold · limit: 2000 chars -->
 
-- `m122-harness-layout` — 10 milestones + the pass + the comp INTEGRATED 11-17, acts · folds whole 11-18; next: `converse` declares once a session (his) · the anima walk · `drop_block` · `m123-call-faculty` — 0 · 2–7 + ui · Q33–Q35 LANDED 11-17, live C0–C4 passed; next: C3 on `:2501` · C5 · milestone 8 · mic stop live · perf: his pick · `ledger-faculties` — LANDED 11-18; next: his look · his registry commit · `focus` — his walk
+- `m122-harness-layout` — 10 milestones + the pass + the comp INTEGRATED 11-17, acts · folds whole 11-18; next: `converse` declares once a session (his) · the anima walk · `drop_block` · `m123-call-faculty` — 0 · 2–7 + ui · Q33–Q35 LANDED 11-17, live C0–C4 passed; next: C3 on `:2501` · C5 · milestone 8 · mic stop live · perf: his pick · `ledger-faculties` — PROD 11-18; next: his look · vcompany · `focus` — his walk
 - `literal-rewrite` — next: domain go
 - `.host` CUT 11-10 — owed: his Q2 (`host(mode)` · `hostsOff` · `Hosted`) · word-guard arm
 - `m116-find-is-a-sync` — next: go milestone 1; owed `ghost-help-list-lacks-delete-verbs`

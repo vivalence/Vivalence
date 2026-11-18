@@ -30,6 +30,7 @@ export const dictate = new Vector()
       await ctx.client.app.box.device.microphone.claim();
       const feed = ctx.client.app.box.device.microphone.feed.signal;
       let dictation = HUSHED;
+      ctx.client.app.bridge.$dictationFault.set(null);
       ctx.client.app.bridge.$dictation.set(dictation);
       try {
         const heard = ctx.terminal.mode.harness.verbatim.stream(ctx.client.app.box.device.microphone.frames(), {
@@ -39,6 +40,9 @@ export const dictate = new Vector()
           dictation = soma.transcript(dictation, packet);
           ctx.client.app.bridge.$dictation.set(dictation);
         }
+      } catch (error) {
+        ctx.client.app.bridge.$dictationFault.set({ message: error.message });
+        throw error;
       } finally {
         ctx.client.app.box.device.microphone.release("stop");
         ctx.client.app.bridge.$dictation.set(null);
@@ -56,5 +60,8 @@ export const dictate = new Vector()
   )
   .open(
     { nature: "/dictate/trash", rank: "hidden", valence: "the dictation ends, its words are dropped. Example: /dictate/trash" },
-    (ctx) => ctx.client.app.box.device.microphone.release("trash"),
+    (ctx) => {
+      ctx.client.app.box.device.microphone.release("trash");
+      ctx.client.app.bridge.$dictationFault.set(null);
+    },
   );

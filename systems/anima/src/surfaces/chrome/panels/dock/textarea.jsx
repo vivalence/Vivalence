@@ -184,6 +184,7 @@ export const Textarea = () => {
   const focus = from(app.bridge.$focus);
   const catalog = from(terminal.repl.$catalog);
   const dictation = from(app.bridge.$dictation);
+  const dictationFault = from(app.bridge.$dictationFault);
   const call = from(app.bridge.$call);
   const hosted = createMemo(() =>
     thread() === null || thread().mode === null
@@ -228,6 +229,9 @@ export const Textarea = () => {
                 onTrash={() => sent("/dictate/trash")}
               />
             )}
+          </Show>
+          <Show when={dictation() === null && dictationFault()}>
+            {(fault) => <parts.Dictfault message={fault().message} onTrash={() => sent("/dictate/trash")} />}
           </Show>
           <Show
             when={catalog() === null && call() === null}

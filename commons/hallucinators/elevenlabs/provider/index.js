@@ -58,6 +58,12 @@ function* onset(session) {
   yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
 }
 
+function* seal(session) {
+  yield { event: "/part/close", index: 0 };
+  yield { event: "/turn/close", turn: {} };
+  session.speaking = false;
+}
+
 function* scribe(session, data) {
   switch (data.message_type) {
     case "partial_transcript":
@@ -69,9 +75,11 @@ function* scribe(session, data) {
       if (!session.speaking && !data.text) return;
       yield* onset(session);
       yield { event: "/part/delta", index: 0, part: { text: data.text } };
-      yield { event: "/part/close", index: 0 };
-      yield { event: "/turn/close", turn: {} };
-      session.speaking = false;
+      yield* seal(session);
+      return;
+    case "commit_throttled":
+      if (!session.spent) break;
+      yield* seal(session);
       return;
   }
   if ("error" in data) throw new Error(`[elevenlabs] ${data.message_type}: ${data.error}`);
@@ -90,7 +98,7 @@ async function* hear(url, headers, source, signal) {
   try {
     for await (const message of inbox.drain()) {
       yield* scribe(session, JSON.parse(message));
-      if (session.spent && !session.speaking) ws.close();
+      if (session.spent && !session.speaking) return;
     }
     const fault = broken ?? failed();
     if (fault) throw fault;
