@@ -53,17 +53,18 @@ specimen.describe("the after lane — deferred by middleware, not by the subscri
     specimen.expect(seen).toEqual(["after-lane"]);
   });
 
-  specimen.it("hands the handler the LIVE args, because INTENTED forks the em off them", async () => {
+  specimen.it("hands the handler the LIVE entity and an em on ctx, never on the input", async () => {
     const captured = [];
-    twitch.open("/after/literal/create", (ctx) => captured.push(ctx.input));
+    twitch.open("/after/literal/create", (ctx) => captured.push(ctx));
 
     scenario.repos.literal.create({ mode: scenario.fixtures.mode, daemon: scenario.fixtures.daemon, daemon: scenario.fixtures.daemon, slug: "live-args", trait: { A: 1 }, symbol: {} });
     await scenario.em.flush();
     await sleep.ms(10);
 
-    const event = captured.find((each) => each.entity.slug === "live-args");
-    specimen.expect(event.entity instanceof LiteralEntity).toBe(true);
+    const event = captured.find((each) => each.input.entity.slug === "live-args");
+    specimen.expect(event.input.entity instanceof LiteralEntity).toBe(true);
     specimen.expect(typeof event.em.fork).toBe("function");
+    specimen.expect("em" in event.input).toBe(false);
   });
 
   specimen.it("keeps the ORM filter params, so reactive's owner stamp needs no input sniffing", async () => {

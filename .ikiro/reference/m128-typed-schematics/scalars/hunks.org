@@ -1,0 +1,365 @@
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/base.js:11
+-  id: v.string().desc("Minted in the constructor, never a primary key — mikro forbids one on a virtual entity").example("019d23f1-8c4e-7a2b-9f10-3e5a1c2d4b6f"),
++  id: ID.desc("Minted in the constructor, never a primary key — mikro forbids one on a virtual entity").example("019d23f1-8c4e-7a2b-9f10-3e5a1c2d4b6f"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/buffer.js:1
+ import { v } from "../v.js";
++import { Index } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/buffer.js:11
+-    index: v.integer().default(0).optional().desc("its position on the thread, from 0").example(0),
++    index: Index.default(0).optional().desc("its position on the thread, from 0").example(0),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/daemon.js:1
+ import { v } from "../v.js";
++import { Slug } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/daemon.js:9
+-    slug: v.string().desc("its name, the id").example("education"),
++    slug: Slug.desc("its name, the id").example("education"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/file.js:1
+ import { v } from "../v.js";
++import { Bytes, Hash, Integrity } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/file.js:17
+-    hash: v.string().desc("the sha256 of the current bytes, hex").example("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"),
+-    integrity: v.string().desc("the subresource integrity the client checks the fetch against").example("sha256-n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg="),
+-    bytes: v.integer().default(0).optional().desc("the size of the bytes").example(4096),
++    hash: Hash.desc("the sha256 of the current bytes, hex").example("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"),
++    integrity: Integrity.desc("the subresource integrity the client checks the fetch against").example("sha256-n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg="),
++    bytes: Bytes.default(0).optional().desc("the size of the bytes").example(4096),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/intent.js:1
+ import { v } from "../v.js";
++import { Slug } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/intent.js:9
+-    slug: v.string().optional().desc("its name inside the mode").example("review"),
++    slug: Slug.optional().desc("its name inside the mode").example("review"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/literal.js:1
+ import { v } from "../v.js";
++import { Slug } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/literal.js:10
+-    slug: v.string().optional().desc("its address inside the daemon").example("flamingo"),
++    slug: Slug.optional().desc("its address inside the daemon").example("flamingo"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/mode.js:1
+ import { v } from "../v.js";
++import { Slug, Version } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/mode.js:10
+-    slug: v.string().optional().desc("its name inside the type").example("runtime"),
++    slug: Slug.optional().desc("its name inside the type").example("runtime"),
+…
+// subsystems/typology/schematics/entities/mode.js:14
+-    version: v.string().optional().desc("semver").example("0.3.0"),
++    version: Version.optional().desc("semver").example("0.3.0"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/note.js:1
+ import { v } from "../v.js";
++import { Slug } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/note.js:10
+-    slug: v.string().optional().desc("its address").example("flamingo-diet"),
++    slug: Slug.optional().desc("its address").example("flamingo-diet"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/symbol.js:1
+ import { v } from "../v.js";
++import { Slug } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/symbol.js:10
+-    slug: v.string().optional().desc("the word").example("wading-bird"),
++    slug: Slug.optional().desc("the word").example("wading-bird"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/terminal.js:1
+ import { v } from "../v.js";
++import { Index } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/terminal.js:10
+-    index: v.integer().default(0).optional().desc("its position among the user's terminals, from 0").example(0),
++    index: Index.default(0).optional().desc("its position among the user's terminals, from 0").example(0),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/user.js:1
+ import { v } from "../v.js";
++import { Slug } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/user.js:10
+-    slug: v.string().optional().desc("the login name").example("beef"),
++    slug: Slug.optional().desc("the login name").example("beef"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/view.js:1
+ import { v } from "../v.js";
++import { Slug } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/view.js:11
+-    slug: v.string().desc("the view's name inside its mode, one per (mode, slug, mime)").example("play"),
++    slug: Slug.desc("the view's name inside its mode, one per (mode, slug, mime)").example("play"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/hallucination.js:2
+ import { enhance, v } from "../v.js";
++import { ID, Index } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/primitives/hallucination.js:63
+-  file: v.string(),
++  file: ID,
+…
+// subsystems/typology/schematics/primitives/hallucination.js:315
+-const Probability = v.number({ minimum: 0, maximum: 1 });
++const Probability = v.number({ minimum: 0, maximum: 1 }).$id("Probability");
+…
+// subsystems/typology/schematics/primitives/hallucination.js:349
+-    id: v.string().optional().desc('The turn the runtime opened for this reply; every later packet pours into it. Example: "0199f3a2-7c1e-7b40-9d2a-5e6f8a1b2c3d"'),
++    id: ID.optional().desc('The turn the runtime opened for this reply; every later packet pours into it. Example: "0199f3a2-7c1e-7b40-9d2a-5e6f8a1b2c3d"'),
+…
+// subsystems/typology/schematics/primitives/hallucination.js:354
+   event: v.const("/part/open"),
+-  index: v.integer(),
++  index: Index,
+…
+// subsystems/typology/schematics/primitives/hallucination.js:360
+   event: v.const("/part/delta"),
+-  index: v.integer(),
++  index: Index,
+…
+// subsystems/typology/schematics/primitives/hallucination.js:366
+   event: v.const("/part/draft"),
+-  index: v.integer(),
++  index: Index,
+…
+// subsystems/typology/schematics/primitives/hallucination.js:374
+   event: v.const("/part/full"),
+-  index: v.integer(),
++  index: Index,
+…
+// subsystems/typology/schematics/primitives/hallucination.js:377
+-  turn: v
+-    .string()
++  turn: ID
+…
+// subsystems/typology/schematics/primitives/hallucination.js:384
+   event: v.const("/part/close"),
+-  index: v.integer(),
++  index: Index,
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/harness.js:1
+ import { v } from "../v.js";
++import { ID } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/primitives/harness.js:16
+-  thread: v.string().desc('The thread the turn appends to. Example: "th3"'),
+-  terminal: v.string().optional().desc('The calling terminal, whenever a terminal calls. Example: "t1"'),
+-  turn: v.string().optional().desc('The id the user turn is minted under; the caller picks it to find the turn again. Example: "6f1c0d2e"'),
++  thread: ID.desc('The thread the turn appends to. Example: "th3"'),
++  terminal: ID.optional().desc('The calling terminal, whenever a terminal calls. Example: "t1"'),
++  turn: ID.optional().desc('The id the user turn is minted under; the caller picks it to find the turn again. Example: "6f1c0d2e"'),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/instance.js:2
+-import { Slug } from "../scalars/index.js";
++import { ModuleIdentifier, Slug } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/primitives/instance.js:20
+-  { module: v.string(), statics: StaticsMask.optional(), secrets: SecretsMask.optional() },
++  { module: ModuleIdentifier, statics: StaticsMask.optional(), secrets: SecretsMask.optional() },
+…
+// subsystems/typology/schematics/primitives/instance.js:24
+ export const HallucinatorMask = v.object(
+   {
+-    module: v.string(),
++    module: ModuleIdentifier,
+…
+// subsystems/typology/schematics/primitives/instance.js:34
+ export const DatamapMask = v.object(
+   {
+-    module: v.string(),
++    module: ModuleIdentifier,
+…
+// subsystems/typology/schematics/primitives/instance.js:53
+ export const ModeMask = v.object(
+   {
+-    module: v.string(),
++    module: ModuleIdentifier,
+…
+// subsystems/typology/schematics/primitives/instance.js:74
+-export const ModeMasks = v.array(v.union([v.string(), ModeMask]));
++export const ModeMasks = v.array(v.union([ModuleIdentifier, ModeMask]));
+…
+// subsystems/typology/schematics/primitives/instance.js:120
+ export const ClientMask = v.object(
+   {
+     manifest: Manifest,
+-    module: v.string().optional(),
++    module: ModuleIdentifier.optional(),
+…
+// subsystems/typology/schematics/primitives/instance.js:133
+ export const ServiceMask = v.object(
+   {
+     manifest: Manifest,
+-    module: v.string(),
++    module: ModuleIdentifier,
+…
+// subsystems/typology/schematics/primitives/instance.js:198
+ export const Recipe = v.object(
+-  { module: v.string(), statics: StaticsRecipe.optional(), secrets: SecretsRecipe.optional() },
++  { module: ModuleIdentifier, statics: StaticsRecipe.optional(), secrets: SecretsRecipe.optional() },
+…
+// subsystems/typology/schematics/primitives/instance.js:203
+ export const HallucinatorRecipe = v.object(
+   {
+-    module: v.string(),
++    module: ModuleIdentifier,
+…
+// subsystems/typology/schematics/primitives/instance.js:213
+ export const DatamapRecipe = v.object(
+-  { module: v.string(), statics: StaticsRecipe.optional(), secrets: SecretsRecipe.optional() },
++  { module: ModuleIdentifier, statics: StaticsRecipe.optional(), secrets: SecretsRecipe.optional() },
+…
+// subsystems/typology/schematics/primitives/instance.js:228
+ export const ModeRecipe = v.object(
+   {
+-    module: v.string(),
++    module: ModuleIdentifier,
+…
+// subsystems/typology/schematics/primitives/instance.js:242
+-export const ModeRecipes = v.array(v.union([v.string(), ModeRecipe]));
++export const ModeRecipes = v.array(v.union([ModuleIdentifier, ModeRecipe]));
+…
+// subsystems/typology/schematics/primitives/instance.js:274
+ export const ClientRecipe = v.object(
+   {
+     manifest: Manifest,
+-    module: v.string().optional(),
++    module: ModuleIdentifier.optional(),
+…
+// subsystems/typology/schematics/primitives/instance.js:286
+ export const ServiceRecipe = v.object(
+   {
+     manifest: Manifest,
+-    module: v.string(),
++    module: ModuleIdentifier,
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/manifest.js:2
+-import { Slug } from "../scalars/index.js";
++import { Slug, Version } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/primitives/manifest.js:9
+-    version: v.string().optional(),
++    version: Version.optional(),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/theme.js:8
+-export const Hex     = v.string({ pattern: "^#[0-9A-Fa-f]{6}$" }).desc('Opaque colour. Example: "#1A2A38"');
+-export const Alpha   = v.string({ pattern: "^rgba\\(\\d{1,3}, ?\\d{1,3}, ?\\d{1,3}, ?(0|1|0?\\.\\d+)\\)$" }).desc('Colour with alpha. Example: "rgba(30, 188, 181, 0.18)"');
++export const Hex     = v.string({ pattern: "^#[0-9A-Fa-f]{6}$" }).desc('Opaque colour. Example: "#1A2A38"').$id("Hex");
++export const Alpha   = v.string({ pattern: "^rgba\\(\\d{1,3}, ?\\d{1,3}, ?\\d{1,3}, ?(0|1|0?\\.\\d+)\\)$" }).desc('Colour with alpha. Example: "rgba(30, 188, 181, 0.18)"').$id("Alpha");
+…
+// subsystems/typology/schematics/primitives/theme.js:11
+-export const Px      = v.string({ pattern: "^\\d+(\\.\\d+)?px$" }).desc('Never scaled. Example: "1px"');
+-export const Percent = v.string({ pattern: "^\\d+(\\.\\d+)?%$" }).desc('Example: "50%"');
+-export const Rem     = v.string({ pattern: "^\\d*\\.?\\d+rem$" }).desc('Scales with the root font size. Example: ".25rem"');
+-export const Em      = v.string({ pattern: "^\\d*\\.?\\d+em$" }).desc('Example: ".14em"');
+-export const Factor  = v.number({ minimum: 0 }).desc("Multiplier of size.unit. Example: 6.5");
+-export const Ratio   = v.number({ minimum: 0, maximum: 1 }).desc("Opacity. Example: 0.55");
+-export const Leading = v.number({ minimum: 0.8, maximum: 2 }).desc("Unitless line height. Example: 1.45");
+-export const Shadow  = v.string({ minLength: 1 }).desc('Geometry only; the zone\'s shadow gives the tone. Example: "0 12px 30px"');
+-export const Family  = v.string({ minLength: 1 }).desc('A CSS font-family list, first choice to fallback. Example: "Inter, sans-serif"');
+-export const Glow    = v.string({ minLength: 1 }).desc('A whole box-shadow, its colour inside; "0 0 0 transparent" is none. Example: "inset 0 0 12px rgba(30, 188, 181, 0.2)"');
+-export const Filter  = v.string({ minLength: 1 }).desc('A CSS filter list, or "none". Example: "drop-shadow(0 0 4px #1EBCB5)"');
++export const Px      = v.string({ pattern: "^\\d+(\\.\\d+)?px$" }).desc('Never scaled. Example: "1px"').$id("Px");
++export const Percent = v.string({ pattern: "^\\d+(\\.\\d+)?%$" }).desc('Example: "50%"').$id("Percent");
++export const Rem     = v.string({ pattern: "^\\d*\\.?\\d+rem$" }).desc('Scales with the root font size. Example: ".25rem"').$id("Rem");
++export const Em      = v.string({ pattern: "^\\d*\\.?\\d+em$" }).desc('Example: ".14em"').$id("Em");
++export const Factor  = v.number({ minimum: 0 }).desc("Multiplier of size.unit. Example: 6.5").$id("Factor");
++export const Ratio   = v.number({ minimum: 0, maximum: 1 }).desc("Opacity. Example: 0.55").$id("Ratio");
++export const Leading = v.number({ minimum: 0.8, maximum: 2 }).desc("Unitless line height. Example: 1.45").$id("Leading");
++export const Shadow  = v.string({ minLength: 1 }).desc('Geometry only; the zone\'s shadow gives the tone. Example: "0 12px 30px"').$id("Shadow");
++export const Family  = v.string({ minLength: 1 }).desc('A CSS font-family list, first choice to fallback. Example: "Inter, sans-serif"').$id("Family");
++export const Glow    = v.string({ minLength: 1 }).desc('A whole box-shadow, its colour inside; "0 0 0 transparent" is none. Example: "inset 0 0 12px rgba(30, 188, 181, 0.2)"').$id("Glow");
++export const Filter  = v.string({ minLength: 1 }).desc('A CSS filter list, or "none". Example: "drop-shadow(0 0 4px #1EBCB5)"').$id("Filter");
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/track.js:1
+ import { v } from "../v.js";
++import { ID } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/primitives/track.js:9
+-export const Entity = v.object({ schema: v.string(), id: v.string() }).desc('The row a span touched. Example: { "schema": "thread", "id": "42" }');
++export const Entity = v.object({ schema: v.string(), id: ID }).desc('The row a span touched. Example: { "schema": "thread", "id": "42" }');
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/prototypes/bundle.js:1
+ import { v } from "../v.js";
++import { Bytes, Hash, Integrity } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/prototypes/bundle.js:8
+-        hash: v.string(),
++        hash: Hash,
+…
+// subsystems/typology/schematics/prototypes/bundle.js:10
+-        integrity: v.string(),
+-        bytes: v.integer(),
++        integrity: Integrity,
++        bytes: Bytes,
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/scalars/index.js:8
+-export const slug = (opts) => v.string({ pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$", title: "lowercase alphanumeric words joined by single dashes", ...opts }).desc("URL-compliant identifier").$id("Slug");
++const PART = "[\\p{L}\\p{N}]+(?:[-_][\\p{L}\\p{N}]+)*";
++
++export const slug = (opts) => v.string({ pattern: `^${PART}(?:\\.${PART})*$`, title: "words of letters and digits joined by - or _, parts joined by dots", ...opts }).desc("URL-compliant identifier").$id("Slug");
+…
+// subsystems/typology/schematics/scalars/index.js:9
+ export const Slug = slug();
++
++export const ModuleIdentifier = v.string().$id("ModuleIdentifier");
++export const Version = v.string().$id("Version");
++export const Hash = v.string().$id("Hash");
++export const Integrity = v.string().$id("Integrity");
++
++export const Index = v.integer().$id("Index");
++export const Bytes = v.integer().$id("Bytes");
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/traits/themed.js:3
+-export const Themed = v.string().desc('A dapper theme name. Example: "northsea" · "porcelain"');
++export const Themed = v.string().desc('A dapper theme name. Example: "northsea" · "porcelain"').$id("Themed");
+#+END_SRC
+

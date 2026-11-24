@@ -8,7 +8,7 @@ import { Start, Stop, Request, Response, Fault, Log, Entity, Status } from "../s
 
 export const faulted = (error) => ({ type: error?.name ?? "Error", message: error?.message ?? String(error), code: error?.code, stack: error?.stack });
 
-const record = (schema) => (data, ctx) =>
+export const record = (schema) => (data, ctx) =>
   ctx.span.pipe.send({ at: performance.timeOrigin + performance.now(), path: ctx.span.absolute, track: ctx.track, data: schema.cast(data) });
 
 const STANDARD = new Vector()

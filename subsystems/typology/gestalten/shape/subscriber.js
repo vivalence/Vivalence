@@ -1,14 +1,12 @@
 import { Signal } from "../../prototypes/signal.js"
-export function subscriber(twitch, { scope = (args, task) => task(), fork = (em) => em } = {}) {
-  const dispatch = (signal, args) => () => twitch.dispatch(signal, { ...args, em: fork(args.em) })
-  async function emit(phase, op, args) {
-    const name = args.meta?.className?.toLowerCase()?.replace("entity", "")
-      ?? args.entity?.constructor?.name?.toLowerCase()?.replace("entity", "")
+export function subscriber(twitch, { scope = { before: (em, task) => task(), after: (em, task) => task() } } = {}) {
+  async function emit(phase, op, { em, ...input }) {
+    const name = input.meta?.className?.toLowerCase()?.replace("entity", "")
+      ?? input.entity?.constructor?.name?.toLowerCase()?.replace("entity", "")
     if (!name) return
 
     const signal = new Signal(`${phase}/${name}/${op}`)
-    if (phase === "before") return dispatch(signal, args)()
-    await scope(args, dispatch(signal, args))
+    await scope[phase](em, () => twitch.dispatch(signal, input))
   }
 
   return {

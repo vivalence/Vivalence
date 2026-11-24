@@ -1,7 +1,7 @@
 import { join } from "@std/path";
 import { belt, specimen, steer, Vector } from "@vivalence/typology";
 import { traits } from "@vivalence/runtime";
-const { GENERATIVE } = traits.mode;
+const { SURFACING } = traits.mode;
 import { tools } from "../mode.viva.js";
 
 const SNAPSHOTS = new URL("./snapshots", import.meta.url).pathname;
@@ -32,16 +32,16 @@ const declarations = (vector) =>
 
 // generative.js then tooling.js, in manifest order — both graft onto mode.tools, the one
 // catalog harnessed.js arms. `tools` alone is NOT what reaches the model.
-const generative = {
+const surfacing = {
   manifest: { slug: "hello-world", type: "demo" },
   module: {},
   mountpoint: "/nonexistent/catalog",
   entity: { id: "mode-1" },
   tools: new Vector(),
 };
-await GENERATIVE(generative, { entities: {} });
-generative.tools.graft(tools);
-const catalog = () => generative.tools;
+await SURFACING(surfacing, { entities: {} });
+surfacing.tools.graft(tools);
+const catalog = () => surfacing.tools;
 
 // harnessed.js armory, a bare HARNESSED mode: no services, no domain — the mode's own only.
 const armory = () => declarations(new Vector().graft(catalog())).map(({ name }) => name);
@@ -62,10 +62,10 @@ specimen.describe(
           "buffer_create",
           "buffer_update",
           "buffer_label",
-          "view_create",
-          "view_update",
-          "view_read",
-          "view_list",
+          "surface_create",
+          "surface_update",
+          "surface_read",
+          "surface_list",
           "viva_doctor",
           "web_search",
           "web_read",

@@ -3,7 +3,7 @@ import { blend, channels, contrast, flatten, hex, luminance, wash } from "../lib
 import { THEMES } from "../themes/index.js";
 
 const SIGNALS = ["primary", "positive", "caution", "negative"];
-const DEPTHS = ["surface", "surfaceSunk", "surfaceLift"];
+const DEPTHS = ["plane", "planeSunk", "planeLift"];
 const PROSE = ["header", "strong", "ink", "light", "link", "code"];
 const near = (got, wanted) => Math.abs(got - wanted) < 0.01;
 

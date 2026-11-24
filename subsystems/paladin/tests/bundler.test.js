@@ -196,7 +196,7 @@ describe("paladin.bundler", { sanitizeResources: false, sanitizeOps: false }, ()
     expect(served.text).toContain("innerHTML");
   });
 
-  it("prune removes every hash-named build without its source; a view's named bundle and every sourced page stay", async () => {
+  it("prune removes every hash-named build without its source; a surface's named bundle and every sourced page stay", async () => {
     const root = await Deno.makeTempDir({ dir: directory, prefix: "prune-" });
     const pruning = paladin.bundler(`${root}/bundles/game/board`);
     const entry = `${root}/Board.svelte`;

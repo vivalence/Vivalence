@@ -1,0 +1,1651 @@
+diff --color -ruN blog/aperture/index.js /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/aperture/index.js
+--- blog/aperture/index.js	2026-11-23 23:16:56.263729458 +0100
++++ /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/aperture/index.js	2026-11-24 10:43:29.464628833 +0100
+@@ -1,7 +1,7 @@
+-import { join, relative, SEPARATOR } from "@std/path";
++import { dirname, join, relative, SEPARATOR } from "@std/path";
+ import paladin from "@vivalence/paladin";
+ import { mime, Path, v, Vector } from "@vivalence/typology";
+-import { fronted, pressed, SOURCES } from "../press.js";
++import { fronted, joined, parted, pressed, SOURCES } from "../press.js";
+ import { Article, Site } from "../schematics.js";
+ import { paged } from "../theme/index.js";
+ 
+@@ -9,12 +9,18 @@
+   path: v.string().desc("A file's path under source/.").example("on/machines.md"),
+ });
+ 
+-const Source = v.object({
++const Draft = v.object({
+   path: Named.properties.path,
+-  text: v
+-    .string()
+-    .desc("The source as written, its front matter on top.")
+-    .example('---\ntitle: "Hello"\n---\n\nText.\n'),
++  front: v
++    .object({}, { additionalProperties: true })
++    .desc("Its front matter, every key as written, the article's and any other.")
++    .example({ title: "Hello", date: "2026.11.24", status: "draft" }),
++  body: v.string().desc("The source under its front matter.").example("\nText.\n"),
++});
++
++const Moved = v.object({
++  path: Named.properties.path,
++  to: v.string().desc("Its new path under source/.").example("on/conscious-machines.md"),
+ });
+ 
+ const Listed = v.object({
+@@ -34,12 +40,20 @@
+     .example("[blog] on/machines.md: /status must match a schema in anyOf"),
+ });
+ 
++const Kept = v.object({
++  path: Named.properties.path,
++  mime: v.string().desc("What it is served as.").example("image/png"),
++});
++
+ const Shelf = v.object({
+   site: v
+     .string()
+     .desc("Where a stranger reaches the pressed site.")
+     .example("http://localhost:2501/attached/runtime/runtime/mode/publisher/blog"),
+   sources: v.array(Listed).desc("Every .md · .org under source/, by path."),
++  files: v
++    .array(Kept)
++    .desc("Every other file under source/, by path: pictures, a sheet, robots.txt."),
+ });
+ 
+ const Built = v.object({
+@@ -86,6 +100,16 @@
+   return read.sort((left, right) => (left.path < right.path ? -1 : 1));
+ };
+ 
++const kept = async (ctx) => {
++  const source = join(seat(ctx), "source");
++  await paladin.state.dir(source);
++  return (await paladin.find.walk(/./)(source))
++    .filter((file) => !SOURCES.test(file.absolute))
++    .map((file) => relative(source, file.absolute))
++    .sort()
++    .map((path) => ({ path, mime: mime.of(path) }));
++};
++
+ const listed = ({ path, text }) => {
+   try {
+     return { path, article: fronted(path, text), fault: null };
+@@ -127,17 +151,15 @@
+         });
+       }
+ 
+-      const kept = (await paladin.find.walk(/./)(source)).filter(
+-        (file) => !SOURCES.test(file.absolute),
+-      );
+-      for (const file of kept) {
+-        held.push(file.absolute);
++      for (const file of await kept(ctx)) {
++        const mount = join(source, file.path);
++        held.push(mount);
+         await ctx.entities.file.record({
+           mode: ctx.mode.id,
+-          path: relative(source, file.absolute),
+-          mount: file.absolute,
+-          mime: mime.of(file.absolute),
+-          bytes: await paladin.read.bytes(file.absolute),
++          path: file.path,
++          mount,
++          mime: file.mime,
++          bytes: await paladin.read.bytes(mount),
+         });
+       }
+ 
+@@ -163,31 +185,43 @@
+         "the desk's shelf — every source with what its front matter declares. " +
+         "Example: /source/list",
+     },
+-    async (ctx) => ({ site: site(ctx), sources: (await sources(ctx)).map(listed) }),
++    async (ctx) => ({
++      site: site(ctx),
++      sources: (await sources(ctx)).map(listed),
++      files: await kept(ctx),
++    }),
+   )
+   .open(
+     {
+       nature: "/source/read",
+       input: Named,
+-      output: Source,
+-      valence: 'one source as written. Example: /source/read {"path":"on/machines.md"}',
++      output: Draft,
++      valence:
++        "one source as written, its front matter apart from its body. " +
++        'Example: /source/read {"path":"on/machines.md"}',
+     },
+     async (ctx) => ({
+       path: ctx.input.path,
+-      text: await paladin.read.text(within(ctx, ctx.input.path)),
++      ...parted(ctx.input.path, await paladin.read.text(within(ctx, ctx.input.path))),
+     }),
+   )
+   .open(
+     {
+       nature: "/source/write",
+-      input: Source,
++      input: Draft,
+       output: Named,
+       valence:
+-        "write one source to disk; no page moves until /build. " +
+-        'Example: /source/write {"path":"on/new.md","text":"…"}',
++        "write one source to disk, its front matter merged into the one there, comments kept; " +
++        "no page moves until /build. " +
++        'Example: /source/write {"path":"on/new.md","front":{"title":"New"},"body":"…"}',
+     },
+     async (ctx) => {
+-      await paladin.state.scribe(within(ctx, ctx.input.path), ctx.input.text);
++      const mount = within(ctx, ctx.input.path);
++      const text = await Deno.readTextFile(mount).catch((error) => {
++        if (error instanceof Deno.errors.NotFound) return "";
++        throw error;
++      });
++      await paladin.state.scribe(mount, joined(ctx.input.path, ctx.input, text));
+       return { path: ctx.input.path };
+     },
+   )
+@@ -207,15 +241,33 @@
+   )
+   .open(
+     {
++      nature: "/source/move",
++      input: Moved,
++      output: Named,
++      valence:
++        "move one file under source/ to a new path; its old page goes with the next /build. " +
++        'Example: /source/move {"path":"on/new.md","to":"on/machines.md"}',
++    },
++    async (ctx) => {
++      const to = within(ctx, ctx.input.to);
++      if (await Deno.stat(to).then(() => true, () => false))
++        throw new Error(`[blog] '${ctx.input.to}' is taken`);
++      await paladin.state.dir(dirname(to));
++      await Deno.rename(within(ctx, ctx.input.path), to);
++      return { path: ctx.input.to };
++    },
++  )
++  .open(
++    {
+       nature: "/source/preview",
+-      input: Source,
++      input: Draft,
+       output: Preview,
+       valence:
+         "one source pressed as it is typed, nothing written, a draft shown too. " +
+         "Example: /source/preview {…}",
+     },
+     async (ctx) => {
+-      const typed = await pressed(ctx.input.path, ctx.input.text);
++      const typed = await pressed(ctx.input.path, joined(ctx.input.path, ctx.input, ""));
+       const others = (await sources(ctx))
+         .filter((source) => source.path !== ctx.input.path)
+         .map(listed)
+diff --color -ruN blog/blog.viva.js /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/blog.viva.js
+--- blog/blog.viva.js	2026-11-23 23:16:56.264283706 +0100
++++ /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/blog.viva.js	2026-11-24 10:31:53.274113249 +0100
+@@ -9,14 +9,14 @@
+     "A blog written and pressed in one place: a .md · .org under source/ in its mountpoint " +
+     "becomes a page under public/, an essay when it is dated; " +
+     "every other file there is served from where it lies.",
+-  version: "0.2.0",
++  version: "0.3.0",
+   traits: ["EXPOSED", "ATTACHED", "SURFACED", "FILESET"],
+ };
+ 
+ export const buffer = v
+   .buffer({ data: Desk })
+   .desc("The writing desk: the sources, the one being written, its page as pressed.")
+-  .example({ open: "on/machines.md" });
++  .example({ open: "on/machines.md", view: "split", rail: "outline" });
+ 
+ export const fileset = { path: "files" };
+ 
+diff --color -ruN blog/buffer/Blog.jsx /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/buffer/Blog.jsx
+--- blog/buffer/Blog.jsx	2026-11-23 23:16:56.264497122 +0100
++++ /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/buffer/Blog.jsx	2026-11-24 10:42:52.897114002 +0100
+@@ -8,31 +8,106 @@
+   onCleanup,
+   Show,
+ } from "solid-js";
++import { createStore, produce, unwrap } from "solid-js/store";
+ import { render } from "solid-js/web";
+-import { Desk } from "../schematics.js";
+-import sheet from "./desk.css";
++import { Article, Desk } from "../schematics.js";
++import {
++  figured,
++  KEYS,
++  markup,
++  mounted,
++  outline,
++  prefixed,
++  reached,
++  sheet,
++  wrapped,
++} from "./editor.js";
++import styles from "./desk.css";
+ 
+ const DOTS = { fault: "is-fault", published: "is-healthy", unlisted: "is-needs", draft: "" };
+ 
++const GROUPS = [
++  [(source) => source.fault !== null, "faults"],
++  [(source) => source.article.status === "draft", "drafts"],
++  [(source) => source.article.date !== undefined, "essays"],
++  [() => true, "pages"],
++];
++
++const STATUSES = ["draft", "unlisted", "published"];
++
++const VIEWS = ["write", "split", "page"];
++
++const RAILS = ["sources", "files", "outline"];
++
++const MARKS = [
++  ["bold", "B"],
++  ["italic", "I"],
++  ["code", "</>"],
++  ["link", "link"],
++  ["math", "∑"],
++  ["note", "note"],
++];
++
++const LINES = [
++  ["heading", "H"],
++  ["quote", "❝"],
++  ["list", "•"],
++];
++
+ const state = (source) => (source.fault === null ? source.article.status : "fault");
+ 
+-const today = () => new Date().toISOString().slice(0, 10).replaceAll("-", ".");
++const grouped = (source) => GROUPS.find(([held]) => held(source))[1];
++
++const dated = (source) =>
++  source.fault === null && source.article.date !== undefined ? source.article.date : "";
++
++const today = () => {
++  const now = new Date();
++  return [now.getFullYear(), now.getMonth() + 1, now.getDate()]
++    .map((part) => String(part).padStart(2, "0"))
++    .join(".");
++};
++
++const titled = (path) =>
++  path
++    .split("/")
++    .at(-1)
++    .replace(/\.(md|org)$/, "")
++    .replaceAll(/[-_]+/g, " ");
++
++const keyed = (draft) => JSON.stringify([draft.front, draft.body]);
++
++const counted = (body) => (body.match(/\S+/g) ?? []).length;
++
++const known = (front) =>
++  Article.cast(
++    Object.fromEntries(Object.entries(front).filter(([key]) => key in Article.properties)),
++  );
+ 
+-const begun = () => `---\ntitle: ""\nsubtitle: ""\ndate: "${today()}"\nstatus: "draft"\n---\n\n`;
++const pictured = (file) => file.mime.startsWith("image/");
+ 
+ export const Blog = (props) => {
+   const held = from(props.buffer.$data);
+-  const open = () => Desk.cast(held()).open;
++  const desk = () => Desk.cast(held());
++  const open = () => desk().open;
+   const [shelf, { refetch }] = createResource(() => props.buffer.mode.call.source.list());
+-  const [text, setText] = createSignal("");
+-  const [saved, setSaved] = createSignal("");
++  const [drafts, setDrafts] = createStore({});
+   const [preview, setPreview] = createSignal("");
+   const [fault, setFault] = createSignal(null);
+   const [told, setTold] = createSignal("");
++  const [query, setQuery] = createSignal("");
+   const [fresh, setFresh] = createSignal("");
+-  const [armed, setArmed] = createSignal(false);
+-  let editor;
+-  let typing;
++  const [armed, setArmed] = createSignal(null);
++  const [moving, setMoving] = createSignal(null);
++  const [busy, setBusy] = createSignal(false);
++  const sheets = new Map();
++  let root;
++  let host;
++  let view;
++  let showing = null;
++  let previewing;
++
++  const editor = () => (view ??= mounted(host, host.getRootNode()));
+ 
+   const settle = (data) =>
+     props.terminal.client.runtime.entities.buffer.updateOne(
+@@ -42,192 +117,600 @@
+ 
+   const guarded = async (run) => {
+     setFault(null);
++    setBusy(true);
+     try {
+       await run();
+     } catch (error) {
+       setFault(error.message);
++    } finally {
++      setBusy(false);
+     }
+   };
+ 
+-  const show = async (path, text) =>
+-    setPreview((await props.buffer.mode.call.source.preview({ path, text })).html);
++  const draft = () => (open() === null ? undefined : drafts[open()]);
++
++  const dirty = (path) => drafts[path] !== undefined && drafts[path].kept !== keyed(drafts[path]);
++
++  const lying = () => shelf().sources.find((source) => source.path === open());
+ 
+-  const press = async () => {
++  const live = () =>
++    shelf() !== undefined &&
++    lying() !== undefined &&
++    !["fault", "draft"].includes(state(lying()));
++
++  const words = () => (draft() === undefined ? 0 : counted(draft().body));
++
++  const faults = () => (draft() === undefined ? [] : Article.faults(known(draft().front)));
++
++  const shown = (sources) =>
++    sources.filter((source) =>
++      `${source.path} ${source.fault === null ? source.article.title : ""}`
++        .toLowerCase()
++        .includes(query().toLowerCase()),
++    );
++
++  const group = (name) =>
++    shown(shelf().sources)
++      .filter((source) => grouped(source) === name)
++      .toSorted(
++        (left, right) =>
++          dated(right).localeCompare(dated(left)) || left.path.localeCompare(right.path),
++      );
++
++  const uploaded = async (files) => {
++    const paths = [];
++    for (const file of [...files].filter((file) => file.type.startsWith("image/"))) {
++      const placed = await props.buffer.mode.call.source.upload[file.name](
++        {},
++        { raw: { body: file.stream() }, headers: { "content-type": file.type } },
++      );
++      paths.push(placed.path);
++    }
+     const built = await props.buffer.mode.call.build();
+-    setTold(`${built.pages.length} pressed · ${built.gone.length} gone`);
++    setTold(`${paths.length} placed · ${built.pages.length} pressed`);
+     await refetch();
++    return paths;
+   };
+ 
+-  const lying = () => shelf().sources.find((source) => source.path === open());
++  const placed = (path) => (event, sheetView) => {
++    const files = event.type === "drop" ? event.dataTransfer.files : event.clipboardData.files;
++    if (files.length === 0) return false;
++    event.preventDefault();
++    if (event.type === "drop") {
++      const at = sheetView.posAtCoords({ x: event.clientX, y: event.clientY });
++      if (at !== null) sheetView.dispatch({ selection: { anchor: at } });
++    }
++    guarded(async () => {
++      const paths = await uploaded(files);
++      figured(sheetView, paths.map(markup(path).figure).join("\n\n"));
++    });
++    return true;
++  };
++
++  const load = async (path) => {
++    const source = await props.buffer.mode.call.source.read({ path });
++    setDrafts(path, { front: source.front, body: source.body, kept: keyed(source) });
++    sheets.set(
++      path,
++      sheet({
++        path,
++        body: source.body,
++        typed: (body) => setDrafts(path, "body", body),
++        dropped: placed(path),
++        pasted: placed(path),
++      }),
++    );
++  };
+ 
+   createEffect(
+     on(open, (path) => {
+-      setArmed(false);
+-      if (path === null) return;
++      setArmed(null);
++      setMoving(null);
++      if (sheets.has(showing)) sheets.set(showing, editor().state);
++      showing = null;
++      if (path === null) return setPreview("");
+       guarded(async () => {
+-        const source = await props.buffer.mode.call.source.read({ path });
+-        setText(source.text);
+-        setSaved(source.text);
+-        await show(path, source.text);
++        if (drafts[path] === undefined) await load(path);
++        if (open() !== path) return;
++        editor().setState(sheets.get(path));
++        showing = path;
++        editor().focus();
+       });
+     }),
+   );
+ 
+-  onCleanup(() => clearTimeout(typing));
++  createEffect(() => {
++    const path = open();
++    if (path === null || drafts[path] === undefined || desk().view === "write") return;
++    const typed = { path, front: { ...drafts[path].front }, body: drafts[path].body };
++    clearTimeout(previewing);
++    previewing = setTimeout(async () => {
++      try {
++        const pressed = await props.buffer.mode.call.source.preview(typed);
++        if (open() === path) setPreview(pressed.html);
++      } catch (error) {
++        setFault(error.message);
++      }
++    }, 300);
++  });
++
++  onCleanup(() => {
++    clearTimeout(previewing);
++    view?.destroy();
++  });
++
++  const pick = (path) => settle({ open: path });
++
++  const fronting = (key, value) =>
++    setDrafts(
++      open(),
++      "front",
++      produce((front) => {
++        if (value === "") delete front[key];
++        else front[key] = value;
++      }),
++    );
+ 
+-  const type = (event) => {
+-    setText(event.target.value);
+-    clearTimeout(typing);
+-    typing = setTimeout(() => guarded(() => show(open(), text())), 400);
++  const written = async (path) => {
++    const typed = { path, front: unwrap(drafts[path]).front, body: drafts[path].body };
++    await props.buffer.mode.call.source.write(typed);
++    setDrafts(path, "kept", keyed(typed));
+   };
+ 
+   const save = () =>
+     guarded(async () => {
+-      await props.buffer.mode.call.source.write({ path: open(), text: text() });
+-      setSaved(text());
+-      await press();
++      await written(open());
++      setTold(`saved ${open()}`);
++      await refetch();
+     });
+ 
++  const press = () =>
++    guarded(async () => {
++      if (open() !== null && dirty(open())) await written(open());
++      const built = await props.buffer.mode.call.build();
++      setTold(`${built.pages.length} pressed · ${built.gone.length} gone`);
++      await refetch();
++    });
++
++  const publish = () => {
++    fronting("status", "published");
++    return press();
++  };
++
+   const create = (event) => {
+     event.preventDefault();
++    const path = fresh().trim();
+     guarded(async () => {
+-      if (!shelf().sources.some((source) => source.path === fresh())) {
+-        await props.buffer.mode.call.source.write({ path: fresh(), text: begun() });
++      if (!shelf().sources.some((source) => source.path === path)) {
++        await props.buffer.mode.call.source.write({
++          path,
++          front: { title: titled(path), date: today(), status: "draft" },
++          body: "\n",
++        });
+         await refetch();
+       }
+-      await settle({ open: fresh() });
+       setFresh("");
++      pick(path);
+     });
+   };
+ 
+-  const remove = () => {
+-    if (!armed()) return setArmed(true);
+-    guarded(async () => {
+-      await props.buffer.mode.call.source.remove({ path: open() });
+-      await settle({ open: null });
+-      await press();
+-    });
++  const forget = (path) => {
++    setDrafts(path, undefined);
++    sheets.delete(path);
++    if (showing === path) showing = null;
+   };
+ 
+-  const place = (files) =>
+-    guarded(async () => {
+-      for (const file of [...files].filter((file) => file.type.startsWith("image/"))) {
+-        const placed = await props.buffer.mode.call.source.upload[file.name](
+-          {},
+-          { raw: { body: file.stream() }, headers: { "content-type": file.type } },
+-        );
+-        editor.setRangeText(
+-          `![](/${placed.path})`,
+-          editor.selectionStart,
+-          editor.selectionEnd,
+-          "end",
+-        );
+-        setText(editor.value);
+-      }
+-      await press();
+-      await show(open(), text());
++  const remove = (path) => {
++    if (armed() !== path) return setArmed(path);
++    guarded(async () => {
++      await props.buffer.mode.call.source.remove({ path });
++      forget(path);
++      if (open() === path) await settle({ open: null });
++      const built = await props.buffer.mode.call.build();
++      setTold(`removed ${path} · ${built.gone.length} gone`);
++      await refetch();
+     });
++  };
+ 
+-  const drop = (event) => {
+-    if (event.dataTransfer.files.length === 0) return;
++  const move = (event) => {
+     event.preventDefault();
+-    place(event.dataTransfer.files);
++    const path = open();
++    const to = moving().trim();
++    setMoving(null);
++    if (to === path) return;
++    guarded(async () => {
++      if (dirty(path)) await written(path);
++      await props.buffer.mode.call.source.move({ path, to });
++      forget(path);
++      await settle({ open: to });
++      const built = await props.buffer.mode.call.build();
++      setTold(`moved to ${to} · ${built.gone.length} gone`);
++      await refetch();
++    });
+   };
+ 
+-  const paste = (event) => {
+-    if (event.clipboardData.files.length === 0) return;
+-    event.preventDefault();
+-    place(event.clipboardData.files);
++  const choose = (event) => {
++    guarded(async () => {
++      await uploaded(event.target.files);
++      event.target.value = "";
++    });
+   };
+ 
+   const key = (event) => {
+-    if (event.key !== "s" || !(event.metaKey || event.ctrlKey)) return;
+-    event.preventDefault();
+-    if (open() !== null) save();
++    if (!(event.metaKey || event.ctrlKey)) return;
++    if (event.key.toLowerCase() === "s" && open() !== null) {
++      event.preventDefault();
++      if (event.shiftKey) press();
++      else save();
++    }
++    if (event.key === "\\") {
++      event.preventDefault();
++      settle({ view: VIEWS[(VIEWS.indexOf(desk().view) + 1) % VIEWS.length] });
++    }
+   };
+ 
++  const kept = () =>
++    queueMicrotask(() => {
++      if (root.ownerDocument.activeElement === root.ownerDocument.body) root.focus();
++    });
++
++  const Row = (props) => (
++    <button
++      class="kit-row"
++      aria-current={String(open() === props.source.path)}
++      title={props.source.fault === null ? props.source.path : props.source.fault}
++      onClick={() => pick(props.source.path)}>
++      <span class={`kit-dot ${DOTS[state(props.source)]}`} />
++      <span class="n">
++        {props.source.fault === null ? props.source.article.title : props.source.path}
++      </span>
++      <span class="unsaved">{dirty(props.source.path) ? "●" : ""}</span>
++      <span class="v">{dated(props.source) || props.source.path.split("/").at(-1)}</span>
++    </button>
++  );
++
+   return (
+-    <div class="kit desk" onKeyDown={key}>
+-      <aside class="side">
+-        <span class="kit-label">sources</span>
+-        <Show when={shelf()}>
+-          <For each={shelf().sources}>
+-            {(source) => (
++    <div class="kit desk" ref={root} tabIndex="-1" onKeyDown={key} onFocusOut={kept}>
++      <aside class="rail">
++        <span class="kit-choice tabs">
++          <For each={RAILS}>
++            {(rail) => (
+               <button
+-                class="kit-row"
+-                aria-current={String(open() === source.path)}
+-                title={source.fault === null ? source.path : source.fault}
+-                onClick={() => settle({ open: source.path })}>
+-                <span class={`kit-dot ${DOTS[state(source)]}`} />
+-                <span class="n">{source.fault === null ? source.article.title : source.path}</span>
+-                <span />
+-                <span class="v">
+-                  {source.fault === null ? (source.article.date ?? "page") : "fault"}
+-                </span>
++                type="button"
++                aria-pressed={String(desk().rail === rail)}
++                onClick={() => settle({ rail })}>
++                {rail}
+               </button>
+             )}
+           </For>
++        </span>
++        <Show when={desk().rail === "sources"}>
++          <label class="kit-field">
++            <span class="p">⌕</span>
++            <input
++              value={query()}
++              onInput={(event) => setQuery(event.target.value)}
++              placeholder="filter"
++              aria-label="filter the sources"
++            />
++          </label>
++          <div class="list">
++            <Show when={shelf()}>
++              <For each={GROUPS.map(([, name]) => name)}>
++                {(name) => (
++                  <Show when={group(name).length > 0}>
++                    <span class="kit-label">
++                      {name} · {group(name).length}
++                    </span>
++                    <For each={group(name)}>{(source) => <Row source={source} />}</For>
++                  </Show>
++                )}
++              </For>
++            </Show>
++          </div>
++          <form class="kit-field" onSubmit={create}>
++            <span class="p">+</span>
++            <input
++              value={fresh()}
++              onInput={(event) => setFresh(event.target.value)}
++              placeholder="on/a-new-essay.md"
++              pattern=".+\.(md|org)"
++              required
++              aria-label="a new source's path under source/"
++            />
++          </form>
++        </Show>
++        <Show when={desk().rail === "files"}>
++          <label class="kit-field upload">
++            <span class="p">↑</span>
++            <span>place pictures</span>
++            <input type="file" accept="image/*" multiple onChange={choose} />
++          </label>
++          <div class="list">
++            <Show when={shelf()}>
++              <div class="pictures">
++                <For each={shelf().files.filter(pictured)}>
++                  {(file) => (
++                    <figure class="picture">
++                      <img src={`${shelf().site}/${file.path}`} alt={file.path} loading="lazy" />
++                      <figcaption title={file.path}>{file.path.split("/").at(-1)}</figcaption>
++                      <span class="kit-choice">
++                        <button
++                          type="button"
++                          classList={{ "is-off": draft() === undefined }}
++                          onClick={() => figured(editor(), markup(open()).figure(file.path))}>
++                          insert
++                        </button>
++                        <button
++                          type="button"
++                          classList={{ "is-off": draft() === undefined }}
++                          aria-pressed={String(
++                            draft() !== undefined && draft().front.image === `/${file.path}`,
++                          )}
++                          onClick={() => fronting("image", `/${file.path}`)}>
++                          lead
++                        </button>
++                        <button
++                          type="button"
++                          aria-pressed={String(armed() === file.path)}
++                          onClick={() => remove(file.path)}>
++                          {armed() === file.path ? "sure?" : "remove"}
++                        </button>
++                      </span>
++                    </figure>
++                  )}
++                </For>
++              </div>
++              <span class="kit-label">other files</span>
++              <For each={shelf().files.filter((file) => !pictured(file))}>
++                {(file) => (
++                  <a
++                    class="kit-row"
++                    href={`${shelf().site}/${file.path}`}
++                    target="_blank"
++                    rel="noopener">
++                    <span class="kit-dot" />
++                    <span class="n">{file.path}</span>
++                    <span />
++                    <span class="v">{file.mime}</span>
++                  </a>
++                )}
++              </For>
++            </Show>
++          </div>
++        </Show>
++        <Show when={desk().rail === "outline"}>
++          <div class="list">
++            <Show
++              when={draft() !== undefined && outline(open(), draft().body).length > 0}
++              fallback={<span class="empty">no headings</span>}>
++              <For each={outline(open(), draft().body)}>
++                {(heading) => (
++                  <button
++                    class="kit-row heading"
++                    style={{ "padding-left": `${heading.depth * 10}px` }}
++                    onClick={() => reached(editor(), heading.line)}>
++                    <span class="kit-dot" />
++                    <span class="n">{heading.title}</span>
++                    <span />
++                    <span class="v">{heading.line}</span>
++                  </button>
++                )}
++              </For>
++            </Show>
++          </div>
+         </Show>
+-        <form class="kit-field" onSubmit={create}>
+-          <span class="p">+</span>
+-          <input
+-            value={fresh()}
+-            onInput={(event) => setFresh(event.target.value)}
+-            placeholder="on/title.md"
+-            pattern=".+\.(md|org)"
+-            required
+-            aria-label="a new source's path under source/"
+-          />
+-        </form>
+       </aside>
+-      <div class="write">
+-        <Show
+-          when={open() !== null}
+-          fallback={
+-            <span class="empty">nothing on the desk · pick a source or name a new one</span>
+-          }>
+-          <div class="status">
+-            <b>{open()}</b>
+-            <Show when={text() !== saved()}>
++      <main class="main">
++        <div class="bar">
++          <Show
++            when={open() !== null}
++            fallback={<span class="hint">pick a source, or name a new one</span>}>
++            <Show
++              when={moving() !== null}
++              fallback={
++                <button class="path" title="move it" onClick={() => setMoving(open())}>
++                  {open()}
++                </button>
++              }>
++              <form class="kit-field moving" onSubmit={move}>
++                <span class="p">→</span>
++                <input
++                  value={moving()}
++                  onInput={(event) => setMoving(event.target.value)}
++                  onKeyDown={(event) => {
++                    if (event.key === "Escape") setMoving(null);
++                  }}
++                  pattern=".+\.(md|org)"
++                  required
++                  ref={(element) => queueMicrotask(() => element.focus())}
++                  aria-label="its new path under source/"
++                />
++              </form>
++            </Show>
++            <Show when={dirty(open())}>
+               <span class="kit-dot is-needs" />
+               <span>unsaved</span>
+             </Show>
+-            <span style="flex:1" />
+-            <span>{told()}</span>
+-            <Show
+-              when={shelf() && lying() && state(lying()) !== "fault" && state(lying()) !== "draft"}>
+-              <a href={`${shelf().site}/${lying().article.page}`} target="_blank" rel="noopener">
+-                open
+-              </a>
+-            </Show>
++          </Show>
++          <span class="fill" />
++          <Show when={draft() !== undefined}>
++            <span>
++              {words()} words · {Math.max(1, Math.round(words() / 230))} min
++            </span>
++          </Show>
++          <span class="kit-choice">
++            <For each={VIEWS}>
++              {(shape) => (
++                <button
++                  type="button"
++                  aria-pressed={String(desk().view === shape)}
++                  onClick={() => settle({ view: shape })}>
++                  {shape}
++                </button>
++              )}
++            </For>
++          </span>
++          <Show when={open() !== null}>
+             <span class="kit-choice">
+-              <button type="button" onClick={save}>
+-                save · press
++              <button type="button" title="⌘S" onClick={save}>
++                save
+               </button>
+-              <button type="button" aria-pressed={String(armed())} onClick={remove}>
+-                {armed() ? "sure?" : "remove"}
++              <button type="button" title="⌘⇧S" onClick={press}>
++                press
++              </button>
++              <Show when={draft() !== undefined && known(draft().front).status !== "published"}>
++                <button type="button" class="go" onClick={publish}>
++                  publish
++                </button>
++              </Show>
++              <button
++                type="button"
++                aria-pressed={String(armed() === open())}
++                onClick={() => remove(open())}>
++                {armed() === open() ? "sure?" : "remove"}
+               </button>
+             </span>
+-          </div>
+-          <textarea
+-            ref={editor}
+-            class="sheet"
+-            value={text()}
+-            onInput={type}
+-            onDrop={drop}
+-            onPaste={paste}
+-            spellcheck="true"
+-            aria-label="the source"
+-          />
+-        </Show>
+-        <Show when={fault()}>
+-          <span class="fault">
+-            <span class="kit-dot is-fault" />
+-            {fault()}
+-          </span>
+-        </Show>
+-      </div>
+-      <iframe class="pressed" srcdoc={preview()} sandbox="" title="the page as pressed" />
++            <Show when={live()}>
++              <a href={`${shelf().site}/${lying().article.page}`} target="_blank" rel="noopener">
++                open ↗
++              </a>
++            </Show>
++          </Show>
++        </div>
++        <div class="panes" data-view={desk().view}>
++          <section class="writing">
++            <Show when={draft() !== undefined}>
++              <div class="meta">
++                <input
++                  class="headline"
++                  value={draft().front.title ?? ""}
++                  onInput={(event) => fronting("title", event.target.value)}
++                  placeholder={titled(open())}
++                  aria-label="title"
++                />
++                <input
++                  class="subtitle"
++                  value={draft().front.subtitle ?? ""}
++                  onInput={(event) => fronting("subtitle", event.target.value)}
++                  placeholder="a subtitle, the line a link preview shows"
++                  aria-label="subtitle"
++                />
++                <div class="facts">
++                  <label class="kit-field">
++                    <span class="p">date</span>
++                    <input
++                      value={draft().front.date ?? ""}
++                      onInput={(event) => fronting("date", event.target.value)}
++                      placeholder="none: a page"
++                      pattern="\d{4}\.\d{2}\.\d{2}"
++                      size="10"
++                      aria-label="date, year.month.day"
++                    />
++                    <button
++                      type="button"
++                      class="ic"
++                      title="today"
++                      onClick={() => fronting("date", today())}>
++                      ◷
++                    </button>
++                  </label>
++                  <span class="kit-choice status">
++                    <For each={STATUSES}>
++                      {(status) => (
++                        <button
++                          type="button"
++                          aria-pressed={String(known(draft().front).status === status)}
++                          onClick={() => fronting("status", status)}>
++                          <span class={`kit-dot ${DOTS[status]}`} /> {status}
++                        </button>
++                      )}
++                    </For>
++                  </span>
++                  <label class="kit-field">
++                    <span class="p">#</span>
++                    <input
++                      value={draft().front.tags ?? ""}
++                      onInput={(event) => fronting("tags", event.target.value)}
++                      placeholder="tags, comma-joined"
++                      aria-label="tags"
++                    />
++                  </label>
++                  <label class="kit-field">
++                    <span class="p">lead</span>
++                    <input
++                      value={draft().front.image ?? ""}
++                      onInput={(event) => fronting("image", event.target.value)}
++                      placeholder="/images/…"
++                      list="pictures"
++                      aria-label="lead picture"
++                    />
++                    <datalist id="pictures">
++                      <For each={shelf() ? shelf().files.filter(pictured) : []}>
++                        {(file) => <option value={`/${file.path}`} />}
++                      </For>
++                    </datalist>
++                  </label>
++                </div>
++                <For each={faults()}>
++                  {(fault) => (
++                    <span class="fault">
++                      <span class="kit-dot is-fault" />
++                      {fault.at} {fault.reason}
++                    </span>
++                  )}
++                </For>
++              </div>
++              <div class="tools kit-choice">
++                <For each={MARKS}>
++                  {([name, glyph]) => (
++                    <button
++                      type="button"
++                      class={name}
++                      title={KEYS[name] === undefined ? name : `${name} · ${KEYS[name]}`}
++                      onClick={() => wrapped(editor(), markup(open()).marks[name])}>
++                      {glyph}
++                    </button>
++                  )}
++                </For>
++                <span class="gap" />
++                <For each={LINES}>
++                  {([name, glyph]) => (
++                    <button
++                      type="button"
++                      title={name}
++                      onClick={() => prefixed(editor(), markup(open()).lines[name])}>
++                      {glyph}
++                    </button>
++                  )}
++                </For>
++                <span class="gap" />
++                <button type="button" title="pictures" onClick={() => settle({ rail: "files" })}>
++                  ▣
++                </button>
++                <button type="button" title="outline" onClick={() => settle({ rail: "outline" })}>
++                  ☰
++                </button>
++              </div>
++            </Show>
++            <div class="sheet" classList={{ "is-hidden": draft() === undefined }} ref={host} />
++          </section>
++          <iframe class="page" srcdoc={preview()} sandbox="" title="the page as pressed" />
++        </div>
++        <div class="foot">
++          <Show when={busy()}>
++            <span class="kit-dot is-running" />
++          </Show>
++          <Show when={fault()} fallback={<span>{told()}</span>}>
++            <span class="fault">
++              <span class="kit-dot is-fault" />
++              {fault()}
++            </span>
++          </Show>
++          <span class="fill" />
++          <span>⌘S save · ⌘⇧S press · ⌘\ view · ⌘F find</span>
++        </div>
++      </main>
+     </div>
+   );
+ };
+@@ -235,7 +718,7 @@
+ export default (element, props) => {
+   const shadow = element.attachShadow({ mode: "open" });
+   const style = document.createElement("style");
+-  style.textContent = sheet;
++  style.textContent = styles;
+   shadow.append(style);
+   const dispose = render(() => <Blog {...props} />, shadow);
+   return { destroy: dispose };
+diff --color -ruN blog/buffer/desk.css /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/buffer/desk.css
+--- blog/buffer/desk.css	2026-11-23 23:16:56.265040287 +0100
++++ /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/buffer/desk.css	2026-11-24 10:39:51.927769348 +0100
+@@ -1,17 +1,55 @@
++*{box-sizing:border-box}
+ :host{flex:1;min-height:0;display:flex;flex-direction:column}
+ a{color:var(--text-link)}a:hover{color:var(--text-strong)}
+-.desk{flex:1;min-height:0;box-sizing:border-box;display:flex;gap:var(--size-space-sm);padding:var(--size-space-sm)}
+-.side{width:248px;flex:none;display:flex;flex-direction:column;gap:4px;padding-right:var(--size-space-sm);box-shadow:inset calc(-1 * var(--size-ring)) 0 0 var(--boundary);min-height:0;overflow-y:auto}
+-.side .kit-label{padding-left:var(--size-space-xs)}
+-.side .kit-field{margin-top:var(--size-space-sm)}
+-.write{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--size-space-xs)}
+-.status{display:flex;align-items:center;gap:var(--size-space-xs);font-family:var(--font-family-code);font-size:var(--size-type-xs);color:var(--text-muted);padding:0 var(--size-space-2xs);min-height:22px}
+-.status b{color:var(--text-strong);font-weight:600}
+-.sheet{flex:1;min-height:0;resize:none;border:0;outline:0;padding:var(--size-space-sm);background:var(--plane-sunk);box-shadow:inset 0 0 0 var(--size-ring) var(--boundary);border-radius:var(--shape-radius-card);color:var(--text-ink);caret-color:var(--control-field-caret);font-family:var(--font-family-code);font-size:var(--size-type-sm);line-height:1.6;tab-size:2}
+-.sheet:focus{box-shadow:inset 0 0 0 2px var(--control-focus)}
+-.pressed{flex:1;min-width:0;border:0;border-radius:var(--shape-radius-card);box-shadow:inset 0 0 0 var(--size-ring) var(--boundary);background:var(--plane-sunk)}
+-.empty{color:var(--text-muted);font-family:var(--font-family-code);font-size:var(--size-type-xs);margin:auto}
+-.fault{display:flex;align-items:center;gap:var(--size-space-xs);padding:var(--size-space-xs) var(--size-space-sm);overflow-wrap:anywhere;font-family:var(--font-family-code);font-size:var(--size-type-xs);color:var(--signal-negative-ink);background:linear-gradient(var(--signal-negative-tint),var(--signal-negative-tint)),var(--plane-sunk);box-shadow:inset 0 var(--size-ring) 0 var(--signal-negative);border-radius:var(--shape-radius-key)}
++.desk:focus{outline:0}
++.desk{flex:1;min-height:0;display:grid;grid-template-columns:264px minmax(0,1fr);gap:var(--size-space-sm);padding:var(--size-space-sm)}
++.rail{display:flex;flex-direction:column;gap:var(--size-space-xs);min-height:0;padding-right:var(--size-space-sm);box-shadow:inset calc(-1 * var(--size-ring)) 0 0 var(--boundary)}
++.rail .tabs{justify-content:space-between}
++.list{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
++.list .kit-label{padding:var(--size-space-sm) var(--size-space-xs) var(--size-space-2xs)}
++.list .kit-label:first-child{padding-top:0}
++.kit-row .unsaved{color:var(--signal-caution-ink);font-size:var(--size-type-2xs)}
++a.kit-row{text-decoration:none}
++.heading .n{color:var(--text-ink)}
++.upload{position:relative;cursor:pointer;color:var(--text-muted);font-family:var(--font-family-code);font-size:var(--size-type-xs)}
++.upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
++.pictures{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--size-space-xs);margin-bottom:var(--size-space-sm)}
++.picture{margin:0;display:flex;flex-direction:column;gap:var(--size-space-2xs);padding:var(--size-space-2xs);border-radius:var(--shape-radius-card);box-shadow:inset 0 0 0 var(--size-ring) var(--boundary)}
++.picture img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--shape-radius-key);background:var(--plane-sunk)}
++.picture figcaption{font-family:var(--font-family-code);font-size:var(--size-type-2xs);color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
++.picture .kit-choice{gap:0}.picture .kit-choice>button{padding:0 var(--size-space-2xs);font-size:var(--size-type-2xs)}
++.main{min-width:0;min-height:0;display:flex;flex-direction:column;gap:var(--size-space-xs)}
++.bar,.foot{display:flex;align-items:center;gap:var(--size-space-sm);font-family:var(--font-family-code);font-size:var(--size-type-xs);color:var(--text-muted);min-height:26px;padding:0 var(--size-space-2xs)}
++.fill{flex:1}
++.hint,.empty{color:var(--text-muted);font-family:var(--font-family-code);font-size:var(--size-type-xs)}
++.empty{padding:var(--size-space-sm)}
++.path{appearance:none;border:0;background:transparent;padding:0 var(--size-space-2xs);border-radius:var(--shape-radius-key);font:inherit;color:var(--text-strong);font-weight:600;cursor:text}
++.path:hover{background:var(--control-selected)}
++.moving{min-height:24px;min-width:280px;font-family:var(--font-family-code);font-size:var(--size-type-xs)}
++.kit-choice>button.go{color:var(--signal-positive-ink);box-shadow:inset 0 0 0 var(--size-ring) var(--signal-positive)}
++.panes{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--size-space-sm)}
++.panes[data-view="write"],.panes[data-view="page"]{grid-template-columns:minmax(0,1fr)}
++.panes[data-view="write"] .page,.panes[data-view="page"] .writing{display:none}
++.writing{min-height:0;display:flex;flex-direction:column;border-radius:var(--shape-radius-card);background:var(--plane-sunk);box-shadow:inset 0 0 0 var(--size-ring) var(--boundary);overflow:hidden}
++.meta{display:flex;flex-direction:column;gap:var(--size-space-2xs);width:100%;max-width:calc(680px + 2 * var(--size-space-md));margin:0 auto;padding:var(--size-space-md) var(--size-space-md) var(--size-space-xs)}
++.meta input.headline,.meta input.subtitle{border:0;outline:0;background:transparent;padding:0;margin:0;color:var(--text-strong);font-family:var(--font-family-sans-heading);caret-color:var(--signal-primary)}
++.headline{font-size:var(--size-type-2xl);font-weight:700;line-height:1.2}
++.meta input.subtitle{font-size:var(--size-type-md);color:var(--text-muted);font-family:var(--font-family-sans-text)}
++.headline::placeholder,.subtitle::placeholder{color:var(--control-field-placeholder)}
++.facts{display:flex;flex-wrap:wrap;align-items:center;gap:var(--size-space-xs);margin-top:var(--size-space-xs)}
++.facts .kit-field{min-height:26px;padding:0 var(--size-space-xs);font-size:var(--size-type-xs)}
++.facts .kit-field .p{color:var(--text-muted);font-size:var(--size-type-2xs)}
++.facts .kit-field input{width:20ch}
++.facts .kit-field input[aria-label^="date"]{width:10ch}
++.facts .kit-field input:invalid{color:var(--signal-negative-ink)}
++.status>button{display:inline-flex;align-items:center;gap:var(--size-space-2xs)}
++.tools{width:100%;max-width:calc(680px + 2 * var(--size-space-md));margin:0 auto;padding:var(--size-space-2xs) var(--size-space-md);align-items:center;box-shadow:inset 0 calc(-1 * var(--size-ring)) 0 var(--boundary)}
++.tools .bold{font-weight:700}.tools .italic{font-style:italic}
++.tools .gap{width:var(--size-space-sm)}
++.sheet{flex:1;min-height:0}
++.sheet.is-hidden{display:none}
++.page{width:100%;height:100%;border:0;border-radius:var(--shape-radius-card);box-shadow:inset 0 0 0 var(--size-ring) var(--boundary);background:var(--plane-sunk)}
++.fault{display:flex;align-items:center;gap:var(--size-space-xs);padding:var(--size-space-2xs) var(--size-space-sm);overflow-wrap:anywhere;font-family:var(--font-family-code);font-size:var(--size-type-xs);color:var(--signal-negative-ink);background:linear-gradient(var(--signal-negative-tint),var(--signal-negative-tint)),var(--plane-sunk);box-shadow:inset 0 var(--size-ring) 0 var(--signal-negative);border-radius:var(--shape-radius-key)}
+ .kit-label {font-family: var(--font-family-code); font-size: var(--size-type-2xs); color: var(--text-muted); text-transform: var(--shape-label-case); letter-spacing: var(--shape-label-track);}
+ .kit :focus-visible, .kit-tty :focus-visible {outline: 2px solid var(--control-focus); outline-offset: -2px;}
+ .kit-dot {display: inline-block; flex: none; width: 6px; height: 6px; border-radius: var(--shape-radius-disc); background: var(--text-muted);}
+diff --color -ruN blog/buffer/editor.js /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/buffer/editor.js
+--- blog/buffer/editor.js	1970-01-01 01:00:00.000000000 +0100
++++ /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/buffer/editor.js	2026-11-24 10:37:51.070167732 +0100
+@@ -0,0 +1,227 @@
++import { EditorSelection, EditorState } from "@codemirror/state";
++import {
++  drawSelection,
++  EditorView,
++  highlightSpecialChars,
++  keymap,
++  placeholder,
++} from "@codemirror/view";
++import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
++import { highlightSelectionMatches, search, searchKeymap } from "@codemirror/search";
++import {
++  defineLanguageFacet,
++  HighlightStyle,
++  Language,
++  LanguageSupport,
++  syntaxHighlighting,
++} from "@codemirror/language";
++import { tags } from "@lezer/highlight";
++import { GFM, parser } from "@lezer/markdown";
++
++const tint = (signal, percent) =>
++  `color-mix(in srgb, var(--signal-${signal}) ${percent}%, transparent)`;
++
++export const KEYS = { bold: "Mod-b", italic: "Mod-i", code: "Mod-e", link: "Mod-k" };
++
++const theme = EditorView.theme({
++  "&": { height: "100%", color: "var(--text-ink)", backgroundColor: "transparent" },
++  "&.cm-focused": { outline: "none" },
++  ".cm-scroller": {
++    fontFamily: "var(--font-family-sans-text)",
++    fontSize: "var(--size-type-md)",
++    lineHeight: "1.75",
++    overflow: "auto",
++  },
++  ".cm-content": {
++    width: "100%",
++    maxWidth: "680px",
++    margin: "0 auto",
++    padding: "var(--size-space-md) var(--size-space-md) 40vh",
++    caretColor: "var(--signal-primary)",
++  },
++  ".cm-line": { padding: "0" },
++  ".cm-cursor, .cm-dropCursor": {
++    borderLeftColor: "var(--signal-primary)",
++    borderLeftWidth: "2px",
++  },
++  ".cm-selectionBackground, &.cm-focused .cm-selectionBackground, ::selection": {
++    backgroundColor: tint("primary", 25),
++  },
++  ".cm-placeholder": { color: "var(--text-muted)" },
++  ".cm-panels": {
++    backgroundColor: "var(--plane-lift)",
++    color: "var(--text-ink)",
++    borderBottom: "var(--size-ring) solid var(--boundary)",
++  },
++  ".cm-panels input, .cm-panels button": { font: "inherit" },
++  ".cm-searchMatch": { backgroundColor: tint("caution", 30) },
++  ".cm-searchMatch.cm-searchMatch-selected": { backgroundColor: tint("primary", 35) },
++  ".cm-selectionMatch": { backgroundColor: tint("primary", 12) },
++});
++
++const highlight = HighlightStyle.define([
++  { tag: tags.heading1, color: "var(--text-strong)", fontWeight: "700", fontSize: "1.6em" },
++  { tag: tags.heading2, color: "var(--text-strong)", fontWeight: "700", fontSize: "1.3em" },
++  { tag: tags.heading3, color: "var(--text-strong)", fontWeight: "700", fontSize: "1.1em" },
++  {
++    tag: [tags.heading4, tags.heading5, tags.heading6],
++    color: "var(--text-strong)",
++    fontWeight: "700",
++  },
++  { tag: tags.strong, color: "var(--text-strong)", fontWeight: "700" },
++  { tag: tags.emphasis, fontStyle: "italic" },
++  { tag: tags.strikethrough, textDecoration: "line-through", color: "var(--text-muted)" },
++  { tag: [tags.link, tags.url], color: "var(--text-link)" },
++  { tag: tags.quote, color: "var(--text-muted)", fontStyle: "italic" },
++  {
++    tag: tags.monospace,
++    fontFamily: "var(--font-family-code)",
++    fontSize: "0.9em",
++    color: "var(--text-code)",
++  },
++  {
++    tag: [tags.processingInstruction, tags.meta, tags.contentSeparator],
++    color: "var(--text-light)",
++  },
++  { tag: tags.list, color: "var(--signal-primary-ink)" },
++  { tag: tags.comment, color: "var(--text-muted)", fontStyle: "italic" },
++]);
++
++const markdown = new LanguageSupport(
++  new Language(defineLanguageFacet(), parser.configure(GFM), [], "markdown"),
++);
++
++export const MARKUPS = [
++  {
++    suffix: /\.md$/,
++    grammar: markdown,
++    heading: /^(#{1,6})[ \t]+(.+)$/,
++    fence: /^(```|~~~)/,
++    figure: (path) => `![](/${path})`,
++    marks: {
++      bold: ["**", "**"],
++      italic: ["_", "_"],
++      code: ["`", "`"],
++      link: ["[", "](https://)"],
++      math: ["$", "$"],
++      note: ["[^", "]"],
++    },
++    lines: { heading: "## ", quote: "> ", list: "- " },
++  },
++  {
++    suffix: /\.org$/,
++    grammar: [],
++    heading: /^(\*+)[ \t]+(.+)$/,
++    fence: /^#\+(begin|end)_src/i,
++    figure: (path) => `[[/${path}]]`,
++    marks: {
++      bold: ["*", "*"],
++      italic: ["/", "/"],
++      code: ["~", "~"],
++      link: ["[[https://][", "]]"],
++      math: ["\\(", "\\)"],
++      note: ["[fn:", "]"],
++    },
++    lines: { heading: "** ", quote: ": ", list: "- " },
++  },
++];
++
++export const markup = (path) => MARKUPS.find((markup) => markup.suffix.test(path));
++
++export const wrapped = (view, [before, after]) => {
++  view.dispatch(
++    view.state.changeByRange((range) => ({
++      changes: [
++        { from: range.from, insert: before },
++        { from: range.to, insert: after },
++      ],
++      range: EditorSelection.range(range.from + before.length, range.to + before.length),
++    })),
++  );
++  view.focus();
++  return true;
++};
++
++export const prefixed = (view, prefix) => {
++  const starts = [
++    ...new Set(
++      view.state.selection.ranges.flatMap((range) => {
++        const first = view.state.doc.lineAt(range.from).number;
++        const last = view.state.doc.lineAt(range.to).number;
++        return Array.from({ length: last - first + 1 }, (_, at) => first + at);
++      }),
++    ),
++  ].map((number) => view.state.doc.line(number).from);
++  view.dispatch({ changes: starts.map((from) => ({ from, insert: prefix })) });
++  view.focus();
++  return true;
++};
++
++export const figured = (view, text) => {
++  const line = view.state.doc.lineAt(view.state.selection.main.head);
++  const block = line.text.trim() === "" ? text : `\n\n${text}\n`;
++  const at = line.text.trim() === "" ? line.from : line.to;
++  view.dispatch({
++    changes: { from: at, to: line.text.trim() === "" ? line.to : at, insert: block },
++    selection: { anchor: at + block.length },
++    scrollIntoView: true,
++  });
++  view.focus();
++};
++
++export const outline = (path, body) => {
++  const held = markup(path);
++  const lines = body.split("\n");
++  const fenced = lines.map((line) => held.fence.test(line.trim()));
++  return lines
++    .map((line, at) => ({
++      line: at + 1,
++      inside: fenced.slice(0, at).filter(Boolean).length % 2 === 1,
++      found: line.match(held.heading),
++    }))
++    .filter((entry) => !entry.inside && entry.found !== null)
++    .map((entry) => ({ line: entry.line, depth: entry.found[1].length, title: entry.found[2] }));
++};
++
++export const reached = (view, number) => {
++  const line = view.state.doc.line(Math.min(number, view.state.doc.lines));
++  view.dispatch({
++    selection: EditorSelection.cursor(line.from),
++    effects: EditorView.scrollIntoView(line.from, { y: "start", yMargin: 24 }),
++  });
++  view.focus();
++};
++
++export const sheet = ({ path, body, typed, dropped, pasted }) =>
++  EditorState.create({
++    doc: body,
++    extensions: [
++      keymap.of([
++        ...Object.entries(KEYS).map(([name, key]) => ({
++          key,
++          run: (view) => wrapped(view, markup(path).marks[name]),
++        })),
++        ...defaultKeymap,
++        ...historyKeymap,
++        ...searchKeymap,
++        indentWithTab,
++      ]),
++      history(),
++      drawSelection(),
++      highlightSpecialChars(),
++      highlightSelectionMatches(),
++      search({ top: true }),
++      syntaxHighlighting(highlight),
++      theme,
++      markup(path).grammar,
++      placeholder("Write."),
++      EditorView.lineWrapping,
++      EditorView.contentAttributes.of({ spellcheck: "true", autocorrect: "on" }),
++      EditorView.domEventHandlers({ drop: dropped, paste: pasted }),
++      EditorView.updateListener.of((update) => {
++        if (update.docChanged) typed(update.state.doc.toString());
++      }),
++    ],
++  });
++
++export const mounted = (parent, root) => new EditorView({ parent, root });
+diff --color -ruN blog/press.js /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/press.js
+--- blog/press.js	2026-11-23 23:16:56.265919618 +0100
++++ /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/press.js	2026-11-24 10:42:10.932465244 +0100
+@@ -7,11 +7,12 @@
+ import uniorg from "npm:uniorg-parse@3.2.0";
+ import rehype from "npm:uniorg-rehype@2.2.0";
+ import stringify from "npm:rehype-stringify@10.0.1";
++import { parseDocument, Scalar } from "npm:yaml@2.9.1";
+ import { Article } from "./schematics.js";
+ 
+ const COMMENT = /<!--[\s\S]*?-->/g;
+ const ROOTED = /^\/(?!\/)/;
+-const KEYWORD = /^#\+(\w+):\s*(.+)$/gm;
++const KEYWORD = /^#\+(\w+):[ \t]*(.*)$/gm;
+ 
+ export const home = (page) =>
+   page.includes("/") ? "../".repeat(page.split("/").length - 1) : "./";
+@@ -46,21 +47,54 @@
+ 
+ const org = unified().use(uniorg).use(rehype).use(rehomed).use(stringify);
+ 
++const LEAD = /^(?:#\+\w+:.*\n)*/;
++
+ const MARKUP = [
+   {
+     suffix: /\.md$/,
+-    front: (text) => parseFrontmatter(text).frontmatter,
++    part: (text) => {
++      const parsed = parseFrontmatter(text);
++      return {
++        front: parsed.frontmatter,
++        body: parsed.rawFrontmatter === "" ? parsed.content : parsed.content.slice(1),
++      };
++    },
++    join: (draft, text) => {
++      const held = parseFrontmatter(text);
++      const front = parseDocument(held.rawFrontmatter);
++      if (JSON.stringify(held.frontmatter) !== JSON.stringify(draft.front)) {
++        for (const key of Object.keys(held.frontmatter))
++          if (!(key in draft.front)) front.delete(key);
++        for (const [key, value] of Object.entries(draft.front))
++          if (JSON.stringify(held.frontmatter[key]) !== JSON.stringify(value))
++            front.set(key, Object.assign(new Scalar(value), { type: "QUOTE_DOUBLE" }));
++        front.contents.comment = [front.contents.comment, front.comment].filter(Boolean).join("\n");
++        front.comment = null;
++      }
++      const written =
++        JSON.stringify(held.frontmatter) === JSON.stringify(draft.front)
++          ? held.rawFrontmatter.slice(1)
++          : front.toString({ lineWidth: 0 });
++      return ["", "{}\n"].includes(written) ? draft.body : `---\n${written}---\n${draft.body}`;
++    },
+     body: async (text, page) =>
+       (await markdown.render(parseFrontmatter(text).content, { fileURL: page })).code,
+   },
+   {
+     suffix: /\.org$/,
+-    front: (text) =>
+-      Object.fromEntries(
+-        [...text.matchAll(KEYWORD)]
+-          .map(([, key, value]) => [key.toLowerCase(), value.trim()])
+-          .filter(([key]) => key in Article.properties),
++    part: (text) => ({
++      front: Object.fromEntries(
++        [...text.match(LEAD)[0].matchAll(KEYWORD)].map(([, key, value]) => [
++          key.toLowerCase(),
++          value.trim(),
++        ]),
+       ),
++      body: text.slice(text.match(LEAD)[0].length),
++    }),
++    join: (draft) =>
++      Object.entries(draft.front)
++        .map(([key, value]) => `${`#+${key}: ${value}`.trimEnd()}\n`)
++        .join("") + draft.body,
+     body: async (text, page) => String(await org.process({ value: text, path: page })),
+   },
+ ];
+@@ -69,8 +103,16 @@
+ 
+ const markup = (path) => MARKUP.find((markup) => markup.suffix.test(path));
+ 
++export const parted = (path, text) => markup(path).part(text);
++
++export const joined = (path, draft, text) => markup(path).join(draft, text);
++
+ export const fronted = (path, text) => {
+-  const article = Article.cast(markup(path).front(text));
++  const article = Article.cast(
++    Object.fromEntries(
++      Object.entries(parted(path, text).front).filter(([key]) => key in Article.properties),
++    ),
++  );
+   const faults = Article.faults(article);
+   if (faults.length) {
+     throw new Error(
+diff --color -ruN blog/schematics.js /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/schematics.js
+--- blog/schematics.js	2026-11-23 23:16:56.266181867 +0100
++++ /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/schematics.js	2026-11-24 10:29:55.061529153 +0100
+@@ -58,4 +58,14 @@
+     .default(null)
+     .desc("The source on the desk, its path under source/.")
+     .example("on/machines.md"),
++  view: v
++    .enum(["write", "split", "page"])
++    .default("split")
++    .desc("What the desk shows: the sheet, the sheet beside its page, the page alone.")
++    .example("write"),
++  rail: v
++    .enum(["sources", "files", "outline"])
++    .default("sources")
++    .desc("What the rail lists: the sources, the files beside them, the open source's headings.")
++    .example("files"),
+ });
+diff --color -ruN blog/tests/blog.test.js /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/tests/blog.test.js
+--- blog/tests/blog.test.js	2026-11-23 23:16:56.266731574 +0100
++++ /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/tests/blog.test.js	2026-11-24 10:43:01.887321536 +0100
+@@ -14,7 +14,7 @@
+ import { lifecycle, traits } from "@vivalence/runtime";
+ import { hello, lighthouse } from "@vivalence/runtime/scenarios";
+ import * as blog from "../blog.viva.js";
+-import { fronted, pressed } from "../press.js";
++import { fronted, joined, parted, pressed } from "../press.js";
+ import { Site } from "../schematics.js";
+ import { paged } from "../theme/index.js";
+ 
+@@ -199,6 +199,39 @@
+     });
+   });
+ 
++  specimen.it(
++    "parted and joined are a pair: a source comes apart and back byte for byte, an edit in place",
++    () => {
++      for (const [path, text] of [
++        ...Object.entries(SOURCES),
++        ["articles/second.org", SECOND],
++        ["notes/untitled.md", HELLO],
++        ["notes/untitled.org", "* Bare\n"],
++      ]) {
++        specimen.expect([path, joined(path, parted(path, text), text)]).toEqual([path, text]);
++      }
++      const eva = parted("on/eva.md", GHOST);
++      specimen.expect(eva.body.startsWith('\n## Say "hello"')).toBe(true);
++      const drafted = { ...eva, front: { ...eva.front, status: "draft" } };
++      specimen
++        .expect(joined("on/eva.md", drafted, GHOST))
++        .toBe(GHOST.replace('.png"\n---', '.png"\nstatus: "draft"\n---'));
++      const remarked = GHOST.replace("---\n\n##", '# lead: "/images/old.png"\n---\n\n##');
++      const retitled = { ...parted("on/eva.md", remarked), front: { title: "Renamed" } };
++      specimen
++        .expect(joined("on/eva.md", retitled, remarked).split("\n---\n")[0])
++        .toBe('---\ntitle: "Renamed"\n# lead: "/images/old.png"');
++      const second = parted("articles/second.org", SECOND);
++      specimen
++        .expect(second.front)
++        .toEqual({ title: "Second", date: "2026.03.01", filetags: ":org:" });
++      specimen.expect(second.body.startsWith("\n* A heading")).toBe(true);
++      specimen
++        .expect(joined("notes/new.md", { front: {}, body: "Plain.\n" }, ""))
++        .toBe("Plain.\n");
++    },
++  );
++
+   specimen.it("front matter that does not hold throws, naming the source and the key", () => {
+     specimen
+       .expect(() => fronted("on/eva.md", front({ status: "live" })))
+@@ -369,6 +402,7 @@
+         "/source/read",
+         "/source/write",
+         "/source/remove",
++        "/source/move",
+         "/source/preview",
+       ]) {
+         const refused = await world.post(`${MODE}${path}`, { path: "on/eva.md", text: "" });
+@@ -521,7 +555,11 @@
+     specimen.it(
+       "/source/list answers where the site is reached and every source, a faulty one with its fault",
+       async () => {
+-        await sourced(world, "on/broken.md", front({ title: "Broken", status: "live" }));
++        await sourced(
++          world,
++          "on/broken.md",
++          front({ title: "Broken", status: "live" }).replace(/---\n$/, "# kept\n---\n"),
++        );
+         const shelf = (await call("/source/list", {})).body;
+         specimen.expect(shelf.site).toBe(`${world.origin}${BLOG}`);
+         specimen
+@@ -536,6 +574,7 @@
+           ]);
+         const broken = shelf.sources.find((source) => source.path === "on/broken.md");
+         specimen.expect(broken.article).toBe(null);
++        specimen.expect(shelf.files).toEqual([{ path: "theme.css", mime: "text/css" }]);
+         specimen.expect(broken.fault.startsWith("[blog] on/broken.md: /status")).toBe(true);
+         const hidden = shelf.sources.find((source) => source.path === "on/hidden.md");
+         specimen
+@@ -555,16 +594,18 @@
+     specimen.it(
+       "/source/write · read · remove are hands on the file; nothing is pressed until /build",
+       async () => {
+-        const text = `${front({ title: "Written here", date: "2026.11.23" })}\nFrom the desk.\n`;
++        const draft = {
++          path: "on/broken.md",
++          front: { title: "Written here", date: "2026.11.23", layout: "wide" },
++          body: "\nFrom the desk.\n",
++        };
+         specimen
+-          .expect((await call("/source/write", { path: "on/broken.md", text })).body)
++          .expect((await call("/source/write", draft)).body)
+           .toEqual({ path: "on/broken.md" });
+         specimen
+           .expect(await Deno.readTextFile(join(seated(world), "source/on/broken.md")))
+-          .toBe(text);
+-        specimen
+-          .expect((await call("/source/read", { path: "on/broken.md" })).body)
+-          .toEqual({ path: "on/broken.md", text });
++          .toBe(`${front(draft.front).replace(/---\n$/, "# kept\n---\n")}\nFrom the desk.\n`);
++        specimen.expect((await call("/source/read", { path: "on/broken.md" })).body).toEqual(draft);
+         specimen.expect((await page(world, "/on/broken")).status).toBe(404);
+ 
+         await call("/build", {});
+@@ -580,13 +621,44 @@
+       },
+     );
+ 
++    specimen.it(
++      "/source/move takes a source to a new path, its page follows; a taken path refuses",
++      async () => {
++        specimen
++          .expect((await call("/source/move", { path: "on/slop.md", to: "after/slop.md" })).body)
++          .toEqual({ path: "after/slop.md" });
++        await specimen
++          .expect(Deno.stat(join(seated(world), "source/on/slop.md")))
++          .rejects.toThrow(Deno.errors.NotFound);
++        const built = await call("/build", {});
++        specimen.expect(built.body.gone).toEqual(["on/slop.html"]);
++        specimen.expect(built.body.pages.includes("after/slop.html")).toBe(true);
++        specimen.expect((await page(world, "/after/slop")).status).toBe(200);
++
++        const taken = await call("/source/move", { path: "after/slop.md", to: "on/eva.md" });
++        specimen
++          .expect([taken.status, JSON.stringify(taken.body).includes("'on/eva.md' is taken")])
++          .toEqual([500, true]);
++        specimen
++          .expect(await Deno.readTextFile(join(seated(world), "source/on/eva.md")))
++          .toBe(GHOST);
++        const climb = await call("/source/move", { path: "after/slop.md", to: "../climbed.md" });
++        specimen
++          .expect([climb.status, JSON.stringify(climb.body).includes("leaves source/")])
++          .toEqual([500, true]);
++        await specimen
++          .expect(Deno.stat(join(seated(world), "climbed.md")))
++          .rejects.toThrow(Deno.errors.NotFound);
++      },
++    );
++
+     specimen.it("no path of the desk leaves source/", async () => {
+       for (const path of ["../site.json", "on/../../site.json"]) {
+         const read = await call("/source/read", { path });
+         specimen
+           .expect([path, read.status, JSON.stringify(read.body).includes("leaves source/")])
+           .toEqual([path, 500, true]);
+-        const written = await call("/source/write", { path, text: "{}" });
++        const written = await call("/source/write", { path, front: {}, body: "{}" });
+         specimen.expect([path, written.status]).toEqual([path, 500]);
+       }
+       specimen
+@@ -597,9 +669,9 @@
+     specimen.it(
+       "/source/preview presses what is typed, a draft too, based on the site; nothing is written",
+       async () => {
+-        const typed = HIDDEN.replace("Not yet.", "Typed, not saved.");
+-        const preview = (await call("/source/preview", { path: "on/hidden.md", text: typed })).body
+-          .html;
++        const typed = { path: "on/hidden.md", ...parted("on/hidden.md", HIDDEN) };
++        typed.body = typed.body.replace("Not yet.", "Typed, not saved.");
++        const preview = (await call("/source/preview", typed)).body.html;
+         specimen
+           .expect(preview.includes(`<base href="${world.origin}${BLOG}/on/hidden.html">`))
+           .toBe(true);
+@@ -679,6 +751,7 @@
+           "source.read(",
+           "source.write(",
+           "source.remove(",
++          "source.move(",
+           "source.preview(",
+           "source.upload[",
+           "call.build()",

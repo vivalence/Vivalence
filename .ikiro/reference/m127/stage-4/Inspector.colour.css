@@ -1,0 +1,23 @@
+  .swatch {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+  .swatch.own {
+    background: repeating-linear-gradient(135deg, transparent 0 4px, var(--line) 4px 8px);
+  }
+  .swatch.on {
+    border-color: var(--pick-edge);
+  }
+  .hex {
+    width: 30px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: transparent;
+    cursor: pointer;
+  }

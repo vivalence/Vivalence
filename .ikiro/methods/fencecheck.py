@@ -27,7 +27,7 @@ def check(doc, only):
         src = [norm(l) for l in open(full, encoding="utf-8").read().split("\n")]
         body = []
         k = n
-        while k < len(text) and not text[k].startswith("```") and not HEADER.match(text[k]):
+        while k < len(text) and not text[k].startswith(("```", "#+END_")) and not HEADER.match(text[k]):
             body.append(text[k]); k += 1
         at = start - 1
         marks = []

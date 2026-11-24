@@ -110,7 +110,7 @@ specimen.describe("shard.datamap.reactive — scoped broadcast", () => {
     // The owner rides the `user` filter param on the request context. A write whose context has
     // no owner (it escaped the request scope without `carry`) must fail loud, never drop. Fire the
     // twitch inside a FRESH context that never bound `user` — the reactive can't resolve the owner.
-    const twitchBare = new Twitch()
+    const twitchBare = new Twitch().use(shard.datamap.forked(scenario.datamap))
     shard.datamap.reactive(scenario.repos.buffer, twitchBare, { scope: (ctx) => ({ user: ctx.user.id }) })
     const subscriber = shape.subscriber(twitchBare)
 

@@ -186,6 +186,7 @@ for path in list(classed) + [absolute(rel) for rel in SPECIAL]:
 
 counts = Counter()
 written = {}
+scanned = {}
 for root in ROOTS:
     for directory, dirs, files in os.walk(root):
         dirs[:] = [held for held in dirs if held not in SKIP_DIRS]
@@ -228,6 +229,7 @@ for root in ROOTS:
                 counts["special"] += seen[want]
             if text != before:
                 written[path] = text
+                scanned[path] = before
 
 for label, hits in sorted(counts.items()):
     print(f"{hits:5}  {label}")
@@ -236,14 +238,18 @@ untouched = [relative(path) for path in classed if path not in written]
 if untouched:
     sys.exit(f"REFUSED: classed files unchanged: {untouched}")
 
+for old, new in MOVES:
+    if not os.path.exists(f"{repo}/{old}") or os.path.exists(f"{repo}/{new}"):
+        sys.exit(f"REFUSED: move {old} -> {new}")
+
 if mode == "dry":
     sys.exit(0)
 
+raced = [relative(path) for path in written if open(path, encoding="utf-8").read() != scanned[path]]
+if raced:
+    sys.exit(f"REFUSED: saved during the scan, nothing written: {raced}")
 for path, text in written.items():
     open(path, "w", encoding="utf-8").write(text)
 for old, new in MOVES:
-    source, target = f"{repo}/{old}", f"{repo}/{new}"
-    if not os.path.exists(source) or os.path.exists(target):
-        sys.exit(f"REFUSED: move {old} -> {new}")
-    os.rename(source, target)
+    os.rename(f"{repo}/{old}", f"{repo}/{new}")
     print("moved", old, "->", new)

@@ -132,7 +132,7 @@
     height: 60px;
     border-radius: 14px;
     border: 1px solid var(--boundary);
-    background: var(--surface-sunk);
+    background: var(--plane-sunk);
     cursor: pointer;
     padding: 0;
     display: flex;
@@ -142,7 +142,7 @@
   }
 
   .audio-inline:hover {
-    background: var(--surface);
+    background: var(--plane);
     border-color: var(--text-strong);
   }
 
@@ -195,7 +195,7 @@
     transition: background 0.15s, border-color 0.15s;
   }
   .audio-dot:hover {
-    background: var(--surface);
+    background: var(--plane);
     border-color: var(--text-strong);
   }
   .audio-dot.audio-playing {

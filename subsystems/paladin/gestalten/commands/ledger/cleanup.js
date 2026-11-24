@@ -5,7 +5,7 @@ import { sweep } from "../instance/cleanup.js";
 export const cleanup = new Vector().open(
   {
     nature: "/ledger/cleanup",
-    valence: "prune stale view bundles across every recorded instance — instance/cleanup over the whole ledger, one confirmation; asks unless --force. Example: viva ledger/cleanup --force",
+    valence: "prune stale surface bundles across every recorded instance — instance/cleanup over the whole ledger, one confirmation; asks unless --force. Example: viva ledger/cleanup --force",
     input: v.object({ force: v.boolean().desc("skip the confirmation").group("flags").optional() }),
   },
   async (ctx) => {

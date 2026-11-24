@@ -10,9 +10,9 @@ export const manifest = {
   description:
     "Conversational UI craftsman — describe any interface in chat and it is bundled live into your frame, then reshaped wish by wish.",
   version: "0.1.0",
-  traits: ["VIEWABLE", "EMITTER", "HARNESS", "GENERATIVE"],
+  traits: ["SURFACED", "EMITTER", "HARNESS", "SURFACING"],
 };
 
 export const buffer = v.buffer({ data: {} });
 
-export const views = [{ slug: "reader", mount: "buffer/Reader.svelte", mime: mime.dom.svelte }];
+export const surfaces = [{ slug: "reader", mount: "buffer/Reader.svelte", mime: mime.dom.svelte }];

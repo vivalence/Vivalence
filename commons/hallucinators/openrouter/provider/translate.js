@@ -154,11 +154,11 @@ export const fault = (error) => ({
   provider: { status: error.status, message: error.message },
 });
 
-const counted = (usage) => ({
-  input: usage.prompt_tokens,
-  output: usage.completion_tokens,
-  ...(usage.cost === undefined ? {} : { cost: usage.cost }),
-});
+const counted = (usage) => [
+  { name: "input", unit: "tokens", amount: usage.prompt_tokens },
+  { name: "output", unit: "tokens", amount: usage.completion_tokens },
+  ...(usage.cost === undefined ? [] : [{ name: "cost", unit: "usd", amount: usage.cost }]),
+];
 
 export function translateResponse(response) {
   const choice = response.choices[0];

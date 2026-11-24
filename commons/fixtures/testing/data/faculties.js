@@ -8,7 +8,10 @@ export function textStream(text, role = "assistant") {
     yield { event: "/part/close", index: 0 };
     yield {
       event: "/turn/close",
-      turn: { meta: { usage: { input: 10, output: text.length }, state: "complete" } },
+      turn: { meta: { usage: [
+          { name: "input", unit: "tokens", amount: 10 },
+          { name: "output", unit: "tokens", amount: text.length },
+        ], state: "complete" } },
     };
   };
 }
@@ -17,7 +20,10 @@ export function textTurn(text, state = "complete") {
   return {
     role: "assistant",
     parts: [{ type: "text", text }],
-    meta: { usage: { input: 10, output: text.length }, state },
+    meta: { usage: [
+          { name: "input", unit: "tokens", amount: 10 },
+          { name: "output", unit: "tokens", amount: text.length },
+        ], state },
   };
 }
 
@@ -28,7 +34,10 @@ export function toolUseTurn(id, name, input) {
       { type: "text", text: `thinking about ${name}...` },
       { type: "tool_use", id, name, input },
     ],
-    meta: { usage: { input: 10, output: 20 }, state: "tools" },
+    meta: { usage: [
+          { name: "input", unit: "tokens", amount: 10 },
+          { name: "output", unit: "tokens", amount: 20 },
+        ], state: "tools" },
   };
 }
 
@@ -54,7 +63,10 @@ export function toolUseStream(id, name, input) {
     yield { event: "/part/close", index: 1 };
     yield {
       event: "/turn/close",
-      turn: { meta: { usage: { input: 10, output: 20 }, state: "tools" } },
+      turn: { meta: { usage: [
+          { name: "input", unit: "tokens", amount: 10 },
+          { name: "output", unit: "tokens", amount: 20 },
+        ], state: "tools" } },
     };
   };
 }

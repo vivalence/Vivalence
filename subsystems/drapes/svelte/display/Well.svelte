@@ -10,7 +10,7 @@
     flex-direction: column;
     gap: 6px;
     padding: 8px;
-    background: var(--surface-sunk);
+    background: var(--plane-sunk);
     border-radius: var(--shape-radius-card);
   }
 </style>

@@ -101,27 +101,27 @@ describe("runtime boot — the rig's run.js on a temp ledger: one datamap, the l
     expect(world.query("select user_entity_id as user, daemon_entity_slug as daemon from User_daemons")).toEqual([{ user: finn.user.id, daemon: "hello" }]);
   });
 
-  it("/attached/view/:id answers a token in its address, 401 without — hello-world's declared view is built at its first fetch, its File served after, a held fingerprint answers 304", async () => {
+  it("/attached/surface/:id answers a token in its address, 401 without — hello-world's declared surface is built at its first fetch, its File served after, a held fingerprint answers 304", async () => {
     const retired = await world.get("/daemon/hello/mode/demo/hello-world/metadata/application", finn.access);
     expect(retired.status).toBe(404);
     await retired.body?.cancel();
-    const rows = await (await world.post("/userspace/entities/view/find", { where: { slug: "hello-world" } }, finn.access)).json();
+    const rows = await (await world.post("/userspace/entities/surface/find", { where: { slug: "hello-world" } }, finn.access)).json();
     expect(rows.map((row) => row.mime)).toEqual([mime.dom.svelte]);
     expect(rows[0].entry).toBe("bundle/hello-world.dom.svelte.mjs");
-    const unbuilt = await (await world.post("/userspace/entities/file/find", { where: { view: rows[0].id } }, finn.access)).json();
+    const unbuilt = await (await world.post("/userspace/entities/file/find", { where: { surface: rows[0].id } }, finn.access)).json();
     expect(unbuilt.map((file) => file.path)).not.toContain(rows[0].entry);
-    const refused = await fetch(`${world.origin}/attached/view/${rows[0].id}`);
+    const refused = await fetch(`${world.origin}/attached/surface/${rows[0].id}`);
     expect(refused.status).toBe(401);
     await refused.body?.cancel();
-    const built = await fetch(`${world.origin}/attached/view/${rows[0].id}?token=${finn.access}`);
+    const built = await fetch(`${world.origin}/attached/surface/${rows[0].id}?token=${finn.access}`);
     expect(built.status).toBe(200);
     expect(built.headers.get("content-type")).toBe("text/javascript");
     await built.body?.cancel();
-    const files = await (await world.post("/userspace/entities/file/find", { where: { view: rows[0].id } }, finn.access)).json();
+    const files = await (await world.post("/userspace/entities/file/find", { where: { surface: rows[0].id } }, finn.access)).json();
     const entry = files.find((file) => file.path === rows[0].entry);
     expect(built.headers.get("x-viva-integrity")).toBe(entry.integrity);
     expect(built.headers.get("etag")).toBe(`"${entry.integrity}"`);
-    const held = await fetch(`${world.origin}/attached/view/${rows[0].id}?token=${finn.access}`, { headers: { "if-none-match": `"${entry.integrity}"` } });
+    const held = await fetch(`${world.origin}/attached/surface/${rows[0].id}?token=${finn.access}`, { headers: { "if-none-match": `"${entry.integrity}"` } });
     expect(held.status).toBe(304);
     await held.body?.cancel();
     const response = await fetch(`${world.origin}/attached/file/${entry.id}?token=${finn.access}`);

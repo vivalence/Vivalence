@@ -127,7 +127,7 @@ export const scales = () =>
   `:root {\n${fold(TOKENS, kebab, "-").map(([name, value]) => `  ${name}: ${value};`).join("\n")}\n}\n`;
 
 export const PALETTE = {
-  surface: true, surfaceSunk: true, surfaceLift: true, boundary: true, boundaryStrong: true, divider: true,
+  plane: true, planeSunk: true, planeLift: true, boundary: true, boundaryStrong: true, divider: true,
   text: { strong: true, ink: true, light: true, muted: true, link: true },
   signal: {
     primary: { fill: true, ink: true, tint: true },
@@ -139,8 +139,8 @@ export const PALETTE = {
   inverse: true, inverseOn: true,
 };
 
-const palette = (held, surface, shape = PALETTE) =>
-  Object.fromEntries(Object.entries(shape).map(([key, sub]) => [key, sub === true ? flatten(held[key], surface) : palette(held[key], surface, sub)]));
+const palette = (held, plane, shape = PALETTE) =>
+  Object.fromEntries(Object.entries(shape).map(([key, sub]) => [key, sub === true ? flatten(held[key], plane) : palette(held[key], plane, sub)]));
 
 const zone = (theme, name) => {
   if (!Object.hasOwn(THEMES, theme)) throw new Error(`[tokens] not a theme: ${JSON.stringify(theme)} · ${Object.keys(THEMES).join(" · ")}`);
@@ -150,7 +150,7 @@ const zone = (theme, name) => {
 
 const flat = (join) => (theme, name) => {
   const held = zone(theme, name);
-  return Object.fromEntries(fold(palette(held, held.surface), join));
+  return Object.fromEntries(fold(palette(held, held.plane), join));
 };
 
 export const tokens = { camel: flat(camel), kebab: flat(kebab) };

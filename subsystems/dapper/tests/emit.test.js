@@ -83,7 +83,7 @@ specimen.describe("emit — names", () => {
 
   specimen.it("the twelve ground keys lead, bare, in kebab", () => {
     specimen.expect(names.slice(0, 12)).toEqual([
-      "--surface", "--surface-sunk", "--surface-lift", "--boundary", "--boundary-strong", "--boundary-soft",
+      "--plane", "--plane-sunk", "--plane-lift", "--boundary", "--boundary-strong", "--boundary-soft",
       "--divider", "--inverse", "--inverse-on", "--shadow", "--scrim", "--dim",
     ]);
   });
@@ -125,7 +125,7 @@ specimen.describe("emit — values", () => {
   const zone = Object.fromEntries(declarations(THEMES.northsea.zones[3]));
 
   specimen.it("colours leave as stated", () => {
-    specimen.expect([zone["--surface"], zone["--boundary-soft"], zone["--text-ink"], zone["--control-selected"]])
+    specimen.expect([zone["--plane"], zone["--boundary-soft"], zone["--text-ink"], zone["--control-selected"]])
       .toEqual(["#1A2A38", "rgba(56, 74, 94, 0.5)", "#B4BFCB", "rgba(30, 188, 181, 0.18)"]);
   });
 
@@ -166,7 +166,7 @@ specimen.describe("emit — values", () => {
   });
 
   specimen.it("a zone's own shadow tone reaches its own shadows only", () => {
-    const held = theme(FLOOR, { zones: { 2: { surface: "#FBFAF2", shadow: "rgba(1, 2, 3, 0.5)" } } });
+    const held = theme(FLOOR, { zones: { 2: { plane: "#FBFAF2", shadow: "rgba(1, 2, 3, 0.5)" } } });
     specimen.expect(Object.fromEntries(declarations(held.zones[2]))["--shape-lift"]).toBe("0 12px 30px rgba(1, 2, 3, 0.5)");
     specimen.expect(Object.fromEntries(declarations(held.zones[1]))["--shape-lift"]).toBe("0 12px 30px rgba(0, 0, 0, 0.45)");
   });
@@ -190,7 +190,7 @@ specimen.describe("emit — a zone's override", () => {
   });
 
   specimen.it("a zone overriding size.unit re-declares every length against it", () => {
-    const held = emit("dense", theme(FLOOR, { zones: { 0: { surface: "#F5F3E8", size: { unit: ".2rem" } } } }));
+    const held = emit("dense", theme(FLOOR, { zones: { 0: { plane: "#F5F3E8", size: { unit: ".2rem" } } } }));
     const chrome = named(held, ':root[data-theme="dense"] [data-zone="0"]');
     const body = named(held, ':root[data-theme="dense"] [data-zone="1"]');
     specimen.expect([value(chrome, "--size-unit"), value(body, "--size-unit")]).toEqual([".2rem", ".25rem"]);
@@ -198,10 +198,10 @@ specimen.describe("emit — a zone's override", () => {
     specimen.expect(chrome.declarations.filter(([, stated]) => stated.includes("var(--size-unit)"))).toHaveLength(10);
   });
 
-  specimen.it("the four surfaces differ, block by block", () => {
-    const surfaces = [0, 1, 2, 3].map((index) => value(named(css, `${root} [data-zone="${index}"]`), "--surface"));
-    specimen.expect(surfaces).toEqual(["#0E1A25", "#06101D", "#060D14", "#1A2A38"]);
-    specimen.expect(value(named(css, root), "--surface")).toBe("#06101D");
+  specimen.it("the four planes differ, block by block", () => {
+    const planes = [0, 1, 2, 3].map((index) => value(named(css, `${root} [data-zone="${index}"]`), "--plane"));
+    specimen.expect(planes).toEqual(["#0E1A25", "#06101D", "#060D14", "#1A2A38"]);
+    specimen.expect(value(named(css, root), "--plane")).toBe("#06101D");
   });
 });
 

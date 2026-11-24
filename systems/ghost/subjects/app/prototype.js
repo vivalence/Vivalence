@@ -3,7 +3,7 @@ import { Box, Bridge, Telemetry } from "./prototypes/index.js";
 
 export class App {
   client = null;
-  surface = null;
+  skin = null;
   controller = null;
   box = new Box(this);
   bridge = new Bridge();

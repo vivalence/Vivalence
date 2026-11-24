@@ -39,7 +39,7 @@ const rig = () => {
     module: { emitter },
     aperture: new Vector(),
     entity: { id: "mode-1" },
-    generator: {
+    surface: {
       bundle: async ({ slug, mime }) => ({ id: `view-${slug}`, slug, mime, entry: "bundle/stub.mjs" }),
     },
   };

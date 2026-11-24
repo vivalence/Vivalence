@@ -78,7 +78,7 @@ export const tone   = { fill: Color, ink: Color, tint: Color, on: Color };
 export const signal = Object.fromEntries(SIGNALS.map((name) => [name, tone]));
 
 export const ground = {
-  surface: Color, surfaceSunk: Color, surfaceLift: Color,
+  plane: Color, planeSunk: Color, planeLift: Color,
   boundary: Color, boundaryStrong: Color, boundarySoft: Color,
   divider: Color,
   inverse: Color, inverseOn: Color,

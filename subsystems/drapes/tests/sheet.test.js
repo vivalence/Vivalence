@@ -14,7 +14,7 @@ const INLINE = {
   "--sq": "the board's square, inline on .board .grid (dom.js:147)",
   "--landed": "a flying upload's share landed, inline on .att.flying (Atts.jsx)",
   "--share": "the dock's share, inline on .dropzone while dragging (app.js:306), falls back to 42%",
-  "--tty-bg": "ghost's face, set from zone 1's surface (tty.js:20)",
+  "--tty-bg": "ghost's face, set from zone 1's plane (tty.js:20)",
   "--tty-fg": "ghost's face, set from zone 1's text-ink (tty.js:21)",
   "--tty-caret": "ghost's face, set from zone 1's control-field-caret (tty.js:22)",
 };
@@ -55,7 +55,7 @@ specimen.describe("drapes sheet — every var the sheet reads, dapper emits", ()
   specimen.it("0 hex — the design's two body fallbacks dropped, dapper emits both vars", () => {
     const hexes = [...SHEET.matchAll(/#[0-9a-fA-F]{3,8}\b/g)].map(([hex]) => hex);
     specimen.expect(hexes).toEqual(HEXES);
-    specimen.expect(SHEET).toContain("body { margin: 0; background: var(--surface); color: var(--text-ink);");
+    specimen.expect(SHEET).toContain("body { margin: 0; background: var(--plane); color: var(--text-ink);");
   });
 
   specimen.it("no comment rides the sheet", () => {

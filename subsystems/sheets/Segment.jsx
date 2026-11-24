@@ -1,11 +1,11 @@
 import { mergeProps, Show } from "solid-js";
 
 export const LOOKS = [
-  [(held) => held.off, (palette) => ({ fg: palette.textMuted, bg: palette.surface })],
+  [(held) => held.off, (palette) => ({ fg: palette.textMuted, bg: palette.plane })],
   [(held) => held.open, (palette) => ({ fg: palette.textStrong, bg: palette.controlSelected })],
   [(held) => held.attention === "caution", (palette) => ({ fg: palette.signalCautionInk, bg: palette.signalCautionTint })],
   [(held) => held.attention === "negative", (palette) => ({ fg: palette.signalNegativeInk, bg: palette.signalNegativeTint })],
-  [() => true, (palette) => ({ fg: palette.textStrong, bg: palette.surface })],
+  [() => true, (palette) => ({ fg: palette.textStrong, bg: palette.plane })],
 ];
 
 export const look = (held, palette) => LOOKS.find(([test]) => test(held))[1](palette);

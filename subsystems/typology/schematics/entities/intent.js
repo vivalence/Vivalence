@@ -17,5 +17,5 @@ export const IntentSchematic = {
     mode: () => v.rel().optional().desc("the mode it aims at").example("01a09010-13a9-7f1e-a2c4-6b0d1f2e3a44"),
   },
   narrowable: ["trait"],
-  examples: [{ id: "01a1b1c0-fdf0-71bf-acca-01399f00b7ec", slug: "conjugate", name: "Conjugate", description: null, user: "01a1b1c0-d3b4-724a-9452-32d250140280", traits: ["MASKED", "AIMED", "QUEUEING"], trait: { MASKED: { count: 2, gameplay: "CONJUGATE", recall: "LEARNING" }, AIMED: { mount: "/emit/conjugations" }, QUEUEING: { depth: 1 } }, mode: { id: "01a1b1c0-f0c1-7559-a38c-d59d34854a75", type: "game", slug: "dojo", daemon: "spanish", name: "Dojo", installed: "a4d2781b", version: "0.1.0", traits: ["VIEWABLE", "EMITTER", "INTENTED", "EXPOSED", "TOOLING", "HARNESSED"] } }],
+  examples: [{ id: "01a1b1c0-fdf0-71bf-acca-01399f00b7ec", slug: "conjugate", name: "Conjugate", description: null, user: "01a1b1c0-d3b4-724a-9452-32d250140280", traits: ["MASKED", "AIMED", "QUEUEING"], trait: { MASKED: { count: 2, gameplay: "CONJUGATE", recall: "LEARNING" }, AIMED: { mount: "/emit/conjugations" }, QUEUEING: { depth: 1 } }, mode: { id: "01a1b1c0-f0c1-7559-a38c-d59d34854a75", type: "game", slug: "dojo", daemon: "spanish", name: "Dojo", installed: "a4d2781b", version: "0.1.0", traits: ["SURFACED", "EMITTER", "INTENTED", "EXPOSED", "TOOLING", "HARNESSED"] } }],
 };

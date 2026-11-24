@@ -1,0 +1,483 @@
+#+title: typed schematics — vivalence typesafe from its own schematics: `v` is the one door, every type is `Static` of a schematic we already wrote, declaration files only where pure JS cannot carry a generic; typology · paladin · runtime · client each export their types and import each other's
+#+filetags: :typology:paladin:runtime:ghost:schematics:types:lsp:testing:snapshots:
+#+status: DESIGNING — 11-23: stop 1 (the door) amen'd /"perfect."/, milestone 1 TANGLED (=v.js= row · =v.d.ts=); a scalar names itself RULED (ruling 7); four files to carry the whole design PROPOSED on his ask, built on a copy, unruled (=* open= 6); names of mine UNRULED (=* open= 1); no product file changed; his /"No type checking for now. We do that once we are done."/
+#+status: (was) DESIGNING — 11-23: the circle CLOSED once on a scratch copy (scalar → prototype schematic → mask → paladin instance → snapshot fixture, 9 declaration files · 397 rows, nothing in the tree); his /"No type checking for now. We do that once we are done."/; names of mine UNRULED (=* open=); tangle owed.
+# writer: agent · limit: 60000 chars · m128 (his number, 11-23)
+
+* intent
+
+beef, verbatim, 11-23, three turns:
+
+/"can I derive. Linter, like a deep linter autocomplete for all of the vector inputs, aperture, twitch, tools, and so forth, with a deep LSP integration from the schematics in V. Ignore the completeness problem for now in pure JavaScript."/
+
+/"Your answers are too much on a sketch level. Show me more, especially of the types. If we do this, that would be fairly interesting. I do know, since V is basically a wrapper on typebox, and typebox has this cast or static type that allows us to use just the schematics that we've defined and cast them into TypeScript. That combined with a dedicated PROTOTYPE.d.ts and BELT.d.ts and RUNTIME.d.ts semantic ontology and design with propper barreling and all, should make for a nice, healthy, elegant solution to making vivalence as a whole typesafe. such that f.e. @typology's types can be imported and used throughout teh registry for example."/
+
+/"No type checking for now. We do that once we are done. Problem generally, you invented some terms like own or life and lose. I don't know about those. I don't understand why we can't just work with what we've got. Also enhanced. Where is that coming from? I don't understand. That feels like something that we need to do very iterative and detailed. It does look excellent though. It does look excellent. Another thing is I would suspect that the typology and the runtime and the client all export their own type systems that is based on the other ones, so there is some cross importing. I don't know how that's going to work, but I think it's going to be minimal, and where we do have this cross importing, it might show us or highlight where something is miswired, where something is present in, for example, the client and the runtime, and it should really be a property of the typology. So, and there's probably other issues with coherence, where things aren't well defined, or where two things are defined independently when they're really one, and where we need to be clear on the wiring that we are going for. So that whole process is going to be very interesting. Question was, what do we do? Where do we start? Where do we start? I like the idea of starting on vectors and dice. I like the idea of having entities. I like the idea of having the module or system subsystem level types. So the barreling and exporting and cross importing and. What I would also like is an integration in testing and snapshots. Integration into our fixtures, that is. And I think the subject for that should be the Paladin. The Paladin has the instance configuration and all of that, which is a lot of JSON that can be snapshotted, something that is tested, processed, and computed, where the process can be tested. It is something that, well, we already have schematics and can derive types from it, which is made from all of the scalars and such that we have, the masks and so forth themselves rely on the, or types for strings and so forth, paths, URLs, where we have a prototype, which can have a type, where the schematic, we can define the schematic for the prototype, which is then exported in the prototype d.types. So yeah, I think that is like a nice starting point in terms of vectors that we need to cast die for. Is I would like to start with the aperture and the boot vectors, those two. I think the Paladin already has some sort of boot vector, if I'm not mistaken. We use that, and then the runtime daemon modes."/
+
+/"1: work out my demo case. pull in the context, plan the work, and work out one subset of the problem end to end such that everything i want is demonstrated at least once aka the circle is closed. 2: start quest 128 - typed schematics.org where you demo hte closed circle and the design approach as a whole."/
+
+* rulings
+
+| # | his words | date |
+|---+-----------+------|
+| 1 | /"No type checking for now. We do that once we are done."/ | 11-23 |
+| 2 | /"I don't understand why we can't just work with what we've got."/ | 11-23 |
+| 3 | /"very iterative and detailed"/ | 11-23 |
+| 4 | /"the subject for that should be the Paladin"/ | 11-23 |
+| 5 | /"start with the aperture and the boot vectors, those two … and then the runtime daemon modes"/ | 11-23 |
+| 6 | /"a c and d are all valid. for casestudy a we use twitch. case study c we use runtime boot factory. case study d we use paladin."/ (open 2: A a vector's own typed call · C a JSDoc row · D a =.ts= file; B the =beat= function unnamed, not built) | 11-23 |
+| 7 | /"a"/ (open 5 Q1: a scalar names itself with =.$id("<Name>")=, as =Mountpoint= does; the door's twin carries the name) · /"It's not a cost, that's an opportunity. It will be interesting for space optimization when we encode the schematics for an LLM context."/ | 11-23 |
+
+* terrain — measured 11-23
+
+deno 2.9.7 · typescript 6.0.3 · typebox 1.3.0. Probes and every declaration file: =.ikiro/reference/m128-typed-schematics/=.
+
+** what exists
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/v.js:46 — every schematic is a Proxy over a typebox schema
+function enhance(schema) {
+  return new Proxy(schema, {
+    get(target, prop, receiver) {
+      if (["desc", "descr"].includes(prop))
+        return (d) => enhance(derive(target, { description: d }));
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/prototypes/signatures.js:22 — a prototype already HAS a schematic: a codec
+const codec = (Prototype, wire, encode) => (options) =>
+  enhance(Type.Codec(wire(options)).Decode((held) => new Prototype(held)).Encode(encode));
+
+export const Path = codec(PathProto, token, path);
+export const Url = codec(UrlProto, url, (s) => s.absolute);
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/primitives/instance.js:76 — a mask is made of those
+export const RuntimeMask = v.object(
+  {
+    statics: v.object({
+      serve: Url().desc("Where this runtime BINDS. Example: http://0.0.0.0:2501"),
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/paladin/paladin/lifecycle.js:132 — paladin casts, then decodes: the instance holds LIVE prototypes
+  paladin.instance = Object.assign(new Instance(), v.primitives.instance.InstanceMask.decode(v.primitives.instance.InstanceMask.cast(data.instance)));
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/primitives/contexts.js:22 — a die's keys are schematics too, but blind to the prototype
+export const reference = { reference: v.unknown().desc("is.Path — the host's computed reference, /<type>/<slug>. …") };
+#+END_SRC
+
+** counts
+
+| what | tree | registry |
+|------+------+----------|
+| =from "@vivalence/typology"= (bare) | — | 613 |
+| =new Vector(= | 204 | 162 |
+| =new Aperture(= | 11 | 16 |
+| =new Twitch(= | 6 | 9 |
+| arrows spelled =(ctx) =>= | 292 | 306 |
+| arrows spelled =(input, ctx) =>= | 22 | 60 |
+| =deno check subsystems/typology/mod.ts= today | 0 errors, 0.94 s | |
+| live rows in =subsystems/typology/types.d.ts= | 0 | |
+
+** corrections to what was assumed
+
+- /"I think the Paladin already has some sort of boot vector"/ — it has none. Its instance lifecycle is a memoized run of plain beats (=subsystems/paladin/instance/factory.js:6=). The boot vector is the runtime's =execution= (=systems/runtime/subjects/runtime/lifecycle/index.js:13=); daemon · mode · service · lighthouse each export one beside it.
+- =mod.ts:12= is =export * from "./types.d.ts"=: a declaration file loaded at runtime. =quests/roadmap/runtime-independence.org:356= already wants it out of the runtime graph.
+- =lifecycle.js:132= (above) is the CLIENT's path (=baked=). The instance a runtime boots on is settled at =subsystems/paladin/instance/lifecycle/3-integration.js:103=, =if (!instance.paladin.faults.length) InstanceMask.decode(instance);=, the return dropped. Measured 11-23 (=probes/held.probe.js= · =probes/held.instance.probe.js=, root config): on the =Instance= class =decode= returns the SAME object and its keys hold prototypes afterwards (=runtime.statics.serve= =Url= · =runtime.mountpoint= =Path= · =daemons[0].reference= =Path=); on a plain object it returns a NEW one and the given keeps its strings. So paladin's instance is WRITTEN through population and resolution, HELD after =settle=, and only because =Instance= is a class.
+
+* the circle — closed once, as code
+
+One chain, each link probed: a scalar → a prototype's schematic → a mask → paladin's instance → the snapshot fixture → a vector's die.
+
+** 1 · the door
+
+=v.js= gets one row and a declaration twin. Every builder borrows typebox's own signature. Full file: =reference/m128-typed-schematics/typology/schematics/v.d.ts= (171 rows).
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/v.js:1
+// @ts-self-types="./v.d.ts"
+#+END_SRC
+
+#+BEGIN_SRC ts
+// subsystems/typology/schematics/v.d.ts
+object<Properties extends TProperties>(
+  ...declared: Parameters<typeof Type.Object<Properties>>
+): Schematic<ReturnType<typeof Type.Object<Properties>>>;
+#+END_SRC
+
+With only this file, the untouched schematic files infer (compiler's words, =probes/reveal.ts=):
+
+#+BEGIN_EXAMPLE
+v.traits.Queueing             '{ depth: number; }'
+v.primitives.harness.Signal   '{ nature: string; body: unknown[]; flags: Record<string, unknown>; }'
+v.thread() phase              '"inert" | "manual" | "continuous" | "escort" | undefined'
+#+END_EXAMPLE
+
+** 2 · a prototype's schematic names its prototype
+
+=signatures.js= gets a twin of 7 rows of substance. The codec says: on the wire a string, alive the prototype.
+
+#+BEGIN_SRC ts
+// subsystems/typology/schematics/prototypes/signatures.d.ts
+type Options = Parameters<typeof v.string>[0];
+type Codec<Prototype> = (options?: Options) => Schematic<TCodec<TString, Prototype>>;
+
+export const Path: Codec<PathPrototype>;
+export const FilePath: Codec<FilePathPrototype>;
+export const Url: Codec<UrlPrototype>;
+#+END_SRC
+
+** 3 · one mask, two types
+
+typebox reads a codec in two directions. =Static= is what is WRITTEN (a recipe, a snapshot, the wire). =StaticDecode= is what is HELD (what =paladin.instance= carries after =lifecycle.js:132=). No hand-written type (=probes/reveal5.ts=):
+
+#+BEGIN_EXAMPLE
+Static<typeof RuntimeMask>        .statics.serve    'string'
+StaticDecode<typeof RuntimeMask>  .statics.serve    'Url'
+StaticDecode<typeof RuntimeMask>  .mountpoint       'Path | undefined'
+StaticDecode<typeof RuntimeMask>  .reference        'Path | undefined'
+#+END_EXAMPLE
+
+** 4 · paladin exports its types, built on typology's
+
+Paladin's own type file is two rows of substance. This is the cross-import: paladin's types are typology's schematics, read.
+
+#+BEGIN_SRC ts
+// subsystems/paladin/types.d.ts (new)
+import type { StaticDecode, v } from "@vivalence/typology";
+
+export type Instance = StaticDecode<typeof v.primitives.instance.InstanceMask>;
+export type Daemon = StaticDecode<typeof v.primitives.instance.DaemonMask>;
+#+END_SRC
+
+** 5 · the fixture meets the mask
+
+The snapshot is JSON, so it is the WRITTEN type. One row in the snapshot test ties them:
+
+#+BEGIN_SRC ts
+// subsystems/paladin/tests/instance.snapshot.test.js (the row the demo adds; probed in probes/reveal5.ts)
+const fixture: Static<typeof InstanceMask> = snapshot;
+#+END_SRC
+
+First contact found a real mismatch. The stored fixture is not a mask:
+
+#+BEGIN_EXAMPLE
+TS2741: Property 'telemetry' is missing in type '{ manifest: …; environment: …; clients: never[]; services: never[]; daemons: … }'
+#+END_EXAMPLE
+
+The same check at runtime, no types involved (=probes/fixture.probe.js=): =InstanceMask.faults(snapshot)= → =[{ "at": "/", "reason": "must have required properties telemetry" }]=; after =InstanceMask.cast= → =[]=. The fixture is the fold of the live instance (=instance.snapshot.test.js:25=, =depth: 6=), and the fold sheds =telemetry=. Which one the fixture should be is his (=* open= 3).
+
+** 6 · a vector's effect reads its own signature
+
+#+BEGIN_SRC ts
+// subsystems/typology/prototypes/vector.d.ts
+<Input extends TSchema>(
+  signature: Declared<Input>,
+  effect: (die: Carried<Die, Input>) => unknown,
+): Self;
+#+END_SRC
+
+Probed on two real registry files and one runtime tool: =ctx.input.= completes in the editor (=probes/lsp.probe.js=: =slug:5 type?:5=), no edit at the site.
+
+** 7 · the die: the step still open
+
+Today a die's keys are blind (=contexts.js:22= =v.unknown().desc("is.Path …")=). Link 2 is the answer to /"work with what we've got"/: the die names the prototype's schematic, and the type falls out of =StaticDecode=, the same way the mask's did. No second table.
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/contexts.js:22
+-export const reference = { reference: v.unknown().desc("is.Path — the host's computed reference, /<type>/<slug>. …") };
++export const reference = { reference: Path().desc("the host's computed reference, /<type>/<slug>. …") };
+#+END_SRC
+
+SKETCH, not probed on =contexts.js= itself (probed on =RuntimeMask.reference=, same schematic). It changes what a cast of a die does, so it is a product change with its own blast. A prototype with no schematic yet (=Controller= · =Cortex= · =Datamap= · =Pool= · =Span=) needs one first: his sentence /"we can define the schematic for the prototype, which is then exported in the prototype d.types"/.
+
+* the law
+
+1. =v= is the one door. A type is =Static= (written) or =StaticDecode= (held) of a schematic that already exists. Nothing is restated.
+2. A declaration twin exists only where pure JS cannot carry a generic: =v.js= · =signatures.js= · =vector.js= · =aperture.js= · =twitch.js=, and a helper that builds keys at runtime (=contexts.js:63= =optional=).
+3. A prototype's type is its class, inferred from its JS. Its schematic is its codec. A die · a mask names the schematic, never a prose note.
+4. A twin's types ride the =export *= barrel that already exports its JS. A type barrel carries only what has no JS home.
+5. Each system exports its types and imports the ones below it. A type two systems both declare is a miswire: it belongs to typology.
+6. No gate until the end (ruling 1). Until then the product is the editor: completion and hover.
+
+* what pure JS does not give — measured
+
+- A parameter is typed only where its lambda sits INLINE in a typed call. A boot beat is a standalone export (=systems/runtime/subjects/runtime/lifecycle/1-population.js:11= =export const validate = async (die, next) => {=): its =die= is =any= inside its own body, twin or not. Same for a trait (=(mode) =>=) and every helper.
+- A twin types a file's consumers, never its own body, and nothing checks the twin against the JS.
+- =(input, ctx)= effects stay untyped: in a JS file every parameter is optional, so the two arities cannot be told apart.
+- A bare =new Vector()= does not know which die it will run under; only =Aperture= and =Twitch= are their own kind.
+- A relation cycle (=thread.children: thread[]=) infers to =unknown=; entity schematics import =v= from =../v.js= and call =v.rel= · =v.thread=, which only =schematics/index.js= assigns on later (81 errors of that class under a whole-graph check).
+- Whole-graph =checkJs=, =noImplicitAny= off: 420 errors, every one inside typology's own bodies (=socket.js= 62 · =controller.js= 36), 0 in the three consumer files.
+- Dead end: declaring the Proxy's methods on typebox's own =TSchema= breaks every =v.object= (=TProperties extends TSchema= carries an index signature).
+
+* milestones
+
+Each is one thing he opens in his editor and sees typed. Order is his ruling 5, paladin first (ruling 4).
+
+1. *a schematic* — hover any =v.primitives.*= · =v.traits.*= and read its shape. Files: =v.js= row · =v.d.ts=.
+2. *a path · a url* — a mask's =Url()= field reads =string= written, =Url= held. Files: =signatures.js= row · =signatures.d.ts=.
+3. *paladin's instance* — =paladin.instance.runtime.statics.serve.= completes as a =Url=; paladin exports =Instance=; the snapshot fixture is tied to the mask. Files: =subsystems/paladin/types.d.ts= · the snapshot test.
+4. *an aperture* — =ctx.input= off the signature; the runtime's =/beacon/status= · =/beacon/manifest= (=1-population.js:87= · =2-resolution.js:75=).
+5. *the boot vector* — the runtime's =execution= and its die. RULED (ruling 6), three case studies, one form each:
+   - *twitch* — form A: the hook sits inline in the vector's own typed call (=twitch.open(…, (ctx) => …)=).
+   - *the runtime boot factory* — form C: a =/** @type {…} */= row above each beat (=subjects/runtime/factory.js= · =lifecycle/=). AMEN 11-23: =hooks/comment-guard.sh:41= gains =@type= in its allow-list when this case study is built, not before.
+   - *paladin* — form D: its instance beats as =.ts= (=subsystems/paladin/instance/=).
+6. *daemon · mode* — their =execution= vectors and dies.
+7. *entities* — =Thread= · =Buffer= · =Turn= … own fields off the schematic, relations named.
+8. *the barrels* — typology · paladin · runtime · ghost each export types; the cross-import list is read for miswires.
+9. *belt* — not built.
+10. *the gate* — =deno check=, last (ruling 1).
+
+** milestone 1 — a schematic
+
+TANGLED 11-23 on his /"perfect."/ (stop 1 of the review). Two files, one row and one new file. Replay on a copy: =reference/m128-typed-schematics/four/replay.sh= → =replay.log=.
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/v.js:1
++// @ts-self-types="./v.d.ts"
+ import { IsOptional, Type } from "typebox";
+#+END_SRC
+
+#+BEGIN_SRC ts :tangle subsystems/typology/schematics/v.d.ts
+import type {
+  Static,
+  StaticDecode,
+  TLiteral,
+  TLiteralValue,
+  TOptional,
+  TProperties,
+  TSchema,
+  TSchemaOptions,
+  TString,
+  TUnion,
+  TUnsafe,
+  Type,
+} from "typebox";
+import type { Compile } from "typebox/compile";
+import type { Value } from "typebox/value";
+
+export interface Fault {
+  at: string;
+  reason: string;
+}
+
+export interface Position<Held extends TSchema> {
+  at: string;
+  value: Static<Held>;
+}
+
+export type Schematic<Schema extends TSchema = TSchema> = Schema & {
+  desc(text: string): Schematic<Schema>;
+  descr(text: string): Schematic<Schema>;
+  example(...examples: Static<Schema>[]): Schematic<Schema>;
+  eg(...examples: Static<Schema>[]): Schematic<Schema>;
+  default(value: Partial<Static<Schema>>): Schematic<Schema>;
+  group(name: string): Schematic<Schema>;
+  $id<Name extends string>(name: Name): Schematic<Schema & { $id: Name }>;
+  optional(): Schematic<TOptional<Schema>>;
+
+  check(value: unknown): value is Static<Schema>;
+  cast(value: unknown): Static<Schema>;
+  fill(value: unknown): Static<Schema>;
+  create(): Static<Schema>;
+  repair(value: unknown): Static<Schema>;
+  decode(value: unknown): StaticDecode<Schema>;
+  encode(value: StaticDecode<Schema>): Static<Schema>;
+  clean(value: unknown): unknown;
+
+  errors(value: unknown): ReturnType<typeof Value.Errors>;
+  faults(value: unknown): Fault[];
+  collect<Held extends TSchema>(value: unknown, held: Held): Position<Held>[];
+  compile(): ReturnType<typeof Compile>;
+};
+
+type Literals<Values extends readonly unknown[]> = Values extends
+  readonly [infer Head extends TLiteralValue, ...infer Tail] ? [TLiteral<Head>, ...Literals<Tail>]
+  : [];
+
+type Enumerated<Values extends readonly TLiteralValue[]> = number extends Values["length"]
+  ? TUnsafe<Values[number]>
+  : TUnion<Literals<Values>>;
+
+export function enhance<Schema extends TSchema>(schema: Schema): Schematic<Schema>;
+
+export function entityFactory(schematic: unknown): any;
+
+export const v: {
+  string(...options: Parameters<typeof Type.String>): Schematic<TString>;
+  number(...options: Parameters<typeof Type.Number>): Schematic<ReturnType<typeof Type.Number>>;
+  integer(...options: Parameters<typeof Type.Integer>): Schematic<ReturnType<typeof Type.Integer>>;
+  boolean(...options: Parameters<typeof Type.Boolean>): Schematic<ReturnType<typeof Type.Boolean>>;
+  any(): Schematic<ReturnType<typeof Type.Any>>;
+  unknown(): Schematic<ReturnType<typeof Type.Unknown>>;
+  null(): Schematic<ReturnType<typeof Type.Null>>;
+
+  object<Properties extends TProperties>(
+    ...declared: Parameters<typeof Type.Object<Properties>>
+  ): Schematic<ReturnType<typeof Type.Object<Properties>>>;
+
+  array<Items extends TSchema>(
+    ...declared: Parameters<typeof Type.Array<Items>>
+  ): Schematic<ReturnType<typeof Type.Array<Items>>>;
+
+  record<Key extends TSchema, Held extends TSchema>(
+    ...declared: Parameters<typeof Type.Record<Key, Held>>
+  ): Schematic<ReturnType<typeof Type.Record<Key, Held>>>;
+
+  union<Variants extends TSchema[]>(
+    ...declared: Parameters<typeof Type.Union<Variants>>
+  ): Schematic<ReturnType<typeof Type.Union<Variants>>>;
+
+  intersect<Parts extends TSchema[]>(
+    ...declared: Parameters<typeof Type.Intersect<Parts>>
+  ): Schematic<ReturnType<typeof Type.Intersect<Parts>>>;
+
+  interface<Heritage extends TSchema[], Properties extends TProperties>(
+    ...declared: Parameters<typeof Type.Interface<Heritage, Properties>>
+  ): Schematic<ReturnType<typeof Type.Interface<Heritage, Properties>>>;
+
+  const<Value extends TLiteralValue>(value: Value): Schematic<TLiteral<Value>>;
+
+  enum<const Values extends readonly TLiteralValue[]>(
+    values: Values,
+    options?: TSchemaOptions,
+  ): Schematic<Enumerated<Values>>;
+
+  $ref<Reference extends string>(reference: Reference): Schematic<ReturnType<typeof Type.Ref<Reference>>>;
+
+  instant(...options: Parameters<typeof Type.String>): Schematic<TString>;
+  date(...options: Parameters<typeof Type.String>): Schematic<TString>;
+  duration(...options: Parameters<typeof Type.String>): Schematic<TString>;
+  datetime(...options: Parameters<typeof Type.String>): Schematic<TString>;
+  zoned(...options: Parameters<typeof Type.String>): Schematic<TString>;
+
+  check<Schema extends TSchema>(schema: Schema, value: unknown): value is Static<Schema>;
+  cast<Schema extends TSchema>(schema: Schema, value: unknown): Static<Schema>;
+  fill<Schema extends TSchema>(schema: Schema, value: unknown): Static<Schema>;
+  create<Schema extends TSchema>(schema: Schema): Static<Schema>;
+  decode<Schema extends TSchema>(schema: Schema, value: unknown): StaticDecode<Schema>;
+  encode<Schema extends TSchema>(schema: Schema, value: StaticDecode<Schema>): Static<Schema>;
+  convert(schema: TSchema, value: unknown): unknown;
+  clean(schema: TSchema, value: unknown): unknown;
+  errors: typeof Value.Errors;
+  faults(schema: TSchema, value: unknown): Fault[];
+  collect<Held extends TSchema>(schema: TSchema, value: unknown, held: Held): Position<Held>[];
+  compile: typeof Compile;
+
+  diff: typeof Value.Diff;
+  patch: typeof Value.Patch;
+  equal: typeof Value.Equal;
+  clone: typeof Value.Clone;
+  isOptional(schema: TSchema): boolean;
+  isNever(schema: TSchema): boolean;
+};
+#+END_SRC
+
+* open
+
+1. *names.* Mine, unruled, none of them his words. Where each came from:
+
+| name | from | does |
+|------+------+------|
+| =Schematic= | his noun | a typebox schema plus the Proxy's methods |
+| =Enhanced= | =enhance=, =v.js:46= | the Proxy's methods as an interface |
+| =Own= | the =own:= key, =schematics/entities/thread.js:9= | an entity's own fields |
+| =Rel= | =v.rel=, =schematics/index.js:23= | an id or the entity |
+| =Die= | his noun | a die's type off a =contexts.js= set |
+| =Live= · =Loose= | mine | DEAD if link 7 lands: the die names the schematic |
+| =Filled= · =Defaulted= | mine | a trait bag after its cast |
+| =Declared= · =Carried= · =Open= | mine | a signature object · a die with its input · =open='s call shape |
+| =Tense= · =Operation= · =Hooked= · =Hook= | mine | a twitch nature's parts and its payload |
+
+2. *how a standalone beat learns its die.* Pure JS has no place to say it. The boot vector milestone cannot show a typed =die= inside =validate= until this is ruled. SHOWN 11-23 on his /"show me"/, unruled. Measured by =deno lsp= hover on two real beats (=1-population.js:86= =aperture= · =:99= =modes=, cut to three rows) written six ways, =reference/m128-typed-schematics/probes/beat/= (=beat.probe.js= → =beat.out.log=, =run.probe.js=):
+
+   | file | the beat's text | hover =die= | hover =die.mask.mountpoint= |
+   |---|---|---|---|
+   | =today.js= | as it stands | =any= | =any= |
+   | =twin.js= | + =twin.d.ts= | =any= | =any= |
+   | =vector.js= | =new Execution().use(async (die, next) => …)=, mounted by =graft= | =ExecutionDie= | =Path / undefined= |
+   | =call.js= | =beat(async (die, next) => …)= | =ExecutionDie= | =Path / undefined= |
+   | =jsdoc.js= | a =/** @type {…} */= row above | =ExecutionDie= | =Path / undefined= |
+   | =annotated.ts= | =(die: ExecutionDie, next: Next)= | =ExecutionDie= | =Path / undefined= |
+
+   All four typed forms ran one real dispatch equal to today's (same carry order, =/beacon/status= opened, =runtime.mountpoint= set). The JSDoc row is a hit of =hooks/comment-guard.sh='s own pattern. Node v22.23.5 loaded =annotated.ts= as it stands. =die.controller.status= stays =any= in every form: =Controller= has no twin yet. The die's keys are minted at =systems/runtime/subjects/runtime/factory.js:7=; no schematic names them; =ExecutionDie= · =Execution= · =beat= · =Next= are MINE, unruled. 71 standalone beats in 20 files by the probe's grep (=systems= · =subsystems=, no =bak= · =tests=).
+3. *what the snapshot fixture IS* — the written mask (then the fold must keep =telemetry=) or a fold of the live instance (then it has no schematic).
+4. *link 7's blast* — =contexts.js= keys moving from =v.unknown()= to a prototype's schematic changes what a cast does to a die.
+5. *down to the individual scalar* (his, 11-23, on stop 1's hover: /"How much further to get a schematic specific to each of those properties"/). Measured, =reference/m128-typed-schematics/stops/1-the-door/=:
+   - the vocabulary: 203 bare =v.string(= sites in =schematics/= under 56 distinct keys (=scalars.census.sh=); named string scalars today: =ID= · =Slug= · =JWTToken= · =Username= · =Password= · =url= · =mime.type= + 7 signature codecs. Keys whose scalar exists and is not worn, BY KEY NAME, each site unread: =id=×10 · =slug=×8 · =mime=×4 · =mountpoint=×3 · =path=×2 · =reference=×2 · =jwt=×2 · =username= · =password=.
+   - after stop 1 alone a codec key (=serve= · =mountpoint= · =reference=) hovers =any=; with stop 2's file =Schematic<TCodec<TString, Url>>= (=scalars.copy.out.log=).
+   - Q1, unruled, how a scalar's name reaches the hover. A: the scalar names itself, =.$id("Slug")=, as =instance.js:17= =Mountpoint= does, plus one generic row in =v.d.ts= → =slug: Schematic<TString & { $id: "Slug" }>=; its JSON gains ="$id": "Slug"=; cast · faults · compile hold with the name used twice; =v.collect(schema, value, Slug)= then finds every slug (=id.s1a.out.log=); both =v= suites equal. B: a declaration file names it (=interface Slug extends TString=) → =slug: Schematic<Slug>=, no JS change. In both the VALUE stays =string=. LOCKED A (ruling 7). Measured after the lock (=census.sh=, typology's whole =tests/=, serial, =HOME= empty): tree =168 passed (737 steps)=; the stop's copy and the named copy each =166 passed (733 steps) | 2 failed= on the SAME two bundle tests (=bundle= · =bundle weight=: the bundlers cannot resolve =@deno/vite-plugin= from a scratch folder), so the names add no red. Three stored snapshots differ between the two copies (=file-entity= · =mode-entity= · =view-entity=): in =mode-entity.snapshot.json= ="$id": "ID"= appears 434 times, each beside the same three-key definition. Both model translators strip =$id= today (=commons/hallucinators/anthropic/provider/translate.js:136= · =openrouter/…:137=). A codec scalar (=Path= · =Url=) is NOT self-named: =v.js:52= hands back the held name once one is set, so =Path(…).$id("Mountpoint")= (=instance.js:17=) would call a string.
+6. *the four files* (his, 11-23: /"propose 4 files to rework tangle to demonstrate this whole design. subsystems/typology/schematics/v.d.ts and 3 more. maybe 5 or 6 if some of those are tiny edits"/). PROPOSED, unruled. Built on a copy of the tree's typology + paladin; =reference/m128-typed-schematics/four/= holds the four files on tree paths, =census.sh= → =census.log= (every differing file, each edit as a diff): 4 written, 7 edited by 12 rows.
+
+   | # | file | kind | rows |
+   |---+------+------+------|
+   | 1 | =subsystems/typology/schematics/v.d.ts= | new | 132 |
+   | 2 | =subsystems/typology/schematics/prototypes/signatures.d.ts= | new | 20 |
+   | 3 | =subsystems/paladin/instance/prototype.d.ts= | new | 14 |
+   | 4 | =subsystems/paladin/instance/lifecycle/3-integration.ts= | renamed from =.js= | 2 |
+   | · | =schematics/v.js= · =schematics/prototypes/signatures.js= · =paladin/instance/prototype.js= | link row | 1 each |
+   | · | =schematics/scalars/index.js= | =.$id= | 5 |
+   | · | =typology/types.d.ts= | type exports | 2 |
+   | · | =paladin/instance/factory.js= · =paladin/instance/lifecycle/index.js= | renamed import | 1 each |
+
+   Measured on the copy (=four.s4.out.log=, =deno lsp=): inside the =.ts= beat =instance= hovers =Instance=, =instance.runtime.statics= hovers ={ remote?: Url; serve: Url }=, =daemon.mountpoint= =Path=, =reason= =string=, =instance.= completes its 11 keys; through paladin's barrel (=typology.js:7=, no barrel edit) =new Instance().runtime.statics.serve= hovers =Url=, =.paladin.requirements[0]= ={ at; read; unset }=. The renamed beat RUNS (=four.run.out.log=: =settle= on an instance-shaped object, =faults: []=, keys held). NOT covered by the four: a vector's die (aperture · twitch · the runtime boot, each needs =prototypes/vector.d.ts=), entities, the snapshot fixture (=* open= 3), belt. Found on the way, his: =Paladin= (=subsystems/paladin/paladin/prototype.js:24=) declares no =instance= (=lifecycle.js:112= hangs it on), so =paladin.instance= hovers =any= at 64 sites in 13 product files with or without file 3 (=paladin.s4.out.log=); with the field declared on the class it hovers =Instance= and =paladin.instance.runtime.statics.serve= hovers =Url= (=paladin.field.s4.out.log=; hover only, the boot unrun, edit reverted on the copy). Unrun: paladin's own suite (a scratch copy does not resolve the workspace's members).
+
+   His, 11-23: /"what about the rest of the lifecycle.ts? how much stuff would we still need to type in order to have full coverage?"/ Measured, =four/=: =any.probe.js= hovers every name of a file (=any.s4.log= · =any.s5.log=), =untyped.census.sh= folds a whole-graph =deno check= per file and code (an instrument, not a gate: =untyped.s4.log= · =untyped.s5.log=).
+
+   | file | rows | names | =any= as proposed | parameters untyped |
+   |------+------+-------+-------------------+--------------------|
+   | =1-population.js= | 104 | 408 | 205 | 14 + 1 destructured |
+   | =2-resolution.js= | 137 | 451 | 327 | 30 + 3 destructured |
+   | =3-integration.ts= | 105 | 382 | 166 | 28 |
+   | =factory.js= | 18 | 44 | 16 | 1 |
+
+   File 4 BUILT to full on a second copy (=four/full/3-integration.ts=, diff =file4.against-tree.diff=): 10 rows changed, 7 added (2 imports · 4 type rows, each =Static= · =StaticDecode= of an existing schematic). 16 parameters annotated by hand, 11 typed themselves, 1 stays. =any= 166 → 11 of 425 names, three causes, none in the file: =slug= ×4 (typology's =object.filter= hovers =(obj: any, predicate: any)=), =hallucinators= ×6 (=instance.js:74= =ModeMasks= admits a bare string), =type= ×1 (=TIERS= indexed by an optional =tier=). The compiler then says 14 things about the typed file: 13 about the code (a mode may be a string ×8 · possibly undefined ×4 · an undefined index ×1), 1 the =slug= above. The other two files are NOT built. What they need that no file holds yet: (a) =Paladin='s keys hung on by installers: the lifecycle reads 9, the class declares 3 (=claim= · =ledger= · =telemetry=), 6 are hung on (=expand= · =find= · =instance= · =publish= · =read= · =scope=; =gestalten/belt/index.js:19= =FULL= lists 17 installers, =paladin.keys.log=); (b) the instance as WRITTEN, both files run before =3-integration.js:103=; (c) one home for the mask types file 4 declares locally (=Mask= · =Hallucinator= · =Runtime= · =Daemon=, mine, unruled); (d) typology's belt, hovered (=belt.s5.out.log=): =fn.memo= returns =(...args: any[]) => any= (so the factory's own result is =any=), =cast.lookup= returns =any=, =is.object= is no guard, =object.filter= as above; (e) paladin's =extend= returns =any[]=.
+
+* testing assessment
+
+COVERAGE GAP: nothing in the tree is typed yet; every result above is a probe on a scratch copy, kept in =reference/m128-typed-schematics/probes/=. No suite was run: no product file changed.
+
+* deferred
+
+- the lint plugin over the live trie (probed 11-23, =probes/plugin.js=: =no route /mode/fnid= · =/mode/find takes type · slug, not tpye=, shown in the editor as =deno-lint=). Reaches what types cannot: =graft=, registry modules, =ctx.call=.
+- the gate (ruling 1).
+- his, ruling 7: a named scalar sent ONCE and referenced by name when the schematics are encoded for a model's context. Starts where =$id= is stripped today (the two =translate.js= rows above).
+- the 56 keys still holding a bare =v.string(= (=* open= 5): one scalar per key, his naming, key by key.
+
+* changelog
+
+- 11-23 opened on his /"start quest 128 - typed schematics.org"/. Circle closed on a scratch copy; declaration files and probes copied to =reference/m128-typed-schematics/=. Departure, mine, reported: the tangle is NOT in this file yet — =v.d.ts= and its siblings sit whole in the reference folder, this file quotes their load-bearing rows.
+
+- 11-23 his /"show-me"/ · /"drill-me"/, no subject: this quest, ten stops. For stop 1 the door's twin was rebuilt on a fresh copy of the tree's typology holding ONLY the stop's two files (=reference/m128-typed-schematics/stops/1-the-door/v.d.ts=, 132 rows): =Enhanced= GONE (the methods sit inside =Schematic=), =Defaulted= · =Filled= cut to the entities stop, =Literals= · =Enumerated= unexported, =decode= · =encode= on =StaticDecode=, =entityFactory= declared loose (=any=) until the entities stop. Measured there: hover (=stop.s1.out.log=), the twin names every live key (=keys.probe.js=: 39 of =v=, 20 methods), =tests/v.test.js= + =tests/schematics.test.js= equal on tree and copy (=2 passed (24 steps)=). Departure, mine, reported: one =sed -i= replace inside a scratch probe file.
+- 11-23 his /"perfect."/ under stop 1, read as its amen: milestone 1 TANGLED (=v.js= diff · =v.d.ts= whole). Departure, mine, reported: the whole file entered this org through =methods/tangle.py --absorb=, a scripted write. His /"propose 4 files to rework tangle to demonstrate this whole design."/: four built on a copy and measured, =* open= 6, unruled; the other three are NOT tangled. Found: the settled instance is held only because =Instance= is a class (=* terrain=, corrections).
+- 11-23 his /"how much stuff would we still need to type in order to have full coverage?"/: measured under =* open= 6. File 4 built to full on a copy (17 rows), the other two lifecycle files counted, five outside causes listed. Nothing ruled, nothing tangled.
+
+* review — 11-23
+
+| S | stop | rides | verdict | his words |
+|---|---|---|---|---|
+| 1 | the door | ruling 2 | drilled → Q1 · amen | /"I would like to have the system defined down to the individual scalar."/ · /"perfect."/ |
+| 2 | a scalar names itself | ruling 7 | — | NEW from Q1 |
+| 3 | a path · a url | ruling 2 | — | |
+| 4 | paladin's instance | ruling 4 · open 3 | — | |
+| 5 | paladin's beats as =.ts= | ruling 6 | — | |
+| 6 | an aperture | ruling 5 | — | |
+| 7 | twitch | ruling 6 | — | |
+| 8 | the runtime boot | ruling 6 | — | |
+| 9 | a die's keys name the prototype's schematic | ruling 2 · open 4 | — | |
+| 10 | entities | open 1 | — | |
+| 11 | the barrels | intent | — | |
+
+Unplaced: belt (not built) · the gate (ruling 1) · the lint plugin (=* deferred=).
+
+* handoff
+
+- goal: vivalence typed from its own schematics, editor first, gate last.
+- done: the circle once, on a copy.
+- next: his ruling on =* open= 6 (the four files), then their tangle; milestone 1 is tangled, its land is his =go=; the review resumes at stop 2.
+- never: a type restated beside its schematic · a second table mapping keys to classes · a gate before he says so · names he has not ruled used as if settled.
+- owed: the tangle · belt · the 9 entities not yet named.

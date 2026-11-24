@@ -7,7 +7,7 @@ export const live = (signal) => lookup(LIVES, signal, "live signal");
 
 export const Tab = (props) => {
   const held = mergeProps({ current: false, signal: null, shared: false, onPick: () => {} }, props);
-  const ground = () => (held.current ? held.palette.surface : held.palette.surfaceSunk);
+  const ground = () => (held.current ? held.palette.plane : held.palette.planeSunk);
   return (
     <box
       style={{

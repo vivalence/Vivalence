@@ -7,7 +7,7 @@
                                              # warns on a write whose RESULT would exceed the file's limit
 
 Capped: codestyle.md (24800) · README.md · known-issues.org · release.md · quests/frontier.md ·
-world/codemap/*.md (the dir TOTALS <= 52600) · skills/*/SKILL.md (each its own). Quests and reference/ are content, never capped.
+world/codemap/*.md (the dir TOTALS <= 58400) · skills/*/SKILL.md (each its own). Quests and reference/ are content, never capped.
 Over cap the write warns and lands (beef: warn, no interrupt); the file is consolidated in the same turn. Nothing is evicted elsewhere.
 """
 import glob, json, os, re, sys
@@ -33,7 +33,7 @@ def is_capped(path):
         and path.endswith((".md", ".org")))
 
 
-CODEMAP_TOTAL = 52600
+CODEMAP_TOTAL = 58400
 
 
 def codemap_total():

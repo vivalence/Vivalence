@@ -1,0 +1,375 @@
+# voice — 2843 turns of his · 2647 typed (<2500 chars)
+his turn chars: median 45 · p90 392
+my text block chars: median 153.0 · p90 3774 · n 8550
+
+## codewords — turns holding the word
+  262  amen
+  260  go
+  132  screenshot
+  108  quest
+   82  show me
+   76  compact
+   65  land
+   56  fold
+   47  why
+   45  drill
+   37  prototype
+   37  coherent
+   33  ikiro
+   33  cut
+   27  agent
+   26  truth
+   25  milestone
+   24  flat/formatting
+   23  short answers
+   22  bird
+   22  skill
+   20  snapshot
+   19  inline
+   18  research
+   18  simple
+   16  mark
+   15  sibling
+   12  tangle
+   11  probe
+   10  blast
+   10  connoisseur
+    9  study
+    9  hook/guard
+    8  cleanup
+    8  prune
+    7  investigate
+    6  critical pass
+    6  diff
+    5  walk
+    5  holy
+    4  known issue
+    3  handoff
+    2  molt/selfimprove
+    1  unfold
+    1  cast to quest
+    1  fixate
+    1  simple words
+    1  yes no
+    0  versions
+    0  workflow
+    0  frontier
+    0  caveman
+
+## his openers — first word of a turn
+  225  a
+  194  amen
+  138  b
+  118  [image
+  111  i
+   99  ok
+   90  go
+   80  [request
+   61  /compact
+   40  no
+   40  -
+   34  okay
+   33  yeah
+   29  the
+   27  what
+   24  why
+   24  1
+   22  yes
+   22  
+   21  we
+   20  so
+   20  //
+   19  is
+   18  land
+   15  amn
+   14  fix
+   14  quest
+   13  add
+   13  2
+   13  and
+   13  do
+   13  │
+   11  cool
+   11  you
+   11  how
+   11  show
+   11  +
+   11  drop
+   10  this
+   10  great
+    9  lets
+    9  both
+    9  load
+    9  if
+    8  const
+
+## whole short turns (<=4 words)
+  174  a
+  166  amen
+  107  b
+   72  [request interrupted by user]
+   63  go
+   59  /compact
+   14  amn
+   11  land
+    6  fix
+    6  amne
+    4  both
+    4  m119-scope-params /show-me
+    3  
+    3  continue
+    3  yes
+    3  move to done
+    2  no quest
+    2  aa
+    2  ok go
+    2  c
+    2  kk
+    2  quest m103-chrome-panels.org
+load
+    2  continu
+    2  2
+    2  q1 b
+    2  s2 amen
+    2  amen. land
+    2  ok
+    2  move done
+    2  great. /fold
+    2  a and b
+    2  new try
+    2  start and stop
+    2  code
+    2  ok. land
+    2  views
+    1  fuck quest
+    1  write up the quest
+    1  ba
+    1  lets continue
+    1  1
+    1  number them, go
+    1  cleanup compact
+    1  netx
+    1  ok. settled. 
+lets continue
+
+## correction themes — 139 correction turns
+   32  comprehension
+   11  false claim
+    8  format
+    5  verbosity
+    5  naming
+    3  complexity
+    2  repeat
+    2  overreach
+    2  missed code
+    1  asking
+   85  (no theme matched)
+
+## correction turns — top bigrams
+   24  pasted content
+   15  makes sense
+   10  code code
+    9  context entities
+    8  terminaldie terminal
+    8  entities mode
+    7  export const
+    7  die context
+    6  systems ghost
+    6  mode daemon
+    5  stop using
+    5  state machine
+    5  subsystems typology
+    4  users finn
+    4  finn vivalence
+    4  systems runtime
+    4  send agent
+    4  blah blah
+    4  fucking clue
+    4  thread buffers
+    4  buffers thread
+    4  terminal stall
+    4  close frame
+    4  daemon die
+    4  harnessed conversational
+    4  buffer data
+    4  code show
+    4  show code
+    4  type wildcard
+    3  key presses
+    3  pass client
+    3  another way
+    3  little bit
+    3  vivalence code
+    3  code vivalence
+    3  vivalence systems
+    3  it's fucking
+    3  use door
+    3  content systems
+    3  ghost subjects
+    3  ctx client
+    3  told million
+    3  kind entity
+    3  terminal buffer
+    3  open close
+    3  die daemon
+    3  runtime runtime
+    3  runtime daemon
+    3  request response
+    3  code fucking
+
+## slash commands
+  240  /fold
+  154  /compact
+   93  /clear
+   57  /model
+   54  /show-me
+   38  /drill-me
+   25  /effort
+   21  /bird
+   18  /connoisseur
+    6  /unfold
+    6  /quest
+    3  /birds-eye
+    1  /reload-plugins
+    1  /enterprise-architecture:enterprise-architecture
+    1  /socratic-tutor
+    1  /caveman:caveman
+    1  /mode
+    1  /add-dir
+
+## tools
+ 23449  Bash
+  2704  Edit
+  1135  Write
+   756  mcp__claude-in-chrome__computer
+   675  Read
+   422  Skill
+   393  mcp__claude-in-chrome__javascript_tool
+   285  mcp__claude-in-chrome__browser_batch
+   194  mcp__claude-in-chrome__navigate
+   155  ToolSearch
+   133  mcp__claude-in-chrome__tabs_close_mcp
+   101  mcp__claude-in-chrome__read_console_messages
+   101  Agent
+    99  SendMessage
+    92  mcp__claude-in-chrome__tabs_context_mcp
+    53  WebSearch
+    27  mcp__claude-artifacts__read_file
+    27  mcp__claude-in-chrome__find
+    14  AskUserQuestion
+    14  ListAgents
+    13  TaskStop
+     9  mcp__claude-in-chrome__read_network_requests
+     7  mcp__claude-artifacts__list_files
+     7  mcp__claude-in-chrome__tabs_create_mcp
+     6  mcp__claude-in-chrome__get_page_text
+     6  ScheduleWakeup
+     4  Workflow
+     4  mcp__plugin_claude-platform_docs__search_docs
+     3  ReadNotifications
+     2  mcp__claude-in-chrome__resize_window
+     2  mcp__claude-artifacts__read_artifact
+     2  mcp__claude-artifacts__get_artifact
+     2  WebFetch
+     2  mcp__plugin_claude-platform_docs__get_doc
+     2  mcp__claude-in-chrome__list_connected_browsers
+     1  PushNotification
+     1  mcp__claude-in-chrome__screenshot_placeholder
+     1  Monitor
+     1  mcp__claude-in-chrome__form_input
+     1  mcp__claude-in-chrome__screenshot_placeholder_never_call
+
+## bash heads
+  5070  grep
+  3573  sed
+  3257  python3 -
+  1917  cat
+  1173  cd
+   926  ls
+   884  echo
+   691  for
+   642  &&
+   338  -d)
+   288  mkdir
+   286  python3 cap.py
+   270  wc
+   187  python3 -I
+   176  sqlite3
+   175  deno test
+   162  head
+   157  deno run
+   150  find
+   138  cp
+   126  rm
+   126  ssh -o
+   123  python3 -c
+   104  curl
+   103  awk
+    94  lsof
+    87  export
+    77  tail
+    73  -d);
+    73  info
+    66  diff
+    62  git diff
+    57  python3 cap.py;
+    57  git show
+    56  ls;
+    50  ps
+    45  sleep
+    43  jj log
+    43  set
+    42  timeout
+    41  viva --help
+    39  git log
+    35  -n
+    28  jj diff
+    26  deno task
+    25  bash -c
+    24  date
+    24  pkill
+    23  -rln
+    22  sh unfold.sh
+    20  deno eval
+    20  bash unfold.sh
+    19  mv
+    19  cut
+    19  perl
+    19  ssh root@com-vivalence-runti
+    18  du
+    18  until
+    16  stat
+    16  -rl
+
+## agents by type
+   64  general-purpose
+   17  web-fetch
+   14  Explore
+    3  default
+    2  fork
+    1  claude-code-guide
+
+## skills by Skill tool
+   62  change
+   60  fold
+   58  quest
+   50  drill-me
+   43  debug
+   34  show-me
+   30  unfold
+   13  bird
+   12  name
+   11  design
+    9  connoisseur
+    8  mode
+    6  ops
+    6  claude-api
+    4  claude-in-chrome
+    4  birds-eye
+    3  domain
+    3  readme
+    2  molt
+    1  superpowers:brainstorming
+    1  topography
+    1  superpowers:writing-skills
+    1  package

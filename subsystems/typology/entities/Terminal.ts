@@ -56,29 +56,29 @@ export const TerminalSchema = new EntitySchema({
 
 const twitch = new Vector();
 twitch.open("/after/user/create", async (ctx) => {
-  ctx.input.em.setFilterParams("user", { user: ctx.input.entity.id });
-  await ctx.input.em.getRepository(TerminalEntity).ensure({ user: ctx.input.entity.id });
-  await ctx.input.em.flush();
+  ctx.em.setFilterParams("user", { user: ctx.input.entity.id });
+  await ctx.em.getRepository(TerminalEntity).ensure({ user: ctx.input.entity.id });
+  await ctx.em.flush();
 });
 twitch.open("/before/thread/delete", async (ctx) => {
-  const seated = await ctx.input.em.getRepository(TerminalEntity).find({ thread: ctx.input.entity.id });
+  const seated = await ctx.em.getRepository(TerminalEntity).find({ thread: ctx.input.entity.id });
   for (const terminal of seated) terminal.assign({ thread: null, daemon: null, buffer: null });
-  await ctx.input.em.flush();
+  await ctx.em.flush();
 });
 twitch.open("/before/buffer/delete", async (ctx) => {
-  const framing = await ctx.input.em.getRepository(TerminalEntity).find({ buffer: ctx.input.entity.id });
+  const framing = await ctx.em.getRepository(TerminalEntity).find({ buffer: ctx.input.entity.id });
   for (const terminal of framing) terminal.assign({ buffer: null });
-  await ctx.input.em.flush();
+  await ctx.em.flush();
 });
 twitch.open("/before/terminal/update", async (ctx) => {
   if (ctx.input.entity.buffer === null) return;
-  const buffer = await ctx.input.em.findOneOrFail(BufferEntity, ctx.input.entity.buffer.id);
+  const buffer = await ctx.em.findOneOrFail(BufferEntity, ctx.input.entity.buffer.id);
   if (ctx.input.entity.thread !== null && buffer.thread.id === ctx.input.entity.thread.id) return;
   ctx.input.entity.buffer = null;
 });
 twitch.open("/after/terminal/delete", async (ctx) => {
-  await ctx.input.em.getRepository(TerminalEntity).ensure({ user: ctx.input.entity.user.id });
-  await ctx.input.em.flush();
+  await ctx.em.getRepository(TerminalEntity).ensure({ user: ctx.input.entity.user.id });
+  await ctx.em.flush();
 });
 
 export default {

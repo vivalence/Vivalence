@@ -1,0 +1,84 @@
+--- a/commons/publishers/blog/buffer/Blog.jsx
++++ b/commons/publishers/blog/buffer/Blog.jsx
+@@ -468,12 +468,13 @@
+ 
+   const create = (event) => {
+     event.preventDefault();
+-    const path = fresh().trim();
++    const path = fresh().path.trim();
++    const front = fresh().front;
+     guarded(async () => {
+       if (!shelf().sources.some((source) => source.path === path)) {
+         await props.buffer.mode.call.source.write({
+           path,
+-          front: { title: titled(path), date: today(), status: "draft" },
++          front: { title: titled(path), ...front, status: "draft" },
+           body: "\n",
+         });
+         await refetch();
+@@ -483,6 +484,20 @@
+     });
+   };
+ 
++  const freshEssay = () =>
++    setFresh({
++      path: "on/",
++      front: { date: today() },
++      example: "on/a-new-essay.md",
++    });
++
++  const freshPage = () =>
++    setFresh({
++      path: "",
++      front: {},
++      example: "about.md",
++    });
++
+   const forget = (path) => {
+     setDrafts(path, undefined);
+     sheets.delete(path);
+@@ -548,7 +563,8 @@
+     ["publish", null, sourced, () => publish("published")],
+     ["unlist", null, sourced, () => publish("unlisted")],
+     ["back to draft", null, sourced, () => publish("draft")],
+-    ["new source", "Mod-Alt-KeyN", () => true, () => setFresh("on/")],
++    ["new essay", "Mod-Alt-KeyN", () => true, freshEssay],
++    ["new page", null, () => true, freshPage],
+     ["find and replace", "Mod-KeyF", sourced, () => searched(editor())],
+     ["move or remove this source", null, sourced, () => inspect("post")],
+     [
+@@ -690,7 +706,7 @@
+       <header class="dock-head">
+         <span class="kit-label">sources</span>
+         <span class="fill" />
+-        <button class="icon" title="new source · ⌘⌥N" onClick={() => setFresh("on/")}>
++        <button class="icon" title="new essay · ⌘⌥N" onClick={freshEssay}>
+           +
+         </button>
+         <button class="icon" title="hide · ⌘⇧E" onClick={() => docking("library")}>
+@@ -701,12 +717,12 @@
+         <form class="kit-field new" onSubmit={create}>
+           <span class="p">+</span>
+           <input
+-            value={fresh()}
+-            onInput={(event) => setFresh(event.target.value)}
++            value={fresh().path}
++            onInput={(event) => setFresh({ ...fresh(), path: event.target.value })}
+             onKeyDown={(event) => {
+               if (event.key === "Escape") setFresh(null);
+             }}
+-            placeholder="on/a-new-essay.md"
++            placeholder={fresh().example}
+             pattern=".+\.(md|org)"
+             required
+             ref={(element) => queueMicrotask(() => element.focus())}
+@@ -1266,7 +1282,8 @@
+                 <b>nothing on the desk</b>
+                 <span>pick a source in the library, or</span>
+                 <span class="kit-choice">
+-                  <button onClick={() => setFresh("on/")}>start a new one</button>
++                  <button onClick={freshEssay}>new essay</button>
++                  <button onClick={freshPage}>new page</button>
+                   <button onClick={() => setPalette("")}>⌘P find one</button>
+                 </span>
+               </div>

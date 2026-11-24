@@ -1,0 +1,319 @@
+diff --color -u a/Main.dc.html b/Main.dc.html
+--- a/Main.dc.html	2026-11-24 17:54:14.022667503 +0100
++++ b/Main.dc.html	2026-11-24 17:59:23.264385657 +0100
+@@ -30,16 +30,16 @@
+ <button class="mode" aria-pressed="{{m.focus.on}}" disabled="{{noSource}}" title="focus · ⌘." onClick="{{m.focus.pick}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.focus}}"></path></svg><span>focus</span></button>
+ </div>
+ <div class="aft">
+-<select class="pick" aria-label="mode" value="{{modeShown}}" disabled="{{noSource}}" onChange="{{pickMode}}">
++<label class="pick"><select aria-label="mode" value="{{modeShown}}" disabled="{{noSource}}" onChange="{{pickMode}}">
+ <option value="write">write</option>
+ <option value="preview">preview</option>
+ <option value="focus">focus</option>
+-</select>
+-<button class="key" aria-label="inspector" title="inspector" aria-pressed="{{inspectorOn}}" onClick="{{cmd.inspector}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.inspector}}"></path></svg></button>
++</select><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.down}}"></path></svg></label>
++<button class="key" aria-label="inspector" title="inspector" aria-pressed="{{inspectorOn}}" disabled="{{noSource}}" onClick="{{cmd.inspector}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.inspector}}"></path></svg></button>
+ <button class="key wide-only" aria-label="settings" title="settings" aria-expanded="{{settingsOn}}" onClick="{{cmd.settings}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.settings}}"></path></svg></button>
+ <sc-if value="{{dirtyNow}}" hint-placeholder-val="{{false}}"><button class="kit-seg is-attention save" title="save · ⌘S" onClick="{{cmd.save}}">save</button></sc-if>
+ <sc-if value="{{cleanNow}}" hint-placeholder-val="{{true}}"><span class="saved">saved</span></sc-if>
+-<button class="go" disabled="{{busy}}" onClick="{{cmd.press}}">{{pressLabel}}</button>
++<button class="go {{pressCls}}" disabled="{{busy}}" title="press the site · ⌘⏎" onClick="{{cmd.press}}">{{pressLabel}}</button>
+ </div>
+ </header>
+ 
+@@ -65,16 +65,16 @@
+ <main class="middle">
+ <section class="writing">
+ <div class="tools">
+-<div class="crumb"><span>{{src.title}}</span><sc-if value="{{hasCrumb}}" hint-placeholder-val="{{true}}"><span>›</span><b>{{crumb}}</b></sc-if></div>
++<sc-if value="{{hasCrumb}}" hint-placeholder-val="{{true}}"><button class="crumb" title="outline" onClick="{{cmd.outline}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.outline}}"></path></svg><b>{{crumb}}</b></button></sc-if>
+ <div class="marks">
+-<sc-for list="{{tools}}" as="t" hint-placeholder-count="9"><button class="key" aria-label="{{t.name}}" title="{{t.name}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{t.d}}"></path></svg></button></sc-for>
++<sc-for list="{{tools}}" as="t" hint-placeholder-count="9"><button class="key {{t.cls}}" aria-label="{{t.name}}" title="{{t.name}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{t.d}}"></path></svg></button></sc-for>
+ </div>
+ </div>
+ <div class="sheet">
+ <div class="leaf {{leafCls}}">
+ <div class="head">
+-<input class="t" value="{{src.title}}" onChange="{{edit.title}}" placeholder="title" aria-label="title">
+-<input class="s" value="{{src.subtitle}}" onChange="{{edit.subtitle}}" placeholder="subtitle" aria-label="subtitle">
++<textarea class="t" rows="1" value="{{src.title}}" onChange="{{edit.title}}" placeholder="title" aria-label="title"></textarea>
++<textarea class="s" rows="1" value="{{src.subtitle}}" onChange="{{edit.subtitle}}" placeholder="subtitle" aria-label="subtitle"></textarea>
+ </div>
+ <div class="lines"><sc-for list="{{lines}}" as="l" hint-placeholder-count="8"><div class="ln {{l.cls}}" onClick="{{l.put}}"><sc-for list="{{l.parts}}" as="p" hint-placeholder-count="1"><span class="{{p.cls}}">{{p.t}}</span></sc-for><span class="caret"></span></div></sc-for></div>
+ </div>
+@@ -84,17 +84,19 @@
+ <div class="seam is-mid"></div>
+ <section class="pressed">
+ <div class="pressbar">
++<span class="devices wide-only">
+ <button class="key" aria-label="desktop" title="desktop" aria-pressed="{{dev.desktop.on}}" onClick="{{dev.desktop.pick}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.desktop}}"></path></svg></button>
+ <button class="key" aria-label="tablet" title="tablet" aria-pressed="{{dev.tablet.on}}" onClick="{{dev.tablet.pick}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.tablet}}"></path></svg></button>
+ <button class="key" aria-label="phone" title="phone" aria-pressed="{{dev.phone.on}}" onClick="{{dev.phone.pick}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.phone}}"></path></svg></button>
+ <span class="size">{{deviceSize}}</span>
++</span>
+ <button class="key" aria-label="follow the sheet" title="follow the sheet" aria-pressed="{{followOn}}" onClick="{{cmd.follow}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.follow}}"></path></svg></button>
+ <span class="grow"></span>
+ <a class="live" href="#live" title="open the pressed page"><span>{{liveUrl}}</span><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.out}}"></path></svg></a>
+ </div>
+ <div class="stage">
+ <div class="page {{pageCls}}">
+-<div class="page-head">{{liveUrl}}</div>
++<div class="page-head wide-only">{{liveUrl}}</div>
+ <div class="site" id="live">
+ <article class="site-in">
+ <h1>{{src.title}}</h1>
+@@ -109,12 +111,15 @@
+ <section class="welcome">
+ <svg class="icon big" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.sheet}}"></path></svg>
+ <div class="say">nothing on the sheet</div>
+-<div class="recent">
++<div class="acts">
++<button class="go" title="new source · ⌘N" onClick="{{cmd.fresh}}">new source</button>
++<button class="quiet" onClick="{{cmd.palette}}">open<span class="cap wide-only">⌘</span><span class="cap wide-only">K</span></button>
++</div>
++<div class="recent"><span class="kit-label">recent</span>
+ <sc-for list="{{recent}}" as="r" hint-placeholder-count="3">
+ <button class="row" onClick="{{r.open}}"><span class="kit-dot {{r.dot}}"></span><span class="n">{{r.title}}</span><span class="mark"></span><span class="d">{{r.date}}</span></button>
+ </sc-for>
+ </div>
+-<div class="say"><span class="cap">⌘</span><span class="cap">K</span> open · <span class="cap">⌘</span><span class="cap">N</span> new</div>
+ </section>
+ </main>
+ 
+@@ -153,6 +158,11 @@
+ </div>
+ <div class="sect"><span class="kit-label">file</span>
+ <div class="prop has-act"><span class="kit-label">path</span><span class="code">{{src.path}}</span><button class="quiet">move</button></div>
++<div class="acts {{actsCls}}"><button class="quiet is-grave" onClick="{{cmd.remove}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.trash}}"></path></svg>remove this source</button></div>
++<div class="kit-consent confirm {{confirmCls}}">
++<span>remove <span class="arg">{{src.path}}</span> · its pressed page goes too</span>
++<span class="keys"><button onClick="{{removeYes}}"><b>y</b> remove</button><button onClick="{{removeNo}}"><b>n</b> keep</button></span>
++</div>
+ </div>
+ </div>
+ 
+@@ -174,16 +184,6 @@
+ <sc-for list="{{stats}}" as="s" hint-placeholder-count="7"><div class="stat"><span>{{s.n}}</span><b>{{s.v}}</b></div></sc-for>
+ </div>
+ 
+-<div class="acts {{actsCls}}">
+-<button class="kit-seg {{saveCls}}" disabled="{{cleanNow}}" onClick="{{cmd.save}}">save</button>
+-<button class="go" disabled="{{busy}}" onClick="{{cmd.press}}">{{pressLabel}}</button>
+-<span class="grow"></span>
+-<button class="quiet is-grave" onClick="{{cmd.remove}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.trash}}"></path></svg>remove</button>
+-</div>
+-<div class="kit-consent confirm {{confirmCls}}">
+-<span>remove <span class="arg">{{src.path}}</span> · its pressed page goes too</span>
+-<span class="keys"><button onClick="{{removeYes}}"><b>y</b> remove</button><button onClick="{{removeNo}}"><b>n</b> keep</button></span>
+-</div>
+ </div>
+ </aside>
+ </div>
+@@ -214,12 +214,13 @@
+ <sc-for list="{{parts}}" as="part" hint-placeholder-count="3">
+ <div class="part"><span class="kit-label">{{part.name}}</span>
+ <sc-for list="{{part.rows}}" as="r" hint-placeholder-count="3">
+-<button class="kit-row tap" aria-current="{{r.current}}" onClick="{{r.run}}"><span class="{{r.sig}}">{{r.mark}}</span><span class="n">{{r.a}}<b class="hit">{{r.b}}</b>{{r.c}}</span><span></span><span class="v">{{r.note}}<sc-for list="{{r.keys}}" as="k" hint-placeholder-count="0"><span class="cap">{{k.t}}</span></sc-for></span></button>
++<button class="kit-row tap" aria-current="{{r.current}}" onClick="{{r.run}}"><span class="{{r.sig}}">{{r.mark}}</span><span class="n">{{r.a}}<b class="hit">{{r.b}}</b>{{r.c}}</span><span></span><span class="v"><span class="note wide-only">{{r.note}}</span><sc-for list="{{r.keys}}" as="k" hint-placeholder-count="0"><span class="cap">{{k.t}}</span></sc-for></span></button>
+ </sc-for>
+ </div>
+ </sc-for>
+ <sc-if value="{{noRows}}" hint-placeholder-val="{{false}}"><div class="none">nothing by that name</div></sc-if>
+ </div>
++<div class="foot wide-only"><span><span class="cap">↑</span><span class="cap">↓</span> pick</span><span><span class="cap">⏎</span> run</span><span><span class="cap">esc</span> close</span></div>
+ </div>
+ </div>
+ 
+@@ -235,6 +236,7 @@
+       settings: "M2.5 5h4.5 M10 5h3.5 M2.5 11h3.5 M9 11h4.5 M7 3.5v3h3v-3z M6 9.5v3h3v-3z",
+       search: "M7 2.75a4.25 4.25 0 1 0 0 8.5a4.25 4.25 0 0 0 0-8.5z M10.2 10.2l3.3 3.3",
+       right: "M6 4l4 4-4 4",
++      down: "M4 6l4 4 4-4",
+       close: "M4 4l8 8 M12 4l-8 8",
+       bold: "M4.5 3h4a2.5 2.5 0 0 1 0 5h-4z M4.5 8h4.75a2.5 2.5 0 0 1 0 5H4.5z",
+       italic: "M7 3h5 M4 13h5 M9.5 3l-3 10",
+@@ -451,7 +453,7 @@
+       ["preview · phone", [], on, set({ device: "phone" })],
+       ["preview · follow the sheet", [], on, set({ follow: !s.follow })],
+       ["settings", ["⌘", ","], true, set({ settings: !s.settings, palette: false })],
+-      ["remove this source", [], on, set(narrow ? { removing: true, drawer: "inspector" } : { removing: true, inspector: true })],
++      ["remove this source", [], on, () => { pane("post")(); this.setState({ removing: true }); }],
+     ];
+   }
+   renderVals() {
+@@ -538,6 +540,7 @@
+       ic: this.icons, src, cmd: {
+         library: run("library"), inspector: run("inspector"), settings: run("settings"), save: run("save"), press: run("press the site"),
+         remove: run("remove this source"), follow: run("preview · follow the sheet"),
++        fresh: run("new source"), outline: run("inspector · outline"),
+         palette: () => this.setState({ palette: true, query: "", settings: false, drawer: null }),
+         leave: () => this.setState({ mode: "write" }),
+       },
+@@ -549,13 +552,13 @@
+       pickMode: (e) => run("mode · " + e.target.value)(),
+       libraryOn: String(libraryOpen), inspectorOn: String(inspectorOpen), settingsOn: String(s.settings),
+       libraryCls: libraryOpen ? "" : "is-shut", inspectorCls: inspectorOpen ? "" : "is-shut",
+-      dirtyNow: on && !!dirty[open], cleanNow: on && !dirty[open], saveCls: dirty[open] ? "is-attention" : "is-off",
++      dirtyNow: on && !!dirty[open], cleanNow: on && !dirty[open], pressCls: on && dirty[open] ? "wide-only" : "",
+       busy: !!s.busy, pressLabel: s.busy ? "pressing" : "press",
+       filter: s.filter, typeFilter: (e) => this.setState({ filter: e.target.value }), groups,
+       fresh: s.fresh, typeFresh: (e) => this.setState({ fresh: e.target.value }),
+       freshKey: (e) => { if (e.key === "Enter" && s.fresh.trim()) this.create(s.fresh); },
+       hasCrumb: headAt >= 0, crumb: headAt >= 0 ? lines[headAt].text : "",
+-      tools: ["bold", "italic", "link", "heading", "quote", "list", "code", "image", "footnote"].map((name) => ({ name, d: this.icons[name] })),
++      tools: [["bold", "italic", "code", "link"], ["heading", "quote", "list"], ["image", "footnote"]].flatMap((group, nth) => group.map((name, at) => ({ name, d: this.icons[name], cls: nth && !at ? "is-led" : "" }))),
+       leafCls: leaf.join(" "), edit: { title: edit("title"), subtitle: edit("subtitle"), date: edit("date"), tags: edit("tags") },
+       lines: lines.map((l, i) => ({ cls: [l.kind, i === caret ? "is-current" : ""].join(" "), parts: l.parts, put: () => this.setState({ caret: { id: src.id, line: i } }) })),
+       words, minutes: Math.max(1, Math.round(words / 230)), ln: caret + 1, col: (lines[caret] ? lines[caret].raw.length : 0) + 1,
+diff --color -u a/desk.css b/desk.css
+--- a/desk.css	2026-11-24 17:54:14.023512754 +0100
++++ b/desk.css	2026-11-24 17:59:23.265112366 +0100
+@@ -12,6 +12,7 @@
+ .key{appearance:none;border:0;padding:0;background:transparent;color:var(--text-light);width:28px;height:28px;display:inline-grid;place-items:center;border-radius:var(--shape-radius-key);cursor:pointer;flex:none}
+ .key:hover{background:var(--control-selected);color:var(--text-strong)}
+ .key[aria-pressed="true"],.key[aria-expanded="true"]{background:var(--control-contrast-pressed);color:var(--control-on-pressed)}
++.key:disabled{opacity:var(--text-disabled);cursor:default}
+ .cap{display:inline-block;min-width:16px;margin-left:2px;padding:0 3px;font-family:var(--font-family-code);font-size:var(--size-type-2xs);line-height:16px;text-align:center;color:var(--signal-primary-ink);box-shadow:inset 0 0 0 var(--size-ring) var(--boundary);border-radius:var(--shape-radius-key)}
+ .go{appearance:none;border:0;height:28px;padding:0 var(--size-space-sm);border-radius:var(--shape-radius-key);background:var(--signal-primary);color:var(--signal-primary-on);font-family:var(--font-family-code);font-size:var(--size-type-xs);font-weight:600;line-height:1;white-space:nowrap;cursor:pointer;flex:none}
+ .go:disabled{opacity:var(--text-disabled);cursor:default}
+@@ -34,7 +35,10 @@
+ .mode[aria-pressed="true"]{background:var(--control-contrast);color:var(--control-on);font-weight:600;box-shadow:0 0 0 var(--size-ring) var(--boundary)}
+ .mode[aria-pressed="true"] .icon{color:var(--signal-primary-ink)}
+ .mode:disabled{opacity:var(--text-disabled);cursor:default}
+-.pick{display:none;appearance:none;border:0;height:44px;padding:0 var(--size-space-sm);border-radius:var(--shape-radius-key);background:var(--control-contrast-pressed);color:var(--control-on-pressed);font-family:var(--font-family-code);font-size:var(--size-type-xs);flex:none}
++.pick{display:none;position:relative;flex:none;border-radius:var(--shape-radius-key);background:var(--control-contrast-pressed);color:var(--control-on-pressed)}
++.pick select{appearance:none;border:0;height:44px;padding:0 var(--size-space-lg) 0 var(--size-space-sm);background:transparent;color:inherit;font-family:var(--font-family-code);font-size:var(--size-type-xs);cursor:pointer}
++.pick select:disabled{opacity:var(--text-disabled);cursor:default}
++.pick .icon{position:absolute;top:50%;right:var(--size-space-xs);width:12px;height:12px;margin-top:-6px;pointer-events:none}
+ .saved{padding:0 var(--size-space-xs);white-space:nowrap}
+ 
+ .body{flex:1;min-height:0;display:flex}
+@@ -73,11 +77,17 @@
+ .fresh{margin:var(--size-space-xs)}
+ 
+ .middle{flex:1;min-width:0;display:flex}
+-.writing{flex:1 1 0;min-width:0;display:flex;flex-direction:column;background:var(--surface-lift)}
++.writing{flex:1 1 0;min-width:0;display:flex;flex-direction:column;background:var(--surface-lift);container-type:inline-size}
+ .tools{flex:none;display:flex;align-items:center;gap:var(--size-space-xs);height:36px;padding:0 var(--size-space-sm);font-family:var(--font-family-code);font-size:var(--size-type-xs);line-height:1;color:var(--text-muted)}
+-.crumb{flex:1;min-width:0;display:flex;gap:var(--size-space-xs);white-space:nowrap;overflow:hidden}
+-.crumb b{font-weight:400;color:var(--text-ink);overflow:hidden;text-overflow:ellipsis}
+-.marks{flex:none;display:flex;gap:2px}
++.crumb{appearance:none;border:0;background:transparent;display:inline-flex;align-items:center;gap:var(--size-space-xs);min-width:0;height:28px;padding:0 var(--size-space-xs);border-radius:var(--shape-radius-key);color:var(--text-muted);font:inherit;cursor:pointer}
++.crumb:hover{background:var(--control-selected)}
++.crumb .icon{width:12px;height:12px}
++.crumb b{font-weight:400;color:var(--text-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
++.marks{flex:none;display:flex;gap:2px;margin-left:auto}
++.marks .is-led{margin-left:var(--size-space-xs)}
++@container (max-width:440px){
++.crumb{display:none}
++}
+ .sheet{flex:1;min-height:0;overflow-y:auto;padding:var(--size-space-xl) var(--size-space-lg) var(--size-space-3xl)}
+ .leaf{margin:0 auto;max-width:66ch;font-family:var(--font-family-serif-text);font-size:var(--size-type-md);line-height:var(--size-leading-loose);color:var(--text-ink)}
+ .leaf.is-tight{max-width:54ch}
+@@ -85,8 +95,8 @@
+ .leaf.is-small{font-size:var(--size-type-sm)}
+ .leaf.is-large{font-size:var(--size-type-lg)}
+ .head{display:grid;gap:var(--size-space-2xs);margin-bottom:var(--size-space-xl)}
+-.head input{width:100%;border:0;outline:0;padding:0;background:transparent;caret-color:var(--control-field-caret)}
+-.head input::placeholder{color:var(--control-field-placeholder);opacity:1}
++.head textarea{display:block;width:100%;border:0;outline:0;margin:0;padding:0;background:transparent;resize:none;overflow:hidden;field-sizing:content;caret-color:var(--control-field-caret)}
++.head textarea::placeholder{color:var(--control-field-placeholder);opacity:1}
+ .head .t{font-family:var(--font-family-sans-heading);font-size:calc(var(--size-type-3xl) * 1.25);font-weight:600;line-height:var(--size-leading-tight);color:var(--text-header)}
+ .head .s{font-family:var(--font-family-sans-text);font-size:var(--size-type-lg);line-height:var(--size-leading-loose);color:var(--text-muted)}
+ .lines{counter-reset:line}
+@@ -106,11 +116,16 @@
+ .leaf.has-numbers .ln::before{content:counter(line);position:absolute;top:0;right:calc(100% + var(--size-space-sm));font-family:var(--font-family-code);font-size:var(--size-type-2xs);font-style:normal;font-weight:400;color:var(--text-muted);font-variant-numeric:tabular-nums}
+ .leaf.is-typewriter .ln{opacity:var(--dim)}
+ .leaf.is-typewriter .ln.is-current{opacity:1}
++@container (min-width:720px){
++.sheet{padding-left:var(--size-space-2xl);padding-right:var(--size-space-2xl)}
++.leaf:not(.has-numbers) .ln.h .mk:first-child,.leaf:not(.has-numbers) .ln.quote .mk:first-child{position:absolute;right:100%;white-space:pre}
++}
+ .whisper{display:none}
+ .whisper button{appearance:none;border:0;background:transparent;height:28px;padding:0 var(--size-space-xs);border-radius:var(--shape-radius-key);font-family:var(--font-family-code);font-size:var(--size-type-2xs);color:var(--text-muted);cursor:pointer}
+ 
+ .pressed{flex:1 1 0;min-width:0;display:flex;flex-direction:column;background:var(--surface-sunk)}
+ .pressbar{flex:none;display:flex;align-items:center;gap:var(--size-space-2xs);height:36px;padding:0 var(--size-space-sm);font-family:var(--font-family-code);font-size:var(--size-type-xs);line-height:1;color:var(--text-muted)}
++.devices{display:flex;align-items:center;gap:var(--size-space-2xs)}
+ .pressbar .size{padding:0 var(--size-space-xs);white-space:nowrap;font-variant-numeric:tabular-nums}
+ .live{display:inline-flex;align-items:center;gap:var(--size-space-2xs);height:28px;padding:0 var(--size-space-xs);border-radius:var(--shape-radius-key);min-width:0;color:var(--text-link);text-decoration:none;white-space:nowrap}
+ .live:hover{background:var(--control-selected);color:var(--text-strong)}
+@@ -123,10 +138,12 @@
+ .page.is-tablet .page-head,.page.is-phone .page-head{display:none}
+ .page.is-tablet .site,.page.is-phone .site{border-radius:var(--shape-radius-sm)}
+ 
+-.welcome{display:none;flex:1;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:var(--size-space-md);padding:var(--size-space-lg);background:var(--surface-lift)}
+-.welcome .big{width:32px;height:32px;color:var(--text-muted);stroke-width:.75}
+-.welcome .say{font-family:var(--font-family-code);font-size:var(--size-type-xs);color:var(--text-muted)}
+-.welcome .recent{display:grid;width:100%;max-width:320px}
++.welcome{display:none;flex:1;min-width:0;grid-template-columns:minmax(0,340px);justify-content:center;align-content:center;gap:var(--size-space-md);padding:var(--size-space-lg);background:var(--surface-lift)}
++.welcome .big{width:32px;height:32px;margin-left:var(--size-space-xs);color:var(--text-muted);stroke-width:.75}
++.welcome .say{padding:0 var(--size-space-xs);font-family:var(--font-family-sans-heading);font-size:var(--size-type-xl);font-weight:600;line-height:var(--size-leading-tight);color:var(--text-header)}
++.welcome .acts{padding:0 var(--size-space-xs)}
++.welcome .recent{display:grid;margin-top:var(--size-space-xs)}
++.welcome .recent>.kit-label{padding:var(--size-space-2xs) var(--size-space-xs)}
+ 
+ .tabbar{flex:none;display:flex;align-items:center;height:38px;padding:0 var(--size-space-xs)}
+ .pane{display:none;flex:1;min-height:0;overflow-y:auto;align-content:start;gap:var(--size-space-2xs);padding:var(--size-space-2xs) var(--size-space-xs) var(--size-space-md)}
+@@ -136,7 +153,7 @@
+ .prop:hover{background:var(--control-selected)}
+ .prop:focus-within{background:var(--control-field);box-shadow:inset 0 0 0 2px var(--control-focus)}
+ .prop.is-fault{box-shadow:inset 0 0 0 var(--size-ring) var(--signal-negative-ink)}
+-.prop input{width:100%;min-width:0;border:0;outline:0;padding:0;background:transparent;color:var(--text-strong);font-family:var(--font-family-sans-text);font-size:var(--size-type-sm);caret-color:var(--control-field-caret)}
++.prop input{width:100%;min-width:0;border:0;outline:0;padding:0;background:transparent;color:var(--text-strong);font-family:var(--font-family-sans-text);font-size:var(--size-type-sm);text-overflow:ellipsis;caret-color:var(--control-field-caret)}
+ .prop .code{font-family:var(--font-family-code);font-size:var(--size-type-xs);color:var(--text-strong);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .prop input::-webkit-calendar-picker-indicator{display:none}
+ .sect{display:grid;gap:var(--size-space-2xs);margin-top:var(--size-space-sm)}
+@@ -160,9 +177,9 @@
+ .step.l3{padding-left:var(--size-space-lg)}
+ .stat{display:flex;align-items:center;justify-content:space-between;height:var(--size-row);padding:0 var(--size-space-xs)}
+ .stat b{font-family:var(--font-family-code);font-size:var(--size-type-xs);font-weight:400;color:var(--text-strong);font-variant-numeric:tabular-nums}
+-.acts{flex:none;display:flex;align-items:center;gap:var(--size-space-xs);padding:var(--size-space-xs) var(--size-space-sm) var(--size-space-sm)}
++.acts{display:flex;align-items:center;gap:var(--size-space-xs)}
+ .acts.is-away{display:none}
+-.confirm{display:none;margin:var(--size-space-xs) var(--size-space-sm) var(--size-space-sm)}
++.confirm{display:none}
+ .confirm.is-on{display:flex}
+ 
+ .status{flex:none;display:flex;align-items:center;gap:var(--size-space-md);height:28px;padding:0 var(--size-space-sm);font-family:var(--font-family-code);font-size:var(--size-type-2xs);line-height:1;color:var(--text-muted);white-space:nowrap;overflow:hidden;font-variant-numeric:tabular-nums}
+@@ -178,13 +195,15 @@
+ .palette .list{display:grid;gap:var(--size-space-xs);overflow-y:auto}
+ .palette .part{display:grid}
+ .palette .part > .kit-label{padding:var(--size-space-2xs) var(--size-space-xs)}
++.palette .tap{grid-template-columns:2ch minmax(0,auto) minmax(0,1fr) minmax(0,auto)}
++.palette .foot{display:flex;gap:var(--size-space-md);padding:var(--size-space-xs) var(--size-space-xs) var(--size-space-2xs);border-top:var(--size-ring) solid var(--divider);font-family:var(--font-family-code);font-size:var(--size-type-2xs);line-height:16px;color:var(--text-muted)}
+ .hit{font-weight:700;color:var(--signal-primary-ink)}
+ .settings{display:none;position:absolute;z-index:5;top:42px;right:var(--size-space-xs);width:320px;gap:var(--size-space-2xs);padding:var(--size-space-xs)}
+ .settings.is-on{display:grid}
+ .set{display:flex;align-items:center;justify-content:space-between;gap:var(--size-space-sm);min-height:30px;padding:0 var(--size-space-xs)}
+ 
+ .is-empty .writing,.is-empty .pressed,.is-empty .seam.is-mid{display:none}
+-.is-empty .welcome{display:flex}
++.is-empty .welcome{display:grid}
+ .desk[data-mode="write"] .pressed,.desk[data-mode="write"] .seam.is-mid{display:none}
+ .desk[data-mode="preview"] .writing,.desk[data-mode="preview"] .seam.is-mid{display:none}
+ 
+@@ -199,7 +218,8 @@
+ .is-narrow .titlebar{display:flex;height:52px;gap:var(--size-space-2xs)}
+ .is-narrow .fore{flex:1}
+ .is-narrow .title{height:44px}
+-.is-narrow .title .path,.is-narrow .modes,.is-narrow .aft .go{display:none}
++.is-narrow .title .path,.is-narrow .modes,.is-narrow .saved{display:none}
++.is-narrow .go,.is-narrow .quiet{height:44px}
+ .is-narrow .pick{display:block}
+ .is-narrow .key{width:44px;height:44px}
+ .is-narrow .save{height:44px}
+@@ -221,9 +241,8 @@
+ .is-narrow .head .t{font-size:var(--size-type-3xl)}
+ .is-narrow .pressbar{height:48px;padding:0 var(--size-space-2xs)}
+ .is-narrow .stage{padding:var(--size-space-xs)}
+-.is-narrow .acts{flex-direction:column;align-items:stretch}
+-.is-narrow .acts > .grow{display:none}
+-.is-narrow .acts > button{height:44px;justify-content:center}
++.is-narrow .page{max-width:none;max-height:none;padding:0}
++.is-narrow .page .site{border-radius:0}
+ .is-narrow .confirm .keys > button{height:36px;padding:0 var(--size-space-sm)}
+ .is-narrow .status{height:32px}
+ .is-narrow .veil{padding-top:var(--size-space-xs)}

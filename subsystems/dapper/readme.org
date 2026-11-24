@@ -43,7 +43,7 @@ Three values are the floor; everything else is filled, derived or merged. A colo
 
 * a view
 
-A view reads by name inside a =data-zone= container and never names a zone number: =var(--surface)= · =var(--text-ink)= · =var(--signal-negative-ink)=.
+A view reads by name inside a =data-zone= container and never names a zone number: =var(--plane)= · =var(--text-ink)= · =var(--signal-negative-ink)=.
 
 * tests
 

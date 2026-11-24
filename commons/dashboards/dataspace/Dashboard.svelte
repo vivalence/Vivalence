@@ -1253,7 +1253,7 @@
   const panels = $derived([
     { key: "catalog", glyph: "▤", label: "catalog", on: catalogOpen, title: "entity catalog · datamap sets", dim: false },
     { key: "inspector", glyph: "▥", label: "inspector", on: editorOpen, title: draft ? "row inspector / editor" : "row inspector · select a row first", dim: !draft },
-    { key: "wire", glyph: "≡", label: "wire", on: wireOpen, title: "wire log · every call this view makes", dim: false },
+    { key: "wire", glyph: "≡", label: "wire", on: wireOpen, title: "wire log · every call this surface makes", dim: false },
     ...(screen === "schema" ? [{ key: "meta", glyph: "▦", label: "metadata", on: erMetaOpen, title: "schema metadata sidebar", dim: false }] : []),
   ]);
 
@@ -1774,10 +1774,10 @@
 
 <style>
   .dataspace {
-    --s0: var(--surface);
-    --s1: var(--surface-lift);
-    --s2: var(--surface-sunk);
-    --s3: var(--surface-lift);
+    --s0: var(--plane);
+    --s1: var(--plane-lift);
+    --s2: var(--plane-sunk);
+    --s3: var(--plane-lift);
     --c0: var(--text-strong);
     --c1: var(--text-strong);
     --b1: var(--boundary);

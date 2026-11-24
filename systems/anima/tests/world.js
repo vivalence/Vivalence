@@ -7,10 +7,10 @@ import * as ghost from "@vivalence/ghost";
 
 export { fire, settle, words };
 
-const SURFACE = new URL("../src/surface/", import.meta.url).pathname;
+const SKIN = new URL("../src/skins/", import.meta.url).pathname;
 const PARTS = new URL("../../../subsystems/drapes/parts.js", import.meta.url).pathname;
 const NODE_MODULES = new URL("../../../node_modules/", import.meta.url).pathname;
-const ENTRY = `export * from "./panes/index.js"; export * from "./renderers.js"; export * from "./view.js"; export { render } from "solid-js/web"; export { forgetting, screen } from "./screen.js";`;
+const ENTRY = `export * from "./panes/index.js"; export * from "./renderers.js"; export * from "./surface.js"; export { render } from "solid-js/web"; export { forgetting, screen } from "./screen.js";`;
 
 const drapes = {
   name: "drapes-parts",
@@ -21,7 +21,7 @@ const drapes = {
 
 const bundle = async () => {
   const result = await esbuild.build({
-    stdin: { contents: ENTRY, resolveDir: SURFACE, loader: "js" },
+    stdin: { contents: ENTRY, resolveDir: SKIN, loader: "js" },
     bundle: true,
     format: "esm",
     platform: "browser",
@@ -32,14 +32,14 @@ const bundle = async () => {
     logLevel: "silent",
   });
   await esbuild.stop();
-  const directory = await Deno.makeTempDir({ prefix: "anima-surface-" });
-  await Deno.writeTextFile(`${directory}/surface.js`, result.outputFiles[0].text);
-  return await import(`file://${directory}/surface.js`);
+  const directory = await Deno.makeTempDir({ prefix: "anima-skin-" });
+  await Deno.writeTextFile(`${directory}/skin.js`, result.outputFiles[0].text);
+  return await import(`file://${directory}/skin.js`);
 };
 
-export const surface = await bundle();
+export const skin = await bundle();
 
-export const paint = (part) => screen(part, { render: surface.render });
+export const paint = (part) => screen(part, { render: skin.render });
 
 const turned = (role, at, parts) => ({ role, createdAt: at, parts });
 
@@ -49,9 +49,9 @@ export const world = () => {
   const client = new ghost.client.Client({
     controller,
     mask: { manifest: { slug: "anima", type: "client" }, trait: {} },
-    surface: surface.screen({ kind: "dom", places: ["cell", "frame"], narrow: false, width: 1280, height: 800, palette: () => tokens.kebab("northsea", "2") }),
+    skin: skin.screen({ kind: "dom", places: ["cell", "frame"], narrow: false, width: 1280, height: 800, palette: () => tokens.kebab("northsea", "2") }),
   });
-  client.surface.$sidebar.set(true);
+  client.skin.$sidebar.set(true);
   const lighthouse = Object.assign(new ghost.entities.lighthouse.Lighthouse(), { stdout: controller.stdout.branch("lighthouse"), manifest: { type: "lighthouse", slug: "lighthouse", traits: ["AUTOLOGIN"] } });
   const chat = { type: "chat", slug: "chat", traits: ["HARNESS"], repl: new Vector(), keymap: new Vector(), daemon: null, reference: { absolute: "/runtime/stub/mode/chat/chat" }, implements: (trait) => trait === "HARNESS", metadata: { harness: { references: { branches: {} }, primer: { branches: { identity: { effect: {} }, hello: { meta: { load: "lazy" }, branches: { greet: { effect: {} } } } } }, tools: { branches: { fs: { branches: { tree: { effect: {} } } }, shell: { branches: { run: { effect: {} } } } } }, home: "/runtime/stub/mode/chat/chat", index: { TOOLED: [{ reference: "/runtime/stub/mode/chat/chat/fs/tree", load: "eager" }, { reference: "/runtime/stub/mode/chat/chat/shell/run", load: "eager" }], PRIMED: [{ reference: "/runtime/stub/mode/chat/chat/identity", load: "eager" }, { reference: "/runtime/stub/mode/chat/chat/hello/greet", load: "lazy" }] } } } };
   const thread = Object.assign(new ghost.entities.thread.Thread(), {

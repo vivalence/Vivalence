@@ -1,0 +1,681 @@
+#+title: m128 appendix I — the scalars in full: every scalar site of typology's schematics, and the scalar it wears or would wear
+#+filetags: :typology:schematics:scalars:types:
+#+status: DESIGNING, 63 hunks in 21 files TANGLED (=Slug= on the one wide pattern at all 8 entity slugs, 15 scalars the tree already names gain their =$id=, six new scalars at 29 sites, =ID= at 8 more; they replay onto a copy; typology's and paladin's suites read on the copy as on the tree, but typology's two bundle tests); LANDED of these: =ModuleIdentifier= at its 14 sites · =ID= at its 8 (the =$id= of =Probability= · =Hex= · =Alpha= · =Themed= landed and was reverted on his word: root scalars first, no peripherals), so the hunks here no longer replay whole onto the tree; RULED: =ModuleIdentifier= · one wide =Slug= everywhere · a faculty's =id= stays; open: five names (=Version= · =Hash= · =Integrity= · =Index= · =Bytes=), 23 tightenings, 15 wires, encoded bytes and the signing secret without a noun
+# writer: agent · limit: 42000 chars · appendix of =m128-typed-schematics.org=, under its ruling 7 (a scalar names itself)
+
+* intent
+
+/"earlier you had a list of maybe 3 douzen scalars. lets work out the scalars in full. in an quest appendix called m128-appendix-I-scalars.ts.org"/
+
+* the scalars the tree names — 36
+
+All under =subsystems/typology/schematics/=. The last column says where the name reaches the type: =today= · =stop 2= (the quest) · =here= (this appendix) · =open= (=* open= 5) · =never= (a codec hands back a held name, =v.js:52=).
+
+| scalar | defined | holds | =$id= |
+|--------+---------+-------+-------|
+| =ID= | =scalars/index.js:6= | string, 1 char or more | stop 2 |
+| =Slug= | =scalars/index.js:8= | string, =^[a-z0-9]+(?:-[a-z0-9]+)*$= | stop 2 |
+| =JWTToken= | =scalars/index.js:11= | string, three dotted base64url parts | stop 2 |
+| =Username= | =scalars/index.js:13= | string, 1 to 64 chars | stop 2 |
+| =Password= | =scalars/index.js:15= | string, 1 char or more | stop 2 |
+| =url= | =scalars/url.js:19= | string, RFC 3986 with an authority | open |
+| =mime.type= | =scalars/mime.js:10= | string, RFC 6838 | open |
+| =v.instant= | =v.js:161= | string, format date-time | open |
+| =v.date= | =v.js:162= | string, format date | open |
+| =v.duration= | =v.js:163= | string, format duration | open |
+| =v.datetime= | =v.js:164= | string, RFC 9557 without an offset | open |
+| =v.zoned= | =v.js:166= | string, RFC 9557 with an offset and a zone | open |
+| =Hex= | =primitives/theme.js:8= | string, =#RRGGBB= | here |
+| =Alpha= | =primitives/theme.js:9= | string, =rgba(…)= | here |
+| =Px= | =primitives/theme.js:11= | string, =1px= | here |
+| =Percent= | =primitives/theme.js:12= | string, =50%= | here |
+| =Rem= | =primitives/theme.js:13= | string, =.25rem= | here |
+| =Em= | =primitives/theme.js:14= | string, =.14em= | here |
+| =Factor= | =primitives/theme.js:15= | number, 0 or more | here |
+| =Ratio= | =primitives/theme.js:16= | number, 0 to 1 | here |
+| =Leading= | =primitives/theme.js:17= | number, 0.8 to 2 | here |
+| =Shadow= | =primitives/theme.js:18= | string, 1 char or more | here |
+| =Family= | =primitives/theme.js:19= | string, 1 char or more | here |
+| =Glow= | =primitives/theme.js:20= | string, 1 char or more | here |
+| =Filter= | =primitives/theme.js:21= | string, 1 char or more | here |
+| =Probability= | =primitives/hallucination.js:315= | number, 0 to 1, not exported | here |
+| =Themed= | =traits/themed.js:3= | string | here |
+| =Reference= | =primitives/instance.js:194= | string, =${PREFIX_KEY}=, a function of the prefix | open |
+| =Mountpoint= | =primitives/instance.js:17= | =Path=, absolute | today |
+| =Signature= | =prototypes/signatures.js:25= | codec, worn at 0 sites | never |
+| =Signal= | =prototypes/signatures.js:26= | codec | never |
+| =Path= | =prototypes/signatures.js:27= | codec | never |
+| =FilePath= | =prototypes/signatures.js:28= | codec, worn at 0 sites | never |
+| =Url= | =prototypes/signatures.js:29= | codec | never |
+| =Action= | =prototypes/signatures.js:30= | codec, worn at 0 sites | never |
+| =Pattern= | =prototypes/signatures.js:31= | codec, worn at 0 sites | never |
+
+* every site — 536
+
+=reference/m128-typed-schematics/scalars/sites.py= walks every =.js= under =schematics/= (no =bak/=) and prints each scalar site with the key path it sits at. =assign.py= gives each site one scalar and one state, first rule wins, a site no rule holds stops it. The whole list, one site per entry: =assigned.tsv=.
+
+| state | sites | what it is |
+|-------+-------+------------|
+| named | 23 | a scalar's own definition |
+| worn | 134 | wears a named scalar today |
+| ruled | 8 | bare today, =Slug= by his ruling, on the one wide pattern |
+| wear | 10 | bare today, a named scalar fits, only =""= is refused |
+| new | 29 | bare today, one thing at two or more sites, its name is its key |
+| tighten | 23 | bare today, a scalar or closed set of the tree fits and refuses more than today |
+| wire | 15 | bare today, the string a codec of the tree decodes |
+| unnamed | 14 | one thing at two or more sites, no noun for it in the tree |
+| key | 57 | the key of a record |
+| prose | 22 | free text |
+| bare | 80 | named by its key: one site, or no constraint |
+| closed | 121 | =v.const= · =v.enum= · =v.null=, a closed set already |
+
+By builder, the scalar sites: =v.string= 226 · =v.integer= 32 · =v.number= 15 · =v.boolean= 8 · =v.instant= 6.
+
+** ruled
+- =Slug= ×8
+  - =entities/daemon.js:9= =DaemonSchematic.own.slug= — the one wide pattern
+  - =entities/intent.js:9= =IntentSchematic.own.slug= — the one wide pattern
+  - =entities/literal.js:10= =LiteralSchematic.own.slug= — the one wide pattern
+  - =entities/mode.js:10= =ModeSchematic.own.slug= — the one wide pattern
+  - =entities/note.js:10= =NoteSchematic.own.slug= — the one wide pattern
+  - =entities/symbol.js:10= =SymbolSchematic.own.slug= — the one wide pattern
+  - =entities/user.js:10= =UserSchematic.own.slug= — the one wide pattern
+  - =entities/view.js:11= =ViewSchematic.own.slug= — the one wide pattern
+
+** wear
+- =ID= ×8
+  - =entities/base.js:11= =VirtualEntitySchema.id=
+  - =primitives/hallucination.js:63= =Part.File.file= — a File's id
+  - =primitives/hallucination.js:349= =Packet.TurnOpen.turn.id=
+  - =primitives/hallucination.js:377= =Packet.PartFull.turn=
+  - =primitives/harness.js:16= =Request.thread=
+  - =primitives/harness.js:17= =Request.terminal=
+  - =primitives/harness.js:18= =Request.turn=
+  - =primitives/track.js:9= =Entity.id=
+- =Probability= ×2
+  - =primitives/hallucination.js:218= =Tune[]= — the same bounds
+  - =traits/conversational.js:12= =Conversational.harmonize.tolerance= — the same bounds
+
+** new
+- =Bytes= ×2
+  - =entities/file.js:19= =FileSchematic.own.bytes=
+  - =prototypes/bundle.js:11= =Bundle.entries[].bytes=
+- =Hash= ×2
+  - =entities/file.js:17= =FileSchematic.own.hash=
+  - =prototypes/bundle.js:8= =Bundle.entries[].hash=
+- =Index= ×7
+  - =entities/buffer.js:11= =BufferSchematic.own.index=
+  - =entities/terminal.js:10= =TerminalSchematic.own.index=
+  - =primitives/hallucination.js:355= =Packet.PartOpen.index=
+  - =primitives/hallucination.js:361= =Packet.PartDelta.index=
+  - =primitives/hallucination.js:367= =Packet.PartDraft.index=
+  - =primitives/hallucination.js:375= =Packet.PartFull.index=
+  - =primitives/hallucination.js:385= =Packet.PartClose.index=
+- =Integrity= ×2
+  - =entities/file.js:18= =FileSchematic.own.integrity=
+  - =prototypes/bundle.js:10= =Bundle.entries[].integrity=
+- =ModuleIdentifier= ×14
+  - =primitives/instance.js:20= =Mask.module=
+  - =primitives/instance.js:26= =HallucinatorMask.module=
+  - =primitives/instance.js:36= =DatamapMask.module=
+  - =primitives/instance.js:55= =ModeMask.module=
+  - =primitives/instance.js:74= =ModeMasks[]|=
+  - =primitives/instance.js:123= =ClientMask.module=
+  - =primitives/instance.js:136= =ServiceMask.module=
+  - =primitives/instance.js:199= =Recipe.module=
+  - =primitives/instance.js:205= =HallucinatorRecipe.module=
+  - =primitives/instance.js:214= =DatamapRecipe.module=
+  - =primitives/instance.js:230= =ModeRecipe.module=
+  - =primitives/instance.js:242= =ModeRecipes[]|=
+  - =primitives/instance.js:277= =ClientRecipe.module=
+  - =primitives/instance.js:289= =ServiceRecipe.module=
+- =Version= ×2
+  - =entities/mode.js:14= =ModeSchematic.own.version=
+  - =primitives/manifest.js:9= =Manifest.version=
+
+** tighten
+- =Condition= ×1
+  - =primitives/hallucination.js:86= =Part.ToolResult.condition= — prototypes/yield.js:3
+- =FacultyType= ×2
+  - =primitives/hallucination.js:285= =Faculty.type= — hallucination.js:17
+  - =primitives/hallucination.js:311= =FacultyMask.type= — hallucination.js:17
+- =Probability= ×1
+  - =primitives/hallucination.js:495= =Policy.verbatim.harmonize.tolerance= — the trait's twin is bounded 0 to 1
+- =Role= ×2
+  - =entities/turn.js:9= =TurnSchematic.own.role= — hallucination.js:115
+  - =primitives/hallucination.js:348= =Packet.TurnOpen.turn.role= — hallucination.js:115
+- =Slug= ×5
+  - =entities/literal.js:11= =LiteralSchematic.own.daemon= — a daemon's slug
+  - =primitives/hallucination.js:478= =Selector.provider= — a provider's slug
+  - =primitives/hallucination.js:575= =Picture.Response.provider= — a provider's slug
+  - =traits/rendered.js:5= =Rendered.frame= — a view's slug
+  - =traits/rendered.js:6= =Rendered.cell= — a view's slug
+- =State= ×2
+  - =entities/activity.js:10= =ActivitySchematic.own.status= — controller.js:10; its description says FAULTED
+  - =primitives/track.js:10= =Status.code= — controller.js:10
+- =StatusCode= ×1
+  - =prototypes/index.js:17= =Status.code= — prototypes/index.js:6, worn nowhere
+- =Track= ×1
+  - =primitives/controller.js:28= =Record.track= — track.js:12
+- =Username= ×1
+  - =primitives/instance.js:102= =LighthouseTrait.AUTOLOGIN.username= — adds maxLength 64
+- =Verb= ×1
+  - =primitives/track.js:5= =Request.method= — connection.js:5, not exported
+- =mime.type= ×4
+  - =primitives/hallucination.js:40= =Part.Image.mime= — RFC 6838
+  - =primitives/hallucination.js:46= =Part.Audio.mime= — RFC 6838
+  - =primitives/hallucination.js:52= =Part.Video.mime= — RFC 6838
+  - =primitives/hallucination.js:58= =Part.Document.mime= — RFC 6838
+- =traits.names.user= ×1
+  - =primitives/auth.js:16= =UserReference.traits[]= — traits/index.js:199
+- =v.instant= ×1
+  - =entities/file.js:6= =MISSING.since= — its description says ISO 8601
+
+** wire
+- =FilePath= ×7
+  - =entities/file.js:14= =FileSchematic.own.path=
+  - =entities/file.js:15= =FileSchematic.own.mount=
+  - =entities/view.js:13= =ViewSchematic.own.mount|=
+  - =entities/view.js:14= =ViewSchematic.own.entry=
+  - =primitives/instance.js:37= =DatamapMask.statics.db.file=
+  - =primitives/instance.js:351= =Tapped{}.mount=
+  - =prototypes/bundle.js:9= =Bundle.entries[].mount=
+- =Mountpoint= ×4
+  - =primitives/instance.js:233= =ModeRecipe.mountpoint|=
+  - =primitives/instance.js:278= =ClientRecipe.mountpoint=
+  - =primitives/instance.js:290= =ServiceRecipe.mountpoint=
+  - =primitives/instance.js:302= =DaemonRecipe.mountpoint=
+- =Path= ×2
+  - =primitives/home.js:4= =Home.reference=
+  - =primitives/instance.js:304= =DaemonRecipe.reference=
+- =Signal= ×2
+  - =primitives/harness.js:10= =Signal.nature= — a route
+  - =traits/aimed.js:4= =Aimed.mount= — a route
+
+** unnamed
+- a faculty's id ×5
+  - =primitives/hallucination.js:286= =Faculty.id=
+  - =primitives/hallucination.js:306= =FacultyRecipe.id=
+  - =primitives/hallucination.js:311= =FacultyMask.id=
+  - =primitives/hallucination.js:479= =Selector.id=
+  - =primitives/hallucination.js:576= =Picture.Response.id=
+- encoded bytes ×5
+  - =primitives/hallucination.js:39= =Part.Image.data=
+  - =primitives/hallucination.js:45= =Part.Audio.data=
+  - =primitives/hallucination.js:51= =Part.Video.data=
+  - =primitives/hallucination.js:57= =Part.Document.data=
+  - =primitives/hallucination.js:421= =Audio.Packet.audio.data=
+- the provider's id of one tool call ×2
+  - =primitives/hallucination.js:74= =Part.ToolUse.id=
+  - =primitives/hallucination.js:85= =Part.ToolResult.id=
+- the signing secret, minLength 24 ×2
+  - =primitives/instance.js:86= =RuntimeMask.secrets.jwt=
+  - =primitives/instance.js:112= =LighthouseMask.secrets.jwt=
+
+** key
+=trait=×4 · =flags=×4 · =system=×4 · =consume=×4 · =data=×2 · =modes=×2 · =product=×2 · =part=×2 · =steps= · =mask= · =symbol= · =parts= · =meta= · =params= · =entities= · =providers= · =Credentials= · =input= · =usage= · =provider= · =Parts= · =tool_choice= · =via= · =Rubric= · =Ask= · =options= · =questions= · =Answer= · =Verdict= · =config= · =output= · =tools= · =SecretsMask= · =Sieve= · =logger= · =SecretsRecipe= · =properties= · =Tapped= · =schematics= · =Primed= · =Tooled=
+
+** prose
+=name=×4 · =description=×4 · =message=×4 · =text=×3 · =valence= · =Rubric= · =Ask= · =prompt= · =revised= · =stack= · =Log=
+
+** bare
+=traits[]=×5 · =type=×4 · =rounds=×4 · =success=×2 · =status=×2 · =at=×2 · =path[]=×2 · =name=×2 · =thinking=×2 · =marks[]=×2 · =pts=×2 · =window=×2 · =tail=×2 · =ontology= · =installed= · =counter= · =query= · =token= · =stream= · =params= · =flags[]= · =settled= · =signature= · =dialect= · =input= · =output= · =cost= · =kind= · =maxTokens= · =thinkingBudget= · =temperature= · =model= · =upstream= · =context= · =options= · =choices= · =rate= · =codec= · =offset= · =start= · =end= · =backoff[]= · =size= · =aspect= · =count= · =password= · =required[]= · =additionalProperties= · =remote= · =read[]= · =unset[]= · =owner= · =emoji= · =path= · =code= · =schema= · =language[]= · =engaged= · =share= · =depth=
+
+* as code
+
+DESIGNED by me, unruled: =ModuleIdentifier= is his name, the other five are each the key they sit under. The hunks stand on the quest's =* as code= (its stop 2 gives =scalars/index.js= the five =$id=).
+
+** the scalars file after, whole
+
+Stale since his ruling 19 of the quest: the builder =slug= is dead on the tree, =Slug= is written out. The wide pattern below is still unlanded.
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/scalars/index.js
+import { v } from "../v.js";
+
+export * from "./url.js";
+export * as mime from "./mime.js";
+
+export const ID = v.string({ minLength: 1 }).desc("Unique identifier (UUID)").$id("ID");
+
+const PART = "[\\p{L}\\p{N}]+(?:[-_][\\p{L}\\p{N}]+)*";
+
+export const slug = (opts) => v.string({ pattern: `^${PART}(?:\\.${PART})*$`, title: "words of letters and digits joined by - or _, parts joined by dots", ...opts }).desc("URL-compliant identifier").$id("Slug");
+export const Slug = slug();
+
+export const ModuleIdentifier = v.string().$id("ModuleIdentifier");
+export const Version = v.string().$id("Version");
+export const Hash = v.string().$id("Hash");
+export const Integrity = v.string().$id("Integrity");
+
+export const Index = v.integer().$id("Index");
+export const Bytes = v.integer().$id("Bytes");
+
+export const JWTToken = v.string({ pattern: "^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]*$" }).desc("JWT token string").$id("JWTToken");
+
+export const Username = v.string({ minLength: 1, maxLength: 64 }).desc("User identifier").$id("Username");
+
+export const Password = v.string({ minLength: 1 }).desc("Password string").$id("Password");
+#+END_SRC
+
+** landed: the root seven
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/scalars/index.js:6
+export const ID = v.string({ minLength: 1 }).desc("Unique identifier (UUID)").$id("ID");
+
+export const Slug = v.string({ pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$", title: "lowercase alphanumeric words joined by single dashes" }).desc("URL-compliant identifier").$id("Slug");
+
+export const ModuleIdentifier = v.string().$id("ModuleIdentifier");
+// subsystems/typology/schematics/v.js:162
+  instant: (opts) => enhance(Type.String({ format: "date-time", ...opts })).$id("Instant"),
+#+END_SRC
+
+=JWTToken= · =Username= · =Password= as the quest's stop 2. Owed, no test holds them yet: a test in =subsystems/typology/tests/v.test.js= that reads each root scalar's =$id=, red the day a name drops; one for =v.collect= by =ModuleIdentifier= once open 6 is ruled.
+
+** the hunks, 63 in 21 files
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/base.js:11
+-  id: v.string().desc("Minted in the constructor, never a primary key — mikro forbids one on a virtual entity").example("019d23f1-8c4e-7a2b-9f10-3e5a1c2d4b6f"),
++  id: ID.desc("Minted in the constructor, never a primary key — mikro forbids one on a virtual entity").example("019d23f1-8c4e-7a2b-9f10-3e5a1c2d4b6f"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/buffer.js:1
+ import { v } from "../v.js";
++import { Index } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/buffer.js:11
+-    index: v.integer().default(0).optional().desc("its position on the thread, from 0").example(0),
++    index: Index.default(0).optional().desc("its position on the thread, from 0").example(0),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/daemon.js:1
+ import { v } from "../v.js";
++import { Slug } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/daemon.js:9
+-    slug: v.string().desc("its name, the id").example("education"),
++    slug: Slug.desc("its name, the id").example("education"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/file.js:1
+ import { v } from "../v.js";
++import { Bytes, Hash, Integrity } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/file.js:17
+-    hash: v.string().desc("the sha256 of the current bytes, hex").example("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"),
+-    integrity: v.string().desc("the subresource integrity the client checks the fetch against").example("sha256-n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg="),
+-    bytes: v.integer().default(0).optional().desc("the size of the bytes").example(4096),
++    hash: Hash.desc("the sha256 of the current bytes, hex").example("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"),
++    integrity: Integrity.desc("the subresource integrity the client checks the fetch against").example("sha256-n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg="),
++    bytes: Bytes.default(0).optional().desc("the size of the bytes").example(4096),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/intent.js:1
+ import { v } from "../v.js";
++import { Slug } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/intent.js:9
+-    slug: v.string().optional().desc("its name inside the mode").example("review"),
++    slug: Slug.optional().desc("its name inside the mode").example("review"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/literal.js:1
+ import { v } from "../v.js";
++import { Slug } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/literal.js:10
+-    slug: v.string().optional().desc("its address inside the daemon").example("flamingo"),
++    slug: Slug.optional().desc("its address inside the daemon").example("flamingo"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/mode.js:1
+ import { v } from "../v.js";
++import { Slug, Version } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/mode.js:10
+-    slug: v.string().optional().desc("its name inside the type").example("runtime"),
++    slug: Slug.optional().desc("its name inside the type").example("runtime"),
+…
+// subsystems/typology/schematics/entities/mode.js:14
+-    version: v.string().optional().desc("semver").example("0.3.0"),
++    version: Version.optional().desc("semver").example("0.3.0"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/note.js:1
+ import { v } from "../v.js";
++import { Slug } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/note.js:10
+-    slug: v.string().optional().desc("its address").example("flamingo-diet"),
++    slug: Slug.optional().desc("its address").example("flamingo-diet"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/symbol.js:1
+ import { v } from "../v.js";
++import { Slug } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/symbol.js:10
+-    slug: v.string().optional().desc("the word").example("wading-bird"),
++    slug: Slug.optional().desc("the word").example("wading-bird"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/terminal.js:1
+ import { v } from "../v.js";
++import { Index } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/terminal.js:10
+-    index: v.integer().default(0).optional().desc("its position among the user's terminals, from 0").example(0),
++    index: Index.default(0).optional().desc("its position among the user's terminals, from 0").example(0),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/user.js:1
+ import { v } from "../v.js";
++import { Slug } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/user.js:10
+-    slug: v.string().optional().desc("the login name").example("beef"),
++    slug: Slug.optional().desc("the login name").example("beef"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/view.js:1
+ import { v } from "../v.js";
++import { Slug } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/entities/view.js:11
+-    slug: v.string().desc("the view's name inside its mode, one per (mode, slug, mime)").example("play"),
++    slug: Slug.desc("the view's name inside its mode, one per (mode, slug, mime)").example("play"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/hallucination.js:2
+ import { enhance, v } from "../v.js";
++import { ID, Index } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/primitives/hallucination.js:63
+-  file: v.string(),
++  file: ID,
+…
+// subsystems/typology/schematics/primitives/hallucination.js:315
+-const Probability = v.number({ minimum: 0, maximum: 1 });
++const Probability = v.number({ minimum: 0, maximum: 1 }).$id("Probability");
+…
+// subsystems/typology/schematics/primitives/hallucination.js:349
+-    id: v.string().optional().desc('The turn the runtime opened for this reply; every later packet pours into it. Example: "0199f3a2-7c1e-7b40-9d2a-5e6f8a1b2c3d"'),
++    id: ID.optional().desc('The turn the runtime opened for this reply; every later packet pours into it. Example: "0199f3a2-7c1e-7b40-9d2a-5e6f8a1b2c3d"'),
+…
+// subsystems/typology/schematics/primitives/hallucination.js:354
+   event: v.const("/part/open"),
+-  index: v.integer(),
++  index: Index,
+…
+// subsystems/typology/schematics/primitives/hallucination.js:360
+   event: v.const("/part/delta"),
+-  index: v.integer(),
++  index: Index,
+…
+// subsystems/typology/schematics/primitives/hallucination.js:366
+   event: v.const("/part/draft"),
+-  index: v.integer(),
++  index: Index,
+…
+// subsystems/typology/schematics/primitives/hallucination.js:374
+   event: v.const("/part/full"),
+-  index: v.integer(),
++  index: Index,
+…
+// subsystems/typology/schematics/primitives/hallucination.js:377
+-  turn: v
+-    .string()
++  turn: ID
+…
+// subsystems/typology/schematics/primitives/hallucination.js:384
+   event: v.const("/part/close"),
+-  index: v.integer(),
++  index: Index,
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/harness.js:1
+ import { v } from "../v.js";
++import { ID } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/primitives/harness.js:16
+-  thread: v.string().desc('The thread the turn appends to. Example: "th3"'),
+-  terminal: v.string().optional().desc('The calling terminal, whenever a terminal calls. Example: "t1"'),
+-  turn: v.string().optional().desc('The id the user turn is minted under; the caller picks it to find the turn again. Example: "6f1c0d2e"'),
++  thread: ID.desc('The thread the turn appends to. Example: "th3"'),
++  terminal: ID.optional().desc('The calling terminal, whenever a terminal calls. Example: "t1"'),
++  turn: ID.optional().desc('The id the user turn is minted under; the caller picks it to find the turn again. Example: "6f1c0d2e"'),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/instance.js:2
+-import { Slug } from "../scalars/index.js";
++import { ModuleIdentifier, Slug } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/primitives/instance.js:20
+-  { module: v.string(), statics: StaticsMask.optional(), secrets: SecretsMask.optional() },
++  { module: ModuleIdentifier, statics: StaticsMask.optional(), secrets: SecretsMask.optional() },
+…
+// subsystems/typology/schematics/primitives/instance.js:24
+ export const HallucinatorMask = v.object(
+   {
+-    module: v.string(),
++    module: ModuleIdentifier,
+…
+// subsystems/typology/schematics/primitives/instance.js:34
+ export const DatamapMask = v.object(
+   {
+-    module: v.string(),
++    module: ModuleIdentifier,
+…
+// subsystems/typology/schematics/primitives/instance.js:53
+ export const ModeMask = v.object(
+   {
+-    module: v.string(),
++    module: ModuleIdentifier,
+…
+// subsystems/typology/schematics/primitives/instance.js:74
+-export const ModeMasks = v.array(v.union([v.string(), ModeMask]));
++export const ModeMasks = v.array(v.union([ModuleIdentifier, ModeMask]));
+…
+// subsystems/typology/schematics/primitives/instance.js:120
+ export const ClientMask = v.object(
+   {
+     manifest: Manifest,
+-    module: v.string().optional(),
++    module: ModuleIdentifier.optional(),
+…
+// subsystems/typology/schematics/primitives/instance.js:133
+ export const ServiceMask = v.object(
+   {
+     manifest: Manifest,
+-    module: v.string(),
++    module: ModuleIdentifier,
+…
+// subsystems/typology/schematics/primitives/instance.js:198
+ export const Recipe = v.object(
+-  { module: v.string(), statics: StaticsRecipe.optional(), secrets: SecretsRecipe.optional() },
++  { module: ModuleIdentifier, statics: StaticsRecipe.optional(), secrets: SecretsRecipe.optional() },
+…
+// subsystems/typology/schematics/primitives/instance.js:203
+ export const HallucinatorRecipe = v.object(
+   {
+-    module: v.string(),
++    module: ModuleIdentifier,
+…
+// subsystems/typology/schematics/primitives/instance.js:213
+ export const DatamapRecipe = v.object(
+-  { module: v.string(), statics: StaticsRecipe.optional(), secrets: SecretsRecipe.optional() },
++  { module: ModuleIdentifier, statics: StaticsRecipe.optional(), secrets: SecretsRecipe.optional() },
+…
+// subsystems/typology/schematics/primitives/instance.js:228
+ export const ModeRecipe = v.object(
+   {
+-    module: v.string(),
++    module: ModuleIdentifier,
+…
+// subsystems/typology/schematics/primitives/instance.js:242
+-export const ModeRecipes = v.array(v.union([v.string(), ModeRecipe]));
++export const ModeRecipes = v.array(v.union([ModuleIdentifier, ModeRecipe]));
+…
+// subsystems/typology/schematics/primitives/instance.js:274
+ export const ClientRecipe = v.object(
+   {
+     manifest: Manifest,
+-    module: v.string().optional(),
++    module: ModuleIdentifier.optional(),
+…
+// subsystems/typology/schematics/primitives/instance.js:286
+ export const ServiceRecipe = v.object(
+   {
+     manifest: Manifest,
+-    module: v.string(),
++    module: ModuleIdentifier,
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/manifest.js:2
+-import { Slug } from "../scalars/index.js";
++import { Slug, Version } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/primitives/manifest.js:9
+-    version: v.string().optional(),
++    version: Version.optional(),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/theme.js:8
+-export const Hex     = v.string({ pattern: "^#[0-9A-Fa-f]{6}$" }).desc('Opaque colour. Example: "#1A2A38"');
+-export const Alpha   = v.string({ pattern: "^rgba\\(\\d{1,3}, ?\\d{1,3}, ?\\d{1,3}, ?(0|1|0?\\.\\d+)\\)$" }).desc('Colour with alpha. Example: "rgba(30, 188, 181, 0.18)"');
++export const Hex     = v.string({ pattern: "^#[0-9A-Fa-f]{6}$" }).desc('Opaque colour. Example: "#1A2A38"').$id("Hex");
++export const Alpha   = v.string({ pattern: "^rgba\\(\\d{1,3}, ?\\d{1,3}, ?\\d{1,3}, ?(0|1|0?\\.\\d+)\\)$" }).desc('Colour with alpha. Example: "rgba(30, 188, 181, 0.18)"').$id("Alpha");
+…
+// subsystems/typology/schematics/primitives/theme.js:11
+-export const Px      = v.string({ pattern: "^\\d+(\\.\\d+)?px$" }).desc('Never scaled. Example: "1px"');
+-export const Percent = v.string({ pattern: "^\\d+(\\.\\d+)?%$" }).desc('Example: "50%"');
+-export const Rem     = v.string({ pattern: "^\\d*\\.?\\d+rem$" }).desc('Scales with the root font size. Example: ".25rem"');
+-export const Em      = v.string({ pattern: "^\\d*\\.?\\d+em$" }).desc('Example: ".14em"');
+-export const Factor  = v.number({ minimum: 0 }).desc("Multiplier of size.unit. Example: 6.5");
+-export const Ratio   = v.number({ minimum: 0, maximum: 1 }).desc("Opacity. Example: 0.55");
+-export const Leading = v.number({ minimum: 0.8, maximum: 2 }).desc("Unitless line height. Example: 1.45");
+-export const Shadow  = v.string({ minLength: 1 }).desc('Geometry only; the zone\'s shadow gives the tone. Example: "0 12px 30px"');
+-export const Family  = v.string({ minLength: 1 }).desc('A CSS font-family list, first choice to fallback. Example: "Inter, sans-serif"');
+-export const Glow    = v.string({ minLength: 1 }).desc('A whole box-shadow, its colour inside; "0 0 0 transparent" is none. Example: "inset 0 0 12px rgba(30, 188, 181, 0.2)"');
+-export const Filter  = v.string({ minLength: 1 }).desc('A CSS filter list, or "none". Example: "drop-shadow(0 0 4px #1EBCB5)"');
++export const Px      = v.string({ pattern: "^\\d+(\\.\\d+)?px$" }).desc('Never scaled. Example: "1px"').$id("Px");
++export const Percent = v.string({ pattern: "^\\d+(\\.\\d+)?%$" }).desc('Example: "50%"').$id("Percent");
++export const Rem     = v.string({ pattern: "^\\d*\\.?\\d+rem$" }).desc('Scales with the root font size. Example: ".25rem"').$id("Rem");
++export const Em      = v.string({ pattern: "^\\d*\\.?\\d+em$" }).desc('Example: ".14em"').$id("Em");
++export const Factor  = v.number({ minimum: 0 }).desc("Multiplier of size.unit. Example: 6.5").$id("Factor");
++export const Ratio   = v.number({ minimum: 0, maximum: 1 }).desc("Opacity. Example: 0.55").$id("Ratio");
++export const Leading = v.number({ minimum: 0.8, maximum: 2 }).desc("Unitless line height. Example: 1.45").$id("Leading");
++export const Shadow  = v.string({ minLength: 1 }).desc('Geometry only; the zone\'s shadow gives the tone. Example: "0 12px 30px"').$id("Shadow");
++export const Family  = v.string({ minLength: 1 }).desc('A CSS font-family list, first choice to fallback. Example: "Inter, sans-serif"').$id("Family");
++export const Glow    = v.string({ minLength: 1 }).desc('A whole box-shadow, its colour inside; "0 0 0 transparent" is none. Example: "inset 0 0 12px rgba(30, 188, 181, 0.2)"').$id("Glow");
++export const Filter  = v.string({ minLength: 1 }).desc('A CSS filter list, or "none". Example: "drop-shadow(0 0 4px #1EBCB5)"').$id("Filter");
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/track.js:1
+ import { v } from "../v.js";
++import { ID } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/primitives/track.js:9
+-export const Entity = v.object({ schema: v.string(), id: v.string() }).desc('The row a span touched. Example: { "schema": "thread", "id": "42" }');
++export const Entity = v.object({ schema: v.string(), id: ID }).desc('The row a span touched. Example: { "schema": "thread", "id": "42" }');
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/prototypes/bundle.js:1
+ import { v } from "../v.js";
++import { Bytes, Hash, Integrity } from "../scalars/index.js";
+…
+// subsystems/typology/schematics/prototypes/bundle.js:8
+-        hash: v.string(),
++        hash: Hash,
+…
+// subsystems/typology/schematics/prototypes/bundle.js:10
+-        integrity: v.string(),
+-        bytes: v.integer(),
++        integrity: Integrity,
++        bytes: Bytes,
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/scalars/index.js:8
+-export const slug = (opts) => v.string({ pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$", title: "lowercase alphanumeric words joined by single dashes", ...opts }).desc("URL-compliant identifier").$id("Slug");
++const PART = "[\\p{L}\\p{N}]+(?:[-_][\\p{L}\\p{N}]+)*";
++
++export const slug = (opts) => v.string({ pattern: `^${PART}(?:\\.${PART})*$`, title: "words of letters and digits joined by - or _, parts joined by dots", ...opts }).desc("URL-compliant identifier").$id("Slug");
+…
+// subsystems/typology/schematics/scalars/index.js:9
+ export const Slug = slug();
++
++export const ModuleIdentifier = v.string().$id("ModuleIdentifier");
++export const Version = v.string().$id("Version");
++export const Hash = v.string().$id("Hash");
++export const Integrity = v.string().$id("Integrity");
++
++export const Index = v.integer().$id("Index");
++export const Bytes = v.integer().$id("Bytes");
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/traits/themed.js:3
+-export const Themed = v.string().desc('A dapper theme name. Example: "northsea" · "porcelain"');
++export const Themed = v.string().desc('A dapper theme name. Example: "northsea" · "porcelain"').$id("Themed");
+#+END_SRC
+
+* open
+
+His, each a ruling:
+
+1. *the six names* — =ModuleIdentifier= (his: /"module is the thing paladin.registry returns. the search query on mask module is an ModuleIdentifier."/; =subsystems/paladin/prototypes/registry.js:256= =module(identifier)=; LOCKED /"1 amen."/) · =Version= · =Hash= · =Integrity= · =Index= · =Bytes=, each its key's word, unruled. None adds a constraint: a site refuses what it refused before.
+2. *four things without a noun* (=** unnamed=, 14 sites): a faculty's id ×5 and the provider's id of one tool call ×2: RULED /"ok fuck it id stays."/, the key stays =id=, bare · encoded bytes ×5 · the signing secret ×2. The tree has no word for them. No hunk until he names them.
+3. *the 28 tightenings* (=** tighten=), each refuses values the schematic admits today. Measured on his =localhost= db (=held.db.py= → =held.db.log=, read-only):
+   - =Slug= on every entity slug, ONE pattern everywhere, capitals · =_= · dots · accents inside: RULED /"all these should be captured by the slug."/ · /"i do."/ (one pattern everywhere). Tangled above. Probed (=unicode.probe.js=): his db holds none outside it. Unprobed: a manifest slug with a capital, a dot or =_= as a folder (=daemon_<slug>=) and a reference.
+   - =Slug=: =Daemon= 3 · =Intent= 11 · =Mode= 38 · =User= 1 · =View= 19 slugs held, none outside. =Literal= 2504 of 6812 outside (=abajo.adverb=), =Note= 290 of 290 (=retention.agua.noun=), =Symbol= 1373 of 1384 (=domain.animals=): of those outside, =Literal= 1414 · =Note= 278 · =Symbol= 787 are =Slug= parts joined by dots; the rest carry capitals (=puzzle-0000D= · =opening.eco.A00=), =_=, or accents (=retention.azúcar.noun=).
+   - =Role=: =Turn.role= holds =user= ×81 · =assistant= ×74.
+   - =mime.type= on a part: unmeasured, a part's mime sits inside =Turn.parts=.
+   - =UserReference.slug= wears =Slug= today (=primitives/auth.js:15=), =User.slug= is bare (=entities/user.js:10=): one thing, defined twice.
+4. *the 15 wires* (=** wire=): a string a codec of the tree decodes. Wearing the codec changes what the key HOLDS after decode, from a string to the prototype. =FilePath= has no wearer today.
+5. *the builders without a name* (=v.instant= is RULED and LANDED: /"$id(\"Instant\")"/): =url= · =mime.type= · =v.date= · =v.duration= · =v.datetime= · =v.zoned= · =Reference=. =slug= got its =$id= inside the builder (stop 2). The same act names these; =url= would share the name =Url= with the codec and the prototype.
+6. LANDED WITH IT, unruled: =ModuleIdentifier= is on the tree, so the effect below is live. *=v.collect= answers on the name alone* (=schematics/v.js:15=). With =ModuleIdentifier= on the string arm of =ModeMasks= (=primitives/instance.js:74=) it returns the whole object mode at =/modes/1= beside the four modules (=collect.s6.out.log=). One caller today, by =Mountpoint= (=subsystems/paladin/paladin/lifecycle.js:162=).
+7. *found while reading, outside a scalar's name*:
+   - =Mode.installed= (=entities/mode.js:15=): the example is an ISO stamp, his db holds 38 of 38 eight-hex stamps (=13bbe12e=).
+   - =Activity.status= (=entities/activity.js:10=): its description lists =FAULTED=; =State= (=primitives/controller.js:10=) has =FAILED=, no =FAULTED=.
+   - =StatusCode= (=prototypes/index.js:6=) is worn nowhere; =Status.code= (=prototypes/index.js:17=) is a bare string.
+   - =rounds= has three shapes: 1 to 100, default 12 (=traits/harnessed.js:8=) · 1 or more, default 10 (=primitives/hallucination.js:488= · =:503=) · unbounded (=:168=).
+   - =harmonize= is written twice: bounded in =traits/conversational.js:9=, unbounded in =primitives/hallucination.js:495=.
+   - =Probability= (=primitives/hallucination.js:315=) is declared below =Tune= (=:217=), which holds the same bounds, and is not exported, so =Conversational= cannot wear it.
+   - =AUTOLOGIN.password= asks 8 chars (=primitives/instance.js:103=), =Password= asks 1.
+   - a =$id= is one name in one space; these names are defined twice in =schematics/=: =State= · =Channel= · =Verb= · =Fault= · =Status=, =Signal= three times. It binds the day a closed set names itself.
+
+* measured
+
+- the sites: =sites.py= → =sites.log= (536) · =assign.py= → =counts.log= · =assigned.tsv=.
+- the copy: =copy.sh= (the tree's typology + paladin, the quest's four files replayed) · =edit.py= writes the edits, each must land exactly once · =hunks.py= prints them as the blocks above · =after/= holds the 21 files.
+- the replay: =replay.sh= → =replay.log=: the hunks land on a fresh copy, the 21 files equal =after/=.
+- the suites (=suites.sh=, =HOME= empty): typology on the tree =ok | 168 passed (737 steps)=, on the copy =166 passed (733 steps) | 2 failed (4 steps)=, the two bundle tests a scratch folder cannot bundle. paladin, all but =bundler.test.js=: tree and copy =62 passed (276 steps) | 1 failed (1 step)=, =mod.client.js= on both.
+- the stored snapshots a suite run rewrites, copy against tree, the quest's stop 2 included: =mode-entity= gains 482 =$id= entries · =view-entity= 158 · =file-entity= 86 · =harness-request= 4, and =minLength: 1= four times.
+- =collect.probe.js= → =collect.s6.out.log=: a cast daemon mask has no faults; =v.collect(DaemonMask, mask, ModuleIdentifier)= finds =/modes/0= · =/modes/1/module= · =/modes/1/consume/nlp/module= · =/hallucinators/0/module=, and =/modes/1= (=* open= 6); the instance mask's JSON carries =ModuleIdentifier= 20 times and compiles.
+- the hover (=hover.s6.out.log=): =version: Schematic<TOptional<TString & { $id: "Version" }>>= · =module: Schematic<TString & { $id: "ModuleIdentifier" }>=.
+- who reads =$id= outside =v=: =systems/runtime/gestalten/primer/render.js:5= prints a property as its description, else its =$id=, else its type · both model translators strip it (=commons/hallucinators/anthropic/provider/translate.js:136= · =openrouter/…:137=).
+
+* next
+
+His go lands the hunks, with the quest's four files. Open beside it, his: the five names · the rest of =* open= 3 to 7. Owed with the land: a test in =subsystems/typology/tests/= that =Slug= admits and refuses the values of =unicode.probe.js=.

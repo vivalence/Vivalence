@@ -1,7 +1,7 @@
 import { fn } from "@vivalence/typology";
 import * as population from "./lifecycle/1-population.js";
 import * as resolution from "./lifecycle/2-resolution.js";
-import * as integration from "./lifecycle/3-integration.js";
+import * as integration from "./lifecycle/3-integration.ts";
 
 export const factory = fn.memo(
   async (paladin) => {

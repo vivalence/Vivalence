@@ -14,8 +14,9 @@ import envfile from "./envfile.js";
 import vault from "./vault.js";
 import stamp from "./stamp.js";
 import control from "./control.js";
+import watch from "./watch.js";
 
-export const FULL = [read, find, prime, check, state, envfile, is, scope, publish, source, clone, bundler, expand, vault, stamp, control];
+export const FULL = [read, find, prime, check, state, envfile, is, scope, publish, source, clone, bundler, expand, vault, stamp, control, watch];
 
 export default {
   vault,
@@ -34,4 +35,5 @@ export default {
   expand,
   envfile,
   control,
+  watch,
 };

@@ -7,4 +7,4 @@ export { mode } from "./mode.js";
 export { primer } from "./primer.js";
 export { modes } from "./modes.js";
 export { tool } from "./tool.js";
-export { generative } from "./generative.js";
+export { surfacing } from "./surfacing.js";

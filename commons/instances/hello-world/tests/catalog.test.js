@@ -1,6 +1,6 @@
 import { contexts, Controller, fromm, Path, shard, Span, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
 import { traits } from "@vivalence/runtime";
-const { GENERATIVE } = traits.mode;
+const { SURFACING } = traits.mode;
 import { tools } from "../mode.viva.js";
 import { drawing } from "../page/index.js";
 
@@ -21,15 +21,15 @@ const cortexless = { ...daemon, cortex: null };
 
 // generative.js then tooling.js, in manifest order — both graft onto mode.tools, the one
 // catalog harnessed.js arms. `tools` alone is a catalog the model never gets.
-const generative = {
+const surfacing = {
   manifest: { slug: "hello-world", type: "demo" },
   module: {},
   mountpoint: "/nonexistent/catalog",
   entity: { id: "mode-1" },
   tools: new Vector(),
 };
-await GENERATIVE(generative, { entities: {} });
-const armed = generative.tools.graft(tools);
+await SURFACING(surfacing, { entities: {} });
+const armed = surfacing.tools.graft(tools);
 armed.use(shard.context.spread(contexts.daemonDie, daemon));
 
 const names = () =>
@@ -48,15 +48,15 @@ const invoke = async (name, input) =>
   );
 
 specimen.describe("hello-world tools — the catalog", () => {
-  specimen.it("P-catalog: the armed catalog is four of its own, eight imported from the runtime, five from GENERATIVE", () => {
+  specimen.it("P-catalog: the armed catalog is four of its own, eight imported from the runtime, five from SURFACING", () => {
     specimen.expect(names()).toEqual([
       "buffer_create",
       "buffer_update",
       "buffer_label",
-      "view_create",
-      "view_update",
-      "view_read",
-      "view_list",
+      "surface_create",
+      "surface_update",
+      "surface_read",
+      "surface_list",
       "viva_doctor",
       "web_search",
       "web_read",
@@ -110,7 +110,7 @@ specimen.describe("hello-world tools — the catalog", () => {
 
   specimen.it("P-provenance: the assembly slurps, it does not rewrite", () => {
     const byName = Object.fromEntries(nodes().map((node) => [new ToolCall(node.steps).name, node]));
-    const { viva_doctor: doctor, web_search: search, web_read: read, research, buffer_create: open, view_create: create, view_update: update, view_read: peek, view_list: list } = byName;
+    const { viva_doctor: doctor, web_search: search, web_read: read, research, buffer_create: open, surface_create: create, surface_update: update, surface_read: peek, surface_list: list } = byName;
     specimen.expect(doctor.pattern.valence).toContain("viva instance/doctor");
     specimen.expect(search.pattern.valence).toContain("Wikipedia");
     specimen.expect(read.pattern.valence).toContain("markdown");
@@ -127,7 +127,7 @@ specimen.describe("hello-world tools — the catalog", () => {
   specimen.it(
     "P-noexternal: the refusal rides the trait's door as middleware — a URL import never reaches the bundler",
     async () => {
-      const { condition, product } = await invoke("view_create", {
+      const { condition, product } = await invoke("surface_create", {
         slug: "external",
         mime: "application/vnd.viva.dom.svelte+javascript",
         source: '<script>import x from "https://esm.sh/x";</script><p/>',

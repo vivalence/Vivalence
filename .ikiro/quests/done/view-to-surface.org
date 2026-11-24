@@ -1,0 +1,264 @@
+#+title: view to surface — the buffer view becomes a Surface; skin · plane free the word first
+#+filetags: :typology:entity:mikro:ghost:anima:dapper:drapes:sheets:registry:rename:
+#+status: DONE 11-23 on his /"land view to surface and move to done"/: names · free surface · the Surface entity · his db · the leftovers LANDED; his mount booted on =2026.11.0=, 19 Surfaces by the same ids, 22 holders, 17 Modes =SURFACED=; prod waits its deploy behind the =mount IS NULL= gate
+# writer: agent · limit: 22500 chars
+
+* intent
+
+/"I would like to understand how much work is involved in renaming " view " from the whole buffer view system to"surface" . This also involves the data migration, the relationships, all of that, the entities, the processing, the prototypes, and then it involves moving any current user of surface off that term and onto a new one."/
+
+* rulings
+
+| item | the name | his words |
+|---|---|---|
+| N1 | the client's UI kind `surface` → `skin` | /"- skin (16 + 26 Skin): drapes already has skin-tree · skin-list · skin-palette."/ |
+| N2 | the palette `surface · surfaceSunk · surfaceLift` → `plane · planeSunk · planeLift`, `--surface*` → `--plane*` | /"- plane (plain, 23): a flat level."/ |
+| N3 | `VIEWABLE` → `SURFACED` | /"- SURFACED (0): the -ED family (EXPOSED · BOOTED · INTENTED)."/ |
+| N4 | `view` KEEPS: `ctx.view` · `terminal.dock.view` + `VIEWS` · `telemetry.state.view` · the Glyph `view` prop · `defaultView` · `EditorView` | /"n4 amen"/ |
+| Q1 | drapes `svelte/skins/` (bar `bak/`) | /"q1 cut"/ — LANDED 11-21 |
+| Q2 | drapes `svelte/triage/` | /"q2 cut"/ — LANDED 11-21 |
+
+* terrain — measured (11-21)
+
+| what | count | by |
+|---|---|---|
+| `surface` hits, the whole machine | 6301 | =reference/view-to-surface/terrain.sh= |
+| product hits (code · registry · instances · docs source) | 1248 in 312 files | same, product roots |
+| palette sense · client sense · built · other | 501/141 · 125/25 · 237/30 · 427/168 (hits/files) | =classify.py= |
+| entity-sense `view` tokens, product + tests | 133 files | M0 census |
+| registry `view` files | 63 in 8 packages | M0 census |
+| `View` entities in his db · pivot | 19 · =buffer_views= · =File.view= FK | sqlite3, =localhost.viva.db= |
+| prod `View` · `buffer_views` · `File.view` set / files | 17 · 0 · 19/317 | =reference/view-to-surface/prod.scout.sql=, R000 sidecar |
+| prod `_mikro_migrations` | 3 (`…1106183423` · `…1111171244` · `…1118150121`) | same |
+
+Prod's migrations live in its MOUNTPOINT (=/viva/mountpoint/migrations/= + =.snapshot-prod.viva.db.json=), never the repo: every boot runs `checkSchema` → `create` → `up` (=commons/datamaps/libsql/libsql.viva.js:32=, `transactional: false`), so prod's rename is whatever mikro GENERATES off its own snapshot at the deploy boot. `File_view_foreign` is `on delete cascade`: a drop+create of `View` would take the 19 Files with it.
+
+A THIRD client sense: the frame's bag `{ terminal, buffer, surface }` (=systems/anima/src/surfaces/chrome/widgets/buffer/renderers.js:17= `surfaced(app)` → `{ kind, palette }`), destructured by 27 registry views; under N1 it is `skin`.
+
+* milestones
+
+1. *the names* — LANDED 11-21 (Q1 · Q2 cut; census equal by name).
+2. *free surface* — LANDED 11-22: the client's `skin`, the palette's `plane`; zero `surface` in code outside the keep-list (comments kept).
+3. *the Surface entity* — LANDED 11-23 (=* the Surface entity — the build=; design: =* the Surface entity — the design=). `View` → `Surface` (entity · schematic · relations · `SURFACED` · the mode export · routes · both clients · registry) in ONE pass: split, boot is red.
+4. *his db carries it* — LANDED 11-23, by RENAME (=mount.probe.sh=): the step on the Surface entity's own twitch (=migration-twitch.org= Q15), run through the datamap on a copy of his mount, entities kept. Mikro alone generates DROP + CREATE (=* his db — the probe=), which that step replaces. The mikro migration (`View` → `Surface`, `buffer_views` → `buffer_surfaces`, `File.view` → `File.surface`). Lands WITH 3, never after: the migration is GENERATED at boot (=libsql.viva.js:32=), and a save under the watcher boots, so 3's first save migrates his db. Every row it touches is derived (below).
+
+What the migration touches, measured 11-22 (=local.scout.sql= · =generated.scout.sql=, both dbs):
+
+| | local | prod |
+|---|---|---|
+| `View` rows · minted by `VIEWABLE` at each mode boot (=systems/runtime/subjects/mode/traits/viewable.js:25=) | 19 | 17 |
+| `File.view` set · all `text/javascript` `bundle/*.mjs`, rebuilt by =ViewRepository.bundle= on fetch | 22 | 19 |
+| `buffer_views` rows | 0 | 0 |
+| generated views (`mount IS NULL`) · their source Files: the ONE thing a drop would lose | 0 · 0 | 0 · 0 |
+5. *the leftovers* — LANDED 11-23 (=release.md= four rows · =skills/mode/SKILL.md= · =world/codemap/runtime.md= · =known-issues.org=; other live quests and =roadmap/= keep the old words, theirs to turn): the final grep ran on the copy (=* the Surface entity — the build=); `.ikiro` canon · =release.md= rows turn at the land.
+
+* the Surface entity — the design (11-23, zero product code)
+
+Probes: =reference/view-to-surface/forms.probe.sh= (every identifier form holding `view`, per root) · =context.probe.pl= (each bare hit keyed by its neighbours) · =rows.probe.sh=.
+
+** the name map — his N-rulings carried to every derived form
+
+| today | after | where |
+|---|---|---|
+| `View` · `ViewEntity` · `ViewRepository` · `ViewSchema` · `ViewSchematic` | `Surface` · `Surface*` | =subsystems/typology/entities/View.ts= · =schematics/entities/view.js= |
+| `sets.userspace.view` · `entities.view` · `v.view()` · `traits.view` · `names.view` | `.surface` · `v.surface()` | =entities/index.ts:47= · =schematics/index.js:32= · =schematics/traits/index.js:124= |
+| `Mode.views` · `Buffer.views` · `File.view` · `$views` | `surfaces` · `surface` · `$surfaces` | =Mode.ts:87= · =Buffer.ts:83= · =File.ts:144= · =systems/ghost/entities/buffer/prototype.js:5= |
+| `buffer_views` · `view_id` · table `View` · column `File.view` | `buffer_surfaces` · `surface_id` · `Surface` · `File.surface` | =Buffer.ts:83= |
+| `VIEWABLE` · `traits/viewable.js` · `integrity.js:15` `VIEWABLE: "views"` | `SURFACED` · `surfaced.js` · `SURFACED: "surfaces"` | =systems/runtime/subjects/mode/traits/viewable.js:5= |
+| a mode's `export const views` · `mode.module.views` · `mode.views` | `surfaces` | 15 commons recipes + 28 registry recipes |
+| `/attached/view/:id` · `/entities/view/…` | `/attached/surface/:id` · `/entities/surface/…` | =systems/runtime/subjects/runtime/attachment.js:35= |
+| tools `view_create` · `view_update` · `view_read` · `view_list` · `VIEW_MIME` | `surface_*` · `SURFACE_MIME` | =systems/runtime/gestalten/tools/generative.js= |
+| `belt.view` (`candidates` · `pick` · `entry` · `bytes` · `load` · `identity`) | `belt.surface` | =systems/ghost/gestalten/belt/view.js= |
+| the rig `viewed()` · `VIEW_SEED` · `VIEW_STEPS` · the test mode slug `viewable` | `surfaced()` · `SURFACE_SEED` · `SURFACE_STEPS` · `surfaced` | =systems/runtime/tests/scenarios/viewed.js:17= · =view.walk.test.js:8= |
+
+Moves (14, + 2 bruno dirs of 5 files): =typology/entities/View.ts= → =Surface.ts= · =schematics/entities/view.js= → =surface.js= · =tests/view-entity.snapshot.test.js= · =runtime/subjects/mode/traits/viewable.js= → =surfaced.js= · =runtime/gestalten/primer/view.js= · =runtime/tests/entities/view.test.js= · =runtime/tests/runtime/view.lifecycle.test.js= · =view.walk.test.js= · =tests/scenarios/viewed.js= · =ghost/entities/view/= · =ghost/gestalten/belt/view.js= + its test · =anima/src/skins/chrome/widgets/buffer/view.js= · =panels/frame/view.jsx= · =testament/_bruno/system/attached/view/= · =mode/viewable/=.
+
+** the senses, per root — bare `view` · `views` · `View` · `Views`: 1604 hits in 199 files (`grep -ow`, repo, testament out)
+
+| root | forms hits · files | sense |
+|---|---|---|
+| typology | 428 · 37 | entity, bar `contexts.js:54` (`ctx.view`) · `traits/docked.js:7` (the dock's `view`) · `belt/pcm.js` (a byte view) |
+| paladin | 26 · 9 | entity in 4 rows; `gestalten/commands/views/` (`confirm · form · picker`, 18 `views`) is the held-prompt sense: KEEP |
+| runtime | 419 · 36 | entity, whole |
+| ghost | 333 · 40 | mixed: 10 files carry a keep marker (`dock.view` · `VIEWS` · `Viewed` the telemetry cast) |
+| anima | 534 · 59 | mixed: 9 files (8 source · 1 test) carry a keep marker; =build/= · =.vite/= · =.svelte-kit/= are built, out |
+| dapper · drapes · sheets | 200 · 38 | ZERO entity: the dock's `view`, the Glyph prop, `EditorView`, `defaultView`, css `.view` · `.views` |
+| commons | 2254 · 68 | entity (recipes · `view_*` tools · rigs); 1907 of the hits are `preview` · `REVIEW` |
+| docs source | 31 · 2 | ZERO entity (`sourceView` · `paintView` · `EditorView`) |
+| registry | 1688 · 286 | `VIEWABLE` in 46 files of 7 packages (assembly 8 · chess 11 · education 15 · media 3 · stucatch 1 · vcompany 6 · young-ladys-primer 2) |
+
+The keep-list grows by what N4 did not spell, same sense each: paladin's `commands/views` · ghost `Viewed` (=commands/skin/telemetry.js:4=) · a DOM local `view = …defaultView` · `DataView` · `viewport` · `viewBox` · `preview` · `review`. `buffer.js:15` `VIEWED` is read at the build, not classed here.
+
+The build is the free-surface build again: =rename.py= gains a `view` rule set (allow-list per file, member rules, anchors exact, every rule counted, comments untouched), sandbox + census unchanged. A mixed file (ghost · anima, 19) is ruled per member, never by bare word.
+
+* the Surface entity — the build (11-23, on the copy)
+
+Builder: =reference/view-to-surface/entity.build.py= + =entity.rules.py= (a sense per root: entity · keep · registry; 31 keep-files; protected spans; 15 anchors in 9 files; comments kept).
+
+| rule | hits |
+|---|---|
+| bare `view` · `views` · `View` · `Views` · `viewable` · `viewed` | 731 · 265 · 34 · 2 · 11 · 7 |
+| `VIEWABLE` → `SURFACED` (+ 5 sorted lists · 3 articles) | 102 |
+| tools `view_*` · `ViewEntity…` · `$views` · constants · pivot · camel | 98 · 37 · 15 · 8 · 2 · 4 |
+| registry: recipe exports · `views` in a recipe · members · names · route | 37 · 14 · 6 · 4 · 1 |
+| protected spans (the dock's `view`) · comments kept | 47 · 117 |
+| `GENERATIVE` → `SURFACING` · `generative` → `surfacing` (his /"migrate generative to surfacing. trait name nad types and registry/commons"/) | 27 · 19 |
+| `mode.generator` → `mode.surface` (his /"mode.surface.bundle ?"/) | 13 + 2 stubs |
+| files changed · moves | 190 · 20 |
+
+=subsystems/typology/entities/Surface.ts= is the amen'd file of =migration-twitch.org= Q15, its step on `/before/datamap/migrate/2026.11.0` (Q16).
+
+Census (=entity.census.sh=, pristine vs renamed, reds by name with the rename mapped back): equal in typology · paladin · runtime · ghost · dapper · drapes · hello-world · hallucinators · memo · memo's two · stub · commons · assembly · chess · education · media · stucatch · vcompany. The first run found five reds of the rename, each now a rule: the ctx `view` in =contexts.test.js= (kept), two sorted lists, two barrel name lists, hello-world's pinned sizes (one `SNAPSHOT_HOT=1` at the land). Anima's suite is red on both copies (14 of 21 files, equal by file), so its check is vite: 8.1.0 bundles the renamed anima, exit 0.
+
+His mount (=mount.probe.sh=, a `.backup`, the renamed tree's own datamap as =1-population.js= drives it):
+
+| | before | after the first boot |
+|---|---|---|
+| `View` → `Surface` entities, ids equal | 19 | 19 |
+| Files holding one, holders equal | 22 | 22 |
+| Files · pivot entities · `foreign_key_check` | 336 · 0 · — | 336 · 0 · 0 |
+| migrations | 5 unstamped | + `…_vivalence@2026.11.0` |
+
+A second boot generates nothing; `checkSchema` false, residue empty. The pivot `buffer_views` is dropped and created (0 entities, local and prod).
+
+Mine, said:
+- the focus word `"frame.view"` → `"frame.surface"` (5 files); hello-world's route `/view` and its data key `page.view` → `surface`.
+- KEPT, same word, other sense: the dock's `view` · `VIEWS` · anima's `/harness/view` + `sections.views` · the telemetry tab · the held prompt.
+- NOT turned: registry prose · four education helpers `viewable()` · six snapshot names · comments.
+- stored trait words are migrated (his /"this must be properly migrated."/, my reading: the word in `Mode.traits`): =Mode.ts= gains a twitch, `/after/datamap/migrate/2026.11.0` maps `VIEWABLE` → `SURFACED` · `GENERATIVE` → `SURFACING`; his mount's copy: 17 of 38 Modes held `VIEWABLE`, 0 after. Untouched: 10 Turns whose parts carry `"views":`.
+- a mount first booted on `2026.11.0` BEFORE this lands is stamped and never hears the step: mikro's drop + create then. His mount and prod are unstamped.
+- `SurfaceRepository.generate` keeps its word; no live registry recipe wears `SURFACING`.
+- NOT run: a whole runtime boot of the renamed tree on his instance; neither client drawn.
+
+The stored trait words, his table inline (/"keep it inline. generally keep vector shit inline."/):
+
+#+BEGIN_SRC ts
+// subsystems/typology/entities/Mode.ts · above the descriptor, which gains `twitch`
+const twitch = new Vector().open("/after/datamap/migrate/2026.11.0", (ctx) =>
+  ctx.migrate.mapping("Mode", (mode) => ({
+    traits: mode.traits.map(
+      (word) => ({ VIEWABLE: "SURFACED", GENERATIVE: "SURFACING" })[word] ?? word,
+    ),
+  })),
+);
+#+END_SRC
+
+* his db — the probe (11-23)
+
+=reference/view-to-surface/migration.probe.sh= + =migration.probe.js=: a pristine and a renamed typology clone, each against its own `.backup` of =localhost.viva.db= with his migrations + snapshot, run as boot runs (`checkSchema` → `create` → `up`). Control: pristine says `checkSchema false`, no pending.
+
+#+BEGIN_SRC sql
+-- generated Migration20261123142123.ts, up(), in order (cut to the verbs)
+create table `Surface` (…);
+create table `buffer_surfaces` (`buffer_id` …, `surface_id` …);
+drop table if exists `View`;
+drop table if exists `buffer_views`;
+pragma foreign_keys = off;
+create table `File__temp_alter` (…, `daemon_slug` text null, `surface` text null, …);
+insert into `File__temp_alter` select id, …, user, mode, daemon_slug, view from `File`;
+drop table `File`;
+alter table `File__temp_alter` rename to `File`;
+pragma foreign_keys = on;
+#+END_SRC
+
+| | his db now | the copy after `up` |
+|---|---|---|
+| `View` · `Surface` entities | 19 | 0 |
+| Files holding one | 22 | 0 |
+| Files, all | 336 | 314 |
+| pivot entities | 0 | 0 |
+| `PRAGMA foreign_key_check` | — | 0 |
+| generated (`mount IS NULL`) | 0 | — |
+
+`drop table View` runs with foreign keys ON: `File_view_foreign` cascades, the 22 bundle Files leave with the 19 Views. Both are re-minted: `SURFACED` at each mode boot (=viewable.js:25=), the bundle on first fetch (=View.ts:17=). Ids change; nothing stores a View id (`RENDERED` names a slug, =schematics/traits/rendered.js:5=). The one loss a drop CAN cause is a generated surface (`mount IS NULL`): 0 local, 0 prod (11-22), re-counted on prod the minute before its deploy.
+
+Q3, his: accept mikro's drop + create (no hand-written migration, =map.md= `never by hand`), gated on `SELECT count(*) FROM View WHERE mount IS NULL` = 0. The other road is a hand `alter table … rename`, which the snapshot then has to be taught.
+
+* the leftovers — measured (11-23)
+
+| what | count | act |
+|---|---|---|
+| =tests/snapshots/= | gitignored (`.gitignore:30`) | one `SNAPSHOT_HOT=1` run; 4 memo snapshot NAMES (`memo-view-*`) follow their test |
+| docs source | 0 entity hits | none |
+| live `.ikiro` canon naming the entity | 9 files | =known-issues.org= · =release.md= · =skills/mode/SKILL.md= · =quests/roadmap/written-views.org= · 4 live quests · frontier |
+| =release.md= | 2 rows stand (free surface) | one `renamed` row per interface: entity · trait · mode export · route · tools |
+| bruno | 5 files, 2 dirs | moved with the routes |
+| =testament/= | 3454 hits · 174 files, web captures mostly | his ruling (owed) |
+
+* free surface — the build
+
+Builder: =reference/view-to-surface/rename.py= (allow-list printed, every rule counted, anchors exact, comments untouched), sandbox =sandbox.sh=, census =census.sh=.
+
+| rule | hits |
+|---|---|
+| `--…surface` css vars → `--…plane` | 379 |
+| `surfaceSunk · surfaceLift` → `plane*` | 118 |
+| `surface-sunk · -lift` → `plane-*` | 26 |
+| palette members (`palette · zone · RGB · body .surface`) | 32 |
+| bare words in 26 palette files | 147 |
+| client members (`client · appDie · commands .surface`) | 65 |
+| bare words in 35 client files | 131 |
+| the bag (`{ terminal, buffer, skin }` · `skin: { place` · default) | 39 |
+| paths `surfaces/` · barrel · `bg-surface-` · specials (10, the style.js table + the draw snapshot first) | 27 |
+| `surface` inside comments, kept | 38 |
+| files changed | 211 |
+
+Moves: `systems/ghost/surfaces` → `skins` · `systems/anima/src/surfaces` → `skins` · `systems/ghost/gestalten/commands/surface` → `skin` · `systems/ghost/tests/surfaces` → `skins` · `systems/anima/tests/harness.surfaces.test.js` → `harness.skins.test.js`.
+
+Keep-list (the word means else): English prose ("surfaces the error" · "configuration surface") · linguistic surface forms (education lexicons · nyan `surfaceOf` · dojo `knowables.surface` · nlp) · ghost `belt/journal.js` `surfaced` · vendor skeleton classes · `m6land.ghost.txt` · `bak` · `dataspace-v2-data.md` · his comments.
+
+* blast table
+
+| consumer | BREAKS now | at land |
+|---|---|---|
+| registry views (assembly · chess · education · media · vcompany · young-ladys-primer) | — | read `skin`, not `surface`: land WITH the repo |
+| his instance bundles | — | `var(--surface*)` until rebuilt: =done/m120= rebuilds on fetch when `sources` change |
+| =~/.viva/registry/{media,vcompany}= | — | no VCS: captured to =~/.viva/bak/view-to-surface/= first |
+| his `@` | 256 changed paths | the land wants a fresh `@` (his `jj new`) |
+| anima vite =:1794= | — | `src/surfaces` moves: a reload; a stale module graph → his restart |
+| (entity) his =localhost.viva.db= | — | first save under the watcher migrates it: 19 Views · 22 bundle Files dropped, re-minted at that boot · first fetch |
+| (entity) prod db | — | same at the deploy boot, off ITS snapshot: 17 · 19 (11-22), gate `mount IS NULL` = 0 |
+| (entity) 28 registry recipes · 46 `VIEWABLE` files, 7 packages | — | an unrenamed recipe wears a word the catalog no longer holds: land WITH the repo |
+| (entity) the model's tools `view_*` | — | a harness prompt · a stored turn naming `view_create` reads a tool that is gone |
+| (entity) `/attached/view/:id` | — | a cached client module graph asks the old route: his reload |
+
+* deferred
+
+- the drapes `Desk` slot `surface` (=subsystems/drapes/svelte/panels/Desk.svelte:2=, six registry views `{#snippet surface()}`): a third name, unasked.
+- English · linguistic `surface` (keep-list): his call whether M3 frees them too.
+- his comments naming `--surface*` · `surfaces/` (38 hits): untouched by rule.
+
+* changelog
+
+- 11-21 /"m0 og"/ → the names; /"n4 amen"/; /"q1 cut / q2 cut"/ → drapes `svelte/skins/` · `svelte/triage/` cut, census equal by name.
+- 11-21 /"go m1"/ → sandbox build, 211 files; the comment rule after the first build rewrote his `// [vite]` lines (mine, reported).
+- 11-21 his `jj new` ran in the repo only (one paste of five `!` rows); drift of his tree vs the pristine copy: 0 of the rename's files (=drift.sh=, three rows = census captures). His ask: prod read-only on R000 → terrain rows above.
+- 11-22 his cut of the `@` check and the media · vcompany capture (/"cut."/) → =land.sh= is dry + wet only. Mine, reported: the dry ran into a `| grep` (a refusal would not stop it), the moves were checked after the writes; both fixed, plus a refusal when a file is saved during the scan (a sibling session was editing assembly). His /"go"/ → landed: 213 files (2 more than measured: the sibling's new `--tip-surface` in both guide `Stage.svelte`, turned with its definition), 5 moves; repo = the tested copy byte for byte, 27 sibling-edited assembly files hold no old name; `:2501` restarted (PID 45912 → 10048, `RUNNING`). Left: anima's members bundle (`vivalence.dapper` 43 · `vivalence.drapes.svelte` 25 `--surface`) is built once per vite process (=systems/anima/vite.config.mjs:170=), his restart. Canon turned: =codestyle.md= · =design.md= · =ghost.md= · =known-issues.org=; =release.md= two rows.
+```
+base   hello-world   exit 1      2s  FAILED | 17 passed (62 steps) | 2 failed (2 steps) (1s)
+rig    hello-world   exit 1      2s  FAILED | 18 passed (63 steps) | 1 failed (1 step) (1s)
+```
+- 11-23 /"work out the declared parts."/ → the three DECLARED milestones DESIGNED: name map, senses per root, the migration probed on a copy (drop + create), leftovers measured. Mine, reported: the probe's clone rename is blunt (five entity files, 17 rows), not the builder's; the entity · keep split per root is by file markers, the exact hit split is the builder's count.
+
+
+
+* review — 11-23
+
+| S | stop | rides | verdict | his words |
+|---|---|---|---|---|
+| 1 | a mode ships surfaces: entity · db · trait · route, one pass | N3 · Q3 | amen | /"s1 amen"/ |
+| B1 | the build: the entity carries its own rename step (=Surface.ts= `twitch`) | Q15 · Q16 | amen | /"amn"/ |
+| B2 | the build: Mode · Buffer · File name it, pivot `buffer_surfaces` | — | amen | /"amen"/ |
+| B3 | the build: a mode wears `SURFACED` and exports `surfaces` | N3 | amen | /"s3 amen"/ |
+| B4–B8 | the build: route + tools · ghost · anima · his db · `SURFACING` · `mode.surface` · the Mode step | — | amen | /"all s7 amen"/ · /"s8 amen"/ |
+
+Probes of the stop: =reference/view-to-surface/show.probe.sh= · =surface.probe.js= (a Surface minted on the migrated copy, holds a File, pinned by a Buffer).
+
+* handoff
+
+- goal: `View` → `Surface` across entity · db · clients · registry.
+- done: all five milestones LANDED; =reference/view-to-surface/entity.land.sh= wrote 190 files · 20 moves on the tree and seven registry packages; the suites are equal by red name to the pristine copy with the rename mapped back, hello-world green after one `SNAPSHOT_HOT=1`; his mount migrated by the entity's step at his boot.
+- next: prod by deploy, `SELECT count(*) FROM View WHERE mount IS NULL` = 0 the minute before.
+- never: VCS writes; his `//` lines; `bak/`; a hand-written migration without his word.
+- kept as they are, his /"whatever. move to done"/: 10 stored Turns carrying `"views":` · the `Desk` slot `surface`.
+- owed: rulings on English/linguistic `surface` · `testament/`; anima's suite red before and after (14 of 21 files), neither client drawn by me.

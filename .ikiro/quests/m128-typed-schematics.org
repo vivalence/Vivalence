@@ -1,0 +1,470 @@
+#+title: typed schematics — vivalence typesafe from its own schematics: `v` is the one door, every type is `Static` of a schematic we already wrote, declaration files only where pure JS cannot carry a generic; typology · paladin · runtime · client each export their types and import each other's
+#+filetags: :typology:paladin:runtime:ghost:schematics:types:lsp:testing:snapshots:
+#+status: LANDED: the files of =* as code= and seven root scalars (=ID= · =Slug= · =JWTToken= · =Username= · =Password= · =ModuleIdentifier= · =Instant=); typology's suite green, paladin's one red as before, =mod.client.js= (known issue); the review is through, 5 of 5 amen; appendix 0 indexes the whole repository, appendix I holds the scalars
+# writer: agent · limit: 27000 chars · m128 (his number)
+
+* intent
+
+/"can I derive. Linter, like a deep linter autocomplete for all of the vector inputs, aperture, twitch, tools, and so forth, with a deep LSP integration from the schematics in V. Ignore the completeness problem for now in pure JavaScript."/
+
+/"Your answers are too much on a sketch level. Show me more, especially of the types. If we do this, that would be fairly interesting. I do know, since V is basically a wrapper on typebox, and typebox has this cast or static type that allows us to use just the schematics that we've defined and cast them into TypeScript. That combined with a dedicated PROTOTYPE.d.ts and BELT.d.ts and RUNTIME.d.ts semantic ontology and design with propper barreling and all, should make for a nice, healthy, elegant solution to making vivalence as a whole typesafe. such that f.e. @typology's types can be imported and used throughout teh registry for example."/
+
+/"No type checking for now. We do that once we are done. Problem generally, you invented some terms like own or life and lose. I don't know about those. I don't understand why we can't just work with what we've got. Also enhanced. Where is that coming from? I don't understand. That feels like something that we need to do very iterative and detailed. It does look excellent though. It does look excellent. Another thing is I would suspect that the typology and the runtime and the client all export their own type systems that is based on the other ones, so there is some cross importing. I don't know how that's going to work, but I think it's going to be minimal, and where we do have this cross importing, it might show us or highlight where something is miswired, where something is present in, for example, the client and the runtime, and it should really be a property of the typology. So, and there's probably other issues with coherence, where things aren't well defined, or where two things are defined independently when they're really one, and where we need to be clear on the wiring that we are going for. So that whole process is going to be very interesting. Question was, what do we do? Where do we start? Where do we start? I like the idea of starting on vectors and dice. I like the idea of having entities. I like the idea of having the module or system subsystem level types. So the barreling and exporting and cross importing and. What I would also like is an integration in testing and snapshots. Integration into our fixtures, that is. And I think the subject for that should be the Paladin. The Paladin has the instance configuration and all of that, which is a lot of JSON that can be snapshotted, something that is tested, processed, and computed, where the process can be tested. It is something that, well, we already have schematics and can derive types from it, which is made from all of the scalars and such that we have, the masks and so forth themselves rely on the, or types for strings and so forth, paths, URLs, where we have a prototype, which can have a type, where the schematic, we can define the schematic for the prototype, which is then exported in the prototype d.types. So yeah, I think that is like a nice starting point in terms of vectors that we need to cast die for. Is I would like to start with the aperture and the boot vectors, those two. I think the Paladin already has some sort of boot vector, if I'm not mistaken. We use that, and then the runtime daemon modes."/
+
+/"1: work out my demo case. pull in the context, plan the work, and work out one subset of the problem end to end such that everything i want is demonstrated at least once aka the circle is closed. 2: start quest 128 - typed schematics.org where you demo hte closed circle and the design approach as a whole."/
+
+/"I would like to have the system defined down to the individual scalar."/
+
+/"propose 4 files to rework tangle to demonstrate this whole design. subsystems/typology/schematics/v.d.ts and 3 more. maybe 5 or 6 if some of those are tiny edits"/
+
+* rulings
+
+| item | the ruling | his words |
+|---+---+---|
+| 1 | no type check until the work is done; until then the product is hover and completion | /"No type checking for now. We do that once we are done."/ |
+| 2 | a type is read off what exists; no invented terms | /"I don't understand why we can't just work with what we've got."/ |
+| 3 | small steps | /"very iterative and detailed"/ |
+| 4 | paladin is the demo subject | /"the subject for that should be the Paladin"/ |
+| 5 | the order of the vectors | /"start with the aperture and the boot vectors, those two … and then the runtime daemon modes"/ |
+| 6 | a function outside a typed call learns its die three ways, one case study each: inline in the vector's own call (twitch) · a =/** @type {…} */= row above it (the runtime boot factory) · a =.ts= file (paladin). The comment guard gains =@type= when the runtime boot case study is built, not before | /"a c and d are all valid. for casestudy a we use twitch. case study c we use runtime boot factory. case study d we use paladin."/ · /"amen."/ |
+| 7 | a scalar names itself with =.$id("<Name>")=, as =Mountpoint= does; the =$id= it puts on the wire is an opportunity | /"a"/ · /"It's not a cost, that's an opportunity. It will be interesting for space optimization when we encode the schematics for an LLM context."/ |
+| 8 | the door: one row in =v.js= and =v.d.ts= beside it | /"perfect."/ |
+| 9 | four files carry the design; the lifecycle is not migrated in full | /"ok. we dont do a full migration yet. back to hte simple version. work it out to tangle and show me quest."/ |
+| 10 | stop 2 of the review, a scalar names itself, is locked | /"s2 amen."/ |
+| 11 | stop 3, a path and a url, is locked: /"s3 amen."/ · the scalars are worked out in full, in =m128-appendix-I-scalars.ts.org= | /"lets work out the scalars in full. in an quest appendix called m128-appendix-I-scalars.ts.org"/ |
+| 12 | stop 5 of the review, paladin's settle beat as a =.ts= file, is locked | /"s5 amen."/ |
+| 15 | the quest's code and a small set of appendix I's scalars go to the tree | /"ok. land m128 and a minimum of the scalars from appendix-1. smsall set. half a douzen"/ |
+| 19 | =Slug= is written like its siblings; the builder =slug= and =v.slug= die at every use | /"a."/ |
+| 18 | =ID= · =ModuleIdentifier= · =JWTToken= · =Username= · =Password= as they stand in =subsystems/typology/schematics/scalars/index.js= are locked; =v.instant= names itself =Instant=; the row =export const Slug = slug();= is not locked | /"amen."/ · /"$id(\"Instant\")"/ · /"export const Slug = slug();??????"/ |
+| 17 | the scalars that land are the common root ones; =Probability= · =Hex= · =Alpha= · =Themed= are reverted | /"what? why those?? no. i mean shit like Slug, ID, Timestamp or whatever. common things. base root things. not weird peripherals. revert these."/ |
+| 16 | appendix 0 indexes the whole migration | /"write an appendix 0 - index where you start listing everything we need to migrate the entire repository to schematics. prototypes, entities, all testing, gestlaten,"/ |
+| 14 | stop 4 is locked as: a schematic and its held type share a name in one =.ts= file, the barrels carry both, =primitives= is exported at typology's root | /"the answer is obvious if you look at vivalence's import/export patterns"/ · /"amen"/ |
+| 13 | a held type cast at its consumer is refused; typology exports the instance mask and the requirement already cast | /"i dont like this line. why doestn typology exoprt instancemask and requirements as already cast? something is wrong here."/ |
+
+* as code
+
+Three files written, two renamed, ten more edited. Typology first, then paladin. On the tree. =.ikiro/reference/m128-typed-schematics/four/replay.sh= replayed it before the land.
+
+** 1 · a schematic, down to a named scalar
+
+=v.js= names a declaration file beside it. The file says what the Proxy adds to a typebox schema, and every builder on =v= borrows typebox's own signature.
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/v.js:1
++// @ts-self-types="./v.d.ts"
+ import { IsOptional, Type } from "typebox";
+#+END_SRC
+
+The new file, whole:
+
+#+BEGIN_SRC ts :tangle subsystems/typology/schematics/v.d.ts
+import type {
+  Static,
+  StaticDecode,
+  TLiteral,
+  TLiteralValue,
+  TOptional,
+  TProperties,
+  TSchema,
+  TSchemaOptions,
+  TString,
+  TUnion,
+  TUnsafe,
+  Type,
+} from "typebox";
+import type { Compile } from "typebox/compile";
+import type { Value } from "typebox/value";
+
+export interface Fault {
+  at: string;
+  reason: string;
+}
+
+export interface Position<Held extends TSchema> {
+  at: string;
+  value: Static<Held>;
+}
+
+export type Schematic<Schema extends TSchema = TSchema> = Schema & {
+  desc(text: string): Schematic<Schema>;
+  descr(text: string): Schematic<Schema>;
+  example(...examples: Static<Schema>[]): Schematic<Schema>;
+  eg(...examples: Static<Schema>[]): Schematic<Schema>;
+  default(value: Partial<Static<Schema>>): Schematic<Schema>;
+  group(name: string): Schematic<Schema>;
+  $id<Name extends string>(name: Name): Schematic<Schema & { $id: Name }>;
+  optional(): Schematic<TOptional<Schema>>;
+
+  check(value: unknown): value is Static<Schema>;
+  cast(value: unknown): Static<Schema>;
+  fill(value: unknown): Static<Schema>;
+  create(): Static<Schema>;
+  repair(value: unknown): Static<Schema>;
+  decode(value: unknown): StaticDecode<Schema>;
+  encode(value: StaticDecode<Schema>): Static<Schema>;
+  clean(value: unknown): unknown;
+
+  errors(value: unknown): ReturnType<typeof Value.Errors>;
+  faults(value: unknown): Fault[];
+  collect<Held extends TSchema>(value: unknown, held: Held): Position<Held>[];
+  compile(): ReturnType<typeof Compile>;
+};
+
+type Literals<Values extends readonly unknown[]> = Values extends
+  readonly [infer Head extends TLiteralValue, ...infer Tail] ? [TLiteral<Head>, ...Literals<Tail>]
+  : [];
+
+type Enumerated<Values extends readonly TLiteralValue[]> = number extends Values["length"]
+  ? TUnsafe<Values[number]>
+  : TUnion<Literals<Values>>;
+
+export function enhance<Schema extends TSchema>(schema: Schema): Schematic<Schema>;
+
+export function entityFactory(schematic: unknown): any;
+
+export const v: {
+  string(...options: Parameters<typeof Type.String>): Schematic<TString>;
+  number(...options: Parameters<typeof Type.Number>): Schematic<ReturnType<typeof Type.Number>>;
+  integer(...options: Parameters<typeof Type.Integer>): Schematic<ReturnType<typeof Type.Integer>>;
+  boolean(...options: Parameters<typeof Type.Boolean>): Schematic<ReturnType<typeof Type.Boolean>>;
+  any(): Schematic<ReturnType<typeof Type.Any>>;
+  unknown(): Schematic<ReturnType<typeof Type.Unknown>>;
+  null(): Schematic<ReturnType<typeof Type.Null>>;
+
+  object<Properties extends TProperties>(
+    ...declared: Parameters<typeof Type.Object<Properties>>
+  ): Schematic<ReturnType<typeof Type.Object<Properties>>>;
+
+  array<Items extends TSchema>(
+    ...declared: Parameters<typeof Type.Array<Items>>
+  ): Schematic<ReturnType<typeof Type.Array<Items>>>;
+
+  record<Key extends TSchema, Held extends TSchema>(
+    ...declared: Parameters<typeof Type.Record<Key, Held>>
+  ): Schematic<ReturnType<typeof Type.Record<Key, Held>>>;
+
+  union<Variants extends TSchema[]>(
+    ...declared: Parameters<typeof Type.Union<Variants>>
+  ): Schematic<ReturnType<typeof Type.Union<Variants>>>;
+
+  intersect<Parts extends TSchema[]>(
+    ...declared: Parameters<typeof Type.Intersect<Parts>>
+  ): Schematic<ReturnType<typeof Type.Intersect<Parts>>>;
+
+  interface<Heritage extends TSchema[], Properties extends TProperties>(
+    ...declared: Parameters<typeof Type.Interface<Heritage, Properties>>
+  ): Schematic<ReturnType<typeof Type.Interface<Heritage, Properties>>>;
+
+  const<Value extends TLiteralValue>(value: Value): Schematic<TLiteral<Value>>;
+
+  enum<const Values extends readonly TLiteralValue[]>(
+    values: Values,
+    options?: TSchemaOptions,
+  ): Schematic<Enumerated<Values>>;
+
+  $ref<Reference extends string>(
+    reference: Reference,
+  ): Schematic<ReturnType<typeof Type.Ref<Reference>>>;
+
+  instant(...options: Parameters<typeof Type.String>): Schematic<TString>;
+  date(...options: Parameters<typeof Type.String>): Schematic<TString>;
+  duration(...options: Parameters<typeof Type.String>): Schematic<TString>;
+  datetime(...options: Parameters<typeof Type.String>): Schematic<TString>;
+  zoned(...options: Parameters<typeof Type.String>): Schematic<TString>;
+
+  check<Schema extends TSchema>(schema: Schema, value: unknown): value is Static<Schema>;
+  cast<Schema extends TSchema>(schema: Schema, value: unknown): Static<Schema>;
+  fill<Schema extends TSchema>(schema: Schema, value: unknown): Static<Schema>;
+  create<Schema extends TSchema>(schema: Schema): Static<Schema>;
+  decode<Schema extends TSchema>(schema: Schema, value: unknown): StaticDecode<Schema>;
+  encode<Schema extends TSchema>(schema: Schema, value: StaticDecode<Schema>): Static<Schema>;
+  convert(schema: TSchema, value: unknown): unknown;
+  clean(schema: TSchema, value: unknown): unknown;
+  errors: typeof Value.Errors;
+  faults(schema: TSchema, value: unknown): Fault[];
+  collect<Held extends TSchema>(schema: TSchema, value: unknown, held: Held): Position<Held>[];
+  compile: typeof Compile;
+
+  diff: typeof Value.Diff;
+  patch: typeof Value.Patch;
+  equal: typeof Value.Equal;
+  clone: typeof Value.Clone;
+  isOptional(schema: TSchema): boolean;
+  isNever(schema: TSchema): boolean;
+};
+#+END_SRC
+
+The five string scalars name themselves:
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/scalars/index.js:6
+-export const ID = v.string({ minLength: 1 }).desc("Unique identifier (UUID)");
++export const ID = v.string({ minLength: 1 }).desc("Unique identifier (UUID)").$id("ID");
+…
+-export const slug = (opts) => v.string({ pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$", title: "lowercase alphanumeric words joined by single dashes", ...opts }).desc("URL-compliant identifier");
++export const slug = (opts) => v.string({ pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$", title: "lowercase alphanumeric words joined by single dashes", ...opts }).desc("URL-compliant identifier").$id("Slug");
+…
+-export const JWTToken = v.string({ pattern: "^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]*$" }).desc("JWT token string");
++export const JWTToken = v.string({ pattern: "^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]*$" }).desc("JWT token string").$id("JWTToken");
+…
+-export const Username = v.string({ minLength: 1, maxLength: 64 }).desc("User identifier");
++export const Username = v.string({ minLength: 1, maxLength: 64 }).desc("User identifier").$id("Username");
+…
+-export const Password = v.string({ minLength: 1 }).desc("Password string");
++export const Password = v.string({ minLength: 1 }).desc("Password string").$id("Password");
+#+END_SRC
+
+What his editor shows on =subsystems/typology/schematics/primitives/manifest.js:4=:
+
+#+BEGIN_EXAMPLE
+const Manifest: Schematic<TObject<{
+    type: Schematic<TString>;
+    slug: Schematic<TString & {
+        $id: "Slug";
+    }>;
+    owner: Schematic<TOptional<TString>>;
+    version: Schematic<TOptional<TString>>;
+    name: Schematic<TOptional<TString>>;
+    description: Schematic<TOptional<TString>>;
+    icon: Schematic<TOptional<TObject<{
+        emoji: Schematic<TOptional<TString>>;
+    }>>>;
+    traits: Schematic<TOptional<TArray<Schematic<TString>>>>;
+}>>
+#+END_EXAMPLE
+
+** 2 · a path · a url
+
+A prototype's schematic is a codec: a string written, the prototype held. Its declaration file says so for all seven.
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/prototypes/signatures.js:1
++// @ts-self-types="./signatures.d.ts"
+ import { Type } from "typebox";
+#+END_SRC
+
+The new file, whole:
+
+#+BEGIN_SRC ts :tangle subsystems/typology/schematics/prototypes/signatures.d.ts
+import type { TCodec, TString } from "typebox";
+import type { Schematic, v } from "../v.d.ts";
+import type { Signature as SignatureProto } from "../../prototypes/signature.js";
+import type { Signal as SignalProto } from "../../prototypes/signal.js";
+import type { Path as PathProto } from "../../prototypes/path.js";
+import type { FilePath as FilePathProto } from "../../prototypes/filepath.js";
+import type { Url as UrlProto } from "../../prototypes/url.js";
+import type { Action as ActionProto } from "../../prototypes/action.js";
+import type { Pattern as PatternProto } from "../../prototypes/pattern.js";
+
+type Options = Parameters<typeof v.string>[0];
+type Codec<Prototype> = (options?: Options) => Schematic<TCodec<TString, Prototype>>;
+
+export const Signature: Codec<SignatureProto>;
+export const Signal: Codec<SignalProto>;
+export const Path: Codec<PathProto>;
+export const FilePath: Codec<FilePathProto>;
+export const Url: Codec<UrlProto>;
+export const Action: Codec<ActionProto>;
+export const Pattern: Codec<PatternProto>;
+#+END_SRC
+
+What his editor shows on =subsystems/typology/schematics/primitives/instance.ts:18=:
+
+#+BEGIN_EXAMPLE
+const Mountpoint: Schematic<TString & {
+    '~codec': {
+        encode: TDecodeCallback<unknown, Path>;
+        decode: TEncodeCallback<unknown, Path>;
+    };
+} & {
+    $id: "Mountpoint";
+}>
+#+END_EXAMPLE
+
+** 3 · paladin's instance
+
+A schematic and its held type share a name, in one file; the barrels that carry the schematic carry the type. The schematic file is renamed, two imports follow, one barrel row puts =primitives= at typology's root. Paladin's =Instance= prototype then says: I am typology's instance mask, held. It rides the barrel row that already exports the class (=subsystems/paladin/typology.js:7=).
+
+#+BEGIN_EXAMPLE
+subsystems/typology/schematics/primitives/
+  instance.js  →  instance.ts
+#+END_EXAMPLE
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/instance.ts:1
++import type { StaticDecode } from "typebox";
+ import { v } from "../v.js";
+…
+     telemetry: Telemetry.default({}),
+   },
+   { additionalProperties: true },
+ );
++export type InstanceMask = StaticDecode<typeof InstanceMask>;
+…
+   unset: v.array(v.string()),
+ });
++export type Requirement = StaticDecode<typeof Requirement>;
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/index.js:14
+-export * as instance from "./instance.js";
++export * as instance from "./instance.ts";
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/contexts.js:2
+-import { Mountpoint } from "./instance.js";
++import { Mountpoint } from "./instance.ts";
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/index.js:41
+ export { mime } from "./scalars/index.js";
++export * as primitives from "./primitives/index.js";
+#+END_SRC
+
+Typology also exports the types that have no JS file of their own, under his note:
+
+#+BEGIN_SRC diff
+// subsystems/typology/types.d.ts:1
+ // @beef types are mainly statically resolved typebox json schema.
+
++export type { Static, StaticDecode } from "typebox";
++export type { Fault, Position, Schematic } from "./schematics/v.d.ts";
++
+ // old
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/instance/prototype.js:1
++// @ts-self-types="./prototype.d.ts"
+ export class Instance {
+#+END_SRC
+
+The new file, whole:
+
+#+BEGIN_SRC ts :tangle subsystems/paladin/instance/prototype.d.ts
+import type { primitives } from "@vivalence/typology";
+
+export interface Instance extends primitives.instance.InstanceMask {}
+
+export class Instance {
+  paladin: {
+    requirements: primitives.instance.Requirement[];
+    faults: string[];
+    dormant: unknown[];
+    inherited: string[];
+  };
+
+  client(slug: string): Instance["clients"][number];
+}
+#+END_SRC
+
+What his editor shows on =new Instance().runtime.statics.serve= · =new Instance().daemons[0].mountpoint=:
+
+#+BEGIN_EXAMPLE
+const serve: Url
+const mountpoint: Path
+#+END_EXAMPLE
+
+** 4 · paladin's settle beat as a =.ts= file
+
+The beat's file is renamed; its exported beat says its own parameter. Two imports follow the rename.
+
+#+BEGIN_EXAMPLE
+subsystems/paladin/instance/lifecycle/
+  3-integration.js  →  3-integration.ts
+#+END_EXAMPLE
+
+#+BEGIN_SRC diff
+// subsystems/paladin/instance/lifecycle/3-integration.ts:4
+ import { faults as logged } from "../../prototypes/telemetry.js";
++import type { Instance } from "../prototype.js";
+…
+-export function settle(paladin) {
++export function settle(paladin: { instance: Instance }) {
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/instance/factory.js:4
+-import * as integration from "./lifecycle/3-integration.js";
++import * as integration from "./lifecycle/3-integration.ts";
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/instance/lifecycle/index.js:3
+-export * as integration from "./3-integration.js";
++export * as integration from "./3-integration.ts";
+#+END_SRC
+
+What his editor shows inside =settle=, on =instance.runtime.statics= (=3-integration.ts:97=):
+
+#+BEGIN_EXAMPLE
+(property) statics: {
+    remote?: Url | undefined;
+    serve: Url;
+}
+#+END_EXAMPLE
+
+* milestones
+
+| what he opens | state | what is missing |
+|---+---+---|
+| any schematic: its shape on hover, a named scalar by its name | LANDED | — |
+| a =Url()= · =Path()= key: the prototype it holds | LANDED | — |
+| =new Instance()= from paladin: the instance mask, held, completing key by key | LANDED | — |
+| paladin's =settle= beat: =instance= typed inside it | LANDED | its helpers' parameters and the two sibling files (the full migration, ruling 9) |
+| =paladin.instance= anywhere: the same type | DESIGNED | =Paladin= declares no =instance= (=subsystems/paladin/paladin/lifecycle.js:118= hangs it on); two rows in =subsystems/paladin/paladin/prototype.js=, hover probed, boot unrun |
+| paladin's snapshot fixture tied to the mask | DESIGNED | his ruling on what the fixture is: the stored one lacks =telemetry= |
+| an aperture: =ctx.input= off its signature | DESIGNED | =subsystems/typology/prototypes/vector.d.ts=, probed once, not tangled |
+| a twitch hook, typed inline in its own call | DESIGNED | the same file |
+| the runtime boot: a beat typed by a =@type= row | DESIGNED | the die's type; the comment guard's =@type= (ruling 6) |
+| a die's keys name the prototype's schematic | DESIGNED | the blast of =subsystems/typology/schematics/primitives/contexts.js:22= |
+| daemon · mode executions | DECLARED | |
+| entities | DECLARED | |
+| every system's barrel exports its types | DECLARED | typology's first two rows are in file 3 |
+| belt | DECLARED | |
+| one scalar for each key that still holds a bare =v.string(= | LANDED for the root seven: =ID= (worn at 8 more keys) · =Slug= · =JWTToken= · =Username= · =Password= · =ModuleIdentifier= (14 sites) · =Instant=; the rest TANGLED in appendix I | the wide =Slug= on every entity slug (his, unlanded) · names for =date= · =duration= · =datetime= · =zoned= · =url= · =mime.type= · his ruling on five names, 23 tightenings, 15 wires (the appendix's =* open=) |
+| a named scalar sent once in a model's context | DECLARED | starts where both translators strip =$id= today |
+| the type check | DECLARED | last (ruling 1) |
+
+* never
+
+- a type restated beside its schematic.
+- a second table mapping keys to classes.
+- a type check before he says so.
+- the words =Enhanced= · =Own= · =Live= · =Loose=.
+- a codec scalar (=Path= · =Url=) naming itself: once a name is set the Proxy hands the name back (=subsystems/typology/schematics/v.js:52=), and =Path(…).$id("Mountpoint")= would call a string.
+- =@type= in the comment guard before the runtime boot case study.
+- the full migration of paladin's lifecycle now (ruling 9).
+- =v.primitives.instance.InstanceMask= in type position: =v= is a const and refuses a namespace beside it (=TS2451=, =.ikiro/reference/m128-typed-schematics/s4-held/=).
+- a held type cast at its consumer (ruling 13).
+- a scalar named because it is easy to land: the root ones, the most read, first (ruling 17).
+- a builder for one value (ruling 19).
+- VCS writes; product code before his go.
+
+* open
+
+His to rule:
+
+- the names in the four files: =Schematic= is his noun; =Fault= · =Position= are read off =faults= · =positions= (=subsystems/typology/schematics/v.js:6= · =:13=); =Codec= · =Options= off =codec= · =(options)= (=subsystems/typology/schematics/prototypes/signatures.js:22=).
+- =dormant= is =unknown[]= in file 3: three writers push three shapes and no schematic names one (=subsystems/paladin/instance/lifecycle/3-integration.ts:18= · =subsystems/paladin/prototypes/registry.js:328= · =systems/runtime/subjects/runtime/lifecycle/1-population.js:118=).
+- inside =settle= the hover says =Url= before the value is one: the instance holds strings until its last row decodes it.
+- =ModeMasks= admits a bare string after resolution (=subsystems/typology/schematics/primitives/instance.ts:75=); a typed lifecycle reports it at every =mode.hallucinators=.
+
+* measured
+
+Everything is in =.ikiro/reference/m128-typed-schematics/=. The four files on tree paths, the hovers, the suites and the counts: =four/=. The quest's text before it was cut to this shape: =quest-before-prune.org=.
+
+- In plain JS a parameter is typed only where its function sits inline in a typed call. Outside one it needs a =@type= row or a =.ts= file (ruling 6).
+- A declaration file types a file's importers, never its own body. Nothing checks it against the JS until the type check.
+- =decode= changes the object in place only because =Instance= is a class. On a plain object it returns a new one and the given keeps its strings (=probes/held.probe.js= · =probes/held.instance.probe.js=).
+- A copy of =subsystems/typology= and =subsystems/paladin= runs their suites as the tree does once it also holds =deno.jsonc=, =commons/ledger= and =commons/instances/hello-world= (=four/copy.sh=); typology's two bundle steps stay red on a copy.
+- That =settle= leaves prototypes on the instance is asserted by =subsystems/paladin/tests/settle.test.js:69=.
+- What full coverage of paladin's lifecycle costs (ruling 9 defers it): file 4 in full is 17 rows (=four/full/3-integration.ts=); the two sibling files need five things no file holds yet, listed in =quest-before-prune.org= under its open item 6.
+- A save under =subsystems= restarts a running runtime.
+
+* next
+
+His word on slots 1 and 6 of =m128-appendix-0-index.org=, then the first area. Beside it: appendix I's =* open=. His to look at: =Slug= and =Instant= went to the tree on his lock, with two lines in the registry's =education=.

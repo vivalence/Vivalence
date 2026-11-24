@@ -25,7 +25,7 @@ SHELL — always exactly this frame:
     .page {
       height: 100%; overflow-y: auto; box-sizing: border-box;
       padding: 40px 26px 72px;
-      background: var(--surface);
+      background: var(--plane);
       color: var(--text-strong);
       font-family: var(--font-family-sans-text);
     }
@@ -50,9 +50,9 @@ RULES
     top when a source carries one; not a gallery.
 
 TOKENS
-  surfaces   --surface        the field (the page itself)
-             --surface-sunk   sunk — panels, quotes, tables
-             --surface-lift   raised — a card floating above
+  planes     --plane          the field (the page itself)
+             --plane-sunk     sunk — panels, quotes, tables
+             --plane-lift     raised — a card floating above
   rules      --boundary-soft  hairline
              --boundary       strong rule
   type       --text-strong    headings and values
@@ -97,7 +97,7 @@ PATTERNS — the house dialect. Copy these; do not invent a second one.
       <div class="row"><span class="key">family</span><span class="value">Phoenicopteridae</span></div>
     </div>
     .panel { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px;
-             background: var(--surface-sunk);
+             background: var(--plane-sunk);
              border: 1px solid var(--boundary-soft); border-radius: 6px; }
     .row   { display: flex; align-items: baseline; gap: 10px; padding: 3px 0; }
     .key   { flex: none; width: 96px; font-size: var(--font-size-xs);
@@ -112,7 +112,7 @@ PATTERNS — the house dialect. Copy these; do not invent a second one.
     </figure>
     .figure { margin: 0 0 26px; }
     .figure img { display: block; width: 100%; height: auto; border-radius: 6px;
-                  background: var(--surface-sunk); }
+                  background: var(--plane-sunk); }
     .caption { margin: 6px 0 0; font-family: var(--font-family-code); font-size: var(--font-size-2xs);
                letter-spacing: 0.08em; color: var(--text-light); }
 

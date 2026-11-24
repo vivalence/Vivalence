@@ -1,5 +1,5 @@
 import paladin from "@vivalence/paladin";
-import { specimen, Url, Connection, shard, Path, shape, Aperture } from "@vivalence/typology";
+import { specimen, Url, Connection, shard, Path, shape, Aperture, Twitch } from "@vivalence/typology";
 import { lifecycle, sets } from "@vivalence/runtime";
 import { assemble } from "../../gestalten/belt/assemble.js";
 import { provider } from "../../../../commons/datamaps/libsql/libsql.viva.js";
@@ -91,7 +91,10 @@ specimen.describe("reconcile at boot — population.daemons reads the file again
   let instance;
 
   const boot = async (slugs) => {
-    const datamap = await provider({ mountpoint: new Path(home), statics: { db: { file: FILE } } }, { entities: schemas });
+    const datamap = await provider(
+      { mountpoint: new Path(home), statics: { db: { file: FILE } }, version: paladin.version },
+      { twitch: new Twitch(), entities: schemas },
+    );
     const die = {
       controller: { branch: () => null },
       runtime: {

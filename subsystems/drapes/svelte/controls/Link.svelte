@@ -14,7 +14,7 @@
 
   const variantClasses = $derived(
     variant === "nav"
-      ? `block px-3 py-1.5 rounded text-sm border border-transparent hover:bg-surface-lift ${active ? FILL.primary : "text-strong"}`
+      ? `block px-3 py-1.5 rounded text-sm border border-transparent hover:bg-plane-lift ${active ? FILL.primary : "text-strong"}`
       : "text-link hover:underline",
   );
 </script>

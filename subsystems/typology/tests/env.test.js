@@ -25,7 +25,7 @@ specimen.describe("Env — stratified first-hit fold", () => {
     specimen.expect(env.provenance("KEY")).toBe("flag");
   });
 
-  specimen.it("vars folds to the effective view", () => {
+  specimen.it("vars folds to the effective surface", () => {
     const env = new Env(["flag", "os"]);
     env.assign({ A: 1, B: 2 }, "os");
     env.assign({ B: 9 }, "flag");
@@ -62,7 +62,7 @@ specimen.describe("Env — stratified first-hit fold", () => {
     specimen.expect(env.has("KEY")).toBe(false);
   });
 
-  specimen.it("the views agree — get, vars, provenance, strati are one structure", () => {
+  specimen.it("the surfaces agree — get, vars, provenance, strati are one structure", () => {
     const env = new Env(["flag", "os", "ledger"]);
     env.assign({ A: "os-a", B: "os-b" }, "os");
     env.assign({ B: "ledger-b", C: "ledger-c" }, "ledger");

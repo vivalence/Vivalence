@@ -10,7 +10,7 @@ const LABELS = [
 const label = (node, key) => LABELS.find(([test]) => test(node))[1](node, key);
 
 export const Legend = (props) => (
-  <box style={{ flexDirection: "column", backgroundColor: props.palette.surfaceLift }}>
+  <box style={{ flexDirection: "column", backgroundColor: props.palette.planeLift }}>
     <text fg={props.palette.signalPrimaryInk}>{props.legend.presses.backlog.map((signal) => signal.nature).join(" ")}</text>
     <box style={{ flexDirection: "row", gap: 1 }}>
       <For each={Object.entries(props.legend.chord.branches)}>

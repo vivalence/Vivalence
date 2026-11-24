@@ -29,7 +29,7 @@
     gap: 14px;
     padding: 32px;
     text-align: center;
-    background: var(--surface-lift);
+    background: var(--plane-lift);
     color: var(--text-strong);
     font-family: var(--font-family-code);
   }

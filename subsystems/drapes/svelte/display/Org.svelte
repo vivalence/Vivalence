@@ -114,7 +114,7 @@
     margin: 6px 0;
     border: 1px solid color-mix(in srgb, var(--boundary) 35%, transparent);
     border-radius: 3px;
-    background: color-mix(in srgb, var(--surface-sunk) 35%, transparent);
+    background: color-mix(in srgb, var(--plane-sunk) 35%, transparent);
     overflow: hidden;
   }
   .md-code header {
@@ -126,7 +126,7 @@
     font-size: var(--font-size-2xs);
     letter-spacing: 0.08em;
     text-transform: lowercase;
-    background: color-mix(in srgb, var(--surface-sunk) 60%, transparent);
+    background: color-mix(in srgb, var(--plane-sunk) 60%, transparent);
   }
   .md-lang {
     flex: 1;
@@ -183,7 +183,7 @@
     letter-spacing: 0.08em;
     font-weight: 400;
     font-size: var(--font-size-2xs);
-    background: color-mix(in srgb, var(--surface-sunk) 60%, transparent);
+    background: color-mix(in srgb, var(--plane-sunk) 60%, transparent);
   }
   .md-table tbody tr:last-child td {
     border-bottom: none;

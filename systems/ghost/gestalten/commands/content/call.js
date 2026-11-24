@@ -57,13 +57,16 @@ export const call = new Vector()
           if (interrupted(packet)) voice = { ...voice, heard: { ...voice.heard, [folded.open.id]: speaker.played } };
           if (interrupted(packet)) speaker.flush();
           folded = soma.transcript(folded, packet);
-          voice = { ...voice, state: voiced(voice.state, packet, folded) };
+          const state = voiced(voice.state, packet, folded);
+          if (state !== voice.state) ctx.controller.stdout.log({ call: state, on: packet.event });
+          voice = { ...voice, state };
           ctx.client.app.bridge.$call.set(voice);
           const turn = touched(folded, packet);
           if (turn !== undefined && turn !== null)
             await ctx.client.runtime.entities.turn.merge({ ...turn, thread: ctx.terminal.thread.id, mode: ctx.terminal.mode.id });
         }
       } finally {
+        ctx.controller.stdout.log({ call: "ended", played: speaker.played });
         microphone.release("end");
         speaker.release();
         ctx.client.app.bridge.$call.set(null);

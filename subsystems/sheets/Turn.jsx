@@ -33,7 +33,7 @@ export const call = (status) => lookup(CALLS, status, "call status");
 const Call = (props) => {
   const held = mergeProps({ arg: "", duration: "", loop: false }, props.call);
   return (
-    <box style={{ flexDirection: "row", height: 1, gap: 1, paddingLeft: 1, backgroundColor: props.palette.surfaceSunk }}>
+    <box style={{ flexDirection: "row", height: 1, gap: 1, paddingLeft: 1, backgroundColor: props.palette.planeSunk }}>
       <text fg={props.palette[call(held.status).ink]}>{call(held.status).glyph}</text>
       <Show when={held.loop}>
         <text fg={props.palette.textMuted}>loop</text>

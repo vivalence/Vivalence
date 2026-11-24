@@ -1,0 +1,155 @@
+
+# quests live — 14 files · 394373 chars
+## headings in ≥3 files (files · chars · name)
+   13       571  writer: agent
+   13     15091  intent
+   13      5055  deferred
+   13     36495  changelog
+   13     41380  handoff
+   10      8234  terrain
+   10     29337  as code
+    9     20906  rulings
+    9      7975  milestones
+    7      2065  review
+    5      3969  the law
+    5      2697  blast table
+    4      7132  testing assessment
+    4      3051  qa
+    4      1701  release
+    4     19946  the dialogue
+    3      5708  open
+## rows recording one moment's state (rows · chars of those rows · kind)
+    40     16602  his screen pending
+         e.g. quests/m128-typed-schematics.org: Each is one thing he opens in his editor and sees typed. Order is his ruling 5, paladin first (ruling 4).
+    19      6982  restart · bounce
+         e.g. quests/view-to-surface.org: #+status: names · free surface LANDED (11-21 · 11-22); the Surface entity · his db · the leftovers DESIGNED 11-23 on /"work out the declared parts."/:
+    14      3427  watcher
+         e.g. quests/view-to-surface.org: 4. *his db carries it* — DESIGNED 11-23, PROBED: mikro generates DROP + CREATE (=* his db — the probe=). The mikro migration (`View` → `Surface`, `buf
+    11      9366  session · compact
+         e.g. quests/view-to-surface.org: - 11-22 his cut of the `@` check and the media · vcompany capture (/"cut."/) → =land.sh= is dry + wet only. Mine, reported: the dry ran into a `| grep
+     9      4270  port up · down
+         e.g. quests/view-to-surface.org: - 11-22 his cut of the `@` check and the media · vcompany capture (/"cut."/) → =land.sh= is dry + wet only. Mine, reported: the dry ran into a `| grep
+     7      2125  clock time
+         e.g. quests/view-to-surface.org: - 11-23 /"work out the declared parts."/ → the three DECLARED milestones DESIGNED: name map, senses per root, the migration probed on a copy (drop + c
+     5      1703  pid
+         e.g. quests/view-to-surface.org: - 11-22 his cut of the `@` check and the media · vcompany capture (/"cut."/) → =land.sh= is dry + wet only. Mine, reported: the dry ran into a `| grep
+
+# quests done — 147 files · 9463195 chars
+## headings in ≥3 files (files · chars · name)
+  124    150520  intent
+   87    404249  changelog
+   70     70127  deferred
+   66     78615  milestones
+   66    129944  terrain
+   64    102258  testing assessment
+   59    177012  blast table
+   57     97827  the law
+   53     74749  release
+   52     57755  qa
+   51    148014  handoff
+   37     99602  forks
+   34    712301  as code
+   30    114903  the dialogue
+   28    478833  mn
+   26    100968  rulings
+   20     32158  review
+   20       443  limit: n chars
+   17     10439  open questions
+   16    448411  tangle
+   16     47357  deliverables
+   14     75221  open
+   12     74106  tests
+   11     46481  decisions
+   10      6176  desired end state
+   10     37140  design
+    9     16385  critical pass
+    9      7968  in place
+## rows recording one moment's state (rows · chars of those rows · kind)
+   520     81266  clock time
+         e.g. quests/done/m76-terminals-close-the-dataring.org: 10-05, session test-suite (/"run a full test suite. investigate teh isuses."/; a clonefile of =@= wpmyssqo at 18:00, nothing applied): three reds are 
+   212     70240  session · compact
+         e.g. quests/done/riddler.quest.org: - [X] provider Request contract — riddler emitter/aperture now spawn via =.output.object(schema)= facade (the named =Request= recast; compact [[the-pr
+   160     88181  his screen pending
+         e.g. quests/done/m109-runtime-marks.org: - Q6, written that turn (no hunk before his go): =patrol.js= deleted; its file census is =FileRepository.sweep(now)= (mikro-first, beside Q5's verbs),
+   139     70366  restart · bounce
+         e.g. quests/done/m16_client_provisioning.quest.org: live updates died invisibly on daemon restart, no reconnect until M16.2)
+    88     45314  watcher
+         e.g. quests/done/m11_packages.quest.org: console clean. NOTE: beef's runtime watcher (pid 29956) was killed on a
+    81     15452  pid
+         e.g. quests/done/m11_packages.quest.org: console clean. NOTE: beef's runtime watcher (pid 29956) was killed on a
+    57     24167  port up · down
+         e.g. quests/done/m76-terminals-close-the-dataring.org: "Daemon": [{ "id": "0197b000-…", "slug": "brazilian", "remote": "http://localhost:2501", "reported": "RUNNING" },
+    32      6758  agent bookkeeping
+         e.g. quests/done/m91-subject-object-remodularization.org: | 6 | the codemap | =methods/census.py= rewrites =world/codemap/{runtime,paladin,ghost,design}.md=; =codestyle.md= "A noun is a directory" → the subje
+
+# reference — 277 files · 4588002 chars
+## headings in ≥3 files (files · chars · name)
+   42     17210  writer: agent
+   40     64495  limit: n chars
+   35     25241  drained n-n whole from .ikiro/quests/mn-
+   28   1128043  n
+   23     35011  terrain
+   16    142614  as code
+   14     63470  open
+   14     17098  limit: none
+   13     33871  qn
+   12     43968  handoff
+   11     13420  blast table
+   11     23557  mn
+    9      4661  drained n-n whole from .ikiro/quests/roa
+    8      6089  intent
+    6      5592  review
+    6     11326  landed
+    6     11455  comparative
+    5     29065  the dialogue
+    5     10838  the law
+    5      1498  struck n-n from .ikiro/quests/mn-ghost-b
+    5     28996  n proposals for our harness
+    5     13141  steal list
+    4     17566  deliverables
+    4      6180  precedent
+    4      4159  milestones
+    4      4152  testing assessment
+    4      1691  deferred
+    4      7471  sn
+## rows recording one moment's state (rows · chars of those rows · kind)
+   194     18444  clock time
+         e.g. reference/m96/beef-issues-10-22.org: | 1 | "when i click a thread, it doesnt change thread" | tty + anima | FIXED =thread.js:18= matches =held.word=; both =sections.js= send =/thread <id>
+   134     24622  session · compact
+         e.g. reference/m96/status-history.org: #+status: PROBED 10-21 (session 6, his =go=) — seam 3 CLOSED: the world test swallowed two tangle defects (m88:1135 =clientDie.client.aperture= · m92:
+    60     20497  his screen pending
+         e.g. reference/m96/handoff-10-21.org: - done 10-21 (session 7, his /"finish where you left off"/ + /"thorough testing pass … multi agent"/): the five milestones ran and LANDED on the repo 
+    19      3618  restart · bounce
+         e.g. reference/harness-layout/lab/index.org: seen on the tree, not the lab's: a sibling session saved =systems/runtime/run.js= at 12:49Z (his =:2501= restarted); his runtime writes =systems/runti
+    10      2059  watcher
+         e.g. reference/m96/handoff-10-21.org: - never: =wave= · agent-=cell= · =verb= · =presents= · =mode.mime= · a renderer on the client · a codec on the /repl wire · a =line= field · a painted
+     8      1564  agent bookkeeping
+         e.g. reference/m101/rewalk-10-23.org: - fan-out: five agents (opus, medium) on BASE — typology tests · runtime · ghost · anima · paladin + dapper/drapes/sheets + commons; brief =scratchpad
+     7      1062  pid
+         e.g. reference/tui.md: ● runtime pid 4242 · alive
+     2       733  port up · down
+         e.g. reference/m101/rewalk-10-23.org: - copies: =scratchpad/rig= (untouched) · =scratchpad/base= (replayed); =.env= stripped from both; his =:2501= · =:1794= live, untouched.
+     1       314  my own failure
+         e.g. reference/m119/dialogue.org: | /"ok i want both mode and daemon to follow this pattern … test."/ | probed on =:memory:= with the real entities: 19 probes; then the gravity I misse
+
+# frontier · index · known-issues · release — 4 files · 388440 chars
+## headings in ≥3 files (files · chars · name)
+## rows recording one moment's state (rows · chars of those rows · kind)
+    32     11939  his screen pending
+         e.g. quests/frontier.md: - `m122-harness-layout` — 10 milestones + the pass + the comp INTEGRATED 11-17, acts · folds whole 11-18; next: `converse` declares once a session (hi
+    27      8779  restart · bounce
+         e.g. quests/frontier.md: - `m126-facutly-unfolding` — OWNER of faculty · cortex · harness · conversational; the paladin half LANDED 11-20 (recipe in · mask out · a mask on eve
+    24      5579  watcher
+         e.g. quests/frontier.md: - `m126-facutly-unfolding` — OWNER of faculty · cortex · harness · conversational; the paladin half LANDED 11-20 (recipe in · mask out · a mask on eve
+    23      6148  session · compact
+         e.g. quests/index.md: - `benched/media-editor.org` — media the cutting room — a multitrack video and audio editor as `@media/editor/media` in `~/.viva/registry/media` (LAND
+    13      3267  clock time
+         e.g. known-issues.org: His runtime log 17:40:41–17:40:44, 11-20. m101 R3 rules a missing route records no fault, so nothing flags it. Whether the client retries the write: u
+     6      3401  port up · down
+         e.g. quests/frontier.md: - `m122-harness-layout` — 10 milestones + the pass + the comp INTEGRATED 11-17, acts · folds whole 11-18; next: `converse` declares once a session (hi
+     4      1112  agent bookkeeping
+         e.g. quests/frontier.md: - HIS: wire `unfold.sh` · `unfold-guard.sh` (PreToolUse `Edit|Write`, warn) · `prod-deploy-tails` · `:signal` A|B · m117 commit · Q1 · Q2 web's home (
+     4      1496  pid
+         e.g. known-issues.org: A READ of a registry package's VCS state restarts his running runtime: =git -C ~/.viva/registry/assembly status --short= at 14:24:41 refreshed =.git/i
+     1       378  my own failure
+         e.g. quests/frontier.md: - messenger float (no quest) — LANDED 11-20: 8 grips (`GRIPS` · `MOVES` edges · `carry(event, kinds, held)`) · squeeze (`max-*` + `overflow: clip`) · 

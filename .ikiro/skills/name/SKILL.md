@@ -1,52 +1,43 @@
 ---
 name: name
-description: >-
-  Lock a contested noun as beef does, then land it across the whole machine in one flag day.
+description: Never invent a noun. Lock a contested name the way he does, then rename it across the whole machine in one pass.
 when_to_use: >-
-  "what IS an X?" · "i dont like the name" · "propose 15" · "whats most true?" · "can we steal or must we
-  invent?" · beef refuses a mechanism in one line · a word means two things · "stop coding. start
-  designing" · "design mode" · "ignore the forks" · a NEW kind enters a domain · "explain the full topology to me" · "rename X to Y everywhere" · "BIG rename coming up" ·
-  "globally rename" · after an ontology-pass locks a word · a `manifest.type` string, scope key, env var or
-  export name changes · "no dual read" · "entirely" · a key RETIRED or a path MOVED ("you fucked up the
-  migration") — the grep for the old name is the denominator.
+  "what IS an X?" · "i dont like the name" · "propose 15" · "whats most true?" · "what did we call X" ·
+  "rename X to Y everywhere" · "globally rename" · "no dual read" · a new file, export or key gets a name
 ---
-<!-- limit: 6800 chars -->
-# name — lock a noun, then land it
+<!-- limit: 3000 chars -->
+# name — lock a noun, then rename it everywhere
 
-Order: mechanism proposed → beef refuses in one line → ontology named → sketch.
+## before I type a new name
 
-## lock — the ontology pass
+- Grep his turns and the tree for the word he used. His word is the name.
+- A word he killed is never used again, in code or in a reply.
+- Grep the new name. Is it taken? Does it already mean another thing?
+- An entity kind (`file`, `thread`, `mode`) names nothing else.
+- A new name joins the family its neighbours are in.
+- A name says the thing or the mechanism. Never a role, never drama.
 
-1. **the dissatisfaction is the spec** — /"lets globally rename cake. i dont like the name."/: what it must NOT be.
-2. **collisions from disk FIRST** — `ls` typology's `prototypes/` · `gestalten/shard/`; census how many THINGS it means today. A collision is a DIFFERENT concept; the word naming the values is the heir (10-10 `bundle` ✗ its `Bundle`). A NEW member of a closed set (`FacultyType` · a trait catalog) → the set's naming LAW first, from its rename quest (04-17 `verbatim`: the PRODUCT, never the medium; REJECTED 11-08 `image` → `picture`).
-3. **count what wants naming** — /"Two things want naming: the UNIT and the ORGAN."/
-4. **propose fifteen** — by REGISTER, one-line case each, STRUCK kept, a **Lean**, no decision. Plain words; extend the family; the name says the MECHANISM (`LOOPING`), never the drama. REJECTED: a coined register (/"what is Crib?"/) · 10-16 `POSSESSED` (/"so theatrical"/); each coined candidate says `(mine, N hits)` RUN.
-5. **precedent** — in-repo AND external → STEAL or INVENT.
-6. **the PRINCIPLE that decides**, not the winner — /"Residence disambiguates; one noun per concept across the wire"/.
-7. **the noun→meaning table**, a row per term, `DEAD` too; **prove it latent on disk**, `file:line`.
-8. **the lock** — beef writes the call or says `amen`, PER ITEM; terse words map IN ORDER (REJECTED 10-23 /"its the legend???? what?"/), then land. A naming LAW he states for a kind (/"universal"/ · /"throughout"/) covers EVERY member of the kind, census'd from the owner's exports that turn, a schematic MINTED later under that kind takes the law at birth (11-20 `ModeTrait` → `ModeRecipeTrait` · `ModeMaskTrait`), a lopsided one never left for his next message (11-20 lighthouse · datamap · statics · secrets · environment kept bare ×2, /"fix these. bring them into the fold."/).
+## lock
 
-Rejections:
-- a NEW file · export · Vector is a NAME: this skill loads BEFORE it is shown; an entity kind (`file` · `thread` · `mode`: `entities.<kind>` · `v.<kind>()`) never names anything else, "the sibling is named for its branch" is no licence (REJECTED 11-20 `file.js` · `export const file` /"no. its not file. read the codestyle omg."/).
-- a name I CARRY into a sketch is mine: grepped FIRST, renamed in the diff, and SHOWN beside its neighbours in the same store (what each answers, one table) before he must ask. REJECTED 10-12 `enter()` · `door` · 11-19 `upstream` · 11-20 `picks` beside `selected` · `cursor` (/"is pick different from selected or active?"/ → he took `cursor`).
-- a verb in HIS paste is his: `/chrome` ADDS beside `/repl`; his `repl or chrome` is a list, not a choice — REJECTED 10-15 (/"WHERE IS FUCKING RPLLL"/).
-- a union by absent fields → a discriminator `kind` · too flat → /"there should be a ancestor key."/
+1. His dislike is the spec: what the name must not be.
+2. List what the word means today, read from disk. Count the things that want a name.
+3. Propose fifteen, one line each, in plain words. Say which I pick. Decide nothing.
+4. Show a table: each term and its meaning, dead terms too.
+5. He picks, per item.
 
-Design mode (/"ignore the forks."/): no forks, no code, end on the sharpest tension.
-Interview → `drill-me`'s question shape (REJECTED 10-16 /"gibberish"/ · 10-15 /"word salad"/).
+## rename everywhere
 
-## land — the rename pass
+One pass, nothing else in it. No alias, no dual read, no fallback, no "was X" comment.
 
-/"entirely. no dual read. replace with instance."/ · /"no fallback window."/ · /"rename files, content and references."/
+1. List where the word survives with another meaning. Those are kept.
+2. Grep everything: identifiers, manifest types, env vars, routes, file names, fixtures, snapshots, docs, the values his db stores.
 
-0. **its own pass** — pure, on a clean tree (WIP committed); behaviour lands before/after on ONE set of names (04-18 /"do it now. rename later."/).
-1. **keep-list** — every place the word SURVIVES meaning else (`font-variant-numeric` · `.ikiro/` history · `.bak`), BEFORE the grep.
-2. **term census** — identifiers · `manifest.type` · scope keys · `VIVA_*` · route nouns · file/dir names · fixtures · snapshots · docs · bruno · compose · `.mjs`. `/usr/bin/grep -rI`, NO include filters (REJECTED 10-13: shell `grep` reads `.gitignore`), the literal AND its regex-escaped form `grep -rnIF 'a\.b'` (REJECTED 10-24: `vnd\.vivalence` hid in 3 files); an old word that SURVIVES as another thing (a package · a daemon): its bare hits in every DOC are READ, backticked too (11-20 two `README` rows kept the guide's old slug).
-3. **radius = the whole machine** — repo + `~/.viva/{instances,registry}/*`; a tapped package "owed" is not landed; `~/.viva` → capture first (skill `readme`). His rows, on a copy, backup first: a trait KEY → `json_type(trait,'$.T.k')` (11-09); a mode id → prune nulls EVERY `SET NULL` FK (11-12: Thread missed).
-4. **relative imports** — `grep -rnE '\.\./.*<old>(/|\.viva\.js)'`; quest-tangle NEW files; every `file:N` past a dropped line (REJECTED 10-19).
-5. **new names exact** — `grep -rn '<new>'` first, and a slug against its uniqueness SCOPE (a literal's is the daemon, across ontologies: 11-20 part and guide both read as `quadrocopter`); a key may be RULED, unlanded: grep `.ikiro/quests` incl. `done/` · `discarded/` (REJECTED 10-21 `VIVA_VAULT_MOUNT`).
-6. **the atomic spine** — scope key · env var · `find.type` · manifest `type` · ledger path form in ONE milestone; split, boot is red.
-7. **bracket it** — skill `change`; fixtures + snapshots, repo AND registry → ZERO old name. ONE asserted script, dry then wet: regex anchored per namespace, passes ordered, `grep -o | wc -l` before = after, dead token rescanned, a miss refuses. Every changed row READ: a same word is another thing (11-20 paladin's `Instance` class turned with the schematic). A name that SWAPS meaning · a rename under a tangled quest: its own FIRST section, the script run on EVERY stage copy, each block regenerated between them; pure = each schematic's JSON hashed before · after.
-8. **residue grep** — outside the keep-list = a miss; `.ikiro/` zero outside history, shards re-stamped. REJECTED 11-04 `sed -i` over history.
+```sh
+/usr/bin/grep -rI '<old>' . ~/.viva/instances ~/.viva/registry
+```
 
-REJECTED: an alias · a dual read · a deprecation window · `// was X` · renaming his `//` lines or `bak/` · `git mv`.
+3. The radius is the whole machine: the repo and `~/.viva`. Copy `~/.viva` data before changing it.
+4. A word his db stores moves by a migration step in the same pass.
+5. Keys that must change together change in one milestone, or the boot is red.
+6. Rename by one script, dry run first. Read every changed line.
+7. Grep again. A hit outside the kept list is a miss.

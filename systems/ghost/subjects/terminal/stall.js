@@ -13,7 +13,7 @@ phases
   .use(async (stallCtx, next) => {
     if (
       stallCtx.terminal.thread.mode !== null &&
-      stallCtx.terminal.thread.mode.traits.includes("VIEWABLE") &&
+      stallCtx.terminal.thread.mode.traits.includes("SURFACED") &&
       stallCtx.terminal.stall.$buffers.get().length === 0
     )
       await stallCtx.terminal.client.runtime.entities.buffer.ensure({ mode: stallCtx.terminal.thread.mode.id, thread: stallCtx.terminal.thread.id, data: {} });

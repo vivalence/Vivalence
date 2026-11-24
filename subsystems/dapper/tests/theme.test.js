@@ -13,7 +13,7 @@ const SPARSE = {
   text: { strong: "#0B0F2D", ink: "#3D372A", muted: "#5A5240" },
   control: { contrast: "#DAD4C0", field: "#FBFAF2" },
   signal: { primary: "#045554", positive: "#41732A", caution: "#AC575C", negative: { fill: "#C74E31", ink: "#A23920" } },
-  zones: { 0: { surface: "#F5F3E8", size: { unit: ".2rem" } }, 1: { surface: "#F0EDDE", boundary: "#A0967C" }, 3: "#FBFAF2" },
+  zones: { 0: { plane: "#F5F3E8", size: { unit: ".2rem" } }, 1: { plane: "#F0EDDE", boundary: "#A0967C" }, 3: "#FBFAF2" },
 };
 
 const plain = (held) => held !== null && typeof held === "object" && !Array.isArray(held);
@@ -32,8 +32,8 @@ specimen.describe("theme() — the floor", () => {
     const cases = [
       [{ signal: FLOOR.signal, zones: FLOOR.zones }, "text.ink"],
       [{ text: FLOOR.text, zones: FLOOR.zones }, "signal.primary fill"],
-      [{ text: FLOOR.text, signal: FLOOR.signal }, "one zone surface"],
-      [{ text: FLOOR.text, signal: FLOOR.signal, zones: { 1: { boundary: "#A0967C" } } }, "one zone surface"],
+      [{ text: FLOOR.text, signal: FLOOR.signal }, "one zone plane"],
+      [{ text: FLOOR.text, signal: FLOOR.signal, zones: { 1: { boundary: "#A0967C" } } }, "one zone plane"],
       [{ text: FLOOR.text, signal: { primary: { ink: "#045554" } }, zones: FLOOR.zones }, "signal.primary fill"],
       [{ text: { strong: "#0B0F2D" }, signal: FLOOR.signal, zones: FLOOR.zones }, "text.ink"],
     ];
@@ -49,7 +49,7 @@ specimen.describe("theme() — the floor", () => {
   });
 
   specimen.it("an empty definition names all three", () => {
-    specimen.expect(() => theme({})).toThrow("one zone surface · text.ink · signal.primary fill");
+    specimen.expect(() => theme({})).toThrow("one zone plane · text.ink · signal.primary fill");
   });
 
   specimen.it("no definition at all throws the same way", () => {
@@ -165,7 +165,7 @@ specimen.describe("theme() — derive: signal", () => {
     for (const name of SIGNALS) specimen.expect([name, held[name].fill]).toEqual([name, "#045554"]);
   });
 
-  specimen.it("on is the text header or the bench surface, whichever reads better on the fill", () => {
+  specimen.it("on is the text header or the bench plane, whichever reads better on the fill", () => {
     const dark = theme({ text: { ink: "#101010" }, signal: { primary: "#F0F0F0", negative: "#202020" }, zones: { 3: "#FAFAFA" } });
     specimen.expect(dark.signal.primary.on).toBe("#101010");
     specimen.expect(dark.signal.negative.on).toBe("#FAFAFA");
@@ -203,7 +203,7 @@ specimen.describe("theme() — derive: control", () => {
   });
 
   specimen.it("an omitted contrast takes the zone's boundary, an omitted field its sunk step", () => {
-    const held = over({ zones: { 1: { surface: "#F0EDDE", surfaceSunk: "#E9E5D3", boundary: "#A0967C" } } });
+    const held = over({ zones: { 1: { plane: "#F0EDDE", planeSunk: "#E9E5D3", boundary: "#A0967C" } } });
     specimen.expect([held.control.contrast, held.control.field]).toEqual(["#A0967C", "#E9E5D3"]);
   });
 
@@ -218,29 +218,29 @@ specimen.describe("theme() — derive: control", () => {
 });
 
 specimen.describe("theme() — derive: a zone's ground", () => {
-  specimen.it("a colour for a zone is its surface; sunk, lift and inverse-on take it", () => {
+  specimen.it("a colour for a zone is its plane; sunk, lift and inverse-on take it", () => {
     const zone = theme(FLOOR).zones[1];
-    specimen.expect([zone.surface, zone.surfaceSunk, zone.surfaceLift, zone.inverseOn]).toEqual(Array(4).fill("#F0EDDE"));
+    specimen.expect([zone.plane, zone.planeSunk, zone.planeLift, zone.inverseOn]).toEqual(Array(4).fill("#F0EDDE"));
   });
 
   specimen.it("strong and divider take the boundary; soft is the boundary at .5", () => {
-    const zone = over({ zones: { 1: { surface: "#F0EDDE", boundary: "#A0967C" } } }).zones[1];
+    const zone = over({ zones: { 1: { plane: "#F0EDDE", boundary: "#A0967C" } } }).zones[1];
     specimen.expect([zone.boundaryStrong, zone.divider, zone.boundarySoft]).toEqual(["#A0967C", "#A0967C", "rgba(160, 150, 124, 0.5)"]);
   });
 
   specimen.it("scrim is the sunk step at .6; inverse is the text strong", () => {
-    const zone = over({ text: { strong: "#0B0F2D" }, zones: { 1: { surface: "#F0EDDE", surfaceSunk: "#E9E5D3" } } }).zones[1];
+    const zone = over({ text: { strong: "#0B0F2D" }, zones: { 1: { plane: "#F0EDDE", planeSunk: "#E9E5D3" } } }).zones[1];
     specimen.expect([zone.scrim, zone.inverse]).toEqual(["rgba(233, 229, 211, 0.6)", "#0B0F2D"]);
   });
 
-  specimen.it("no boundary stated anywhere: a quarter of the ink over the surface, opaque", () => {
+  specimen.it("no boundary stated anywhere: a quarter of the ink over the plane, opaque", () => {
     const zone = theme({ text: { ink: "#000000" }, signal: { primary: "#045554" }, zones: { 1: "#FFFFFF" } }).zones[1];
     specimen.expect(zone.boundary).toBe("#BFBFBF");
   });
 
   specimen.it("every stated ground key stands", () => {
     const stated = {
-      surface: "#000001", surfaceSunk: "#000002", surfaceLift: "#000003", boundary: "#000004", boundaryStrong: "#000005",
+      plane: "#000001", planeSunk: "#000002", planeLift: "#000003", boundary: "#000004", boundaryStrong: "#000005",
       boundarySoft: "rgba(1, 2, 3, 0.1)", divider: "#000006", inverse: "#000007", inverseOn: "#000008",
       shadow: "rgba(1, 2, 3, 0.2)", scrim: "rgba(1, 2, 3, 0.3)", dim: 0.4,
     };
@@ -250,7 +250,7 @@ specimen.describe("theme() — derive: a zone's ground", () => {
 });
 
 specimen.describe("theme() — zones: omitted, nearest, the lower on a tie", () => {
-  const surfaces = (zones) => theme({ ...FLOOR, zones }).zones.map((zone) => zone.surface);
+  const planes = (zones) => theme({ ...FLOOR, zones }).zones.map((zone) => zone.plane);
   const A = "#00000A", B = "#00000B", C = "#00000C", D = "#00000D";
 
   specimen.it("every subset of the four zones completes to four", () => {
@@ -271,25 +271,25 @@ specimen.describe("theme() — zones: omitted, nearest, the lower on a tie", () 
       [{ 1: B, 2: C, 3: D }, [B, B, C, D]],
       [{ 0: A, 1: B, 2: C, 3: D }, [A, B, C, D]],
     ];
-    for (const [zones, expected] of cases) specimen.expect([Object.keys(zones).join(""), surfaces(zones)]).toEqual([Object.keys(zones).join(""), expected]);
+    for (const [zones, expected] of cases) specimen.expect([Object.keys(zones).join(""), planes(zones)]).toEqual([Object.keys(zones).join(""), expected]);
   });
 
   specimen.it("an omitted zone copies the whole of its neighbour, overrides included", () => {
-    const held = over({ zones: { 1: { surface: B, dim: 0.3, size: { unit: ".2rem" }, signal: { negative: { ink: "#111111" } } } } });
+    const held = over({ zones: { 1: { plane: B, dim: 0.3, size: { unit: ".2rem" }, signal: { negative: { ink: "#111111" } } } } });
     for (const zone of held.zones) {
       specimen.expect([zone.dim, zone.size.unit, zone.signal.negative.ink]).toEqual([0.3, ".2rem", "#111111"]);
     }
   });
 
-  specimen.it("a stated zone without a surface or a boundary takes the nearest that states one", () => {
-    const held = theme({ ...FLOOR, zones: { 0: { boundary: "#0000B0" }, 1: { surface: B }, 3: { surface: D, boundary: "#0000B3" } } });
-    specimen.expect(held.zones.map((zone) => zone.surface)).toEqual([B, B, B, D]);
+  specimen.it("a stated zone without a plane or a boundary takes the nearest that states one", () => {
+    const held = theme({ ...FLOOR, zones: { 0: { boundary: "#0000B0" }, 1: { plane: B }, 3: { plane: D, boundary: "#0000B3" } } });
+    specimen.expect(held.zones.map((zone) => zone.plane)).toEqual([B, B, B, D]);
     specimen.expect(held.zones.map((zone) => zone.boundary)).toEqual(["#0000B0", "#0000B0", "#0000B3", "#0000B3"]);
   });
 
   specimen.it("a zone that states only an override keeps its neighbour's ground and its own override", () => {
     const held = theme({ ...FLOOR, zones: { 1: B, 3: { text: { muted: "#111111" } } } });
-    specimen.expect(held.zones[3].surface).toBe(B);
+    specimen.expect(held.zones[3].plane).toBe(B);
     specimen.expect(held.zones[3].text.muted).toBe("#111111");
     specimen.expect(held.zones[1].text.muted).toBe(FLOOR.text.ink);
   });
@@ -297,41 +297,41 @@ specimen.describe("theme() — zones: omitted, nearest, the lower on a tie", () 
 
 specimen.describe("theme() — merge: a zone restates only what differs", () => {
   specimen.it("a zone overriding signal.negative.ink keeps the fill, the tint and the on", () => {
-    const held = over({ signal: { negative: { fill: "#C74E31", ink: "#A23920", on: "#FBFAF2" } }, zones: { 3: { surface: "#FBFAF2", signal: { negative: { ink: "#7C2A16" } } } } });
+    const held = over({ signal: { negative: { fill: "#C74E31", ink: "#A23920", on: "#FBFAF2" } }, zones: { 3: { plane: "#FBFAF2", signal: { negative: { ink: "#7C2A16" } } } } });
     specimen.expect(held.zones[3].signal.negative).toEqual({ fill: "#C74E31", ink: "#7C2A16", tint: "rgba(199, 78, 49, 0.18)", on: "#FBFAF2" });
     specimen.expect(held.zones[1].signal.negative.ink).toBe("#A23920");
     specimen.expect(held.signal.negative.ink).toBe("#A23920");
   });
 
   specimen.it("a zone overriding a fill re-derives the ink and the tint it never stated", () => {
-    const held = over({ zones: { 2: { surface: "#FBFAF2", signal: { primary: "#1EBCB5" } } } });
+    const held = over({ zones: { 2: { plane: "#FBFAF2", signal: { primary: "#1EBCB5" } } } });
     specimen.expect(held.zones[2].signal.primary).toEqual({ fill: "#1EBCB5", ink: "#1EBCB5", tint: "rgba(30, 188, 181, 0.18)", on: held.zones[2].signal.primary.on });
     specimen.expect(held.zones[2].control.selected).toBe("rgba(30, 188, 181, 0.18)");
     specimen.expect(held.zones[1].signal.primary.fill).toBe("#045554");
   });
 
   specimen.it("a zone overriding size.unit keeps every sibling", () => {
-    const held = over({ zones: { 0: { surface: "#F5F3E8", size: { unit: ".2rem" } } } });
+    const held = over({ zones: { 0: { plane: "#F5F3E8", size: { unit: ".2rem" } } } });
     specimen.expect(held.zones[0].size.unit).toBe(".2rem");
     specimen.expect({ ...held.zones[0].size, unit: ".25rem" }).toEqual(held.size);
     specimen.expect(held.zones[1].size.unit).toBe(".25rem");
   });
 
   specimen.it("a zone overriding text.strong moves its own inverse and its own control label", () => {
-    const held = over({ text: { strong: "#0B0F2D" }, zones: { 3: { surface: "#FBFAF2", text: { strong: "#111111" } } } });
+    const held = over({ text: { strong: "#0B0F2D" }, zones: { 3: { plane: "#FBFAF2", text: { strong: "#111111" } } } });
     specimen.expect([held.zones[3].inverse, held.zones[3].control.on]).toEqual(["#111111", "#111111"]);
     specimen.expect([held.zones[1].inverse, held.zones[1].control.on]).toEqual(["#0B0F2D", "#0B0F2D"]);
   });
 
   specimen.it("a zone overriding radius by shorthand rescales that zone alone", () => {
-    const held = over({ zones: { 2: { surface: "#FBFAF2", shape: { radius: "0px", relief: "sunk" } } } });
+    const held = over({ zones: { 2: { plane: "#FBFAF2", shape: { radius: "0px", relief: "sunk" } } } });
     specimen.expect(held.zones[2].shape.radius.md).toBe("0px");
     specimen.expect(held.zones[2].shape.relief).toBe("sunk");
     specimen.expect(held.zones[1].shape.radius.md).toBe("4px");
   });
 
   specimen.it("the theme's own groups carry no zone's override", () => {
-    const held = over({ zones: { 1: { surface: "#F0EDDE", text: { ink: "#111111" }, size: { unit: ".5rem" } } } });
+    const held = over({ zones: { 1: { plane: "#F0EDDE", text: { ink: "#111111" }, size: { unit: ".5rem" } } } });
     specimen.expect([held.text.ink, held.size.unit]).toEqual([FLOOR.text.ink, ".25rem"]);
     specimen.expect([held.zones[1].text.ink, held.zones[1].size.unit]).toEqual(["#111111", ".5rem"]);
   });
@@ -350,7 +350,7 @@ specimen.describe("theme() — layers", () => {
 
   specimen.it("a zone stated across two layers is one zone", () => {
     const held = theme(FLOOR, { zones: { 1: { boundary: "#A0967C" } } }, { zones: { 1: { dim: 0.2 } } });
-    specimen.expect([held.zones[1].surface, held.zones[1].boundary, held.zones[1].dim]).toEqual(["#F0EDDE", "#A0967C", 0.2]);
+    specimen.expect([held.zones[1].plane, held.zones[1].boundary, held.zones[1].dim]).toEqual(["#F0EDDE", "#A0967C", 0.2]);
   });
 
   specimen.it("the floor may be reached across layers", () => {
@@ -406,9 +406,9 @@ specimen.describe("theme() — the sparse definition, key by key", () => {
     ["zones[0].size.unit", held.zones[0].size.unit, ".2rem"],
     ["zones[1].size.unit", held.zones[1].size.unit, ".3rem"],
     ["zones[0].boundary", held.zones[0].boundary, "#A0967C"],
-    ["zones[2].surface", held.zones[2].surface, "#F0EDDE"],
+    ["zones[2].plane", held.zones[2].plane, "#F0EDDE"],
     ["zones[2].boundary", held.zones[2].boundary, "#A0967C"],
-    ["zones[3].surface", held.zones[3].surface, "#FBFAF2"],
+    ["zones[3].plane", held.zones[3].plane, "#FBFAF2"],
     ["zones[3].boundary", held.zones[3].boundary, "#A0967C"],
     ["zones[3].signal.negative.ink", held.zones[3].signal.negative.ink, "#A23920"],
   ];
@@ -445,7 +445,7 @@ specimen.describe("theme() — the two themes dapper ships", () => {
   specimen.it("northsea's zone 3, whole, is the quest's witness", () => {
     const zone = THEMES.northsea.zones[3];
     specimen.expect(Object.fromEntries(Object.entries(zone).filter(([, held]) => !plain(held)))).toEqual({
-      surface: "#1A2A38", surfaceSunk: "#0E1A25", surfaceLift: "#243544",
+      plane: "#1A2A38", planeSunk: "#0E1A25", planeLift: "#243544",
       boundary: "#384A5E", boundaryStrong: "#6B7E91", boundarySoft: "rgba(56, 74, 94, 0.5)",
       divider: "#243544", inverse: "#E6EAEF", inverseOn: "#1A2A38",
       shadow: "rgba(0, 0, 0, 0.45)", scrim: "rgba(14, 26, 37, 0.6)", dim: 0.55,
@@ -464,9 +464,9 @@ specimen.describe("theme() — the two themes dapper ships", () => {
     specimen.expect(THEMES.parchment.zones.map((zone) => zone.shadow)).toEqual(Array(4).fill("rgba(61, 55, 42, 0.16)"));
   });
 
-  specimen.it("the four surfaces of each theme are four territories", () => {
-    specimen.expect(THEMES.northsea.zones.map((zone) => zone.surface)).toEqual(["#0E1A25", "#06101D", "#060D14", "#1A2A38"]);
-    specimen.expect(THEMES.parchment.zones.map((zone) => zone.surface)).toEqual(["#F0EDDE", "#F5F3E8", "#FBFAF2", "#E9E5D3"]);
+  specimen.it("the four planes of each theme are four territories", () => {
+    specimen.expect(THEMES.northsea.zones.map((zone) => zone.plane)).toEqual(["#0E1A25", "#06101D", "#060D14", "#1A2A38"]);
+    specimen.expect(THEMES.parchment.zones.map((zone) => zone.plane)).toEqual(["#F0EDDE", "#F5F3E8", "#FBFAF2", "#E9E5D3"]);
   });
 
   specimen.it("a theme's root groups equal its body zone's", () => {
@@ -494,7 +494,7 @@ specimen.describe("theme() — fonts", () => {
   });
 
   specimen.it("a zone stating a family overrides its own block alone", () => {
-    const held = over({ font: { family: { code: "IBM Plex Mono, monospace" } }, zones: { 0: "#E9E5D3", 2: { surface: "#FBFAF2", font: { family: { code: "Space Mono, monospace" } } }, 3: "#DAD4C0" } });
+    const held = over({ font: { family: { code: "IBM Plex Mono, monospace" } }, zones: { 0: "#E9E5D3", 2: { plane: "#FBFAF2", font: { family: { code: "Space Mono, monospace" } } }, 3: "#DAD4C0" } });
     specimen.expect(held.zones.map((zone) => zone.font.family.code)).toEqual(["IBM Plex Mono, monospace", "IBM Plex Mono, monospace", "Space Mono, monospace", "IBM Plex Mono, monospace"]);
   });
 
@@ -515,7 +515,7 @@ specimen.describe("porcelain · datasette — the designer's two", () => {
   });
 
   specimen.it("porcelain's chrome is dark, its body light", () => {
-    specimen.expect([porcelain.zones[0].surface, porcelain.zones[1].surface, porcelain.zones[0].text.header, porcelain.zones[1].text.header]).toEqual(["#0E1A25", "#EDF0F4", "#FFFFFF", "#0E1A25"]);
+    specimen.expect([porcelain.zones[0].plane, porcelain.zones[1].plane, porcelain.zones[0].text.header, porcelain.zones[1].text.header]).toEqual(["#0E1A25", "#EDF0F4", "#FFFFFF", "#0E1A25"]);
   });
 
   specimen.it("the floor fixes read back: tints stated, the chrome's muted label and focus ring raised", () => {

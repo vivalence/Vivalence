@@ -1,5 +1,5 @@
 import { specimen } from "@vivalence/typology";
-import { fire, paint, settle, surface, world } from "./world.js";
+import { fire, paint, settle, skin, world } from "./world.js";
 import { oracle, shape } from "../../../subsystems/drapes/tests/parts/oracle.js";
 
 const BRAND = `<div class="brandline"><span class="viket live" style="width:40px;height:40px" aria-hidden="true"></span><span class="wm caps"><span class="v">VIVALENCE</span>/ANIMA</span></div>`;
@@ -22,7 +22,7 @@ specimen.describe("island — Dom.island: the boot card and the sign-in card ove
     const held = world();
     held.lighthouse.manifest = null;
     held.seat();
-    const rig = paint(() => surface.Chrome({ client: held.client }));
+    const rig = paint(() => skin.Chrome({ client: held.client }));
     await settle();
     specimen.expect(shape(island(rig))).toBe(oracle(BOOT));
     rig.close();
@@ -34,7 +34,7 @@ specimen.describe("island — Dom.island: the boot card and the sign-in card ove
     held.lighthouse.$status.set({ code: "LOGGED_OUT" });
     const called = [];
     held.lighthouse.autologin = () => called.push("autologin");
-    const rig = paint(() => surface.Chrome({ client: held.client }));
+    const rig = paint(() => skin.Chrome({ client: held.client }));
     await settle();
     specimen.expect(shape(island(rig))).toBe(oracle(SIGNIN));
     fire(rig.target.querySelector(".acts button.ghost"), "click");
@@ -53,7 +53,7 @@ specimen.describe("island — Dom.island: the boot card and the sign-in card ove
     held.lighthouse.$status.set({ code: "LOGGED_OUT" });
     const called = [];
     held.lighthouse.signup = (username, password) => called.push(`${username} ${password}`);
-    const rig = paint(() => surface.Chrome({ client: held.client }));
+    const rig = paint(() => skin.Chrome({ client: held.client }));
     await settle();
     specimen.expect(shape(rig.target.querySelector(".acts").parentElement).includes(oracle(JOINABLE))).toBe(true);
     const [username, password] = rig.target.querySelectorAll(".ff input");

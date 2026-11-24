@@ -39,13 +39,13 @@ specimen.describe("activity — the row follows the controller", () => {
     const [born] = roster.rows;
     const row = await daemon.entities.activity.findOneOrFail({ id: born.id });
     specimen.expect([row.user.id, row.mode.id, row.thread.id, row.type]).toEqual([fixtures.user.id, dewey.id, thread.id, "HALLUCINATION"]);
-    specimen.expect(row.controller.stdout.absolute).toEqual(["hallucination"]);
+    specimen.expect(row.controller.stdout.absolute).toEqual([...dewey.stdout.absolute, "hallucination"]);
     const stamped = row.updatedAt;
 
     clock.release(2);
     await until(() => events.includes("/turn/full"));
-    await until(() => row.steps.some((step) => trace.key(step.path) === trace.key(["hallucination", "lookup/c1", "object"]) && step.track === "stop"));
-    specimen.expect(row.steps.map((step) => step.path)).toContainEqual(["hallucination", "lookup/c1"]);
+    await until(() => row.steps.some((step) => trace.key(step.path) === trace.key([...dewey.stdout.absolute, "hallucination", "lookup/c1", "object"]) && step.track === "stop"));
+    specimen.expect(row.steps.map((step) => step.path)).toContainEqual([...dewey.stdout.absolute, "hallucination", "lookup/c1"]);
     specimen.expect(row.updatedAt > stamped).toBe(true);
     specimen.expect(row.controller.toJSON().children).toEqual([]);
     clock.release(2);
@@ -73,13 +73,15 @@ specimen.describe("activity — the row follows the controller", () => {
     specimen.expect(row.controller.status.reflection.reason).toBe("user pressed stop");
     specimen.expect(events.at(-1)).toBe("/response/close");
     await reading;
-    specimen.expect(stdout[0]).toMatchObject({ path: ["hallucination"], track: "log", data: { activity: row.id, user: fixtures.user.id, mode: dewey.id, thread: thread.id } });
+    specimen.expect(stdout[0]).toMatchObject({ path: [...dewey.stdout.absolute, "hallucination"], track: "log", data: { activity: row.id, user: fixtures.user.id, mode: dewey.id, thread: thread.id } });
     specimen.expect(stdout.map((record) => record.track).slice(1, 4)).toEqual(["status", "start", "log"]);
-    specimen.expect(stdout.slice(-4)).toMatchObject([
-      { path: ["hallucination"], track: "status", data: { code: "RUNNING" } },
-      { path: ["hallucination"], track: "status", data: { code: "STOPPING" } },
-      { path: ["hallucination"], track: "stop" },
-      { path: ["hallucination"], track: "status", data: { code: "STOPPED" } },
+    specimen.expect(stdout.slice(-6)).toMatchObject([
+      { path: [...dewey.stdout.absolute, "hallucination"], track: "status", data: { code: "RUNNING" } },
+      { path: [...dewey.stdout.absolute, "hallucination"], track: "status", data: { code: "STOPPING" } },
+      { path: [...dewey.stdout.absolute, "hallucination"], track: "log", data: { state: "abort" } },
+      { path: [...dewey.stdout.absolute, "hallucination"], track: "usage", data: { state: "abort" } },
+      { path: [...dewey.stdout.absolute, "hallucination"], track: "stop" },
+      { path: [...dewey.stdout.absolute, "hallucination"], track: "status", data: { code: "STOPPED" } },
     ]);
     specimen.expect(stdout.map((record) => JSON.stringify(record))).toEqual([...new Set(stdout.map((record) => JSON.stringify(record)))]);
     await specimen.expect(activity.call(`/${row.id}/stdout`)).rejects.toThrow();
@@ -113,7 +115,7 @@ specimen.describe("activity — the row follows the controller", () => {
     await until(() => roster.rows.length);
     const [born] = roster.rows;
     const row = await daemon.entities.activity.findOneOrFail({ id: born.id });
-    specimen.expect(row.controller.stdout.absolute).toEqual(["hallucination"]);
+    specimen.expect(row.controller.stdout.absolute).toEqual([...dewey.stdout.absolute, "hallucination"]);
     spoken.release(6);
     const events = await streaming;
     specimen.expect(events).toContain("/part/delta");
@@ -123,9 +125,9 @@ specimen.describe("activity — the row follows the controller", () => {
     specimen.expect(roster.walk(row.id)).toEqual(["create", "RUNNING", "DONE", "delete"]);
     specimen.expect(roster.rows.filter((entry) => entry.id === row.id && entry.op === "update").length).toBeLessThanOrEqual(3);
     const paths = row.steps.map((step) => `${step.path.join(" › ")} ${step.track}`);
-    specimen.expect(paths).toContain("hallucination › verbatim stop");
-    specimen.expect(paths).toContain("hallucination › dialogue stop");
-    specimen.expect(paths.slice(-2)).toEqual(["hallucination stop", "hallucination status"]);
+    specimen.expect(paths).toContain(`${dewey.stdout.absolute.join(" › ")} › hallucination › verbatim stop`);
+    specimen.expect(paths).toContain(`${dewey.stdout.absolute.join(" › ")} › hallucination › dialogue stop`);
+    specimen.expect(paths.slice(-2)).toEqual(["hallucination stop", "hallucination status"].map((said) => `${dewey.stdout.absolute.join(" › ")} › ${said}`));
     specimen.expect(row.controller.toJSON().children).toEqual([]);
     roster.off();
   });

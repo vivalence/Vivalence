@@ -1,25 +1,22 @@
 ---
 name: ops
-description: >-
-  Snapshot the prod mountpoint (daemon SQLite + service state) out of its docker volume into
-  ~/.viva/instances/<slug>/mountpoint/; gate a prod change on a cloned volume; CRUD DBeaver connections in
-  data-sources.json, `create-instance <slug>` per *.viva.db.
+description: Pull the prod mountpoint to a local instance, gate a prod change on a cloned volume, manage DBeaver connections.
 when_to_use: >-
-  "pull prod state" · a prod-only bug · a prod deploy, slug move or schema diff · "add the <slug> dbs to DBeaver" ·
-  after `viva instance/create` · which connections exist.
+  "pull prod state" · a prod-only bug · a prod deploy, slug move or schema diff ·
+  "add the <slug> dbs to DBeaver" · after `viva instance/create`
 ---
-<!-- limit: 7000 chars -->
-# ops — prod data local · prod changes · DBeaver
+<!-- limit: 5600 chars -->
+# ops — prod data local, prod changes, DBeaver
 
-## Pull prod mountpoint
+## pull the prod mountpoint
 
-Prod state = the named volume `mountpoint` (`/viva/mountpoint`). Target: the instance's `mountpoint/`, never `testament/`. No host path to `tar`; WAL flushes only with the runtime **stopped**; extract to `tmp/` first.
+Prod state is the docker volume `mountpoint` (`/viva/mountpoint`). It goes into the instance's `mountpoint/`. The database is only whole while the runtime is stopped.
 
-Confirm: server (`root@com-vivalence-runtime-R000`) · prod → local only · target · `bak/`.
+Confirm with him first: the server, prod to local only, the target, the backup.
 
-### Phase 0 — inspect, read-only
+### 0 · inspect, read-only
 
-A prod defect is scouted ON the host — volume · image · container — never by local grep; LIST each container's ledger · mountpoint · instance first; a prod compose/`.env` is the OLD world till checked against HEAD (/"scout the issue on location."/ 09-20). The env grep skips secrets; never `tree -L 2` on `/viva`.
+A prod defect is looked at on the host, never guessed from the local tree.
 
 ```bash
 C=$(docker ps --format '{{.Names}}' | grep '^runtime-')
@@ -31,18 +28,17 @@ docker exec $C sh -c 'ls $VIVA_INSTANCE_MOUNT; cat $VIVA_INSTANCE_MOUNT/*.viva.j
 docker run --rm -i -v $V:/m:ro --entrypoint sqlite3 vivalence/prod-runtime:local -readonly /m/prod.viva.db < q.sql
 ```
 
-SQL rides stdin from a LOCAL file, never nested quotes; the runtime image IS the sidecar.
+- SQL goes in from a local file on stdin.
+- The migrations table is `_mikro_migrations`. Table names are capitalised.
+- Never print secrets from the env.
+- A module a recipe names must exist in the image: `docker exec $C ls /viva/repository/commons/<dir>`.
+- A rebuilt image is booted on a cloned volume before it goes up.
+- "Pushed" means the default branch on GitHub. That is what the build reads.
+- Coolify's env table is the source. A hand edit of `.env` dies at the next deploy.
+- A healthcheck uses `127.0.0.1`, never `localhost`.
+- An entity inserted by hand skips its hooks. Insert the entities its hooks would have made too.
 
-- `_mikro_migrations`, not `mikro_orm_migrations`; tables Capitalised.
-- **a recipe module is checked in the IMAGE first** (`docker exec $C ls /viva/repository/commons/<dir>`): absent = `Module 404`, exit 1. A REBUILT image re-taps registry HEAD: boot it on a CLONE before `up` (REJECTED 11-13: 3 min down).
-- **an outside probe = the hosts he NAMED** (11-13 /"no. vivalence.com and the runtime!"/).
-- **prod's rows LOAD on HEAD before a deploy** — `reference/prod-deploy/load.probe.js` (the `onLoad`s) · `recipe.probe.js` (11-18).
-- **"pushed" = the GitHub DEFAULT branch** (`api.github.com/repos/<r>/commits/HEAD`), what the build taps; `-c @` lands on `push-*` (11-18).
-- **Coolify's env table is the SOURCE, `.env` its output**: a hand row dies at his next deploy, his table row LEADS the report (11-18); its deploy KEEPS anima's anon `build/` volume: `-V`. `Restart` KEEPS the container: env · healthcheck land by `docker compose up -d --force-recreate <svc>` in the service dir (`--no-build`). Healthcheck host `127.0.0.1`, never `localhost` (`::1`, 503). Anima compose sets `VIVA_MOUNTPOINT_MOUNT`.
-- the HOSTS (root ssh · patch · reboot · sshd · rkhunter): skill `servers`.
-- **a hand-inserted row skips its entity's twitches** (11-06: User by SQL → no Terminal → anima boots forever): insert each twitch-minted sibling too (`typology/entities/*.ts` `/after/<entity>/create`).
-
-### Phase 1 — server snapshot (host, not container)
+### 1 · snapshot on the server
 
 ```bash
 ssh <SERVER>
@@ -52,9 +48,9 @@ ls -lh /tmp/mountpoint.tgz
 docker start $C
 ```
 
-`$C` `$V` from Phase 0. **`docker start` before `exit`**; never `docker exec` a stopped container.
+`docker start` before `exit`. Never `docker exec` a stopped container.
 
-### Phase 2 — local pull + swap + verify
+### 2 · pull, swap, verify
 
 ```bash
 cd ~/.viva/instances/<slug>/mountpoint
@@ -68,30 +64,32 @@ rm -rf tmp/
 sqlite3 prod.viva.db ".tables"
 ```
 
-`ls` before `tar`; swap each `daemon_<slug>/`; then `viva instance/use <slug> run`, report boot errors.
+Then `viva instance/use <slug> run`, and report boot errors.
 
-## Prod change
+## a prod change
 
-A prod change boots first on a CLONED volume with a throwaway lighthouse — each milestone's gate lists what it MEASURED: auth 401/200 · userspace · freight `200 audio/mpeg` + `206` (/"this is prod. be careful"/ · /"check that the freight works."/).
+- It boots first on a cloned volume. Each gate lists what it measured: auth 401 and 200, userspace, a file served with 200 and 206.
+- Prod data is kept. Count the entities per daemon, he rules what goes.
+- A move carries the database and `tokens.json`. It drops `migrations/` and the snapshot files.
+- A deploy plan starts at the step he is at. It edits only what the new code breaks.
+- The image lines in compose are his. Never hardcode an image tag or hash.
+- The instance is set by compose (`VIVA_INSTANCE_MOUNT` and a bind), never by a build argument.
+- Every prod step needs its own `go`.
 
-Prod data is KEPT: row counts per daemon, beef rules (/"if its got rich data, use it. else chuck it"/ 09-20), the chucked seat stays byte-identical beside; a move carries db + `tokens.json`, drops `migrations/` · `.snapshot-*.json` (/"drop generated files"/ 09-20).
-
-A deploy plan leads with the step beef is AT and names each image's ROLE — the copy tool pinned by digest, **the image lines are HIS, untouched**: `:alpine` IS the deploy tag, CI moves it (`.gitlab-ci.yml:32`), `:$SHA` the rollback pin only. REJECTED 11-06 twice — `FROM …:df54e5b7` · `ARG VIVA_BASE` · `image: ${VIVA_ANIMA_IMAGE}` (/"no hardcoding of images."/ · /"why are you … so hardboiled on changing this?"/): a deploy plan edits only what HEAD BREAKS; a container's state fills through an entrypoint, every step checks first (/"I want a flexible entry point"/ 09-19). **The instance is a compose fact** (`VIVA_INSTANCE_MOUNT` + a bind), never a CI build-arg: anima's `paladin:baked` runs in the ENTRYPOINT against the mounted recipe (REJECTED 11-06 a CI bake — /"the docker compose file sets instance."/).
-
-**`do now` after a list = the bullet he quoted** — REJECTED 11-06: four GitLab hops ran on a /"do now"/ meant for `docker stop` (/"you read that wrong"/); a prod hop is its own go. GitLab: memory `prod-runtime-host` (stops x.2/5/8/11, never `:latest`).
+The hosts themselves: skill `servers`.
 
 ## DBeaver connections
 
-**DBeaver closed before any write** (`pgrep -fl dbeaver` empty) — it rewrites the file from memory on exit. Wrote while open → never save from the UI; **F5 on the project node** (`DBNProject.refreshNode()`), the only reload.
+DBeaver must be closed before a write (`pgrep -fl dbeaver` prints nothing). It rewrites the file on exit.
 
-File: `~/Library/DBeaverData/workspace6/General/.dbeaver/data-sources.json` — tab-indented, no trailing newline; the script touches `connections` only, never `credentials-config.json`.
+File: `~/Library/DBeaverData/workspace6/General/.dbeaver/data-sources.json`
 
 ```json
 "viva-italian": { "provider": "sqlite", "driver": "sqlite_jdbc", "name": "viva italian", "save-password": true,
   "configuration": { "type": "dev", "database": "<abs path>.viva.db", "url": "jdbc:sqlite:<abs path>.viva.db" } }
 ```
 
-`database` is load-bearing: `MANUAL` (the default) **ignores `url`**, regenerates it from `configuration.database`. Write both.
+Write both `database` and `url`. DBeaver ignores `url` and rebuilds it from `database`.
 
 ```sh
 alias D='deno run -A .claude/skills/ops/dbeaver.js'; M=~/.viva/instances/italian/mountpoint
@@ -100,6 +98,6 @@ D create viva-italian $M/daemon_italian/italian.viva.db --name "viva italian"
 D update viva-italian --name "italian daemon" --path $M/service_multiplayer/lighthouse.viva.db
 ```
 
-Refusals exit 1; `--file <path>` rehearses on a copy; `create-instance` mints `viva-<slug>-<stem>` from `~/.viva/instances.json`, `--dry` writes nothing.
-
-First write copies `data-sources.json.bak` once (delete to re-arm). REJECTED: the CLI `-con` (launches the GUI) · GraphQL (CloudBeaver only).
+- `--file <path>` rehearses on a copy. `--dry` writes nothing.
+- The first write keeps `data-sources.json.bak`.
+- If it was written while DBeaver was open: never save from the UI. Press F5 on the project node.

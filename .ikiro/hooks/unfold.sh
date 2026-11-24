@@ -17,6 +17,13 @@ for port in 2501 1794; do
   printf '  :%s %s\n' "$port" "${held:-nothing listening}"
 done
 printf 'watchers: %s (a save under one IS a deploy)\n' "$(ps -axo command | grep -cE -- '[-]-watch|[ /]watch\.js')"
+transcripts="$HOME/.claude/projects/$(printf '%s' "$root" | tr '/.' '--')"
+printf 'sessions: %s claude processes · transcripts written in the last 5 min (one is THIS session; one last written at\n' \
+  "$(ps -axo command | grep -cE '^claude( |$)')"
+printf '  this session'"'"'s /clear is its predecessor, no sibling; any other is a LIVE sibling: its quest is never moved):\n'
+find "$transcripts" -maxdepth 1 -name '*.jsonl' -mmin -5 2>/dev/null | while read -r file; do
+  printf '  %s last write %s\n' "$(basename "$file" .jsonl | cut -c1-8)" "$(stat -f '%Sm' -t '%H:%M:%S' "$file")"
+done
 printf 'frontier:\n'
 sed -n '4,$p' .ikiro/quests/frontier.md 2>/dev/null | cut -c1-240 | sed 's/^/  /'
 exit 0

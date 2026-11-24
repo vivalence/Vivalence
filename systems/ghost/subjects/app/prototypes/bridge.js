@@ -23,7 +23,7 @@ export class Bridge {
   $frames = persistentAtom("viva.bridge.frames", {}, { encode: JSON.stringify, decode: JSON.parse });
   $selection = atom(null);
   $signin = atom({ user: "", pass: "" });
-  $sections = atom({ filter: {}, expand: {}, peeks: {}, views: {}, current: null, pick: null, hostsOff: { thread: [], mode: [] }, traits: { thread: [], mode: ["VIEWABLE"] } });
+  $sections = atom({ filter: {}, expand: {}, peeks: {}, views: {}, current: null, pick: null, hostsOff: { thread: [], mode: [] }, traits: { thread: [], mode: ["SURFACED"] } });
 
   constructor() {
     this.$focus.listen((held, left) => {

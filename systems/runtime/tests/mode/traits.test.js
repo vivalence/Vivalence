@@ -48,7 +48,7 @@ specimen.describe("mode traits", () => {
     });
   });
 
-  specimen.describe("VIEWABLE", () => {
+  specimen.describe("SURFACED", () => {
     specimen.it("mode.buffer() returns entity with data and literals, its mime minted from the mode's reference", async () => {
       const result = await scenario.mode.buffer({
         data: { recall: "KNOWN" },

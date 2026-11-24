@@ -1,4 +1,4 @@
-import { Aperture, contexts, Cortex, Mode, Path, shard, Twitch, Vector } from "@vivalence/typology";
+import { Aperture, contexts, Cortex, Mode, Path, shard, Span, Twitch, Vector } from "@vivalence/typology";
 import { seed, tiers, faculties } from "./fixtures.js";
 
 import { traits } from "@vivalence/runtime";
@@ -23,6 +23,7 @@ export async function create({ harness, faculties: extra = [] } = {}) {
   } });
   dewey.aperture = new Aperture();
   dewey.reference = new Path(`/mode/${dewey.type}/${dewey.slug}`);
+  dewey.stdout = new Span(dewey.reference.absolute);
   dewey.entity = deweyEntity;
   dewey.id = deweyEntity.id;
 

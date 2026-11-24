@@ -11,10 +11,10 @@ specimen.describe("Segment — one subject's state in the bar", () => {
   specimen.it("the look is one table: off · open · caution · negative · plain", async () => {
     const { look } = await parts;
     const held = palette();
-    specimen.expect(look({ off: true, open: true }, held)).toEqual({ fg: held.textMuted, bg: held.surface });
+    specimen.expect(look({ off: true, open: true }, held)).toEqual({ fg: held.textMuted, bg: held.plane });
     specimen.expect(look({ off: false, open: true, attention: "caution" }, held)).toEqual({ fg: held.textStrong, bg: held.controlSelected });
     specimen.expect(look({ off: false, open: false, attention: "caution" }, held)).toEqual({ fg: held.signalCautionInk, bg: held.signalCautionTint });
     specimen.expect(look({ off: false, open: false, attention: "negative" }, held)).toEqual({ fg: held.signalNegativeInk, bg: held.signalNegativeTint });
-    specimen.expect(look({ off: false, open: false, attention: null }, held)).toEqual({ fg: held.textStrong, bg: held.surface });
+    specimen.expect(look({ off: false, open: false, attention: null }, held)).toEqual({ fg: held.textStrong, bg: held.plane });
   });
 });

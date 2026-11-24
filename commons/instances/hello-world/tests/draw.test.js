@@ -13,7 +13,7 @@ const CLEAN = `<script>
 <article class="page"><h1>{buffer.data.title}</h1></article>
 
 <style>
-  .page { height: 100%; overflow-y: auto; background: var(--surface); }
+  .page { height: 100%; overflow-y: auto; background: var(--plane); }
 </style>`;
 
 specimen.describe(

@@ -153,9 +153,9 @@ const put = (id, name, type, bytes) =>
   }));
 
 specimen.describe("reader — the mode as declared", () => {
-  specimen.it("one Solid dom view, three traits, its fonts as a fileset", () => {
-    specimen.expect(reader.manifest.traits).toEqual(["VIEWABLE", "EXPOSED", "FILESET"]);
-    specimen.expect(reader.views.map((view) => [view.slug, view.mount])).toEqual([["reader", "buffer/Reader.jsx"]]);
+  specimen.it("one Solid dom surface, three traits, its fonts as a fileset", () => {
+    specimen.expect(reader.manifest.traits).toEqual(["SURFACED", "EXPOSED", "FILESET"]);
+    specimen.expect(reader.surfaces.map((surface) => [surface.slug, surface.mount])).toEqual([["reader", "buffer/Reader.jsx"]]);
     specimen.expect(reader.fileset).toEqual({ path: "fonts" });
   });
 

@@ -7,12 +7,12 @@ export const manifest = {
   description:
     "Thread-driven: hot-swap the stall phase + the render cursor live; watch the stall re-engage.",
   version: "0.1.0",
-  traits: ["VIEWABLE", "EMITTER"],
+  traits: ["SURFACED", "EMITTER"],
 };
 
 export const buffer = v.buffer({ data: {} });
 
-export const views = [{ slug: "switchboard", mount: "buffer/Switchboard.svelte", mime: mime.dom.svelte }];
+export const surfaces = [{ slug: "switchboard", mount: "buffer/Switchboard.svelte", mime: mime.dom.svelte }];
 
 // feed `card` buffers on demand (cross-mode) — the set you then switch phases over.
 export const emitter = new Vector().open(

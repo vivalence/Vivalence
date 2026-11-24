@@ -1,5 +1,5 @@
 import { specimen } from "@vivalence/typology";
-import { fire, paint, settle, surface, world } from "./world.js";
+import { fire, paint, settle, skin, world } from "./world.js";
 import { oracle, shaped } from "../../../subsystems/drapes/tests/scenarios/shape.js";
 
 const DESIGN = `<button class="tab cur" data-line="/terminal 0" title="first words · chat/chat · /terminal 0"><span class="n">0</span><span>first words</span></button><button class="tab " data-line="/terminal 1" title="— · — · /terminal 1"><span class="n">1</span><span>—</span></button><button class="plus" data-line="/terminal/new" aria-label="new terminal" title="new terminal · /terminal/new"><svg></svg></button>`;
@@ -9,7 +9,7 @@ const seated = async () => {
   held.seat();
   held.authorize();
   held.activate();
-  const rig = paint(() => surface.Tabs({ client: held.client }));
+  const rig = paint(() => skin.Tabs({ client: held.client }));
   await settle();
   return { ...held, rig };
 };

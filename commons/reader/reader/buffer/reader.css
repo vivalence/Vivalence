@@ -1,5 +1,5 @@
 :host { flex: 1; min-height: 0; display: flex; flex-direction: column; }
-.rd-root { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; container-type: inline-size; background: var(--surface); color: var(--text-ink); font-family: var(--font-family-sans-text); }
+.rd-root { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; container-type: inline-size; background: var(--plane); color: var(--text-ink); font-family: var(--font-family-sans-text); }
 .rd-body { flex: 1; min-height: 0; display: flex; flex-wrap: wrap; }
 .rd-frame { flex: 999 1 560px; min-width: 0; min-height: 0; height: 100%; display: flex; flex-direction: column; position: relative; }
 
@@ -12,7 +12,7 @@
   .rd-frame { --rd-bar: 44px; }
   .rd-scroll { padding-top: var(--rd-bar); }
   .rd-rail { margin-top: var(--rd-bar); }
-  .rd-top { position: absolute; top: 0; left: 0; right: 0; z-index: 4; background: var(--surface); transition: opacity 400ms ease; }
+  .rd-top { position: absolute; top: 0; left: 0; right: 0; z-index: 4; background: var(--plane); transition: opacity 400ms ease; }
   .rd-top.is-away { opacity: 0; }
   .rd-top.is-away:focus-within, .rd-top.is-away:has(.is-open) { opacity: 1; }
 }
@@ -55,7 +55,7 @@
 .act.done:hover { color: var(--signal-positive-ink); background: var(--signal-positive-tint); }
 .act:focus-visible { outline: 2px solid var(--control-focus); outline-offset: -2px; }
 
-.f-reader { background: var(--surface); }
+.f-reader { background: var(--plane); }
 .f-reader .rd-art { font-size: var(--rd-size); line-height: var(--rd-lh, 1.7); max-width: var(--rd-measure, 34em); color: var(--text-ink); }
 .f-reader .t-dyslexic { font-family: "OpenDyslexic", var(--font-family-sans-text); }
 .f-reader .t-sans { font-family: var(--font-family-sans-text); }
@@ -86,7 +86,7 @@ figcaption { margin-top: .7em; font-family: var(--font-family-code); font-size: 
 .rd-step-row.is-now .n { color: var(--text-strong); }
 .rd-step-row.is-next { opacity: var(--text-disabled); }
 
-.rd-set { position: absolute; top: 44px; right: var(--size-space-sm); z-index: 5; width: 300px; padding: var(--size-space-sm); background: var(--surface-lift); box-shadow: inset 0 0 0 var(--size-ring) var(--boundary), var(--shape-lift); border-radius: var(--shape-radius-md); display: grid; grid-template-columns: 7ch minmax(0, 1fr); align-items: center; gap: var(--size-space-sm) var(--size-space-sm); }
+.rd-set { position: absolute; top: 44px; right: var(--size-space-sm); z-index: 5; width: 300px; padding: var(--size-space-sm); background: var(--plane-lift); box-shadow: inset 0 0 0 var(--size-ring) var(--boundary), var(--shape-lift); border-radius: var(--shape-radius-md); display: grid; grid-template-columns: 7ch minmax(0, 1fr); align-items: center; gap: var(--size-space-sm) var(--size-space-sm); }
 .rd-set .kit-choice { justify-self: end; }
 .rd-step { justify-self: end; display: inline-flex; align-items: center; gap: var(--size-space-2xs); font-family: var(--font-family-code); font-size: var(--size-type-xs); color: var(--text-strong); font-variant-numeric: tabular-nums; }
 .rd-step button { appearance: none; border: 0; background: transparent; width: 24px; height: 22px; color: var(--text-light); font: inherit; cursor: pointer; border-radius: var(--shape-radius-key); }
@@ -139,13 +139,13 @@ a.src:hover { color: var(--text-link); text-decoration: underline; }
 .blk.is-drag { touch-action: none; }
 .blk :where(p, ul, ol, pre, figure, blockquote, table, div, section, h1, h2, h3, h4, h5, h6) + :where(p, ul, ol, pre, figure, blockquote, table, div, section, h1, h2, h3, h4, h5, h6) { margin-top: 1.1em; }
 .blk img { display: block; max-width: 100%; height: auto; border-radius: var(--shape-radius-md); }
-.blk pre { white-space: pre-wrap; overflow-wrap: anywhere; padding: var(--size-space-sm); background: var(--surface-sunk); border-radius: var(--shape-radius-md); font-family: var(--font-family-code); font-size: .8em; line-height: 1.5; }
+.blk pre { white-space: pre-wrap; overflow-wrap: anywhere; padding: var(--size-space-sm); background: var(--plane-sunk); border-radius: var(--shape-radius-md); font-family: var(--font-family-code); font-size: .8em; line-height: 1.5; }
 .blk code { font-family: var(--font-family-code); font-size: .9em; color: var(--text-code); }
 .blk a { color: var(--text-link); }
 .blk a:hover { color: var(--text-strong); }
 .f-reader :is(h3, h4, h5, h6) { font-weight: 700; font-size: 1em; line-height: 1.4; color: var(--text-header); }
 .f-reader .k-image { margin-top: 1.8em !important; margin-bottom: .6em; }
-.f-original { height: 100%; background: var(--surface-sunk); }
+.f-original { height: 100%; background: var(--plane-sunk); }
 .f-original iframe { display: block; width: 100%; height: 100%; border: 0; background: Canvas; }
 .rd-step-row.is-failed .n, .rd-step-row.is-failed .v { color: var(--signal-negative-ink); }
 
@@ -208,7 +208,7 @@ a.src:hover { color: var(--text-link); text-decoration: underline; }
 .rd-read { color: var(--signal-primary-ink); box-shadow: inset 0 0 0 1px var(--signal-primary-ink); }
 .rd-chapter { max-width: 32ch; gap: var(--size-space-xs); }
 .rd-chapter span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rd-toc { position: absolute; top: 44px; left: var(--size-space-sm); z-index: 5; width: min(420px, calc(100% - 2 * var(--size-space-sm))); max-height: 60vh; overflow-y: auto; padding: var(--size-space-xs); background: var(--surface-lift); box-shadow: inset 0 0 0 var(--size-ring) var(--boundary), var(--shape-lift); border-radius: var(--shape-radius-md); display: flex; flex-direction: column; gap: 2px; scrollbar-width: thin; }
+.rd-toc { position: absolute; top: 44px; left: var(--size-space-sm); z-index: 5; width: min(420px, calc(100% - 2 * var(--size-space-sm))); max-height: 60vh; overflow-y: auto; padding: var(--size-space-xs); background: var(--plane-lift); box-shadow: inset 0 0 0 var(--size-ring) var(--boundary), var(--shape-lift); border-radius: var(--shape-radius-md); display: flex; flex-direction: column; gap: 2px; scrollbar-width: thin; }
 .rd-toc .rd-rec { grid-template-columns: 1.5ch minmax(0, 1fr) 0 10ch; }
 .rd-toc .rd-rec.is-cur .t { color: var(--signal-primary-ink); }
 .rd-stage.is-end { align-items: center; gap: var(--size-space-md); }

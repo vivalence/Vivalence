@@ -223,7 +223,7 @@ specimen.describe("Cortex", () => {
     specimen.expect(verdict.ok).toBe(0.9);
     specimen.expect([...v.primitives.hallucination.Choice.Verdict.errors(verdict)]).toEqual([]);
     const tracks = heard.stdout.history.filter((record) => record.track !== "status");
-    specimen.expect(tracks.map((record) => record.track)).toEqual(["start", "log", "log", "stop"]);
+    specimen.expect(tracks.map((record) => record.track)).toEqual(["start", "log", "log", "usage", "stop"]);
     specimen.expect(tracks[1].data).toEqual({ faculty: "choice", id: "bench/chooser", questions: { same: "choice", grade: "score", ok: "noul" } });
     specimen.expect(tracks[2].data.verdict).toEqual(verdict);
     specimen.expect(heard.stdout.history.filter((record) => record.track === "status").map((record) => record.data.code)).toEqual(["RUNNING", "DONE"]);

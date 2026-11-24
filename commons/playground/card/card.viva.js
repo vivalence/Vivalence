@@ -7,9 +7,9 @@ export const manifest = {
   description:
     "A render target — a dealt card; reports done via buffer.release().",
   version: "0.1.0",
-  traits: ["VIEWABLE"],
+  traits: ["SURFACED"],
 };
 
 export const buffer = v.buffer({ data: { face: v.string() } });
 
-export const views = [{ slug: "card", mount: "buffer/Card.svelte", mime: mime.dom.svelte }];
+export const surfaces = [{ slug: "card", mount: "buffer/Card.svelte", mime: mime.dom.svelte }];

@@ -315,7 +315,7 @@
     gap: 14px;
     height: 100%;
     padding: 18px;
-    background: var(--surface-lift);
+    background: var(--plane-lift);
     color: var(--text-strong);
     font-family: var(--font-family-code);
     overflow: hidden;

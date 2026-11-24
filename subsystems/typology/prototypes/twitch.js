@@ -9,8 +9,8 @@ const sequence = (first, second) => async (ctx) => {
 
 export class Twitch extends Vector {
   open(signature, effect) {
-    const ear = this.branch(signature);
-    ear.effect = ear.effect ? sequence(ear.effect, effect) : effect;
+    const trajectory = this.branch(signature);
+    trajectory.effect = trajectory.effect ? sequence(trajectory.effect, effect) : effect;
     return this;
   }
 
@@ -23,6 +23,6 @@ export class Twitch extends Vector {
   }
 
   async dispatch(signal, input) {
-    for (const ear of shotgun(this, signal)) await ear(input);
+    for (const effect of shotgun(this, signal)) await effect(input);
   }
 }

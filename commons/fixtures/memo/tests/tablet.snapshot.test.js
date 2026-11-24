@@ -110,20 +110,20 @@ describe("memo · the tablet on the dom, frame by frame", { sanitizeOps: false, 
 
   it("a dealt deck of three faces played through: reveal, every grade once, the session's tallies, Vale releases the buffer", async () => {
     const deck = ["deus.noun", "gladius.noun", "carpe-diem"].map((slug) => freighted(card(row(slug))));
-    const view = await mount({ deck, language: LANGUAGE });
-    const frames = [{ press: null, ...(await view.frame()) }];
+    const surface = await mount({ deck, language: LANGUAGE });
+    const frames = [{ press: null, ...(await surface.frame()) }];
     for (const label of ["Revela", "Bene", "Revela", "Iterum", "Revela", "Facile", "Vale"]) {
-      view.press(label);
-      frames.push({ press: label, ...(await view.frame()) });
+      surface.press(label);
+      frames.push({ press: label, ...(await surface.frame()) });
     }
-    const pinned = pin({ frames, calls: view.calls }, "memo-view-dom.snapshot.json");
+    const pinned = pin({ frames, calls: surface.calls }, "memo-view-dom.snapshot.json");
     expect(pinned.frames.map((frame) => frame.buttons.length)).toEqual([1, 4, 1, 4, 1, 4, 1, 1]);
-    view.handle.destroy();
+    surface.handle.destroy();
   });
 
   it("a bare buffer deals through the mode's call", async () => {
-    const view = await mount({});
-    pin({ frame: await view.frame(), calls: view.calls }, "memo-view-dom-dealt.snapshot.json");
-    view.handle.destroy();
+    const surface = await mount({});
+    pin({ frame: await surface.frame(), calls: surface.calls }, "memo-view-dom-dealt.snapshot.json");
+    surface.handle.destroy();
   });
 });

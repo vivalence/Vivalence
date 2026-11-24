@@ -1,4 +1,5 @@
 {
+  "version": "2026.11.0",
   "nodeModulesDir": "auto",
   "importMap": "./import_map.json",
   "exclude": ["./testament", "./docs"],

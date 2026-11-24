@@ -1,0 +1,188 @@
+--- a/subsystems/typology/prototypes/span.js
++++ b/subsystems/typology/prototypes/span.js
+@@ -8,7 +8,7 @@
+ 
+ export const faulted = (error) => ({ type: error?.name ?? "Error", message: error?.message ?? String(error), code: error?.code, stack: error?.stack });
+ 
+-const record = (schema) => (data, ctx) =>
++export const record = (schema) => (data, ctx) =>
+   ctx.span.pipe.send({ at: performance.timeOrigin + performance.now(), path: ctx.span.absolute, track: ctx.track, data: schema.cast(data) });
+ 
+ const STANDARD = new Vector()
+--- a/subsystems/typology/gestalten/belt/hallucinate.js
++++ b/subsystems/typology/gestalten/belt/hallucinate.js
+@@ -1,6 +1,7 @@
+ import { v7 } from "uuid";
+ import { NotFound } from "../../prototypes/errors/vector.js";
+ import { Queue } from "../../prototypes/queue.js";
++import { record } from "../../prototypes/span.js";
+ import { ToolCall } from "../../prototypes/toolcall.js";
+ import { Vector } from "../../prototypes/vector.js";
+ import * as fromm from "../fromm/index.js";
+@@ -148,14 +149,7 @@
+ 
+ const now = () => performance.timeOrigin + performance.now();
+ 
+-const USAGE = new Vector().open("usage", (data, ctx) =>
+-  ctx.span.pipe.send({
+-    at: now(),
+-    path: ctx.span.absolute,
+-    track: ctx.track,
+-    data: Usage.cast(data),
+-  }),
+-);
++const USAGE = new Vector().open("usage", record(Usage));
+ 
+ const PARTED = [
+   [(part) => typeof part.text === "string", (part) => part.text.length],
+@@ -192,6 +186,7 @@
+ };
+ 
+ const meter = (span, faculty, via, round = 1) => {
++  span.tracks(USAGE);
+   const subject = { faculty: faculty.type, provider: faculty.provider, id: faculty.id, via, round };
+   const asked = now();
+   const counted = [];
+@@ -257,7 +252,7 @@
+ 
+ export async function* respond(faculty, streamOrRender, request, policy) {
+   const { controller } = policy;
+-  const span = controller.stdout.tracks(USAGE);
++  const span = controller.stdout;
+   policy.controller.start();
+   span.log({ streamOrRender, faculty: faculty.type });
+   let turns = request.turns;
+@@ -271,29 +266,36 @@
+       rounds += 1;
+       let turn = null;
+       const metered = meter(span, faculty, streamOrRender, rounds);
+-      for await (const packet of metered.flowed(
+-        deliver(
+-          (signal) => pump[streamOrRender](faculty, { ...declared(request, policy.tools), turns }, signal),
+-          policy.backoff,
+-          span,
+-          controller.abort.signal,
+-        ),
+-      )) {
++      let closed = "abort";
++      try {
++        for await (const packet of metered.flowed(
++          deliver(
++            (signal) => pump[streamOrRender](faculty, { ...declared(request, policy.tools), turns }, signal),
++            policy.backoff,
++            span,
++            controller.abort.signal,
++          ),
++        )) {
++          if (!(await controller.proceed())) {
++            yield { event: "/response/close", response: { meta: { state: "abort", rounds } } };
++            return;
++          }
++          turn = soma.pour(turn, packet);
++          yield packet;
++        }
+         if (!(await controller.proceed())) {
+           yield { event: "/response/close", response: { meta: { state: "abort", rounds } } };
+           return;
+         }
+-        turn = soma.pour(turn, packet);
+-        yield packet;
+-      }
+-      if (!(await controller.proceed())) {
+-        yield { event: "/response/close", response: { meta: { state: "abort", rounds } } };
+-        return;
++        closed = turn ? state(turn) : "error";
++      } catch (fault) {
++        closed = controller.abort.signal.aborted ? "abort" : "error";
++        throw fault;
++      } finally {
++        span
++          .log({ round: rounds, state: closed, usage: turn?.meta?.usage })
++          .usage(metered.closed(closed));
+       }
+-      const closed = turn ? state(turn) : "error";
+-      span
+-        .log({ round: rounds, state: closed, usage: turn?.meta?.usage })
+-        .usage(metered.closed(closed));
+       if (closed !== "tools") {
+         yield { event: "/response/close", response: { meta: { ...turn?.meta, state: closed, rounds } } };
+         return;
+@@ -348,7 +350,7 @@
+ }
+ 
+ export async function* transcribe(faculty, { source, settings }, policy) {
+-  const span = policy.controller.stdout.tracks(USAGE);
++  const span = policy.controller.stdout;
+   const metered = meter(span, faculty, "stream");
+   let closed = "abort";
+   policy.controller.start();
+@@ -377,7 +379,7 @@
+ }
+ 
+ export async function* converse(faculty, { source, settings, ...request }, policy) {
+-  const span = policy.controller.stdout.tracks(USAGE);
++  const span = policy.controller.stdout;
+   const metered = meter(span, faculty, "stream");
+   let closed = "abort";
+   const answers = new Queue();
+@@ -417,7 +419,7 @@
+ }
+ 
+ export async function* synthesize(faculty, { source, settings }, policy) {
+-  const span = policy.controller.stdout.tracks(USAGE);
++  const span = policy.controller.stdout;
+   const metered = meter(span, faculty, "stream");
+   let closed = "abort";
+   policy.controller.start();
+@@ -438,7 +440,7 @@
+ }
+ 
+ export async function vocalize(faculty, { source, settings }, policy) {
+-  const span = policy.controller.stdout.tracks(USAGE);
++  const span = policy.controller.stdout;
+   const metered = meter(span, faculty, "render");
+   let closed = "error";
+   let voiced = [];
+@@ -464,7 +466,7 @@
+   const span = policy.controller.stdout;
+   policy.controller.start();
+   span.log({ faculty: faculty.type, id: faculty.id, references: request.images.length, mask: request.mask !== undefined });
+-  const metered = meter(span.tracks(USAGE), faculty, "render");
++  const metered = meter(span, faculty, "render");
+   let closed = "error";
+   let painted = [];
+   let reported = [];
+@@ -492,7 +494,7 @@
+   const span = policy.controller.stdout;
+   policy.controller.start();
+   span.log({ faculty: faculty.type, id: faculty.id, questions: Object.fromEntries(Object.entries(round.questions).map(([key, question]) => [key, question.type])) });
+-  const metered = meter(span.tracks(USAGE), faculty, "render");
++  const metered = meter(span, faculty, "render");
+   let closed = "error";
+   const asked = { name: "input", unit: "questions", amount: Object.keys(round.questions).length, by: "cortex" };
+   try {
+--- a/subsystems/typology/tests/controller.test.js
++++ b/subsystems/typology/tests/controller.test.js
+@@ -82,6 +82,8 @@
+       "hallucination status PAUSED",
+       "hallucination status RUNNING",
+       "hallucination status STOPPING",
++      "hallucination log",
++      "hallucination usage",
+       "hallucination stop",
+       "hallucination status STOPPED",
+     ]);
+@@ -123,7 +125,12 @@
+     specimen.expect((await streaming.root.settled).code).toBe("ABORTED");
+     specimen.expect(streaming.clock.seen.aborted).toEqual(["operator"]);
+     specimen.expect(streaming.out.at(-1)).toBe("/response/close");
+-    specimen.expect(streaming.journal().slice(-2)).toEqual(["hallucination status ABORTED", "hallucination stop"]);
++    specimen.expect(streaming.journal().slice(-4)).toEqual([
++      "hallucination status ABORTED",
++      "hallucination log",
++      "hallucination usage",
++      "hallucination stop",
++    ]);
+   });
+   specimen.it("a reason is what the caller said, or nothing; the status record carries the whole status", async () => {
+     const running = () => {

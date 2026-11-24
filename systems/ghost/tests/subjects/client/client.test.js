@@ -2,7 +2,7 @@ import { Controller, Path, Span, mime, specimen } from "@vivalence/typology";
 import paladin, { factories, lifecycle } from "@vivalence/paladin";
 import * as ghost from "@vivalence/ghost";
 import { hello } from "@vivalence/ghost/scenarios";
-import { chrome } from "../../../surfaces/index.js";
+import { chrome } from "../../../skins/index.js";
 
 const mounted = async (world) => {
   paladin.assign(world.env, "flag");
@@ -75,17 +75,17 @@ specimen.describe("the client against a world — attach, sign in, see the runti
     specimen.expect(faults().at(-1).path.at(-1)).toBe("/*");
   });
 
-  specimen.it("a memo buffer with no pinned view frames memo's own views from the store, the tty one the pick, its compile served", async () => {
+  specimen.it("a memo buffer with no pinned surface frames memo's own surfaces from the store, the tty one the pick, its compile served", async () => {
     await first(clientDie).repl.dispatch("/mode srs/memo");
     const memo = first(clientDie).mode;
     const buffer = await clientDie.runtime.entities.buffer.create({ mode: memo.id, thread: first(clientDie).thread.id, data: {} });
-    specimen.expect(buffer.views).toEqual([]);
-    const views = ghost.belt.view.candidates(buffer.$views, buffer.mode.$views).get();
-    specimen.expect(views.map((view) => view.mime).sort()).toEqual([mime.dom.svelte, mime.tty.solid].sort());
-    specimen.expect(views.every((view) => view.slug === "memo")).toBe(true);
-    const picked = ghost.belt.view.pick(views.filter(chrome.runs));
+    specimen.expect(buffer.surfaces).toEqual([]);
+    const surfaces = ghost.belt.surface.candidates(buffer.$surfaces, buffer.mode.$surfaces).get();
+    specimen.expect(surfaces.map((surface) => surface.mime).sort()).toEqual([mime.dom.svelte, mime.tty.solid].sort());
+    specimen.expect(surfaces.every((surface) => surface.slug === "memo")).toBe(true);
+    const picked = ghost.belt.surface.pick(surfaces.filter(chrome.runs));
     specimen.expect(picked.mime).toBe(mime.tty.solid);
-    const served = await fetch(clientDie.runtime.attached(`/view/${picked.id}`));
+    const served = await fetch(clientDie.runtime.attached(`/surface/${picked.id}`));
     specimen.expect(served.status).toBe(200);
     specimen.expect(await served.text()).toContain("export");
   });

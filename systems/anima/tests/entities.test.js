@@ -1,6 +1,6 @@
 import { specimen, v } from "@vivalence/typology";
-import * as entities from "../src/surfaces/chrome/panels/telemetry/entities.js";
-import * as spans from "../src/surfaces/chrome/panels/telemetry/spans.js";
+import * as entities from "../src/skins/chrome/panels/telemetry/entities.js";
+import * as spans from "../src/skins/chrome/panels/telemetry/spans.js";
 
 const HARNESS = {
   references: { branches: { dialogue: { branches: { stream: { branches: {}, effect: { input: { type: "object" }, yields: {} } } } } } },

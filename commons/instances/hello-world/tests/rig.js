@@ -1,6 +1,6 @@
 import { belt, Controller, Cortex, Path, Span, soma, Twitch, v, Vector, mime } from "@vivalence/typology";
 import { traits } from "@vivalence/runtime";
-const { EMITTER, GENERATIVE, HARNESS } = traits.mode;
+const { EMITTER, SURFACING, HARNESS } = traits.mode;
 import { drawing, emitter } from "../page/index.js";
 import { web } from "../tools/web.js";
 
@@ -32,9 +32,9 @@ export const saying = (text) => ({
 });
 
 // a draw is two calls: the view, then the buffer pinned to it
-export const DRAW = calling("view_create", { slug: "flamingo", mime: mime.dom.svelte, source: SOURCE });
-export const PAGE = calling("buffer_create", { mime: mime.json, label: { name: "Flamingo" }, data: { title: "Flamingo" }, views: ["flamingo"] });
-export const PEEK = calling("view_read", { slug: "flamingo" });
+export const DRAW = calling("surface_create", { slug: "flamingo", mime: mime.dom.svelte, source: SOURCE });
+export const PAGE = calling("buffer_create", { mime: mime.json, label: { name: "Flamingo" }, data: { title: "Flamingo" }, surfaces: ["flamingo"] });
+export const PEEK = calling("surface_read", { slug: "flamingo" });
 
 // a faculty that plays a script: turn N of the script answers round N. `seen` keeps every
 // request the faculty was handed — the inner catalog and system bag are read off it.
@@ -61,21 +61,21 @@ export const faculty = (script) => {
 // the View rows without esbuild: the trait's bundle verb is replaced by an upsert into a plain
 // list, and the view repository reads that same list. the mint is the daemon's buffer repository,
 // stubbed below with the bind INCLUDED — see emitter.test.js for why.
-export const views = () => {
+export const surfaces = () => {
   const rows = [];
   const row = (slug, type) => ({ id: `view-${slug}`, slug, mime: type, entry: "bundle/stub.mjs", files: { getItems: () => [], loadItems: async () => [] } });
   return {
     rows,
     bundle: async ({ slug, mime: type, source }) => {
       if (!source.trim()) throw new Error("bundle: source is empty");
-      const held = rows.find((view) => view.slug === slug && view.mime === type) ?? (rows.push(row(slug, type)), rows.at(-1));
+      const held = rows.find((surface) => surface.slug === slug && surface.mime === type) ?? (rows.push(row(slug, type)), rows.at(-1));
       held.source = source;
       return held;
     },
-    find: async ({ slug }) => rows.filter((view) => slug === undefined || slug.$in.includes(view.slug)),
+    find: async ({ slug }) => rows.filter((surface) => slug === undefined || slug.$in.includes(surface.slug)),
     findOneOrFail: async ({ slug }) => {
-      const held = rows.find((view) => view.slug === slug);
-      if (!held) throw new Error(`View not found (${slug})`);
+      const held = rows.find((surface) => surface.slug === slug);
+      if (!held) throw new Error(`Surface not found (${slug})`);
       return held;
     },
   };
@@ -97,7 +97,7 @@ export const rig = async (script) => {
   };
   const threads = { findOne: async () => row, findOneOrFail: async () => row };
   const scripted = faculty(script);
-  const held = views();
+  const held = surfaces();
   const daemon = {
     type: "daemon",
     cortex: new Cortex().register([scripted.faculty]),
@@ -113,7 +113,7 @@ export const rig = async (script) => {
         chain: async (turn) => ({ id: "turn-1", ...turn }),
       },
       em: { flush: async () => {}, fork: () => ({ create: (Entity, data) => ({ ...data }), flush: async () => {}, clear: () => {}, getReference: () => null }) },
-      view: held,
+      surface: held,
       buffer: {
         find: async () => [],
         create: async ({ thread: bind, ...fields }) => {
@@ -139,9 +139,9 @@ export const rig = async (script) => {
   };
   daemon.modes = { [mode.manifest.type]: { [mode.manifest.slug]: mode } };
   (await EMITTER(mode, daemon))();
-  await GENERATIVE(mode, daemon);
+  await SURFACING(mode, daemon);
   mode.tools.graft(web).graft(drawing);
-  mode.generator.bundle = held.bundle;
+  mode.surface.bundle = held.bundle;
   (await HARNESS(mode, daemon))();
-  return { row, daemon, mode, seen: scripted.seen, views: held.rows };
+  return { row, daemon, mode, seen: scripted.seen, surfaces: held.rows };
 };

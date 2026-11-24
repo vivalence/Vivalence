@@ -81,7 +81,7 @@ specimen.describe("Turn — create · history · chain · fold", () => {
     const healed = await reader.findOneOrFail(TurnEntity, { id: stale.id });
     specimen.expect(healed.meta).toEqual({
       state: "complete",
-      usage: { input: 90, output: 124 },
+      usage: [{ name: "input", unit: "tokens", amount: 90 }, { name: "output", unit: "tokens", amount: 124 }],
       provider: { stop_reason: "end_turn", usage: receipt },
     });
     specimen.expect(healed.parts).toEqual([{ type: "tool_result", id: "u1", condition: "NOMINAL", product: { message: "house" } }]);

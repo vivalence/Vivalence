@@ -1,4 +1,5 @@
 import { v } from "../v.js";
+import { ID } from "../scalars/index.js";
 import * as hallucination from "./hallucination.js";
 
 export const Call = v.object({
@@ -13,9 +14,9 @@ export const Signal = v.object({
 });
 
 export const Request = v.object({
-  thread: v.string().desc('The thread the turn appends to. Example: "th3"'),
-  terminal: v.string().optional().desc('The calling terminal, whenever a terminal calls. Example: "t1"'),
-  turn: v.string().optional().desc('The id the user turn is minted under; the caller picks it to find the turn again. Example: "6f1c0d2e"'),
+  thread: ID.desc('The thread the turn appends to. Example: "th3"'),
+  terminal: ID.optional().desc('The calling terminal, whenever a terminal calls. Example: "t1"'),
+  turn: ID.optional().desc('The id the user turn is minted under; the caller picks it to find the turn again. Example: "6f1c0d2e"'),
   parts: v.array(v.union([hallucination.Part.Any, hallucination.Part.File])).desc('The user turn\'s parts. Example: [{ "type": "text", "text": "ciao" }]'),
   ...hallucination.Selector,
   config: v.record(v.string(), v.unknown()).optional().desc('Policy overrides. Example: { "rounds": 2 }'),

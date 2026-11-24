@@ -67,7 +67,7 @@ function makeMode() {
           yield* soma.drain({
             role:  "assistant",
             parts: [{ type: "text", text: `echo: ${text}` }],
-            meta:  { usage: { input: 1, output: text.length }, stop: "end_turn" },
+            meta:  { usage: [{ name: "input", unit: "tokens", amount: 1 }, { name: "output", unit: "tokens", amount: text.length }], stop: "end_turn" },
           });
         })();
       },

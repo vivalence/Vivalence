@@ -1,6 +1,8 @@
 import { Type } from "typebox";
 import { enhance, v } from "../v.js";
+import { ID } from "../scalars/index.js";
 import { Condition } from "../prototypes/yield.js";
+import { Measure } from "./track.js";
 
 export const Channel = v.union([
   v.const("text"),
@@ -60,7 +62,7 @@ Part.Document = v.object({
 
 Part.File = v.object({
   type: v.const("file"),
-  file: v.string(),
+  file: ID,
 });
 
 Part.Object = v.object({
@@ -124,38 +126,28 @@ export const State = v.union([
   v.const("interrupted"),
 ]);
 
-export const Usage = v.object(
-  {
-    input: v.integer(),
-    output: v.integer(),
-    cost: v.number().optional(),
-  },
-  { additionalProperties: false },
-);
+const tokens = (input, output, cost) => [
+  { name: "input", unit: "tokens", amount: input },
+  { name: "output", unit: "tokens", amount: output },
+  ...(cost === undefined ? [] : [{ name: "cost", unit: "usd", amount: cost }]),
+];
 
 const DIALECTS = [
-  [(usage) => "input" in usage, (usage) => usage],
+  [(usage) => "input" in usage, (usage) => tokens(usage.input, usage.output, usage.cost)],
   [
     (usage) => "prompt_tokens" in usage,
-    (usage) => ({
-      input: usage.prompt_tokens,
-      output: usage.completion_tokens,
-      ...(usage.cost === undefined ? {} : { cost: usage.cost }),
-    }),
+    (usage) => tokens(usage.prompt_tokens, usage.completion_tokens, usage.cost),
   ],
-  [
-    (usage) => "input_tokens" in usage,
-    (usage) => ({ input: usage.input_tokens, output: usage.output_tokens }),
-  ],
+  [(usage) => "input_tokens" in usage, (usage) => tokens(usage.input_tokens, usage.output_tokens)],
 ];
 
 const healed = (meta) => {
-  if (meta.usage === undefined || "input" in meta.usage) return meta;
+  if (meta.usage === undefined || Array.isArray(meta.usage)) return meta;
   const [, translate] = DIALECTS.find(([dialect]) => dialect(meta.usage));
   return {
     ...meta,
     usage: translate(meta.usage),
-    provider: { ...meta.provider, usage: meta.usage },
+    provider: { usage: meta.usage, ...meta.provider },
   };
 };
 
@@ -164,7 +156,7 @@ export const Meta = enhance(
     v.object(
       {
         state: State.optional(),
-        usage: v.union([Usage, v.record(v.string(), v.unknown())]).optional(),
+        usage: v.union([v.array(Measure), v.record(v.string(), v.unknown())]).optional(),
         rounds: v.integer().optional(),
         fault: v.object({ kind: v.string(), message: v.union([v.string(), v.null()]) }).optional(),
         provider: v.record(v.string(), v.unknown()).optional(),
@@ -346,7 +338,7 @@ Packet.TurnOpen = v.object({
   event: v.const("/turn/open"),
   turn: v.object({
     role: v.string(),
-    id: v.string().optional().desc('The turn the runtime opened for this reply; every later packet pours into it. Example: "0199f3a2-7c1e-7b40-9d2a-5e6f8a1b2c3d"'),
+    id: ID.optional().desc('The turn the runtime opened for this reply; every later packet pours into it. Example: "0199f3a2-7c1e-7b40-9d2a-5e6f8a1b2c3d"'),
   }),
 });
 
@@ -374,8 +366,7 @@ Packet.PartFull = v.object({
   event: v.const("/part/full"),
   index: v.integer(),
   part: Part.Any.desc("The part, rewritten whole: a polish, a correction."),
-  turn: v
-    .string()
+  turn: ID
     .optional()
     .desc('A sealed turn this rewrites; absent → the open one. Example: "0199f3a2-7c1e-7b40-9d2a-5e6f8a1b2c3d"'),
 });
@@ -574,7 +565,7 @@ Picture.Response = v.object({
   revised: v.string().optional().desc('The prompt the provider actually painted from, when it rewrote ours. Example: "A red fox rendered in loose watercolor…"'),
   provider: v.string().optional().desc('The hallucinator that painted it, stamped by the belt. Example: "openrouter"'),
   id: v.string().optional().desc('The faculty that painted it, stamped by the belt. Example: "openai/gpt-image-2"'),
-  meta: Meta.optional().desc('Usage in our words, the receipt under provider. Example: { usage: { input: 120, output: 0 } }'),
+  meta: Meta.optional().desc('Usage in our words, the receipt under provider. Example: { usage: [{ name: "input", unit: "tokens", amount: 120 }] }'),
 });
 Hallucination.picture = v.object({
   ...controlled(Policy.picture),

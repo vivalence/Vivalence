@@ -16,7 +16,7 @@ const ITEM = /^(\s*)[-*+]\s/;
 const QUOTE = /^>\s?/;
 
 export const BLOCKS = [
-  [(row) => row.fenced, (row, palette) => <text fg={palette.textLink} bg={palette.surfaceSunk}>{row.line}</text>],
+  [(row) => row.fenced, (row, palette) => <text fg={palette.textLink} bg={palette.planeSunk}>{row.line}</text>],
   [(row) => HEADING.test(row.line), (row, palette) => <text fg={palette.textStrong}><b>{row.line.replace(HEADING, "")}</b></text>],
   [(row) => ITEM.test(row.line), (row, palette) => <text fg={palette.textInk}>{row.line.replace(ITEM, "$1• ")}</text>],
   [(row) => QUOTE.test(row.line), (row, palette) => <text fg={palette.textMuted}>{row.line.replace(QUOTE, "│ ")}</text>],

@@ -22,7 +22,7 @@
 </div>
 
 <style>
-  .automaton { height:100%; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.7rem; padding:18px; background:var(--surface-lift); color:var(--text-strong); font-family:var(--font-family-code); text-align:center; }
+  .automaton { height:100%; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.7rem; padding:18px; background:var(--plane-lift); color:var(--text-strong); font-family:var(--font-family-code); text-align:center; }
   .tag { font-size:var(--font-size-xs); text-transform:uppercase; letter-spacing:.12em; color:var(--signal-primary-ink); }
   .intent { font-size:var(--font-size-lg); }
   .intent b, .config b { color:var(--signal-primary-ink); }

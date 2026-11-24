@@ -8,7 +8,7 @@ export const DataEntitySchema = v.object({
 }, { $id: "DataEntity", additionalProperties: true });
 
 export const VirtualEntitySchema = v.object({
-  id: v.string().desc("Minted in the constructor, never a primary key — mikro forbids one on a virtual entity").example("019d23f1-8c4e-7a2b-9f10-3e5a1c2d4b6f"),
+  id: ID.desc("Minted in the constructor, never a primary key — mikro forbids one on a virtual entity").example("019d23f1-8c4e-7a2b-9f10-3e5a1c2d4b6f"),
   createdAt: v.instant().desc("ISO birth of the instance; dies with the process").example("2026-09-14T10:00:00.000Z"),
 }, { additionalProperties: true });
 

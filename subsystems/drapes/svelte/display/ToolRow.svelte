@@ -29,7 +29,7 @@
     flex-direction: column;
     min-width: 0;
     border-radius: var(--shape-radius-key);
-    background: var(--surface-lift);
+    background: var(--plane-lift);
     box-shadow: 0 0 0 var(--size-ring) var(--boundary);
     font-family: var(--font-family-code);
     font-size: var(--size-type-2xs);

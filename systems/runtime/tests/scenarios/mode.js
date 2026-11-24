@@ -3,7 +3,7 @@ import { RequestContext } from "@mikro-orm/core";
 import { seed } from "./fixtures.js";
 import { gestalten, Runtime, traits } from "@vivalence/runtime";
 import { connector, lighthouseOf } from "./daemon.js";
-const { VIEWABLE, INTENTED, EMITTER, EXPOSED, HARNESS, TOOLING, PRIMER } = traits.mode;
+const { SURFACED, INTENTED, EMITTER, EXPOSED, HARNESS, TOOLING, PRIMER } = traits.mode;
 const { stagger } = gestalten.belt;
 
 function buildDaemon({ datamap, runtime, held }) {
@@ -61,7 +61,7 @@ async function wireMode(viva, daemon) {
   daemon.modes[viva.manifest.type] ??= {};
   daemon.modes[viva.manifest.type][viva.manifest.slug] = mode;
 
-  const finalizers = await stagger(mode, daemon, { VIEWABLE, INTENTED, EMITTER, EXPOSED, TOOLING, PRIMER, ...(daemon.cortex && { HARNESS }) });
+  const finalizers = await stagger(mode, daemon, { SURFACED, INTENTED, EMITTER, EXPOSED, TOOLING, PRIMER, ...(daemon.cortex && { HARNESS }) });
   for (const finalize of finalizers) await finalize();
 
   daemon.aperture.branch(mode.reference.absolute, mode.aperture);

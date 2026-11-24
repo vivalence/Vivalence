@@ -232,9 +232,9 @@ specimen.describe("the mint — a repository per (daemon, kind) over ONE fixed s
 
   specimen.it("a second boot through the libsql migrator writes no migration", async () => {
     const home = await Deno.makeTempDir();
-    const datamap = { mountpoint: new Path(home), statics: { db: { file: "boot.viva.db" } } };
+    const datamap = { mountpoint: new Path(home), statics: { db: { file: "boot.viva.db" } }, version: "2026.11.0" };
     const entities = rig.assembled.entities.map((descriptor) => descriptor.schema);
-    const boot = async () => (await provider(datamap, { entities })).orm.close();
+    const boot = async () => (await provider(datamap, { twitch: new Twitch(), entities })).orm.close();
     const written = async () => (await Array.fromAsync(Deno.readDir(`${home}/migrations`))).map((entry) => entry.name).sort();
     await boot();
     const first = await written();

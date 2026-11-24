@@ -26,7 +26,7 @@ describe("snapshot: thread traits", () => {
   });
 });
 
-describe("snapshot: buffer · view traits", () => {
+describe("snapshot: buffer · surface traits", () => {
   it("captures Rendered — frame · cell, two optional slugs, closed", () => {
     const { pojo } = snapshot(v.traits.Rendered, { base, locate: "trait-rendered.snapshot.json", parse: (schema) => schema });
     expect(Object.keys(pojo.properties)).toEqual(["frame", "cell"]);
@@ -34,8 +34,8 @@ describe("snapshot: buffer · view traits", () => {
     expect(pojo.required).toBe(undefined);
   });
 
-  it("captures the view vocabulary — FRAME · CELL", () => {
-    const { pojo } = snapshot(v.traits.view, { base, locate: "trait-view.snapshot.json", parse: (schema) => schema });
+  it("captures the surface vocabulary — FRAME · CELL", () => {
+    const { pojo } = snapshot(v.traits.surface, { base, locate: "trait-view.snapshot.json", parse: (schema) => schema });
     expect(Object.keys(pojo.properties)).toEqual(["FRAME", "CELL"]);
   });
 });

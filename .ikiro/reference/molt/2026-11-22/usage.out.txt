@@ -1,0 +1,59 @@
+## skill frontmatter — chars in context every session
+| skill | frontmatter | body | triggers (·) |
+|---|---|---|---|
+| bird | 721 | 6328 | 17 |
+| change | 1117 | 9142 | 29 |
+| connoisseur | 733 | 4641 | 14 |
+| debug | 718 | 6317 | 18 |
+| design | 798 | 4202 | 15 |
+| domain | 581 | 5418 | 14 |
+| drill-me | 566 | 11957 | 9 |
+| fold | 933 | 4586 | 22 |
+| mode | 655 | 6551 | 7 |
+| molt | 740 | 4245 | 19 |
+| name | 784 | 5827 | 18 |
+| ops | 476 | 6516 | 4 |
+| package | 568 | 5426 | 6 |
+| quest | 728 | 6127 | 17 |
+| readme | 1068 | 4208 | 17 |
+| servers | 732 | 5246 | 15 |
+| show-me | 445 | 9859 | 7 |
+| socratic-tutor | 367 | 4955 | 0 |
+| technical-writing | 319 | 8888 | 0 |
+| topography | 776 | 5798 | 7 |
+| unfold | 777 | 5502 | 16 |
+
+frontmatter total 14602 chars
+
+## methods · skill scripts — Bash calls naming the file
+| file | calls | last |
+|---|---|---|
+| cap.py | 3627 |  |
+| apply-diffs.py | 230 |  |
+| replay-quest.py | 148 |  |
+| landed.py | 102 |  |
+| census-suites.sh | 95 | 2026-11-21 |
+| walk.py | 68 |  |
+| materialize.py | 61 | 2026-11-19 |
+| replay.sh | 55 |  |
+| cut.py | 54 |  |
+| tangle.py | 47 | 2026-10-23 |
+| red-flags.md | 39 | 2026-11-16 |
+| molt.py | 28 |  |
+| census.py | 27 | 2026-11-16 |
+| cycle.sh | 21 |  |
+| oldtree.sh | 17 |  |
+| replay-m102.sh | 16 |  |
+| blocks.py | 12 | 2026-11-21 |
+| corpus.py | 7 | 2026-11-16 |
+| dcrender.py | 5 | 2026-11-17 |
+| render.py | 5 | 2026-11-17 |
+| patch.sh | 4 |  |
+| dbeaver.js | 2 |  |
+| assess.sh | 2 |  |
+| kernel-to-modes.py | 0 | - |
+| fencecheck.py | 0 | - |
+| resolve.py | 0 | - |
+| replay-m96.py | 0 | - |
+| flatten-ctx.py | 0 | - |
+| check.sh | 0 | - |

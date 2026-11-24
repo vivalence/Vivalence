@@ -153,7 +153,10 @@ export const fault = (error) =>
 
 // --- inbound: Anthropic response → turn ---
 
-const counted = (usage) => ({ input: usage.input_tokens, output: usage.output_tokens });
+const counted = (usage) => [
+  { name: "input", unit: "tokens", amount: usage.input_tokens },
+  { name: "output", unit: "tokens", amount: usage.output_tokens },
+];
 
 export function translateResponse(response) {
   return {

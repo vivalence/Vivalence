@@ -14,7 +14,7 @@ export const sweep = async (ctx, roots, scope) => {
 
   if (ctx.signal.flags.force !== true) {
     if (!ctx.hold) throw new Error(`${scope}/cleanup: needs a terminal to confirm, or --force`);
-    const label = `remove ${files} stale view bundles (${(bytes / 1e6).toFixed(0)} MB) under ${roots.join(", ")}?`;
+    const label = `remove ${files} stale surface bundles (${(bytes / 1e6).toFixed(0)} MB) under ${roots.join(", ")}?`;
     const answer = await ctx.hold(views.confirm, { label, initial: false });
     if (!answer.yes) return { aborted: true, ...tally };
   }
@@ -37,7 +37,7 @@ async function effect(ctx) {
 export const cleanup = new Vector().open(
   {
     nature: "/instance/cleanup",
-    valence: "prune stale view bundles under the instance's mountpoint — every hash-named build without its source goes; a view's own bundle/<slug>.<mime>.mjs and every generated view stay; asks unless --force. Example: viva instance/cleanup chess --force",
+    valence: "prune stale surface bundles under the instance's mountpoint — every hash-named build without its source goes; a surface's own bundle/<slug>.<mime>.mjs and every generated surface stay; asks unless --force. Example: viva instance/cleanup chess --force",
     input: v.object({
       target: v.string().desc("slug or path, defaults to the mounted instance. Example: chess").optional(),
       force: v.boolean().desc("skip the confirmation").group("flags").optional(),

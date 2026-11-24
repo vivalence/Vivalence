@@ -1,7 +1,7 @@
 #+title: attached publishing — a mode serves what it bundled, outside the login
 #+filetags: :attached:mode:publishing:blog:bundle:serve:aperture:
-#+status: =ATTACHED= on a mode + =flag= · =opaque= cut LANDED 11-21 (his /"Land teh parts that are ready."/; five files, census equal by red name, a real process answers both mounts, his =:2501= =RUNNING= after); =TWITCHY= LANDED 11-21 on his /"mode has to export it from module and then that gets mounted like the rest"/ (six files: population mints the mode's twitch as it mints aperture · tools, the trait grafts the module's export; census equal by red name, a real boot hears a grafted route once per seat, his =:2501= =RUNNING= after); the server measured (~14–19 k requests a second on loopback, no compression, no =Range=); the demo MODE unbuilt, waits on his thoughts on where files live
-# writer: agent · limit: 48000 chars
+#+status: =ATTACHED= on a mode + =flag= · =opaque= cut LANDED 11-21 (his /"Land teh parts that are ready."/; five files, census equal by red name, a real process answers both mounts, his =:2501= =RUNNING= after); =TWITCHY= LANDED 11-21 on his /"mode has to export it from module and then that gets mounted like the rest"/ (six files: population mints the mode's twitch as it mints aperture · tools, the trait grafts the module's export; census equal by red name, a real boot hears a grafted route once per seat, his =:2501= =RUNNING= after); the server measured (~14–19 k requests a second on loopback, no compression, no =Range=); the demo mode =@commons/publisher/blog= LANDED 11-23 on his /"c"/ (one =/build= route, three callers built and tested: watch · twitch · button; the BUTTON wired; =boot= · =twitch= exported and unworn; =paladin.watch= + the =css= row with it; 14 files, one pass, census equal by red name, his =:2501= =RUNNING= after); MOVED the same evening, measured 22:30 (his /"meta is off. repo has moved"/): the tree's rename made the word =SURFACED= · the export =surfaces=, the manifest wears =EXPOSED= · =ATTACHED= · =SURFACED= · =FILESET=, the attachment serves the mode's File entities (=** where files live=), the mode sits in his recipe's =runtime.modes=, live at =/attached/runtime/runtime/mode/publisher/blog/=; suite on the tree ok, 4 passed (16 steps)
+# writer: agent · limit: 86000 chars
 
 * intent
 
@@ -229,6 +229,48 @@ UNPROBED: that =/after/file/create= · =/after/file/update= reach =mode.twitch=.
 | sources | the mountpoint, never the package |
 | compile | ONE aperture route; the twitch calls it; a command · a tool · a view too |
 | where files live (filesink · mountpoint) | OPEN, his thoughts first |
+
+** 11-23 — files answer from the File table
+
+/"do we copy or are just really smart about linking on mode level or gernally how we keep the package module source fileset in relation with the mountpoint files."/ · /"did you work that out and test it? show me snapshots"/ · /"ok great."/ · /"ok seat it"/
+
+Neither copy nor link: a File is one per (mode, path), =mount= says where the bytes lie. PROBED on a clone of the tree, three real boots (=reference/attached-publishing/files.probe.js <clone>=); NOTHING of it is in the tree, no go given.
+
+#+BEGIN_SRC js
+// commons/publishers/blog/attachment.js — ran green on the clone
+import { relative } from "@std/path";
+import paladin from "@vivalence/paladin";
+import { fromm, Vector } from "@vivalence/typology";
+
+const missing = () => new Response(null, { status: 404 });
+
+export const attachment = new Vector().open("/(.*)", async (ctx) => {
+  const file = await ctx.runtime.entities.file.findOne({
+    mode: ctx.mode.entity.id,
+    path: relative("/", fromm.params(ctx.params).path.absolute),
+  });
+  if (file === null) return missing();
+
+  ctx.response.type = file.mime;
+  return await paladin.read.bytes(file.mount);
+});
+#+END_SRC
+
+The clone's mode beside it: manifest wears =FILESET= · =FILESINK=, =fileset = { path: "files" }= (=files/theme.css= · =files/engine.js=); =/build= receives its pages through =ctx.mode.call.files.receive=, records every other file of =source/= where it lies (=ctx.entities.file.record=, =mount= in =source/=), writes no =theme.css=, answers every path.
+
+| measured, a stranger's GET | |
+|---|---|
+| =ctx.entities.file= in the attachment (my first sketch) | 500, the attachment ctx holds =mode= · =runtime= only |
+| path with its leading =/= | 404 on all |
+| page · index · package sheet · package js · png in =source/= | 200, own mime |
+| =nope.html= · =source/hello.md= · three =..= spellings | 404 |
+| =source/theme.css= saved by hand, then =/build= | 200 his sheet; the SAME File id, =mount= moved from the package to =source/= |
+
+Found: pages land beside =source/=, no =public/= (=FILESINK= mounts at =mountpoint/path=) · =/files/receive= over HTTP answers 500 =expected type `Uint8Array`, got `array`= for JSON bytes · a deleted override does not return the package's file until the fileset's stamp moves (=fileset.js:8= =installed=, =dataset.js:20=, read, unrun) · =FILESET= stores an absolute package path.
+
+Unrun: the blog suite · any census · a restart · a delete.
+
+LANDED 11-23 on his /"ok. fix. i wnat to test teh system"/, NOT as probed: pages stay under =public/= (=paladin.state.scribe= + =ctx.entities.file.record=, =/build= still answers only what it wrote), no =FILESINK=, no =engine.js=; =theme/theme.css= moved to =files/theme.css= (=FILESET=, =fileset = { path: "files" }=); the attachment as above with =mode: ctx.mode.id=. Blog suite on the tree: =ok | 4 passed (16 steps) | 0 failed=, baseline 15; the new step red once with the asset record broken. His =:2501= after the watcher's deploy: =theme.css= 200 =text/css= from the package, =index.html= 404 until his press. A fileset change moves the stamp (=dataset.js:20=), so a package update IS re-recorded; it also takes =theme.css= back from an override until the next build (read, unrun). Unrun: a census · a delete.
 
 * as code
 
@@ -661,11 +703,873 @@ Two mints shown (after the assign in the =Mode= constructor | in population as a
 
 The step is red with the mint out (=twitch.dispatch is not a function=, the boot's own fault), green restored. The constructor reading ran on a clone too (green, boots =RUNNING=) and was not taken.
 
+** the blog — one build route, three callers (BUILT 11-21 night; LANDED 11-23, the button wired)
+
+His pick 11-23, to /"A =BOOTED= · B =TWITCHY= · C =VIEWABLE="/: /"c"/ → the manifest wore =VIEWABLE= at the land, =SURFACED= since the tree's rename that evening (=views= → =surfaces=, the table =surface=, the mount =/attached/surface/:id=); =boot= (the watch) · =twitch= stay exported, unworn: one word on a recipe's entry wears either beside it. Every =VIEWABLE= · =views= below this row is the 11-21 · 11-23 midday spelling.
+
+His order: /"b. we might actually go a step further. if we instead of attaching the bundle to twitch from file entity write, add a booted trait and add on paladin a filesystem watch capability that the mode uses to watch for the source dir in its mountpoint to react to changes on the fs to build, that could also work. or still possible, just a buutton in ui that runs against the aperture. ok. i want you to build and test all three, but we wire up only one."/ · /"2 — a file saved by hand twitches nobody / fine."/ → disk is the truth.
+
+The mode =@commons/publisher/blog=: =<mountpoint>/source/**.md · .org= → =/build= → =<mountpoint>/public/**.html= + =index.html= + =theme.css=; =attachment= serves =public/= to anyone. =/build= answers the files it WROTE (=paladin.state.scribe= skips an equal one). The barrel exports all three callers; the manifest wore =EXPOSED= · =ATTACHED= only while built, =VIEWABLE= too since his pick. WIRING = ONE WORD, in the manifest or on a recipe's entry (={ module: "@commons/publisher/blog", traits: ["BOOTED"] }=, a mask adds traits, =paladin/prototypes/registry.js:264=):
+
+| caller | word | file | a hand save builds | needs |
+|---|---|---|---|---|
+| the watch | =BOOTED= | =boot.js= | yes, ~250 ms (200 settle) | NEW =paladin.watch(path, heard)=, 30 rows |
+| the twitch | =TWITCHY= | =twitch.js= | no | a File entity per source; over the wire NONE can be made: =/files/receive= answers 500 =expected type `Uint8Array`, got `array`= |
+| the button | =VIEWABLE= | =buffer/Blog.jsx= + =buffer= · =views= | no, on the press | a signed-in client |
+
+Measured on real boots (=reference/attached-publishing/blog.probe.js <clone> none · BOOTED · VIEWABLE · TWITCHY,FILESINK=) and in the mode's suite. Found on the way:
+- =mime.EXTENSIONS= holds no =css=: the sheet left as =application/octet-stream= (a browser refuses it). One row, typology, PROPOSED below. (=shard/serve.js:4= keeps a second table that has it.)
+- the mount's root (=…/publisher/blog= · =…/blog/=) answers the runtime's 404: =/(.*)= does not match it; the entry is =/index.html=.
+- the attachment's =..= guard is UNREACHABLE over HTTP today (removed, the five-spellings step stays green: the router decodes no =%2f=); kept as =state.js:68= keeps its own, his to rule.
+- macOS delivers a write made just BEFORE the watch began: the watch test lets its directory age 500 ms.
+- no build at boot · a deleted source keeps its page · org's =*= headline is an =<h1>= beside the title's (uniorg, as =reader/aperture/parse.js=) · a view's bundle is a File of the mode (=bundle/blog.dom.solid.mjs=): under =TWITCHY= the =source/= guard is what keeps it from building.
+
+*** subsystems
+
+#+BEGIN_SRC js :tangle subsystems/paladin/gestalten/belt/watch.js
+const SETTLE = 200;
+
+export default function watch(paladin) {
+  paladin.watch = (path, heard) => {
+    const watcher = Deno.watchFs(path?.absolute ?? path);
+    const changed = new Set();
+    let settling = null;
+
+    const settle = () => {
+      const paths = [...changed];
+      changed.clear();
+      heard(paths);
+    };
+
+    const listen = async () => {
+      for await (const event of watcher) {
+        if (event.kind === "access") continue;
+        for (const path of event.paths) changed.add(path);
+        clearTimeout(settling);
+        settling = setTimeout(settle, SETTLE);
+      }
+    };
+    listen();
+
+    return () => {
+      clearTimeout(settling);
+      watcher.close();
+    };
+  };
+}
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/gestalten/belt/index.js:16
+ import control from "./control.js";
++import watch from "./watch.js";
+
+-export const FULL = [read, find, prime, check, state, envfile, is, scope, publish, source, clone, bundler, expand, vault, stamp, control];
++export const FULL = [read, find, prime, check, state, envfile, is, scope, publish, source, clone, bundler, expand, vault, stamp, control, watch];
+// subsystems/paladin/gestalten/belt/index.js:36
+   control,
++  watch,
+ };
+#+END_SRC
+
+#+BEGIN_SRC js :tangle subsystems/paladin/tests/watch.test.js
+import { basename, join } from "@std/path";
+import { sleep, specimen } from "@vivalence/typology";
+import paladin from "@vivalence/paladin";
+
+const WINDOW = 600;
+
+const AGED = 500;
+
+const listening = async (directory) => {
+  await sleep.ms(AGED);
+  const bursts = [];
+  const waiting = [];
+  const stop = paladin.watch(directory, (paths) => {
+    bursts.push(paths.map((path) => basename(path)).sort());
+    for (const resolve of waiting.splice(0)) resolve();
+  });
+  await sleep.ms(100);
+  const next = () =>
+    new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error("no burst heard in 5000 ms")), 5000);
+      waiting.push(() => (clearTimeout(timer), resolve()));
+    });
+  return { bursts, next, stop };
+};
+
+specimen.describe("paladin.watch — a directory's writes, heard once per settled burst", () => {
+  specimen.it("two files written in one breath are ONE burst naming both; a later write is a second", async () => {
+    const directory = await Deno.makeTempDir();
+    const ear = await listening(directory);
+    try {
+      const first = ear.next();
+      await Deno.writeTextFile(join(directory, "one.md"), "# one");
+      await Deno.writeTextFile(join(directory, "two.md"), "# two");
+      await first;
+      specimen.expect(ear.bursts).toEqual([["one.md", "two.md"]]);
+
+      const second = ear.next();
+      await Deno.writeTextFile(join(directory, "one.md"), "# one, again");
+      await second;
+      specimen.expect(ear.bursts).toEqual([["one.md", "two.md"], ["one.md"]]);
+    } finally {
+      ear.stop();
+    }
+  });
+
+  specimen.it("a write in a nested directory is heard; a temp file renamed into place names the file", async () => {
+    const directory = await Deno.makeTempDir();
+    await Deno.mkdir(join(directory, "articles"));
+    const ear = await listening(directory);
+    try {
+      const burst = ear.next();
+      await paladin.state.scribe(join(directory, "articles/nested.md"), "# nested");
+      await burst;
+      specimen.expect(ear.bursts.flat().includes("nested.md")).toBe(true);
+    } finally {
+      ear.stop();
+    }
+  });
+
+  specimen.it("a read is no burst", async () => {
+    const directory = await Deno.makeTempDir();
+    await Deno.writeTextFile(join(directory, "held.md"), "# held");
+    const ear = await listening(directory);
+    try {
+      await Deno.readTextFile(join(directory, "held.md"));
+      await sleep.ms(WINDOW);
+      specimen.expect(ear.bursts).toEqual([]);
+    } finally {
+      ear.stop();
+    }
+  });
+
+  specimen.it("stopped, a write is heard by nobody, a burst still settling too", async () => {
+    const directory = await Deno.makeTempDir();
+    const ear = await listening(directory);
+    await Deno.writeTextFile(join(directory, "late.md"), "# late");
+    ear.stop();
+    await Deno.writeTextFile(join(directory, "later.md"), "# later");
+    await sleep.ms(WINDOW);
+    specimen.expect(ear.bursts).toEqual([]);
+  });
+});
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/scalars/mime.js:54
+   html: "text/html",
++  css: "text/css",
+   csv: "text/csv",
+#+END_SRC
+
+*** commons/publishers/blog
+
+#+BEGIN_SRC js :tangle commons/publishers/blog/blog.viva.js
+import { mime, v } from "@vivalence/typology";
+
+export const manifest = {
+  type: "publisher",
+  slug: "blog",
+  name: "Blog",
+  description:
+    "A blog pressed from its sources: every .md · .org under source/ in its mountpoint becomes a page under public/; every other file there is served from where it lies.",
+  version: "0.1.0",
+  traits: ["EXPOSED", "ATTACHED", "SURFACED", "FILESET"],
+};
+
+export const buffer = v.buffer({ data: {} }).desc("The press: one button that builds the blog. Example: {}");
+
+export const fileset = { path: "files" };
+
+export const surfaces = [{ slug: "blog", mount: "buffer/Blog.jsx", mime: mime.dom.solid }];
+
+export { aperture } from "./aperture/index.js";
+export { attachment } from "./attachment.js";
+export { twitch } from "./twitch.js";
+export { boot } from "./boot.js";
+#+END_SRC
+
+#+BEGIN_SRC js :tangle commons/publishers/blog/aperture/index.js
+import { join, relative } from "@std/path";
+import paladin from "@vivalence/paladin";
+import { mime, Path, v, Vector } from "@vivalence/typology";
+import { pressed, SOURCES } from "../press.js";
+import { contents, framed } from "../theme/index.js";
+
+const Built = v.object({
+  pages: v
+    .array(v.string())
+    .desc('Every file under public/ this build wrote, unchanged ones left out. Example: ["hello.html", "index.html"]'),
+});
+
+export const aperture = new Vector().open(
+  {
+    nature: "/build",
+    output: Built,
+    valence: "press the blog — every .md · .org under source/ becomes a page under public/. Example: /build",
+  },
+  async (ctx) => {
+    const seat = new Path(ctx.mode.mountpoint).absolute;
+    const source = join(seat, "source");
+    await paladin.state.dir(source);
+
+    const files = await paladin.find.walk(SOURCES)(source);
+    const articles = await Promise.all(
+      files.map(async (file) => pressed(relative(source, file.absolute), await paladin.read.text(file))),
+    );
+    articles.sort((left, right) => (left.page < right.page ? -1 : 1));
+
+    const pages = [
+      ...articles.map((article) => [article.page, framed(article)]),
+      ["index.html", contents(articles)],
+    ];
+
+    const written = [];
+    for (const [page, text] of pages) {
+      const mount = join(seat, "public", page);
+      if (await paladin.state.scribe(mount, text)) written.push(page);
+      await ctx.entities.file.record({
+        mode: ctx.mode.id,
+        path: page,
+        mount,
+        mime: mime.of(page),
+        bytes: new TextEncoder().encode(text),
+      });
+    }
+
+    const kept = (await paladin.find.walk(/./)(source)).filter((file) => !SOURCES.test(file.absolute));
+    for (const file of kept) {
+      await ctx.entities.file.record({
+        mode: ctx.mode.id,
+        path: relative(source, file.absolute),
+        mount: file.absolute,
+        mime: mime.of(file.absolute),
+        bytes: await paladin.read.bytes(file.absolute),
+      });
+    }
+    return { pages: written };
+  },
+);
+#+END_SRC
+
+#+BEGIN_SRC js :tangle commons/publishers/blog/press.js
+import { basename, extname } from "@std/path";
+import { marked } from "npm:marked@17.0.1";
+import { unified } from "npm:unified@11.0.5";
+import uniorg from "npm:uniorg-parse@3.2.0";
+import rehype from "npm:uniorg-rehype@2.2.0";
+import stringify from "npm:rehype-stringify@10.0.1";
+
+const HEADLINE = /^#\s+(.+?)\s*#*$/m;
+const KEYWORD = /^#\+title:\s*(.+)$/im;
+
+const org = unified().use(uniorg).use(rehype).use(stringify);
+
+const titled = (pattern, text, path) => pattern.exec(text)?.[1].trim() ?? basename(path, extname(path));
+
+const markdown = (text, path) => ({
+  title: titled(HEADLINE, text, path),
+  body: marked.parse(text),
+});
+
+const orgset = (text, path) => ({
+  title: titled(KEYWORD, text, path),
+  body: `<h1>${titled(KEYWORD, text, path)}</h1>${String(org.processSync(text))}`,
+});
+
+const MARKUP = [
+  [/\.md$/, markdown],
+  [/\.org$/, orgset],
+];
+
+export const SOURCES = /\.(md|org)$/;
+
+export const pressed = (path, text) => {
+  const [suffix, compile] = MARKUP.find(([suffix]) => suffix.test(path));
+  return { page: path.replace(suffix, ".html"), ...compile(text, path) };
+};
+#+END_SRC
+
+#+BEGIN_SRC js :tangle commons/publishers/blog/theme/index.js
+const ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" };
+
+const escaped = (text) => text.replace(/[&<>"]/g, (character) => ESCAPES[character]);
+
+const home = (page) => "../".repeat(page.split("/").length - 1);
+
+export const framed = ({ page, title, body }) => `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escaped(title)}</title>
+<link rel="stylesheet" href="${home(page)}theme.css">
+</head>
+<body>
+<header><a href="${home(page)}index.html">index</a></header>
+<main>
+${body}
+</main>
+</body>
+</html>
+`;
+
+const entry = (article) => `<li><a href="${escaped(article.page)}">${escaped(article.title)}</a></li>`;
+
+export const contents = (articles) =>
+  framed({
+    page: "index.html",
+    title: "index",
+    body: `<ul>\n${articles.map(entry).join("\n")}\n</ul>`,
+  });
+#+END_SRC
+
+#+BEGIN_SRC css :tangle commons/publishers/blog/files/theme.css
+:root {
+  color-scheme: light dark;
+  font: 18px/1.6 Georgia, "Times New Roman", serif;
+}
+
+body {
+  max-width: 38rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 6rem;
+  background: Canvas;
+  color: CanvasText;
+}
+
+header {
+  margin-bottom: 3rem;
+  font: 0.8rem/1 ui-monospace, Menlo, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+a {
+  color: LinkText;
+  text-underline-offset: 0.2em;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  margin: 2.5rem 0 1rem;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-top: 0;
+}
+
+pre,
+code {
+  font: 0.85rem/1.5 ui-monospace, Menlo, monospace;
+}
+
+pre {
+  overflow-x: auto;
+  padding: 1rem;
+  border: 1px solid GrayText;
+}
+
+blockquote {
+  margin: 1.5rem 0;
+  padding-left: 1rem;
+  border-left: 2px solid GrayText;
+}
+
+img {
+  max-width: 100%;
+}
+
+main > ul {
+  padding-left: 1.2rem;
+}
+#+END_SRC
+
+#+BEGIN_SRC js :tangle commons/publishers/blog/attachment.js
+import { relative } from "@std/path";
+import paladin from "@vivalence/paladin";
+import { fromm, Vector } from "@vivalence/typology";
+
+const missing = () => new Response(null, { status: 404 });
+
+export const attachment = new Vector().open("/(.*)", async (ctx) => {
+  const file = await ctx.runtime.entities.file.findOne({
+    mode: ctx.mode.id,
+    path: relative("/", fromm.params(ctx.params).path.absolute),
+  });
+  if (file === null) return missing();
+
+  ctx.response.type = file.mime;
+  return await paladin.read.bytes(file.mount);
+});
+#+END_SRC
+
+#+BEGIN_SRC js :tangle commons/publishers/blog/boot.js
+import { join } from "@std/path";
+import paladin from "@vivalence/paladin";
+import { Path } from "@vivalence/typology";
+
+export const boot = async (modeDie, mode) => {
+  const source = join(new Path(mode.mountpoint).absolute, "source");
+  await paladin.state.dir(source);
+  return paladin.watch(source, () => mode.call.build().catch((error) => mode.stdout.fault(error)));
+};
+#+END_SRC
+
+#+BEGIN_SRC js :tangle commons/publishers/blog/twitch.js
+import { Vector } from "@vivalence/typology";
+
+const sourced = (ctx) =>
+  ctx.input.entity.mode?.id === ctx.mode.id && ctx.input.entity.path.startsWith("source/");
+
+const build = async (ctx) => {
+  if (sourced(ctx)) await ctx.mode.call.build();
+};
+
+export const twitch = new Vector().open("/after/file/create", build).open("/after/file/update", build);
+#+END_SRC
+
+#+BEGIN_SRC jsx :tangle commons/publishers/blog/buffer/Blog.jsx
+import { createSignal, For, Show } from "solid-js";
+import { render } from "solid-js/web";
+
+const Blog = (props) => {
+  const [pages, setPages] = createSignal(null);
+  const build = async () => setPages((await props.buffer.mode.call.build()).pages);
+
+  return (
+    <section>
+      <button type="button" onClick={build}>
+        build
+      </button>
+      <Show when={pages() !== null}>
+        <ul>
+          <For each={pages()}>{(page) => <li>{page}</li>}</For>
+        </ul>
+      </Show>
+    </section>
+  );
+};
+
+export default (element, props) => {
+  const shadow = element.attachShadow({ mode: "open" });
+  const dispose = render(() => <Blog {...props} />, shadow);
+  return { destroy: dispose };
+};
+#+END_SRC
+
+#+BEGIN_SRC js :tangle commons/publishers/blog/tests/blog.test.js
+import { join } from "@std/path";
+import { Aperture, contexts, Controller, mime, Mode, Path, shard, sleep, Span, specimen } from "@vivalence/typology";
+import { lifecycle, traits } from "@vivalence/runtime";
+import { hello, lighthouse } from "@vivalence/runtime/scenarios";
+import * as blog from "../blog.viva.js";
+import { pressed } from "../press.js";
+import { contents, framed } from "../theme/index.js";
+
+const BLOG = "/attached/daemon/hello/mode/publisher/blog";
+const BUILD = "/daemon/hello/mode/publisher/blog/build";
+const HELLO = "# Hello\n\nThe first page, *by hand*.\n";
+const SECOND = "#+title: Second\n\nOrg text.\n";
+const SHEET = "body { background: hotpink; }\n";
+const PICTURE = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
+
+const seated = (world) => join(world.root, "instance/mountpoint/daemon_hello/mode_publisher_blog");
+
+const wearing = (worn) =>
+  hello.boot({
+    prefix: "viva-blog-",
+    recipe: {
+      ...hello.RECIPE,
+      daemons: [
+        {
+          ...hello.RECIPE.daemons[0],
+          modes: [...hello.RECIPE.daemons[0].modes, { module: "@commons/publisher/blog", traits: worn }],
+        },
+      ],
+    },
+  });
+
+const signed = async (world) => {
+  await world.post("/lighthouse/signup", { username: "finn", password: "hunter22" });
+  const login = await (await world.post("/lighthouse/login", { username: "finn", password: "hunter22" })).json();
+  return login.authority.access;
+};
+
+const sourced = async (world, path, text) => {
+  await Deno.mkdir(join(seated(world), "source", path, ".."), { recursive: true });
+  await Deno.writeTextFile(join(seated(world), "source", path), text);
+};
+
+const page = async (world, path) => {
+  const response = await world.get(`${BLOG}${path}`);
+  return { status: response.status, type: response.headers.get("content-type"), text: await response.text() };
+};
+
+const until = async (world, path, held) => {
+  const started = Date.now();
+  for (;;) {
+    const answered = await page(world, path);
+    if (held(answered)) return answered;
+    if (Date.now() - started > 5000) throw new Error(`${path} not as awaited after 5000 ms: ${answered.status}`);
+    await sleep.ms(50);
+  }
+};
+
+specimen.describe("blog press — a source becomes a page in the theme", () => {
+  specimen.it("markdown: the page keeps its path, the title is its first headline", () => {
+    specimen.expect(pressed("articles/hello.md", HELLO)).toEqual({
+      page: "articles/hello.html",
+      title: "Hello",
+      body: "<h1>Hello</h1>\n<p>The first page, <em>by hand</em>.</p>\n",
+    });
+  });
+
+  specimen.it("org: the title is its #+title keyword, set as the page's headline", () => {
+    const article = pressed("second.org", SECOND);
+    specimen.expect(article.page).toBe("second.html");
+    specimen.expect(article.title).toBe("Second");
+    specimen.expect(article.body.startsWith("<h1>Second</h1>")).toBe(true);
+    specimen.expect(article.body.includes("Org text.")).toBe(true);
+  });
+
+  specimen.it("a source with no headline is titled by its file name", () => {
+    specimen.expect(pressed("notes/untitled.md", "just text\n").title).toBe("untitled");
+    specimen.expect(pressed("untitled.org", "just text\n").title).toBe("untitled");
+  });
+
+  specimen.it("a page reaches the sheet and the index RELATIVE to its own depth; a title is escaped", () => {
+    const nested = framed({ page: "articles/2026/deep.html", title: "a < b", body: "<p>deep</p>" });
+    specimen.expect(nested.includes('<link rel="stylesheet" href="../../theme.css">')).toBe(true);
+    specimen.expect(nested.includes('<a href="../../index.html">index</a>')).toBe(true);
+    specimen.expect(nested.includes("<title>a &lt; b</title>")).toBe(true);
+    const index = contents([{ page: "articles/hello.html", title: "Hello" }]);
+    specimen.expect(index.includes('<li><a href="articles/hello.html">Hello</a></li>')).toBe(true);
+    specimen.expect(index.includes('<link rel="stylesheet" href="theme.css">')).toBe(true);
+  });
+});
+
+specimen.describe("blog — the button: SURFACED, the manifest's own word; a signed-in /build presses the disk", () => {
+  let world;
+  let token;
+
+  specimen.beforeAll(async () => {
+    world = await wearing([]);
+    token = await signed(world);
+    await sourced(world, "hello.md", HELLO);
+    await sourced(world, "articles/second.org", SECOND);
+  });
+
+  specimen.afterAll(async () => {
+    await world.stop();
+  });
+
+  specimen.it("a source saved by hand builds nothing by itself: no watch, no twitch without their word", async () => {
+    await sleep.ms(800);
+    specimen.expect((await page(world, "/hello.html")).status).toBe(404);
+  });
+
+  specimen.it("/build sits behind the login", async () => {
+    const refused = await world.post(BUILD, {});
+    specimen.expect(refused.status).toBe(401);
+    await refused.body?.cancel();
+    specimen.expect((await page(world, "/hello.html")).status).toBe(404);
+  });
+
+  specimen.it("/build answers every file it wrote; a second build writes none; an edit rewrites its page alone", async () => {
+    const first = await (await world.post(BUILD, {}, token)).json();
+    specimen.expect(first).toEqual({ pages: ["articles/second.html", "hello.html", "index.html"] });
+
+    specimen.expect(await (await world.post(BUILD, {}, token)).json()).toEqual({ pages: [] });
+
+    await sourced(world, "hello.md", `${HELLO}\nA second paragraph.\n`);
+    specimen.expect(await (await world.post(BUILD, {}, token)).json()).toEqual({ pages: ["hello.html"] });
+  });
+
+  specimen.it("a stranger reads the pages, the index and the sheet, each under its own media type", async () => {
+    const hand = await page(world, "/hello.html");
+    specimen.expect([hand.status, hand.type]).toEqual([200, mime.html]);
+    specimen.expect(hand.text.includes("<h1>Hello</h1>")).toBe(true);
+    specimen.expect(hand.text.includes("<p>A second paragraph.</p>")).toBe(true);
+
+    const nested = await page(world, "/articles/second.html");
+    specimen.expect([nested.status, nested.type]).toEqual([200, mime.html]);
+    specimen.expect(nested.text.includes('href="../theme.css"')).toBe(true);
+
+    const index = await page(world, "/index.html");
+    specimen.expect(index.text.includes('<li><a href="articles/second.html">Second</a></li>')).toBe(true);
+    specimen.expect(index.text.includes('<li><a href="hello.html">Hello</a></li>')).toBe(true);
+
+    const sheet = await page(world, "/theme.css");
+    specimen.expect([sheet.status, sheet.type]).toEqual([200, "text/css"]);
+  });
+
+  specimen.it("the sheet is the package's own file, never copied; a file of source/ that is no article answers from where it lies; his own theme.css shadows the package's", async () => {
+    const shipped = new URL("../files/theme.css", import.meta.url).pathname;
+    const before = world.query("select id, mount from file where path = 'theme.css'");
+    specimen.expect(before.map((file) => file.mount)).toEqual([shipped]);
+    specimen.expect((await page(world, "/theme.css")).text).toBe(await Deno.readTextFile(shipped));
+
+    await sourced(world, "theme.css", SHEET);
+    await Deno.writeFile(join(seated(world), "source/logo.png"), PICTURE);
+    await (await world.post(BUILD, {}, token)).body?.cancel();
+
+    const picture = await world.get(`${BLOG}/logo.png`);
+    specimen.expect([picture.status, picture.headers.get("content-type")]).toEqual([200, "image/png"]);
+    specimen.expect(new Uint8Array(await picture.arrayBuffer())).toEqual(PICTURE);
+    specimen.expect((await page(world, "/theme.css")).text).toBe(SHEET);
+
+    const after = world.query("select id, path, mount from file where path in ('logo.png', 'theme.css') order by path");
+    specimen.expect(after.map((file) => file.mount)).toEqual([
+      join(seated(world), "source/logo.png"),
+      join(seated(world), "source/theme.css"),
+    ]);
+    specimen.expect(after[1].id).toBe(before[0].id);
+    await specimen.expect(Deno.stat(join(seated(world), "public/logo.png"))).rejects.toThrow(Deno.errors.NotFound);
+  });
+
+  specimen.it("a page never built is 404; no spelling of .. reaches a source", async () => {
+    specimen.expect((await page(world, "/nope.html")).status).toBe(404);
+    const climbs = [
+      "/../source/hello.md",
+      "/%2e%2e/source/hello.md",
+      "/..%2fsource%2fhello.md",
+      "/%2e%2e%2fsource%2fhello.md",
+      "/articles/..%2f..%2fsource%2fhello.md",
+    ];
+    for (const climb of climbs) {
+      const answered = await page(world, climb);
+      specimen.expect([climb, answered.status, answered.text.includes("by hand")]).toEqual([climb, 404, false]);
+    }
+  });
+
+  specimen.it("the surface holding the button is bundled from buffer/Blog.jsx and answers its signed-in fetch", async () => {
+    const [surface] = world.query("select id, mount, entry from surface where slug = 'blog'");
+    specimen.expect([surface.mount, surface.entry]).toEqual(["buffer/Blog.jsx", "bundle/blog.dom.solid.mjs"]);
+    const bundle = await world.get(`/attached/surface/${surface.id}?token=${token}`);
+    specimen.expect([bundle.status, bundle.headers.get("content-type")]).toEqual([200, mime.javascript]);
+    specimen.expect((await bundle.text()).includes("mode.call.build()")).toBe(true);
+  });
+});
+
+specimen.describe("blog — the watch: BOOTED on a recipe's entry, a save under source/ is a page, nobody asking", () => {
+  let world;
+
+  specimen.beforeAll(async () => {
+    world = await wearing(["BOOTED"]);
+  });
+
+  specimen.afterAll(async () => {
+    await world.stop();
+  });
+
+  specimen.it("a file saved by hand is served; saved again, the page follows", async () => {
+    await sourced(world, "hello.md", HELLO);
+    const first = await until(world, "/hello.html", (answered) => answered.status === 200);
+    specimen.expect(first.text.includes("<h1>Hello</h1>")).toBe(true);
+
+    await sourced(world, "hello.md", "# Hello\n\nRewritten.\n");
+    const second = await until(world, "/hello.html", (answered) => answered.text.includes("Rewritten."));
+    specimen.expect(second.text.includes("by hand")).toBe(false);
+  });
+
+  specimen.it("a save in a directory made after the boot is heard; an editor's lock file is no page", async () => {
+    await sourced(world, "articles/.#second.md", "finn@machine.4242");
+    await sourced(world, "articles/second.org", SECOND);
+    await until(world, "/articles/second.html", (answered) => answered.status === 200);
+    specimen.expect((await page(world, "/articles/.#second.html")).status).toBe(404);
+    const index = await until(world, "/index.html", (answered) => answered.text.includes("articles/second.html"));
+    specimen.expect(index.text.includes(".#second")).toBe(false);
+  });
+});
+
+specimen.describe("blog — the twitch: TWITCHY, a File entity recorded under source/ presses the blog", () => {
+  let scenario;
+  let daemon;
+  let mode;
+  let seat;
+
+  const recorded = async (holder, path, text) => {
+    await Deno.mkdir(join(seat, path, ".."), { recursive: true });
+    await Deno.writeTextFile(join(seat, path), text);
+    await scenario.datamap.shard.scope(async () => {
+      await daemon.entities.file.record({
+        mode: holder,
+        daemon: "italian",
+        path,
+        mount: join(seat, path),
+        mime: mime.of(path),
+        bytes: new TextEncoder().encode(text),
+      });
+    });
+    await sleep.ms(60);
+  };
+
+  const pressedPage = (path) => Deno.readTextFile(join(seat, "public", path)).catch(() => null);
+
+  specimen.beforeAll(async () => {
+    scenario = await lighthouse.create();
+    await scenario.seedDaemon("italian");
+    const die = {
+      runtime: scenario.runtime,
+      daemon: {
+        type: "daemon",
+        slug: "italian",
+        reference: new Path("/daemon/italian"),
+        domain: {},
+        aperture: new Aperture(),
+        controller: new Controller({ stdout: new Span("italian") }),
+      },
+      register: { modes: [] },
+    };
+    await lifecycle.daemon.population.datamap(die, async () => {});
+    daemon = die.daemon;
+
+    seat = await Deno.makeTempDir({ prefix: "viva-blog-twitch-" });
+    const module = {
+      ...blog,
+      manifest: { ...blog.manifest, traits: [...blog.manifest.traits, "TWITCHY"] },
+      source: new Path(new URL("../blog.viva.js", import.meta.url).pathname),
+    };
+    mode = Object.assign(new Mode({ module }), {
+      daemon: "italian",
+      mountpoint: seat,
+      stdout: new Span("mode/publisher/blog"),
+    });
+    const modeDie = { ...shard.context.lift(contexts.modeDie, daemon), mode, traits: {} };
+    await lifecycle.mode.population.core(modeDie, async () => {});
+    await (await traits.mode.EXPOSED(mode))();
+    traits.mode.TWITCHY(mode);
+  });
+
+  specimen.afterAll(async () => {
+    await scenario.close();
+    await Deno.remove(seat, { recursive: true });
+  });
+
+  specimen.it("a source recorded for this mode is pressed: its page and the index lie under public/", async () => {
+    await recorded(mode.id, "source/hello.md", HELLO);
+    specimen.expect((await pressedPage("hello.html")).includes("<h1>Hello</h1>")).toBe(true);
+    specimen.expect((await pressedPage("index.html")).includes('<a href="hello.html">Hello</a>')).toBe(true);
+  });
+
+  specimen.it("the same source recorded again with new bytes is pressed again", async () => {
+    await recorded(mode.id, "source/hello.md", "# Hello\n\nRewritten.\n");
+    specimen.expect((await pressedPage("hello.html")).includes("Rewritten.")).toBe(true);
+  });
+
+  specimen.it("a file of this mode outside source/ presses nothing; a mode-less file of its daemon neither", async () => {
+    await Deno.writeTextFile(join(seat, "source/unrecorded.md"), "# Unrecorded\n");
+    await recorded(mode.id, "bundle/blog.dom.solid.mjs", "export default 1;\n");
+    await recorded(null, "source/dropped.md", "# Dropped\n");
+    specimen.expect(await pressedPage("unrecorded.html")).toBe(null);
+    specimen.expect(mode.stdout.$history.get().filter((record) => record.track === "fault")).toEqual([]);
+  });
+});
+#+END_SRC
+
+*** what ran — clones =base3= (the tree) · =m= (tree + the above)
+
+| run | result |
+|---|---|
+| =subsystems/paladin/tests/watch.test.js= ×3 | ok, 1 passed (4 steps) |
+| =commons/publishers/blog/tests/blog.test.js= ×3 | ok, 4 passed (15 steps): 4 press · 6 button (a real boot) · 2 watch (a real boot) · 3 twitch (real population, in process) |
+| mutation: the watch's handler emptied | both watch steps FAILED |
+| mutation: the twitch's =source/= guard out · its =?.= out | the third twitch step FAILED, each |
+| mutation: the =css= row out | the media-type step FAILED |
+| mutation: the attachment's =..= guard out | ok, 15 steps (unreachable, above) |
+| =methods/census-suites.sh= =base3= vs =m= | ten suites equal by red name; paladin 282 → 286 steps |
+
+In no test: a click on the button in a browser (the bundle is fetched and holds =mode.call.build()=; nothing mounts it) · the runtime-seated mount · anything on his =:2501=.
+
+*** what ran 11-23, the land — clones =base4= (the tree, moved wide since =base3=) · =c= (tree + the above, =VIEWABLE= in the manifest)
+
+| run | result |
+|---|---|
+| =commons/publishers/blog/tests/blog.test.js= on =c= (the button's boot adds NO word) | ok, 4 passed (15 steps) |
+| =subsystems/paladin/tests/watch.test.js= on =c= | ok, 1 passed (4 steps) |
+| mutation: =VIEWABLE= out of the manifest | the view step FAILED (no View entity), 14 of 15 |
+| =blog.probe.js <c> none=, a real process | bundle 200 =text/javascript= · =theme.css= 200 =text/css= · a hand save 404 until =/build= |
+| =methods/census-suites.sh= =base4= vs =c= | ten suites equal by red name; paladin 282 → 286 steps |
+| the land, =landc.sh= | 14 files, each =cmp= equal to =c=; =:2501= pid 10048 → 79153, =RUNNING= |
+| on the tree after: the two suites + =populate= · =registry.integrity= · =registry.wire= | ok, each |
+
+** the real blog — BUILT 11-23 night on a clone, LANDED the same night on his /"go."/
+
+His order: /"build me a real writing and publishing mode. fully featured blog like /Users/finn/heatdeathafterparty/crackedbeefcake-com/src"/. The code is ONE diff, =.ikiro/reference/attached-publishing/blog-0.2.diff= (10 files of =commons/publishers/blog=, replayed on a fresh copy: equal); the land is =patch -p1 < that file= at the root.
+
+- press: astro's own processor (=npm:@astrojs/markdown-remark@7.3.8= + =remark-math= · =rehype-katex= · =rehype-raw=): front matter → =Article= (title · subtitle · date · tags · image · status), footnotes · math · shiki dracula · raw html, comments stripped, a rooted =/images/x= made relative to the page's depth; org keywords are its front matter
+- theme: his blog's sheet ported; a dated source is an essay (listed, chained, unlisted skipped), an undated one a page named in the header; canonical · og · twitter off =site.json= (beside =source/=: name · url · head · language)
+- build: draft → no page; pages · pictures no longer produced are =gone= (File + disk)
+- attachment: =/= · =/on/eva= · =/on/eva.html=, =etag= + =no-cache= + 304
+- desk (=buffer/Blog.jsx=): shelf · textarea · pressed preview (=/source/preview=, drafts too) · save = write + build · picture drop → =source/images/=; routes =/source/list · read · write · remove · preview · upload/:name=
+
+Ran on the clone: blog suite =ok | 5 passed (34 steps)= (baseline 16) · ten mutations each red (=blog-0.2.mutate.py=) · registry.integrity · registry.wire · modes · watch ok · =site.probe.js= (a real boot, his five essays + seven pictures: build 157 ms cold · 83 ms unchanged; pages seen in a browser). DEPARTURES: a title comes from front matter or the file name, never the first headline · org prints no =<h1>= of its own · links are clean (=on/eva=). NOT run: the desk in anima (bundle built and fetched only) · his =:2501= (down at 22:52) · a census. LANDED: 10 files =cmp= equal to the clone + =gif: "image/gif"= (=typology/schematics/scalars/mime.js:40=, his /"amen"/); on the tree after: blog =ok | 5 passed (34 steps)= · mime · bundle · bundler · registry.integrity · registry.wire · modes · traits.receive ok; his seat (copied first to =~/.viva/bak/instances/mode_publisher_blog-20261123/=) holds 5 essays · 7 pictures · =robots.txt= · =linktree.md= · =site.json=; =:2501= down, nothing pressed there yet. OWED, mine: the site's settings (name · url · head · language) are read off =site.json= in the mountpoint, a departure from codestyle's mask rule; the mask's place is =statics= on his recipe's entry (=Mask=, =typology/schematics/primitives/instance.ts:20=), the reader to write is the mode's own mask, his =go= first · a step in =subsystems/typology/tests/schematics/mime.test.js= holding =mime.of("a.gif")= = =image/gif= (the row landed under no test) · the census ran 11-24: reds equal by name but one known ghost flake. Found: =/essays= of his old site is 404 · =FILESET= re-record of the new sheet on his mount unprobed.
+
+** the desk to the comp — TANGLED on a clone, =blog-0.5.diff=
+
+His order: /"migrate it. rewrite design"/ over the canvas =blog · the desk= (claude.ai artifact =3c0f878c-216d-49f2-832b-4a84d2b134cb=). The comp lies in =.ikiro/reference/attached-publishing/comp/=: =Main.dc.html= · =desk.css= · =standin.css=. The code is ONE diff, =.ikiro/reference/attached-publishing/blog-0.5.diff=, 7 files of =commons/publishers/blog=; replayed on a fresh copy of the tree's =blog/=: equal. The land, from =commons/publishers=: =patch -p0 < ../../.ikiro/reference/attached-publishing/blog-0.5.diff=.
+
+- =buffer/desk.css= is built, never typed: =comp/sheet.py= takes the comp's sheet, renames =--surface*= → =--plane*=, cuts the mock sheet's rules (=.ln= · =.mk= · =.caret=), keeps the 31 kit lines equal to darkroom's, takes 11 kit lines off the design system's =bundle.css= (=.kit button= · =.kit-seg= ×4 · =.kit-consent= ×6; darkroom has none), sets =comp/additions.css= between.
+- =buffer/Blog.jsx= wears the comp's markup over the live state; =buffer/icons.js= holds the comp's 30 paths; =buffer/editor.js= loses its =look= compartment (the leaf's =--measure= · =--face= · =--type= · =--leading= rule the sheet) and its own scroller (=.sheet= scrolls title and text as one).
+- =schematics.js=: =Desk.recent= (=[]=, three paths, newest first) · defaults to the comp: =library.width= 264 → 248 · =inspector.width= 320 → 304 · =settings.font= sans → serif · =size= 17 → 16 · =measure= 72 → 66 · =leading= 1.7 → 1.45. Manifest =0.5.0=.
+- =open= is a memo: a settle that keeps the source no longer seats the editor again (it disarmed the remove confirmation).
+- brief points 13 · 14: the four misnamed =.kit-= rules and =white= are gone.
+
+The design wants, the system lacks:
+
+- =pressing · 3 / 7= with a meter: =/build= answers once. Shown: =pressing=.
+- a fault's =line 4=: =Article.faults= gives =at= · =reason=.
+- ="24.11." is not a date= as a fault: =Article.date= is a bare string. The field is marked off the desk's own pattern (the live input's), the fault box does not list it.
+- the comp's chords =⌘N= · =⌘1= · =⌘2= · =⌘3= belong to the browser, =⌘⏎= to CodeMirror. The live chords stand.
+- =/a-desk-that-comes-back/=: a page is =on/eva.html=. Shown as it is; the link only when the source is live.
+- a footnote mark coloured on the sheet: lezer's GFM has no footnote node.
+
+The port drops what the live screen had:
+
+- titlebar: =publish= (palette: publish · unlist · back to draft; the status rows).
+- toolbar: strike · math · numbered · task · find (palette).
+- library: its head (=sources= · =+= · hide); a row's year; the word =page=.
+- post: =today= · =no date= · the live link (pressbar).
+- settings: the three sliders (three choices each, the keys stay numbers) · =defaults= (palette).
+- status bar: =saved 11:02= · =unsaved= (titlebar) · =autosave 5s= · =⌘P commands= · =removed <path>= · =N placed=.
+- the inspector with no source open; an outline row's line number; the palette's fuzzy match (substring, the comp's hit mark).
+
+Ran on the clone: blog suite =ok | 6 passed (38 steps)=, before and after · =desk.probe.js= in a browser, no console error: porcelain at 1320 (welcome · write · split · preview tablet · focus · unsaved · busy · both faults · remove · palette · settings · line numbers), northsea at 1320 (split · outline · media · stats · both empty panes · a seam dragged), 390 (write · both drawers · palette · settings · preview). NOT run: the desk in anima · a drop or an upload · a move · autosave · the census.
+
+*** the comp, pass 2 — on the canvas, not in =blog-0.5.diff=
+
+His order: /"do another pass"/ · /"improve"/. The canvas holds it; =comp/= + =blog-0.5.diff= are the comp BEFORE it. The pass is ONE diff over =comp/=, =.ikiro/reference/attached-publishing/comp-2.diff= (=Main.dc.html= · =desk.css=; from a copy of =comp/=: =patch -p1 <= it, equal to the canvas's two files).
+
+- sheet head: title and subtitle wrap (=textarea=, =field-sizing: content=); they clipped at the pane's edge.
+- sheet: the first mark of a heading and of a quote hangs in the margin when the writing pane is 720px or wider and line numbers are off; heading, body and title share one left edge.
+- toolbar: the crumb is the heading under the caret, a button onto =inspector · outline=, gone under 440px; the title left it. Marks in three groups: bold · italic · code · link, heading · quote · list, image · footnote.
+- inspector: the foot (=save= · =press= · =remove=) is cut. =remove this source= sits under =file=, its confirmation in its place. Save and press live in the titlebar only.
+- titlebar, narrow: one slot, =save= when unsaved, else =press=; the word =saved= is gone there; the mode select wears a chevron. The inspector toggle is disabled with no source.
+- preview, narrow: no device picker, no bezel; the page fills the box.
+- welcome: =new source= · =open ⌘K=, the three rows under =recent=.
+- palette: a path gives way to its title (they overlapped at 390), no path at narrow, a foot =↑↓ pick · ⏎ run · esc close=.
+- post: a long value ends in an ellipsis.
+
+The port owes (a =blog-0.6.diff=, his go first): each line above in =Blog.jsx= · =editor.js=; the hung marks as a decoration on lezer's =HeaderMark= · =QuoteMark= (unprobed); a title that grows in Firefox (=scrollHeight=, unprobed); =comp/sheet.py:56= reads no nested block, the two =@container= wrappers would be dropped (read, not run).
+
+Seen: every state rendered from the two files by a static expander (the canvas's own runtime not run), porcelain at 1280 · northsea at 390, plus northsea 1440 live · porcelain 390 (welcome · write · preview · remove) · line numbers on · a long title in split · focus. NOT seen: the canvas itself in a browser · Firefox · a click.
+
 * milestones
 
-| the page a stranger opens | DECLARED |
-| his text, his bundle press | DECLARED |
+| the page a stranger opens | LANDED 11-23 (=** the blog=); seated in his recipe 11-23, his first press owed |
+| where files live | LANDED 11-23: the File table answers, =mount= in the package (=FILESET=) · =public/= · =source/=; his look owed |
+| his text, his bundle press | LANDED 11-23: =/build= + three callers, the button wired (=SURFACED=, was =VIEWABLE=) |
 | the domain (editing · bundling · serving) | DECLARED, after the two above |
+| a real blog: write · press · serve | LANDED 11-23 night on his /"go."/ (=** the real blog=): the mode's 10 files + the =gif= row, one pass; his essays in his seat; his first save owed |
+| the desk an editor | LANDED 11-24 as 0.4 (=blog-0.4.diff=), no fresh go; OWED: a kit + token suite step, four =.kit-= misnames, =white= |
+| the desk to the comp | TANGLED 11-24 on a clone (=blog-0.5.diff=), his go owed; the comp moved on (pass 2, =comp-2.diff=), unported |
+| a page is born a page | TANGLED, his /"amen"/: =new essay= (dated, =on/=) · =new page= (undated) over the 0.4 desk, =blog-fresh-essay-page.diff= (=patch -p1= at the root); his =land= owed; 0.5 rewrites the same lines |
 
 * testing assessment
 
@@ -728,6 +1632,7 @@ COVERAGE GAP: ten suites, not the census · no boot of a runtime with a real mod
 * deferred
 
 - the domain's ontology: a buffer per article, the bundling step, which mode edits and which serves (his: second)
+- RULED 11-23, his: correct, not today — =ATTACHED= takes ={ files: true }= (schematic, set in the mode's mask =trait.ATTACHED=); the trait grafts one catch-all that answers the mode's File entities by path, so FILESET and FILESINK both serve with no dedicated trait. The blog's own =attachment.js= stays until then. Unprobed: hand-saved files have no File entity (FILESINK records on receive only) · =filesink.js:16= writes at the mountpoint root, pages lie in =public/= · =files: true= serves every File of the mode unauthenticated · whether a module route wins over =/(.*)=
 
 * changelog
 
@@ -738,15 +1643,22 @@ COVERAGE GAP: ten suites, not the census · no boot of a runtime with a real mod
 - 11-21 /"Land teh parts that are ready."/ → connoisseur · bird pass, then the land: =ATTACHED= + the marker rows, five files, one pass; =TWITCHY= held on a real boot's fault (stop 2 was amen'd on a rig that never crossed =mode.js:20=); the fix + its pin step PROPOSED in =** held=
 - connoisseur — 5 hunks read, 0 tightened, 1 handed to the bird (=twitchy.js=: its fix sits in another owner)
 - 11-21 /"mode has to export it from module and then that gets mounted like the rest"/ → the mint in =mode/lifecycle/1-population.js:55= (twin =daemon/lifecycle/1-population.js:44=), =mode.js= untouched; =TWITCHY= LANDED, six files, one pass; the proof step crosses real population with two seats of one module
+- 11-21 /"build and test all three, but we wire up only one."/ → =** the blog=: the mode, =paladin.watch=, the =css= row, two suites, on clones; 14 blocks absorbed from the clone (=tangle.py --absorb=), dry run SAME; no tree file written
+- departure, mine, reported: a python heredoc rewrote a scratch test file once (the rule says a script FILE); =mutate.py= made after
+- 11-23 /"c"/ → the button: =VIEWABLE= into the manifest, the button's boot adds no word; fresh clones (the tree had moved wide), suites · mutation · probe · census, then the land: 14 files, one pass. Read as the WHOLE show I had offered for his letter (/"I land mode + =paladin.watch= + the =css= row"/): =paladin.watch= is in core with one unworn caller, =boot.js= · =twitch.js= on the tree unworn; his to cut
+- 11-23 /"meta is off. repo has moved"/ → my land report's manifest row was dead: =VIEWABLE= had become =SURFACED= under =done/view-to-surface.org= (ruled before my land, unread by me), the blog reworked onto the File table by a sibling session; status · milestone · frontier · the probe corrected, nothing of the product touched
+- 11-23 /"a"/ to /"A keep · B cut"/ → the unworn watch · twitch · =paladin.watch= stay
+- 11-23 night /"build me a real writing and publishing mode. fully featured blog like …/crackedbeefcake-com/src"/ → =** the real blog=, built and run on a clone, cut as =blog-0.2.diff=; landed on his /"go."/ with the =gif= row and his content
 
 * handoff
 
 - goal: a page his mode bundled answers a stranger's GET, measured against what a blog needs
 - done: terrain · the probe (features · speed · compression sizes) · =* as code= TANGLED, both stops amen, ten suites green on a clone, replay equal (14 hunks · 2 new files)
 - ruled: a mode attaches by =ATTACHED= + =attachment= at =/attached/:reference= · twitches by =TWITCHY= + =twitch= · =flag= · =opaque= cut · sources live in the mountpoint · ONE build route on the mode's aperture, the twitch calls it, a command · a tool · a view too · the file tree is the truth, the attachment serves it, buffers are hands on files · a theme of its own, standalone html + css · the demo on ONE mode
-- open, HIS, his thoughts first: how filesink and mountpoint pattern, where files live
-- landed 11-21: =ATTACHED= on a mode · =flag= · =opaque= cut (five files) · =TWITCHY= + the population mint (six files, =** ruled=); nothing of =* as code= is off the tree
-- scratch (dies with a reboot): =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/4d66e216-9a49-46e0-8c48-d68573c5075e/scratchpad/= holds =pristine/= · =copy/= (the whole TANGLE) · =land/= (the first land) · =fix/= (the constructor reading, not taken) · =base2/= · =b/= (the =TWITCHY= land) · =census/= · =censusb/= · the =.sh= that ran them; nothing there the quest's blocks do not carry
-- next: HIS thoughts on where files live (filesink · mountpoint), nothing built before them · then the demo mode on a free port · compression (at compile time | at the proxy) · =Range=
+- open, HIS: where files live. His case 11-23: the package ships build files (html body · css · js), the mode keeps =.md= · =.org= · pngs · custom css/js in its mountpoint, out of the package. LANDED 11-23, his look owed: see =** 11-23 — files answer from the File table=
+- landed 11-21: =ATTACHED= on a mode · =flag= · =opaque= cut (five files) · =TWITCHY= + the population mint (six files, =** ruled=); landed 11-23: =@commons/publisher/blog= wearing =VIEWABLE= + =paladin.watch= + the =css= row (14 files, =** the blog=); nothing of =* as code= is off the tree
+- scratch (dies with a reboot): =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/4d66e216-9a49-46e0-8c48-d68573c5075e/scratchpad/= holds =pristine/= · =copy/= (the whole TANGLE) · =land/= (the first land) · =fix/= (the constructor reading, not taken) · =base2/= · =b/= (the =TWITCHY= land) · =base3/= · =m/= (the blog build) · =base4/= · =c/= (the blog land) · =census/= · =censusb/= · =censusm/= · =censusc/= · the =.sh= that ran them; nothing there the quest's blocks do not carry
+- unworn on the tree, RULED KEEP 11-23 (his /"a"/ to /"A keep · B cut"/): =commons/publishers/blog/boot.js= · =twitch.js= (+ their two re-exports, the suite's 5 watch · twitch steps) · =paladin.watch= (=belt/watch.js=, its barrel rows, =tests/watch.test.js=): one word on a recipe's entry wears either
+- next: his go on =blog-0.5.diff= (=** the desk to the comp=), then the desk seen in anima light, his first save (=** the real blog=), a stranger's GET of =/attached/runtime/runtime/mode/publisher/blog/= · his rulings: the attachment's =..= guard (unreachable) · compression (at compile time | at the proxy) · =Range=
 - never: a word about traits declared by a mode · traits on a buffer (his 11-21 /"Just ignore that entirely."/) · a probe under =testament/prototypes/= · a helper over a schematic (=flag=) · a rig step that sets =module.<export>= after =new Mode= as proof of a trait (it skips the assign)
 - owed: the boot in a SUITE (today a probe) · =typology/prototypes/mode.js:17= still presets a =Twitch= population replaces (kept for the rigs' hand-built modes; =aperture = null= is its sibling's form, his to rule, typology) · =commons/dashboards/dataspace/schema.js:11= hand-lists mode trait words, lacks =ATTACHED= · =TWITCHY= (and older ones) · an attachment's ctx holds =mode= · =runtime= only, no =entities= (the demo's first reader decides) · compression (at build time | at the proxy) · =Range= · =TWITCHY= twice stacks (measured, unpinned) · a mode's route names its own files (unenforced, pinned as such) · =trait-view.snapshot.json= on the tree is the pre-land capture (gitignored; his next snapshot run rewrites it)

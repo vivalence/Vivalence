@@ -10,6 +10,7 @@ paladin.commands = commands;
 lifecycle.belt(paladin, FULL);
 await lifecycle.env(paladin);
 await lifecycle.scopes(paladin);
+await lifecycle.version(paladin);
 lifecycle.instance(paladin);
 
 if (paladin.is.citizen) {

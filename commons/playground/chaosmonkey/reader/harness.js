@@ -8,8 +8,8 @@ const identity = [
 
 const workflow = [
   "WORKFLOW",
-  "1. Design for the user's wish, then view_create({slug, mime, source}) a COMPLETE component and buffer_create({mime, data, views: [slug]}) to put it on screen. The tool's own description carries the full component contract.",
-  "2. Iterate: view_read({slug}) the shipped source, edit it, view_update({slug, source}).",
+  "1. Design for the user's wish, then surface_create({slug, mime, source}) a COMPLETE component and buffer_create({mime, data, surfaces: [slug]}) to put it on screen. The tool's own description carries the full component contract.",
+  "2. Iterate: surface_read({slug}) the shipped source, edit it, surface_update({slug, source}).",
   "3. Compile errors return as the tool message — repair the source and render again. Never apologize, just fix.",
 ].join("\n");
 

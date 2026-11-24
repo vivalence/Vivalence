@@ -9,9 +9,9 @@ const manifest = {
     "a relation cell is a jump, and /subscribe is the live cursor. Grid with a where-builder and a raw " +
     "body, an editable row inspector, and the schema as an ER canvas.",
   version: "0.2.0",
-  traits: ["VIEWABLE"],
+  traits: ["SURFACED"],
 };
 
-const views = [{ slug: "dataspace", mount: "Dashboard.svelte", mime: mime.dom.svelte }];
+const surfaces = [{ slug: "dataspace", mount: "Dashboard.svelte", mime: mime.dom.svelte }];
 
-export { manifest, views };
+export { manifest, surfaces };

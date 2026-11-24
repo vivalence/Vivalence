@@ -1,0 +1,671 @@
+{
+  "entities/base.js DataEntitySchema": [
+    ".${string} unknown"
+  ],
+  "entities/base.js VirtualEntitySchema": [
+    ".${string} unknown"
+  ],
+  "primitives/auth.js AuthResponse": [
+    ".user.trait.${string} unknown"
+  ],
+  "primitives/auth.js AuthorityToken": [],
+  "primitives/auth.js LoginRequest": [],
+  "primitives/auth.js LogoutRequest": [],
+  "primitives/auth.js LogoutResponse": [],
+  "primitives/auth.js RefreshRequest": [],
+  "primitives/auth.js RefreshResponse": [],
+  "primitives/auth.js SignupRequest": [],
+  "primitives/auth.js UserReference": [
+    ".trait.${string} unknown"
+  ],
+  "primitives/auth.js VerifyRequest": [],
+  "primitives/auth.js VerifyResponse": [
+    ".user.trait.${string} unknown"
+  ],
+  "primitives/connection.js Open": [
+    ".input unknown"
+  ],
+  "primitives/connection.js Packet": [
+    ".body[] unknown",
+    ".flags.${string} unknown",
+    ".input unknown",
+    ".output unknown"
+  ],
+  "primitives/controller.js Kill": [
+    ".body[] unknown",
+    ".flags.${string} unknown"
+  ],
+  "primitives/controller.js Machine": [],
+  "primitives/controller.js Record": [
+    ".data unknown"
+  ],
+  "primitives/controller.js Reflection": [
+    ".children[] unknown",
+    ".error.${string} unknown"
+  ],
+  "primitives/controller.js Signal": [],
+  "primitives/controller.js State": [],
+  "primitives/conversation.js Channel": [],
+  "primitives/conversation.js Verb": [],
+  "primitives/credentials.js Credential": [
+    ".user.trait.${string} unknown"
+  ],
+  "primitives/credentials.js Credentials": [
+    ".${string}.user.trait.${string} unknown"
+  ],
+  "primitives/hallucination.js Channel": [],
+  "primitives/hallucination.js Channels": [],
+  "primitives/hallucination.js Context": [
+    ".controller unknown",
+    ".input unknown",
+    ".output unknown",
+    ".signal unknown",
+    ".steps[] unknown",
+    ".tools unknown"
+  ],
+  "primitives/hallucination.js Faculty": [
+    ".channels.${string} unknown",
+    ".channels.in[] unknown",
+    ".channels.out[] unknown",
+    ".via.${string} unknown"
+  ],
+  "primitives/hallucination.js FacultyMask": [
+    ".${string} unknown"
+  ],
+  "primitives/hallucination.js FacultyRecipe": [
+    ".${string} unknown"
+  ],
+  "primitives/hallucination.js FacultyType": [],
+  "primitives/hallucination.js Meta": [
+    ".provider.${string} unknown",
+    ".usage.${string} unknown"
+  ],
+  "primitives/hallucination.js Output": [
+    ".schema.${string} unknown"
+  ],
+  "primitives/hallucination.js Parts": [
+    "[].${string} unknown"
+  ],
+  "primitives/hallucination.js Request": [
+    ".output.schema.${string} unknown",
+    ".settings.${string} unknown",
+    ".settings.tool_choice.${string} unknown",
+    ".system.${string} unknown",
+    ".tools[].input unknown",
+    ".tools[].output unknown",
+    ".turns[].meta.provider.${string} unknown",
+    ".turns[].meta.usage.${string} unknown",
+    ".turns[].parts[].block unknown",
+    ".turns[].parts[].data.${string} unknown",
+    ".turns[].parts[].input.${string} unknown",
+    ".turns[].parts[].product.${string} unknown",
+    ".turns[].parts[].schema unknown"
+  ],
+  "primitives/hallucination.js Response": [
+    ".meta.provider.${string} unknown",
+    ".meta.usage.${string} unknown",
+    ".product.${string} unknown",
+    ".turns[].meta.provider.${string} unknown",
+    ".turns[].meta.usage.${string} unknown",
+    ".turns[].parts[].block unknown",
+    ".turns[].parts[].data.${string} unknown",
+    ".turns[].parts[].input.${string} unknown",
+    ".turns[].parts[].product.${string} unknown",
+    ".turns[].parts[].schema unknown"
+  ],
+  "primitives/hallucination.js Role": [],
+  "primitives/hallucination.js Settings": [
+    ".${string} unknown",
+    ".tool_choice.${string} unknown"
+  ],
+  "primitives/hallucination.js State": [],
+  "primitives/hallucination.js Tier": [],
+  "primitives/hallucination.js Tool": [
+    ".input unknown",
+    ".output unknown"
+  ],
+  "primitives/hallucination.js Tune": [],
+  "primitives/hallucination.js Turn": [
+    ".meta.provider.${string} unknown",
+    ".meta.usage.${string} unknown",
+    ".parts[].block unknown",
+    ".parts[].data.${string} unknown",
+    ".parts[].input.${string} unknown",
+    ".parts[].product.${string} unknown",
+    ".parts[].schema unknown"
+  ],
+  "primitives/harness.js Call": [
+    ".body[] unknown",
+    ".flags.${string} unknown"
+  ],
+  "primitives/harness.js Request": [
+    ".config.${string} unknown",
+    ".output.${string} unknown",
+    ".parts[].block unknown",
+    ".parts[].data.${string} unknown",
+    ".parts[].input.${string} unknown",
+    ".parts[].product.${string} unknown",
+    ".parts[].schema unknown",
+    ".system.${string} unknown",
+    ".tools.${string} unknown"
+  ],
+  "primitives/harness.js Signal": [
+    ".body[] unknown",
+    ".flags.${string} unknown"
+  ],
+  "primitives/home.js Home": [],
+  "primitives/instance.ts ClientMask": [
+    ".${string} unknown",
+    ".manifest.${string} unknown",
+    ".manifest.icon.${string} unknown",
+    ".modes[].${string} unknown",
+    ".modes[].consume.${string}.${string} unknown",
+    ".modes[].consume.${string}.secrets.${string} unknown",
+    ".modes[].consume.${string}.statics.${string} unknown",
+    ".modes[].hallucinators[].${string} unknown",
+    ".modes[].hallucinators[].faculties[].${string} unknown",
+    ".modes[].hallucinators[].secrets.${string} unknown",
+    ".modes[].hallucinators[].statics.${string} unknown",
+    ".modes[].secrets.${string} unknown",
+    ".modes[].statics.${string} unknown",
+    ".statics.${string} unknown"
+  ],
+  "primitives/instance.ts ClientRecipe": [
+    ".manifest.${string} unknown",
+    ".manifest.icon.${string} unknown",
+    ".modes[].consume.${string}.${string} unknown",
+    ".modes[].consume.${string}.statics.${string} unknown",
+    ".modes[].hallucinators[].${string} unknown",
+    ".modes[].hallucinators[].faculties[].${string} unknown",
+    ".modes[].hallucinators[].statics.${string} unknown",
+    ".modes[].statics.${string} unknown",
+    ".statics.${string} unknown"
+  ],
+  "primitives/instance.ts ClientTrait": [],
+  "primitives/instance.ts DaemonMask": [
+    ".${string} unknown",
+    ".consume.${string}.${string} unknown",
+    ".consume.${string}.secrets.${string} unknown",
+    ".consume.${string}.statics.${string} unknown",
+    ".hallucinators[].${string} unknown",
+    ".hallucinators[].faculties[].${string} unknown",
+    ".hallucinators[].secrets.${string} unknown",
+    ".hallucinators[].statics.${string} unknown",
+    ".manifest.${string} unknown",
+    ".manifest.icon.${string} unknown",
+    ".modes[].${string} unknown",
+    ".modes[].consume.${string}.${string} unknown",
+    ".modes[].consume.${string}.secrets.${string} unknown",
+    ".modes[].consume.${string}.statics.${string} unknown",
+    ".modes[].hallucinators[].${string} unknown",
+    ".modes[].hallucinators[].faculties[].${string} unknown",
+    ".modes[].hallucinators[].secrets.${string} unknown",
+    ".modes[].hallucinators[].statics.${string} unknown",
+    ".modes[].secrets.${string} unknown",
+    ".modes[].statics.${string} unknown",
+    ".statics.${string} unknown"
+  ],
+  "primitives/instance.ts DaemonRecipe": [
+    ".consume.${string}.${string} unknown",
+    ".consume.${string}.statics.${string} unknown",
+    ".hallucinators[].${string} unknown",
+    ".hallucinators[].faculties[].${string} unknown",
+    ".hallucinators[].statics.${string} unknown",
+    ".manifest.${string} unknown",
+    ".manifest.icon.${string} unknown",
+    ".modes[].consume.${string}.${string} unknown",
+    ".modes[].consume.${string}.statics.${string} unknown",
+    ".modes[].hallucinators[].${string} unknown",
+    ".modes[].hallucinators[].faculties[].${string} unknown",
+    ".modes[].hallucinators[].statics.${string} unknown",
+    ".modes[].statics.${string} unknown",
+    ".statics.${string} unknown"
+  ],
+  "primitives/instance.ts DatamapMask": [
+    ".${string} unknown",
+    ".statics.${string} unknown"
+  ],
+  "primitives/instance.ts DatamapRecipe": [
+    ".${string} unknown",
+    ".statics.${string} unknown"
+  ],
+  "primitives/instance.ts EnvironmentMask": [
+    ".${string} unknown"
+  ],
+  "primitives/instance.ts EnvironmentRecipe": [
+    ".properties.${string}.${string} unknown"
+  ],
+  "primitives/instance.ts HallucinatorMask": [
+    ".${string} unknown",
+    ".faculties[].${string} unknown",
+    ".secrets.${string} unknown",
+    ".statics.${string} unknown"
+  ],
+  "primitives/instance.ts HallucinatorRecipe": [
+    ".${string} unknown",
+    ".faculties[].${string} unknown",
+    ".statics.${string} unknown"
+  ],
+  "primitives/instance.ts InstanceMask": [
+    ".${string} unknown",
+    ".clients[].${string} unknown",
+    ".clients[].manifest.${string} unknown",
+    ".clients[].manifest.icon.${string} unknown",
+    ".clients[].modes[].${string} unknown",
+    ".clients[].modes[].consume.${string}.${string} unknown",
+    ".clients[].modes[].consume.${string}.secrets.${string} unknown",
+    ".clients[].modes[].consume.${string}.statics.${string} unknown",
+    ".clients[].modes[].hallucinators[].${string} unknown",
+    ".clients[].modes[].hallucinators[].faculties[].${string} unknown",
+    ".clients[].modes[].hallucinators[].secrets.${string} unknown",
+    ".clients[].modes[].hallucinators[].statics.${string} unknown",
+    ".clients[].modes[].secrets.${string} unknown",
+    ".clients[].modes[].statics.${string} unknown",
+    ".clients[].statics.${string} unknown",
+    ".daemons[].${string} unknown",
+    ".daemons[].consume.${string}.${string} unknown",
+    ".daemons[].consume.${string}.secrets.${string} unknown",
+    ".daemons[].consume.${string}.statics.${string} unknown",
+    ".daemons[].hallucinators[].${string} unknown",
+    ".daemons[].hallucinators[].faculties[].${string} unknown",
+    ".daemons[].hallucinators[].secrets.${string} unknown",
+    ".daemons[].hallucinators[].statics.${string} unknown",
+    ".daemons[].manifest.${string} unknown",
+    ".daemons[].manifest.icon.${string} unknown",
+    ".daemons[].modes[].${string} unknown",
+    ".daemons[].modes[].consume.${string}.${string} unknown",
+    ".daemons[].modes[].consume.${string}.secrets.${string} unknown",
+    ".daemons[].modes[].consume.${string}.statics.${string} unknown",
+    ".daemons[].modes[].hallucinators[].${string} unknown",
+    ".daemons[].modes[].hallucinators[].faculties[].${string} unknown",
+    ".daemons[].modes[].hallucinators[].secrets.${string} unknown",
+    ".daemons[].modes[].hallucinators[].statics.${string} unknown",
+    ".daemons[].modes[].secrets.${string} unknown",
+    ".daemons[].modes[].statics.${string} unknown",
+    ".daemons[].statics.${string} unknown",
+    ".datamap.${string} unknown",
+    ".datamap.statics.${string} unknown",
+    ".environment.${string} unknown",
+    ".manifest.${string} unknown",
+    ".manifest.icon.${string} unknown",
+    ".runtime.${string} unknown",
+    ".runtime.hallucinators[].${string} unknown",
+    ".runtime.hallucinators[].faculties[].${string} unknown",
+    ".runtime.hallucinators[].secrets.${string} unknown",
+    ".runtime.hallucinators[].statics.${string} unknown",
+    ".runtime.manifest.${string} unknown",
+    ".runtime.manifest.icon.${string} unknown",
+    ".runtime.modes[].${string} unknown",
+    ".runtime.modes[].consume.${string}.${string} unknown",
+    ".runtime.modes[].consume.${string}.secrets.${string} unknown",
+    ".runtime.modes[].consume.${string}.statics.${string} unknown",
+    ".runtime.modes[].hallucinators[].${string} unknown",
+    ".runtime.modes[].hallucinators[].faculties[].${string} unknown",
+    ".runtime.modes[].hallucinators[].secrets.${string} unknown",
+    ".runtime.modes[].hallucinators[].statics.${string} unknown",
+    ".runtime.modes[].secrets.${string} unknown",
+    ".runtime.modes[].statics.${string} unknown",
+    ".runtime.statics.${string} unknown",
+    ".services[].${string} unknown",
+    ".services[].datamap.${string} unknown",
+    ".services[].datamap.statics.${string} unknown",
+    ".services[].hallucinators[].${string} unknown",
+    ".services[].hallucinators[].faculties[].${string} unknown",
+    ".services[].hallucinators[].secrets.${string} unknown",
+    ".services[].hallucinators[].statics.${string} unknown",
+    ".services[].manifest.${string} unknown",
+    ".services[].manifest.icon.${string} unknown",
+    ".services[].secrets.${string} unknown",
+    ".services[].statics.${string} unknown"
+  ],
+  "primitives/instance.ts InstanceRecipe": [
+    ".clients[].manifest.${string} unknown",
+    ".clients[].manifest.icon.${string} unknown",
+    ".clients[].modes[].consume.${string}.${string} unknown",
+    ".clients[].modes[].consume.${string}.statics.${string} unknown",
+    ".clients[].modes[].hallucinators[].${string} unknown",
+    ".clients[].modes[].hallucinators[].faculties[].${string} unknown",
+    ".clients[].modes[].hallucinators[].statics.${string} unknown",
+    ".clients[].modes[].statics.${string} unknown",
+    ".clients[].statics.${string} unknown",
+    ".daemons[].consume.${string}.${string} unknown",
+    ".daemons[].consume.${string}.statics.${string} unknown",
+    ".daemons[].hallucinators[].${string} unknown",
+    ".daemons[].hallucinators[].faculties[].${string} unknown",
+    ".daemons[].hallucinators[].statics.${string} unknown",
+    ".daemons[].manifest.${string} unknown",
+    ".daemons[].manifest.icon.${string} unknown",
+    ".daemons[].modes[].consume.${string}.${string} unknown",
+    ".daemons[].modes[].consume.${string}.statics.${string} unknown",
+    ".daemons[].modes[].hallucinators[].${string} unknown",
+    ".daemons[].modes[].hallucinators[].faculties[].${string} unknown",
+    ".daemons[].modes[].hallucinators[].statics.${string} unknown",
+    ".daemons[].modes[].statics.${string} unknown",
+    ".daemons[].statics.${string} unknown",
+    ".datamap.${string} unknown",
+    ".datamap.statics.${string} unknown",
+    ".environment.properties.${string}.${string} unknown",
+    ".manifest.${string} unknown",
+    ".manifest.icon.${string} unknown",
+    ".runtime.hallucinators[].${string} unknown",
+    ".runtime.hallucinators[].faculties[].${string} unknown",
+    ".runtime.hallucinators[].statics.${string} unknown",
+    ".runtime.manifest.${string} unknown",
+    ".runtime.modes[].consume.${string}.${string} unknown",
+    ".runtime.modes[].consume.${string}.statics.${string} unknown",
+    ".runtime.modes[].hallucinators[].${string} unknown",
+    ".runtime.modes[].hallucinators[].faculties[].${string} unknown",
+    ".runtime.modes[].hallucinators[].statics.${string} unknown",
+    ".runtime.modes[].statics.${string} unknown",
+    ".runtime.statics.${string} unknown",
+    ".services[].datamap.${string} unknown",
+    ".services[].datamap.statics.${string} unknown",
+    ".services[].hallucinators[].${string} unknown",
+    ".services[].hallucinators[].faculties[].${string} unknown",
+    ".services[].hallucinators[].statics.${string} unknown",
+    ".services[].manifest.${string} unknown",
+    ".services[].manifest.icon.${string} unknown",
+    ".services[].statics.${string} unknown"
+  ],
+  "primitives/instance.ts LedgerRecipe": [
+    ".${string} unknown",
+    ".clients[].manifest.${string} unknown",
+    ".clients[].manifest.icon.${string} unknown",
+    ".clients[].modes[].consume.${string}.${string} unknown",
+    ".clients[].modes[].consume.${string}.statics.${string} unknown",
+    ".clients[].modes[].hallucinators[].${string} unknown",
+    ".clients[].modes[].hallucinators[].faculties[].${string} unknown",
+    ".clients[].modes[].hallucinators[].statics.${string} unknown",
+    ".clients[].modes[].statics.${string} unknown",
+    ".clients[].statics.${string} unknown",
+    ".datamap.${string} unknown",
+    ".datamap.statics.${string} unknown",
+    ".environment.properties.${string}.${string} unknown",
+    ".hallucinators[].${string} unknown",
+    ".hallucinators[].faculties[].${string} unknown",
+    ".hallucinators[].statics.${string} unknown",
+    ".manifest.${string} unknown",
+    ".manifest.icon.${string} unknown",
+    ".runtime.hallucinators[].${string} unknown",
+    ".runtime.hallucinators[].faculties[].${string} unknown",
+    ".runtime.hallucinators[].statics.${string} unknown",
+    ".runtime.manifest.${string} unknown",
+    ".runtime.modes[].consume.${string}.${string} unknown",
+    ".runtime.modes[].consume.${string}.statics.${string} unknown",
+    ".runtime.modes[].hallucinators[].${string} unknown",
+    ".runtime.modes[].hallucinators[].faculties[].${string} unknown",
+    ".runtime.modes[].hallucinators[].statics.${string} unknown",
+    ".runtime.modes[].statics.${string} unknown",
+    ".runtime.statics.${string} unknown",
+    ".services[].datamap.${string} unknown",
+    ".services[].datamap.statics.${string} unknown",
+    ".services[].hallucinators[].${string} unknown",
+    ".services[].hallucinators[].faculties[].${string} unknown",
+    ".services[].hallucinators[].statics.${string} unknown",
+    ".services[].manifest.${string} unknown",
+    ".services[].manifest.icon.${string} unknown",
+    ".services[].statics.${string} unknown"
+  ],
+  "primitives/instance.ts LighthouseMask": [],
+  "primitives/instance.ts LighthouseRecipe": [],
+  "primitives/instance.ts LighthouseTrait": [],
+  "primitives/instance.ts Mask": [
+    ".${string} unknown",
+    ".secrets.${string} unknown",
+    ".statics.${string} unknown"
+  ],
+  "primitives/instance.ts ModeMask": [
+    ".${string} unknown",
+    ".consume.${string}.${string} unknown",
+    ".consume.${string}.secrets.${string} unknown",
+    ".consume.${string}.statics.${string} unknown",
+    ".hallucinators[].${string} unknown",
+    ".hallucinators[].faculties[].${string} unknown",
+    ".hallucinators[].secrets.${string} unknown",
+    ".hallucinators[].statics.${string} unknown",
+    ".secrets.${string} unknown",
+    ".statics.${string} unknown"
+  ],
+  "primitives/instance.ts ModeMaskTrait": [],
+  "primitives/instance.ts ModeMasks": [
+    "[].${string} unknown",
+    "[].consume.${string}.${string} unknown",
+    "[].consume.${string}.secrets.${string} unknown",
+    "[].consume.${string}.statics.${string} unknown",
+    "[].hallucinators[].${string} unknown",
+    "[].hallucinators[].faculties[].${string} unknown",
+    "[].hallucinators[].secrets.${string} unknown",
+    "[].hallucinators[].statics.${string} unknown",
+    "[].secrets.${string} unknown",
+    "[].statics.${string} unknown"
+  ],
+  "primitives/instance.ts ModeRecipe": [
+    ".consume.${string}.${string} unknown",
+    ".consume.${string}.statics.${string} unknown",
+    ".hallucinators[].${string} unknown",
+    ".hallucinators[].faculties[].${string} unknown",
+    ".hallucinators[].statics.${string} unknown",
+    ".statics.${string} unknown"
+  ],
+  "primitives/instance.ts ModeRecipeTrait": [],
+  "primitives/instance.ts ModeRecipes": [
+    "[].consume.${string}.${string} unknown",
+    "[].consume.${string}.statics.${string} unknown",
+    "[].hallucinators[].${string} unknown",
+    "[].hallucinators[].faculties[].${string} unknown",
+    "[].hallucinators[].statics.${string} unknown",
+    "[].statics.${string} unknown"
+  ],
+  "primitives/instance.ts Mountpoint": [],
+  "primitives/instance.ts Recipe": [
+    ".${string} unknown",
+    ".statics.${string} unknown"
+  ],
+  "primitives/instance.ts Requirement": [],
+  "primitives/instance.ts RuntimeMask": [
+    ".${string} unknown",
+    ".hallucinators[].${string} unknown",
+    ".hallucinators[].faculties[].${string} unknown",
+    ".hallucinators[].secrets.${string} unknown",
+    ".hallucinators[].statics.${string} unknown",
+    ".manifest.${string} unknown",
+    ".manifest.icon.${string} unknown",
+    ".modes[].${string} unknown",
+    ".modes[].consume.${string}.${string} unknown",
+    ".modes[].consume.${string}.secrets.${string} unknown",
+    ".modes[].consume.${string}.statics.${string} unknown",
+    ".modes[].hallucinators[].${string} unknown",
+    ".modes[].hallucinators[].faculties[].${string} unknown",
+    ".modes[].hallucinators[].secrets.${string} unknown",
+    ".modes[].hallucinators[].statics.${string} unknown",
+    ".modes[].secrets.${string} unknown",
+    ".modes[].statics.${string} unknown",
+    ".statics.${string} unknown"
+  ],
+  "primitives/instance.ts RuntimeRecipe": [
+    ".hallucinators[].${string} unknown",
+    ".hallucinators[].faculties[].${string} unknown",
+    ".hallucinators[].statics.${string} unknown",
+    ".manifest.${string} unknown",
+    ".modes[].consume.${string}.${string} unknown",
+    ".modes[].consume.${string}.statics.${string} unknown",
+    ".modes[].hallucinators[].${string} unknown",
+    ".modes[].hallucinators[].faculties[].${string} unknown",
+    ".modes[].hallucinators[].statics.${string} unknown",
+    ".modes[].statics.${string} unknown",
+    ".statics.${string} unknown"
+  ],
+  "primitives/instance.ts SecretsMask": [
+    ".${string} unknown"
+  ],
+  "primitives/instance.ts SecretsRecipe": [],
+  "primitives/instance.ts ServiceMask": [
+    ".${string} unknown",
+    ".datamap.${string} unknown",
+    ".datamap.statics.${string} unknown",
+    ".hallucinators[].${string} unknown",
+    ".hallucinators[].faculties[].${string} unknown",
+    ".hallucinators[].secrets.${string} unknown",
+    ".hallucinators[].statics.${string} unknown",
+    ".manifest.${string} unknown",
+    ".manifest.icon.${string} unknown",
+    ".secrets.${string} unknown",
+    ".statics.${string} unknown"
+  ],
+  "primitives/instance.ts ServiceRecipe": [
+    ".datamap.${string} unknown",
+    ".datamap.statics.${string} unknown",
+    ".hallucinators[].${string} unknown",
+    ".hallucinators[].faculties[].${string} unknown",
+    ".hallucinators[].statics.${string} unknown",
+    ".manifest.${string} unknown",
+    ".manifest.icon.${string} unknown",
+    ".statics.${string} unknown"
+  ],
+  "primitives/instance.ts Sieve": [],
+  "primitives/instance.ts StaticsMask": [
+    ".${string} unknown"
+  ],
+  "primitives/instance.ts StaticsRecipe": [
+    ".${string} unknown"
+  ],
+  "primitives/instance.ts Tapped": [],
+  "primitives/instance.ts Telemetry": [],
+  "primitives/kernel.js Domain": [
+    ".${string} unknown",
+    ".manifest.${string} unknown",
+    ".manifest.icon.${string} unknown",
+    ".schematics.${string} unknown",
+    ".traits.literal[] unknown",
+    ".traits.mode[] unknown",
+    ".traits.note[] unknown",
+    ".traits.symbol[] unknown",
+    ".twitch unknown"
+  ],
+  "primitives/label.js Label": [],
+  "primitives/manifest.js Manifest": [
+    ".${string} unknown",
+    ".icon.${string} unknown"
+  ],
+  "primitives/signatures.js Rank": [],
+  "primitives/theme.js Alpha": [],
+  "primitives/theme.js Brand": [],
+  "primitives/theme.js Case": [],
+  "primitives/theme.js Color": [],
+  "primitives/theme.js Control": [],
+  "primitives/theme.js Definition": [],
+  "primitives/theme.js Em": [],
+  "primitives/theme.js Factor": [],
+  "primitives/theme.js Family": [],
+  "primitives/theme.js Filter": [],
+  "primitives/theme.js Font": [],
+  "primitives/theme.js Glow": [],
+  "primitives/theme.js Ground": [],
+  "primitives/theme.js Hex": [],
+  "primitives/theme.js Leading": [],
+  "primitives/theme.js Percent": [],
+  "primitives/theme.js Px": [],
+  "primitives/theme.js Ratio": [],
+  "primitives/theme.js Relief": [],
+  "primitives/theme.js Rem": [],
+  "primitives/theme.js Round": [],
+  "primitives/theme.js Shadow": [],
+  "primitives/theme.js Shape": [],
+  "primitives/theme.js Signal": [],
+  "primitives/theme.js SignalName": [],
+  "primitives/theme.js Size": [],
+  "primitives/theme.js Step": [],
+  "primitives/theme.js Text": [],
+  "primitives/theme.js Theme": [],
+  "primitives/theme.js Tone": [],
+  "primitives/theme.js Zone": [],
+  "primitives/theme.js ZoneIndex": [],
+  "primitives/track.js Entity": [],
+  "primitives/track.js Fault": [],
+  "primitives/track.js Limit": [],
+  "primitives/track.js Log": [
+    ".${string} unknown"
+  ],
+  "primitives/track.js Measure": [],
+  "primitives/track.js Request": [],
+  "primitives/track.js Response": [],
+  "primitives/track.js Start": [],
+  "primitives/track.js Status": [
+    ".${string} unknown"
+  ],
+  "primitives/track.js Stop": [],
+  "primitives/track.js Track": [],
+  "primitives/track.js Usage": [],
+  "prototypes/bundle.js Bundle": [],
+  "prototypes/index.js Bundle": [],
+  "prototypes/index.js Condition": [],
+  "prototypes/index.js ErrorResponse": [
+    ".error unknown"
+  ],
+  "prototypes/index.js Status": [],
+  "prototypes/index.js StatusCode": [],
+  "prototypes/index.js Yield": [
+    ".${string} unknown",
+    ".error unknown",
+    ".product.${string} unknown",
+    ".product.buffer[].${string} unknown"
+  ],
+  "prototypes/yield.js Condition": [],
+  "prototypes/yield.js Yield": [
+    ".${string} unknown",
+    ".error unknown",
+    ".product.${string} unknown",
+    ".product.buffer[].${string} unknown"
+  ],
+  "scalars/index.js ID": [],
+  "scalars/index.js JWTToken": [],
+  "scalars/index.js ModuleIdentifier": [],
+  "scalars/index.js Password": [],
+  "scalars/index.js Slug": [],
+  "scalars/index.js Username": [],
+  "traits/aimed.js Aimed": [],
+  "traits/conversational.js Conversational": [],
+  "traits/docked.js Docked": [],
+  "traits/harnessed.js Harnessed": [],
+  "traits/index.js Aimed": [],
+  "traits/index.js Conversational": [],
+  "traits/index.js Docked": [],
+  "traits/index.js Harnessed": [],
+  "traits/index.js Masked": [
+    ".${string} unknown"
+  ],
+  "traits/index.js Queueing": [],
+  "traits/index.js Rendered": [],
+  "traits/index.js Themed": [],
+  "traits/index.js buffer": [],
+  "traits/index.js client": [],
+  "traits/index.js lighthouse": [],
+  "traits/index.js literal": [
+    ".${string} unknown"
+  ],
+  "traits/index.js mode": [
+    ".${string} unknown"
+  ],
+  "traits/index.js note": [
+    ".${string} unknown"
+  ],
+  "traits/index.js service": [],
+  "traits/index.js surface": [],
+  "traits/index.js symbol": [
+    ".${string} unknown"
+  ],
+  "traits/index.js terminal": [],
+  "traits/index.js thread": [
+    ".MASKED.${string} unknown"
+  ],
+  "traits/index.js user": [],
+  "traits/masked.js Masked": [
+    ".${string} unknown"
+  ],
+  "traits/primed.js Primed": [],
+  "traits/queueing.js Queueing": [],
+  "traits/rendered.js Rendered": [],
+  "traits/themed.js Themed": [],
+  "traits/tooled.js Load": [],
+  "traits/tooled.js Tooled": []
+}

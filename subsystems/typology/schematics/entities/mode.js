@@ -20,7 +20,7 @@ export const ModeSchematic = {
     intents: () => v.array(v.intent()).optional().desc("intents opened on it"),
     buffers: () => v.array(v.buffer()).optional().desc("buffers it minted"),
     turns: () => v.array(v.turn()).optional().desc("turns it answered"),
-    views: () => v.array(v.view()).optional().desc("views it ships"),
+    surfaces: () => v.array(v.surface()).optional().desc("surfaces it ships"),
     literals: () => v.array(v.literal()).optional().desc("literals it ships"),
     symbols: () => v.array(v.symbol()).optional().desc("symbols it ships"),
     notes: () => v.array(v.note()).optional().desc("notes taken on it"),
@@ -28,5 +28,5 @@ export const ModeSchematic = {
   },
   traits: traits.mode,
   narrowable: ["traits"],
-  examples: [{ id: "01a1b1c0-f0c1-7559-a38c-d59d34854a75", type: "game", slug: "dojo", daemon: "spanish", name: "Dojo", description: "One rep machine over words, sentences and conjugation forms — prompt, gameplay, preview, streak, continuous and limit all free to combine.", installed: "a4d2781b", version: "0.1.0", traits: ["VIEWABLE", "EMITTER", "INTENTED", "EXPOSED", "TOOLING", "HARNESS"] }],
+  examples: [{ id: "01a1b1c0-f0c1-7559-a38c-d59d34854a75", type: "game", slug: "dojo", daemon: "spanish", name: "Dojo", description: "One rep machine over words, sentences and conjugation forms — prompt, gameplay, preview, streak, continuous and limit all free to combine.", installed: "a4d2781b", version: "0.1.0", traits: ["SURFACED", "EMITTER", "INTENTED", "EXPOSED", "TOOLING", "HARNESS"] }],
 };

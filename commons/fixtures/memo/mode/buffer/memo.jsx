@@ -11,7 +11,7 @@ const horizon = (hours) => {
 };
 
 export function Memo(props) {
-  const palette = props.surface.palette;
+  const palette = props.skin.palette;
   const { mode, thread } = props.terminal;
   const data = from(props.buffer.$data);
   const [deck, setDeck] = createSignal(null);
@@ -80,16 +80,16 @@ export function Memo(props) {
   );
 }
 
-const provide = (surface, props) => () =>
+const provide = (skin, props) => () =>
   createComponent(RendererContext.Provider, {
-    value: surface.renderer,
+    value: skin.renderer,
     get children() {
       return createComponent(Memo, props);
     },
   });
 
-export default (element, { terminal, buffer, surface }) => {
-  const dispose = _render(provide(surface, { terminal, buffer, surface }), element);
+export default (element, { terminal, buffer, skin }) => {
+  const dispose = _render(provide(skin, { terminal, buffer, skin }), element);
   return {
     destroy: () => {
       dispose();

@@ -8,8 +8,9 @@ import { LiteralEntity } from "./index.ts";
 import { SymbolEntity } from "./index.ts";
 import { DaemonEntity } from "./index.ts";
 import { NoteEntity } from "./index.ts";
-import { ViewEntity } from "./index.ts";
+import { SurfaceEntity } from "./index.ts";
 import { FileEntity } from "./index.ts";
+import { Vector } from "../prototypes/vector.js";
 
 
 export class ModeRepository extends DataRepository {
@@ -30,7 +31,7 @@ export class ModeEntity extends DataEntity {
   intents = new Collection<IntentEntity>(this);
   buffers = new Collection<BufferEntity>(this);
   turns = new Collection<TurnEntity>(this);
-  views = new Collection<ViewEntity>(this);
+  surfaces = new Collection<SurfaceEntity>(this);
   files = new Collection<FileEntity>(this);
 
   literals = new Collection<LiteralEntity>(this);
@@ -84,10 +85,10 @@ export const ModeSchema = new EntitySchema({
       mappedBy: (turn) => turn.mode,
     },
 
-    views: {
+    surfaces: {
       kind: "1:m",
-      entity: () => ViewEntity,
-      mappedBy: (view) => view.mode,
+      entity: () => SurfaceEntity,
+      mappedBy: (surface) => surface.mode,
       cascade: [Cascade.REMOVE],
       orphanRemoval: true,
     },
@@ -117,9 +118,18 @@ export const ModeSchema = new EntitySchema({
   },
 });
 
+const twitch = new Vector().open("/after/datamap/migrate/2026.11.0", (ctx) =>
+  ctx.migrate.mapping("Mode", (mode) => ({
+    traits: mode.traits.map(
+      (word) => ({ VIEWABLE: "SURFACED", GENERATIVE: "SURFACING" })[word] ?? word,
+    ),
+  })),
+);
+
 export default {
   type: "mode",
   schema: ModeSchema,
   entity: ModeEntity,
   repository: ModeRepository,
+  twitch,
 };

@@ -3,21 +3,21 @@ import { contrast } from "@vivalence/dapper/contrast";
 import { THEMES, ZONES, design, frame, palette } from "./scenarios/index.js";
 
 export const PAIRS = [
-  ["textInk", "surface", 4.5],
-  ["textStrong", "surface", 4.5],
-  ["textMuted", "surface", 3],
-  ["textLight", "surface", 3],
-  ["textLink", "surface", 4.5],
-  ["signalPrimaryInk", "surface", 4.5],
-  ["signalPositiveInk", "surface", 4.5],
-  ["signalCautionInk", "surface", 4.5],
-  ["signalNegativeInk", "surface", 4.5],
-  ["signalPrimaryInk", "surfaceLift", 4.5],
+  ["textInk", "plane", 4.5],
+  ["textStrong", "plane", 4.5],
+  ["textMuted", "plane", 3],
+  ["textLight", "plane", 3],
+  ["textLink", "plane", 4.5],
+  ["signalPrimaryInk", "plane", 4.5],
+  ["signalPositiveInk", "plane", 4.5],
+  ["signalCautionInk", "plane", 4.5],
+  ["signalNegativeInk", "plane", 4.5],
+  ["signalPrimaryInk", "planeLift", 4.5],
   ["signalCautionInk", "signalCautionTint", 4.5],
   ["signalNegativeInk", "signalNegativeTint", 4.5],
   ["textStrong", "controlField", 4.5],
   ["textStrong", "controlSelected", 4.5],
-  ["textInk", "surfaceSunk", 4.5],
+  ["textInk", "planeSunk", 4.5],
   ["inverseOn", "inverse", 4.5],
 ];
 

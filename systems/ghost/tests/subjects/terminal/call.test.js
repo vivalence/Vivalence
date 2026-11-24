@@ -1,5 +1,5 @@
 import { atom } from "nanostores";
-import { ReplSignal, specimen, steer } from "@vivalence/typology";
+import { Controller, ReplSignal, Span, specimen, steer } from "@vivalence/typology";
 import { Microphone } from "../../../subjects/app/prototypes/box/device/microphone/index.js";
 import { Speaker } from "../../../subjects/app/prototypes/box/device/speaker/index.js";
 import { call } from "../../../gestalten/commands/content/call.js";
@@ -61,13 +61,14 @@ const world = () => {
     runtime: { entities: { turn: { merge: async (turn) => void merges.push(structuredClone(turn)) } } },
   };
   bridge.$call.listen((held) => states.push(held === null ? null : held.state));
-  const run = (typed) => steer.dispatch.execute(call, { client, terminal }, new ReplSignal(typed));
-  return { bridge, merges, states, fed, microphone, speaker, run };
+  const controller = new Controller({ stdout: new Span("terminal") });
+  const run = (typed) => steer.dispatch.execute(call, { client, terminal, controller }, new ReplSignal(typed));
+  return { bridge, merges, states, fed, microphone, speaker, run, controller };
 };
 
 specimen.describe("/call — mic up, the reply aloud, captions as turns, spoken over it stops (milestone 7)", () => {
   specimen.it("a call: the voice states move, every touched turn merges, the sealed turn takes its polish, /call/end releases both devices", async () => {
-    const { bridge, merges, states, fed, microphone, speaker, run } = world();
+    const { bridge, merges, states, fed, microphone, speaker, run, controller } = world();
     const calling = run("/call");
     await until(() => merges.some((turn) => turn.id === "u1" && turn.parts.length > 0 && turn.parts[0].text === "Raccontami una storia."));
     specimen.expect([microphone.claimed, speaker.claimed]).toEqual([true, true]);
@@ -79,6 +80,7 @@ specimen.describe("/call — mic up, the reply aloud, captions as turns, spoken 
     await run("/call/end");
     await calling;
     specimen.expect([microphone.claimed, speaker.claimed, bridge.$call.get()]).toEqual([false, false, null]);
+    specimen.expect(controller.stdout.history.filter((record) => record.track === "log").map((record) => record.data.call)).toEqual(["thinking", "speaking", "listening", "ended"]);
     specimen.expect(fed[0]).toEqual({ input: { thread: "th1" } });
     specimen.expect(fed.slice(1).every((event) => event === "/audio/packet" || event === "/audio/played")).toBe(true);
   });

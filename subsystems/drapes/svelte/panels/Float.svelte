@@ -51,7 +51,7 @@
     max-height: calc(100vh - 16px);
     overflow: auto;
     padding: 12px;
-    background: var(--surface-lift);
+    background: var(--plane-lift);
     color: var(--text-strong);
     border-radius: var(--shape-radius-card);
     box-shadow: 0 0 0 var(--size-ring) var(--boundary), var(--shape-lift);

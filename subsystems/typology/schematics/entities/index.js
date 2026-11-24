@@ -6,7 +6,7 @@ export { ModeSchematic } from "./mode.js";
 export { IntentSchematic } from "./intent.js";
 export { ThreadSchematic } from "./thread.js";
 export { TurnSchematic } from "./turn.js";
-export { ViewSchematic } from "./view.js";
+export { SurfaceSchematic } from "./surface.js";
 export { FileSchematic } from "./file.js";
 export { UserSchematic } from "./user.js";
 export { NoteSchematic } from "./note.js";

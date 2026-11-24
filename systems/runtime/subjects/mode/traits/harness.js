@@ -1,7 +1,7 @@
 import { join } from "@std/path";
 import { decodeBase64, encodeBase64 } from "@std/encoding/base64";
 import paladin from "@vivalence/paladin";
-import { belt, contexts, fromm, mime, shape, shard, soma, steer, ToolCall, v, Vector } from "@vivalence/typology";
+import { belt, contexts, Controller, fromm, mime, shape, shard, soma, steer, ToolCall, v, Vector } from "@vivalence/typology";
 import { v7 } from "uuid";
 import { TurnEntity } from "@vivalence/runtime";
 import * as gestalten from "../../../gestalten/index.js";
@@ -36,7 +36,10 @@ const claiming = async (ctx, next) => {
 
 const activating = async (ctx, next) => {
   if (!ctx.input.controller) {
-    ctx.activity = await ctx.entities.activity.control({ user: ctx.user?.id ?? null, mode: ctx.mode.id, thread: ctx.thread.id });
+    ctx.activity = await ctx.entities.activity.control(
+      { user: ctx.user?.id ?? null, mode: ctx.mode.id, thread: ctx.thread.id },
+      new Controller({ stdout: ctx.mode.stdout.branch("hallucination") }),
+    );
   }
   ctx.controller = ctx.input.controller ?? ctx.activity.controller;
   await next();
@@ -166,6 +169,11 @@ const persisting = async (ctx, next) => {
   else if (ctx.output?.turns) await appending(ctx, ctx.output.turns);
 };
 
+const narrating = async (ctx, next) => {
+  await next();
+  ctx.output = narrated(ctx.controller.stdout, ctx.output);
+};
+
 const inline = (kind) => (file, bytes) => ({
   type: kind,
   mime: file.mime,
@@ -240,6 +248,39 @@ const filing = async (ctx, next) => {
 
 const OPENING = ["/turn/open", "/turn/full"];
 const SEALING = ["/turn/close", "/turn/full"];
+
+const NARRATED = [
+  [
+    (packet) => packet.event === "/turn/open",
+    (packet) => ({ opened: packet.turn.role, turn: packet.turn.id }),
+  ],
+  [
+    (packet) => SEALING.includes(packet.event),
+    (packet, call) => ({
+      sealed: call.turns.at(-1).role,
+      turn: call.turns.at(-1).id,
+      state: call.turns.at(-1).meta?.state,
+      parts: call.turns.at(-1).parts.map((part) => part.text ?? part.name ?? part.type),
+    }),
+  ],
+  [
+    (packet) => packet.event === "/audio/close",
+    (packet, call, audio) => ({ spoken: audio, state: packet.audio.meta.state }),
+  ],
+];
+
+async function* narrated(span, packets) {
+  let call = null;
+  let audio = 0;
+  for await (const packet of packets) {
+    call = soma.transcript(call, packet);
+    if (packet.event === "/audio/packet") audio += 1;
+    const found = NARRATED.find(([tells]) => tells(packet));
+    if (found) span.log(found[1](packet, call, audio));
+    if (packet.event === "/audio/close") audio = 0;
+    yield packet;
+  }
+}
 
 async function* recording(ctx, packets) {
   const em = ctx.entities.em.fork();
@@ -381,6 +422,7 @@ export const HARNESS = (mode, modeDie) => {
     harness
       .branch("/call")
       .use(attending)
+      .use(narrating)
       .use(persisting)
       .open(
         { nature: "stream", feeds: v.union([Audio.Packet, Audio.Played]), yields: Packet.Call },

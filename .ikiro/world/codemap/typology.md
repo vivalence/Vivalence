@@ -100,7 +100,7 @@ const Bundle = v.prototypes.Bundle();
 
 const Nascent = v.object({ mime: v.mime(), source: v.string({ minLength: 1 }) });
 ```
-**`schematics/scalars/`: ID·slug·Slug·JWTToken·Timestamp·Username·Password+*mime · `mime.js` · `url.js` PATTERN·url; `schematics/v.js` entityFactory·v behind `schematics/index.js`.** `v` is typebox, never zod (/"does that exist???!!! if not stfu"/ 05-18): bounds are options, literal `v.const`; `cast` never validates, `.faults()` does.
+**`schematics/scalars/`: ID·Slug·ModuleIdentifier·JWTToken·Username·Password+*mime · `mime.js` · `url.js` PATTERN·url; `schematics/v.js` entityFactory·v behind `schematics/index.js`.** `v` is typebox, never zod (/"does that exist???!!! if not stfu"/ 05-18): bounds are options, literal `v.const`; `cast` never validates, `.faults()` does.
 ```js
 // subsystems/typology/tests/v.test.js:320
     const templated = v.url().default("${VIVA_RUNTIME_ORIGIN}/");

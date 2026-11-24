@@ -3,7 +3,7 @@ import { declarations, design, scales } from "@vivalence/dapper";
 
 const ROOTS = [new URL("../../src/", import.meta.url).pathname, new URL("../../../../subsystems/drapes/", import.meta.url).pathname];
 const RETIRED = /colors-skeleton|colors-palette|colors-theme|colors-system|--text-(primary|body|support)\b|--shadow-(soft|strong)|--zone-|-skeleton-\$?\{?|useSkeleton|SkeletonProvider|Decorum|--mix-deep/;
-const FAMILY = /^--(surface|boundary|divider|inverse|shadow|scrim|dim|shape|size|text|control|signal)(-|$)/;
+const FAMILY = /^--(plane|boundary|divider|inverse|shadow|scrim|dim|shape|size|text|control|signal)(-|$)/;
 
 const ds = await design();
 const slots = new Set(declarations(ds.themes.northsea.zones[1]).map(([name]) => name));
@@ -62,7 +62,7 @@ specimen.describe("zones — anima and drapes read by name", () => {
     specimen.expect(hits).toEqual([]);
   });
 
-  specimen.it("no view holds a hex of a theme's ground, text or signal", () => {
+  specimen.it("no surface holds a hex of a theme's ground, text or signal", () => {
     const painted = new Set(
       Object.values(ds.themes).flatMap((held) => held.zones.flatMap((zone) => declarations(zone).map(([, value]) => value))).filter((value) => /^#[0-9A-F]{6}$/i.test(value)).map((value) => value.toUpperCase()),
     );

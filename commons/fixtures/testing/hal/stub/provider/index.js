@@ -85,7 +85,10 @@ async function* dialogue(model, request, signal) {
   yield { event: "/part/close", index: 0 };
   yield {
     event: "/turn/close",
-    turn: { meta: { usage: { input: 10, output: text.length }, state: "complete" } },
+    turn: { meta: { usage: [
+          { name: "input", unit: "tokens", amount: 10 },
+          { name: "output", unit: "tokens", amount: text.length },
+        ], state: "complete" } },
   };
 }
 

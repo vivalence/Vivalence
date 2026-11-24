@@ -27,7 +27,7 @@ const Entry = (props) => (
 );
 
 export const World = (props) => (
-  <box style={{ flexDirection: "column", backgroundColor: props.palette.surface }}>
+  <box style={{ flexDirection: "column", backgroundColor: props.palette.plane }}>
     <box style={{ flexDirection: "row", height: 1, gap: 1 }}>
       <Mark palette={props.palette} fault={props.world.mark.fault} />
       <text fg={props.palette.textStrong}>
@@ -36,7 +36,7 @@ export const World = (props) => (
       <For each={props.world.dots}>{(signal) => <Dot palette={props.palette} signal={signal} />}</For>
       <For each={props.world.meters}>{(value) => <Meter palette={props.palette} value={value} />}</For>
     </box>
-    <box style={{ flexDirection: "row", height: 1, backgroundColor: props.palette.surfaceSunk }}>
+    <box style={{ flexDirection: "row", height: 1, backgroundColor: props.palette.planeSunk }}>
       <For each={props.world.tabs}>{(tab) => <Tab palette={props.palette} {...tab} />}</For>
       <text fg={props.palette.textMuted}> +</text>
     </box>

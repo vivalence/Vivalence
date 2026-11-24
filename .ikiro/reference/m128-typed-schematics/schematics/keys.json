@@ -1,0 +1,817 @@
+{
+  "entities/base.js DataEntitySchema": [
+    "id",
+    "createdAt",
+    "updatedAt"
+  ],
+  "entities/base.js VirtualEntitySchema": [
+    "id",
+    "createdAt"
+  ],
+  "primitives/auth.js AuthResponse": [
+    "authority",
+    "user"
+  ],
+  "primitives/auth.js AuthorityToken": [
+    "access",
+    "refresh"
+  ],
+  "primitives/auth.js LoginRequest": [
+    "username",
+    "password"
+  ],
+  "primitives/auth.js LogoutRequest": [
+    "refresh"
+  ],
+  "primitives/auth.js LogoutResponse": [
+    "success"
+  ],
+  "primitives/auth.js RefreshRequest": [
+    "refresh"
+  ],
+  "primitives/auth.js RefreshResponse": [
+    "access"
+  ],
+  "primitives/auth.js SignupRequest": [
+    "username",
+    "password"
+  ],
+  "primitives/auth.js UserReference": [
+    "id",
+    "slug",
+    "traits",
+    "trait",
+    "authentication"
+  ],
+  "primitives/auth.js VerifyRequest": [
+    "access"
+  ],
+  "primitives/auth.js VerifyResponse": [
+    "success",
+    "user"
+  ],
+  "primitives/connection.js Open": [
+    "frame",
+    "signal",
+    "query",
+    "verb",
+    "token",
+    "stream",
+    "input"
+  ],
+  "primitives/connection.js Packet": [],
+  "primitives/controller.js Kill": [
+    "nature",
+    "body",
+    "flags"
+  ],
+  "primitives/controller.js Machine": [
+    "states"
+  ],
+  "primitives/controller.js Record": [
+    "at",
+    "path",
+    "track",
+    "data"
+  ],
+  "primitives/controller.js Reflection": [
+    "path",
+    "code",
+    "timestamp",
+    "error",
+    "children"
+  ],
+  "primitives/controller.js Signal": [],
+  "primitives/controller.js State": [],
+  "primitives/conversation.js Channel": [],
+  "primitives/conversation.js Verb": [],
+  "primitives/credentials.js Credential": [
+    "user",
+    "authority",
+    "at"
+  ],
+  "primitives/credentials.js Credentials": [],
+  "primitives/hallucination.js Channel": [],
+  "primitives/hallucination.js Channels": [
+    "in",
+    "out"
+  ],
+  "primitives/hallucination.js Context": [
+    "input",
+    "output",
+    "controller",
+    "policy",
+    "tools",
+    "steps",
+    "signal"
+  ],
+  "primitives/hallucination.js Faculty": [
+    "type",
+    "id",
+    "model",
+    "upstream",
+    "tune",
+    "context",
+    "options",
+    "choices",
+    "channels",
+    "via"
+  ],
+  "primitives/hallucination.js FacultyMask": [
+    "type",
+    "id",
+    "tier"
+  ],
+  "primitives/hallucination.js FacultyRecipe": [
+    "id",
+    "tier"
+  ],
+  "primitives/hallucination.js FacultyType": [],
+  "primitives/hallucination.js Meta": [
+    "state",
+    "usage",
+    "rounds",
+    "fault",
+    "provider"
+  ],
+  "primitives/hallucination.js Output": [
+    "schema"
+  ],
+  "primitives/hallucination.js Parts": [],
+  "primitives/hallucination.js Request": [
+    "system",
+    "turns",
+    "tools",
+    "settings",
+    "output",
+    "cache"
+  ],
+  "primitives/hallucination.js Response": [
+    "condition",
+    "product",
+    "turns",
+    "meta"
+  ],
+  "primitives/hallucination.js Role": [],
+  "primitives/hallucination.js Settings": [
+    "maxTokens",
+    "thinking",
+    "thinkingBudget",
+    "temperature",
+    "tool_choice"
+  ],
+  "primitives/hallucination.js State": [],
+  "primitives/hallucination.js Tier": [],
+  "primitives/hallucination.js Tool": [
+    "name",
+    "valence",
+    "input",
+    "output"
+  ],
+  "primitives/hallucination.js Tune": [],
+  "primitives/hallucination.js Turn": [
+    "role",
+    "parts",
+    "meta"
+  ],
+  "primitives/harness.js Call": [
+    "body",
+    "flags"
+  ],
+  "primitives/harness.js Request": [
+    "thread",
+    "terminal",
+    "turn",
+    "parts",
+    "provider",
+    "id",
+    "tier",
+    "tune",
+    "config",
+    "system",
+    "output",
+    "tools"
+  ],
+  "primitives/harness.js Signal": [
+    "nature",
+    "body",
+    "flags"
+  ],
+  "primitives/home.js Home": [
+    "reference"
+  ],
+  "primitives/instance.ts ClientMask": [
+    "manifest",
+    "module",
+    "statics",
+    "mountpoint",
+    "reference",
+    "modes",
+    "trait"
+  ],
+  "primitives/instance.ts ClientRecipe": [
+    "manifest",
+    "module",
+    "mountpoint",
+    "statics",
+    "modes",
+    "trait"
+  ],
+  "primitives/instance.ts ClientTrait": [
+    "HOME",
+    "DOCKED",
+    "THEMED"
+  ],
+  "primitives/instance.ts DaemonMask": [
+    "manifest",
+    "mountpoint",
+    "statics",
+    "reference",
+    "url",
+    "attach",
+    "modes",
+    "consume",
+    "hallucinators"
+  ],
+  "primitives/instance.ts DaemonRecipe": [
+    "manifest",
+    "mountpoint",
+    "statics",
+    "reference",
+    "modes",
+    "consume",
+    "hallucinators"
+  ],
+  "primitives/instance.ts DatamapMask": [
+    "module",
+    "statics",
+    "mountpoint"
+  ],
+  "primitives/instance.ts DatamapRecipe": [
+    "module",
+    "statics",
+    "secrets"
+  ],
+  "primitives/instance.ts EnvironmentMask": [],
+  "primitives/instance.ts EnvironmentRecipe": [
+    "type",
+    "properties",
+    "required",
+    "additionalProperties"
+  ],
+  "primitives/instance.ts HallucinatorMask": [
+    "module",
+    "statics",
+    "secrets",
+    "faculties"
+  ],
+  "primitives/instance.ts HallucinatorRecipe": [
+    "module",
+    "statics",
+    "secrets",
+    "faculties"
+  ],
+  "primitives/instance.ts InstanceMask": [
+    "manifest",
+    "environment",
+    "runtime",
+    "lighthouse",
+    "clients",
+    "datamap",
+    "services",
+    "daemons",
+    "telemetry"
+  ],
+  "primitives/instance.ts InstanceRecipe": [
+    "manifest",
+    "environment",
+    "runtime",
+    "lighthouse",
+    "datamap",
+    "clients",
+    "services",
+    "daemons",
+    "telemetry"
+  ],
+  "primitives/instance.ts LedgerRecipe": [
+    "manifest",
+    "environment",
+    "runtime",
+    "lighthouse",
+    "datamap",
+    "hallucinators",
+    "clients",
+    "services",
+    "telemetry"
+  ],
+  "primitives/instance.ts LighthouseMask": [
+    "secrets",
+    "traits",
+    "trait"
+  ],
+  "primitives/instance.ts LighthouseRecipe": [
+    "secrets",
+    "traits",
+    "trait"
+  ],
+  "primitives/instance.ts LighthouseTrait": [
+    "AUTOLOGIN"
+  ],
+  "primitives/instance.ts Mask": [
+    "module",
+    "statics",
+    "secrets"
+  ],
+  "primitives/instance.ts ModeMask": [
+    "module",
+    "traits",
+    "trait",
+    "mountpoint",
+    "statics",
+    "secrets",
+    "consume",
+    "hallucinators",
+    "reference",
+    "url",
+    "bundles"
+  ],
+  "primitives/instance.ts ModeMaskTrait": [
+    "HARNESSED",
+    "CONVERSATIONAL",
+    "TOOLED",
+    "PRIMED"
+  ],
+  "primitives/instance.ts ModeMasks": [],
+  "primitives/instance.ts ModeRecipe": [
+    "module",
+    "traits",
+    "trait",
+    "mountpoint",
+    "statics",
+    "secrets",
+    "consume",
+    "hallucinators"
+  ],
+  "primitives/instance.ts ModeRecipeTrait": [
+    "HARNESSED",
+    "CONVERSATIONAL",
+    "TOOLED",
+    "PRIMED"
+  ],
+  "primitives/instance.ts ModeRecipes": [],
+  "primitives/instance.ts Mountpoint": [],
+  "primitives/instance.ts Recipe": [
+    "module",
+    "statics",
+    "secrets"
+  ],
+  "primitives/instance.ts Requirement": [
+    "at",
+    "read",
+    "unset"
+  ],
+  "primitives/instance.ts RuntimeMask": [
+    "manifest",
+    "statics",
+    "secrets",
+    "mountpoint",
+    "reference",
+    "url",
+    "attach",
+    "modes",
+    "hallucinators"
+  ],
+  "primitives/instance.ts RuntimeRecipe": [
+    "manifest",
+    "statics",
+    "secrets",
+    "modes",
+    "hallucinators"
+  ],
+  "primitives/instance.ts SecretsMask": [],
+  "primitives/instance.ts SecretsRecipe": [],
+  "primitives/instance.ts ServiceMask": [
+    "manifest",
+    "module",
+    "mountpoint",
+    "statics",
+    "reference",
+    "secrets",
+    "hallucinators",
+    "datamap"
+  ],
+  "primitives/instance.ts ServiceRecipe": [
+    "manifest",
+    "module",
+    "mountpoint",
+    "statics",
+    "secrets",
+    "datamap",
+    "hallucinators"
+  ],
+  "primitives/instance.ts Sieve": [],
+  "primitives/instance.ts StaticsMask": [],
+  "primitives/instance.ts StaticsRecipe": [],
+  "primitives/instance.ts Tapped": [],
+  "primitives/instance.ts Telemetry": [
+    "logger"
+  ],
+  "primitives/kernel.js Domain": [
+    "manifest",
+    "traits",
+    "twitch",
+    "schematics"
+  ],
+  "primitives/label.js Label": [
+    "name",
+    "description"
+  ],
+  "primitives/manifest.js Manifest": [
+    "type",
+    "slug",
+    "owner",
+    "version",
+    "name",
+    "description",
+    "icon",
+    "traits"
+  ],
+  "primitives/signatures.js Rank": [],
+  "primitives/theme.js Alpha": [],
+  "primitives/theme.js Brand": [
+    "outline",
+    "glow",
+    "filter"
+  ],
+  "primitives/theme.js Case": [],
+  "primitives/theme.js Color": [],
+  "primitives/theme.js Control": [
+    "contrast",
+    "contrastHover",
+    "contrastPressed",
+    "on",
+    "onMuted",
+    "onPressed",
+    "field",
+    "fieldPlaceholder",
+    "fieldCaret",
+    "selected",
+    "focus",
+    "scrollbar",
+    "divider"
+  ],
+  "primitives/theme.js Definition": [
+    "shape",
+    "size",
+    "text",
+    "control",
+    "signal",
+    "brand",
+    "font",
+    "zones"
+  ],
+  "primitives/theme.js Em": [],
+  "primitives/theme.js Factor": [],
+  "primitives/theme.js Family": [],
+  "primitives/theme.js Filter": [],
+  "primitives/theme.js Font": [
+    "family"
+  ],
+  "primitives/theme.js Glow": [],
+  "primitives/theme.js Ground": [
+    "plane",
+    "planeSunk",
+    "planeLift",
+    "boundary",
+    "boundaryStrong",
+    "boundarySoft",
+    "divider",
+    "inverse",
+    "inverseOn",
+    "shadow",
+    "scrim",
+    "dim"
+  ],
+  "primitives/theme.js Hex": [],
+  "primitives/theme.js Leading": [],
+  "primitives/theme.js Percent": [],
+  "primitives/theme.js Px": [],
+  "primitives/theme.js Ratio": [],
+  "primitives/theme.js Relief": [],
+  "primitives/theme.js Rem": [],
+  "primitives/theme.js Round": [],
+  "primitives/theme.js Shadow": [],
+  "primitives/theme.js Shape": [
+    "relief",
+    "radius",
+    "label",
+    "lift",
+    "sunk"
+  ],
+  "primitives/theme.js Signal": [
+    "primary",
+    "positive",
+    "caution",
+    "negative"
+  ],
+  "primitives/theme.js SignalName": [],
+  "primitives/theme.js Size": [
+    "unit",
+    "space",
+    "type",
+    "gap",
+    "pad",
+    "icon",
+    "field",
+    "row",
+    "key",
+    "leading",
+    "ring",
+    "depth"
+  ],
+  "primitives/theme.js Step": [],
+  "primitives/theme.js Text": [
+    "header",
+    "strong",
+    "ink",
+    "light",
+    "muted",
+    "link",
+    "code",
+    "disabled"
+  ],
+  "primitives/theme.js Theme": [
+    "shape",
+    "size",
+    "text",
+    "control",
+    "signal",
+    "brand",
+    "font",
+    "zones"
+  ],
+  "primitives/theme.js Tone": [
+    "fill",
+    "ink",
+    "tint",
+    "on"
+  ],
+  "primitives/theme.js Zone": [
+    "plane",
+    "planeSunk",
+    "planeLift",
+    "boundary",
+    "boundaryStrong",
+    "boundarySoft",
+    "divider",
+    "inverse",
+    "inverseOn",
+    "shadow",
+    "scrim",
+    "dim",
+    "shape",
+    "size",
+    "text",
+    "control",
+    "signal",
+    "brand",
+    "font"
+  ],
+  "primitives/theme.js ZoneIndex": [],
+  "primitives/track.js Entity": [
+    "schema",
+    "id"
+  ],
+  "primitives/track.js Fault": [
+    "type",
+    "message",
+    "code",
+    "stack"
+  ],
+  "primitives/track.js Limit": [
+    "name",
+    "unit",
+    "quota",
+    "window",
+    "remaining",
+    "reset",
+    "by"
+  ],
+  "primitives/track.js Log": [],
+  "primitives/track.js Measure": [
+    "name",
+    "unit",
+    "amount",
+    "channel",
+    "by"
+  ],
+  "primitives/track.js Request": [
+    "method",
+    "path"
+  ],
+  "primitives/track.js Response": [
+    "status"
+  ],
+  "primitives/track.js Start": [],
+  "primitives/track.js Status": [
+    "code"
+  ],
+  "primitives/track.js Stop": [],
+  "primitives/track.js Track": [],
+  "primitives/track.js Usage": [
+    "subject",
+    "state",
+    "measures",
+    "limits"
+  ],
+  "prototypes/bundle.js Bundle": [
+    "entries"
+  ],
+  "prototypes/index.js Bundle": [
+    "entries"
+  ],
+  "prototypes/index.js Condition": [],
+  "prototypes/index.js ErrorResponse": [
+    "success",
+    "message",
+    "error"
+  ],
+  "prototypes/index.js Status": [
+    "timestamp",
+    "code"
+  ],
+  "prototypes/index.js StatusCode": [],
+  "prototypes/index.js Yield": [
+    "condition",
+    "product",
+    "error"
+  ],
+  "prototypes/yield.js Condition": [],
+  "prototypes/yield.js Yield": [
+    "condition",
+    "product",
+    "error"
+  ],
+  "scalars/index.js ID": [],
+  "scalars/index.js JWTToken": [],
+  "scalars/index.js ModuleIdentifier": [],
+  "scalars/index.js Password": [],
+  "scalars/index.js Slug": [],
+  "scalars/index.js Username": [],
+  "traits/aimed.js Aimed": [
+    "mount"
+  ],
+  "traits/conversational.js Conversational": [
+    "language",
+    "hear",
+    "speak",
+    "call",
+    "harmonize",
+    "polish"
+  ],
+  "traits/docked.js Docked": [
+    "align",
+    "share",
+    "view",
+    "shown",
+    "lens",
+    "markdown"
+  ],
+  "traits/harnessed.js Harnessed": [
+    "provider",
+    "id",
+    "tier",
+    "tune",
+    "effort",
+    "rounds",
+    "thinking",
+    "slugging"
+  ],
+  "traits/index.js Aimed": [
+    "mount"
+  ],
+  "traits/index.js Conversational": [
+    "language",
+    "hear",
+    "speak",
+    "call",
+    "harmonize",
+    "polish"
+  ],
+  "traits/index.js Docked": [
+    "align",
+    "share",
+    "view",
+    "shown",
+    "lens",
+    "markdown"
+  ],
+  "traits/index.js Harnessed": [
+    "provider",
+    "id",
+    "tier",
+    "tune",
+    "effort",
+    "rounds",
+    "thinking",
+    "slugging"
+  ],
+  "traits/index.js Masked": [],
+  "traits/index.js Queueing": [
+    "depth"
+  ],
+  "traits/index.js Rendered": [
+    "frame",
+    "cell"
+  ],
+  "traits/index.js Themed": [],
+  "traits/index.js buffer": [
+    "LABELED",
+    "RENDERED"
+  ],
+  "traits/index.js client": [
+    "HOME",
+    "DOCKED",
+    "THEMED"
+  ],
+  "traits/index.js lighthouse": [
+    "JOINABLE",
+    "INVITATIONAL",
+    "AUTOLOGIN",
+    "AUTOSIGNUP"
+  ],
+  "traits/index.js literal": [
+    "LABELED"
+  ],
+  "traits/index.js mode": [
+    "EXPOSED",
+    "HARNESS",
+    "CONVERSATION",
+    "HARNESSED",
+    "CONVERSATIONAL",
+    "TOOLING",
+    "EMITTER",
+    "DATASET",
+    "SURFACING",
+    "REPLING",
+    "BOOTED",
+    "KEYMAPPED",
+    "PRIMER",
+    "LOOPING",
+    "SURFACED",
+    "FILESET",
+    "FILESINK",
+    "ATTACHED",
+    "TWITCHY"
+  ],
+  "traits/index.js note": [
+    "LABELED"
+  ],
+  "traits/index.js service": [
+    "ATTACHED",
+    "SERVER",
+    "DOCKER",
+    "COMPOSE"
+  ],
+  "traits/index.js surface": [
+    "FRAME",
+    "CELL"
+  ],
+  "traits/index.js symbol": [
+    "LABELED",
+    "ONTOLOGICAL",
+    "TOPOGRAPHICAL",
+    "STRUCTURAL"
+  ],
+  "traits/index.js terminal": [
+    "LABELED",
+    "DOCKED"
+  ],
+  "traits/index.js thread": [
+    "LABELED",
+    "HARNESSED",
+    "CONVERSATIONAL",
+    "TOOLED",
+    "PRIMED",
+    "AIMED",
+    "MASKED",
+    "QUEUEING"
+  ],
+  "traits/index.js user": [
+    "HOME",
+    "DOCKED",
+    "THEMED"
+  ],
+  "traits/masked.js Masked": [],
+  "traits/primed.js Primed": [],
+  "traits/queueing.js Queueing": [
+    "depth"
+  ],
+  "traits/rendered.js Rendered": [
+    "frame",
+    "cell"
+  ],
+  "traits/themed.js Themed": [],
+  "traits/tooled.js Load": [],
+  "traits/tooled.js Tooled": []
+}

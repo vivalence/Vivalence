@@ -1,14 +1,17 @@
 import { v7 } from "uuid";
 import { NotFound } from "../../prototypes/errors/vector.js";
 import { Queue } from "../../prototypes/queue.js";
+import { record } from "../../prototypes/span.js";
 import { ToolCall } from "../../prototypes/toolcall.js";
 import { Vector } from "../../prototypes/vector.js";
 import * as fromm from "../fromm/index.js";
 import * as object from "./object.js";
+import * as pcm from "./pcm.js";
 import * as soma from "./soma.js";
 import * as steer from "../steer/index.js";
 import * as verbatim from "./verbatim.js";
 import * as entities from "../../schematics/entities/index.js";
+import { Usage } from "../../schematics/primitives/track.js";
 
 export const signalOf = (name) => new ToolCall(name).signal;
 export const nameOf = (steps) => new ToolCall(steps).name;
@@ -142,6 +145,111 @@ const pump = {
   render: async (faculty, request, signal) => soma.drain(await faculty.via.render(request, { signal })),
 };
 
+const BEAT = 1000;
+
+const now = () => performance.timeOrigin + performance.now();
+
+const USAGE = new Vector().open("usage", record(Usage));
+
+const PARTED = [
+  [(part) => typeof part.text === "string", (part) => part.text.length],
+  [(part) => part.input !== undefined, (part) => JSON.stringify(part.input).length],
+];
+
+const parted = (part) => {
+  const found = PARTED.find(([carries]) => carries(part));
+  if (!found) return [];
+  return [{ name: "output", unit: "chars", amount: found[1](part), channel: part.type, by: "cortex" }];
+};
+
+const PACKETED = [
+  [(packet) => typeof packet === "string", (text) => ({ unit: "chars", amount: text.length, channel: "text" })],
+  [
+    (packet) => packet.event === "/audio/packet" && String(packet.audio.codec).startsWith("pcm_"),
+    (packet) => ({
+      unit: "seconds",
+      amount: pcm.bytes(packet.audio.data).byteLength / 2 / packet.audio.rate,
+      channel: "audio",
+    }),
+  ],
+];
+
+const CONTENT = ["/part/delta", "/part/draft", "/part/full", "/audio/packet"];
+
+const summed = (measures) => {
+  const held = new Map();
+  for (const measure of measures) {
+    const key = [measure.name, measure.unit, measure.channel, measure.by].join(" ");
+    held.set(key, { ...measure, amount: (held.get(key)?.amount ?? 0) + measure.amount });
+  }
+  return [...held.values()];
+};
+
+const meter = (span, faculty, via, round = 1) => {
+  span.tracks(USAGE);
+  const subject = { faculty: faculty.type, provider: faculty.provider, id: faculty.id, via, round };
+  const asked = now();
+  const counted = [];
+  const turns = [];
+  let turn = null;
+  let first;
+  let drafted = asked;
+
+  const count = (name, packet) => {
+    const found = PACKETED.find(([carries]) => carries(packet));
+    if (found) counted.push({ name, ...found[1](packet), by: "cortex" });
+  };
+
+  const used = (at) => ({
+    subject,
+    measures: summed([
+      { name: "elapsed", unit: "ms", amount: at - asked, by: "cortex" },
+      ...(first === undefined ? [] : [{ name: "first", unit: "ms", amount: first, by: "cortex" }]),
+      ...counted,
+      ...[...turns, ...(turn ? [turn] : [])].flatMap((poured) => poured.parts).flatMap(parted),
+    ]),
+  });
+
+  return {
+    count,
+    fed: async function* (source) {
+      for await (const packet of source) {
+        count("input", packet);
+        yield packet;
+      }
+    },
+    flowed: async function* (packets) {
+      for await (const packet of packets) {
+        const at = now();
+        turn = soma.pour(turn, packet);
+        count("output", packet);
+        if (packet.event === "/turn/close") {
+          turns.push(turn);
+          turn = null;
+        }
+        if (CONTENT.includes(packet.event)) first ??= at - asked;
+        if (first !== undefined && (packet.event === "/part/close" || at - drafted >= BEAT)) {
+          span.usage(used(at));
+          drafted = at;
+        }
+        yield packet;
+      }
+    },
+    closed: (state, reported = []) => {
+      const closing = used(now());
+      const theirs = [...turns.flatMap((poured) => poured.meta?.usage ?? []), ...reported];
+      return {
+        ...closing,
+        state,
+        measures: [
+          ...closing.measures,
+          ...summed(theirs.map((measure) => ({ ...measure, by: faculty.provider }))),
+        ],
+      };
+    },
+  };
+};
+
 export async function* respond(faculty, streamOrRender, request, policy) {
   const { controller } = policy;
   const span = controller.stdout;
@@ -157,25 +265,37 @@ export async function* respond(faculty, streamOrRender, request, policy) {
       }
       rounds += 1;
       let turn = null;
-      for await (const packet of deliver(
-        (signal) => pump[streamOrRender](faculty, { ...declared(request, policy.tools), turns }, signal),
-        policy.backoff,
-        span,
-        controller.abort.signal,
-      )) {
+      const metered = meter(span, faculty, streamOrRender, rounds);
+      let closed = "abort";
+      try {
+        for await (const packet of metered.flowed(
+          deliver(
+            (signal) => pump[streamOrRender](faculty, { ...declared(request, policy.tools), turns }, signal),
+            policy.backoff,
+            span,
+            controller.abort.signal,
+          ),
+        )) {
+          if (!(await controller.proceed())) {
+            yield { event: "/response/close", response: { meta: { state: "abort", rounds } } };
+            return;
+          }
+          turn = soma.pour(turn, packet);
+          yield packet;
+        }
         if (!(await controller.proceed())) {
           yield { event: "/response/close", response: { meta: { state: "abort", rounds } } };
           return;
         }
-        turn = soma.pour(turn, packet);
-        yield packet;
+        closed = turn ? state(turn) : "error";
+      } catch (fault) {
+        closed = controller.abort.signal.aborted ? "abort" : "error";
+        throw fault;
+      } finally {
+        span
+          .log({ round: rounds, state: closed, usage: turn?.meta?.usage })
+          .usage(metered.closed(closed));
       }
-      if (!(await controller.proceed())) {
-        yield { event: "/response/close", response: { meta: { state: "abort", rounds } } };
-        return;
-      }
-      const closed = turn ? state(turn) : "error";
-      span.log({ round: rounds, state: closed, usage: turn?.meta?.usage });
       if (closed !== "tools") {
         yield { event: "/response/close", response: { meta: { ...turn?.meta, state: closed, rounds } } };
         return;
@@ -231,15 +351,23 @@ async function* stamped(packets) {
 
 export async function* transcribe(faculty, { source, settings }, policy) {
   const span = policy.controller.stdout;
+  const metered = meter(span, faculty, "stream");
+  let closed = "abort";
   policy.controller.start();
   span.log({ faculty: faculty.type, harmonize: policy.harmonize });
   try {
-    const heard = faculty.via.stream({ source, settings }, { signal: policy.controller.abort.signal });
-    yield* stamped(verbatim.harmonize(heard, policy.harmonize));
+    const heard = faculty.via.stream(
+      { source: metered.fed(source), settings },
+      { signal: policy.controller.abort.signal },
+    );
+    yield* metered.flowed(stamped(verbatim.harmonize(heard, policy.harmonize)));
+    closed = "complete";
   } catch (fault) {
+    closed = "error";
     policy.controller.fault(fault);
     throw fault;
   } finally {
+    span.usage(metered.closed(closed));
     policy.controller.stop();
   }
 }
@@ -252,12 +380,14 @@ export async function transcript(faculty, input, policy) {
 
 export async function* converse(faculty, { source, settings, ...request }, policy) {
   const span = policy.controller.stdout;
+  const metered = meter(span, faculty, "stream");
+  let closed = "abort";
   const answers = new Queue();
   policy.controller.start();
   span.log({ faculty: faculty.type, id: faculty.id });
   const fed = (async function* () {
     try {
-      yield* source;
+      yield* metered.fed(source);
     } finally {
       answers.close();
     }
@@ -268,7 +398,7 @@ export async function* converse(faculty, { source, settings, ...request }, polic
       { ...request, source: soma.merge(fed, answers.drain()), settings },
       { signal: policy.controller.abort.signal },
     );
-    for await (const packet of stamped(heard)) {
+    for await (const packet of metered.flowed(stamped(heard))) {
       turn = soma.pour(turn, packet);
       yield packet;
       if (packet.event !== "/turn/close" || state(turn) !== "tools") continue;
@@ -276,10 +406,13 @@ export async function* converse(faculty, { source, settings, ...request }, polic
       yield answered;
       answers.enqueue(answered);
     }
+    closed = "complete";
   } catch (fault) {
+    closed = "error";
     policy.controller.fault(fault);
     throw fault;
   } finally {
+    span.usage(metered.closed(closed));
     answers.close();
     policy.controller.stop();
   }
@@ -287,28 +420,44 @@ export async function* converse(faculty, { source, settings, ...request }, polic
 
 export async function* synthesize(faculty, { source, settings }, policy) {
   const span = policy.controller.stdout;
+  const metered = meter(span, faculty, "stream");
+  let closed = "abort";
   policy.controller.start();
   span.log({ faculty: faculty.type });
   try {
-    yield* faculty.via.stream({ source, settings }, { signal: policy.controller.abort.signal });
+    const spoken = typeof source === "string" ? source : metered.fed(source);
+    metered.count("input", source);
+    yield* metered.flowed(faculty.via.stream({ source: spoken, settings }, { signal: policy.controller.abort.signal }));
+    closed = "complete";
   } catch (fault) {
+    closed = "error";
     policy.controller.fault(fault);
     throw fault;
   } finally {
+    span.usage(metered.closed(closed));
     policy.controller.stop();
   }
 }
 
 export async function vocalize(faculty, { source, settings }, policy) {
   const span = policy.controller.stdout;
+  const metered = meter(span, faculty, "render");
+  let closed = "error";
+  let voiced = [];
   policy.controller.start();
   span.log({ faculty: faculty.type });
   try {
-    return await faculty.via.render({ source, settings }, { signal: policy.controller.abort.signal });
+    metered.count("input", source);
+    const audio = await faculty.via.render({ source, settings }, { signal: policy.controller.abort.signal });
+    voiced = [{ name: "output", unit: "bytes", amount: audio.byteLength, channel: "audio", by: "cortex" }];
+    closed = "complete";
+    return audio;
   } catch (fault) {
     policy.controller.fault(fault);
     throw fault;
   } finally {
+    const closing = metered.closed(closed);
+    span.usage({ ...closing, measures: [...closing.measures, ...voiced] });
     policy.controller.stop();
   }
 }
@@ -317,13 +466,26 @@ export async function depict(faculty, request, policy) {
   const span = policy.controller.stdout;
   policy.controller.start();
   span.log({ faculty: faculty.type, id: faculty.id, references: request.images.length, mask: request.mask !== undefined });
+  const metered = meter(span, faculty, "render");
+  let closed = "error";
+  let painted = [];
+  let reported = [];
   try {
+    metered.count("input", request.prompt);
     const response = await faculty.via.render(request, { signal: policy.controller.abort.signal });
+    painted = [
+      { name: "input", unit: "images", amount: request.images.length, channel: "image", by: "cortex" },
+      { name: "output", unit: "images", amount: response.images.length, channel: "image", by: "cortex" },
+    ];
+    reported = response.meta?.usage ?? [];
+    closed = "complete";
     return { ...response, provider: faculty.provider, id: faculty.id };
   } catch (fault) {
     policy.controller.fault(fault);
     throw fault;
   } finally {
+    const closing = metered.closed(closed, reported);
+    span.usage({ ...closing, measures: [...closing.measures, ...painted] });
     policy.controller.stop();
   }
 }
@@ -332,14 +494,20 @@ export async function choose(faculty, round, policy) {
   const span = policy.controller.stdout;
   policy.controller.start();
   span.log({ faculty: faculty.type, id: faculty.id, questions: Object.fromEntries(Object.entries(round.questions).map(([key, question]) => [key, question.type])) });
+  const metered = meter(span, faculty, "render");
+  let closed = "error";
+  const asked = { name: "input", unit: "questions", amount: Object.keys(round.questions).length, by: "cortex" };
   try {
     const verdict = await faculty.via.render(round, { signal: policy.controller.abort.signal });
     span.log({ verdict });
+    closed = "complete";
     return verdict;
   } catch (fault) {
     policy.controller.fault(fault);
     throw fault;
   } finally {
+    const closing = metered.closed(closed);
+    span.usage({ ...closing, measures: [...closing.measures, asked] });
     policy.controller.stop();
   }
 }

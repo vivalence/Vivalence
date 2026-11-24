@@ -7,26 +7,26 @@ import { THEMES } from "../themes/index.js";
 const { ZONES } = v.primitives.theme;
 
 const KEBAB = [
-  "surface", "surface-sunk", "surface-lift", "boundary", "boundary-strong", "divider",
+  "plane", "plane-sunk", "plane-lift", "boundary", "boundary-strong", "divider",
   "text-strong", "text-ink", "text-light", "text-muted", "text-link",
   "signal-primary", "signal-primary-ink", "signal-positive", "signal-positive-ink", "signal-caution", "signal-caution-ink", "signal-negative", "signal-negative-ink",
   "control-selected", "control-field", "control-field-caret", "inverse", "inverse-on",
   "signal-caution-tint", "signal-negative-tint", "signal-primary-tint",
 ];
 const CAMEL = [
-  "surface", "surfaceSunk", "surfaceLift", "boundary", "boundaryStrong", "divider",
+  "plane", "planeSunk", "planeLift", "boundary", "boundaryStrong", "divider",
   "textStrong", "textInk", "textLight", "textMuted", "textLink",
   "signalPrimary", "signalPrimaryInk", "signalPositive", "signalPositiveInk", "signalCaution", "signalCautionInk", "signalNegative", "signalNegativeInk",
   "controlSelected", "controlField", "controlFieldCaret", "inverse", "inverseOn",
   "signalCautionTint", "signalNegativeTint", "signalPrimaryTint",
 ];
 const TODAY = [
-  "surface", "surfaceSunk", "surfaceLift", "boundary", "textStrong", "textInk", "textMuted", "textLink",
+  "plane", "planeSunk", "planeLift", "boundary", "textStrong", "textInk", "textMuted", "textLink",
   "signalPrimary", "signalPositive", "signalCaution", "signalNegative", "inverse", "inverseOn",
 ];
 const PAIRS = [
-  ["text-ink", "surface", 4.5], ["text-muted", "surface", 3], ["signal-primary-ink", "surface", 4.5], ["signal-caution-ink", "surface", 4.5],
-  ["signal-negative-ink", "surface", 4.5], ["signal-primary-ink", "surface-lift", 4.5],
+  ["text-ink", "plane", 4.5], ["text-muted", "plane", 3], ["signal-primary-ink", "plane", 4.5], ["signal-caution-ink", "plane", 4.5],
+  ["signal-negative-ink", "plane", 4.5], ["signal-primary-ink", "plane-lift", 4.5],
 ];
 const HEX = /^#[0-9A-F]{6}$/;
 
@@ -51,15 +51,15 @@ specimen.describe("tokens — the flat palette a face reads, in two spellings", 
         specimen.expect(Object.keys(camel).map((key) => CAMEL.indexOf(key))).toEqual(Object.keys(kebab).map((key) => KEBAB.indexOf(key)));
       });
 
-      specimen.it(`${name} zone ${zone}: every value is opaque hex — a tint is folded over the surface`, () => {
+      specimen.it(`${name} zone ${zone}: every value is opaque hex — a tint is folded over the plane`, () => {
         for (const [key, value] of Object.entries(kebab)) specimen.expect([key, HEX.test(value)]).toEqual([key, true]);
-        specimen.expect(kebab["signal-primary-tint"]).toBe(flatten(emitted["--signal-primary-tint"], emitted["--surface"]));
+        specimen.expect(kebab["signal-primary-tint"]).toBe(flatten(emitted["--signal-primary-tint"], emitted["--plane"]));
         specimen.expect(kebab["signal-primary-tint"]).not.toBe(kebab["signal-primary"]);
       });
 
       specimen.it(`${name} zone ${zone}: each kebab name is the CSS variable emit declares, flattened`, () => {
         for (const key of KEBAB) {
-          specimen.expect([key, kebab[key]]).toEqual([key, flatten(emitted[`--${key}`], emitted["--surface"])]);
+          specimen.expect([key, kebab[key]]).toEqual([key, flatten(emitted[`--${key}`], emitted["--plane"])]);
         }
       });
 
@@ -67,7 +67,7 @@ specimen.describe("tokens — the flat palette a face reads, in two spellings", 
         for (const [ink, ground, minimum] of PAIRS) {
           specimen.expect([ink, ground, contrast(kebab[ink], kebab[ground]) >= minimum]).toEqual([ink, ground, true]);
         }
-        const on = contrast(flatten(emitted["--control-on"], emitted["--surface"]), flatten(emitted["--control-contrast"], emitted["--surface"]));
+        const on = contrast(flatten(emitted["--control-on"], emitted["--plane"]), flatten(emitted["--control-contrast"], emitted["--plane"]));
         specimen.expect(["control-on", "control-contrast", on >= 4.5]).toEqual(["control-on", "control-contrast", true]);
       });
     }
@@ -89,11 +89,11 @@ specimen.describe("tokens — the flat palette a face reads, in two spellings", 
 });
 
 specimen.describe("fold — one walk, the join is the spelling", () => {
-  const held = { surface: "#000000", text: { strong: "#111111" }, signal: { primary: { fill: "#222222", ink: "#333333" } }, control: { fieldCaret: "#444444" }, box: { DEFAULT: "1px" }, list: ["a", "b"] };
+  const held = { plane: "#000000", text: { strong: "#111111" }, signal: { primary: { fill: "#222222", ink: "#333333" } }, control: { fieldCaret: "#444444" }, box: { DEFAULT: "1px" }, list: ["a", "b"] };
 
   specimen.it("kebab: a camel key splits on its humps, an upper word lowers, a fill is the bare name", () => {
     specimen.expect(fold(held, (prefix, key) => `${prefix === "" ? "" : `${prefix}-`}${key.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase()}`)).toEqual([
-      ["surface", "#000000"], ["text-strong", "#111111"], ["signal-primary", "#222222"], ["signal-primary-ink", "#333333"], ["control-field-caret", "#444444"], ["box-default", "1px"], ["list", "a, b"],
+      ["plane", "#000000"], ["text-strong", "#111111"], ["signal-primary", "#222222"], ["signal-primary-ink", "#333333"], ["control-field-caret", "#444444"], ["box-default", "1px"], ["list", "a, b"],
     ]);
   });
 

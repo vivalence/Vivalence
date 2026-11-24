@@ -78,7 +78,7 @@
     justify-content: center;
     gap: 0.8rem;
     padding: 18px;
-    background: var(--surface-sunk);
+    background: var(--plane-sunk);
     color: var(--text-strong);
     font-family: var(--font-family-code);
   }

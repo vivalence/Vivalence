@@ -284,7 +284,7 @@
                 {#each pages as page (page.id)}
                   <button class="drawn-page" onclick={() => open(page)} disabled={!terminal}>
                     <span class="drawn-name">{named(page)}</span>
-                    <span class="drawn-trace">#{page.index} · {page.view?.hash?.slice(0, 8)} · open ↗</span>
+                    <span class="drawn-trace">#{page.index} · {page.surface?.hash?.slice(0, 8)} · open ↗</span>
                   </button>
                 {/each}
               </div>
@@ -596,9 +596,9 @@
 <style>
   .page {
     --zoom: 1.15;
-    --ground: var(--surface);
-    --sunk: var(--surface-sunk);
-    --raised: var(--surface-lift);
+    --ground: var(--plane);
+    --sunk: var(--plane-sunk);
+    --raised: var(--plane-lift);
     --edge: var(--boundary-soft);
     --edge-strong: var(--boundary);
     --ink: var(--text-strong);
@@ -617,7 +617,7 @@
     --wash: color-mix(in srgb, var(--teal) 9%, transparent);
     --wash-hover: color-mix(in srgb, var(--teal) 16%, transparent);
     --hairline: color-mix(in srgb, var(--edge-strong) 90%, transparent);
-    --field: var(--surface-lift);
+    --field: var(--plane-lift);
     min-height: 100%;
     box-sizing: border-box;
     display: flex;

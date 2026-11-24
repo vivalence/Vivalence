@@ -46,7 +46,7 @@ export const mode = v.object({
   TOOLING: v.object({}).default({}).optional().desc("brings tools the model can call").example({}),
   EMITTER: v.object({}).default({}).optional().desc("mints buffers on demand").example({}),
   DATASET: v.object({}).default({}).optional().desc("ships symbols and literals").example({}),
-  GENERATIVE: v
+  SURFACING: v
     .object({})
     .default({})
     .optional()
@@ -67,7 +67,7 @@ export const mode = v.object({
     .optional()
     .desc("brings repl tools the loop can call")
     .example({}),
-  VIEWABLE: v.object({}).default({}).optional().desc("ships svelte views").example({}),
+  SURFACED: v.object({}).default({}).optional().desc("ships svelte surfaces").example({}),
   FILESET: v.object({}).default({}).optional().desc("ships files").example({}),
   FILESINK: v
     .object({})
@@ -119,9 +119,9 @@ export const thread = v.object({
 }, { retired: { INTELLIGENT: "HARNESSED", VOCAL: "CONVERSATIONAL" } });
 export const buffer = v.object({
   LABELED: Label.default({}).optional().desc("its name, read on its tab").example({ name: "Annual accounts", description: "The 2026 accounts as filed" }),
-  RENDERED: Rendered.default({}).optional().desc("which views draw it: one in the frame, one as its cell").example({ frame: "play", cell: "board" }),
+  RENDERED: Rendered.default({}).optional().desc("which surfaces draw it: one in the frame, one as its cell").example({ frame: "play", cell: "board" }),
 });
-export const view = v.object({
+export const surface = v.object({
   FRAME: v.object({}).default({}).optional().desc("drawn in the frame").example({}),
   CELL: v.object({}).default({}).optional().desc("drawn as a cell in the journal").example({}),
 });
@@ -196,4 +196,4 @@ export const literal = v.object({ LABELED: Label.default({}).optional().desc("it
 export const note = v.object({ LABELED: Label.default({}).optional().desc("its name, read in the chrome").example({ name: "On flamingos" }) }, open);
 
 const worn = (data) => v.array(v.enum(Object.keys(data.properties)));
-export const names = { mode: worn(mode), thread: worn(thread), buffer: worn(buffer), view: worn(view), terminal: worn(terminal), user: worn(user), symbol: worn(symbol), literal: worn(literal), note: worn(note) };
+export const names = { mode: worn(mode), thread: worn(thread), buffer: worn(buffer), surface: worn(surface), terminal: worn(terminal), user: worn(user), symbol: worn(symbol), literal: worn(literal), note: worn(note) };

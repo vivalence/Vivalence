@@ -1,0 +1,411 @@
+#+title: migration twitch — a step travels in the repo, each mount migrates itself and knows where it stands
+#+filetags: :datamap:mikro:migration:twitch:version:typology:paladin:deploy:
+#+status: LANDED 11-23: step 1 on /"go step one."/ (8 files) and the em pass on /"land this"/ (9 files + stucatch's 2 lines); version `2026.11.0`; mode-level steps not supported (known issue); never booted on his mount; next: view-to-surface's entity pass, then his test on localhost and prod.
+# writer: agent · limit: 26000 chars
+
+* intent
+
+/"How do we declare a migration that works inside an auto-generated migration that doesn't exist yet?"/
+
+/"show b. and make it more general than renaming. little functional utility with all the tools and controls to hook into migrations kinda like postcss plugins"/
+
+/"great. now transport them via a migration twitch. with versioning. we need to know where we are and what to apply. whats a good structure here? how do we migrate databases? we need a system that scales in deployment. we might need a version per repo. vivalence@v0.1.1 or seomthign. si that it? semver + migration pipeline. migrating like gitlab? is that a good model? is that a good model based on what mikro offers/requires and what our system offers for encoding? remember that the migrations/ dir are part of mount, not the module. so midrations/ dont travel in repo. something must travel in repo + know what to map against what migration. difficult."/
+
+/"importan note is that the ctx.migrate tools needs to be a nice simple powerful pipeline to execute migrations against both the schema with some sql root pipeline factory and some nice primitives on top, or against the data itself aka writing entity relationships and else ... basically what we have in our entity subscribers. interesting."/
+
+* rulings
+
+| item | the ruling | his words |
+|---|---|---|
+| Q1 | ONE version, the repo's; the mount's migration carries it in its name | /"a"/ |
+| Q2 | a step sits on the route of the release it shipped in | /"twitch.open("/before/datamap/migrate/0.2.0", renamed("View", "Surface"));"/ |
+| Q3 | the version is written in the root =deno.jsonc= | /"a"/ |
+| Q4 | the releases to apply are deduced from the twitches, one signal per release before and after, no table; a floor is a step that throws | /"amen."/ |
+| Q5 | one migration per release, each run before the next is generated | /"Okay, perfect. That looks like our meta."/ |
+| Q6 | steps live in the twitches: an entity's on its own `twitch`, a mode's on its `twitch` export by `TWITCHY`; no dedicated trait now, a `migratory` one only if it ever splits | /"for now, we can just like keep that in the twitches."/ |
+| Q7 | the tools are a ctx key the datamap attaches with `.use` on the migrate branch: `ctx.migrate`, its rename tool `renaming` | /"ctx.migration -> ctx.migrate verb form."/ · /"renamed-> ctx.migrate.renaming"/ |
+| Q8 | the twitch reaches the datamap on `provider`'s second argument | /"twitch is part of second param."/ |
+| Q9 | the version rides `provider`'s first argument; the datamap file as shown | /"version, would be part of first param. first param is mask, second is context aka runtime interface."/ · /"amen."/ |
+| Q10 | data steps ride both rails, sql and entities, as open tooling | /"q10 both. either? whatever fits the bill. its open tooling. both must be coherent, integrated, and powerful."/ |
+| Q11 | `em` is `ctx.em` wherever a twitch effect runs, lifted by a middleware; subscribers move in the same pass | /"Whole: subscribers move too, same pass. One convention, 18 sites, one registry package. check registry ledger and commons."/ · /"amen. add that to the quest."/ |
+| Q12 | data is changed by ONE general function, composed in a line or two; no special function per operation | /"give me a general function that allows me to compose this operation in one or two lines. drop the special function here."/ |
+| Q13 | paladin reads the version: `paladin.version` | /"My lean: paladin.version. One fact, no new noun, no clash with the path. Yours to rule. amen."/ |
+| Q14 | the two datamap files | /"ok."/ · /"cast everything to quest."/ |
+| Q15 | the Surface entity file whole: =View.ts= renamed, its rename step on its own `twitch` | /"show me the full surface entity file after our rebuild."/ · /"amen."/ |
+| Q16 | the first version is `2026.11.0`: year, month, count; the Surface step sits on it | /"2026.11.0. thats our versoin."/ |
+
+* as code
+
+The new file, whole:
+
+#+BEGIN_SRC js
+// commons/datamaps/libsql/migrate.js · NEW
+import { TSMigrationGenerator } from "@mikro-orm/migrations";
+import { steer } from "@vivalence/typology";
+import { compare, parse } from "@std/semver";
+
+const creates = (table) => (sql) => sql.startsWith(`create table \`${table}\` `);
+
+const drops = (table) => (sql) => sql.startsWith(`drop table if exists \`${table}\``);
+
+export const before = (read, arrived) => async (ctx, next) => {
+  if (!arrived) return;
+
+  const diff = ctx.input;
+
+  ctx.migrate = {
+    read,
+    sql: (statement) => diff.up.push(statement),
+
+    async renaming(from, to) {
+      const standing = await read(
+        `select name from sqlite_master where type = 'table' and name = '${from}'`,
+      );
+      if (!standing.length) return;
+
+      const declared = `type = 'index' and tbl_name = '${from}' and sql is not null`;
+      const indexes = await read(`select name from sqlite_master where ${declared}`);
+      const statements = [
+        `alter table \`${from}\` rename to \`${to}\`;`,
+        ...indexes.map((index) => `drop index \`${index.name}\`;`),
+      ];
+
+      const kept = diff.up.filter((statement) => !drops(from)(statement));
+      const swapped = kept.flatMap((statement) =>
+        creates(to)(statement) ? statements : [statement],
+      );
+
+      diff.up = kept.some(creates(to)) ? swapped : [...statements, ...kept];
+    },
+  };
+
+  await next();
+};
+
+export const after = (orm, version) => async (ctx, next) => {
+  const em = orm.em.fork();
+  const sql = (statement, values) => em.getConnection().execute(statement, values);
+
+  ctx.migrate = {
+    read: sql,
+    sql,
+
+    async mapping(table, change) {
+      const typed = await sql(`select name from pragma_table_info('${table}') where type = 'json'`);
+      const json = typed.map((column) => column.name);
+
+      for (const stored of await sql(`select * from \`${table}\``)) {
+        const parsed = Object.fromEntries(json.map((name) => [name, JSON.parse(stored[name])]));
+        const changed = change({ ...stored, ...parsed });
+        const names = Object.keys(changed);
+        if (!names.length) continue;
+
+        const values = names.map((name) =>
+          json.includes(name) ? JSON.stringify(changed[name]) : changed[name],
+        );
+        const setting = names.map((name) => `\`${name}\` = ?`).join(", ");
+        await sql(`update \`${table}\` set ${setting} where id = ?`, [...values, stored.id]);
+      }
+    },
+  };
+  if (ctx.input.release === version) ctx.em = em;
+
+  await next();
+};
+
+export const generator = (twitch) =>
+  class extends TSMigrationGenerator {
+    async generate(diff, path, name) {
+      const [, release] = name.split("@");
+      await twitch.dispatch(`/before/datamap/migrate/${release}`, diff);
+      return super.generate(diff, path, name);
+    }
+  };
+
+export const named = (timestamp, name) => `Migration${timestamp}_${name}`;
+
+export const reached = (executed, version) => {
+  if (!executed.length) return version;
+
+  const stamped = executed.map((migration) => migration.name.split("@")[1]).filter(Boolean);
+  return stamped.length ? stamped.at(-1) : "0.0.0";
+};
+
+export const releases = (twitch, stood, version) =>
+  [
+    ...new Set(
+      steer.trie
+        .leaves(twitch)
+        .filter((leaf) => leaf.steps.at(-2)?.nature === "migrate")
+        .map((leaf) => leaf.pattern.nature),
+    ),
+  ]
+    .filter((release) => compare(parse(release), parse(stood)) > 0)
+    .filter((release) => compare(parse(release), parse(version)) < 0)
+    .sort((left, right) => compare(parse(left), parse(right)));
+#+END_SRC
+
+The datamap, edited:
+
+#+BEGIN_SRC diff
+// commons/datamaps/libsql/libsql.viva.js:3
+ import { Datamap } from "@vivalence/typology";
++import * as migrate from "./migrate.js";
+…
+-const config = (datamap, options = {}) => {
++const config = (datamap, { twitch, ...options } = {}) => {
+…
+-      migrations: { tableName: "_mikro_migrations", path: datamap.mountpoint.branch("migrations").absolute, transactional: false, snapshotOnMigrate: false },
++      migrations: {
++        tableName: "_mikro_migrations",
++        path: datamap.mountpoint.branch("migrations").absolute,
++        transactional: false,
++        snapshotOnMigrate: true,
++        fileName: migrate.named,
++        generator: migrate.generator(twitch),
++      },
+…
+     const migrator = orm.migrator;
+-    if (await migrator.checkSchema()) await migrator.create();
+-    const pending = await migrator.getPending();
+-    if (pending.length) await migrator.up();
+-    held.migrated = pending.map((migration) => migration.name);
++    const read = (sql) => orm.em.getConnection().execute(sql);
++    const stood = migrate.reached(await migrator.getExecuted(), datamap.version);
++    const arrived = stood !== datamap.version;
++    options.twitch.branch("/before/datamap/migrate").use(migrate.before(read, arrived));
++    options.twitch.branch("/after/datamap/migrate").use(migrate.after(orm, datamap.version));
++
++    for (const release of migrate.releases(options.twitch, stood, datamap.version)) {
++      await migrator.create(undefined, true, false, `vivalence@${release}`);
++      held.migrated.push(...(await migrator.up()).map((migration) => migration.name));
++      await options.twitch.dispatch(`/after/datamap/migrate/${release}`, { release });
++    }
++
++    const differs = await migrator.checkSchema();
++    if (differs || arrived) {
++      await migrator.create(undefined, !differs, false, `vivalence@${datamap.version}`);
++    }
++    held.migrated.push(...(await migrator.up()).map((migration) => migration.name));
++    if (arrived) {
++      await options.twitch.dispatch(`/after/datamap/migrate/${datamap.version}`, {
++        release: datamap.version,
++      });
++    }
+#+END_SRC
+
+The runtime hands the version and its twitch over. The entity twitches are grafted BEFORE the datamap opens, so its steps are there to deduce (that row moves up; mine):
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/1-population.js:35
+     sets.transient,
+   ]);
++  for (const held of twitch) die.runtime.twitch.graft(held);
+   die.runtime.datamap = await datamapMode.provider(
+…
+         context: { name: `runtime/${die.mask.manifest.slug}` },
+       },
++      version: paladin.version,
+     },
+-    { entities: entities.map((descriptor) => descriptor.schema) },
++    {
++      twitch: die.runtime.twitch,
++      entities: entities.map((descriptor) => descriptor.schema),
++    },
+   );
+…
+     .use(shard.context.bind("runtime", die.runtime));
+-  for (const held of twitch) die.runtime.twitch.graft(held);
+   die.runtime.twitch.branch("/after").use(shard.datamap.detached(die.runtime.datamap));
+#+END_SRC
+
+Paladin reads the version once, at its own boot; a missing or malformed one throws there:
+
+#+BEGIN_SRC diff
+// deno.jsonc:1
+ {
++  "version": "2026.11.0",
+   "nodeModulesDir": "auto",
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/paladin/lifecycle.js:2
+ import { isAbsolute, join } from "@std/path";
++import { format, parse } from "@std/semver";
+ import { Path, Signature, v } from "@vivalence/typology";
+…
++export async function version(paladin) {
++  const root = await paladin.read.json(paladin.scope.repository.branch("deno.jsonc"));
++  paladin.version = format(parse(root.version));
++}
++
+ export function instance(paladin) {
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/mod.js:12
+ await lifecycle.scopes(paladin);
++await lifecycle.version(paladin);
+ lifecycle.instance(paladin);
+#+END_SRC
+
+The two suites that call `provider` themselves hand it both (found red by the census, mine):
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/mint.test.js:235
+-    const datamap = { mountpoint: new Path(home), statics: { db: { file: "boot.viva.db" } } };
++    const datamap = { mountpoint: new Path(home), statics: { db: { file: "boot.viva.db" } }, version: "2026.11.0" };
+     const entities = rig.assembled.entities.map((descriptor) => descriptor.schema);
+-    const boot = async () => (await provider(datamap, { entities })).orm.close();
++    const boot = async () => (await provider(datamap, { twitch: new Twitch(), entities })).orm.close();
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/runtime/composition.test.js:2
+-import { specimen, Url, Connection, shard, Path, shape, Aperture } from "@vivalence/typology";
++import { specimen, Url, Connection, shard, Path, shape, Aperture, Twitch } from "@vivalence/typology";
+…
+-    const datamap = await provider({ mountpoint: new Path(home), statics: { db: { file: FILE } } }, { entities: schemas });
++    const datamap = await provider(
++      { mountpoint: new Path(home), statics: { db: { file: FILE } }, version: paladin.version },
++      { twitch: new Twitch(), entities: schemas },
++    );
+#+END_SRC
+
+How a step is written, both signals:
+
+#+BEGIN_SRC js
+// subsystems/typology/entities/<Entity>.ts, on its `twitch` · the shape, not a hunk
+twitch.open("/before/datamap/migrate/2026.11.0", (ctx) => ctx.migrate.renaming("View", "Surface"));
+
+twitch.open("/after/datamap/migrate/2026.11.0", (ctx) =>
+  ctx.migrate.mapping("Surface", (surface) => ({
+    traits: surface.traits.map((word) => (word === "FRAME" ? "FRAMED" : word)),
+  })));
+#+END_SRC
+
+The first real step, view-to-surface's: =subsystems/typology/entities/Surface.ts= whole (=View.ts= renamed, its step on its `twitch`, the descriptor's `twitch` key) stands at =testament/prototypes/migration-plugins/typology/Surface.ts=; =.ikiro/reference/migration-twitch/surface.probe.sh= runs it through `provider`, the twitches collected off the entity descriptors, on a copy of his mount at version 0.2.0.
+
+Probe: =.ikiro/reference/migration-twitch/provider.probe.sh= drives the two datamap files through `provider` on copies of his mountpoint (the files stand at =testament/prototypes/migration-plugins/libsql/=).
+
+* milestones
+
+| what he opens | state | what is missing |
+|---|---|---|
+| a step renames a table and its entities stay | LANDED 11-23 | its test: the probes' mounts (a skipped release · a second boot · a fresh mount · a prerelease · his own) as cases of a suite beside the datamap, owed |
+| a mount that skipped releases catches up, one release at a time | LANDED 11-23 | — |
+| a step changes stored data: `sql` before, `mapping` after, entities through `ctx.em` at the current release | LANDED 11-23 | — |
+| a mount knows its version (`paladin.version`, the stamp in mikro's ledger) | LANDED 11-23 | his look: the stamp on his mount at his next start |
+| the runtime hands version and twitch to the datamap | LANDED 11-23 | — |
+| `em` is `ctx.em` in every twitch effect, a subscriber's too | LANDED 11-23 | his look; the six suites unrun since (paladin · drapes · dapper · hello-world · hallucinators · memo) |
+| both clients show the version | LANDED 11-23 | his look: drawn in neither client yet; anima needs his `:1794` restart |
+| a mode ships its own step | NOT SUPPORTED | a known issue, his settlement |
+| view-to-surface migrates by rename | DESIGNED | the real rename of the tree around the entity file, view-to-surface's own build |
+
+* both clients show the version — LANDED 11-23 on his /"land this."/ (his ask 11-23)
+
+/"the clients both read the version somewhere and display it in the interface. means paladin built in vite must have paladin.version from deno.jsonc"/ The browser's paladin takes it from the bake; each client prints it on the `client` heading of its system panel (the heading's count was empty in both; mine, said).
+
+#+BEGIN_SRC diff
+// subsystems/paladin/paladin/lifecycle.js:137
+-  return JSON.parse(JSON.stringify({ env, instance: paladin.instance, wired: { ...wired, modes: [] }, modes: wired.modes.map(citizen) }, absolute));
++  return JSON.parse(JSON.stringify({ env, version: paladin.version, instance: paladin.instance, wired: { ...wired, modes: [] }, modes: wired.modes.map(citizen) }, absolute));
+ }
+
+ export function baked(paladin, data) {
+   paladin.assign(data.env, "ledger");
++  paladin.version = data.version;
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/skins/chrome/widgets/system/system.jsx:2
+ import { fromm, is } from "@vivalence/typology";
++import paladin from "@vivalence/paladin";
+…
+-      <Heading palette={props.palette} label="client" count="" />
++      <Heading palette={props.palette} label="client" count={paladin.version} />
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/anima/src/skins/chrome/panels/sidebar/sections.js:2
+ import { belt } from "@vivalence/ghost";
++import paladin from "@vivalence/paladin";
+…
+-    sub("client", ""),
++    sub("client", paladin.version),
+#+END_SRC
+
+Run on the copy (=reference/migration-twitch/shown.build.py=): =baked.probe.js= on his localhost recipe prints `2026.11.0` on the server's paladin, in the baked data and on a browser paladin; vite 8.1.0 bundles anima (exit 0, `@std/semver` resolved by the `deno:jsr` plugin) and the built asset holds `2026.11.0`; paladin 63 passed · 1 failed (the same =vault.test.js= red) · anima =harness.skins.test.js= 1 passed · ghost red by the names it had (=shell/lifecycle.test.js= flips between runs on unchanged code). Unseen: neither panel drawn in a client; anima needs his `:1794` restart.
+
+Landed 11-23 (=shown.build.py= on the tree, three files): paladin 63 passed · 1 failed before and after (the same =vault.test.js= red) · anima =harness.skins.test.js= 1 passed · =baked.probe.js= on the tree prints `2026.11.0` three times (server · baked · browser paladin).
+
+* a mode ships its own step — NOT SUPPORTED (his settlement 11-23)
+
+/"we dont support migration from mode level today."/ Filed: =known-issues.org= `mode-level-migration-steps-are-not-heard`. The sieve graft is rejected (/"i dont like this."/); twitch composition and execution is its own design.
+
+* `em` through middleware, never through input — his rule (11-23), LANDED on his /"land this"/
+
+/"NO EM THROUGH INPUT!!! EM THROUGH MIDDLEWARE"/ · /"fork at twitch root."/ No dispatch is called with an em on its input. The subscriber takes mikro's `em` off the args and opens ITS context around the dispatch; the root middleware forks from that context:
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shape/subscriber.js
+  async function emit(phase, op, { em, ...input }) {
+…
+    await scope[phase](em, () => twitch.dispatch(signal, input))
+// subsystems/typology/prototypes/datamap.js:29
+  registerSubscriber(twitch) {
+    const scope = {
+      before: (em, task) => RequestContext.create(em, task, { keepTransactionContext: true }),
+      after: (em, task) => RequestContext.create(em, task),
+    };
+    twitch.use(datamap.forked(this));
+    this.orm.em.getEventManager().registerSubscriber(shape.subscriber(twitch, { scope }));
+  }
+// subsystems/typology/gestalten/shard/datamap.js
+export const forked = (datamap) => (ctx, next) => {
+  ctx.em = datamap.entities.em.fork({ keepTransactionContext: true });
+  return next();
+};
+#+END_SRC
+
+Run on the copy, the runtime suite each time: no context around the dispatch hangs (8 files red); the transaction kept after the write too leaves deferred effects on a committed transaction (7 red); kept before, not after: 112 passed. Builders, in order: =em.build.py= · =em.strip.py= · =em.scope.py= + the two-scope edit (=reference/migration-twitch/=); tests turned: =datamap.scoped.test.js:113= · =subscriber.test.js:56= (holds `"em" in input` false). `contexts.Twitch` names `em` and optional `migrate`. Landed with it, his package: =~/.viva/registry/stucatch/vivaware/domain/ingress.js:81= · =:93= read `ctx.em`. On the tree after: zero `input.em`, typology 168 passed, runtime 111 passed · 1 failed (=harness.metadata.snapshot.test.js=, `"$id": "ID"` in the strip: the typed-schematics session's `v.js`, not this pass; 112 on the copy), ghost 5 failed, a subset of the 6 before. =contexts.js= took the two edits on the sibling session's version (its import line kept). REJECTED, never again: an em on the input that a middleware lifts or strips.
+
+* measured on prod (11-23, read-only)
+
+`Turn.parts` holding `"media"`: 0 of 52, so no data step for it. 17 `View`, 0 `buffer_views`, 3 migrations, the last =Migration20261118150121=, none stamped: prod reads as `0.0.0` and hears every step. Every trait word stored there is in today's vocabularies; `Mode` holds `VIEWABLE` 15 · `HARNESSED` 11 · `CONVERSATIONAL` 7, turned by the mirror at each mode's boot (=mode/lifecycle/1-population.js:70=).
+
+A stored trait word: `traits` is a json column, so a renamed or dropped word is no schema change, mikro generates nothing, the word stays and `belt.traits.cast` throws at load (=typology/gestalten/belt/traits.js:38=). A step is its migration: `ctx.migrate.mapping("<Entity>", …)`.
+
+* run on a booted runtime (11-23)
+
+=reference/migration-twitch/boot.probe.js= on a copy of the tree built by the replay (=replay.sh=: 11 hunks, 5 files, equal to the booted copy) + a probe step on `View` (=boot.build.py=), the rig of =systems/runtime/tests/scenarios/hello.js=, a free port:
+
+| boot | migrations after | steps heard |
+|---|---|---|
+| a fresh mount | `…_vivalence@2026.11.0` | 0 |
+| the same mount again | the same one | 0 |
+| an unstamped mount, prod's shape | + `…_vivalence@2026.11.0` | before · after of `2026.11.0` |
+| the repo moves to `2026.11.1` | + `…_vivalence@2026.11.1` | before · after of `2026.11.1` |
+
+`/beacon/status` 200 `RUNNING` after the fourth; `viva --help` exits 0 on the copy; a malformed version throws at paladin's boot (`Cannot parse version`).
+
+Found by the first run, fixed, mine: a before-step was heard by a FRESH mount, and would be heard again at every schema change inside one version. A before-step is now heard only by a mount that arrives at the release (`migrate.before(read, arrived)`); the five mounts of =provider.probe.sh= and =surface.probe.sh= rerun equal (19 · 22 · 336 kept).
+
+* never
+
+- a table of releases beside the steps.
+- a hand-written migration in a mount.
+- the version in typology; a version per package (the name carries the owner, a second owner adds, never rewrites).
+- sqlite's tools imported into typology: the datamap hands them on `ctx.migrate`.
+- `em` on the input.
+- a special function per data operation (`traitRenaming`); a guard tool nobody asked for (`empty`).
+- a dedicated migration trait, until it splits.
+- VCS writes; product code before his go.
+
+What the structure does not give: a skipped release holds only what its own steps did. Entity code works at the current release only, the classes are today's; `mapping` and `sql` name tables and hold at any release. `down` in a rewritten migration is wrong, boot never runs it.
+
+* next
+
+view-to-surface's entity pass on top (its own go); then his test: localhost, then prod. After: the `ctx.em` pass on his root-fork design. The `ear` locals in =typology/prototypes/twitch.js= are cut (his /"3 amen. cut ear"/).
+
+The test that closes it, his: /"test criteria will be to run this against localhost and then prod runtime."/ Localhost first: his `:2501` mount boots through the landed code, its entities kept, one migration stamped. Then the prod runtime the same.

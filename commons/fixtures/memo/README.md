@@ -13,7 +13,7 @@ domain/                      @memo/domain/srs — EXPOSED · TOOLING, the daemon
   traits/literal/            RETAINED: feed · novel · due · byStrength · byStatus · sample · leeches · review · preview · history
                              TRANSLATED (the agent card, text search) · EXEMPLIFIED · RANKED · VOCALIZED · DEPICTED
   traits/note/               RETAINED (the driver's state, evolve, due, byStrength, traces, assess) · TRACED · SUSPENDED
-  card.js                    one projection of a literal and its notes, for every deal and both views
+  card.js                    one projection of a literal and its notes, for every deal and both surfaces
   aperture/                  /pick/literal/* · /review/literal · /preview/literal · /history/literal · /suspend/literal · /resume/literal
   tools/                     srs_lookup · srs_sentences · srs_topics · srs_history · srs_leeches · srs_suspend · srs_resume
   harness.js                 the SRS vocabulary, for every HARNESS mode on the daemon
@@ -21,14 +21,14 @@ dataset/                     @memo/topography/latin — DATASET · FILESET
   entities/                  219 words, 50 sentences, 242 symbols, authored in words.js · sentences.js · symbols.js
   files/                     10 voices (sentences), 10 pictures (nouns) — placeholders; FILESET records each as a File row
 mode/                        @memo/srs/memo — APPLICATION · EMITTER · EXPOSED · HARNESS · CONVERSATION · TOOLING
-  memo.viva.js               the App: the tty view and the tablet, one buffer schema
+  memo.viva.js               the App: the tty surface and the tablet, one buffer schema
   aperture.js                /deck · /grade · /stats · /chat
   emitter.js                 /session — deals a deck as a buffer on the thread
   tools/                     review · grade · progress · add · explain · session — the Magister's loop
   harness.js · hal/          the Magister, the language, today's briefing per dialogue
-  buffer/memo.jsx            the tty view: tab reveals, 1 again · 2 hard · 3 good · 4 easy, each with its horizon
+  buffer/memo.jsx            the tty surface: tab reveals, 1 again · 2 hard · 3 good · 4 easy, each with its horizon
   buffer/Memo.svelte         the tablet: Iterum · Durum · Bene · Facile, voice and picture
-tests/                       sm2 · dataset · memo (the card, the tty view by keys, the tablet compiled)
+tests/                       sm2 · dataset · memo (the card, the tty surface by keys, the tablet compiled)
 ```
 
 ## The scheduler

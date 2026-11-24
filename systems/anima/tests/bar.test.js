@@ -1,6 +1,6 @@
 import { specimen, Vector } from "@vivalence/typology";
 import * as ghost from "@vivalence/ghost";
-import { fire, paint, settle, surface, world } from "./world.js";
+import { fire, paint, settle, skin, world } from "./world.js";
 import { oracle, shaped } from "../../../subsystems/drapes/tests/scenarios/shape.js";
 
 const DESIGN = `<button class="mark open" data-fn="mark" aria-label="vivalence" title="once: keys · twice: repl · hold: sidebar"><span class="viket" style="width:20px;height:20px" aria-hidden="true"></span></button>
@@ -23,8 +23,8 @@ const seated = async () => {
   held.activate();
   held.entities.mode.$entities.get()[0].repl = new Vector();
   held.entities.mode.$entities.get()[0].daemon = null;
-  held.terminal.repl.commands = new Vector().graft(ghost.commands.surface.dock, ghost.commands.content.harness);
-  const rig = paint(() => [surface.Bar({ client: held.client }), surface.Panel({ client: held.client }), surface.Wid({ client: held.client }), surface.Pop({ client: held.client })]);
+  held.terminal.repl.commands = new Vector().graft(ghost.commands.skin.dock, ghost.commands.content.harness);
+  const rig = paint(() => [skin.Bar({ client: held.client }), skin.Panel({ client: held.client }), skin.Wid({ client: held.client }), skin.Pop({ client: held.client })]);
   await settle();
   const close = () => rig.close();
   return { ...held, rig, close };
@@ -33,7 +33,7 @@ const seated = async () => {
 specimen.describe("bar — Dom.bar: the mark and six segments; a segment opens its .wid; the mark is keys · repl · sidebar", () => {
   specimen.it("the class tree is the design's", async () => {
     const { rig, client, close } = await seated();
-    client.surface.$sidebar.set(true);
+    client.skin.$sidebar.set(true);
     await settle();
     const nav = rig.target.querySelector("nav.modebar[data-zone='0'][aria-label='mode bar']");
     specimen.expect(shaped(nav)).toBe(oracle(DESIGN));
@@ -60,13 +60,13 @@ specimen.describe("bar — Dom.bar: the mark and six segments; a segment opens i
     const harness = rig.target.querySelector(".seg[data-arg='harness']");
     fire(harness, "click");
     await settle();
-    specimen.expect(client.surface.wid.id).toBe("harness");
+    specimen.expect(client.skin.wid.id).toBe("harness");
     specimen.expect(harness.classList.contains("open")).toBe(true);
     specimen.expect(harness.getAttribute("aria-expanded")).toBe("true");
     const wid = rig.target.querySelector(".wid[data-zone='0'][role='dialog'][aria-label='harness']");
     specimen.expect(rig.target.querySelector(".scrim")).not.toBe(null);
     specimen.expect(shaped(wid).startsWith(`div.subj(div.subjh(span.t("harness")) div.subjb(div.choice.srow(span.cl("tier")`)).toBe(true);
-    specimen.expect(wid.getAttribute("style")).toBe(`left:8px;bottom:${client.surface.height + 6}px;width:320px;max-height:180px`);
+    specimen.expect(wid.getAttribute("style")).toBe(`left:8px;bottom:${client.skin.height + 6}px;width:320px;max-height:180px`);
     fire(wid.querySelector("[data-line='/effort high']"), "click");
     specimen.expect(sent).toEqual(["/effort high"]);
     fire(rig.target.querySelector(".scrim"), "click");
@@ -75,7 +75,7 @@ specimen.describe("bar — Dom.bar: the mark and six segments; a segment opens i
     fire(harness, "click");
     fire(harness, "click");
     await settle();
-    specimen.expect(client.surface.wid).toBe(null);
+    specimen.expect(client.skin.wid).toBe(null);
     await close();
   });
 
@@ -84,7 +84,7 @@ specimen.describe("bar — Dom.bar: the mark and six segments; a segment opens i
     const display = rig.target.querySelector(".seg[data-arg='display']");
     fire(display, "pointerdown", { clientX: 900, clientY: 780 });
     await wait(450);
-    specimen.expect(client.surface.pop).toEqual({ x: 900, y: 780 });
+    specimen.expect(client.skin.pop).toEqual({ x: 900, y: 780 });
     const pop = rig.target.querySelector(".pop[data-zone='0'][role='dialog'][aria-label='display']");
     specimen.expect(pop.getAttribute("style")).toBe("left:760px;top:612px");
     specimen.expect(shaped(pop)).toBe(`div.dset(div.views(button.cur(svg.dispg) button(svg.dispg) button(svg.dispg) button(svg.dispg)) div.aligns(button("←") button.cur("→") button("↑") button("↓")) div.shrow(button("−") span.slider.track(span.fill span.sv("38 %")) button("+")))`);
@@ -95,12 +95,12 @@ specimen.describe("bar — Dom.bar: the mark and six segments; a segment opens i
 
   specimen.it("the mark: one tap opens the leader's keys; a double tap the palette; a hold the sidebar; a tap with anything open closes all", async () => {
     const { rig, client, close } = await seated();
-    client.surface.$sidebar.set(false);
+    client.skin.$sidebar.set(false);
     await settle();
     const mark = () => rig.target.querySelector(".mark");
     specimen.expect(mark().className).toBe("mark");
     fire(mark(), "click");
-    await wait(surface.TAP + 40);
+    await wait(skin.TAP + 40);
     specimen.expect(client.terminal.legend.presses.backlog.map((signal) => signal.nature)).toEqual(["leader"]);
     specimen.expect(mark().className).toBe("mark open");
     specimen.expect(shaped(rig.target.querySelector("section.panel[data-zone='0']"))).toBe(oracle(KEYS));
@@ -121,11 +121,11 @@ specimen.describe("bar — Dom.bar: the mark and six segments; a segment opens i
     await settle();
     specimen.expect(client.terminal.repl.catalog).toBe(null);
     fire(mark(), "pointerdown");
-    await wait(surface.MARK_HOLD + 40);
+    await wait(skin.MARK_HOLD + 40);
     fire(mark(), "pointerup");
     fire(mark(), "click");
-    await wait(surface.TAP + 40);
-    specimen.expect(client.surface.sidebar).toBe(true);
+    await wait(skin.TAP + 40);
+    specimen.expect(client.skin.sidebar).toBe(true);
     specimen.expect(client.terminal.legend.chord).toBe(null);
     await close();
   });

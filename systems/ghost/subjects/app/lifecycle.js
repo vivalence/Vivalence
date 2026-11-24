@@ -1,7 +1,7 @@
 import { Vector, shard } from "@vivalence/typology";
 
 export const bundle = async (appDie, next) => {
-  const written = await appDie.surface.bundle();
+  const written = await appDie.skin.bundle();
   appDie.controller.stdout.log({ bundle: written.outfile, bytes: written.bytes });
   await next();
 };
@@ -19,7 +19,7 @@ export const client = async (appDie, next) => {
 };
 
 export const mount = async (appDie, next) => {
-  const unmount = await appDie.surface.mount(appDie);
+  const unmount = await appDie.skin.mount(appDie);
   try {
     await next();
   } finally {

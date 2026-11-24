@@ -42,7 +42,7 @@
     gap: 1.5rem;
     height: 100%;
     min-height: 100svh;
-    background: var(--surface-sunk);
+    background: var(--plane-sunk);
     opacity: 0;
     transition: opacity 0.6s ease;
   }

@@ -103,6 +103,12 @@ const SAID = {
   log: (data) => LOGGED.find(([test]) => test(data))[1](data),
   entity: (data) => `${data.schema} ${data.id}`,
   status: (data) => data.code,
+  usage: (data) =>
+    [
+      Object.values(data.subject).join(" "),
+      data.state ?? "…",
+      ...data.measures.map((measure) => `${measure.name} ${measure.amount} ${measure.unit}`),
+    ].join(" · "),
 };
 
 const KIND = {

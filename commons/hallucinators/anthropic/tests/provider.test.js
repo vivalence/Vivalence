@@ -214,7 +214,7 @@ specimen.describe("anthropic provider", () => {
       specimen.expect(turn.parts).toEqual([{ type: "text", text: "hello" }]);
       specimen.expect(turn.meta).toEqual({
         state: "complete",
-        usage: { input: 1, output: 2 },
+        usage: [{ name: "input", unit: "tokens", amount: 1 }, { name: "output", unit: "tokens", amount: 2 }],
         provider: {
           stop_reason: "end_turn",
           model: "claude-opus-4-6",
@@ -353,7 +353,7 @@ specimen.describe("anthropic provider", () => {
             turn: {
               meta: {
                 state: "complete",
-                usage: { input: 7, output: 3 },
+                usage: [{ name: "input", unit: "tokens", amount: 7 }, { name: "output", unit: "tokens", amount: 3 }],
                 provider: { stop_reason: "end_turn", usage: { input_tokens: 7, output_tokens: 3 } },
               },
             },

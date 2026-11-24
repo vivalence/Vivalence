@@ -25,7 +25,7 @@
     user-select: none;
   }
   .empty.dashed {
-    background: var(--surface-sunk);
+    background: var(--plane-sunk);
     box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
     border-radius: var(--shape-radius-card);
   }

@@ -15,7 +15,7 @@ export * from "./Buffer.ts";
 export * from "./Thread.ts";
 export * from "./Turn.ts";
 export * from "./Note.ts";
-export * from "./View.ts";
+export * from "./Surface.ts";
 export * from "./File.ts";
 export * from "./Activity.ts";
 
@@ -31,7 +31,7 @@ import thread from "./Thread.ts";
 import turn from "./Turn.ts";
 import buffer from "./Buffer.ts";
 import note from "./Note.ts";
-import view from "./View.ts";
+import surface from "./Surface.ts";
 import file from "./File.ts";
 import activity from "./Activity.ts";
 
@@ -44,6 +44,6 @@ export const sets = {
   identity: { user, authenticator, terminal },
   composition: { daemon, mode },
   traits: { literal, symbol, note, mode },
-  userspace: { intent, thread, turn, buffer, note, view, file },
+  userspace: { intent, thread, turn, buffer, note, surface, file },
   transient: { activity },
 };

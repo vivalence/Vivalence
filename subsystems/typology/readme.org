@@ -17,7 +17,7 @@ primitives come first.
 with those we describe things' gestalt, effectively as jsonschema.
 we construct things as prototypes.
 all of it is cast in types,
-and composed for use by vectors and for interfaces by views.
+and composed for use by vectors and for interfaces by surfaces.
 (@beef WRONG:)gestalt are system level entities. not composites, but destinations.
 
 most things in viva are a memetic symbol first, and implementation detail later. 
@@ -32,7 +32,7 @@ gestalt provides libraries for working on gestalt level. `cast` and `is` are con
 
 these types serve as the point of integration and thus source of coherence across the system.
 
-in interfaces and clients both primitives and gestalt are expressed as variant views.
+in interfaces and clients both primitives and gestalt are expressed as variant surfaces.
 all ontological dimensions, and thus all properties of our literals and symbols are expressed implementing the typology. string values, annotations, data dimensions. all of it.
 
 

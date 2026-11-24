@@ -1,53 +1,88 @@
 ---
 name: quest
-description: >-
-  Write a quest beef accepts, sunset or revive it by `mv`, lift `* release` into the interface ledger, file
-  outliving defects in the OPEN-only known-issues — never a quest section.
+description: Write a quest he accepts, move it when it ends, record interface changes in the release file, file defects in known issues.
 when_to_use: >-
-  "write a quest" · "crystallize this" · "add this to the quest" · "update the quest" · a drill's locks about to land in one · design settled, code unauthorized · closing a quest ·
-  "sunset this quest" · "revive <quest>" · "bench it" · urge to rm a quest · `* release` · `release.md` ·
-  "cut a release" · tags vs jj bookmarks · "mark as known issue" · "known issues!" · a defect outside the quest ·
-  a pass's base-tree red · a fix needing his ruling · "mark the issue itself without your approach".
+  "write a quest" · "create a quest" · "add this to the quest" · "update the quest" · "cast to quest" ·
+  "move to done" · "sunset this quest" · "bench it" · "mark as known issue" · "known issues!"
 ---
-<!-- limit: 7600 chars -->
-# quest — the decision trail
-## author
-Head: `#+title: <name>` · `#+filetags: :<tags>:` · `#+status: <ONE line, what IS, his /"…"/>` rewritten WHOLE each land · `mv`.
-Organs: `* intent` (beef VERBATIM) · `* the dialogue` (his turn + my code) · `* terrain — measured` · rulings (rule 1) · `* the law` · `* deliverables` · `* milestones` (capabilities, each green, each named for what HE opens, never a mechanism noun of mine: 11-20 `the freight` /"i dont understand freight."/) · `* blast table` (+ `~/.viva`; BREAKS: now | at land; consumers = the grep's, rigs · seeds · pinned lists too (11-06 · 11-14)) · `* testing assessment` (`COVERAGE GAP:`) · `* QA` (/"I type X, I see Y"/ + `#+marker_qa: <quest>/<T|P>-<slug> · pending · <what>`, → `held | broken | revised`) · `* deferred` · `* changelog` (each go verbatim; pasted counts, attributed reds; departures `mine, reported`) · `* release` · `* handoff`.
-Tangle: new files whole; edits = `#+BEGIN_SRC diff` hunks (`apply-diffs.py` lands): line 1 `// <path>:<line>`, `…` between sub-hunks, one file a block, old rows exact, a blank context row EMPTY (the Edit tool strips a lone space), each NEW hunk dry-run on a copy the turn it is written (11-20 an anchor matching twice · a `const` read above its row, both found hours later), a `…` inside one a wildcard (a word-guard cut, 11-09; REJECTED `@@`), a hunk that opens on a blank row and deletes to the file's END leaves one blank (the replay trims a trailing blank pair): anchor it on the row above (11-21); a copy that lives only in a scratchpad is TANGLED before a walk opens on it, its builder · probes · land scripts in `.ikiro/reference/<quest>/`: the scratchpad can be withdrawn mid-session, the replay rebuilt the copy (11-21); a move = a `Moves` row, `mv` first, block on the NEW path; the tangle IS the filesystem: `***` system · `****` dir · `*****` file, `ls` order, each file naming its source (REJECTED 10-12).
-his corrections:
-1. /"gimme table high level serialized enums numbers. then in depth sections!"/ — no prose in cells; a ruling row = his words only, its hunk under `* as code`, no REJECTED trail — /"full of code, not full of yap"/. Terrain + questions = verbatim fences (/"all yap and no code. idiot"/); a quoted dead-word line → `…`.
-2. grep the quest for new `@beef` marks each reply; marks survive re-cuts VERBATIM (/"dont cut my comments idiot"/); treated → prepend `// -- `.
-3. over cap: RAISE `limit:`, keep the quest together; never a new side file (11-19 /"dont keep creating new peripheral files. instead, adjust limits"/), never a cut. REJECTED 10-12 /"nonono dont cut."/ · 10-20 /"not just my yap also your code"/
-4. never shorthand (M2, MP) — nouns, paths; a milestone is a NOUN; numbering is his.
-5. a decision carries `quest.org:LINE` + `file:LINE`, grepped.
-6. a killed name — his, or a sibling's ruled death — leaves every block that turn (REJECTED 10-23 `/chrome/on`: /"there is no chrome on/off atm"/). A re-tangle replays EVERY ruling on every block; a relabeled header is no rewrite. An edit anchors a line-start heading, never a bare name (m118 shred 11-09).
-7. a fork is his only when it changes product shape or ontology (rig · tests · staging · provider: mine, /"your judgement calls."/); asked as a question, ruled → the tangle that turn, unruled → `* deferred`, never a `* forks` list (/"you never resolve forks do you"/).
-Before ready: a sibling's block moves there (10-24 /"double work"/) · `grep -n 'marker_qa' <quest>` · `quests/index.md` · critical pass (skill `change`) per hunk before TANGLED · blocks replay on a copy (`--root`). Replay ≠ PROVEN: WHOLE census, serial, on the landing tree; land on the repo AS IT STANDS (drift → `diff3 -m`); `cmp` landed files to the sandbox before any suite (11-09 a `…` context row landed literal).
-## lifecycle
-/"quests get sunset, rarely deleted."/
+<!-- limit: 4200 chars -->
+# quest — a design he ruled, as code
+
+## what a quest holds
+
+```org
+#+title: <name> — <one line>
+#+status: <one line: what is true now>
+
+* intent        his words, verbatim
+* rulings       a table: his words, the state
+* as code       the approved code, as diffs
+* milestones    a table: what he can open, its state
+* never         what was ruled out
+* next          one line
+```
+
+- Milestone states: `DECLARED` · `DESIGNED` · `TANGLED` · `LANDED`.
+- A milestone is what he opens, an area is its directory. Never a mechanism.
+- A ruling row holds his words only. Its code sits under `* as code`.
+- No changelog, no transcript, no done list, no test count table.
+- Nothing about one moment of the machine: no pid, no restart, no clock time, no session.
+- No shorthand. Nouns and paths.
+- A name he killed leaves every block that turn.
+- His `@beef` marks in a quest are never cut or reworded.
+- A fork is his only when it changes the product's shape or its names. The rest I decide and say in one line.
+
+## as code
+
+- A new file is shown whole.
+- An edit is a diff block. Line one is `// <path>:<line>`. Old lines are exact.
+- Each new diff is replayed on a copy the turn it is written:
+
+```sh
+python3 .ikiro/methods/apply-diffs.py --root <copy>
+```
+
+- The scripts and probes of a quest live in `.ikiro/reference/<quest>/`.
+
+## where a quest lives
+
 ```
 .ikiro/quests/
-  <live>.org in flight
-  done/ landed AND verified
-  discarded/ sunset unlanded
-  benched/ parked, reopen trigger
-  roadmap/ his strands, no milestone
-  index.md a line a quest
+  <live>.org    in flight
+  done/         landed and verified
+  discarded/    stopped, not landed
+  benched/      parked
+  roadmap/      his strands, no milestone yet
+  index.md      one line per quest
+  frontier.md   one line per live quest: name, state, next
 ```
-0. work without a quest → a NEW live quest (UNNUMBERED till `number it` · `indexed`; a sibling's quest absorbs it, /"idiot. combine!"/) before its first ruling; `done/` gets a pointer (/"why are we in m87??"/).
-1. gate `landed` · `done/`: no red of mine, his look in (/"quest is done??"/ 11-12), no `pending` marker — MY walk (REJECTED 10-24 listed as owed); `broken` → skill `fold`; `* release` LIFTED; open tails BY NAME → live quest | known-issues.
-2. `mv`, never `git mv` · `rm`; epitaph in `index.md`.
-3. drop its frontier line; grep live canon for the old path.
-Never move a live session's quest. Revive read-only: `git log --diff-filter=D --name-only -- '.ikiro/quests'` · `git show <del-commit>^:<path>`; DONE → `done/`, mid-design → `discarded/`, WHOLE on today's shape (rule 2).
-## release — the interface ledger
-/"its time that we start thinking in changelogs. how did the interfaces actually change?"/ `.ikiro/release.md`, reverse-chron, `## unreleased` accumulates; non-empty sections in order: `###` cli · route · api · entity · env · other.
-Line: - <verb> `<surface>` — <what a consumer sees, before → after> · migrate: <action | none> ⟨<quest>⟩; verb ∈ `added · changed · renamed · removed · fixed`; `migrate:` real when breaking.
-Cut (his `!`): a release hangs on a TAG, never a bookmark: `jj git push` · `gh release create v0.1.0-alpha.1 --prerelease --target <sha> --notes-file notes.md` (never `@alpha`, no `--generate-notes`).
-## known issues — OPEN only
-/"this got nothing to do with this quest. i said known issues!"/ `grep -n '^\* ' .ikiro/known-issues.org` first — a duplicate appends.
-A base-tree red with a named cause is filed that turn, never offered (REJECTED 10-23: /"i assume all teh bugs … are in the quest?"/).
-Shape: `* <slug> — OPEN` › `**` Symptom · Root cause · Evidence · Ruling · Why not fixed · Workaround.
-- /"mark the issue itself without your approach"/ → the issue + his REJECTED approach, none of mine.
-- resolved is CUT.
-- `* deferred` = in scope later; a known issue = a live defect nobody fixes.
+
+- Work without a quest gets a new one before its first ruling. It has no number until he gives one.
+- A quest moves to `done/` when nothing of mine is red and he has looked.
+- Move with `mv`. Never delete a quest. Then fix its line in `index.md` and drop its frontier line.
+- Never move a quest a live session works on.
+
+## release
+
+`.ikiro/release.md` records how the interfaces changed. Newest first, under `## unreleased`.
+
+```md
+- <added|changed|renamed|removed|fixed> `<surface>` — <what a consumer sees, before → after> · migrate: <action | none>
+```
+
+A release hangs on a tag. He cuts it. The cut itself: skill `cut`.
+
+## known issues
+
+A defect outside the quest goes to `.ikiro/known-issues.org` that turn. Grep for a duplicate first.
+
+```org
+* <slug> — OPEN
+** Symptom
+** Root cause
+** Evidence
+** Workaround
+```
+
+- A resolved issue is cut.
+- "mark the issue without your approach": the issue only, none of my fixes.

@@ -1,0 +1,67 @@
+  .pin-lines {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .pin-lines line {
+    stroke: var(--ink);
+    stroke-width: 1.2;
+  }
+  .pin-lines circle {
+    fill: var(--paper);
+    stroke: var(--ink);
+    stroke-width: 1.2;
+  }
+  .pin {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    max-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 4px 8px;
+    border: 1px solid var(--ink);
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 11.5px var(--font-family-body);
+    line-height: 1.35;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .pin.label {
+    white-space: nowrap;
+  }
+  .pin.tip {
+    background: var(--tip-surface);
+    border-color: var(--tip);
+  }
+  .pin.warning {
+    background: var(--warn-bg);
+    border-color: var(--warn-edge);
+    color: var(--warn-ink);
+  }
+  .pin-thumbs {
+    display: flex;
+    gap: 4px;
+  }
+  .pin-thumb {
+    width: 54px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid var(--hair);
+    border-radius: 3px;
+    overflow: hidden;
+    cursor: zoom-in;
+    pointer-events: auto;
+    background: var(--paper);
+  }
+  .pin-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }

@@ -1,6 +1,6 @@
 import { specimen } from "@vivalence/typology";
 import { mime } from "@vivalence/typology";
-import { fire, paint, settle, surface, world } from "./world.js";
+import { fire, paint, settle, skin, world } from "./world.js";
 
 const LEAVES = ["tabs", "sidebar", "modebar", "fhead", "fbody", "dhead", "journal", "textarea", "panel", "strip"];
 
@@ -23,7 +23,7 @@ const BUFFER = {
   mode: "chess/chess",
   traits: ["LABELED"],
   trait: { LABELED: { name: "board" } },
-  views: [],
+  surfaces: [],
   files: [],
   $data: { get: () => ({ turn: "w" }), subscribe: (listener) => (listener({ turn: "w" }), () => {}) },
 };
@@ -35,7 +35,7 @@ const seated = async (dock, buffer = null) => {
   held.terminal.dock = { ...held.terminal.dock, ...dock };
   held.terminal.$buffer.set(buffer);
   held.activate();
-  const rig = paint(() => surface.Chrome({ client: held.client }));
+  const rig = paint(() => skin.Chrome({ client: held.client }));
   await settle();
   const root = () => rig.target.querySelector(".client");
   return { ...held, rig, root };
@@ -152,7 +152,7 @@ specimen.describe("anima regions — the design's skeleton (dom.js skeleton) ove
     specimen.expect(bones(root())).toBe(ORACLE.minimised);
     specimen.expect(root().querySelector(".dhead .dl").textContent).toBe("first words");
     specimen.expect(root().querySelector(".dhead [aria-label='restore']").getAttribute("title")).toBe("restore · /dock/min");
-    specimen.expect(client.surface.float[terminal.id]).toEqual({ float: null, min: true });
+    specimen.expect(client.skin.float[terminal.id]).toEqual({ float: null, min: true });
     specimen.expect(sent).toEqual([]);
     rig.close();
   });
@@ -166,19 +166,19 @@ specimen.describe("anima regions — the design's skeleton (dom.js skeleton) ove
     fire(globalThis.window, "pointermove", { clientX: 500, clientY: 90 });
     fire(globalThis.window, "pointerup", { clientX: 500, clientY: 90 });
     await settle();
-    specimen.expect(client.surface.float[terminal.id].float).toEqual({ x: 400, y: 80, w: 380, h: 480 });
+    specimen.expect(client.skin.float[terminal.id].float).toEqual({ x: 400, y: 80, w: 380, h: 480 });
     specimen.expect([dock.style.left, dock.style.top, dock.style.width, dock.style.height]).toEqual(["400px", "80px", "380px", "480px"]);
     fire(root().querySelector(".dgrip.bottom.right"), "pointerdown", { clientX: 780, clientY: 560 });
     fire(globalThis.window, "pointermove", { clientX: 2000, clientY: 2000 });
     fire(globalThis.window, "pointerup", { clientX: 2000, clientY: 2000 });
     await settle();
-    specimen.expect(client.surface.float[terminal.id].float).toEqual({ x: 400, y: 80, w: 600, h: 520 });
+    specimen.expect(client.skin.float[terminal.id].float).toEqual({ x: 400, y: 80, w: 600, h: 520 });
     rig.close();
   });
 
   specimen.it("phone: one pane by $phonePane — dock (the frame as a strip), frame (a back button), sidebar; no tabs, no seams", async () => {
     const { rig, root, client, sent } = await seated({ view: "docked" }, BUFFER);
-    client.surface.$narrow.set(true);
+    client.skin.$narrow.set(true);
     await settle();
     specimen.expect(bones(root())).toBe(ORACLE.phoneDock);
     specimen.expect(root().querySelector(".split").style.flexDirection).toBe("column");
@@ -186,14 +186,14 @@ specimen.describe("anima regions — the design's skeleton (dom.js skeleton) ove
     specimen.expect(root().querySelector("[data-r='strip']").innerHTML).toBe('<button type="button" class="strip" title="open the frame"><span class="l">◆ board</span><span class="muted">chess/chess</span><span class="o">⤢</span></button>');
     fire(root().querySelector(".strip"), "click");
     await settle();
-    specimen.expect(client.surface.phonePane).toBe("frame");
+    specimen.expect(client.skin.phonePane).toBe("frame");
     specimen.expect(bones(root())).toBe(ORACLE.phoneFrame);
     const back = root().querySelector(".fhead .back");
     specimen.expect(back.getAttribute("aria-label")).toBe("back to the journal");
     fire(back, "click");
     await settle();
-    specimen.expect(client.surface.phonePane).toBe("dock");
-    client.surface.$phonePane.set("sidebar");
+    specimen.expect(client.skin.phonePane).toBe("dock");
+    client.skin.$phonePane.set("sidebar");
     await settle();
     specimen.expect(bones(root())).toBe(ORACLE.phoneSidebar);
     specimen.expect(sent).toEqual([]);
@@ -207,10 +207,10 @@ specimen.describe("anima regions — the design's skeleton (dom.js skeleton) ove
     sized(root().querySelector(".body"), { left: 0, right: 1280, top: 0, bottom: 700, width: 1280, height: 700 });
     fire(seam, "pointerdown", { clientX: 272, clientY: 0 });
     fire(globalThis.window, "pointermove", { clientX: 300.4, clientY: 0 });
-    specimen.expect(client.surface.sidebarWidth).toBe(300);
+    specimen.expect(client.skin.sidebarWidth).toBe(300);
     fire(globalThis.window, "pointermove", { clientX: 900, clientY: 0 });
     fire(globalThis.window, "pointerup", { clientX: 900, clientY: 0 });
-    specimen.expect(client.surface.sidebarWidth).toBe(480);
+    specimen.expect(client.skin.sidebarWidth).toBe(480);
     rig.close();
   });
 });

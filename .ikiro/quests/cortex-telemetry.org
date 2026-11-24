@@ -1,0 +1,210 @@
+#+title: cortex telemetry — the cortex meters every hallucination onto a =usage= track
+#+filetags: :cortex:telemetry:usage:meter:span:track:hallucination:measure:
+#+status: LANDED 11-24 — milestones 1–4 and the screen half of 5 on the tree; no real call seen yet (=:2501= down)
+# writer: agent · limit: 19000 chars
+# LANDED 11-23 on his /"lets land what we can"/, 10 product files in one pass + 4 follow-up saves on =belt/hallucinate.js= · =hallucination.js= (the watch-guard warned on the last): =subsystems/typology/schematics/primitives/track.js= · =hallucination.js= · =gestalten/belt/hallucinate.js= · =subsystems/paladin/prototypes/telemetry.js= (=SAID.usage=) · =commons/hallucinators/{openrouter,anthropic}/provider/translate.js= · =commons/fixtures/testing/hal/stub/provider/index.js= · =commons/fixtures/testing/data/faculties.js= · =systems/anima/src/skins/chrome/panels/sidebar/sections.js= · =panels/telemetry/entities.js=; 10 test files respelled, 4 translate snapshots regenerated (their diff was the receipt only). Suites after = baseline: typology 168 ok · openrouter 4 ok · anthropic 4 ok · runtime 111 ok, 1 red (=harness.metadata.snapshot=, there before: the =ID= scalar is not in its pin) · anima aborts at load before and after (=known-issues.org:182=). The before-copies: =scratchpad/before/=. Two defects the suites caught in my meter, fixed: a part that is neither text nor input is now uncounted (it threw), audio counts seconds only when its =codec= starts =pcm_= (it threw on other data).
+
+* goal
+
+His 11-23: the cortex captures a live speed index per provider · model · faculty · channel. Metering runs INSIDE the hallucination, our own count, streams and intermediates, every faculty. It is written to the controller's stdout span on a track =usage=. The provider's tokens are one more metric, written when the call is done. Activity publishes it later; persistence later. /"elegant, simple, and obvious"/.
+
+* rulings
+
+| # | ruling | his words | state |
+|---|---|---|---|
+| R1 | the meter is ours, inside the loop; the provider's count is not relied on | /"our own assessments that run inside of the loop itself"/ | ruled |
+| R2 | tokens are a property, not a caveat: one more metric, written at close, same span | /"just that it's like written at a specific point, namely when it's done"/ | ruled |
+| R3 | ={ input, output, cost }= is called =Usage= and is defined in =track.js=; =hallucination.js= imports it | /"the other way round. usage comes from track."/ · /"ITS CALLED 'Usage'!"/ · /"amen"/ | amen |
+| R4 | =usage= never enters =prototypes/span.js=; STANDARD keeps eight; the meter grafts its own track inline | /"IT DOES NOT BELONG IN SPAN PROTOTYPE!"/ | ruled |
+| R5 | no tag, no union on the record; =state= present means closed | /"i dont like this style. form either."/ · /"a looks better."/ | ruled |
+| R6 | the round log stays; the closed row is ONE chain =span.log(…).usage(…)= | /"spans are chainable and thats on purpos. amen."/ | amen |
+| R7 | a snapshot fence is headed by the TYPE name and its destination file, never the probe path | /"these two comments are shit"/ | ruled |
+| R8 | usage is set up to express everything: llm, server, realtime | /"i want usage to be setup to express pretty much everything"/ · on the first cut /"looks great."/ then /"think again. is this the design?"/ | OPEN |
+| R9 | timings are measures; a measure has a =name=, =unit= optional; envelope loses =elapsed= · =first= | /"how about this as measures?"/ · /"amen"/ | amen |
+| R10 | =flow= dies: =name= says what (=input= · =output= · =elapsed= · =first= · =cost=), =unit= says in what (=tokens= · =chars= · =ms= · =usd=) and is required; a limit carries the =name= it bounds | /"duplication of the issue you just solved with two names."/ · his paste of the snapshot + /"amen."/ | amen |
+| R11 | the record is =Usage=; the receipt ={ input, output, cost }= dies; =turn.meta.usage= is =Measure[]=; the old receipt is one more dialect =Meta.decode= heals on load; R3's move is undone | /"show me b in more detail"/ · /"amen"/ | amen |
+| R13 | one record per provider call; =channel= is a key on a measure, never the record's cut (=usage.snapshots.probe.js=) | /"amen"/ 11-23 | amen |
+| R14 | =USAGE= is =record(Usage)=, exported from =span.js=; the meter grafts it, not its seven callers; =respond= closes each round in =finally=, the =log= · =usage= chain whole, so an abort writes both. Exact diff, 3 files: =reference/cortex-telemetry/h1-h3.diff=; LANDED 11-24 + a third journal respelled (=systems/runtime/tests/activity.integration.test.js:78=); typology 170 ok · runtime 111 ok, 1 red as before | /"h3 a. h1 h2 amen."/ 11-23 | amen |
+| R15 | m5, no wire: =speed(activities)= reads the newest =usage= step; modeline · sidebar · a dock label by stop print =chars/s=; LANDED 11-24, unwalked | /"amen on those"/ 11-24 | amen |
+
+Dead, never again: a second spelling of tokens (={ input, output, cost }=) · the name =Assessment= · =flow= on a measure or a limit · an optional =unit= · =elapsed= · =first= as envelope keys · a root middleware =metering()= on the cortex · =ctx.faculty= · the iterator sniff · =Draft= · =Full= · =event: "/usage/draft"= · a =form= key · the name =Tokens= · a =usage= row in STANDARD · replacing his =span.log= round line.
+
+* as code
+
+** R8, proposed 11-23, unruled — the universal record
+
+Survey: OpenMeter (event =type= · =subject= · =data=, meters with =groupBy=) · OpenTelemetry GenAI metrics (metric + unit + attributes, =time_to_first_token=) · IETF RateLimit draft-10 (=q= · =qu= · =w= · =pk=) · FOCUS (=ConsumedQuantity= + =ConsumedUnit=). All agree: usage is a COUNT IN A UNIT plus keys to group by.
+
+#+begin_src js
+// subsystems/typology/schematics/primitives/track.js — proposed, cast in the scratchpad
+export const Measure = v
+  .object(
+    {
+      name: v.string().desc("What is measured.").example("output"),
+      unit: v.string().desc("What it is measured in.").example("tokens"),
+      amount: v.number().desc("How much, since the subject was asked.").example(139),
+      channel: v.string().optional().desc("The channel that carried it.").example("text"),
+      by: v.string().optional().desc("Who counted.").example("openrouter"),
+    },
+    { additionalProperties: false },
+  )
+  .desc("One count.");
+
+export const Limit = v
+  .object(
+    {
+      name: v.string().desc("The measure it bounds.").example("input"),
+      unit: v.string().desc("What the quota is counted in.").example("tokens"),
+      quota: v.number().desc("How much one window allows.").example(450000),
+      window: v.number().optional().desc("The window, in seconds.").example(60),
+      remaining: v.number().optional().desc("What is left of this window.").example(443129),
+      reset: v.number().optional().desc("Seconds until the window resets.").example(12),
+      by: v.string().optional().desc("Who enforces it.").example("openrouter"),
+    },
+    { additionalProperties: false },
+  )
+  .desc("One quota and where it stands.");
+
+export const Usage = v
+  .object(
+    {
+      subject: v.record(v.string(), v.union([v.string(), v.number()])),
+      state: v.string().optional().desc("How it closed; absent while it runs.").example("complete"),
+      measures: v.array(Measure),
+      limits: v.array(Limit).optional().desc("The quotas the provider reported with this call."),
+    },
+    { additionalProperties: false },
+  )
+  .desc("What a subject used so far; it carries a state once it closed.");
+#+end_src
+
+- Records are CUMULATIVE: =amount= is the total since the subject was asked, a later record of the same span =path= replaces the earlier. One record alone is true (the front end's lane is lossy); live speed is the reader's diff of two.
+- R9 AMEN: =elapsed= · =first= are measures. Both are milliseconds, so a measure carries a =name= (what) beside its =unit= (in what, absent on a plain count); OpenTelemetry's own split. The envelope is =subject · state · measures · limits=. Cast: =scratchpad/usage.named.probe.js=, 3 snapshots, 0 faults, an =elapsed= key on the envelope refused. Unenforced: =name= is an open string; no key guarantees an =elapsed= measure exists, a speed reader searches for it; =first= absent is its measure absent.
+- =by= · =Limit= · =limits= STAY: I cut them on a second pass, he pasted the first cut back whole (11-23, a bare paste, my reading). Limits were his ask (/"for both realtime and limits"/). Owed with them: a writer, no translator reads rate-limit headers today.
+- =subject= is an open record, unenforced: nothing says which keys a faculty call carries.
+- R11 AMEN, ran on the copy (=scratchpad/usage.receipt.probe.js=: six stored forms through =Meta.decode=, 0 faults, source not mutated, the sidebar's six keys equal). The hunks:
+
+#+begin_src diff
+// subsystems/typology/schematics/primitives/hallucination.js:128 — the receipt dies, :137 the codec
+-export const Usage = v.object({ input, output, cost? });
++const tokens = (input, output, cost) => [
++  { name: "input", unit: "tokens", amount: input },
++  { name: "output", unit: "tokens", amount: output },
++  ...(cost === undefined ? [] : [{ name: "cost", unit: "usd", amount: cost }]),
++];
+ const DIALECTS = [
+-  [(usage) => "input" in usage, (usage) => usage],
++  [(usage) => "input" in usage, (usage) => tokens(usage.input, usage.output, usage.cost)],
++  [(usage) => "prompt_tokens" in usage, (usage) => tokens(usage.prompt_tokens, usage.completion_tokens, usage.cost)],
++  [(usage) => "input_tokens" in usage, (usage) => tokens(usage.input_tokens, usage.output_tokens)],
+ ];
+// :153 healed
+-  if (meta.usage === undefined || "input" in meta.usage) return meta;
++  if (meta.usage === undefined || Array.isArray(meta.usage)) return meta;
+-    provider: { ...meta.provider, usage: meta.usage },
++    provider: { usage: meta.usage, ...meta.provider },
+// :168 Meta
+-        usage: v.union([Usage, v.record(v.string(), v.unknown())]).optional(),
++        usage: v.union([v.array(Measure), v.record(v.string(), v.unknown())]).optional(),
+#+end_src
+
+  Tail, unrun: the heal runs on load only (=subsystems/typology/entities/Turn.ts:81=), so every writer changes with it: =counted= in =commons/hallucinators/openrouter/provider/translate.js:157= · =anthropic/provider/translate.js:156= · =commons/fixtures/testing/hal/stub/provider/index.js:88= · =commons/fixtures/testing/data/faculties.js= (4 sites). Readers: =systems/anima/src/skins/chrome/panels/sidebar/sections.js:127= =contexted= (rewritten in the probe, same six keys out) · =panels/telemetry/entities.js:540=; both want one =amount(measures, name, unit)= lookup, its home unplaced. 10 test files name =usage=. =Meta.cast= never heals, only =decode=.
+
+His paste carries, beyond the fence below, =by= on every measure (="cortex"= on chars, ="openrouter"= on tokens · usd) and =limits: [{ unit: "tokens", quota: 450000, window: 60, remaining: 443129, reset: 12, flow: "in", by: "openrouter" }]=; cast, 0 faults. Typed by me, not captured:
+
+#+begin_src json
+{
+  "subject": {
+    "faculty": "dialogue",
+    "provider": "openrouter",
+    "id": "openai/gpt-5.1",
+    "via": "stream",
+    "round": 2
+  },
+  "state": "complete",
+  "measures": [
+    { "name": "elapsed", "unit": "ms", "amount": 513.58, "by": "cortex" },
+    { "name": "first", "unit": "ms", "amount": 275.32, "by": "cortex" },
+    { "name": "output", "unit": "chars", "amount": 59, "channel": "thinking", "by": "cortex" },
+    { "name": "output", "unit": "chars", "amount": 71, "channel": "text", "by": "cortex" },
+    { "name": "input", "unit": "tokens", "amount": 6871, "by": "openrouter" },
+    { "name": "output", "unit": "tokens", "amount": 139, "by": "openrouter" },
+    { "name": "cost", "unit": "usd", "amount": 0.009755, "by": "openrouter" }
+  ],
+  "limits": [
+    { "name": "input", "unit": "tokens", "quota": 450000, "window": 60, "remaining": 443129, "reset": 12, "by": "openrouter" }
+  ]
+}
+#+end_src
+
+** R3, amen — =Usage= moves
+
+#+begin_src diff
+// subsystems/typology/schematics/primitives/track.js
++export const Usage = v
++  .object(
++    {
++      input: v.integer(),
++      output: v.integer(),
++      cost: v.number().optional(),
++    },
++    { additionalProperties: false },
++  )
++  .desc("A provider's own count of one call. Example: { input: 6692, output: 139 }");
+// subsystems/typology/schematics/primitives/hallucination.js
++import { Usage } from "./track.js";
+-export const Usage = v.object(…);
+#+end_src
+
+=hallucination.js= imports =track.js=: =Channel= · =State= cannot be imported the other way (cycle). B of the name fork undoes this hunk.
+
+** R4 · R5 · R6 — the meter, in the session loop
+
+RECAST 11-23 onto R10 · R11 and run through the real cortex (=scratchpad/usage.copy.probe.js=: 20 packets, 5 =usage= records, 0 faults, the closed record carries elapsed · first · chars per channel · the provider's tokens · cost). On the copy =assessed= is now =used(call, turn, at)= → ={ subject, measures }=, =measured(parts)= returns =output= · =chars= measures per channel, =reported(call, turn)= stamps =by= on the turn's measures, and the closed row is =.usage({ ...closing, state: closed, measures: [...closing.measures, ...reported(call, turn)] })=. The fence below is the cut BEFORE the recast, same rows otherwise. Mine, decided: =round= stays in =subject= (it is in the snapshot he amen'd); a later record replaces an earlier one of the same =path= AND =subject=. A branch per provider call ran too (=scratchpad/usage.series.probe.js=, path =["hallucination","round/2"]=) and is not taken: it splits R6's chain over two spans.
+
+R12, his 11-23 /"full coverage today"/ (neither of my two options): all seven faculty functions meter, running records and in · out measures. SUPERSEDES the paragraph above: ONE closure =meter(span, faculty, via, round)= on the copy (=belt/hallucinate.js:193=), three hands: =fed(source)= counts what goes in · =flowed(packets)= pours its own turn, counts audio, writes the running record on a part's close or each =BEAT= · =closed(state, reported)= returns the closed record with the provider's measures stamped =by=. Ran through the real cortex (=scratchpad/usage.coverage.probe.js=), nine avenues, 0 faults:
+
+| avenue | records | in | out | provider |
+|---|---|---|---|---|
+| dialogue stream · render | 2 · 2 | — | chars per channel | tokens |
+| verbatim stream · render | 2 · 2 | seconds audio | chars text | — |
+| speech stream | 1 | chars text | seconds audio | — |
+| speech render | 1 | chars text | bytes audio | — |
+| call stream | 2 | seconds audio | seconds audio · chars text | tokens |
+| choice render | 1 | questions | — | — |
+| picture render | 1 | chars text · images | images | cost |
+
+#+begin_src js
+// subsystems/typology/gestalten/belt/hallucinate.js — copy, respond
+      const metered = meter(span, faculty, streamOrRender, rounds);
+      for await (const packet of metered.flowed(deliver(…))) {
+        turn = soma.pour(turn, packet);
+        yield packet;
+      }
+      span
+        .log({ round: rounds, state: closed, usage: turn?.meta?.usage })
+        .usage(metered.closed(closed));
+#+end_src
+
+Unenforced · unrun: audio seconds assume 16-bit pcm (=pcm.bytes(data).byteLength / 2 / rate=, as =commons/hallucinators/elevenlabs/provider/index.js:205= counts) · a part that is neither text nor input throws in =parted= · the turn is poured twice in =respond= · =converse= (the meter's and the loop's), cost unmeasured · dialogue input is the provider's tokens only, no own count · an abort inside =respond= writes no closed record · the fixtures and both providers still write the old receipt live, which this meter cannot read (R11's tail) · no suite run, probes only.
+
+The loop already owns =rounds=, the poured =turn=, the =faculty= and =closed=; =pump.render= drains a render into packets, so renders pass the same loop (unprobed).
+
+* milestones
+
+| n | milestone | state |
+|---|---|---|
+| 1 | the record: =Measure= · =Limit= · =Usage= in =track.js=; =turn.meta.usage= is measures, the codec heals | LANDED, tested |
+| 2 | the meter in =respond= | LANDED, tested |
+| 3 | every faculty: =transcribe= · =converse= · =synthesize= · =vocalize= · =depict= · =choose= | LANDED, tested |
+| 4 | readers: paladin's console line =SAID.usage= · ="usage"= in the =Track= enum · anima's sidebar and telemetry panel through =amount= | LANDED, none of the three run: no test, anima's suite aborts at load; show-me 11-23: S1 (="usage"= in =Track=, read by =Sieve= only) amen · S2 (=SAID.usage=) amen · S3 (=amount=) amen · S4 (=contexted=) amen · S5 (panel =q=) amen; owed: =entities.js:540= prints =undefined / undefined= on a usage without tokens |
+| 5 | the front end's speed index | LANDED 11-24, unwalked, untested: an activity's =steps= already carry the track, no wire (R15) |
+| 6 | persistence, through the controller into lanes | later, his word |
+
+* handoff
+
+- state 11-24 :: milestones 1–4 LANDED and 4 walked (5 amen); R14 LANDED (typology 170 ok · runtime 111 ok, 1 red as before); R15 LANDED in anima (=sections.js= =speed= · =modeline.jsx= · =dock/textarea.jsx=), Vite compiles them, no page walked.
+- next :: his runtime up on =:2501=, a recipe sieve naming =usage= (the default drops the track), one real call: the console line, the bar, the sidebar, the dock. Then his =go= on the docs section shown 11-24 (=documentation/…/42.01_pipe-queue-span.mdx=, =### Usage= after =### Tracks=).
+- never :: the Dead list under =* rulings=. A wrap of the provider's =via= is the dead root =metering()= under another name.
+- owed :: =.field .fk .rate= has no style in =subsystems/drapes/parts.css= · =entities.js:540= prints =undefined / undefined= · tests: =respond= closing an abort, =speed=, the bar and sidebar text · =vocalize= · =depict= · =choose= hand-build measures beside =count= · the turn is poured twice · =round: 1= on a call without rounds · =limits=: no writer, no reader, nothing enforces, no place to declare one · the draft behind =Limit= is at -12, =remaining= is its =a=, =reset= has no counterpart · =record= is now a root export of typology.
+- probes :: =.ikiro/reference/cortex-telemetry/=: snapshots · record · line · sieve · graft · amount · speed, and =h1-h3.diff=.

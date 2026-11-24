@@ -126,7 +126,7 @@ describe("memo · the card under every history", () => {
   });
 });
 
-describe("memo · the tty view, frame by frame", { sanitizeOps: false, sanitizeResources: false }, () => {
+describe("memo · the tty surface, frame by frame", { sanitizeOps: false, sanitizeResources: false }, () => {
   const mount = async (data) => {
     const bundler = paladin.bundler(await Deno.makeTempDir({ prefix: "memo-snapshot-" }));
     const bundle = await bundler.bundle({ mime: mime.tty.solid, entry: new URL("../mode/buffer/memo.jsx", import.meta.url).pathname });
@@ -148,7 +148,7 @@ describe("memo · the tty view, frame by frame", { sanitizeOps: false, sanitizeR
       },
     };
     const setup = await testRender(() => [], { width: 80, height: 16 });
-    const handle = module.default(setup.renderer.root, { terminal, buffer: terminal.buffer, surface: { place: "frame", renderer: setup.renderer, palette: tokens.camel("northsea", "1") } });
+    const handle = module.default(setup.renderer.root, { terminal, buffer: terminal.buffer, skin: { place: "frame", renderer: setup.renderer, palette: tokens.camel("northsea", "1") } });
     const frame = async () => {
       for (let pass = 0; pass < 4; pass++) {
         await setup.renderOnce();
@@ -171,14 +171,14 @@ describe("memo · the tty view, frame by frame", { sanitizeOps: false, sanitizeR
 
   it("a dealt deck of three faces played through: every grade once, the session's end, tab deals again", async () => {
     const deck = ["deus.noun", "gladius.noun", "carpe-diem"].map((slug) => card(row(slug)));
-    const view = await mount({ deck: deck.map((held) => ({ ...held, voice: held.voice === null ? null : `http://cargo/${held.voice}`, picture: held.picture === null ? null : `http://cargo/${held.picture}` })), language: LANGUAGE });
-    const frames = [{ key: null, frame: await view.frame() }];
+    const surface = await mount({ deck: deck.map((held) => ({ ...held, voice: held.voice === null ? null : `http://cargo/${held.voice}`, picture: held.picture === null ? null : `http://cargo/${held.picture}` })), language: LANGUAGE });
+    const frames = [{ key: null, frame: await surface.frame() }];
     for (const key of ["tab", "3", "tab", "1", "tab", "4", "tab"]) {
-      await PRESSES[key](view.setup);
-      frames.push({ key, frame: await view.frame() });
+      await PRESSES[key](surface.setup);
+      frames.push({ key, frame: await surface.frame() });
     }
-    pin({ frames, calls: view.calls }, "memo-view-tty.snapshot.json");
-    view.handle.destroy();
-    view.setup.renderer.destroy();
+    pin({ frames, calls: surface.calls }, "memo-view-tty.snapshot.json");
+    surface.handle.destroy();
+    surface.setup.renderer.destroy();
   });
 });

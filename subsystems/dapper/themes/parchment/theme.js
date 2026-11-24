@@ -16,9 +16,9 @@ export default theme({
              negative: { fill: tomato[500], ink: tomato[600], on: paper[50] } },
   brand:   { outline: paper[500], filter: `drop-shadow(0 1px 2px ${shadow})` },
   zones: {
-    0: { surface: paper[150], surfaceSunk: paper[200], surfaceLift: paper[100], boundary: paper[500], boundaryStrong: paper[600], divider: paper[200], shadow },
-    1: { surface: paper[100], surfaceSunk: paper[150], surfaceLift: paper[50],  boundary: paper[500], boundaryStrong: paper[600], divider: paper[150], shadow },
-    2: { surface: paper[50],  surfaceSunk: paper[100], surfaceLift: paper[50],  boundary: paper[400], boundaryStrong: paper[600], divider: paper[100], shadow },
-    3: { surface: paper[200], surfaceSunk: paper[300], surfaceLift: paper[100], boundary: paper[400], boundaryStrong: paper[600], divider: paper[300], shadow },
+    0: { plane: paper[150], planeSunk: paper[200], planeLift: paper[100], boundary: paper[500], boundaryStrong: paper[600], divider: paper[200], shadow },
+    1: { plane: paper[100], planeSunk: paper[150], planeLift: paper[50],  boundary: paper[500], boundaryStrong: paper[600], divider: paper[150], shadow },
+    2: { plane: paper[50],  planeSunk: paper[100], planeLift: paper[50],  boundary: paper[400], boundaryStrong: paper[600], divider: paper[100], shadow },
+    3: { plane: paper[200], planeSunk: paper[300], planeLift: paper[100], boundary: paper[400], boundaryStrong: paper[600], divider: paper[300], shadow },
   },
 });

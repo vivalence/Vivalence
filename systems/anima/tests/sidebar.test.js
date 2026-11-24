@@ -1,7 +1,7 @@
 import { specimen } from "@vivalence/typology";
 import { atom } from "nanostores";
 import * as ghost from "@vivalence/ghost";
-import { fire, paint, settle, surface, world } from "./world.js";
+import { fire, paint, settle, skin, world } from "./world.js";
 import { oracle, shaped } from "../../../subsystems/drapes/tests/scenarios/shape.js";
 
 const HEAD = `<div class="sbhead"><span class="t">first words</span><button class="iconbtn" data-line="/sidebar" aria-label="close the sidebar" title="close the sidebar · /sidebar"><svg></svg></button></div>`;
@@ -37,7 +37,7 @@ const seated = async () => {
   held.seat();
   held.authorize();
   held.activate();
-  const rig = paint(() => surface.Sidebar({ client: held.client }));
+  const rig = paint(() => skin.Sidebar({ client: held.client }));
   await settle();
   return { ...held, rig };
 };
@@ -55,7 +55,7 @@ specimen.describe("sidebar — Dom.sidebar: .sbhead · .sbbody of sections · .s
     rig.close();
   });
 
-  specimen.it("rows are lines: a terminal · a tier chip · a dset view; the screen-only ones move surface atoms", async () => {
+  specimen.it("rows are lines: a terminal · a tier chip · a dset view; the screen-only ones move skin atoms", async () => {
     const { rig, sent, client } = await seated();
     fire(rig.target.querySelectorAll(".srow.item")[1], "click");
     fire(rig.target.querySelector("[data-line='/tier capable']"), "click");
@@ -66,11 +66,11 @@ specimen.describe("sidebar — Dom.sidebar: .sbhead · .sbbody of sections · .s
     fire(rig.target.querySelector("[data-line='/sidebar/width 296']"), "click");
     fire(rig.target.querySelector("[data-line='/telemetry']"), "click");
     await settle();
-    specimen.expect(client.surface.sidebarWidth).toBe(296);
+    specimen.expect(client.skin.sidebarWidth).toBe(296);
     specimen.expect(rig.target.querySelector("aside.sidebar").getAttribute("style")).toBe("--sb-w:296px");
-    specimen.expect(client.surface.tele.open).toBe(true);
+    specimen.expect(client.skin.tele.open).toBe(true);
     fire(rig.target.querySelector(".sbhead .iconbtn"), "click");
-    specimen.expect(client.surface.sidebar).toBe(false);
+    specimen.expect(client.skin.sidebar).toBe(false);
     specimen.expect(sent.length).toBe(5);
     rig.close();
   });
@@ -80,7 +80,7 @@ specimen.describe("sidebar — Dom.sidebar: .sbhead · .sbbody of sections · .s
     fire([...rig.target.querySelectorAll(".sbfoot button")].find((button) => button.textContent === "harness"), "click");
     fire([...rig.target.querySelectorAll(".sbfoot button")].find((button) => button.textContent === "threads"), "click");
     await settle();
-    specimen.expect(client.surface.sections.hidden).toEqual(["harness", "threads"]);
+    specimen.expect(client.skin.sections.hidden).toEqual(["harness", "threads"]);
     specimen.expect(rig.target.querySelector("[data-sec='harness']")).toBe(null);
     specimen.expect([...rig.target.querySelectorAll("[data-sec='entity'] .srow.sub span:first-child")].map((span) => span.textContent)).toEqual(["terminals", "modes", "buffers"]);
     specimen.expect(rig.target.querySelector(".sbfoot button[aria-pressed='false']").textContent).toBe("threads");

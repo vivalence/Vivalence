@@ -1,5 +1,8 @@
 // @beef types are mainly statically resolved typebox json schema.
 
+export type { Static, StaticDecode } from "typebox";
+export type { Fault, Position, Schematic } from "./schematics/v.d.ts";
+
 // old
 // import type { Application, Context, Middleware, Router } from "oak";
 // import type { SecureCookieMap } from "@oak/commons/cookie_map";

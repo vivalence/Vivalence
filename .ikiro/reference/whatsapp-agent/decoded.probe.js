@@ -1,0 +1,13 @@
+import { OggOpusDecoder } from "npm:ogg-opus-decoder@1.6.14";
+import { pcm } from "@vivalence/typology";
+const bytes = await Deno.readFile(Deno.args[0]);
+const decoder = new OggOpusDecoder({ sampleRate: 16000, forceStereo: false });
+await decoder.ready;
+const { channelData } = await decoder.decodeFile(bytes);
+decoder.free();
+const before = Int16Array.from(channelData[0], (sample) => Math.max(-1, Math.min(1, sample)) * 32767);
+const raw = pcm.bytes(pcm.encode(channelData[0]));
+const after = new Int16Array(raw.buffer, raw.byteOffset, raw.byteLength / 2);
+let worst = 0;
+for (let i = 0; i < before.length; i++) worst = Math.max(worst, Math.abs(before[i] - after[i]));
+console.log(JSON.stringify({ samples: before.length, same: before.length === after.length, worst }));

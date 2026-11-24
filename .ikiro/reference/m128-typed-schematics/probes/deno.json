@@ -1,0 +1,7 @@
+{
+  "importMap": "./import_map.json",
+  "lock": false,
+  "lint": {
+    "plugins": ["./plugin.js", "./plain.js"]
+  }
+}

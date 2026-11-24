@@ -1,5 +1,6 @@
 import * as dotenv from "@std/dotenv";
 import { isAbsolute, join } from "@std/path";
+import { format, parse } from "@std/semver";
 import { Path, Signature, v } from "@vivalence/typology";
 import { Instance } from "../instance/prototype.js";
 
@@ -108,6 +109,11 @@ export async function scopes(paladin) {
   }
 }
 
+export async function version(paladin) {
+  const root = await paladin.read.json(paladin.scope.repository.branch("deno.jsonc"));
+  paladin.version = format(parse(root.version));
+}
+
 export function instance(paladin) {
   paladin.instance = new Instance();
   return paladin.instance;
@@ -124,11 +130,12 @@ export async function bake(paladin, slug) {
   const wired = await paladin.ledger.registry.wire(mask);
   const env = Object.fromEntries(Object.keys(paladin.env.vars).filter((key) => key.startsWith(PUBLIC)).map((key) => [key, paladin.env.get(key)]));
   const citizen = ({ identifier, manifest, statics, secrets, reference, url, source }) => ({ identifier, manifest, statics, secrets, reference, url, source });
-  return JSON.parse(JSON.stringify({ env, instance: paladin.instance, wired: { ...wired, modes: [] }, modes: wired.modes.map(citizen) }, absolute));
+  return JSON.parse(JSON.stringify({ env, version: paladin.version, instance: paladin.instance, wired: { ...wired, modes: [] }, modes: wired.modes.map(citizen) }, absolute));
 }
 
 export function baked(paladin, data) {
   paladin.assign(data.env, "ledger");
+  paladin.version = data.version;
   paladin.instance = Object.assign(new Instance(), v.primitives.instance.InstanceMask.decode(v.primitives.instance.InstanceMask.cast(data.instance)));
   const revive = async (citizen) => {
     const namespace = await citizen.module();

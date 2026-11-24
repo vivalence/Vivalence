@@ -259,12 +259,10 @@ specimen.describe("v", () => {
     specimen.expect(out.literals[0].id).toBe("lit-1");
   });
 
-  specimen.it("a slug is a scalar builder", () => {
-    specimen.expect(v.slug().check("bom-dia")).toBe(true);
-    specimen.expect(v.slug().check("Bom Dia")).toBe(false);
-    specimen.expect(v.slug({ minLength: 3 }).check("ab")).toBe(false);
-    specimen.expect(v.slug({ minLength: 3 }).check("abc")).toBe(true);
-    specimen.expect(v.slug().description).toBe("URL-compliant identifier");
+  specimen.it("a slug is a scalar", () => {
+    specimen.expect(v.scalars.Slug.check("bom-dia")).toBe(true);
+    specimen.expect(v.scalars.Slug.check("Bom Dia")).toBe(false);
+    specimen.expect(v.scalars.Slug.description).toBe("URL-compliant identifier");
     specimen.expect(v.array(v.scalars.Slug).check(["bom", "dia"])).toBe(true);
   });
 

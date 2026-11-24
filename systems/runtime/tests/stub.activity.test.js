@@ -67,7 +67,7 @@ specimen.describe("stub · the controller machine over a scripted run", () => {
     const events = [];
     for await (const packet of await fire(thread, "--tool fs_tree --rounds 1 --pace 5ms")) events.push(packet.event);
 
-    await until(() => [...walked].some((last) => last.startsWith("hallucination › fs_tree/")));
+    await until(() => [...walked].some((last) => last.includes(" › hallucination › fs_tree/")));
     unheld();
     specimen.expect(events).toContain("/turn/full");
     specimen.expect(events.at(-1)).toBe("/response/close");

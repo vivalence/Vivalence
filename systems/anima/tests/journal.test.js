@@ -1,6 +1,6 @@
 import { specimen, trace } from "@vivalence/typology";
 import { atom } from "nanostores";
-import { fire, paint, settle, surface, words, world } from "./world.js";
+import { fire, paint, settle, skin, words, world } from "./world.js";
 import { oracle, shape } from "../../../subsystems/drapes/tests/parts/oracle.js";
 
 const seated = async () => {
@@ -8,12 +8,12 @@ const seated = async () => {
   held.seat();
   held.authorize();
   held.activate();
-  const rig = paint(() => surface.Journal({ client: held.client, terminal: held.terminal }));
+  const rig = paint(() => skin.Journal({ client: held.client, terminal: held.terminal }));
   await settle();
   return { ...held, rig };
 };
 
-const at = (iso) => surface.clock(Date.parse(iso));
+const at = (iso) => skin.clock(Date.parse(iso));
 
 const YOU = (time) =>
   `<div class="entry you headed " data-fn="jsel" data-arg="0"><div class="ehead"><span class="reg">&lt;&lt;</span><span class="who">beef</span><span class="meta">${time}</span><span class="ops"><button data-fn="copy" data-arg="0">copy</button><button data-fn="retry" data-arg="0">retry</button></span></div><div class="body"><div class="text">ciao, come stai?</div></div></div>`;
@@ -44,7 +44,7 @@ specimen.describe("anima journal — the design's journal (dom.js:272) folded fr
     client.controller.stdout.log("the client's own record");
     await settle();
     const records = terminal.controller.stdout.history.filter((record) => trace.key(record.path) === trace.key(terminal.controller.stdout.absolute) && record.track === "log");
-    const [said, homed] = records.map((record) => surface.clock(record.at));
+    const [said, homed] = records.map((record) => skin.clock(record.at));
     const lensed = (lens) => {
       terminal.dock = { ...terminal.dock, lens };
       entities.terminal.$entities.set([...entities.terminal.$entities.get()]);
@@ -53,7 +53,7 @@ specimen.describe("anima journal — the design's journal (dom.js:272) folded fr
     await settle();
     fire(rig.target.querySelectorAll(".entry")[0], "click");
     await settle();
-    specimen.expect(client.surface.jsel).toBe(0);
+    specimen.expect(client.skin.jsel).toBe(0);
     specimen.expect(shape(rig.target)).toBe(oracle(TRACE(said, trace.pathname(terminal.controller.stdout.absolute)).replace('data-arg="2"', 'data-arg="0"') + OBJECT(homed, trace.pathname(terminal.controller.stdout.absolute)) + FAULT));
     lensed(["turns", "harness"]);
     await settle();
@@ -68,10 +68,10 @@ specimen.describe("anima journal — the design's journal (dom.js:272) folded fr
     const { rig, terminal, client } = await seated();
     terminal.controller.stdout.log("hello from the span");
     await settle();
-    const [said] = terminal.controller.stdout.history.filter((record) => record.track === "log" && trace.key(record.path) === trace.key(terminal.controller.stdout.absolute)).map((record) => surface.clock(record.at));
+    const [said] = terminal.controller.stdout.history.filter((record) => record.track === "log" && trace.key(record.path) === trace.key(terminal.controller.stdout.absolute)).map((record) => skin.clock(record.at));
     fire(rig.target.querySelectorAll(".entry")[2], "click");
     await settle();
-    specimen.expect(client.surface.jsel).toBe(2);
+    specimen.expect(client.skin.jsel).toBe(2);
     specimen.expect(shape(rig.target.querySelectorAll(".entry")[2].parentNode).split("\n")[2]).toBe(oracle(TRACE(said, trace.pathname(terminal.controller.stdout.absolute)).replace('<span class="path">' + trace.pathname(terminal.controller.stdout.absolute) + "</span>", "")));
     rig.close();
   });
@@ -129,7 +129,7 @@ specimen.describe("anima journal — the design's journal (dom.js:272) folded fr
     const { rig, thread, terminal, sent } = await seated();
     const turns = thread.$turns.get();
     thread.$turns.set([turns[0], { ...turns[1], id: "turn-2" }]);
-    const board = { id: "buffer-1", mime: "application/json", mode: "chess/chess", traits: ["LABELED"], trait: { LABELED: { name: "board" } }, views: [], files: [], turns: ["turn-2"], $data: atom({ turn: "w" }) };
+    const board = { id: "buffer-1", mime: "application/json", mode: "chess/chess", traits: ["LABELED"], trait: { LABELED: { name: "board" } }, surfaces: [], files: [], turns: ["turn-2"], $data: atom({ turn: "w" }) };
     thread.$buffers.set([board]);
     terminal.$buffer.set(board);
     await settle();

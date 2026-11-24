@@ -1,0 +1,2649 @@
+diff --color -ruN blog/blog.viva.js /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/blog.viva.js
+--- blog/blog.viva.js	2026-11-24 10:56:21.706371987 +0100
++++ /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/blog.viva.js	2026-11-24 10:56:34.371568380 +0100
+@@ -9,14 +9,16 @@
+     "A blog written and pressed in one place: a .md · .org under source/ in its mountpoint " +
+     "becomes a page under public/, an essay when it is dated; " +
+     "every other file there is served from where it lies.",
+-  version: "0.3.0",
++  version: "0.4.0",
+   traits: ["EXPOSED", "ATTACHED", "SURFACED", "FILESET"],
+ };
+ 
+ export const buffer = v
+   .buffer({ data: Desk })
+-  .desc("The writing desk: the sources, the one being written, its page as pressed.")
+-  .example({ open: "on/machines.md", view: "split", rail: "outline" });
++  .desc(
++    "The writing desk: its panels, their widths, the mode, the settings, the source on it.",
++  )
++  .example({ open: "on/machines.md", mode: "focus", inspector: { tab: "outline" } });
+ 
+ export const fileset = { path: "files" };
+ 
+diff --color -ruN blog/buffer/Blog.jsx /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/buffer/Blog.jsx
+--- blog/buffer/Blog.jsx	2026-11-24 10:56:21.706892686 +0100
++++ /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/buffer/Blog.jsx	2026-11-24 11:05:41.133110624 +0100
+@@ -1,5 +1,6 @@
+ import {
+   createEffect,
++  createMemo,
+   createResource,
+   createSignal,
+   For,
+@@ -10,8 +11,9 @@
+ } from "solid-js";
+ import { createStore, produce, unwrap } from "solid-js/store";
+ import { render } from "solid-js/web";
+-import { Article, Desk } from "../schematics.js";
++import { Article, Desk, Settings } from "../schematics.js";
+ import {
++  caret,
+   figured,
+   KEYS,
+   markup,
+@@ -19,7 +21,9 @@
+   outline,
+   prefixed,
+   reached,
++  searched,
+   sheet,
++  tuned,
+   wrapped,
+ } from "./editor.js";
+ import styles from "./desk.css";
+@@ -35,25 +39,93 @@
+ 
+ const STATUSES = ["draft", "unlisted", "published"];
+ 
+-const VIEWS = ["write", "split", "page"];
++const MODES = [
++  ["write", "write", "Mod-Alt-Digit1"],
++  ["split", "split", "Mod-Alt-Digit2"],
++  ["preview", "page", "Mod-Alt-Digit3"],
++  ["focus", "focus", "Mod-Period"],
++];
++
++const DEVICES = [
++  ["desktop", "▭", "100%"],
++  ["tablet", "▯", "820px"],
++  ["phone", "▮", "390px"],
++];
+ 
+-const RAILS = ["sources", "files", "outline"];
++const TABS = [
++  ["post", "post"],
++  ["media", "media"],
++  ["outline", "outline"],
++  ["stats", "stats"],
++];
+ 
+ const MARKS = [
+-  ["bold", "B"],
+-  ["italic", "I"],
+-  ["code", "</>"],
+-  ["link", "link"],
+-  ["math", "∑"],
+-  ["note", "note"],
++  ["bold", "B", "bold"],
++  ["italic", "I", "italic"],
++  ["strike", "S", "strike through"],
++  ["code", "</>", "code"],
++  ["link", "⌁", "link"],
++  ["math", "∑", "math"],
++  ["note", "¹", "footnote"],
+ ];
+ 
+ const LINES = [
+-  ["heading", "H"],
+-  ["quote", "❝"],
+-  ["list", "•"],
++  ["heading", "H", "heading"],
++  ["quote", "❝", "quote"],
++  ["list", "•", "list"],
++  ["numbered", "1.", "numbered list"],
++  ["task", "☐", "task"],
++];
++
++const RANGES = [
++  ["size", "size", 12, 26, 1, "px"],
++  ["measure", "measure", 40, 140, 2, "ch"],
++  ["leading", "leading", 1.2, 2.4, 0.05, ""],
++];
++
++const SWITCHES = [
++  ["numbers", "line numbers"],
++  ["typewriter", "typewriter scrolling"],
++  ["dim", "dim other paragraphs"],
++  ["spellcheck", "spelling"],
++  ["sync", "page follows the sheet"],
++  ["pressing", "a save presses the blog"],
+ ];
+ 
++const PAUSES = [0, 2, 5, 10, 30];
++
++const LIMITS = { library: [180, 480], inspector: [240, 560], share: [0.2, 0.8] };
++
++const NARROW = 760;
++
++const COUNTS = [
++  ["words", /\S+/g],
++  ["characters", /[^\n]/g],
++  ["sentences", /[^.!?\n]+[.!?]+/g],
++  ["paragraphs", /(^|\n\n)\s*\S/g],
++  ["links", /\]\(|\[\[/g],
++  ["pictures", /!\[|\[\[\/images/g],
++  ["notes", /\[\^[^\]]+\](?!:)|\[fn:[^\]]+\]/g],
++];
++
++const GLYPHS = { Mod: "⌘", Shift: "⇧", Alt: "⌥", Period: ".", Comma: ",", Backslash: "\\" };
++
++const glyphed = (chord) =>
++  chord
++    .split("-")
++    .map((part) => GLYPHS[part] ?? part.replace(/^(Key|Digit)/, ""))
++    .join("");
++
++const chorded = (event) =>
++  [
++    event.metaKey || event.ctrlKey ? "Mod" : "",
++    event.shiftKey ? "Shift" : "",
++    event.altKey ? "Alt" : "",
++    event.code,
++  ]
++    .filter(Boolean)
++    .join("-");
++
+ const state = (source) => (source.fault === null ? source.article.status : "fault");
+ 
+ const grouped = (source) => GROUPS.find(([held]) => held(source))[1];
+@@ -77,7 +149,7 @@
+ 
+ const keyed = (draft) => JSON.stringify([draft.front, draft.body]);
+ 
+-const counted = (body) => (body.match(/\S+/g) ?? []).length;
++const counted = (body, pattern) => (body.match(pattern) ?? []).length;
+ 
+ const known = (front) =>
+   Article.cast(
+@@ -86,35 +158,92 @@
+ 
+ const pictured = (file) => file.mime.startsWith("image/");
+ 
++const within = ([floor, ceiling], value) => Math.min(ceiling, Math.max(floor, value));
++
++const fuzzy = (query, text) => {
++  let at = 0;
++  for (const letter of text.toLowerCase()) if (letter === query[at]) at++;
++  return at === query.length;
++};
++
++const clock = () => new Date().toTimeString().slice(0, 5);
++
++const Seam = (props) => {
++  const [dragging, setDragging] = createSignal(false);
++  let seam;
++  let rect;
++  const down = (event) => {
++    event.preventDefault();
++    seam.setPointerCapture(event.pointerId);
++    rect = seam.parentElement.getBoundingClientRect();
++    setDragging(true);
++  };
++  const move = (event) => {
++    if (dragging()) props.onDrag(event, rect);
++  };
++  const up = () => {
++    if (!dragging()) return;
++    setDragging(false);
++    props.onDone();
++  };
++  return (
++    <div
++      ref={seam}
++      classList={{ seam: true, drag: dragging() }}
++      title="drag to resize · double-click resets"
++      onPointerDown={down}
++      onPointerMove={move}
++      onPointerUp={up}
++      onLostPointerCapture={up}
++      onDblClick={() => props.onReset()}
++    />
++  );
++};
++
+ export const Blog = (props) => {
+   const held = from(props.buffer.$data);
+-  const desk = () => Desk.cast(held());
++  const desk = createMemo(() => Desk.cast(held()));
+   const open = () => desk().open;
++  const settings = () => desk().settings;
+   const [shelf, { refetch }] = createResource(() => props.buffer.mode.call.source.list());
+   const [drafts, setDrafts] = createStore({});
+   const [preview, setPreview] = createSignal("");
+   const [fault, setFault] = createSignal(null);
+   const [told, setTold] = createSignal("");
+   const [query, setQuery] = createSignal("");
+-  const [fresh, setFresh] = createSignal("");
++  const [fresh, setFresh] = createSignal(null);
+   const [armed, setArmed] = createSignal(null);
+-  const [moving, setMoving] = createSignal(null);
+   const [busy, setBusy] = createSignal(false);
++  const [dragged, setDragged] = createSignal({});
++  const [folded, setFolded] = createSignal([]);
++  const [at, setAt] = createSignal({ line: 1, column: 1, chosen: 0 });
++  const [palette, setPalette] = createSignal(null);
++  const [picked, setPicked] = createSignal(0);
++  const [tuning, setTuning] = createSignal(false);
++  const [moving, setMoving] = createSignal("");
++  const [stamp, setStamp] = createSignal("");
++  const [narrow, setNarrow] = createSignal(false);
++  const [drawer, setDrawer] = createSignal(null);
+   const sheets = new Map();
+   let root;
+   let host;
++  let frame;
+   let view;
+   let showing = null;
+   let previewing;
++  let saving;
++  let ratio = 0;
+ 
+   const editor = () => (view ??= mounted(host, host.getRootNode()));
+ 
+   const settle = (data) =>
+     props.terminal.client.runtime.entities.buffer.updateOne(
+       { id: props.buffer.id },
+-      { data: Desk.cast({ ...held(), ...data }) },
++      { data: Desk.cast({ ...desk(), ...data }) },
+     );
+ 
++  const tune = (data) => settle({ settings: { ...settings(), ...data } });
++
+   const guarded = async (run) => {
+     setFault(null);
+     setBusy(true);
+@@ -131,17 +260,24 @@
+ 
+   const dirty = (path) => drafts[path] !== undefined && drafts[path].kept !== keyed(drafts[path]);
+ 
+-  const lying = () => shelf().sources.find((source) => source.path === open());
++  const lying = () =>
++    shelf() === undefined ? undefined : shelf().sources.find((source) => source.path === open());
+ 
+-  const live = () =>
+-    shelf() !== undefined &&
+-    lying() !== undefined &&
+-    !["fault", "draft"].includes(state(lying()));
++  const live = () => lying() !== undefined && !["fault", "draft"].includes(state(lying()));
+ 
+-  const words = () => (draft() === undefined ? 0 : counted(draft().body));
++  const words = () => (draft() === undefined ? 0 : counted(draft().body, /\S+/g));
+ 
+   const faults = () => (draft() === undefined ? [] : Article.faults(known(draft().front)));
+ 
++  const width = (dock) => dragged()[dock] ?? desk()[dock].width;
++
++  const share = () => dragged().share ?? desk().share;
++
++  const mode = () => (narrow() && desk().mode === "split" ? "write" : desk().mode);
++
++  const docked = (dock) =>
++    narrow() ? drawer() === dock : desk()[dock].shown && desk().mode !== "focus";
++
+   const shown = (sources) =>
+     sources.filter((source) =>
+       `${source.path} ${source.fault === null ? source.article.title : ""}`
+@@ -157,6 +293,24 @@
+           dated(right).localeCompare(dated(left)) || left.path.localeCompare(right.path),
+       );
+ 
++  const heading = () => {
++    if (draft() === undefined) return null;
++    return outline(open(), draft().body).findLast((entry) => entry.line <= at().line) ?? null;
++  };
++
++  const followed = () => {
++    if (frame === undefined || frame.contentDocument === null) return;
++    const scroller = frame.contentDocument.scrollingElement;
++    if (scroller === null) return;
++    scroller.scrollTop = ratio * (scroller.scrollHeight - scroller.clientHeight);
++  };
++
++  const scrolled = (event) => {
++    const scroller = event.target;
++    ratio = scroller.scrollTop / Math.max(1, scroller.scrollHeight - scroller.clientHeight);
++    if (settings().sync) followed();
++  };
++
+   const uploaded = async (files) => {
+     const paths = [];
+     for (const file of [...files].filter((file) => file.type.startsWith("image/"))) {
+@@ -177,8 +331,8 @@
+     if (files.length === 0) return false;
+     event.preventDefault();
+     if (event.type === "drop") {
+-      const at = sheetView.posAtCoords({ x: event.clientX, y: event.clientY });
+-      if (at !== null) sheetView.dispatch({ selection: { anchor: at } });
++      const dropped = sheetView.posAtCoords({ x: event.clientX, y: event.clientY });
++      if (dropped !== null) sheetView.dispatch({ selection: { anchor: dropped } });
+     }
+     guarded(async () => {
+       const paths = await uploaded(files);
+@@ -195,7 +349,10 @@
+       sheet({
+         path,
+         body: source.body,
++        settings: settings(),
+         typed: (body) => setDrafts(path, "body", body),
++        moved: setAt,
++        scrolled,
+         dropped: placed(path),
+         pasted: placed(path),
+       }),
+@@ -205,7 +362,7 @@
+   createEffect(
+     on(open, (path) => {
+       setArmed(null);
+-      setMoving(null);
++      setMoving(path ?? "");
+       if (sheets.has(showing)) sheets.set(showing, editor().state);
+       showing = null;
+       if (path === null) return setPreview("");
+@@ -213,15 +370,24 @@
+         if (drafts[path] === undefined) await load(path);
+         if (open() !== path) return;
+         editor().setState(sheets.get(path));
++        tuned(editor(), settings());
++        setAt(caret(editor().state));
+         showing = path;
+-        editor().focus();
++        if (mode() !== "preview" && !narrow()) editor().focus();
+       });
+     }),
+   );
+ 
++  createEffect(
++    on(settings, (now) => {
++      if (showing !== null) tuned(editor(), now);
++    }),
++  );
++
+   createEffect(() => {
+     const path = open();
+-    if (path === null || drafts[path] === undefined || desk().view === "write") return;
++    if (path === null || drafts[path] === undefined) return;
++    if (["write", "focus"].includes(mode())) return;
+     const typed = { path, front: { ...drafts[path].front }, body: drafts[path].body };
+     clearTimeout(previewing);
+     previewing = setTimeout(async () => {
+@@ -234,12 +400,29 @@
+     }, 300);
+   });
+ 
++  createEffect(() => {
++    const path = open();
++    const pause = settings().autosave;
++    if (path === null || pause === 0 || !dirty(path)) return;
++    clearTimeout(saving);
++    saving = setTimeout(() => guarded(() => written(path)), pause * 1000);
++  });
++
++  const measured = new ResizeObserver(([entry]) =>
++    setNarrow(entry.contentRect.width < NARROW),
++  );
++
+   onCleanup(() => {
++    measured.disconnect();
+     clearTimeout(previewing);
++    clearTimeout(saving);
+     view?.destroy();
+   });
+ 
+-  const pick = (path) => settle({ open: path });
++  const pick = (path) => {
++    setDrawer(null);
++    settle({ open: path });
++  };
+ 
+   const fronting = (key, value) =>
+     setDrafts(
+@@ -255,25 +438,31 @@
+     const typed = { path, front: unwrap(drafts[path]).front, body: drafts[path].body };
+     await props.buffer.mode.call.source.write(typed);
+     setDrafts(path, "kept", keyed(typed));
++    setStamp(`saved ${clock()}`);
++    await refetch();
++  };
++
++  const pressing = async () => {
++    const built = await props.buffer.mode.call.build();
++    setTold(`${built.pages.length} pressed · ${built.gone.length} gone · ${clock()}`);
++    await refetch();
+   };
+ 
+   const save = () =>
+     guarded(async () => {
++      if (open() === null) return;
+       await written(open());
+-      setTold(`saved ${open()}`);
+-      await refetch();
++      if (settings().pressing) await pressing();
+     });
+ 
+   const press = () =>
+     guarded(async () => {
+       if (open() !== null && dirty(open())) await written(open());
+-      const built = await props.buffer.mode.call.build();
+-      setTold(`${built.pages.length} pressed · ${built.gone.length} gone`);
+-      await refetch();
++      await pressing();
+     });
+ 
+-  const publish = () => {
+-    fronting("status", "published");
++  const publish = (status) => {
++    fronting("status", status);
+     return press();
+   };
+ 
+@@ -289,7 +478,7 @@
+         });
+         await refetch();
+       }
+-      setFresh("");
++      setFresh(null);
+       pick(path);
+     });
+   };
+@@ -306,9 +495,8 @@
+       await props.buffer.mode.call.source.remove({ path });
+       forget(path);
+       if (open() === path) await settle({ open: null });
+-      const built = await props.buffer.mode.call.build();
+-      setTold(`removed ${path} · ${built.gone.length} gone`);
+-      await refetch();
++      setTold(`removed ${path}`);
++      await pressing();
+     });
+   };
+ 
+@@ -316,37 +504,138 @@
+     event.preventDefault();
+     const path = open();
+     const to = moving().trim();
+-    setMoving(null);
+     if (to === path) return;
+     guarded(async () => {
+       if (dirty(path)) await written(path);
+       await props.buffer.mode.call.source.move({ path, to });
+       forget(path);
+       await settle({ open: to });
+-      const built = await props.buffer.mode.call.build();
+-      setTold(`moved to ${to} · ${built.gone.length} gone`);
+-      await refetch();
++      await pressing();
+     });
+   };
+ 
+-  const choose = (event) => {
++  const choose = (event) =>
+     guarded(async () => {
+       await uploaded(event.target.files);
+       event.target.value = "";
+     });
++
++  const docking = (dock) =>
++    narrow()
++      ? setDrawer(drawer() === dock ? null : dock)
++      : settle({ [dock]: { ...desk()[dock], shown: !desk()[dock].shown } });
++
++  const inspect = (tab) => {
++    if (narrow()) setDrawer("inspector");
++    settle({ inspector: { ...desk().inspector, shown: true, tab } });
++  };
++
++  const moded = (mode) => {
++    settle({ mode });
++    if (mode !== "preview" && showing !== null) queueMicrotask(() => editor().focus());
++  };
++
++  const marked = (name) => () => wrapped(editor(), markup(open()).marks[name]);
++
++  const lined = (name) => () => prefixed(editor(), markup(open()).lines[name]);
++
++  const sourced = () => open() !== null && draft() !== undefined;
++
++  const COMMANDS = [
++    ["save", "Mod-KeyS", sourced, save],
++    ["save and press", "Mod-Shift-KeyS", sourced, press],
++    ["press the blog", null, () => true, () => guarded(pressing)],
++    ["publish", null, sourced, () => publish("published")],
++    ["unlist", null, sourced, () => publish("unlisted")],
++    ["back to draft", null, sourced, () => publish("draft")],
++    ["new source", "Mod-Alt-KeyN", () => true, () => setFresh("on/")],
++    ["find and replace", "Mod-KeyF", sourced, () => searched(editor())],
++    ["move or remove this source", null, sourced, () => inspect("post")],
++    [
++      "open the live page",
++      null,
++      live,
++      () => window.open(`${shelf().site}/${lying().article.page}`, "_blank", "noopener"),
++    ],
++    ...MODES.map(([mode, label, chord]) => [`show ${label}`, chord, () => true, () => moded(mode)]),
++    [
++      "next mode",
++      "Mod-Backslash",
++      () => true,
++      () =>
++        moded(MODES[(MODES.findIndex(([mode]) => mode === desk().mode) + 1) % MODES.length][0]),
++    ],
++    ["toggle the library", "Mod-Shift-KeyE", () => true, () => docking("library")],
++    ["toggle the inspector", "Mod-Shift-KeyU", () => true, () => docking("inspector")],
++    ...TABS.map(([tab, label]) => [`inspect ${label}`, null, () => true, () => inspect(tab)]),
++    ...DEVICES.map(([device]) => [
++      `page at ${device} width`,
++      null,
++      () => true,
++      () => settle({ device }),
++    ]),
++    ["settings", "Mod-Comma", () => true, () => setTuning(!tuning())],
++    ["commands", "Mod-KeyP", () => true, () => setPalette(palette() === null ? "" : null)],
++    ...MARKS.map(([name, , label]) => [label, null, sourced, marked(name)]),
++    ...LINES.map(([name, , label]) => [label, null, sourced, lined(name)]),
++    ...SWITCHES.map(([key, label]) => [
++      `${label}: on or off`,
++      null,
++      () => true,
++      () => tune({ [key]: !settings()[key] }),
++    ]),
++    ["bigger type", null, () => true, () => tune({ size: within([12, 26], settings().size + 1) })],
++    ["smaller type", null, () => true, () => tune({ size: within([12, 26], settings().size - 1) })],
++    ["default settings", null, () => true, () => tune(Settings.cast({}))],
++  ];
++
++  const entries = () => {
++    const asked = (palette() ?? "").toLowerCase();
++    const commands = COMMANDS.filter(([, , when]) => when()).map(([label, chord, , run]) => ({
++      label,
++      hint: chord === null ? "" : glyphed(chord),
++      run,
++    }));
++    const sources =
++      shelf() === undefined
++        ? []
++        : shelf().sources.map((source) => ({
++            label: `open ${source.fault === null ? source.article.title : source.path}`,
++            hint: source.path,
++            run: () => pick(source.path),
++          }));
++    return [...sources, ...commands].filter((entry) => fuzzy(asked, entry.label)).slice(0, 40);
++  };
++
++  const ran = (entry) => {
++    setPalette(null);
++    entry.run();
++  };
++
++  const paletted = (event) => {
++    const listed = entries();
++    if (event.key === "ArrowDown") setPicked((picked() + 1) % Math.max(1, listed.length));
++    else if (event.key === "ArrowUp")
++      setPicked((picked() - 1 + listed.length) % Math.max(1, listed.length));
++    else if (event.key === "Enter" && listed[picked()] !== undefined) ran(listed[picked()]);
++    else if (event.key === "Escape") setPalette(null);
++    else return;
++    event.preventDefault();
++    event.stopPropagation();
+   };
+ 
+   const key = (event) => {
+-    if (!(event.metaKey || event.ctrlKey)) return;
+-    if (event.key.toLowerCase() === "s" && open() !== null) {
+-      event.preventDefault();
+-      if (event.shiftKey) press();
+-      else save();
+-    }
+-    if (event.key === "\\") {
+-      event.preventDefault();
+-      settle({ view: VIEWS[(VIEWS.indexOf(desk().view) + 1) % VIEWS.length] });
++    if (event.key === "Escape") {
++      if (palette() !== null) return setPalette(null);
++      if (tuning()) return setTuning(false);
++      if (drawer() !== null) return setDrawer(null);
++      if (desk().mode === "focus") return moded("write");
+     }
++    const command = COMMANDS.find(([, chord, when]) => chord === chorded(event) && when());
++    if (command === undefined) return;
++    event.preventDefault();
++    event.stopPropagation();
++    command[3]();
+   };
+ 
+   const kept = () =>
+@@ -354,9 +643,36 @@
+       if (root.ownerDocument.activeElement === root.ownerDocument.body) root.focus();
+     });
+ 
++  const resize = (dock, sign) => (event, rect) =>
++    setDragged({
++      ...dragged(),
++      [dock]: within(
++        LIMITS[dock],
++        Math.round(sign > 0 ? event.clientX - rect.left : rect.right - event.clientX),
++      ),
++    });
++
++  const resized = (dock) => () => {
++    const value = dragged()[dock];
++    setDragged({ ...dragged(), [dock]: undefined });
++    if (value !== undefined) settle({ [dock]: { ...desk()[dock], width: value } });
++  };
++
++  const sharing = (event, rect) =>
++    setDragged({
++      ...dragged(),
++      share: within(LIMITS.share, (event.clientX - rect.left) / rect.width),
++    });
++
++  const shared = () => {
++    const value = dragged().share;
++    setDragged({ ...dragged(), share: undefined });
++    if (value !== undefined) settle({ share: value });
++  };
++
+   const Row = (props) => (
+     <button
+-      class="kit-row"
++      class="row"
+       aria-current={String(open() === props.source.path)}
+       title={props.source.fault === null ? props.source.path : props.source.fault}
+       onClick={() => pick(props.source.path)}>
+@@ -365,352 +681,687 @@
+         {props.source.fault === null ? props.source.article.title : props.source.path}
+       </span>
+       <span class="unsaved">{dirty(props.source.path) ? "●" : ""}</span>
+-      <span class="v">{dated(props.source) || props.source.path.split("/").at(-1)}</span>
++      <span class="v">{dated(props.source) || "page"}</span>
+     </button>
+   );
+ 
+-  return (
+-    <div class="kit desk" ref={root} tabIndex="-1" onKeyDown={key} onFocusOut={kept}>
+-      <aside class="rail">
+-        <span class="kit-choice tabs">
+-          <For each={RAILS}>
+-            {(rail) => (
++  const Library = () => (
++    <aside class="dock library" style={{ width: `${width("library")}px` }}>
++      <header class="dock-head">
++        <span class="kit-label">sources</span>
++        <span class="fill" />
++        <button class="icon" title="new source · ⌘⌥N" onClick={() => setFresh("on/")}>
++          +
++        </button>
++        <button class="icon" title="hide · ⌘⇧E" onClick={() => docking("library")}>
++          ⟨
++        </button>
++      </header>
++      <Show when={fresh() !== null}>
++        <form class="kit-field new" onSubmit={create}>
++          <span class="p">+</span>
++          <input
++            value={fresh()}
++            onInput={(event) => setFresh(event.target.value)}
++            onKeyDown={(event) => {
++              if (event.key === "Escape") setFresh(null);
++            }}
++            placeholder="on/a-new-essay.md"
++            pattern=".+\.(md|org)"
++            required
++            ref={(element) => queueMicrotask(() => element.focus())}
++            aria-label="a new source's path under source/"
++          />
++        </form>
++      </Show>
++      <label class="kit-field">
++        <span class="p">⌕</span>
++        <input
++          value={query()}
++          onInput={(event) => setQuery(event.target.value)}
++          placeholder="filter"
++          aria-label="filter the sources"
++        />
++      </label>
++      <div class="scroll">
++        <Show when={shelf()}>
++          <For each={GROUPS.map(([, name]) => name)}>
++            {(name) => (
++              <Show when={group(name).length > 0}>
++                <button
++                  class="group"
++                  onClick={() =>
++                    setFolded(
++                      folded().includes(name)
++                        ? folded().filter((fold) => fold !== name)
++                        : [...folded(), name],
++                    )
++                  }>
++                  <span>{folded().includes(name) ? "▸" : "▾"}</span>
++                  <span class="kit-label">{name}</span>
++                  <span class="count">{group(name).length}</span>
++                </button>
++                <Show when={!folded().includes(name)}>
++                  <For each={group(name)}>{(source) => <Row source={source} />}</For>
++                </Show>
++              </Show>
++            )}
++          </For>
++        </Show>
++      </div>
++    </aside>
++  );
++
++  const Post = () => (
++    <div class="form">
++      <label class="field">
++        <span>title</span>
++        <input
++          value={draft().front.title ?? ""}
++          onInput={(event) => fronting("title", event.target.value)}
++          placeholder={titled(open())}
++        />
++      </label>
++      <label class="field">
++        <span>subtitle</span>
++        <textarea
++          rows="2"
++          value={draft().front.subtitle ?? ""}
++          onInput={(event) => fronting("subtitle", event.target.value)}
++          placeholder="the line a link preview shows"
++        />
++      </label>
++      <label class="field">
++        <span>date</span>
++        <div class="with">
++          <input
++            value={draft().front.date ?? ""}
++            onInput={(event) => fronting("date", event.target.value)}
++            placeholder="none: a page"
++            pattern="\d{4}\.\d{2}\.\d{2}"
++          />
++          <button class="icon" title="today" onClick={() => fronting("date", today())}>
++            ◷
++          </button>
++          <button class="icon" title="no date: a page" onClick={() => fronting("date", "")}>
++            ×
++          </button>
++        </div>
++      </label>
++      <div class="field">
++        <span>status</span>
++        <span class="kit-choice">
++          <For each={STATUSES}>
++            {(status) => (
+               <button
+                 type="button"
+-                aria-pressed={String(desk().rail === rail)}
+-                onClick={() => settle({ rail })}>
+-                {rail}
++                aria-pressed={String(known(draft().front).status === status)}
++                onClick={() => fronting("status", status)}>
++                <span class={`kit-dot ${DOTS[status]}`} /> {status}
+               </button>
+             )}
+           </For>
+         </span>
+-        <Show when={desk().rail === "sources"}>
+-          <label class="kit-field">
+-            <span class="p">⌕</span>
++      </div>
++      <label class="field">
++        <span>tags</span>
++        <input
++          value={draft().front.tags ?? ""}
++          onInput={(event) => fronting("tags", event.target.value)}
++          placeholder="comma-joined"
++        />
++      </label>
++      <div class="field">
++        <span>lead picture</span>
++        <Show
++          when={draft().front.image !== undefined && shelf() !== undefined}
++          fallback={
++            <button class="ghost" onClick={() => inspect("media")}>
++              choose from media
++            </button>
++          }>
++          <figure class="lead">
++            <img src={`${shelf().site}${draft().front.image}`} alt="" />
++            <figcaption>
++              <span>{draft().front.image}</span>
++              <button class="icon" title="no lead picture" onClick={() => fronting("image", "")}>
++                ×
++              </button>
++            </figcaption>
++          </figure>
++        </Show>
++      </div>
++      <For each={faults()}>
++        {(fault) => (
++          <span class="fault">
++            <span class="kit-dot is-fault" />
++            {fault.at} {fault.reason}
++          </span>
++        )}
++      </For>
++      <form class="field" onSubmit={move}>
++        <span>path under source/</span>
++        <div class="with">
++          <input
++            value={moving()}
++            onInput={(event) => setMoving(event.target.value)}
++            pattern=".+\.(md|org)"
++            required
++          />
++          <Show when={moving().trim() !== open()}>
++            <button class="ghost">move</button>
++          </Show>
++        </div>
++      </form>
++      <div class="actions">
++        <button class="ghost" title="save and press · ⌘⇧S" onClick={press}>
++          save and press
++        </button>
++        <Show when={live()}>
++          <a href={`${shelf().site}/${lying().article.page}`} target="_blank" rel="noopener">
++            open the live page ↗
++          </a>
++        </Show>
++        <span class="fill" />
++        <button
++          class="danger"
++          aria-pressed={String(armed() === open())}
++          onClick={() => remove(open())}>
++          {armed() === open() ? "remove it for good?" : "remove"}
++        </button>
++      </div>
++    </div>
++  );
++
++  const Media = () => (
++    <div class="media">
++      <label class="drop">
++        <input type="file" accept="image/*" multiple onChange={choose} />
++        <span>drop or choose pictures</span>
++      </label>
++      <Show when={shelf()}>
++        <div class="pictures">
++          <For each={shelf().files.filter(pictured)}>
++            {(file) => (
++              <figure
++                class="picture"
++                classList={{ "is-lead": sourced() && draft().front.image === `/${file.path}` }}>
++                <img src={`${shelf().site}/${file.path}`} alt={file.path} loading="lazy" />
++                <figcaption title={file.path}>{file.path.split("/").at(-1)}</figcaption>
++                <div class="over">
++                  <button
++                    classList={{ "is-off": !sourced() }}
++                    onClick={() => figured(editor(), markup(open()).figure(file.path))}>
++                    insert
++                  </button>
++                  <button
++                    classList={{ "is-off": !sourced() }}
++                    onClick={() => fronting("image", `/${file.path}`)}>
++                    lead
++                  </button>
++                  <button
++                    aria-pressed={String(armed() === file.path)}
++                    onClick={() => remove(file.path)}>
++                    {armed() === file.path ? "sure?" : "✕"}
++                  </button>
++                </div>
++              </figure>
++            )}
++          </For>
++        </div>
++        <span class="kit-label">other files</span>
++        <For each={shelf().files.filter((file) => !pictured(file))}>
++          {(file) => (
++            <a class="row" href={`${shelf().site}/${file.path}`} target="_blank" rel="noopener">
++              <span class="kit-dot" />
++              <span class="n">{file.path}</span>
++              <span />
++              <span class="v">{file.mime}</span>
++            </a>
++          )}
++        </For>
++      </Show>
++    </div>
++  );
++
++  const Outline = () => (
++    <div class="outline">
++      <Show
++        when={outline(open(), draft().body).length > 0}
++        fallback={<span class="empty">no headings yet</span>}>
++        <For each={outline(open(), draft().body)}>
++          {(entry) => (
++            <button
++              class="row heading"
++              aria-current={String(heading() !== null && heading().line === entry.line)}
++              style={{ "padding-left": `${entry.depth * 12}px` }}
++              onClick={() => reached(editor(), entry.line)}>
++              <span class="n">{entry.title}</span>
++              <span />
++              <span />
++              <span class="v">{entry.line}</span>
++            </button>
++          )}
++        </For>
++      </Show>
++    </div>
++  );
++
++  const Stats = () => (
++    <div class="stats">
++      <For each={COUNTS}>
++        {([name, pattern]) => (
++          <div class="stat">
++            <b>{counted(draft().body, pattern)}</b>
++            <span>{name}</span>
++          </div>
++        )}
++      </For>
++      <div class="stat">
++        <b>{outline(open(), draft().body).length}</b>
++        <span>headings</span>
++      </div>
++      <div class="stat">
++        <b>{Math.max(1, Math.round(words() / 230))}</b>
++        <span>minutes to read</span>
++      </div>
++    </div>
++  );
++
++  const PANES = { post: Post, media: Media, outline: Outline, stats: Stats };
++
++  const Inspector = () => (
++    <aside class="dock inspector" style={{ width: `${width("inspector")}px` }}>
++      <header class="dock-head">
++        <span class="kit-choice tabs">
++          <For each={TABS}>
++            {([tab, label]) => (
++              <button
++                aria-pressed={String(desk().inspector.tab === tab)}
++                onClick={() => inspect(tab)}>
++                {label}
++              </button>
++            )}
++          </For>
++        </span>
++        <span class="fill" />
++        <button class="icon" title="hide · ⌘⇧U" onClick={() => docking("inspector")}>
++          ⟩
++        </button>
++      </header>
++      <div class="scroll">
++        <Show
++          when={sourced() || desk().inspector.tab === "media"}
++          fallback={<span class="empty">no source open</span>}>
++          {PANES[desk().inspector.tab]()}
++        </Show>
++      </div>
++    </aside>
++  );
++
++  const Tuning = () => (
++    <div class="pop settings" onKeyDown={(event) => event.stopPropagation()}>
++      <header>
++        <b>settings</b>
++        <span class="fill" />
++        <button class="ghost" onClick={() => tune(Settings.cast({}))}>
++          defaults
++        </button>
++        <button class="icon" onClick={() => setTuning(false)}>
++          ×
++        </button>
++      </header>
++      <div class="setting">
++        <span>typeface</span>
++        <span class="kit-choice">
++          <For each={["sans", "serif", "mono"]}>
++            {(font) => (
++              <button
++                aria-pressed={String(settings().font === font)}
++                onClick={() => tune({ font })}>
++                {font}
++              </button>
++            )}
++          </For>
++        </span>
++      </div>
++      <For each={RANGES}>
++        {([key, label, low, high, step, unit]) => (
++          <label class="setting">
++            <span>{label}</span>
+             <input
+-              value={query()}
+-              onInput={(event) => setQuery(event.target.value)}
+-              placeholder="filter"
+-              aria-label="filter the sources"
++              type="range"
++              min={low}
++              max={high}
++              step={step}
++              value={settings()[key]}
++              onInput={(event) => tune({ [key]: Number(event.target.value) })}
+             />
++            <output>
++              {settings()[key]}
++              {unit}
++            </output>
+           </label>
+-          <div class="list">
+-            <Show when={shelf()}>
+-              <For each={GROUPS.map(([, name]) => name)}>
+-                {(name) => (
+-                  <Show when={group(name).length > 0}>
+-                    <span class="kit-label">
+-                      {name} · {group(name).length}
+-                    </span>
+-                    <For each={group(name)}>{(source) => <Row source={source} />}</For>
+-                  </Show>
+-                )}
+-              </For>
+-            </Show>
+-          </div>
+-          <form class="kit-field" onSubmit={create}>
+-            <span class="p">+</span>
++        )}
++      </For>
++      <For each={SWITCHES}>
++        {([key, label]) => (
++          <label class="setting switch">
++            <span>{label}</span>
+             <input
+-              value={fresh()}
+-              onInput={(event) => setFresh(event.target.value)}
+-              placeholder="on/a-new-essay.md"
+-              pattern=".+\.(md|org)"
+-              required
+-              aria-label="a new source's path under source/"
++              type="checkbox"
++              checked={settings()[key]}
++              onChange={() => tune({ [key]: !settings()[key] })}
+             />
+-          </form>
+-        </Show>
+-        <Show when={desk().rail === "files"}>
+-          <label class="kit-field upload">
+-            <span class="p">↑</span>
+-            <span>place pictures</span>
+-            <input type="file" accept="image/*" multiple onChange={choose} />
+           </label>
+-          <div class="list">
+-            <Show when={shelf()}>
+-              <div class="pictures">
+-                <For each={shelf().files.filter(pictured)}>
+-                  {(file) => (
+-                    <figure class="picture">
+-                      <img src={`${shelf().site}/${file.path}`} alt={file.path} loading="lazy" />
+-                      <figcaption title={file.path}>{file.path.split("/").at(-1)}</figcaption>
+-                      <span class="kit-choice">
+-                        <button
+-                          type="button"
+-                          classList={{ "is-off": draft() === undefined }}
+-                          onClick={() => figured(editor(), markup(open()).figure(file.path))}>
+-                          insert
+-                        </button>
+-                        <button
+-                          type="button"
+-                          classList={{ "is-off": draft() === undefined }}
+-                          aria-pressed={String(
+-                            draft() !== undefined && draft().front.image === `/${file.path}`,
+-                          )}
+-                          onClick={() => fronting("image", `/${file.path}`)}>
+-                          lead
+-                        </button>
+-                        <button
+-                          type="button"
+-                          aria-pressed={String(armed() === file.path)}
+-                          onClick={() => remove(file.path)}>
+-                          {armed() === file.path ? "sure?" : "remove"}
+-                        </button>
+-                      </span>
+-                    </figure>
+-                  )}
+-                </For>
+-              </div>
+-              <span class="kit-label">other files</span>
+-              <For each={shelf().files.filter((file) => !pictured(file))}>
+-                {(file) => (
+-                  <a
+-                    class="kit-row"
+-                    href={`${shelf().site}/${file.path}`}
+-                    target="_blank"
+-                    rel="noopener">
+-                    <span class="kit-dot" />
+-                    <span class="n">{file.path}</span>
+-                    <span />
+-                    <span class="v">{file.mime}</span>
+-                  </a>
+-                )}
+-              </For>
++        )}
++      </For>
++      <div class="setting">
++        <span>save after a pause</span>
++        <span class="kit-choice">
++          <For each={PAUSES}>
++            {(pause) => (
++              <button
++                aria-pressed={String(settings().autosave === pause)}
++                onClick={() => tune({ autosave: pause })}>
++                {pause === 0 ? "never" : `${pause}s`}
++              </button>
++            )}
++          </For>
++        </span>
++      </div>
++    </div>
++  );
++
++  const Palette = () => (
++    <div class="veil" onClick={() => setPalette(null)}>
++      <div class="pop palette" onClick={(event) => event.stopPropagation()}>
++        <input
++          value={palette()}
++          onInput={(event) => {
++            setPalette(event.target.value);
++            setPicked(0);
++          }}
++          onKeyDown={paletted}
++          placeholder="a command or a source"
++          ref={(element) => queueMicrotask(() => element.focus())}
++          aria-label="a command or a source"
++        />
++        <div class="list">
++          <For each={entries()}>
++            {(entry, index) => (
++              <button
++                class="entry"
++                aria-current={String(index() === picked())}
++                onMouseEnter={() => setPicked(index())}
++                onClick={() => ran(entry)}>
++                <span>{entry.label}</span>
++                <span class="hint">{entry.hint}</span>
++              </button>
++            )}
++          </For>
++        </div>
++      </div>
++    </div>
++  );
++
++  return (
++    <div
++      class="kit desk"
++      classList={{
++        "is-focus": desk().mode === "focus",
++        "is-narrow": narrow(),
++        "is-dragging": Object.values(dragged()).some((value) => value !== undefined),
++      }}
++      data-mode={mode()}
++      ref={(element) => {
++        root = element;
++        measured.observe(element);
++      }}
++      tabIndex="-1"
++      onKeyDown={key}
++      onFocusOut={kept}>
++      <header class="titlebar">
++        <button
++          class="icon"
++          aria-pressed={String(desk().library.shown)}
++          title="library · ⌘⇧E"
++          onClick={() => docking("library")}>
++          ◧
++        </button>
++        <button class="title" title="commands · ⌘P" onClick={() => setPalette("")}>
++          <Show when={open() !== null} fallback={<span class="muted">no source open · ⌘P</span>}>
++            <Show when={lying()}>
++              <span class={`kit-dot ${DOTS[state(lying())]}`} />
+             </Show>
+-          </div>
+-        </Show>
+-        <Show when={desk().rail === "outline"}>
+-          <div class="list">
+-            <Show
+-              when={draft() !== undefined && outline(open(), draft().body).length > 0}
+-              fallback={<span class="empty">no headings</span>}>
+-              <For each={outline(open(), draft().body)}>
+-                {(heading) => (
++            <b>{draft() === undefined ? open() : draft().front.title ?? titled(open())}</b>
++            <span class="muted">{open()}</span>
++            <Show when={dirty(open())}>
++              <span class="unsaved">● unsaved</span>
++            </Show>
++          </Show>
++        </button>
++        <span class="fill" />
++        <Show
++          when={narrow()}
++          fallback={
++            <span class="kit-choice modes">
++              <For each={MODES}>
++                {([shape, label, chord]) => (
+                   <button
+-                    class="kit-row heading"
+-                    style={{ "padding-left": `${heading.depth * 10}px` }}
+-                    onClick={() => reached(editor(), heading.line)}>
+-                    <span class="kit-dot" />
+-                    <span class="n">{heading.title}</span>
+-                    <span />
+-                    <span class="v">{heading.line}</span>
++                    aria-pressed={String(mode() === shape)}
++                    title={glyphed(chord)}
++                    onClick={() => moded(shape)}>
++                    {label}
+                   </button>
+                 )}
+               </For>
+-            </Show>
+-          </div>
+-        </Show>
+-      </aside>
+-      <main class="main">
+-        <div class="bar">
+-          <Show
+-            when={open() !== null}
+-            fallback={<span class="hint">pick a source, or name a new one</span>}>
+-            <Show
+-              when={moving() !== null}
+-              fallback={
+-                <button class="path" title="move it" onClick={() => setMoving(open())}>
+-                  {open()}
+-                </button>
+-              }>
+-              <form class="kit-field moving" onSubmit={move}>
+-                <span class="p">→</span>
+-                <input
+-                  value={moving()}
+-                  onInput={(event) => setMoving(event.target.value)}
+-                  onKeyDown={(event) => {
+-                    if (event.key === "Escape") setMoving(null);
+-                  }}
+-                  pattern=".+\.(md|org)"
+-                  required
+-                  ref={(element) => queueMicrotask(() => element.focus())}
+-                  aria-label="its new path under source/"
+-                />
+-              </form>
+-            </Show>
+-            <Show when={dirty(open())}>
+-              <span class="kit-dot is-needs" />
+-              <span>unsaved</span>
+-            </Show>
+-          </Show>
+-          <span class="fill" />
+-          <Show when={draft() !== undefined}>
+-            <span>
+-              {words()} words · {Math.max(1, Math.round(words() / 230))} min
+             </span>
+-          </Show>
+-          <span class="kit-choice">
+-            <For each={VIEWS}>
+-              {(shape) => (
+-                <button
+-                  type="button"
+-                  aria-pressed={String(desk().view === shape)}
+-                  onClick={() => settle({ view: shape })}>
+-                  {shape}
+-                </button>
+-              )}
++          }>
++          <select
++            class="modes"
++            value={mode()}
++            onChange={(event) => moded(event.target.value)}
++            aria-label="mode">
++            <For each={MODES.filter(([shape]) => shape !== "split")}>
++              {([shape, label]) => <option value={shape}>{label}</option>}
+             </For>
+-          </span>
+-          <Show when={open() !== null}>
+-            <span class="kit-choice">
+-              <button type="button" title="⌘S" onClick={save}>
+-                save
+-              </button>
+-              <button type="button" title="⌘⇧S" onClick={press}>
+-                press
+-              </button>
+-              <Show when={draft() !== undefined && known(draft().front).status !== "published"}>
+-                <button type="button" class="go" onClick={publish}>
+-                  publish
++          </select>
++        </Show>
++        <button
++          class="icon"
++          aria-pressed={String(desk().inspector.shown)}
++          title="inspector · ⌘⇧U"
++          onClick={() => docking("inspector")}>
++          ◨
++        </button>
++        <button
++          class="icon"
++          aria-pressed={String(tuning())}
++          title="settings · ⌘,"
++          onClick={() => setTuning(!tuning())}>
++          ⚙
++        </button>
++        <Show when={sourced()}>
++          <span class="kit-choice">
++            <button title="⌘S" onClick={save}>
++              save
++            </button>
++            <Show when={!narrow()}>
++              <Show
++                when={known(draft().front).status === "published"}
++                fallback={
++                  <button class="go" onClick={() => publish("published")}>
++                    publish
++                  </button>
++                }>
++                <button title="⌘⇧S" onClick={press}>
++                  press
+                 </button>
+               </Show>
+-              <button
+-                type="button"
+-                aria-pressed={String(armed() === open())}
+-                onClick={() => remove(open())}>
+-                {armed() === open() ? "sure?" : "remove"}
+-              </button>
+-            </span>
+-            <Show when={live()}>
+-              <a href={`${shelf().site}/${lying().article.page}`} target="_blank" rel="noopener">
+-                open ↗
+-              </a>
+             </Show>
+-          </Show>
+-        </div>
+-        <div class="panes" data-view={desk().view}>
+-          <section class="writing">
+-            <Show when={draft() !== undefined}>
+-              <div class="meta">
+-                <input
+-                  class="headline"
+-                  value={draft().front.title ?? ""}
+-                  onInput={(event) => fronting("title", event.target.value)}
+-                  placeholder={titled(open())}
+-                  aria-label="title"
+-                />
+-                <input
+-                  class="subtitle"
+-                  value={draft().front.subtitle ?? ""}
+-                  onInput={(event) => fronting("subtitle", event.target.value)}
+-                  placeholder="a subtitle, the line a link preview shows"
+-                  aria-label="subtitle"
+-                />
+-                <div class="facts">
+-                  <label class="kit-field">
+-                    <span class="p">date</span>
+-                    <input
+-                      value={draft().front.date ?? ""}
+-                      onInput={(event) => fronting("date", event.target.value)}
+-                      placeholder="none: a page"
+-                      pattern="\d{4}\.\d{2}\.\d{2}"
+-                      size="10"
+-                      aria-label="date, year.month.day"
+-                    />
+-                    <button
+-                      type="button"
+-                      class="ic"
+-                      title="today"
+-                      onClick={() => fronting("date", today())}>
+-                      ◷
+-                    </button>
+-                  </label>
+-                  <span class="kit-choice status">
+-                    <For each={STATUSES}>
+-                      {(status) => (
+-                        <button
+-                          type="button"
+-                          aria-pressed={String(known(draft().front).status === status)}
+-                          onClick={() => fronting("status", status)}>
+-                          <span class={`kit-dot ${DOTS[status]}`} /> {status}
+-                        </button>
+-                      )}
+-                    </For>
+-                  </span>
+-                  <label class="kit-field">
+-                    <span class="p">#</span>
+-                    <input
+-                      value={draft().front.tags ?? ""}
+-                      onInput={(event) => fronting("tags", event.target.value)}
+-                      placeholder="tags, comma-joined"
+-                      aria-label="tags"
+-                    />
+-                  </label>
+-                  <label class="kit-field">
+-                    <span class="p">lead</span>
+-                    <input
+-                      value={draft().front.image ?? ""}
+-                      onInput={(event) => fronting("image", event.target.value)}
+-                      placeholder="/images/…"
+-                      list="pictures"
+-                      aria-label="lead picture"
+-                    />
+-                    <datalist id="pictures">
+-                      <For each={shelf() ? shelf().files.filter(pictured) : []}>
+-                        {(file) => <option value={`/${file.path}`} />}
+-                      </For>
+-                    </datalist>
+-                  </label>
+-                </div>
+-                <For each={faults()}>
+-                  {(fault) => (
+-                    <span class="fault">
+-                      <span class="kit-dot is-fault" />
+-                      {fault.at} {fault.reason}
+-                    </span>
+-                  )}
+-                </For>
+-              </div>
+-              <div class="tools kit-choice">
++          </span>
++        </Show>
++      </header>
++      <Show when={tuning()}>
++        <Tuning />
++      </Show>
++      <Show when={palette() !== null}>
++        <Palette />
++      </Show>
++      <div class="body">
++        <Show when={narrow() && drawer() !== null}>
++          <div class="veil drawn" onClick={() => setDrawer(null)} />
++        </Show>
++        <Show when={docked("library")}>
++          <Library />
++        </Show>
++        <Show when={docked("library") && !narrow()}>
++          <Seam
++            onDrag={resize("library", 1)}
++            onDone={resized("library")}
++            onReset={() => settle({ library: { ...desk().library, width: 264 } })}
++          />
++        </Show>
++        <main class="middle">
++          <section
++            class="writing"
++            classList={{ "is-hidden": mode() === "preview" }}
++            style={{ flex: mode() === "split" ? `0 0 ${share() * 100}%` : "1 1 auto" }}>
++            <Show when={sourced() && mode() !== "focus"}>
++              <div class="tools">
+                 <For each={MARKS}>
+-                  {([name, glyph]) => (
++                  {([name, glyph, label]) => (
+                     <button
+-                      type="button"
+-                      class={name}
+-                      title={KEYS[name] === undefined ? name : `${name} · ${KEYS[name]}`}
+-                      onClick={() => wrapped(editor(), markup(open()).marks[name])}>
++                      class={`tool ${name}`}
++                      title={KEYS[name] === undefined ? label : `${label} · ${KEYS[name]}`}
++                      onClick={marked(name)}>
+                       {glyph}
+                     </button>
+                   )}
+                 </For>
+                 <span class="gap" />
+                 <For each={LINES}>
+-                  {([name, glyph]) => (
+-                    <button
+-                      type="button"
+-                      title={name}
+-                      onClick={() => prefixed(editor(), markup(open()).lines[name])}>
++                  {([name, glyph, label]) => (
++                    <button class="tool" title={label} onClick={lined(name)}>
+                       {glyph}
+                     </button>
+                   )}
+                 </For>
+                 <span class="gap" />
+-                <button type="button" title="pictures" onClick={() => settle({ rail: "files" })}>
++                <button class="tool" title="picture" onClick={() => inspect("media")}>
+                   ▣
+                 </button>
+-                <button type="button" title="outline" onClick={() => settle({ rail: "outline" })}>
+-                  ☰
++                <button class="tool" title="find · ⌘F" onClick={() => searched(editor())}>
++                  ⌕
+                 </button>
++                <span class="fill" />
++                <Show when={heading()}>
++                  <span class="crumb">§ {heading().title}</span>
++                </Show>
+               </div>
+             </Show>
+-            <div class="sheet" classList={{ "is-hidden": draft() === undefined }} ref={host} />
++            <Show when={!sourced()}>
++              <div class="welcome">
++                <b>nothing on the desk</b>
++                <span>pick a source in the library, or</span>
++                <span class="kit-choice">
++                  <button onClick={() => setFresh("on/")}>start a new one</button>
++                  <button onClick={() => setPalette("")}>⌘P find one</button>
++                </span>
++              </div>
++            </Show>
++            <div class="sheet" classList={{ "is-hidden": !sourced() }} ref={host} />
+           </section>
+-          <iframe class="page" srcdoc={preview()} sandbox="" title="the page as pressed" />
+-        </div>
+-        <div class="foot">
+-          <Show when={busy()}>
+-            <span class="kit-dot is-running" />
++          <Show when={mode() === "split"}>
++            <Seam onDrag={sharing} onDone={shared} onReset={() => settle({ share: 0.5 })} />
+           </Show>
+-          <Show when={fault()} fallback={<span>{told()}</span>}>
+-            <span class="fault">
+-              <span class="kit-dot is-fault" />
+-              {fault()}
+-            </span>
++          <section
++            class="pressed"
++            classList={{ "is-hidden": ["write", "focus"].includes(mode()) }}>
++            <div class="pressbar">
++              <span class="kit-choice">
++                <For each={DEVICES}>
++                  {([device, glyph]) => (
++                    <button
++                      aria-pressed={String(desk().device === device)}
++                      title={`${device} width`}
++                      onClick={() => settle({ device })}>
++                      {glyph}
++                    </button>
++                  )}
++                </For>
++              </span>
++              <span class="fill" />
++              <label class="toggle">
++                <input
++                  type="checkbox"
++                  checked={settings().sync}
++                  onChange={() => tune({ sync: !settings().sync })}
++                />
++                follow
++              </label>
++              <Show when={live()}>
++                <a href={`${shelf().site}/${lying().article.page}`} target="_blank" rel="noopener">
++                  live ↗
++                </a>
++              </Show>
++            </div>
++            <div class="stage">
++              <Show when={preview() !== ""} fallback={<span class="empty">no page yet</span>}>
++                <iframe
++                  ref={frame}
++                  class="page"
++                  style={{ width: DEVICES.find(([device]) => device === desk().device)[2] }}
++                  srcdoc={preview()}
++                  sandbox="allow-same-origin"
++                  onLoad={followed}
++                  title="the page as pressed"
++                />
++              </Show>
++            </div>
++          </section>
++        </main>
++        <Show when={docked("inspector") && !narrow()}>
++          <Seam
++            onDrag={resize("inspector", -1)}
++            onDone={resized("inspector")}
++            onReset={() => settle({ inspector: { ...desk().inspector, width: 320 } })}
++          />
++        </Show>
++        <Show when={docked("inspector")}>
++          <Inspector />
++        </Show>
++      </div>
++      <footer class="status">
++        <Show when={busy()}>
++          <span class="kit-dot is-running" />
++        </Show>
++        <Show when={sourced()}>
++          <span>
++            Ln {at().line}, Col {at().column}
++          </span>
++          <Show when={at().chosen > 0}>
++            <span>{at().chosen} chosen</span>
+           </Show>
+-          <span class="fill" />
+-          <span>⌘S save · ⌘⇧S press · ⌘\ view · ⌘F find</span>
+-        </div>
+-      </main>
++          <span>{words()} words</span>
++          <span>{Math.max(1, Math.round(words() / 230))} min</span>
++          <span>{dirty(open()) ? "● unsaved" : stamp()}</span>
++        </Show>
++        <Show when={fault()} fallback={<span class="told">{told()}</span>}>
++          <span class="fault">
++            <span class="kit-dot is-fault" />
++            {fault()}
++          </span>
++        </Show>
++        <span class="fill" />
++        <Show when={settings().autosave > 0}>
++          <span>autosave {settings().autosave}s</span>
++        </Show>
++        <button class="ghost" onClick={() => setPalette("")}>
++          ⌘P commands
++        </button>
++      </footer>
+     </div>
+   );
+ };
+diff --color -ruN blog/buffer/desk.css /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/buffer/desk.css
+--- blog/buffer/desk.css	2026-11-24 10:56:21.707143640 +0100
++++ /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/buffer/desk.css	2026-11-24 11:06:20.144299274 +0100
+@@ -1,55 +1,528 @@
+-*{box-sizing:border-box}
+-:host{flex:1;min-height:0;display:flex;flex-direction:column}
+-a{color:var(--text-link)}a:hover{color:var(--text-strong)}
+-.desk:focus{outline:0}
+-.desk{flex:1;min-height:0;display:grid;grid-template-columns:264px minmax(0,1fr);gap:var(--size-space-sm);padding:var(--size-space-sm)}
+-.rail{display:flex;flex-direction:column;gap:var(--size-space-xs);min-height:0;padding-right:var(--size-space-sm);box-shadow:inset calc(-1 * var(--size-ring)) 0 0 var(--boundary)}
+-.rail .tabs{justify-content:space-between}
+-.list{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+-.list .kit-label{padding:var(--size-space-sm) var(--size-space-xs) var(--size-space-2xs)}
+-.list .kit-label:first-child{padding-top:0}
++* { box-sizing: border-box; }
++:host { flex: 1; min-height: 0; display: flex; flex-direction: column; }
++a { color: var(--text-link); }
++a:hover { color: var(--text-strong); }
++button { font: inherit; color: inherit; }
++
++.desk {
++  flex: 1;
++  min-height: 0;
++  display: flex;
++  flex-direction: column;
++  position: relative;
++  background: var(--plane-lift);
++  color: var(--text-ink);
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-xs);
++}
++.desk:focus { outline: 0; }
++.fill { flex: 1; }
++.muted { color: var(--text-muted); }
++.unsaved { color: var(--signal-caution-ink); }
++.empty { display: block; padding: var(--size-space-md); color: var(--text-muted); }
++
++.icon, .ghost, .tool, .group, .row, .entry {
++  appearance: none;
++  border: 0;
++  background: transparent;
++  cursor: pointer;
++}
++.icon {
++  width: 26px;
++  height: 26px;
++  display: inline-grid;
++  place-items: center;
++  border-radius: var(--shape-radius-key);
++  color: var(--text-muted);
++  font-size: var(--size-type-sm);
++}
++.icon:hover { color: var(--text-strong); background: var(--control-selected); }
++.titlebar .icon { width: 30px; height: 30px; font-size: var(--size-type-lg); }
++.icon[aria-pressed="true"] { color: var(--signal-primary-ink); }
++.ghost {
++  padding: 2px var(--size-space-xs);
++  border-radius: var(--shape-radius-key);
++  color: var(--text-muted);
++  box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
++}
++.ghost:hover { color: var(--text-strong); }
++
++.titlebar {
++  display: flex;
++  align-items: center;
++  gap: var(--size-space-xs);
++  height: 38px;
++  padding: 0 var(--size-space-xs);
++  box-shadow: inset 0 calc(-1 * var(--size-ring)) 0 var(--boundary);
++  transition: opacity 200ms ease;
++}
++.titlebar .title {
++  appearance: none;
++  border: 0;
++  background: transparent;
++  display: flex;
++  align-items: center;
++  gap: var(--size-space-xs);
++  min-width: 0;
++  max-width: 50%;
++  height: 28px;
++  padding: 0 var(--size-space-sm);
++  border-radius: var(--shape-radius-key);
++  cursor: pointer;
++  white-space: nowrap;
++  overflow: hidden;
++}
++.titlebar .title:hover { background: var(--control-selected); }
++.titlebar .title b {
++  color: var(--text-strong);
++  font-family: var(--font-family-sans-text);
++  font-size: var(--size-type-sm);
++  overflow: hidden;
++  text-overflow: ellipsis;
++}
++.kit-choice > button.go {
++  color: var(--signal-positive-ink);
++  box-shadow: inset 0 0 0 var(--size-ring) var(--signal-positive);
++}
++
++.body { flex: 1; min-height: 0; display: flex; }
++
++.dock {
++  flex: none;
++  min-height: 0;
++  display: flex;
++  flex-direction: column;
++  gap: var(--size-space-xs);
++  padding: var(--size-space-xs);
++}
++.dock-head { display: flex; align-items: center; gap: var(--size-space-2xs); min-height: 28px; }
++.dock-head .kit-label { padding-left: var(--size-space-xs); }
++.scroll {
++  flex: 1;
++  min-height: 0;
++  overflow-y: auto;
++  display: flex;
++  flex-direction: column;
++  gap: 2px;
++}
++
++.seam {
++  flex: none;
++  width: 9px;
++  margin: 0 -4px;
++  position: relative;
++  z-index: 3;
++  cursor: col-resize;
++  background: linear-gradient(
++    to right, transparent 4px, var(--boundary) 4px, var(--boundary) 5px, transparent 5px
++  );
++}
++.seam:hover, .seam.drag {
++  background: linear-gradient(
++    to right, transparent 3px, var(--signal-primary) 3px, var(--signal-primary) 6px, transparent 6px
++  );
++}
++
++.group {
++  display: flex;
++  align-items: center;
++  gap: var(--size-space-xs);
++  padding: var(--size-space-sm) var(--size-space-xs) var(--size-space-2xs);
++  color: var(--text-muted);
++}
++.group .count { margin-left: auto; color: var(--text-light); }
++
++.row {
++  width: 100%;
++  display: grid;
++  grid-template-columns: 2ch minmax(0, 1fr) 1.5ch auto;
++  align-items: center;
++  gap: var(--size-space-xs);
++  height: 28px;
++  padding: 0 var(--size-space-xs);
++  border-radius: var(--shape-radius-key);
++  color: var(--text-strong);
++  text-align: left;
++  text-decoration: none;
++}
++.row:hover, .row[aria-current="true"] { background: var(--control-selected); }
++.row .n {
++  font-family: var(--font-family-sans-text);
++  font-size: var(--size-type-sm);
++  white-space: nowrap;
++  overflow: hidden;
++  text-overflow: ellipsis;
++}
++.row .v { color: var(--text-muted); white-space: nowrap; }
++.row.heading { grid-template-columns: minmax(0, 1fr) 0 0 auto; }
++.row.heading[aria-current="true"] .n { color: var(--signal-primary-ink); }
++.kit-field.new { box-shadow: inset 0 0 0 2px var(--control-focus); }
++
++.middle { flex: 1; min-width: 0; min-height: 0; display: flex; }
++.writing, .pressed { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
++.pressed { flex: 1 1 auto; background: var(--plane-sunk); }
++.is-hidden { display: none !important; }
++
++.tools {
++  display: flex;
++  align-items: center;
++  gap: 1px;
++  padding: var(--size-space-2xs) var(--size-space-sm);
++  box-shadow: inset 0 calc(-1 * var(--size-ring)) 0 var(--boundary);
++}
++.tool {
++  min-width: 28px;
++  height: 26px;
++  padding: 0 var(--size-space-xs);
++  border-radius: var(--shape-radius-key);
++  color: var(--text-muted);
++}
++.tool:hover { color: var(--text-strong); background: var(--control-selected); }
++.tool.bold { font-weight: 700; }
++.tool.italic { font-style: italic; }
++.tool.strike { text-decoration: line-through; }
++.tools .gap { width: var(--size-space-sm); }
++.crumb { color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
++
++.sheet { flex: 1; min-height: 0; }
++.welcome {
++  margin: auto;
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  gap: var(--size-space-sm);
++  color: var(--text-muted);
++}
++.welcome b {
++  color: var(--text-strong);
++  font-family: var(--font-family-sans-text);
++  font-size: var(--size-type-lg);
++}
++
++.pressbar {
++  display: flex;
++  align-items: center;
++  gap: var(--size-space-sm);
++  min-height: 35px;
++  padding: 0 var(--size-space-sm);
++  background: var(--plane-lift);
++  box-shadow: inset 0 calc(-1 * var(--size-ring)) 0 var(--boundary);
++  color: var(--text-muted);
++}
++.pressbar > * { flex: none; white-space: nowrap; }
++.pressbar > .fill { flex: 1; }
++.toggle { display: inline-flex; align-items: center; gap: var(--size-space-2xs); cursor: pointer; }
++.stage {
++  flex: 1;
++  min-height: 0;
++  display: flex;
++  justify-content: center;
++  padding: var(--size-space-sm);
++  overflow: auto;
++}
++.page {
++  max-width: 100%;
++  height: 100%;
++  border: 0;
++  border-radius: var(--shape-radius-card);
++  box-shadow: 0 0 0 var(--size-ring) var(--boundary), var(--shape-lift);
++  background: white;
++  transition: width 220ms ease;
++}
++
++.form {
++  display: flex;
++  flex-direction: column;
++  gap: var(--size-space-sm);
++  padding: var(--size-space-2xs);
++}
++.field { display: flex; flex-direction: column; gap: var(--size-space-2xs); }
++.field > span {
++  color: var(--text-muted);
++  font-size: var(--size-type-2xs);
++  text-transform: uppercase;
++}
++.field input, .field textarea {
++  width: 100%;
++  min-height: 30px;
++  padding: var(--size-space-2xs) var(--size-space-xs);
++  border: 0;
++  outline: 0;
++  border-radius: var(--shape-radius-field);
++  background: var(--control-field);
++  box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
++  color: var(--text-strong);
++  font-family: var(--font-family-sans-text);
++  font-size: var(--size-type-sm);
++  resize: vertical;
++}
++.field input:focus, .field textarea:focus { box-shadow: inset 0 0 0 2px var(--control-focus); }
++.field input:invalid { box-shadow: inset 0 0 0 var(--size-ring) var(--signal-negative); }
++.with { display: flex; align-items: center; gap: var(--size-space-2xs); }
++.lead { margin: 0; display: flex; flex-direction: column; gap: var(--size-space-2xs); }
++.lead img {
++  width: 100%;
++  max-height: 160px;
++  object-fit: cover;
++  border-radius: var(--shape-radius-card);
++}
++.lead figcaption { display: flex; align-items: center; color: var(--text-muted); }
++.lead figcaption span { flex: 1; overflow: hidden; text-overflow: ellipsis; }
++.actions {
++  display: flex;
++  align-items: center;
++  gap: var(--size-space-sm);
++  padding-top: var(--size-space-sm);
++}
++.danger {
++  appearance: none;
++  border: 0;
++  padding: var(--size-space-2xs) var(--size-space-sm);
++  border-radius: var(--shape-radius-key);
++  background: transparent;
++  color: var(--signal-negative-ink);
++  box-shadow: inset 0 0 0 var(--size-ring) var(--signal-negative);
++  cursor: pointer;
++}
++.danger[aria-pressed="true"] { background: var(--signal-negative-tint); }
++.actions { flex-wrap: wrap; }
++.actions > * { white-space: nowrap; }
++
++.media { display: flex; flex-direction: column; gap: var(--size-space-sm); }
++.drop {
++  position: relative;
++  display: grid;
++  place-items: center;
++  min-height: 64px;
++  border-radius: var(--shape-radius-card);
++  box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
++  background: var(--plane-sunk);
++  color: var(--text-muted);
++  cursor: pointer;
++}
++.drop:hover { color: var(--text-strong); box-shadow: inset 0 0 0 2px var(--control-focus); }
++.drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
++.pictures {
++  display: grid;
++  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
++  gap: var(--size-space-xs);
++}
++.picture {
++  margin: 0;
++  position: relative;
++  display: flex;
++  flex-direction: column;
++  gap: var(--size-space-2xs);
++  padding: var(--size-space-2xs);
++  border-radius: var(--shape-radius-card);
++  box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
++}
++.picture.is-lead { box-shadow: inset 0 0 0 2px var(--signal-primary); }
++.picture img {
++  width: 100%;
++  aspect-ratio: 1;
++  object-fit: cover;
++  border-radius: var(--shape-radius-key);
++}
++.picture figcaption {
++  color: var(--text-muted);
++  white-space: nowrap;
++  overflow: hidden;
++  text-overflow: ellipsis;
++}
++.picture .over {
++  position: absolute;
++  inset: var(--size-space-2xs) var(--size-space-2xs) auto;
++  display: flex;
++  gap: 2px;
++  opacity: 0;
++  transition: opacity 120ms ease;
++}
++.picture:hover .over { opacity: 1; }
++.over button {
++  appearance: none;
++  border: 0;
++  padding: 2px 6px;
++  border-radius: var(--shape-radius-key);
++  background: var(--plane-lift);
++  color: var(--text-strong);
++  cursor: pointer;
++}
++.over button:hover { background: var(--control-contrast-hover); }
++.over button.is-off { opacity: var(--text-disabled); pointer-events: none; }
++
++.stats { display: grid; grid-template-columns: 1fr 1fr; gap: var(--size-space-xs); }
++.stat {
++  display: flex;
++  flex-direction: column;
++  gap: 2px;
++  padding: var(--size-space-sm);
++  border-radius: var(--shape-radius-card);
++  background: var(--plane-sunk);
++}
++.stat b {
++  color: var(--text-strong);
++  font-family: var(--font-family-sans-heading);
++  font-size: var(--size-type-xl);
++}
++.stat span { color: var(--text-muted); }
++
++.pop {
++  position: absolute;
++  z-index: 20;
++  display: flex;
++  flex-direction: column;
++  gap: var(--size-space-xs);
++  padding: var(--size-space-sm);
++  border-radius: var(--shape-radius-card);
++  background: var(--plane-lift);
++  box-shadow: 0 0 0 var(--size-ring) var(--boundary), var(--shape-lift);
++}
++.pop header { display: flex; align-items: center; gap: var(--size-space-xs); }
++.pop header b { color: var(--text-strong); }
++.settings { top: 42px; right: var(--size-space-sm); width: 320px; }
++.setting {
++  display: grid;
++  grid-template-columns: 1fr auto;
++  align-items: center;
++  gap: var(--size-space-xs);
++  min-height: 28px;
++}
++.setting input[type="range"] {
++  grid-column: 1 / -1;
++  width: 100%;
++  accent-color: var(--signal-primary);
++}
++.setting output { grid-row: 1; grid-column: 2; color: var(--text-strong); }
++.setting.switch input { accent-color: var(--signal-primary); }
++
++.veil {
++  position: absolute;
++  inset: 0;
++  z-index: 30;
++  background: color-mix(in srgb, var(--plane-sunk) 55%, transparent);
++}
++.palette {
++  top: 12%;
++  left: 50%;
++  transform: translateX(-50%);
++  width: min(560px, 90%);
++  padding: 0;
++  overflow: hidden;
++}
++.palette input {
++  width: 100%;
++  height: 44px;
++  padding: 0 var(--size-space-md);
++  border: 0;
++  outline: 0;
++  background: transparent;
++  color: var(--text-strong);
++  font-family: var(--font-family-sans-text);
++  font-size: var(--size-type-md);
++  box-shadow: inset 0 calc(-1 * var(--size-ring)) 0 var(--boundary);
++}
++.palette .list { max-height: 50vh; overflow-y: auto; padding: var(--size-space-2xs); }
++.entry {
++  width: 100%;
++  display: flex;
++  justify-content: space-between;
++  gap: var(--size-space-sm);
++  padding: var(--size-space-xs) var(--size-space-sm);
++  border-radius: var(--shape-radius-key);
++  color: var(--text-ink);
++  text-align: left;
++}
++.entry[aria-current="true"] { background: var(--control-selected); color: var(--text-strong); }
++.entry .hint { color: var(--text-muted); }
++
++.status {
++  display: flex;
++  align-items: center;
++  gap: var(--size-space-sm);
++  min-height: 26px;
++  padding: 0 var(--size-space-sm);
++  box-shadow: inset 0 var(--size-ring) 0 var(--boundary);
++  color: var(--text-muted);
++  white-space: nowrap;
++  transition: opacity 200ms ease;
++}
++.told { overflow: hidden; text-overflow: ellipsis; }
++.fault {
++  display: flex;
++  align-items: center;
++  gap: var(--size-space-xs);
++  padding: var(--size-space-2xs) var(--size-space-sm);
++  overflow-wrap: anywhere;
++  white-space: normal;
++  color: var(--signal-negative-ink);
++  background: var(--signal-negative-tint);
++  border-radius: var(--shape-radius-key);
++}
++
++.desk.is-focus .titlebar, .desk.is-focus .status { opacity: 0.08; }
++.veil.drawn { z-index: 9; }
++.desk.is-dragging { cursor: col-resize; user-select: none; }
++.desk.is-dragging iframe { pointer-events: none; }
++
++.desk.is-narrow { font-size: var(--size-type-sm); }
++.desk.is-narrow .body { position: relative; }
++.desk.is-narrow .dock {
++  position: absolute;
++  top: 0;
++  bottom: 0;
++  z-index: 10;
++  width: min(88%, 380px) !important;
++  background: var(--plane-lift);
++  box-shadow: var(--shape-lift), 0 0 0 var(--size-ring) var(--boundary);
++  animation: drawn 180ms cubic-bezier(0.16, 1, 0.3, 1);
++}
++.desk.is-narrow .library { left: 0; }
++.desk.is-narrow .inspector { right: 0; }
++.desk.is-narrow .titlebar { height: 46px; gap: 2px; }
++.desk.is-narrow .titlebar .title { max-width: none; flex: 1; padding: 0 var(--size-space-xs); }
++.desk.is-narrow .titlebar .title b + .muted,
++.desk.is-narrow .titlebar .title .unsaved { display: none; }
++.titlebar > .kit-choice, .titlebar > .icon { flex: none; flex-wrap: nowrap; }
++.desk.is-narrow .titlebar .title { min-width: 0; }
++select.modes {
++  flex: none;
++  height: 34px;
++  padding: 0 var(--size-space-xs);
++  border: 0;
++  border-radius: var(--shape-radius-key);
++  background: var(--control-selected);
++  color: var(--text-strong);
++  font: inherit;
++}
++.desk.is-narrow .titlebar > .fill { display: none; }
++.desk.is-narrow .icon { width: 38px; height: 38px; font-size: var(--size-type-md); }
++.desk.is-narrow .kit-choice > button { height: 34px; }
++.desk.is-narrow .row { height: 42px; }
++.desk.is-narrow .tools { overflow-x: auto; scrollbar-width: none; flex: none; }
++.desk.is-narrow .tool { min-width: 38px; height: 36px; flex: none; }
++.desk.is-narrow .crumb { display: none; }
++.desk.is-narrow .status { overflow-x: auto; scrollbar-width: none; }
++.desk.is-narrow .status .told { display: none; }
++.desk.is-narrow .settings {
++  left: var(--size-space-xs);
++  right: var(--size-space-xs);
++  width: auto;
++}
++.desk.is-narrow .palette {
++  top: var(--size-space-sm);
++  width: calc(100% - 2 * var(--size-space-sm));
++}
++.desk.is-narrow .picture .over { opacity: 1; }
++.desk.is-narrow .pressbar .kit-choice > button { padding: 0 var(--size-space-xs); }
++@keyframes drawn {
++  from { transform: translateX(var(--from, -12px)); opacity: 0.4; }
++}
++.desk.is-narrow .inspector { --from: 12px; }
++.desk.is-focus .titlebar:hover, .desk.is-focus .status:hover { opacity: 1; }
++.desk.is-focus .writing { background: var(--plane-sunk); }
+ .kit-row .unsaved{color:var(--signal-caution-ink);font-size:var(--size-type-2xs)}
+-a.kit-row{text-decoration:none}
+-.heading .n{color:var(--text-ink)}
+-.upload{position:relative;cursor:pointer;color:var(--text-muted);font-family:var(--font-family-code);font-size:var(--size-type-xs)}
+-.upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
+-.pictures{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--size-space-xs);margin-bottom:var(--size-space-sm)}
+-.picture{margin:0;display:flex;flex-direction:column;gap:var(--size-space-2xs);padding:var(--size-space-2xs);border-radius:var(--shape-radius-card);box-shadow:inset 0 0 0 var(--size-ring) var(--boundary)}
+-.picture img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--shape-radius-key);background:var(--plane-sunk)}
+-.picture figcaption{font-family:var(--font-family-code);font-size:var(--size-type-2xs);color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+-.picture .kit-choice{gap:0}.picture .kit-choice>button{padding:0 var(--size-space-2xs);font-size:var(--size-type-2xs)}
+-.main{min-width:0;min-height:0;display:flex;flex-direction:column;gap:var(--size-space-xs)}
+-.bar,.foot{display:flex;align-items:center;gap:var(--size-space-sm);font-family:var(--font-family-code);font-size:var(--size-type-xs);color:var(--text-muted);min-height:26px;padding:0 var(--size-space-2xs)}
+-.fill{flex:1}
+-.hint,.empty{color:var(--text-muted);font-family:var(--font-family-code);font-size:var(--size-type-xs)}
+-.empty{padding:var(--size-space-sm)}
+-.path{appearance:none;border:0;background:transparent;padding:0 var(--size-space-2xs);border-radius:var(--shape-radius-key);font:inherit;color:var(--text-strong);font-weight:600;cursor:text}
+-.path:hover{background:var(--control-selected)}
+-.moving{min-height:24px;min-width:280px;font-family:var(--font-family-code);font-size:var(--size-type-xs)}
+ .kit-choice>button.go{color:var(--signal-positive-ink);box-shadow:inset 0 0 0 var(--size-ring) var(--signal-positive)}
+-.panes{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--size-space-sm)}
+-.panes[data-view="write"],.panes[data-view="page"]{grid-template-columns:minmax(0,1fr)}
+-.panes[data-view="write"] .page,.panes[data-view="page"] .writing{display:none}
+-.writing{min-height:0;display:flex;flex-direction:column;border-radius:var(--shape-radius-card);background:var(--plane-sunk);box-shadow:inset 0 0 0 var(--size-ring) var(--boundary);overflow:hidden}
+-.meta{display:flex;flex-direction:column;gap:var(--size-space-2xs);width:100%;max-width:calc(680px + 2 * var(--size-space-md));margin:0 auto;padding:var(--size-space-md) var(--size-space-md) var(--size-space-xs)}
+-.meta input.headline,.meta input.subtitle{border:0;outline:0;background:transparent;padding:0;margin:0;color:var(--text-strong);font-family:var(--font-family-sans-heading);caret-color:var(--signal-primary)}
+-.headline{font-size:var(--size-type-2xl);font-weight:700;line-height:1.2}
+-.meta input.subtitle{font-size:var(--size-type-md);color:var(--text-muted);font-family:var(--font-family-sans-text)}
+-.headline::placeholder,.subtitle::placeholder{color:var(--control-field-placeholder)}
+-.facts{display:flex;flex-wrap:wrap;align-items:center;gap:var(--size-space-xs);margin-top:var(--size-space-xs)}
+-.facts .kit-field{min-height:26px;padding:0 var(--size-space-xs);font-size:var(--size-type-xs)}
+-.facts .kit-field .p{color:var(--text-muted);font-size:var(--size-type-2xs)}
+-.facts .kit-field input{width:20ch}
+-.facts .kit-field input[aria-label^="date"]{width:10ch}
+-.facts .kit-field input:invalid{color:var(--signal-negative-ink)}
+-.status>button{display:inline-flex;align-items:center;gap:var(--size-space-2xs)}
+-.tools{width:100%;max-width:calc(680px + 2 * var(--size-space-md));margin:0 auto;padding:var(--size-space-2xs) var(--size-space-md);align-items:center;box-shadow:inset 0 calc(-1 * var(--size-ring)) 0 var(--boundary)}
+-.tools .bold{font-weight:700}.tools .italic{font-style:italic}
+-.tools .gap{width:var(--size-space-sm)}
+-.sheet{flex:1;min-height:0}
+-.sheet.is-hidden{display:none}
+-.page{width:100%;height:100%;border:0;border-radius:var(--shape-radius-card);box-shadow:inset 0 0 0 var(--size-ring) var(--boundary);background:var(--plane-sunk)}
+-.fault{display:flex;align-items:center;gap:var(--size-space-xs);padding:var(--size-space-2xs) var(--size-space-sm);overflow-wrap:anywhere;font-family:var(--font-family-code);font-size:var(--size-type-xs);color:var(--signal-negative-ink);background:linear-gradient(var(--signal-negative-tint),var(--signal-negative-tint)),var(--plane-sunk);box-shadow:inset 0 var(--size-ring) 0 var(--signal-negative);border-radius:var(--shape-radius-key)}
+ .kit-label {font-family: var(--font-family-code); font-size: var(--size-type-2xs); color: var(--text-muted); text-transform: var(--shape-label-case); letter-spacing: var(--shape-label-track);}
+ .kit :focus-visible, .kit-tty :focus-visible {outline: 2px solid var(--control-focus); outline-offset: -2px;}
+ .kit-dot {display: inline-block; flex: none; width: 6px; height: 6px; border-radius: var(--shape-radius-disc); background: var(--text-muted);}
+diff --color -ruN blog/buffer/editor.js /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/buffer/editor.js
+--- blog/buffer/editor.js	2026-11-24 10:56:21.707367636 +0100
++++ /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/buffer/editor.js	2026-11-24 11:00:38.269902923 +0100
+@@ -1,13 +1,22 @@
+-import { EditorSelection, EditorState } from "@codemirror/state";
++import { Compartment, EditorSelection, EditorState, RangeSetBuilder } from "@codemirror/state";
+ import {
++  Decoration,
+   drawSelection,
+   EditorView,
++  highlightActiveLineGutter,
+   highlightSpecialChars,
+   keymap,
++  lineNumbers,
+   placeholder,
++  ViewPlugin,
+ } from "@codemirror/view";
+ import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
+-import { highlightSelectionMatches, search, searchKeymap } from "@codemirror/search";
++import {
++  highlightSelectionMatches,
++  openSearchPanel,
++  search,
++  searchKeymap,
++} from "@codemirror/search";
+ import {
+   defineLanguageFacet,
+   HighlightStyle,
+@@ -23,23 +32,32 @@
+ 
+ export const KEYS = { bold: "Mod-b", italic: "Mod-i", code: "Mod-e", link: "Mod-k" };
+ 
++export const FONTS = {
++  sans: "var(--font-family-sans-text)",
++  serif: "var(--font-family-serif-text)",
++  mono: "var(--font-family-code)",
++};
++
+ const theme = EditorView.theme({
+   "&": { height: "100%", color: "var(--text-ink)", backgroundColor: "transparent" },
+   "&.cm-focused": { outline: "none" },
+-  ".cm-scroller": {
+-    fontFamily: "var(--font-family-sans-text)",
+-    fontSize: "var(--size-type-md)",
+-    lineHeight: "1.75",
+-    overflow: "auto",
+-  },
++  ".cm-scroller": { overflow: "auto" },
+   ".cm-content": {
+     width: "100%",
+-    maxWidth: "680px",
+     margin: "0 auto",
+-    padding: "var(--size-space-md) var(--size-space-md) 40vh",
++    padding: "var(--size-space-xl) var(--size-space-md) 45vh",
+     caretColor: "var(--signal-primary)",
+   },
+-  ".cm-line": { padding: "0" },
++  ".cm-line": { padding: "0", transition: "opacity 160ms ease" },
++  ".cm-line.cm-dim": { opacity: "0.28" },
++  ".cm-gutters": {
++    backgroundColor: "transparent",
++    border: "none",
++    color: "var(--text-light)",
++    fontFamily: "var(--font-family-code)",
++    fontSize: "var(--size-type-2xs)",
++  },
++  ".cm-activeLineGutter": { backgroundColor: "transparent", color: "var(--text-strong)" },
+   ".cm-cursor, .cm-dropCursor": {
+     borderLeftColor: "var(--signal-primary)",
+     borderLeftWidth: "2px",
+@@ -51,9 +69,21 @@
+   ".cm-panels": {
+     backgroundColor: "var(--plane-lift)",
+     color: "var(--text-ink)",
+-    borderBottom: "var(--size-ring) solid var(--boundary)",
++    fontFamily: "var(--font-family-code)",
++    fontSize: "var(--size-type-xs)",
+   },
+-  ".cm-panels input, .cm-panels button": { font: "inherit" },
++  ".cm-panels-top": { borderBottom: "var(--size-ring) solid var(--boundary)" },
++  ".cm-panel.cm-search": { padding: "var(--size-space-xs) var(--size-space-sm)" },
++  ".cm-panel.cm-search input, .cm-panel.cm-search button": {
++    font: "inherit",
++    color: "inherit",
++    background: "var(--control-field)",
++    border: "none",
++    boxShadow: "inset 0 0 0 var(--size-ring) var(--boundary)",
++    borderRadius: "var(--shape-radius-key)",
++    padding: "2px 6px",
++  },
++  ".cm-panel.cm-search label": { fontSize: "var(--size-type-2xs)" },
+   ".cm-searchMatch": { backgroundColor: tint("caution", 30) },
+   ".cm-searchMatch.cm-searchMatch-selected": { backgroundColor: tint("primary", 35) },
+   ".cm-selectionMatch": { backgroundColor: tint("primary", 12) },
+@@ -105,8 +135,9 @@
+       link: ["[", "](https://)"],
+       math: ["$", "$"],
+       note: ["[^", "]"],
++      strike: ["~~", "~~"],
+     },
+-    lines: { heading: "## ", quote: "> ", list: "- " },
++    lines: { heading: "## ", quote: "> ", list: "- ", numbered: "1. ", task: "- [ ] " },
+   },
+   {
+     suffix: /\.org$/,
+@@ -121,13 +152,94 @@
+       link: ["[[https://][", "]]"],
+       math: ["\\(", "\\)"],
+       note: ["[fn:", "]"],
++      strike: ["+", "+"],
+     },
+-    lines: { heading: "** ", quote: ": ", list: "- " },
++    lines: { heading: "** ", quote: ": ", list: "- ", numbered: "1. ", task: "- [ ] " },
+   },
+ ];
+ 
+ export const markup = (path) => MARKUPS.find((markup) => markup.suffix.test(path));
+ 
++const paragraph = (state) => {
++  const doc = state.doc;
++  const here = doc.lineAt(state.selection.main.head).number;
++  if (doc.line(here).text.trim() === "") return [here, here];
++  let first = here;
++  let last = here;
++  while (first > 1 && doc.line(first - 1).text.trim() !== "") first--;
++  while (last < doc.lines && doc.line(last + 1).text.trim() !== "") last++;
++  return [first, last];
++};
++
++const faded = (view) => {
++  const [first, last] = paragraph(view.state);
++  const built = new RangeSetBuilder();
++  for (const range of view.visibleRanges) {
++    for (let at = range.from; at <= range.to; ) {
++      const line = view.state.doc.lineAt(at);
++      if (line.number < first || line.number > last)
++        built.add(line.from, line.from, Decoration.line({ class: "cm-dim" }));
++      at = line.to + 1;
++    }
++  }
++  return built.finish();
++};
++
++const dimming = ViewPlugin.define(
++  (view) => {
++    const plugin = {
++      decorations: faded(view),
++      update: (update) => {
++        if (update.docChanged || update.selectionSet || update.viewportChanged)
++          plugin.decorations = faded(update.view);
++      },
++    };
++    return plugin;
++  },
++  { decorations: (plugin) => plugin.decorations },
++);
++
++const centring = EditorState.transactionExtender.of((transaction) =>
++  transaction.selection === undefined
++    ? null
++    : { effects: EditorView.scrollIntoView(transaction.selection.main.head, { y: "center" }) },
++);
++
++const look = new Compartment();
++const gutter = new Compartment();
++const spelling = new Compartment();
++const focus = new Compartment();
++const writer = new Compartment();
++
++const looks = (settings) =>
++  EditorView.theme({
++    ".cm-scroller": {
++      fontFamily: FONTS[settings.font],
++      fontSize: `${settings.size}px`,
++      lineHeight: String(settings.leading),
++    },
++    ".cm-content": { maxWidth: `${settings.measure}ch` },
++  });
++
++const parts = (settings) => [
++  [look, looks(settings)],
++  [gutter, settings.numbers ? [lineNumbers(), highlightActiveLineGutter()] : []],
++  [
++    spelling,
++    EditorView.contentAttributes.of({
++      spellcheck: String(settings.spellcheck),
++      autocorrect: settings.spellcheck ? "on" : "off",
++    }),
++  ],
++  [focus, settings.dim ? dimming : []],
++  [writer, settings.typewriter ? centring : []],
++];
++
++export const tuned = (view, settings) =>
++  view.dispatch({
++    effects: parts(settings).map(([compartment, held]) => compartment.reconfigure(held)),
++  });
++
+ export const wrapped = (view, [before, after]) => {
+   view.dispatch(
+     view.state.changeByRange((range) => ({
+@@ -159,16 +271,19 @@
+ 
+ export const figured = (view, text) => {
+   const line = view.state.doc.lineAt(view.state.selection.main.head);
+-  const block = line.text.trim() === "" ? text : `\n\n${text}\n`;
+-  const at = line.text.trim() === "" ? line.from : line.to;
++  const empty = line.text.trim() === "";
++  const block = empty ? text : `\n\n${text}\n`;
++  const at = empty ? line.from : line.to;
+   view.dispatch({
+-    changes: { from: at, to: line.text.trim() === "" ? line.to : at, insert: block },
++    changes: { from: at, to: empty ? line.to : at, insert: block },
+     selection: { anchor: at + block.length },
+     scrollIntoView: true,
+   });
+   view.focus();
+ };
+ 
++export const searched = (view) => openSearchPanel(view);
++
+ export const outline = (path, body) => {
+   const held = markup(path);
+   const lines = body.split("\n");
+@@ -187,12 +302,22 @@
+   const line = view.state.doc.line(Math.min(number, view.state.doc.lines));
+   view.dispatch({
+     selection: EditorSelection.cursor(line.from),
+-    effects: EditorView.scrollIntoView(line.from, { y: "start", yMargin: 24 }),
++    effects: EditorView.scrollIntoView(line.from, { y: "start", yMargin: 48 }),
+   });
+   view.focus();
+ };
+ 
+-export const sheet = ({ path, body, typed, dropped, pasted }) =>
++export const caret = (state) => {
++  const head = state.selection.main;
++  const line = state.doc.lineAt(head.head);
++  return {
++    line: line.number,
++    column: head.head - line.from + 1,
++    chosen: (state.sliceDoc(head.from, head.to).match(/\S+/g) ?? []).length,
++  };
++};
++
++export const sheet = ({ path, body, settings, typed, moved, scrolled, dropped, pasted }) =>
+   EditorState.create({
+     doc: body,
+     extensions: [
+@@ -216,10 +341,11 @@
+       markup(path).grammar,
+       placeholder("Write."),
+       EditorView.lineWrapping,
+-      EditorView.contentAttributes.of({ spellcheck: "true", autocorrect: "on" }),
+-      EditorView.domEventHandlers({ drop: dropped, paste: pasted }),
++      parts(settings).map(([compartment, held]) => compartment.of(held)),
++      EditorView.domEventHandlers({ drop: dropped, paste: pasted, scroll: scrolled }),
+       EditorView.updateListener.of((update) => {
+         if (update.docChanged) typed(update.state.doc.toString());
++        if (update.docChanged || update.selectionSet) moved(caret(update.state));
+       }),
+     ],
+   });
+diff --color -ruN blog/schematics.js /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/schematics.js
+--- blog/schematics.js	2026-11-24 10:56:21.705677165 +0100
++++ /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/schematics.js	2026-11-24 10:56:34.371334217 +0100
+@@ -52,20 +52,89 @@
+     .example('<script defer src="https://analytics.example.com/script.js"></script>'),
+ });
+ 
++export const Settings = v.object({
++  font: v
++    .enum(["sans", "serif", "mono"])
++    .default("sans")
++    .desc("The sheet's typeface.")
++    .example("serif"),
++  size: v.integer().default(17).desc("The sheet's type size in pixels, 12 to 26.").example(18),
++  measure: v
++    .integer()
++    .default(72)
++    .desc("The sheet's line length in characters, 40 to 140.")
++    .example(64),
++  leading: v.number().default(1.7).desc("The sheet's line height, 1.2 to 2.4.").example(1.8),
++  numbers: v.boolean().default(false).desc("Line numbers beside the sheet.").example(true),
++  typewriter: v
++    .boolean()
++    .default(false)
++    .desc("The line being written stays in the middle of the sheet.")
++    .example(true),
++  dim: v
++    .boolean()
++    .default(false)
++    .desc("Every paragraph but the one being written fades.")
++    .example(true),
++  spellcheck: v.boolean().default(true).desc("The browser's spelling marks.").example(false),
++  sync: v
++    .boolean()
++    .default(true)
++    .desc("The page scrolls with the sheet.")
++    .example(false),
++  autosave: v
++    .integer()
++    .default(0)
++    .desc("Seconds of quiet before a changed source is written; 0 never.")
++    .example(5),
++  pressing: v
++    .boolean()
++    .default(false)
++    .desc("A save presses the blog too.")
++    .example(true),
++});
++
++const Dock = (width) =>
++  v.object({
++    shown: v.boolean().default(true).desc("Whether it is on screen.").example(false),
++    width: v.integer().default(width).desc("Its width in pixels.").example(width + 40),
++  });
++
+ export const Desk = v.object({
+   open: v
+     .union([v.string(), v.null()])
+     .default(null)
+     .desc("The source on the desk, its path under source/.")
+     .example("on/machines.md"),
+-  view: v
+-    .enum(["write", "split", "page"])
++  mode: v
++    .enum(["write", "split", "preview", "focus"])
+     .default("split")
+-    .desc("What the desk shows: the sheet, the sheet beside its page, the page alone.")
+-    .example("write"),
+-  rail: v
+-    .enum(["sources", "files", "outline"])
+-    .default("sources")
+-    .desc("What the rail lists: the sources, the files beside them, the open source's headings.")
+-    .example("files"),
++    .desc(
++      "What the middle shows: the sheet, the sheet beside its page, the page, " +
++        "the sheet alone with every panel away.",
++    )
++    .example("focus"),
++  share: v
++    .number()
++    .default(0.5)
++    .desc("The sheet's share of the middle when split, 0.2 to 0.8.")
++    .example(0.6),
++  device: v
++    .enum(["desktop", "tablet", "phone"])
++    .default("desktop")
++    .desc("The width the page is shown at.")
++    .example("phone"),
++  library: Dock(264).default({}).desc("The panel of sources on the left."),
++  inspector: v
++    .object({
++      ...Dock(320).properties,
++      tab: v
++        .enum(["post", "media", "outline", "stats"])
++        .default("post")
++        .desc("Its tab: the front matter, the pictures, the headings, the counts.")
++        .example("outline"),
++    })
++    .default({})
++    .desc("The panel on the right."),
++  settings: Settings.default({}).desc("How the sheet looks and behaves."),
+ });
+diff --color -ruN blog/tests/blog.test.js /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/tests/blog.test.js
+--- blog/tests/blog.test.js	2026-11-24 10:56:21.703509994 +0100
++++ /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/c15f9972-376e-4da2-b483-c4ad6b48ab99/scratchpad/desk/commons/publishers/blog/tests/blog.test.js	2026-11-24 11:07:02.403623360 +0100
+@@ -15,7 +15,7 @@
+ import { hello, lighthouse } from "@vivalence/runtime/scenarios";
+ import * as blog from "../blog.viva.js";
+ import { fronted, joined, parted, pressed } from "../press.js";
+-import { Site } from "../schematics.js";
++import { Desk, Site } from "../schematics.js";
+ import { paged } from "../theme/index.js";
+ 
+ const BLOG = "/attached/daemon/hello/mode/publisher/blog";
+@@ -242,6 +242,40 @@
+   });
+ });
+ 
++specimen.describe("blog desk — what the buffer holds", () => {
++  specimen.it("an empty buffer is a whole desk: every panel, mode and setting valued", () => {
++    specimen.expect(Desk.cast({})).toEqual({
++      open: null,
++      mode: "split",
++      share: 0.5,
++      device: "desktop",
++      library: { shown: true, width: 264 },
++      inspector: { shown: true, width: 320, tab: "post" },
++      settings: {
++        font: "sans",
++        size: 17,
++        measure: 72,
++        leading: 1.7,
++        numbers: false,
++        typewriter: false,
++        dim: false,
++        spellcheck: true,
++        sync: true,
++        autosave: 0,
++        pressing: false,
++      },
++    });
++  });
++
++  specimen.it("a desk saved by an older desk keeps its source and gains the rest", () => {
++    const older = Desk.cast({ open: "on/eva.md", view: "split", rail: "outline" });
++    specimen
++      .expect([older.open, older.mode, older.inspector.tab])
++      .toEqual(["on/eva.md", "split", "post"]);
++    specimen.expect(Desk.faults(older)).toEqual([]);
++  });
++});
++
+ specimen.describe("blog theme — the articles become a site", () => {
+   const site = Site.cast({ name: "crackedbeefcake" });
+   const reached = Site.cast({

@@ -34,7 +34,7 @@ const stated = (definition) => {
 const expand = (definition) => {
   const held = stated(definition);
   for (const index of Object.keys(held.zones ?? {})) {
-    held.zones[index] = typeof held.zones[index] === "string" ? { surface: held.zones[index] } : stated(held.zones[index]);
+    held.zones[index] = typeof held.zones[index] === "string" ? { plane: held.zones[index] } : stated(held.zones[index]);
   }
   return held;
 };
@@ -47,7 +47,7 @@ const nearest = (index, candidates) =>
 const floor = (definition) => {
   const zones = Object.values(definition.zones ?? {});
   const missing = [
-    zones.some((zone) => zone.surface) ? null : "one zone surface",
+    zones.some((zone) => zone.plane) ? null : "one zone plane",
     definition.text?.ink ? null : "text.ink",
     definition.signal?.primary?.fill ? null : "signal.primary fill",
   ].filter(Boolean);
@@ -63,7 +63,7 @@ const territories = (zones) => {
   };
   return whole.map((zone, index) => ({
     ...zone,
-    surface: zone.surface ?? from("surface", index),
+    plane: zone.plane ?? from("plane", index),
     boundary: zone.boundary ?? from("boundary", index),
   }));
 };
@@ -100,7 +100,7 @@ const controls = (control, text, primary, earth) => {
     on: control.on ?? text.strong,
     onMuted: control.onMuted ?? text.light,
     onPressed: control.onPressed ?? primary.ink,
-    field: control.field ?? earth.surfaceSunk,
+    field: control.field ?? earth.planeSunk,
     fieldPlaceholder: control.fieldPlaceholder ?? text.muted,
     fieldCaret: control.fieldCaret ?? primary.fill,
     selected: control.selected ?? primary.tint,
@@ -112,20 +112,20 @@ const controls = (control, text, primary, earth) => {
 
 const earth = (zone, text) => {
   const fallback = defaults(ground);
-  const boundary = zone.boundary ?? blend(zone.surface, text.ink, 0.25);
-  const surfaceSunk = zone.surfaceSunk ?? zone.surface;
+  const boundary = zone.boundary ?? blend(zone.plane, text.ink, 0.25);
+  const planeSunk = zone.planeSunk ?? zone.plane;
   return {
-    surface: zone.surface,
-    surfaceSunk,
-    surfaceLift: zone.surfaceLift ?? zone.surface,
+    plane: zone.plane,
+    planeSunk,
+    planeLift: zone.planeLift ?? zone.plane,
     boundary,
     boundaryStrong: zone.boundaryStrong ?? boundary,
     boundarySoft: zone.boundarySoft ?? wash(boundary, 0.5),
     divider: zone.divider ?? boundary,
     inverse: zone.inverse ?? text.strong,
-    inverseOn: zone.inverseOn ?? zone.surface,
+    inverseOn: zone.inverseOn ?? zone.plane,
     shadow: zone.shadow ?? fallback.shadow,
-    scrim: zone.scrim ?? wash(surfaceSunk, 0.6),
+    scrim: zone.scrim ?? wash(planeSunk, 0.6),
     dim: zone.dim ?? fallback.dim,
   };
 };
@@ -166,7 +166,7 @@ export const theme = (...definitions) => {
 
   const root = Object.fromEntries(GROUPS.filter((group) => whole[group]).map((group) => [group, whole[group]]));
   const laid = territories(whole.zones);
-  const bench = laid[3].surface;
+  const bench = laid[3].plane;
   const zones = laid.map((zone) => complete(root, zone, bench));
   const body = complete(root, Object.fromEntries(GROUND.filter((key) => laid[1][key]).map((key) => [key, laid[1][key]])), bench);
 

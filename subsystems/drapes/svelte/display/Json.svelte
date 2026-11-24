@@ -102,7 +102,7 @@
   }
   .head:hover,
   .leaf:hover {
-    background: color-mix(in srgb, var(--surface) 55%, transparent);
+    background: color-mix(in srgb, var(--plane) 55%, transparent);
     border-radius: 3px;
   }
   .arrow {

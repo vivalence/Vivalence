@@ -249,7 +249,7 @@ specimen.describe("openrouter provider", () => {
       specimen.expect(turn.parts).toEqual([{ type: "text", text: "hello" }]);
       specimen.expect(turn.meta).toEqual({
         state: "complete",
-        usage: { input: 1, output: 2, cost: 0.001 },
+        usage: [{ name: "input", unit: "tokens", amount: 1 }, { name: "output", unit: "tokens", amount: 2 }, { name: "cost", unit: "usd", amount: 0.001 }],
         provider: {
           finish_reason: "stop",
           model: "google/gemini-2.5-flash-lite",
@@ -433,7 +433,7 @@ specimen.describe("openrouter provider", () => {
                   model: undefined,
                   usage: { prompt_tokens: 2, completion_tokens: 3 },
                 },
-                usage: { input: 2, output: 3 },
+                usage: [{ name: "input", unit: "tokens", amount: 2 }, { name: "output", unit: "tokens", amount: 3 }],
               },
             },
           },
@@ -786,7 +786,7 @@ specimen.describe("openrouter provider", () => {
       const response = await gemini.via.render({ prompt: "a red fox", images: [] });
       specimen.expect(response).toEqual({
         images: [{ type: "image", mime: "image/png", data: PNG }],
-        meta: { usage: { input: 12, output: 4160, cost: 0.04 }, provider: { usage: OK.usage } },
+        meta: { usage: [{ name: "input", unit: "tokens", amount: 12 }, { name: "output", unit: "tokens", amount: 4160 }, { name: "cost", unit: "usd", amount: 0.04 }], provider: { usage: OK.usage } },
       });
       specimen.expect([...v.primitives.hallucination.Picture.Response.errors(response)]).toEqual([]);
     });

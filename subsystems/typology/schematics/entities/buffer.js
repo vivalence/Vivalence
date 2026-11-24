@@ -6,12 +6,12 @@ import { DataSchematic } from "./base.js";
 export const BufferSchematic = {
   ...DataSchematic,
   $id: "Buffer",
-  is: "one screen on a thread: data a view draws, in a mime the renderers key on",
+  is: "one screen on a thread: data a surface draws, in a mime the renderers key on",
   own: {
     index: v.integer().default(0).optional().desc("its position on the thread, from 0").example(0),
     status: v.enum(["PENDING", "ACTIVE", "DONE", "ERROR", "STALE"]).default("PENDING").optional().desc("PENDING: minted, not yet shown · ACTIVE: on screen · DONE: finished · ERROR: failed · STALE: superseded").example("ACTIVE"),
     mime: mime.type().optional().desc("its kind: the fallback renderers key on it; a mode mints its own").example("application/vnd.viva.daemon.chess.mode.board.play+json"),
-    data: v.record(v.string(), v.unknown()).optional().desc("what the views draw, in the mode's shape").example({ title: "Q3", summary: "final" }),
+    data: v.record(v.string(), v.unknown()).optional().desc("what the surfaces draw, in the mode's shape").example({ title: "Q3", summary: "final" }),
     traits: traits.names.buffer.optional().desc("the trait names worn").example(["LABELED"]),
     trait: traits.buffer.default({}).optional().desc("trait data by name").example({ LABELED: { name: "Annual accounts" } }),
   },
@@ -20,7 +20,7 @@ export const BufferSchematic = {
     thread: () => v.rel().desc("the thread it sits on").example("01a09010-13aa-778b-bce7-19c38f835337"),
     turns: () => v.array(v.turn()).optional().desc("the turns that touched it"),
     files: () => v.array(v.file()).optional().desc("files it shows"),
-    views: () => v.array(v.view()).optional().desc("views pinned to it"),
+    surfaces: () => v.array(v.surface()).optional().desc("surfaces pinned to it"),
     literals: () => v.array(v.literal()).optional().desc("literals it carries"),
     symbols: () => v.array(v.symbol()).optional().desc("symbols it carries"),
   },

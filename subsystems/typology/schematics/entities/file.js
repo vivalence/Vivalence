@@ -22,11 +22,11 @@ export const FileSchematic = {
   },
   relations: {
     mode: () => v.rel().desc("the mode that serves it").example("01a09010-13a9-7f1e-a2c4-6b0d1f2e3a44"),
-    view: () => v.rel().optional().desc("the view it belongs to"),
+    surface: () => v.rel().optional().desc("the surface it belongs to"),
     buffers: () => v.array(v.buffer()).optional().desc("buffers that show it"),
   },
   traits: v.object({ MISSING: MISSING.default({}).optional().desc("the patrol found its mount gone").example({ since: "2026-10-21T09:00:00Z" }) }),
   narrowable: ["trait"],
-  spoken: ["id", "path", "mime", "mode", "view", "bytes"],
-  examples: [{ id: "01a1b1c0-e5fa-776b-b1aa-1ec226521760", path: "sentences/abre-la-puerta.mp3", mount: "/Users/finn/.viva/registry/education/topographies/english-to-spanish/freight/audio/sentences/abre-la-puerta.mp3", mime: "audio/mpeg", hash: "1a060121d48a320340ae0f31239912def2611720643d136164750badd1c07c12", integrity: "sha256-1a060121d48a320340ae0f31239912def2611720643d136164750badd1c07c12", bytes: 17802, traits: [], trait: {}, mode: "01a1b1c0-d438-72ef-a942-832e1ebb5f29", view: null }],
+  spoken: ["id", "path", "mime", "mode", "surface", "bytes"],
+  examples: [{ id: "01a1b1c0-e5fa-776b-b1aa-1ec226521760", path: "sentences/abre-la-puerta.mp3", mount: "/Users/finn/.viva/registry/education/topographies/english-to-spanish/freight/audio/sentences/abre-la-puerta.mp3", mime: "audio/mpeg", hash: "1a060121d48a320340ae0f31239912def2611720643d136164750badd1c07c12", integrity: "sha256-1a060121d48a320340ae0f31239912def2611720643d136164750badd1c07c12", bytes: 17802, traits: [], trait: {}, mode: "01a1b1c0-d438-72ef-a942-832e1ebb5f29", surface: null }],
 };

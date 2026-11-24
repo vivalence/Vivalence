@@ -1,0 +1,56 @@
+#+title: ikiro prune — plain rules, less context, guards with teeth
+#+filetags: :ikiro:workstream:
+#+status: WORKSTREAM · the law AMEN · 19 skills, codestyle and the map rewritten · shards, guards and the shed open
+# writer: agent · limit: 4000 chars
+
+* intent
+
+/"i want to work on the routines and skills of ikiro. and i watn to prune the system. too much yap has accumulated. time for a cleanse."/
+
+First the routines and skills get better. Then they prune everything else.
+
+* rulings
+
+1. How a rule is written. His amen.
+   - One plain sentence he can read cold.
+   - No dates, no case history, no quotes, no shorthand, no pointers to other files.
+   - A rule about my own tooling that he never sees leaves the documents. A guard enforces it, or it dies.
+   - Code where code says it better.
+2. A reply holds his subject and nothing else. No status block, no insight box.
+3. What hurts most, in his order: yap over code · invented nouns · a question he cannot parse · wide code · an act he did not order.
+
+* measured
+
+Probes and their outputs: =reference/molt/2026-11-22/= (=voice= · =yap= · =usage= · =tracked=).
+
+* milestones
+
+| n | what | state |
+|---+------+-------|
+| 0 | the law of a rule | AMEN |
+| 1 | instruments: =molt.py= reads yap and voice · the cap ritual goes | DECLARED |
+| 2 | guards: ten unwired are wired or retired · the hot warns deny or go | DECLARED |
+| 3 | routines: fold · unfold · molt | LANDED |
+| 4 | the loop: drill-me · show-me · quest · change · debug · bird · connoisseur · name | LANDED |
+| 5 | codestyle | LANDED |
+| 6 | codemap: map + seven shards | map LANDED, seven shards DECLARED |
+| 7 | recipes: mode · domain · package · topography · design · readme · ops · servers | LANDED |
+| 8 | shed: dead methods · reference · done · known-issues · index · release | DECLARED |
+| 9 | measure again | DECLARED |
+
+* never
+
+- A census block or an insight box in a reply.
+- A dated case, a quote or a size limit ritual added to a rule.
+- A plan or a brainstorm question in place of the run he ordered.
+- A rule about my own tooling written into a document.
+
+* open
+
+- What a quest keeps. Proposed: intent · rulings · as code · milestones with their state · next · never. The changelog, the dialogue, done lists, test count tables and machine state go. His ruling at the quest skill.
+
+* next
+
+The seven codemap shards, each fact checked against the tree. Then the guards, then the shed.
+
+The text before the prune is in =~/.viva/bak/ikiro/prune-20261123/=.

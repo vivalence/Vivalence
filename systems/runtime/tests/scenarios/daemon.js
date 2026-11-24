@@ -5,7 +5,7 @@ import { gestalten, lifecycle, traits } from "@vivalence/runtime";
 import { authenticate, signer } from "../../subjects/lighthouse/signer.js";
 import { userspace as userspaceBeat } from "../../subjects/runtime/lifecycle/3-integration.js";
 
-const { VIEWABLE, INTENTED, EMITTER } = traits.mode;
+const { SURFACED, INTENTED, EMITTER } = traits.mode;
 const { stagger } = gestalten.belt;
 
 export const SECRET = "scenario-secret-scenario-secret-scenario";
@@ -28,7 +28,7 @@ export async function create({ domain = {} } = {}) {
   const world = await seed(domain);
   const { orm, em, datamap, entities, runtime, fixtures, held } = world;
 
-  const modeTraits = ["VIEWABLE", "INTENTED", "EMITTER"];
+  const modeTraits = ["SURFACED", "INTENTED", "EMITTER"];
   const mode = new Mode({ module: { manifest: { type: "game", slug: "flashcard", traits: modeTraits } } });
   mode.aperture = new Aperture();
   mode.reference = new Path(`/mode/${mode.manifest.type}/${mode.manifest.slug}`);
@@ -69,7 +69,7 @@ export async function create({ domain = {} } = {}) {
     daemon.call = shape.proxy(domain.aperture, steer.strategy.direct);
   }
 
-  for (const finalize of await stagger(mode, daemon, { VIEWABLE, INTENTED, EMITTER })) await finalize();
+  for (const finalize of await stagger(mode, daemon, { SURFACED, INTENTED, EMITTER })) await finalize();
 
   daemon.aperture.branch(mode.reference.absolute, mode.aperture);
 

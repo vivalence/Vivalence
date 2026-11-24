@@ -1,0 +1,57 @@
+| file | chars | code % | dated | REJECTED | quotes | incident chars | incident % | longest bullet |
+|---|---|---|---|---|---|---|---|---|
+| codestyle.md | 38054 | 22 | 155 | 41 | 100 | 7776 | 20 | 3812 |
+| README.md | 1337 | 35 | 0 | 0 | 0 | 0 | 0 | 319 |
+| world/codemap/commons.md | 5621 | 51 | 4 | 2 | 5 | 149 | 2 | 519 |
+| world/codemap/design.md | 6592 | 7 | 33 | 5 | 22 | 1150 | 17 | 792 |
+| world/codemap/ghost.md | 5696 | 7 | 17 | 7 | 20 | 259 | 4 | 715 |
+| world/codemap/map.md | 4030 | 24 | 2 | 1 | 1 | 14 | 0 | 598 |
+| world/codemap/paladin.md | 6192 | 46 | 3 | 1 | 1 | 0 | 0 | 461 |
+| world/codemap/runtime.md | 8051 | 39 | 7 | 0 | 3 | 94 | 1 | 745 |
+| world/codemap/testing.md | 7287 | 52 | 6 | 2 | 2 | 83 | 1 | 245 |
+| world/codemap/typology.md | 9153 | 39 | 9 | 1 | 7 | 66 | 0 | 677 |
+| skills/bird/SKILL.md | 7049 | 0 | 11 | 2 | 5 | 396 | 5 | 3507 |
+| skills/change/SKILL.md | 10259 | 0 | 45 | 5 | 8 | 1215 | 11 | 2505 |
+| skills/connoisseur/SKILL.md | 5374 | 0 | 7 | 0 | 7 | 132 | 2 | 1710 |
+| skills/debug/SKILL.md | 7035 | 1 | 23 | 0 | 5 | 445 | 6 | 1265 |
+| skills/design/SKILL.md | 5000 | 0 | 13 | 7 | 26 | 312 | 6 | 3373 |
+| skills/domain/SKILL.md | 5999 | 10 | 9 | 5 | 12 | 14 | 0 | 905 |
+| skills/drill-me/SKILL.md | 12523 | 5 | 59 | 6 | 40 | 2789 | 22 | 1556 |
+| skills/fold/SKILL.md | 5519 | 0 | 12 | 4 | 9 | 321 | 5 | 1214 |
+| skills/mode/SKILL.md | 7206 | 3 | 13 | 3 | 8 | 64 | 0 | 1081 |
+| skills/molt/SKILL.md | 4985 | 4 | 7 | 6 | 8 | 154 | 3 | 1421 |
+| skills/name/SKILL.md | 6611 | 0 | 25 | 13 | 20 | 807 | 12 | 2430 |
+| skills/ops/SKILL.md | 6992 | 21 | 13 | 5 | 12 | 222 | 3 | 813 |
+| skills/package/SKILL.md | 5994 | 15 | 3 | 1 | 3 | 59 | 0 | 682 |
+| skills/quest/SKILL.md | 6855 | 2 | 18 | 8 | 22 | 428 | 6 | 4610 |
+| skills/readme/SKILL.md | 5276 | 0 | 3 | 2 | 11 | 17 | 0 | 1230 |
+| skills/servers/SKILL.md | 5978 | 22 | 9 | 4 | 6 | 304 | 5 | 835 |
+| skills/show-me/SKILL.md | 10304 | 8 | 40 | 6 | 21 | 1767 | 17 | 3656 |
+| skills/socratic-tutor/SKILL.md | 5322 | 0 | 1 | 0 | 0 | 0 | 0 | 547 |
+| skills/technical-writing/SKILL.md | 9207 | 0 | 0 | 0 | 0 | 0 | 0 | 444 |
+| skills/topography/SKILL.md | 6574 | 2 | 10 | 5 | 18 | 337 | 5 | 1071 |
+| skills/unfold/SKILL.md | 6279 | 18 | 12 | 0 | 2 | 561 | 8 | 957 |
+
+total chars 238354 · incident chars 19935 (8%)
+
+## longest bullets
+  4610  skills/quest/SKILL.md  ---
+name: quest
+description: >-
+  Write a quest beef accepts, sunset or revive it by `mv`,
+  3812  codestyle.md  `go` · `commit` (disk, not VCS) = write-auth for THE item, never a sibling; a `go` rules a
+  3656  skills/show-me/SKILL.md  1. **read the subject whole** — quest: `* rulings` · `* as code` · `* the law` · `* milest
+  3507  skills/bird/SKILL.md  1. **gate** — a rewire, or a `change`? ≥2 epicycles on one mechanism · a demand no owner h
+  3373  skills/design/SKILL.md  0. **read budget.** comp + schematic; pane lines to disk first.
+1. **fetch whole, decode m
+  2505  skills/change/SKILL.md  1. **blast** — every consumer first:
+   ```bash
+   grep -rnI "<symbol>" systems/ subsystem
+  2430  skills/name/SKILL.md  0. **its own pass** — pure, on a clean tree (WIP committed); behaviour lands before/after 
+  1710  skills/connoisseur/SKILL.md  1. **gate** — a hunk, or a wiring? Winces inside ONE hunk → here. 16 firing twice on one m
+  1556  skills/drill-me/SKILL.md  0. **sweep** — quests · `known-issues.org` · rulings · his design · `@beef` (`maybe` = ask
+  1421  skills/molt/SKILL.md  1. **sweep** — 8 angles (labs · open harnesses · self-improving agents · forums · context 
+  1265  skills/debug/SKILL.md  1. a buffer-VIEW change → restart the runtime; HMR is app-layer only. SERVED = its bundle 
+  1230  skills/readme/SKILL.md  1. **versioned?** `git -C <dir> rev-parse --show-toplevel 2>/dev/null || echo NO-VCS` — ve
+  1214  skills/fold/SKILL.md  1. **root**: the ACT that went wrong, the rule that should have stopped it, why it did not
+  1081  skills/mode/SKILL.md  `yields:` = the client wire STREAMS it (`shape/connection.js:38`), `output:` = one value; 

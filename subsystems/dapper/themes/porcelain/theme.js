@@ -14,14 +14,14 @@ export default theme({
              caution:  { fill: "#95661B", ink: "#704B10", on: "#FFFFFF", tint: "rgba(149, 102, 27, 0.1)" },
              negative: { fill: "#A4412A", ink: "#963A24", on: "#FFFFFF", tint: "rgba(164, 65, 42, 0.1)" } },
   zones: {
-    0: { surface: "#0E1A25", surfaceSunk: "#060D14", surfaceLift: "#243544", boundary: "#040A10", boundaryStrong: "#384A5E", divider: "#243544", shadow: "rgba(0, 0, 0, 0.55)", inverse: "#EDF0F4", inverseOn: "#0E1A25",
+    0: { plane: "#0E1A25", planeSunk: "#060D14", planeLift: "#243544", boundary: "#040A10", boundaryStrong: "#384A5E", divider: "#243544", shadow: "rgba(0, 0, 0, 0.55)", inverse: "#EDF0F4", inverseOn: "#0E1A25",
          text:    { header: "#FFFFFF", strong: "#EDF0F4", ink: "#CBD3DD", light: "#AEBBCD", muted: "#8B97A3" },
          control: { contrast: "#EDF0F4", contrastHover: "#FFFFFF", contrastPressed: "#43505B", on: "#0E1A25", onMuted: "#5F7286", onPressed: "#EDF0F4",
                     field: "#060D14", fieldPlaceholder: "#8B97A3", selected: "rgba(255, 255, 255, 0.06)", divider: "rgba(0, 0, 0, 0.25)", scrollbar: "#384A5E" },
          signal:  { primary: { ink: "#AEBBD6" }, positive: { ink: "#9CCB98" }, caution: { ink: "#E2B86A" }, negative: { ink: "#E9A08C" } },
          brand:   { outline: "#AEBBD6" } },
-    1: { surface: "#EDF0F4", surfaceSunk: "#DFE5EC", surfaceLift: "#FFFFFF", boundary: "#CBD3DD", boundaryStrong: "#AEBBCD", divider: "#D5DCE4", shadow: "rgba(14, 26, 37, 0.14)" },
-    2: { surface: "#FFFFFF", surfaceSunk: "#EDF0F4", surfaceLift: "#FFFFFF", boundary: "#D5DCE4", boundaryStrong: "#AEBBCD", divider: "#E7EBF0", shadow: "rgba(14, 26, 37, 0.14)" },
-    3: { surface: "#E2E7ED", surfaceSunk: "#D5DCE4", surfaceLift: "#FFFFFF", boundary: "#AEBBCD", boundaryStrong: "#5F7286", divider: "#CBD3DD", shadow: "rgba(14, 26, 37, 0.14)" },
+    1: { plane: "#EDF0F4", planeSunk: "#DFE5EC", planeLift: "#FFFFFF", boundary: "#CBD3DD", boundaryStrong: "#AEBBCD", divider: "#D5DCE4", shadow: "rgba(14, 26, 37, 0.14)" },
+    2: { plane: "#FFFFFF", planeSunk: "#EDF0F4", planeLift: "#FFFFFF", boundary: "#D5DCE4", boundaryStrong: "#AEBBCD", divider: "#E7EBF0", shadow: "rgba(14, 26, 37, 0.14)" },
+    3: { plane: "#E2E7ED", planeSunk: "#D5DCE4", planeLift: "#FFFFFF", boundary: "#AEBBCD", boundaryStrong: "#5F7286", divider: "#CBD3DD", shadow: "rgba(14, 26, 37, 0.14)" },
   },
 });

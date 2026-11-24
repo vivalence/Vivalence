@@ -8,7 +8,7 @@ export const Choice = (props) => {
         {(option) => (
           <text
             fg={option === held.value ? held.palette.inverseOn : held.palette.textMuted}
-            bg={option === held.value ? held.palette.inverse : held.palette.surfaceLift}
+            bg={option === held.value ? held.palette.inverse : held.palette.planeLift}
             onMouseUp={() => held.onPick(option)}
           >
             {` ${option} `}

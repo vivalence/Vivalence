@@ -8,7 +8,7 @@ export const manifest = {
     "Driver hub: deals card buffers, drives the thread phase, talks.",
   version: "0.1.0",
   traits: [
-    "VIEWABLE",
+    "SURFACED",
     "EMITTER",
     "HARNESS",
     "CONVERSATION",
@@ -18,7 +18,7 @@ export const manifest = {
 // the hub is a control surface — its buffer carries nothing.
 export const buffer = v.buffer({ data: {} });
 
-export const views = [{ slug: "dealer", mount: "buffer/Dealer.svelte", mime: mime.dom.svelte }];
+export const surfaces = [{ slug: "dealer", mount: "buffer/Dealer.svelte", mime: mime.dom.svelte }];
 
 // the finite deck the dealer deals from. running off the end = EXHAUSTED.
 const DECK = ["A♠", "K♥", "Q♦", "J♣", "10♠", "9♥", "8♦", "7♣"];

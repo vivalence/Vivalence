@@ -1,7 +1,7 @@
 import paladin, { factories } from "@vivalence/paladin";
 import { Connection, Controller, Span, Vector, control, sleep, steer } from "@vivalence/typology";
 import * as ghost from "@vivalence/ghost";
-import { chrome } from "./surfaces/index.js";
+import { chrome } from "./skins/index.js";
 
 const instance = await factories.instance(paladin); // @beef still dont like this.
 await paladin.ledger.registry.supply();
@@ -48,7 +48,7 @@ try {
   client.app = new ghost.app.App({
     // @beef maybe move app onto client die? not sure.
     client,
-    surface: chrome,
+    skin: chrome,
     controller: die.controller.branch("app"),
   });
 

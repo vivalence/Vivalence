@@ -23,7 +23,7 @@ specimen.describe("v.traits — one schema per carrier at v.traits.<entity>; its
     specimen.expect(Object.keys(v.traits.client.properties)).toEqual(["HOME", "DOCKED", "THEMED"]);
     specimen.expect(Object.keys(v.traits.thread.properties)).toEqual(["LABELED", "HARNESSED", "CONVERSATIONAL", "TOOLED", "PRIMED", "AIMED", "MASKED", "QUEUEING"]);
     specimen.expect(Object.keys(v.traits.buffer.properties)).toEqual(["LABELED", "RENDERED"]);
-    specimen.expect(Object.keys(v.traits.view.properties)).toEqual(["FRAME", "CELL"]);
+    specimen.expect(Object.keys(v.traits.surface.properties)).toEqual(["FRAME", "CELL"]);
     specimen.expect(Object.keys(v.traits.mode.properties)).toContain("PRIMER");
   });
 

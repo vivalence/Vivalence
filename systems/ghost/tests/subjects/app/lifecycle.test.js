@@ -3,21 +3,21 @@ import * as ghost from "@vivalence/ghost";
 
 const held = new Vector().use(shard.controller.open).do(shard.controller.hold);
 
-specimen.describe("the app's lifecycle — bundle before mount, the surface mounted over the app die, unmounted after the hold; the app lives as long as its client", () => {
-  specimen.it("bundle: the surface writes before next runs; the app's controller logs outfile · bytes", async () => {
+specimen.describe("the app's lifecycle — bundle before mount, the skin mounted over the app die, unmounted after the hold; the app lives as long as its client", () => {
+  specimen.it("bundle: the skin writes before next runs; the app's controller logs outfile · bytes", async () => {
     const order = [];
     const appDie = {
       controller: new Controller({ stdout: new Span("ghost") }).branch("app"),
-      surface: { bundle: async () => { order.push("bundle"); return { outfile: "app.mjs", bytes: 7 }; } },
+      skin: { bundle: async () => { order.push("bundle"); return { outfile: "app.mjs", bytes: 7 }; } },
     };
     await ghost.app.lifecycle.bundle(appDie, async () => { order.push("next"); });
     specimen.expect(order).toEqual(["bundle", "next"]);
     specimen.expect(appDie.controller.stdout.history.filter((record) => record.track === "log").at(-1).data).toEqual({ bundle: "app.mjs", bytes: 7 });
   });
 
-  specimen.it("mount: the surface mounts over the app die; unmount runs after next, once", async () => {
+  specimen.it("mount: the skin mounts over the app die; unmount runs after next, once", async () => {
     const seen = [];
-    const appDie = { surface: { mount: async (die) => { seen.push(["mount", die]); return () => seen.push(["unmount"]); } } };
+    const appDie = { skin: { mount: async (die) => { seen.push(["mount", die]); return () => seen.push(["unmount"]); } } };
     await ghost.app.lifecycle.mount(appDie, async () => { seen.push(["next"]); });
     specimen.expect(seen.map(([step]) => step)).toEqual(["mount", "next", "unmount"]);
     specimen.expect(seen[0][1]).toBe(appDie);

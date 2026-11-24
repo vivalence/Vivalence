@@ -1,53 +1,55 @@
 ---
 name: fold
-description: >-
-  The session improves the self: every failure walked from the transcript → its root → a rule for the CLASS,
-  landed where it fires, replayed against the failed act; then his work lands with its owners (quest
-  handoffs · known issues · frontier · moved names · caps). A correction codeword fires it mid-session.
+description: The session improves ikiro, then hands the work over.
 when_to_use: >-
-  "compact" · "fold" · "disintegrate" · the PreCompact gate refuses /compact · end of a session · "retard"
-  (verbatim only) · "i dont understand X" (any spelling) · "log a callout" · a hook denied or warned you · you
-  catch yourself repeating a correction · a claim of yours a later turn refuted · "mark this in ikiro" · "ikiro
-  mark" · another session is live on this tree · a file changed between your read and your write · "wait, that
-  was already fixed" · before `Write` on frontier.md, MEMORY.md, quests/index.md or a codemap shard · `cap.py`
-  prints OVER · "prune".
+  "fold" · "compact" · the end of a session · "retard" · "i dont understand" · "ikiro mark" · "prune"
 ---
-<!-- limit: 5800 chars · lenses from github.com/cursor/plugins pstack/skills/reflect (MIT) -->
-# fold — the session improves the self; the archive is its by-product
+<!-- limit: 2600 chars -->
+# fold — the session improves ikiro, then hands the work over
 
-/"fold is for selfimprovement. fold is not only for archival stuff. its a self-improvement opportunity."/ · /"it has a recency bias … go message by message and section by section"/
+## 1 · read the session
 
-## 1 · walk — evidence, never recall
+Read this session's transcript from the start. Never from memory.
 
-THIS session's `<id>.jsonl`, oldest-first, each beef turn WITH the reply it answers. Two lists:
+```sh
+python3 .ikiro/methods/walk.py <id>.jsonl
+```
 
-- **his** — words VERBATIM · each fence he affirmed (lock · `amen` · `go`; silence ✗), its LAST iteration · landed · died · owed, measured that turn (`git status --short` · grep).
-- **mine: the failures**: each correction · re-ask · rage-caps · `what` · `i dont understand`; each guard fire (`grep <id> ~/.claude/projects/<slug>/hooks.log`); each claim a later turn refuted (absence · "cannot" · limit · count); each probe that lied; each plan departure; each question a grep answered; each context he HAND-FED that a tool fetches; each skill that should have fired; each check self-reported.
+Make two lists.
 
-## 2 · improve — one pass per failure, the core
+- His: what he said, what he approved, what landed, what is still open.
+- Mine: every correction, every guard that fired, every claim that turned out false.
 
-1. **root**: the ACT that went wrong, the rule that should have stopped it, why it did not: none · too narrow (named the instance) · its skill never loaded (trigger) · loaded and skipped.
-2. **generalize**: the rule for the CLASS, never the instance (REJECTED 11-13 /"more broadly"/). ≤2 lines, durable (no SHA · count); a mechanism beats prose (hook · test · a pruned route); in the skill whose trigger fires AT the act, else `codestyle.md`, `REJECTED <date> /"his words"/`; a missing trigger → the description. A home AT cap: displace MY weakest clause there, net-zero; else report the rule UNLANDED, verbatim (11-14 ×2).
-3. **dedupe**: `grep -rn '<rule>' .ikiro/skills .ikiro/codestyle.md .ikiro/world`; a hit = it failed again → sharpen THAT line, never a second, and propose a hook (`.ikiro/hooks/`, he wires, warn → deny).
-4. **replay**: redo the failed act under the new line NOW; counts only if it catches it. `i dont understand X` → name what was missing, re-explain in it.
-5. **affirmed**: a non-default shape he took without correction lands too, one line, so it repeats.
-6. **report**: one row each: failure · root · the line, `path:line` · replay result; a quoted rule cuts its dead word `…` (11-14).
+## 2 · fix each failure
 
-A report's `deleted · moved · landed` is `ls`ed · grepped THAT turn, a summary's too (11-19 a side file "deleted", on disk). A fold from recall, or one that leaves a cap IT pushed over, is re-run (REJECTED 11-13 `/fold` ×2 → /"just compact"/; 11-21 again): its FIRST call is `python3 .ikiro/methods/walk.py <id>.jsonl`, read whole. The reply IS the fold: a design answer · an open question of the session lands in the handoff, never re-asked under it (11-21).
+1. Find the rule that should have stopped it. Search ikiro for it.
+2. The rule exists: rewrite that sentence so it catches this. Never add a second rule. Never add the case.
+3. No rule exists: write one. It goes in the skill that is loaded when the act happens, else in codestyle.
+4. The same failure a second time: propose a guard. The rule did not hold.
+5. Redo the failed act under the new sentence. If it still fails, the sentence is wrong.
 
-Not failures: design leans · /"i suspect"/ · `wait` · a retraction (/"i retract the retard."/). A code defect → known issues.
+## how a rule is written
 
-## 2b · tests — which test goes red FIRST? (11-18 /"what test where missing"/)
+- One plain sentence he can read cold.
+- No dates, no case history, no quotes, no shorthand, no pointers to other files.
+- A rule about my own tooling that he never sees goes in no document. A guard enforces it, or it dies.
+- Code where code says it better.
+- A file never grows by a fold. A new sentence replaces a weaker one.
 
-Per failure and defect: that test, its home (a case in the sibling suite, never a file per break), landed or owed. Then the suite: a mechanism with zero `tests/` hits (grep its symbol) · a suite that cannot START (setup red silences every case) · a green a live run refuted: name the seam the rig skips (a filter · a push · the DOM) · a probe that found a limit → kept as its test. Report `gap · catches · path · landed|owed`.
+## 3 · name the missing test
 
-## 3 · archive — his work lands with its owners
+For each defect: which test should have gone red first? Add it to the sibling suite, or list it as owed.
 
-- **quest**: per live quest touched, affirmed fences → `* as code` (skill `quest`, Tangle), his words → `* the dialogue`, `* handoff` `goal · done · next · never · owed`; its absences re-grepped (2.2). A handoff for ANOTHER agent names a scratchpad by its ABSOLUTE path, and an uncast hunk it leans on is copied into the quest as evidence first (11-19 show 5's hunks only under `/private/tmp`). Outlives it → known issues (dupe-grep first).
-- **frontier**: `quests/frontier.md` re-read, then WHOLE, ≤2000 chars, a pointer line per live quest (REJECTED 10-24 `next: go`).
-- **moved names**: skill `name`'s grep → zero bar the keep-list.
-- **caps**: `python3 .ikiro/methods/cap.py`, pasted; CHARS, never `wc -c` (11-17). Over → RAISE its `limit:` (11-19 /"adjust limits and keep things together"/); TRASH only what a grep answers; capture to `~/.viva/bak/ikiro/<slug>-<YYYYMMDD>/` first.
+## 4 · hand over
 
-## siblings — another session is live
+- Quest: approved code goes into `* as code`. Each milestone gets its state. Then what is next, and what was ruled out.
+- Frontier: one line per live quest. Name, state, next.
+- A defect that outlives the quest goes to `known-issues.org`.
 
-Re-read before write; concurrent edits are canonical; never trim a sibling's line; a sibling's quest may rule against yours; a `rm -rf` under `--watch` IS a deploy.
+## 5 · report
+
+One row per failure: what went wrong, the sentence now, its file and line.
+
+## another session is live
+
+Read a file again before writing it. Never trim another session's line.

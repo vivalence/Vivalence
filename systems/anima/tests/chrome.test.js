@@ -1,13 +1,13 @@
 import { specimen } from "@vivalence/typology";
 import { mime } from "@vivalence/typology";
-import { fire, paint, settle, surface, words, world } from "./world.js";
+import { fire, paint, settle, skin, words, world } from "./world.js";
 
 const regions = async () => {
   const held = world();
   held.seat();
   held.authorize();
   held.activate();
-  const rig = paint(() => surface.Chrome({ client: held.client }));
+  const rig = paint(() => skin.Chrome({ client: held.client }));
   await settle();
   return { ...held, rig };
 };
@@ -15,8 +15,8 @@ const regions = async () => {
 specimen.describe("anima chrome — the pane table over the drapes parts", () => {
   specimen.it("the pane table picks Booting → Signin → Regions as the client boots", async () => {
     const held = world();
-    specimen.expect(surface.pane(held.client)).toBe(surface.Booting);
-    const rig = paint(() => surface.Chrome({ client: held.client }));
+    specimen.expect(skin.pane(held.client)).toBe(skin.Booting);
+    const rig = paint(() => skin.Chrome({ client: held.client }));
     await settle();
     specimen.expect(words(rig.target.querySelector(".island .bootst"))).toBe("booting");
     specimen.expect(words(rig.target.querySelector(".island .wm"))).toBe("VIVALENCE /ANIMA");
@@ -24,35 +24,35 @@ specimen.describe("anima chrome — the pane table over the drapes parts", () =>
     held.lighthouse.manifest = null;
     held.seat();
     await settle();
-    specimen.expect(surface.pane(held.client)).toBe(surface.Booting);
+    specimen.expect(skin.pane(held.client)).toBe(skin.Booting);
     specimen.expect(words(rig.target.querySelector(".island .bootst"))).toBe("lighthouse");
     specimen.expect(rig.target.querySelector(".island .bootbar i").style.width).toBe("33%");
     held.lighthouse.manifest = manifest;
     held.controller.stdout.log({ lighthouse: "metadata" });
     await settle();
-    specimen.expect(surface.pane(held.client)).toBe(surface.Booting);
+    specimen.expect(skin.pane(held.client)).toBe(skin.Booting);
     specimen.expect(rig.target.querySelector(".island form")).toBe(null);
     held.lighthouse.$status.set({ code: "VERIFYING" });
     await settle();
-    specimen.expect(surface.pane(held.client)).toBe(surface.Booting);
+    specimen.expect(skin.pane(held.client)).toBe(skin.Booting);
     held.lighthouse.$status.set({ code: "IDLE" });
     held.lighthouse.manifest = { ...manifest, traits: [] };
     held.controller.stdout.log({ lighthouse: "no autologin" });
     await settle();
-    specimen.expect(surface.pane(held.client)).toBe(surface.Signin);
+    specimen.expect(skin.pane(held.client)).toBe(skin.Signin);
     specimen.expect(rig.target.querySelector("form#signin")).not.toBe(null);
     specimen.expect([...rig.target.querySelectorAll(".acts button.ghost")].length).toBe(0);
     held.lighthouse.manifest = manifest;
     held.lighthouse.$status.set({ code: "LOGGED_OUT" });
     await settle();
-    specimen.expect(surface.pane(held.client)).toBe(surface.Signin);
+    specimen.expect(skin.pane(held.client)).toBe(skin.Signin);
     held.authorize();
     await settle();
-    specimen.expect(surface.pane(held.client)).toBe(surface.Booting);
+    specimen.expect(skin.pane(held.client)).toBe(skin.Booting);
     specimen.expect(rig.target.querySelector(".island")).not.toBe(null);
     held.activate();
     await settle();
-    specimen.expect(surface.pane(held.client)).toBe(surface.Regions);
+    specimen.expect(skin.pane(held.client)).toBe(skin.Regions);
     specimen.expect(rig.target.querySelector(".client > .body > .split")).not.toBe(null);
     specimen.expect(rig.target.querySelector(".island")).toBe(null);
     specimen.expect(globalThis.document.documentElement.getAttribute("data-theme")).toBe("northsea");
@@ -61,10 +61,10 @@ specimen.describe("anima chrome — the pane table over the drapes parts", () =>
 
   specimen.it("settled: IDLE settles only when the lighthouse declares no AUTOLOGIN; the four in-flight standings never do", () => {
     const lighthouse = (code, traits) => ({ status: { code }, manifest: { traits } });
-    specimen.expect(surface.settled(lighthouse("IDLE", ["AUTOLOGIN"]))).toBe(false);
-    specimen.expect(surface.settled(lighthouse("IDLE", ["JOINABLE"]))).toBe(true);
-    specimen.expect(surface.SETTLING.map((code) => surface.settled(lighthouse(code, [])))).toEqual([false, false, false, false]);
-    specimen.expect(surface.settled(lighthouse("ERROR", ["AUTOLOGIN"]))).toBe(true);
+    specimen.expect(skin.settled(lighthouse("IDLE", ["AUTOLOGIN"]))).toBe(false);
+    specimen.expect(skin.settled(lighthouse("IDLE", ["JOINABLE"]))).toBe(true);
+    specimen.expect(skin.SETTLING.map((code) => skin.settled(lighthouse(code, [])))).toEqual([false, false, false, false]);
+    specimen.expect(skin.settled(lighthouse("ERROR", ["AUTOLOGIN"]))).toBe(true);
   });
 
   specimen.it("sign in calls the lighthouse with the two words — no line, no terminal before it", async () => {
@@ -75,7 +75,7 @@ specimen.describe("anima chrome — the pane table over the drapes parts", () =>
       return Promise.resolve();
     };
     held.lighthouse.$status.set({ code: "LOGGED_OUT" });
-    const rig = paint(() => surface.Chrome({ client: held.client }));
+    const rig = paint(() => skin.Chrome({ client: held.client }));
     await settle();
     const [username, password] = rig.target.querySelectorAll("input");
     username.value = "beef";
@@ -103,14 +103,14 @@ specimen.describe("anima chrome — the pane table over the drapes parts", () =>
 
   specimen.it("below 768 px .client wears .phone; one pane from $phonePane, tabs and seams gone", async () => {
     const { rig, client } = await regions();
-    client.surface.$narrow.set(true);
+    client.skin.$narrow.set(true);
     await settle();
     specimen.expect(rig.target.querySelector(".client").classList.contains("phone")).toBe(true);
     specimen.expect(rig.target.querySelector(".tabs")).toBe(null);
     specimen.expect(rig.target.querySelector(".sbseam")).toBe(null);
     specimen.expect(rig.target.querySelector(".pane.dock")).not.toBe(null);
     specimen.expect(rig.target.querySelector(".sidebar")).toBe(null);
-    client.surface.$phonePane.set("sidebar");
+    client.skin.$phonePane.set("sidebar");
     await settle();
     specimen.expect(rig.target.querySelector(".sidebar")).not.toBe(null);
     specimen.expect(rig.target.querySelector(".pane.dock")).toBe(null);
@@ -119,7 +119,7 @@ specimen.describe("anima chrome — the pane table over the drapes parts", () =>
 
   specimen.it("a buffer in the frame splits frame · seam · dock and paints by mime through the renderer table", async () => {
     const { rig, terminal } = await regions();
-    terminal.$buffer.set({ id: "buffer-1", mime: mime.json, mode: "chess/chess", traits: ["LABELED"], trait: { LABELED: { name: "board" } }, views: [], files: [], $data: { get: () => ({ turn: "w" }), subscribe: (listener) => (listener({ turn: "w" }), () => {}) } });
+    terminal.$buffer.set({ id: "buffer-1", mime: mime.json, mode: "chess/chess", traits: ["LABELED"], trait: { LABELED: { name: "board" } }, surfaces: [], files: [], $data: { get: () => ({ turn: "w" }), subscribe: (listener) => (listener({ turn: "w" }), () => {}) } });
     await settle();
     specimen.expect([...rig.target.querySelector(".split").children].map((child) => child.className)).toEqual(["pane frame", "seam v", "pane dock"]);
     specimen.expect(words(rig.target.querySelector(".frame .fhead .fl"))).toBe("◆ artifact");
@@ -127,20 +127,20 @@ specimen.describe("anima chrome — the pane table over the drapes parts", () =>
     rig.close();
   });
 
-  specimen.it("the renderer table: a view this client RUNS mounts, else markdown · json · +json · image · html · a line", () => {
-    const view = (type, entry, updatedAt) => ({ mime: type, entry: "entry", updatedAt, files: [{ path: "entry", mime: entry }] });
+  specimen.it("the renderer table: a surface this client RUNS mounts, else markdown · json · +json · image · html · a line", () => {
+    const surface = (type, entry, updatedAt) => ({ mime: type, entry: "entry", updatedAt, files: [{ path: "entry", mime: entry }] });
     const buffer = (type) => ({ mime: type });
-    specimen.expect(surface.renderer(buffer(mime.json), [view(mime.dom.solid, mime.javascript, "2026-10-21")])).toBe(surface.Mounted);
-    specimen.expect(surface.renderer(buffer(mime.json), [view(mime.tty.solid, mime.javascript, "2026-10-21")])).toBe(surface.JsonTree);
-    specimen.expect(surface.renderer(buffer(mime.markdown), [])).toBe(surface.Markdown);
-    specimen.expect(surface.renderer(buffer("application/vnd.viva.chess+json"), [])).toBe(surface.JsonTree);
-    specimen.expect(surface.renderer(buffer("image/png"), [])).toBe(surface.Image);
-    specimen.expect(surface.renderer(buffer(mime.html), [])).toBe(surface.Html);
-    specimen.expect(surface.renderer(buffer("application/pdf"), [])).toBe(surface.Line);
-    const svelte = view(mime.dom.svelte, mime.javascript, "2026-10-20");
-    const source = view(mime.dom.solid, mime.dom.solid, "2026-10-22");
-    const solid = view(mime.dom.solid, mime.javascript, "2026-10-21");
-    specimen.expect(surface.pick([source, svelte, solid])).toBe(solid);
+    specimen.expect(skin.renderer(buffer(mime.json), [surface(mime.dom.solid, mime.javascript, "2026-10-21")])).toBe(skin.Mounted);
+    specimen.expect(skin.renderer(buffer(mime.json), [surface(mime.tty.solid, mime.javascript, "2026-10-21")])).toBe(skin.JsonTree);
+    specimen.expect(skin.renderer(buffer(mime.markdown), [])).toBe(skin.Markdown);
+    specimen.expect(skin.renderer(buffer("application/vnd.viva.chess+json"), [])).toBe(skin.JsonTree);
+    specimen.expect(skin.renderer(buffer("image/png"), [])).toBe(skin.Image);
+    specimen.expect(skin.renderer(buffer(mime.html), [])).toBe(skin.Html);
+    specimen.expect(skin.renderer(buffer("application/pdf"), [])).toBe(skin.Line);
+    const svelte = surface(mime.dom.svelte, mime.javascript, "2026-10-20");
+    const source = surface(mime.dom.solid, mime.dom.solid, "2026-10-22");
+    const solid = surface(mime.dom.solid, mime.javascript, "2026-10-21");
+    specimen.expect(skin.pick([source, svelte, solid])).toBe(solid);
   });
 });
 
@@ -148,11 +148,11 @@ specimen.describe("a logout in the tab — the sign-in form keeps the username, 
   specimen.it("LOGGED_OUT empties the password and keeps the username; the remounted pane shows the kept username", async () => {
     const held = world();
     held.seat();
-    const forget = surface.forgetting(held.client);
-    held.client.surface.$signin.set({ user: "beef", pass: "hunter 2" });
+    const forget = skin.forgetting(held.client);
+    held.client.skin.$signin.set({ user: "beef", pass: "hunter 2" });
     held.lighthouse.$status.set({ code: "LOGGED_OUT" });
-    specimen.expect(held.client.surface.signin).toEqual({ user: "beef", pass: "" });
-    const rig = paint(() => surface.Chrome({ client: held.client }));
+    specimen.expect(held.client.skin.signin).toEqual({ user: "beef", pass: "" });
+    const rig = paint(() => skin.Chrome({ client: held.client }));
     await settle();
     const [username, password] = rig.target.querySelectorAll("input");
     specimen.expect([username.value, password.value]).toEqual(["beef", ""]);

@@ -29,7 +29,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.8rem;
-    background: var(--surface-lift);
+    background: var(--plane-lift);
     color: var(--text-strong);
     font-family: var(--font-family-code);
   }

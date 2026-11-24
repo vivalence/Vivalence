@@ -45,7 +45,7 @@ export const emitter = new Vector().open(
     }),
   },
   async (ctx) => {
-    const view = await ctx.mode.generator.bundle({
+    const surface = await ctx.mode.surface.bundle({
       slug: ctx.input.label === undefined ? "article" : slugged(ctx.input.label.name),
       mime: mime.dom.svelte,
       source: refuse(ctx.input.source),
@@ -55,7 +55,7 @@ export const emitter = new Vector().open(
       mime: mime.json,
       ...(ctx.input.data !== undefined && { data: ctx.input.data }),
       ...(ctx.input.label !== undefined && { traits: ["LABELED"], trait: { LABELED: ctx.input.label } }),
-      views: [view.id],
+      surfaces: [surface.id],
     });
     return Yield.NOMINAL([buffer]);
   },
@@ -63,7 +63,7 @@ export const emitter = new Vector().open(
 
 export const drawing = new Vector();
 
-drawing.branch("/view").use(async (ctx, next) => {
+drawing.branch("/surface").use(async (ctx, next) => {
   try {
     if (ctx.input?.source) refuse(ctx.input.source);
   } catch (error) {
@@ -78,24 +78,24 @@ drawing.branch("/view").use(async (ctx, next) => {
 });
 
 drawing
-  .branch("/view")
+  .branch("/surface")
   .open({
     nature: "/create",
     valence:
       "Draw a page. Submit a COMPLETE Svelte 5 component as `source`; it is compiled, " +
-      "content-addressed and stored as a View of this mode. Then buffer_create with " +
-      "`views: [slug]` and the page's `data` and `label` puts it on the operator's screen as a " +
+      "content-addressed and stored as a Surface of this mode. Then buffer_create with " +
+      "`surfaces: [slug]` and the page's `data` and `label` puts it on the operator's screen as a " +
       "line they can click open. The HOUSE RULES in your context are binding — a component " +
       "that invents its own styling renders wrong, and one that imports from a URL is refused " +
-      "outright. The same slug again rewrites the page in place; view_update does the same.",
+      "outright. The same slug again rewrites the page in place; surface_update does the same.",
     input: v.object({ slug: SLUG, mime: MIME, source: SOURCE }),
   })
   .open({
     nature: "/update",
     valence:
-      "Iterate a page you already drew: the SAME view, by slug, gets new source and every " +
+      "Iterate a page you already drew: the SAME surface, by slug, gets new source and every " +
       "buffer showing it re-mounts in place; the buffer's data changes through buffer_update, " +
       "its line through buffer_label. The HOUSE RULES still bind; a URL import is still refused. " +
-      "Use view_read first if you no longer have the source; revise from it rather than rewriting.",
+      "Use surface_read first if you no longer have the source; revise from it rather than rewriting.",
     input: v.object({ slug: SLUG, mime: MIME.optional(), source: SOURCE }),
   });

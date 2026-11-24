@@ -305,4 +305,198 @@ specimen.describe("belt.hallucinate", () => {
       specimen.expect(thrown.message).toContain("down");
     });
   });
+
+  specimen.describe("the meter — every faculty writes what it used onto its span's usage track", () => {
+    const { transcribe, converse, synthesize, vocalize, depict, choose } = belt.hallucinate;
+    const { Usage } = v.primitives.track;
+
+    const tenth = btoa(String.fromCharCode(...new Uint8Array(3200)));
+    const pcm = () => ({ event: "/audio/packet", audio: { data: tenth, rate: 16000, codec: "pcm_16000" } });
+    const tokens = (input, output) => [
+      { name: "input", unit: "tokens", amount: input },
+      { name: "output", unit: "tokens", amount: output },
+    ];
+    const bench = (type, via) => ({ type, provider: "bench", id: `bench/${type}`, via });
+    const hallucination = () => new Controller({ stdout: new Span("hallucination") });
+    const used = (controller) => controller.stdout.history.filter((record) => record.track === "usage").map((record) => record.data);
+    const counted = (record) =>
+      record.measures
+        .filter((measure) => measure.unit !== "ms")
+        .map((measure) => [measure.name, measure.unit, measure.channel, measure.by, measure.amount].filter((key) => key !== undefined).join(" "));
+
+    async function* said(texts, usage) {
+      yield { event: "/turn/open", turn: { role: "assistant" } };
+      yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
+      for (const text of texts) yield { event: "/part/delta", index: 0, part: { text } };
+      yield { event: "/part/close", index: 0 };
+      yield { event: "/turn/close", turn: { meta: { state: "complete", ...(usage ? { usage } : {}) } } };
+    }
+
+    async function* called() {
+      yield { event: "/turn/open", turn: { role: "assistant" } };
+      yield { event: "/part/open", index: 0, part: { type: "tool_use", id: "u1", name: "lookup", input: {} } };
+      yield { event: "/part/delta", index: 0, part: { input: { query: "casa" } } };
+      yield { event: "/part/close", index: 0 };
+      yield { event: "/turn/close", turn: { meta: { state: "tools", usage: tokens(40, 5) } } };
+    }
+
+    async function* microphone(packets) {
+      yield* packets;
+    }
+
+    const drained = async (packets) => {
+      for await (const _packet of packets);
+    };
+
+    specimen.it("a dialogue stream: a running record per closed part, a closed one per provider call, the provider's tokens stamped with its name", async () => {
+      const script = [called, () => said(["casa means ", "house"], [...tokens(60, 7), { name: "cost", unit: "usd", amount: 0.002 }])];
+      const faculty = bench("dialogue", { stream: () => script.shift()() });
+      const controller = hallucination();
+      const tools = toolVector("lookup", async () => ({ message: "house" }));
+      await drained(respond(faculty, "stream", { turns: [userTurn("what is casa")] }, { rounds: 5, backoff: [], tools, controller }));
+
+      const records = used(controller);
+      for (const record of records) specimen.expect(record).matches(Usage);
+      specimen.expect(records.map((record) => record.state)).toEqual([undefined, "tools", undefined, "complete"]);
+      specimen.expect(records.map((record) => record.subject.round)).toEqual([1, 1, 2, 2]);
+      specimen.expect(records[1].subject).toEqual({ faculty: "dialogue", provider: "bench", id: "bench/dialogue", via: "stream", round: 1 });
+      specimen.expect(counted(records[0])).toEqual(["output chars tool_use cortex 16"]);
+      specimen.expect(counted(records[1])).toEqual(["output chars tool_use cortex 16", "input tokens bench 40", "output tokens bench 5"]);
+      specimen.expect(counted(records[3])).toEqual([
+        "output chars text cortex 16",
+        "input tokens bench 60",
+        "output tokens bench 7",
+        "cost usd bench 0.002",
+      ]);
+      specimen.expect(records[3].measures.slice(0, 2).map((measure) => `${measure.name} ${measure.unit} ${measure.by}`)).toEqual([
+        "elapsed ms cortex",
+        "first ms cortex",
+      ]);
+      specimen.expect(records[3].measures[0].amount).toBeGreaterThanOrEqual(records[3].measures[1].amount);
+    });
+
+    specimen.it("a part that is neither text nor tool input is left uncounted; the call closes complete", async () => {
+      const faculty = bench("object", {
+        render: async () => ({ role: "assistant", parts: [{ type: "object", data: { word: "casa" } }], meta: { state: "complete" } }),
+      });
+      const controller = hallucination();
+      let close = null;
+      for await (const packet of respond(faculty, "render", { turns: [userTurn("hi")] }, { rounds: 2, backoff: [], tools: new Vector(), controller }))
+        if (packet.event === "/response/close") close = packet;
+      specimen.expect(close.response.meta.state).toBe("complete");
+      const closed = used(controller).at(-1);
+      specimen.expect(closed.state).toBe("complete");
+      specimen.expect(counted(closed)).toEqual([]);
+    });
+
+    specimen.it("an ear: seconds of pcm heard, chars written; audio that is not pcm is left uncounted and breaks nothing", async () => {
+      const faculty = bench("verbatim", {
+        stream: async function* ({ source }) {
+          await drained(source);
+          yield* said(["ciao"]);
+        },
+      });
+      const controller = hallucination();
+      const source = microphone([pcm(), pcm(), { event: "/audio/packet", audio: { data: "not base64!", rate: 16000 } }]);
+      let heard = "";
+      for await (const packet of transcribe(faculty, { source }, { controller }))
+        if (packet.event === "/part/delta") heard += packet.part.text;
+      const closed = used(controller).at(-1);
+      specimen.expect(closed).matches(Usage);
+      specimen.expect(closed.state).toBe("complete");
+      specimen.expect(closed.subject).toEqual({ faculty: "verbatim", provider: "bench", id: "bench/verbatim", via: "stream", round: 1 });
+      specimen.expect(heard.trim()).toBe("ciao");
+      specimen.expect(counted(closed)).toEqual(["input seconds audio cortex 0.2", `output chars text cortex ${heard.length}`]);
+    });
+
+    specimen.it("a mouth, streamed: chars read, seconds spoken; a listener who leaves early closes it abort", async () => {
+      const faculty = bench("speech", {
+        stream: async function* () {
+          yield pcm();
+          yield pcm();
+          yield { event: "/audio/close", audio: { meta: { state: "complete" } } };
+        },
+      });
+      const whole = hallucination();
+      await drained(synthesize(faculty, { source: "ciao a tutti" }, { controller: whole }));
+      specimen.expect(used(whole).at(-1).state).toBe("complete");
+      specimen.expect(counted(used(whole).at(-1))).toEqual(["input chars text cortex 12", "output seconds audio cortex 0.2"]);
+
+      const left = hallucination();
+      for await (const _packet of synthesize(faculty, { source: "ciao a tutti" }, { controller: left })) break;
+      specimen.expect(used(left).at(-1).state).toBe("abort");
+      specimen.expect(counted(used(left).at(-1))).toEqual(["input chars text cortex 12", "output seconds audio cortex 0.1"]);
+    });
+
+    specimen.it("a mouth, rendered: chars read, bytes returned; a fault still writes its record, closed error", async () => {
+      const controller = hallucination();
+      await vocalize(bench("speech", { render: async () => new Uint8Array(9000) }), { source: "ciao a tutti" }, { controller });
+      specimen.expect(used(controller)).toHaveLength(1);
+      specimen.expect(used(controller)[0].subject.via).toBe("render");
+      specimen.expect(counted(used(controller)[0])).toEqual(["input chars text cortex 12", "output bytes audio cortex 9000"]);
+
+      const failing = hallucination();
+      const down = bench("speech", {
+        render: async () => {
+          throw new Error("provider down");
+        },
+      });
+      await specimen.expect(vocalize(down, { source: "ciao" }, { controller: failing })).rejects.toThrow("provider down");
+      specimen.expect(used(failing)).toHaveLength(1);
+      specimen.expect(used(failing)[0].state).toBe("error");
+      specimen.expect(counted(used(failing)[0])).toEqual(["input chars text cortex 4"]);
+    });
+
+    specimen.it("a painter: the prompt's chars, pictures in and out, the provider's cost", async () => {
+      const faculty = bench("picture", {
+        render: async () => ({
+          images: [{ type: "image", mime: "image/png", data: "iVBOR" }],
+          meta: { usage: [{ name: "cost", unit: "usd", amount: 0.04 }] },
+        }),
+      });
+      const controller = hallucination();
+      await depict(faculty, { prompt: "a red fox", images: [] }, { controller });
+      const closed = used(controller).at(-1);
+      specimen.expect(closed).matches(Usage);
+      specimen.expect(closed.state).toBe("complete");
+      specimen.expect(counted(closed)).toEqual([
+        "input chars text cortex 9",
+        "cost usd bench 0.04",
+        "input images image cortex 0",
+        "output images image cortex 1",
+      ]);
+    });
+
+    specimen.it("a chooser: the questions it was asked", async () => {
+      const controller = hallucination();
+      const round = { system: {}, questions: { same: { type: "noul", ask: "same?" }, ok: { type: "noul", ask: "ok?" } } };
+      await choose(bench("choice", { render: async () => ({ same: 0.9, ok: 0.1 }) }), round, { controller });
+      specimen.expect(used(controller)).toHaveLength(1);
+      specimen.expect(used(controller)[0].state).toBe("complete");
+      specimen.expect(counted(used(controller)[0])).toEqual(["input questions cortex 2"]);
+    });
+
+    specimen.it("a call: audio both ways, the words it said, the provider's tokens, in one record", async () => {
+      const faculty = bench("call", {
+        stream: async function* ({ source }) {
+          await drained(source);
+          yield* said(["ciao"], tokens(9, 2));
+          yield pcm();
+          yield { event: "/audio/close", audio: { meta: { state: "complete" } } };
+        },
+      });
+      const controller = hallucination();
+      await drained(converse(faculty, { source: microphone([pcm()]), turns: [] }, { controller, tools: new Vector() }));
+      const closed = used(controller).at(-1);
+      specimen.expect(closed).matches(Usage);
+      specimen.expect(closed.state).toBe("complete");
+      specimen.expect(counted(closed)).toEqual([
+        "input seconds audio cortex 0.1",
+        "output seconds audio cortex 0.1",
+        "output chars text cortex 4",
+        "input tokens bench 9",
+        "output tokens bench 2",
+      ]);
+    });
+  });
 });

@@ -45,7 +45,7 @@ Utilities for spacing/layout, components for semantics:
 
 #+begin_src svelte
 <Card padding="md" class="mt-4 w-full">
-  <!-- Card handles semantic surface/contrast/boundary -->
+  <!-- Card handles semantic plane/contrast/boundary -->
   <!-- Tailwind handles margin and width -->
 </Card>
 #+end_src

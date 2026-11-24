@@ -1,3 +1,4 @@
+// @ts-self-types="./signatures.d.ts"
 import { Type } from "typebox";
 import { enhance } from "../v.js";
 import { url } from "../scalars/url.js";

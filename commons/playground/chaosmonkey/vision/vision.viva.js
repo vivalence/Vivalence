@@ -7,7 +7,7 @@ export const manifest = {
   description:
     "Emitted by the oracle — a sassy one-line vision of what you asked, with a return.",
   version: "0.1.0",
-  traits: ["VIEWABLE"],
+  traits: ["SURFACED"],
 };
 
 export const buffer = v.buffer({
@@ -18,4 +18,4 @@ export const buffer = v.buffer({
   },
 });
 
-export const views = [{ slug: "vision", mount: "Vision.svelte", mime: mime.dom.svelte }];
+export const surfaces = [{ slug: "vision", mount: "Vision.svelte", mime: mime.dom.svelte }];

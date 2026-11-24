@@ -1,0 +1,48 @@
+4a5,11
+> import type { Static, StaticDecode } from "@vivalence/typology";
+> import type { Instance } from "../prototype.js";
+> 
+> type Mask = Static<typeof v.primitives.instance.Mask>;
+> type Hallucinator = Static<typeof v.primitives.instance.HallucinatorMask>;
+> type Runtime = StaticDecode<typeof v.primitives.instance.RuntimeMask>;
+> type Daemon = StaticDecode<typeof v.primitives.instance.DaemonMask>;
+8c15
+< const alive = (mask) => Boolean(mask) && !Object.values(mask.secrets ?? {}).some(is.empty);
+---
+> const alive = (mask?: Mask) => Boolean(mask) && !Object.values(mask.secrets ?? {}).some(is.empty);
+10c17
+< const dormant = (instance, at, mask) => {
+---
+> const dormant = (instance: Instance, at: string, mask?: Mask) => {
+21c28
+< const awake = (instance, at, masks = []) =>
+---
+> const awake = (instance: Instance, at: string, masks: Hallucinator[] = []) =>
+24c31
+< function unfold(instance) {
+---
+> function unfold(instance: Instance) {
+35c42
+< const wrong = (host) =>
+---
+> const wrong = (host: { hallucinators: Hallucinator[] }) =>
+41c48
+< const misworn = (at, host, above = { hallucinators: [] }) =>
+---
+> const misworn = (at: string, host: { hallucinators: Hallucinator[] }, above: { hallucinators: Hallucinator[] } = { hallucinators: [] }) =>
+46c53
+< function worn(instance) {
+---
+> function worn(instance: Instance) {
+65c72
+< export function settle(paladin) {
+---
+> export function settle(paladin: { instance: Instance }) {
+69c76
+<   const modes = (at, host) =>
+---
+>   const modes = (at: string, host: Runtime | Daemon) =>
+98c105
+<   const echoed = (sentence) => {
+---
+>   const echoed = (sentence: string) => {

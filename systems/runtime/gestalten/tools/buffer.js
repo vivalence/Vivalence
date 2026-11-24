@@ -51,7 +51,7 @@ export const buffer = new Vector()
       nature: "/buffer/label",
       valence: "Name a buffer. The label is what the operator reads on the buffer's line in the " +
         "chat and in the buffer list — set it when a buffer's subject is clearer than its " +
-        "name, or when the operator asks. Returns { message, buffer: [{ id, index, status, data, view, trait }] }. " +
+        "name, or when the operator asks. Returns { message, buffer: [{ id, index, status, data, surface, trait }] }. " +
         'Example: { id: "01a0856f-425f-72b8-b36f-decc1bb2050e", label: { name: "Flamingo", ' +
         'description: "Six species, range and diet" } }',
       input: v.object({

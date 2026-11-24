@@ -1,0 +1,150 @@
+** ruled
+- =Slug= ×8
+  - =entities/daemon.js:9= =DaemonSchematic.own.slug= — the one wide pattern
+  - =entities/intent.js:9= =IntentSchematic.own.slug= — the one wide pattern
+  - =entities/literal.js:10= =LiteralSchematic.own.slug= — the one wide pattern
+  - =entities/mode.js:10= =ModeSchematic.own.slug= — the one wide pattern
+  - =entities/note.js:10= =NoteSchematic.own.slug= — the one wide pattern
+  - =entities/symbol.js:10= =SymbolSchematic.own.slug= — the one wide pattern
+  - =entities/user.js:10= =UserSchematic.own.slug= — the one wide pattern
+  - =entities/view.js:11= =ViewSchematic.own.slug= — the one wide pattern
+
+** wear
+- =ID= ×8
+  - =entities/base.js:11= =VirtualEntitySchema.id=
+  - =primitives/hallucination.js:63= =Part.File.file= — a File's id
+  - =primitives/hallucination.js:349= =Packet.TurnOpen.turn.id=
+  - =primitives/hallucination.js:377= =Packet.PartFull.turn=
+  - =primitives/harness.js:16= =Request.thread=
+  - =primitives/harness.js:17= =Request.terminal=
+  - =primitives/harness.js:18= =Request.turn=
+  - =primitives/track.js:9= =Entity.id=
+- =Probability= ×2
+  - =primitives/hallucination.js:218= =Tune[]= — the same bounds
+  - =traits/conversational.js:12= =Conversational.harmonize.tolerance= — the same bounds
+
+** new
+- =Bytes= ×2
+  - =entities/file.js:19= =FileSchematic.own.bytes=
+  - =prototypes/bundle.js:11= =Bundle.entries[].bytes=
+- =Hash= ×2
+  - =entities/file.js:17= =FileSchematic.own.hash=
+  - =prototypes/bundle.js:8= =Bundle.entries[].hash=
+- =Index= ×7
+  - =entities/buffer.js:11= =BufferSchematic.own.index=
+  - =entities/terminal.js:10= =TerminalSchematic.own.index=
+  - =primitives/hallucination.js:355= =Packet.PartOpen.index=
+  - =primitives/hallucination.js:361= =Packet.PartDelta.index=
+  - =primitives/hallucination.js:367= =Packet.PartDraft.index=
+  - =primitives/hallucination.js:375= =Packet.PartFull.index=
+  - =primitives/hallucination.js:385= =Packet.PartClose.index=
+- =Integrity= ×2
+  - =entities/file.js:18= =FileSchematic.own.integrity=
+  - =prototypes/bundle.js:10= =Bundle.entries[].integrity=
+- =ModuleIdentifier= ×14
+  - =primitives/instance.js:20= =Mask.module=
+  - =primitives/instance.js:26= =HallucinatorMask.module=
+  - =primitives/instance.js:36= =DatamapMask.module=
+  - =primitives/instance.js:55= =ModeMask.module=
+  - =primitives/instance.js:74= =ModeMasks[]|=
+  - =primitives/instance.js:123= =ClientMask.module=
+  - =primitives/instance.js:136= =ServiceMask.module=
+  - =primitives/instance.js:199= =Recipe.module=
+  - =primitives/instance.js:205= =HallucinatorRecipe.module=
+  - =primitives/instance.js:214= =DatamapRecipe.module=
+  - =primitives/instance.js:230= =ModeRecipe.module=
+  - =primitives/instance.js:242= =ModeRecipes[]|=
+  - =primitives/instance.js:277= =ClientRecipe.module=
+  - =primitives/instance.js:289= =ServiceRecipe.module=
+- =Version= ×2
+  - =entities/mode.js:14= =ModeSchematic.own.version=
+  - =primitives/manifest.js:9= =Manifest.version=
+
+** tighten
+- =Condition= ×1
+  - =primitives/hallucination.js:86= =Part.ToolResult.condition= — prototypes/yield.js:3
+- =FacultyType= ×2
+  - =primitives/hallucination.js:285= =Faculty.type= — hallucination.js:17
+  - =primitives/hallucination.js:311= =FacultyMask.type= — hallucination.js:17
+- =Probability= ×1
+  - =primitives/hallucination.js:495= =Policy.verbatim.harmonize.tolerance= — the trait's twin is bounded 0 to 1
+- =Role= ×2
+  - =entities/turn.js:9= =TurnSchematic.own.role= — hallucination.js:115
+  - =primitives/hallucination.js:348= =Packet.TurnOpen.turn.role= — hallucination.js:115
+- =Slug= ×5
+  - =entities/literal.js:11= =LiteralSchematic.own.daemon= — a daemon's slug
+  - =primitives/hallucination.js:478= =Selector.provider= — a provider's slug
+  - =primitives/hallucination.js:575= =Picture.Response.provider= — a provider's slug
+  - =traits/rendered.js:5= =Rendered.frame= — a view's slug
+  - =traits/rendered.js:6= =Rendered.cell= — a view's slug
+- =State= ×2
+  - =entities/activity.js:10= =ActivitySchematic.own.status= — controller.js:10; its description says FAULTED
+  - =primitives/track.js:10= =Status.code= — controller.js:10
+- =StatusCode= ×1
+  - =prototypes/index.js:17= =Status.code= — prototypes/index.js:6, worn nowhere
+- =Track= ×1
+  - =primitives/controller.js:28= =Record.track= — track.js:12
+- =Username= ×1
+  - =primitives/instance.js:102= =LighthouseTrait.AUTOLOGIN.username= — adds maxLength 64
+- =Verb= ×1
+  - =primitives/track.js:5= =Request.method= — connection.js:5, not exported
+- =mime.type= ×4
+  - =primitives/hallucination.js:40= =Part.Image.mime= — RFC 6838
+  - =primitives/hallucination.js:46= =Part.Audio.mime= — RFC 6838
+  - =primitives/hallucination.js:52= =Part.Video.mime= — RFC 6838
+  - =primitives/hallucination.js:58= =Part.Document.mime= — RFC 6838
+- =traits.names.user= ×1
+  - =primitives/auth.js:16= =UserReference.traits[]= — traits/index.js:199
+- =v.instant= ×1
+  - =entities/file.js:6= =MISSING.since= — its description says ISO 8601
+
+** wire
+- =FilePath= ×7
+  - =entities/file.js:14= =FileSchematic.own.path=
+  - =entities/file.js:15= =FileSchematic.own.mount=
+  - =entities/view.js:13= =ViewSchematic.own.mount|=
+  - =entities/view.js:14= =ViewSchematic.own.entry=
+  - =primitives/instance.js:37= =DatamapMask.statics.db.file=
+  - =primitives/instance.js:351= =Tapped{}.mount=
+  - =prototypes/bundle.js:9= =Bundle.entries[].mount=
+- =Mountpoint= ×4
+  - =primitives/instance.js:233= =ModeRecipe.mountpoint|=
+  - =primitives/instance.js:278= =ClientRecipe.mountpoint=
+  - =primitives/instance.js:290= =ServiceRecipe.mountpoint=
+  - =primitives/instance.js:302= =DaemonRecipe.mountpoint=
+- =Path= ×2
+  - =primitives/home.js:4= =Home.reference=
+  - =primitives/instance.js:304= =DaemonRecipe.reference=
+- =Signal= ×2
+  - =primitives/harness.js:10= =Signal.nature= — a route
+  - =traits/aimed.js:4= =Aimed.mount= — a route
+
+** unnamed
+- a faculty's id ×5
+  - =primitives/hallucination.js:286= =Faculty.id=
+  - =primitives/hallucination.js:306= =FacultyRecipe.id=
+  - =primitives/hallucination.js:311= =FacultyMask.id=
+  - =primitives/hallucination.js:479= =Selector.id=
+  - =primitives/hallucination.js:576= =Picture.Response.id=
+- encoded bytes ×5
+  - =primitives/hallucination.js:39= =Part.Image.data=
+  - =primitives/hallucination.js:45= =Part.Audio.data=
+  - =primitives/hallucination.js:51= =Part.Video.data=
+  - =primitives/hallucination.js:57= =Part.Document.data=
+  - =primitives/hallucination.js:421= =Audio.Packet.audio.data=
+- the provider's id of one tool call ×2
+  - =primitives/hallucination.js:74= =Part.ToolUse.id=
+  - =primitives/hallucination.js:85= =Part.ToolResult.id=
+- the signing secret, minLength 24 ×2
+  - =primitives/instance.js:86= =RuntimeMask.secrets.jwt=
+  - =primitives/instance.js:112= =LighthouseMask.secrets.jwt=
+
+** key
+=trait=×4 · =flags=×4 · =system=×4 · =consume=×4 · =data=×2 · =modes=×2 · =product=×2 · =part=×2 · =steps= · =mask= · =symbol= · =parts= · =meta= · =params= · =entities= · =providers= · =Credentials= · =input= · =usage= · =provider= · =Parts= · =tool_choice= · =via= · =Rubric= · =Ask= · =options= · =questions= · =Answer= · =Verdict= · =config= · =output= · =tools= · =SecretsMask= · =Sieve= · =logger= · =SecretsRecipe= · =properties= · =Tapped= · =schematics= · =Primed= · =Tooled=
+
+** prose
+=name=×4 · =description=×4 · =message=×4 · =text=×3 · =valence= · =Rubric= · =Ask= · =prompt= · =revised= · =stack= · =Log=
+
+** bare
+=traits[]=×5 · =type=×4 · =rounds=×4 · =success=×2 · =status=×2 · =at=×2 · =path[]=×2 · =name=×2 · =thinking=×2 · =marks[]=×2 · =pts=×2 · =window=×2 · =tail=×2 · =ontology= · =installed= · =counter= · =query= · =token= · =stream= · =params= · =flags[]= · =settled= · =signature= · =dialect= · =input= · =output= · =cost= · =kind= · =maxTokens= · =thinkingBudget= · =temperature= · =model= · =upstream= · =context= · =options= · =choices= · =rate= · =codec= · =offset= · =start= · =end= · =backoff[]= · =size= · =aspect= · =count= · =password= · =required[]= · =additionalProperties= · =remote= · =read[]= · =unset[]= · =owner= · =emoji= · =path= · =code= · =schema= · =language[]= · =engaged= · =share= · =depth=
+

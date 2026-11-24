@@ -1,0 +1,2477 @@
+diff --color -ruN a/commons/publishers/blog/aperture/index.js b/commons/publishers/blog/aperture/index.js
+--- a/commons/publishers/blog/aperture/index.js	2026-11-23 23:11:36.671032300 +0100
++++ b/commons/publishers/blog/aperture/index.js	2026-11-23 23:11:36.679928648 +0100
+@@ -1,60 +1,243 @@
+-import { join, relative } from "@std/path";
++import { join, relative, SEPARATOR } from "@std/path";
+ import paladin from "@vivalence/paladin";
+ import { mime, Path, v, Vector } from "@vivalence/typology";
+-import { pressed, SOURCES } from "../press.js";
+-import { contents, framed } from "../theme/index.js";
++import { fronted, pressed, SOURCES } from "../press.js";
++import { Article, Site } from "../schematics.js";
++import { paged } from "../theme/index.js";
++
++const Named = v.object({
++  path: v.string().desc("A file's path under source/.").example("on/machines.md"),
++});
++
++const Source = v.object({
++  path: Named.properties.path,
++  text: v
++    .string()
++    .desc("The source as written, its front matter on top.")
++    .example('---\ntitle: "Hello"\n---\n\nText.\n'),
++});
++
++const Listed = v.object({
++  path: Named.properties.path,
++  article: v
++    .union([v.object({ ...Article.properties, page: v.string(), title: v.string() }), v.null()])
++    .desc("What its front matter declares, null when it faults.")
++    .example({
++      page: "on/machines.html",
++      title: "Conscious Machines",
++      date: "2026.08.07",
++      status: "published",
++    }),
++  fault: v
++    .union([v.string(), v.null()])
++    .desc("Why its front matter does not hold, null when it does.")
++    .example("[blog] on/machines.md: /status must match a schema in anyOf"),
++});
++
++const Shelf = v.object({
++  site: v
++    .string()
++    .desc("Where a stranger reaches the pressed site.")
++    .example("http://localhost:2501/attached/runtime/runtime/mode/publisher/blog"),
++  sources: v.array(Listed).desc("Every .md · .org under source/, by path."),
++});
+ 
+ const Built = v.object({
+   pages: v
+     .array(v.string())
+-    .desc('Every file under public/ this build wrote, unchanged ones left out. Example: ["hello.html", "index.html"]'),
++    .desc("Every file under public/ this build wrote, unchanged ones left out.")
++    .example(["hello.html", "index.html"]),
++  gone: v
++    .array(v.string())
++    .desc(
++      "Every file this build took off the site: " +
++        "a draft's page, a deleted source's, a deleted picture.",
++    )
++    .example(["on/withdrawn.html"]),
++});
++
++const Preview = v.object({
++  html: v
++    .string()
++    .desc("The page as a build would press it, a draft too, its links based on the site."),
+ });
+ 
+-export const aperture = new Vector().open(
+-  {
+-    nature: "/build",
+-    output: Built,
+-    valence: "press the blog — every .md · .org under source/ becomes a page under public/. Example: /build",
+-  },
+-  async (ctx) => {
+-    const seat = new Path(ctx.mode.mountpoint).absolute;
+-    const source = join(seat, "source");
+-    await paladin.state.dir(source);
+-
+-    const files = await paladin.find.walk(SOURCES)(source);
+-    const articles = await Promise.all(
+-      files.map(async (file) => pressed(relative(source, file.absolute), await paladin.read.text(file))),
+-    );
+-    articles.sort((left, right) => (left.page < right.page ? -1 : 1));
+-
+-    const pages = [
+-      ...articles.map((article) => [article.page, framed(article)]),
+-      ["index.html", contents(articles)],
+-    ];
+-
+-    const written = [];
+-    for (const [page, text] of pages) {
+-      const mount = join(seat, "public", page);
+-      if (await paladin.state.scribe(mount, text)) written.push(page);
+-      await ctx.entities.file.record({
+-        mode: ctx.mode.id,
+-        path: page,
+-        mount,
+-        mime: mime.of(page),
+-        bytes: new TextEncoder().encode(text),
+-      });
+-    }
+-
+-    const kept = (await paladin.find.walk(/./)(source)).filter((file) => !SOURCES.test(file.absolute));
+-    for (const file of kept) {
+-      await ctx.entities.file.record({
+-        mode: ctx.mode.id,
+-        path: relative(source, file.absolute),
+-        mount: file.absolute,
+-        mime: mime.of(file.absolute),
+-        bytes: await paladin.read.bytes(file.absolute),
+-      });
+-    }
+-    return { pages: written };
+-  },
+-);
++const seat = (ctx) => new Path(ctx.mode.mountpoint).absolute;
++
++const site = (ctx) => ctx.attach.branch(ctx.reference).branch(ctx.mode.reference).absolute;
++
++const within = (ctx, path) => {
++  const source = join(seat(ctx), "source");
++  const mount = join(source, path);
++  if (relative(source, mount).startsWith("..")) throw new Error(`[blog] '${path}' leaves source/`);
++  return mount;
++};
++
++const sources = async (ctx) => {
++  const source = join(seat(ctx), "source");
++  await paladin.state.dir(source);
++  const files = await paladin.find.walk(SOURCES)(source);
++  const read = await Promise.all(
++    files.map(async (file) => ({
++      path: relative(source, file.absolute),
++      text: await paladin.read.text(file),
++    })),
++  );
++  return read.sort((left, right) => (left.path < right.path ? -1 : 1));
++};
++
++const listed = ({ path, text }) => {
++  try {
++    return { path, article: fronted(path, text), fault: null };
++  } catch (error) {
++    return { path, article: null, fault: error.message };
++  }
++};
++
++const settings = async (ctx) =>
++  Site.cast(await paladin.read.json(join(seat(ctx), "site.json"), {}));
++
++export const aperture = new Vector()
++  .open(
++    {
++      nature: "/build",
++      output: Built,
++      valence:
++        "press the blog — every .md · .org under source/ becomes a page under public/, " +
++        "the index lists its essays. Example: /build",
++    },
++    async (ctx) => {
++      const source = join(seat(ctx), "source");
++      const articles = await Promise.all(
++        (await sources(ctx)).map(({ path, text }) => pressed(path, text)),
++      );
++
++      const written = [];
++      const held = [];
++      for (const [page, text] of paged(await settings(ctx), articles)) {
++        const mount = join(seat(ctx), "public", page);
++        if (await paladin.state.scribe(mount, text)) written.push(page);
++        held.push(mount);
++        await ctx.entities.file.record({
++          mode: ctx.mode.id,
++          path: page,
++          mount,
++          mime: mime.of(page),
++          bytes: new TextEncoder().encode(text),
++        });
++      }
++
++      const kept = (await paladin.find.walk(/./)(source)).filter(
++        (file) => !SOURCES.test(file.absolute),
++      );
++      for (const file of kept) {
++        held.push(file.absolute);
++        await ctx.entities.file.record({
++          mode: ctx.mode.id,
++          path: relative(source, file.absolute),
++          mount: file.absolute,
++          mime: mime.of(file.absolute),
++          bytes: await paladin.read.bytes(file.absolute),
++        });
++      }
++
++      const gone = (await ctx.entities.file.find({ mode: ctx.mode.id })).filter(
++        (file) =>
++          ["public", "source"].some((folder) =>
++            file.mount.startsWith(join(seat(ctx), folder) + SEPARATOR),
++          ) && !held.includes(file.mount),
++      );
++      for (const file of gone) {
++        if (file.mount.startsWith(join(seat(ctx), "public") + SEPARATOR))
++          await paladin.state.remove(file.mount);
++        await ctx.entities.file.remove({ id: file.id });
++      }
++      return { pages: written, gone: gone.map((file) => file.path) };
++    },
++  )
++  .open(
++    {
++      nature: "/source/list",
++      output: Shelf,
++      valence:
++        "the desk's shelf — every source with what its front matter declares. " +
++        "Example: /source/list",
++    },
++    async (ctx) => ({ site: site(ctx), sources: (await sources(ctx)).map(listed) }),
++  )
++  .open(
++    {
++      nature: "/source/read",
++      input: Named,
++      output: Source,
++      valence: 'one source as written. Example: /source/read {"path":"on/machines.md"}',
++    },
++    async (ctx) => ({
++      path: ctx.input.path,
++      text: await paladin.read.text(within(ctx, ctx.input.path)),
++    }),
++  )
++  .open(
++    {
++      nature: "/source/write",
++      input: Source,
++      output: Named,
++      valence:
++        "write one source to disk; no page moves until /build. " +
++        'Example: /source/write {"path":"on/new.md","text":"…"}',
++    },
++    async (ctx) => {
++      await paladin.state.scribe(within(ctx, ctx.input.path), ctx.input.text);
++      return { path: ctx.input.path };
++    },
++  )
++  .open(
++    {
++      nature: "/source/remove",
++      input: Named,
++      output: Named,
++      valence:
++        "take one source off the disk; its page goes with the next /build. " +
++        'Example: /source/remove {"path":"on/old.md"}',
++    },
++    async (ctx) => {
++      await Deno.remove(within(ctx, ctx.input.path));
++      return { path: ctx.input.path };
++    },
++  )
++  .open(
++    {
++      nature: "/source/preview",
++      input: Source,
++      output: Preview,
++      valence:
++        "one source pressed as it is typed, nothing written, a draft shown too. " +
++        "Example: /source/preview {…}",
++    },
++    async (ctx) => {
++      const typed = await pressed(ctx.input.path, ctx.input.text);
++      const others = (await sources(ctx))
++        .filter((source) => source.path !== ctx.input.path)
++        .map(listed)
++        .filter((source) => source.article !== null)
++        .map((source) => ({ ...source.article, body: "" }));
++      const shown = { ...typed, status: typed.status === "draft" ? "unlisted" : typed.status };
++      const html = new Map(paged(await settings(ctx), [...others, shown])).get(shown.page);
++      return { html: html.replace("<head>", `<head>\n<base href="${site(ctx)}/${shown.page}">`) };
++    },
++  )
++  .open(
++    {
++      nature: "/source/upload/:name",
++      output: Named,
++      valence:
++        "a picture's bytes into source/images/, served after the next /build. " +
++        "Example: POST /source/upload/heron.png",
++    },
++    async (ctx) => {
++      const path = join("images", ctx.params.name);
++      const bytes = new Uint8Array(await new Response(ctx.request.raw.body).arrayBuffer());
++      await paladin.state.store(within(ctx, path), bytes);
++      return { path };
++    },
++  );
+diff --color -ruN a/commons/publishers/blog/attachment.js b/commons/publishers/blog/attachment.js
+--- a/commons/publishers/blog/attachment.js	2026-11-23 23:11:36.672124047 +0100
++++ b/commons/publishers/blog/attachment.js	2026-11-23 23:11:36.681329894 +0100
+@@ -1,16 +1,24 @@
+-import { relative } from "@std/path";
++import { join, relative } from "@std/path";
+ import paladin from "@vivalence/paladin";
+ import { fromm, Vector } from "@vivalence/typology";
+ 
+ const missing = () => new Response(null, { status: 404 });
+ 
+-export const attachment = new Vector().open("/(.*)", async (ctx) => {
+-  const file = await ctx.runtime.entities.file.findOne({
+-    mode: ctx.mode.id,
+-    path: relative("/", fromm.params(ctx.params).path.absolute),
+-  });
+-  if (file === null) return missing();
++const served = async (ctx) => {
++  const asked = relative("/", fromm.params(ctx.params).path.absolute);
++  const places = [asked, `${asked}.html`, join(asked, "index.html")];
++  const files = await ctx.runtime.entities.file.find({ mode: ctx.mode.id, path: { $in: places } });
++  const file = places
++    .map((place) => files.find((file) => file.path === place))
++    .find((file) => file !== undefined);
++  if (file === undefined) return missing();
+ 
++  ctx.response.headers.set("etag", `"${file.integrity}"`);
++  ctx.response.headers.set("cache-control", "no-cache");
++  if (ctx.request.headers.get("if-none-match") === `"${file.integrity}"`)
++    return new Response(null, { status: 304, headers: Object.fromEntries(ctx.response.headers) });
+   ctx.response.type = file.mime;
+   return await paladin.read.bytes(file.mount);
+-});
++};
++
++export const attachment = new Vector().open("/", served).open("/(.*)", served);
+diff --color -ruN a/commons/publishers/blog/blog.viva.js b/commons/publishers/blog/blog.viva.js
+--- a/commons/publishers/blog/blog.viva.js	2026-11-23 23:11:36.672353254 +0100
++++ b/commons/publishers/blog/blog.viva.js	2026-11-23 23:11:36.681598268 +0100
+@@ -1,16 +1,22 @@
+ import { mime, v } from "@vivalence/typology";
++import { Desk } from "./schematics.js";
+ 
+ export const manifest = {
+   type: "publisher",
+   slug: "blog",
+   name: "Blog",
+   description:
+-    "A blog pressed from its sources: every .md · .org under source/ in its mountpoint becomes a page under public/; every other file there is served from where it lies.",
+-  version: "0.1.0",
++    "A blog written and pressed in one place: a .md · .org under source/ in its mountpoint " +
++    "becomes a page under public/, an essay when it is dated; " +
++    "every other file there is served from where it lies.",
++  version: "0.2.0",
+   traits: ["EXPOSED", "ATTACHED", "SURFACED", "FILESET"],
+ };
+ 
+-export const buffer = v.buffer({ data: {} }).desc("The press: one button that builds the blog. Example: {}");
++export const buffer = v
++  .buffer({ data: Desk })
++  .desc("The writing desk: the sources, the one being written, its page as pressed.")
++  .example({ open: "on/machines.md" });
+ 
+ export const fileset = { path: "files" };
+ 
+diff --color -ruN a/commons/publishers/blog/buffer/Blog.jsx b/commons/publishers/blog/buffer/Blog.jsx
+--- a/commons/publishers/blog/buffer/Blog.jsx	2026-11-23 23:11:36.672721003 +0100
++++ b/commons/publishers/blog/buffer/Blog.jsx	2026-11-23 23:11:36.682086100 +0100
+@@ -1,26 +1,242 @@
+-import { createSignal, For, Show } from "solid-js";
++import {
++  createEffect,
++  createResource,
++  createSignal,
++  For,
++  from,
++  on,
++  onCleanup,
++  Show,
++} from "solid-js";
+ import { render } from "solid-js/web";
++import { Desk } from "../schematics.js";
++import sheet from "./desk.css";
+ 
+-const Blog = (props) => {
+-  const [pages, setPages] = createSignal(null);
+-  const build = async () => setPages((await props.buffer.mode.call.build()).pages);
++const DOTS = { fault: "is-fault", published: "is-healthy", unlisted: "is-needs", draft: "" };
++
++const state = (source) => (source.fault === null ? source.article.status : "fault");
++
++const today = () => new Date().toISOString().slice(0, 10).replaceAll("-", ".");
++
++const begun = () => `---\ntitle: ""\nsubtitle: ""\ndate: "${today()}"\nstatus: "draft"\n---\n\n`;
++
++export const Blog = (props) => {
++  const held = from(props.buffer.$data);
++  const open = () => Desk.cast(held()).open;
++  const [shelf, { refetch }] = createResource(() => props.buffer.mode.call.source.list());
++  const [text, setText] = createSignal("");
++  const [saved, setSaved] = createSignal("");
++  const [preview, setPreview] = createSignal("");
++  const [fault, setFault] = createSignal(null);
++  const [told, setTold] = createSignal("");
++  const [fresh, setFresh] = createSignal("");
++  const [armed, setArmed] = createSignal(false);
++  let editor;
++  let typing;
++
++  const settle = (data) =>
++    props.terminal.client.runtime.entities.buffer.updateOne(
++      { id: props.buffer.id },
++      { data: Desk.cast({ ...held(), ...data }) },
++    );
++
++  const guarded = async (run) => {
++    setFault(null);
++    try {
++      await run();
++    } catch (error) {
++      setFault(error.message);
++    }
++  };
++
++  const show = async (path, text) =>
++    setPreview((await props.buffer.mode.call.source.preview({ path, text })).html);
++
++  const press = async () => {
++    const built = await props.buffer.mode.call.build();
++    setTold(`${built.pages.length} pressed · ${built.gone.length} gone`);
++    await refetch();
++  };
++
++  const lying = () => shelf().sources.find((source) => source.path === open());
++
++  createEffect(
++    on(open, (path) => {
++      setArmed(false);
++      if (path === null) return;
++      guarded(async () => {
++        const source = await props.buffer.mode.call.source.read({ path });
++        setText(source.text);
++        setSaved(source.text);
++        await show(path, source.text);
++      });
++    }),
++  );
++
++  onCleanup(() => clearTimeout(typing));
++
++  const type = (event) => {
++    setText(event.target.value);
++    clearTimeout(typing);
++    typing = setTimeout(() => guarded(() => show(open(), text())), 400);
++  };
++
++  const save = () =>
++    guarded(async () => {
++      await props.buffer.mode.call.source.write({ path: open(), text: text() });
++      setSaved(text());
++      await press();
++    });
++
++  const create = (event) => {
++    event.preventDefault();
++    guarded(async () => {
++      if (!shelf().sources.some((source) => source.path === fresh())) {
++        await props.buffer.mode.call.source.write({ path: fresh(), text: begun() });
++        await refetch();
++      }
++      await settle({ open: fresh() });
++      setFresh("");
++    });
++  };
++
++  const remove = () => {
++    if (!armed()) return setArmed(true);
++    guarded(async () => {
++      await props.buffer.mode.call.source.remove({ path: open() });
++      await settle({ open: null });
++      await press();
++    });
++  };
++
++  const place = (files) =>
++    guarded(async () => {
++      for (const file of [...files].filter((file) => file.type.startsWith("image/"))) {
++        const placed = await props.buffer.mode.call.source.upload[file.name](
++          {},
++          { raw: { body: file.stream() }, headers: { "content-type": file.type } },
++        );
++        editor.setRangeText(
++          `![](/${placed.path})`,
++          editor.selectionStart,
++          editor.selectionEnd,
++          "end",
++        );
++        setText(editor.value);
++      }
++      await press();
++      await show(open(), text());
++    });
++
++  const drop = (event) => {
++    if (event.dataTransfer.files.length === 0) return;
++    event.preventDefault();
++    place(event.dataTransfer.files);
++  };
++
++  const paste = (event) => {
++    if (event.clipboardData.files.length === 0) return;
++    event.preventDefault();
++    place(event.clipboardData.files);
++  };
++
++  const key = (event) => {
++    if (event.key !== "s" || !(event.metaKey || event.ctrlKey)) return;
++    event.preventDefault();
++    if (open() !== null) save();
++  };
+ 
+   return (
+-    <section>
+-      <button type="button" onClick={build}>
+-        build
+-      </button>
+-      <Show when={pages() !== null}>
+-        <ul>
+-          <For each={pages()}>{(page) => <li>{page}</li>}</For>
+-        </ul>
+-      </Show>
+-    </section>
++    <div class="kit desk" onKeyDown={key}>
++      <aside class="side">
++        <span class="kit-label">sources</span>
++        <Show when={shelf()}>
++          <For each={shelf().sources}>
++            {(source) => (
++              <button
++                class="kit-row"
++                aria-current={String(open() === source.path)}
++                title={source.fault === null ? source.path : source.fault}
++                onClick={() => settle({ open: source.path })}>
++                <span class={`kit-dot ${DOTS[state(source)]}`} />
++                <span class="n">{source.fault === null ? source.article.title : source.path}</span>
++                <span />
++                <span class="v">
++                  {source.fault === null ? (source.article.date ?? "page") : "fault"}
++                </span>
++              </button>
++            )}
++          </For>
++        </Show>
++        <form class="kit-field" onSubmit={create}>
++          <span class="p">+</span>
++          <input
++            value={fresh()}
++            onInput={(event) => setFresh(event.target.value)}
++            placeholder="on/title.md"
++            pattern=".+\.(md|org)"
++            required
++            aria-label="a new source's path under source/"
++          />
++        </form>
++      </aside>
++      <div class="write">
++        <Show
++          when={open() !== null}
++          fallback={
++            <span class="empty">nothing on the desk · pick a source or name a new one</span>
++          }>
++          <div class="status">
++            <b>{open()}</b>
++            <Show when={text() !== saved()}>
++              <span class="kit-dot is-needs" />
++              <span>unsaved</span>
++            </Show>
++            <span style="flex:1" />
++            <span>{told()}</span>
++            <Show
++              when={shelf() && lying() && state(lying()) !== "fault" && state(lying()) !== "draft"}>
++              <a href={`${shelf().site}/${lying().article.page}`} target="_blank" rel="noopener">
++                open
++              </a>
++            </Show>
++            <span class="kit-choice">
++              <button type="button" onClick={save}>
++                save · press
++              </button>
++              <button type="button" aria-pressed={String(armed())} onClick={remove}>
++                {armed() ? "sure?" : "remove"}
++              </button>
++            </span>
++          </div>
++          <textarea
++            ref={editor}
++            class="sheet"
++            value={text()}
++            onInput={type}
++            onDrop={drop}
++            onPaste={paste}
++            spellcheck="true"
++            aria-label="the source"
++          />
++        </Show>
++        <Show when={fault()}>
++          <span class="fault">
++            <span class="kit-dot is-fault" />
++            {fault()}
++          </span>
++        </Show>
++      </div>
++      <iframe class="pressed" srcdoc={preview()} sandbox="" title="the page as pressed" />
++    </div>
+   );
+ };
+ 
+ export default (element, props) => {
+   const shadow = element.attachShadow({ mode: "open" });
++  const style = document.createElement("style");
++  style.textContent = sheet;
++  shadow.append(style);
+   const dispose = render(() => <Blog {...props} />, shadow);
+   return { destroy: dispose };
+ };
+diff --color -ruN a/commons/publishers/blog/buffer/desk.css b/commons/publishers/blog/buffer/desk.css
+--- a/commons/publishers/blog/buffer/desk.css	1970-01-01 01:00:00.000000000 +0100
++++ b/commons/publishers/blog/buffer/desk.css	2026-11-23 23:11:36.682419432 +0100
+@@ -0,0 +1,45 @@
++:host{flex:1;min-height:0;display:flex;flex-direction:column}
++a{color:var(--text-link)}a:hover{color:var(--text-strong)}
++.desk{flex:1;min-height:0;box-sizing:border-box;display:flex;gap:var(--size-space-sm);padding:var(--size-space-sm)}
++.side{width:248px;flex:none;display:flex;flex-direction:column;gap:4px;padding-right:var(--size-space-sm);box-shadow:inset calc(-1 * var(--size-ring)) 0 0 var(--boundary);min-height:0;overflow-y:auto}
++.side .kit-label{padding-left:var(--size-space-xs)}
++.side .kit-field{margin-top:var(--size-space-sm)}
++.write{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--size-space-xs)}
++.status{display:flex;align-items:center;gap:var(--size-space-xs);font-family:var(--font-family-code);font-size:var(--size-type-xs);color:var(--text-muted);padding:0 var(--size-space-2xs);min-height:22px}
++.status b{color:var(--text-strong);font-weight:600}
++.sheet{flex:1;min-height:0;resize:none;border:0;outline:0;padding:var(--size-space-sm);background:var(--plane-sunk);box-shadow:inset 0 0 0 var(--size-ring) var(--boundary);border-radius:var(--shape-radius-card);color:var(--text-ink);caret-color:var(--control-field-caret);font-family:var(--font-family-code);font-size:var(--size-type-sm);line-height:1.6;tab-size:2}
++.sheet:focus{box-shadow:inset 0 0 0 2px var(--control-focus)}
++.pressed{flex:1;min-width:0;border:0;border-radius:var(--shape-radius-card);box-shadow:inset 0 0 0 var(--size-ring) var(--boundary);background:var(--plane-sunk)}
++.empty{color:var(--text-muted);font-family:var(--font-family-code);font-size:var(--size-type-xs);margin:auto}
++.fault{display:flex;align-items:center;gap:var(--size-space-xs);padding:var(--size-space-xs) var(--size-space-sm);overflow-wrap:anywhere;font-family:var(--font-family-code);font-size:var(--size-type-xs);color:var(--signal-negative-ink);background:linear-gradient(var(--signal-negative-tint),var(--signal-negative-tint)),var(--plane-sunk);box-shadow:inset 0 var(--size-ring) 0 var(--signal-negative);border-radius:var(--shape-radius-key)}
++.kit-label {font-family: var(--font-family-code); font-size: var(--size-type-2xs); color: var(--text-muted); text-transform: var(--shape-label-case); letter-spacing: var(--shape-label-track);}
++.kit :focus-visible, .kit-tty :focus-visible {outline: 2px solid var(--control-focus); outline-offset: -2px;}
++.kit-dot {display: inline-block; flex: none; width: 6px; height: 6px; border-radius: var(--shape-radius-disc); background: var(--text-muted);}
++.kit-dot.is-healthy {background: var(--signal-positive); box-shadow: 0 0 6px var(--signal-positive-tint);}
++.kit-dot.is-running {background: var(--signal-primary); box-shadow: 0 0 6px var(--signal-primary); animation: kit-breathe 1.2s ease-in-out infinite;}
++.kit-dot.is-needs {background: var(--signal-caution); box-shadow: 0 0 6px var(--signal-caution); animation: kit-breathe 2s ease-in-out infinite;}
++.kit-dot.is-fault {background: var(--signal-negative); box-shadow: 0 0 6px var(--signal-negative-tint);}
++.kit-row {appearance: none; border: 0; background: transparent; width: 100%; display: grid; grid-template-columns: 2ch minmax(0, auto) minmax(0, 1fr) auto; align-items: center; gap: var(--size-space-xs); height: 26px; padding: 0 var(--size-space-xs); border-radius: var(--shape-radius-key); font-family: var(--font-family-code); font-size: var(--size-type-xs); line-height: 1; color: var(--text-strong); text-align: left; cursor: pointer; min-width: 0;}
++.kit-row:hover {background: var(--control-selected);}
++.kit-row[aria-current="true"], .kit-row.is-current {background: var(--control-selected);}
++.kit-row.is-off {opacity: var(--text-disabled); cursor: default;}
++.kit-row .k {color: var(--signal-primary-ink); font-weight: 700; text-align: center; box-shadow: inset 0 0 0 var(--size-ring) var(--boundary); border-radius: var(--shape-radius-key); line-height: 16px;}
++.kit-row .n {white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
++.kit-row .ic {color: var(--text-light);}
++.kit-row .v {color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; justify-self: end;}
++.kit-choice {display: inline-flex; flex-wrap: wrap; gap: var(--size-space-2xs); font-family: var(--font-family-code); font-size: var(--size-type-xs);}
++.kit-choice > button {appearance: none; border: 0; background: transparent; color: var(--text-muted); font: inherit; line-height: 1; height: 22px; padding: 0 var(--size-space-xs); border-radius: var(--shape-radius-key); cursor: pointer;}
++.kit-choice > button:hover {color: var(--text-ink);}
++.kit-choice > button[aria-pressed="true"] {background: var(--control-contrast-pressed); color: var(--control-on-pressed);}
++.kit-choice > button.is-off, .kit-choice > button.is-off:hover {color: var(--text-muted); opacity: var(--text-disabled); cursor: default; pointer-events: none;}
++.kit-field {display: flex; align-items: center; gap: var(--size-space-xs); min-height: var(--size-field); padding: 0 var(--size-space-sm); background: var(--control-field); border-radius: var(--shape-radius-field); box-shadow: inset 0 0 0 var(--size-ring) var(--boundary); color: var(--text-strong); font-family: var(--font-family-sans-text); font-size: var(--size-type-sm);}
++.kit-field:focus-within {box-shadow: inset 0 0 0 2px var(--control-focus);}
++.kit-field.is-repl {font-family: var(--font-family-code); font-size: var(--size-type-xs);}
++.kit-field input, .kit-field textarea {flex: 1; min-width: 0; border: 0; outline: 0; padding: 0; margin: 0; background: transparent; color: inherit; font: inherit; caret-color: var(--control-field-caret); resize: none;}
++.kit-field input::placeholder, .kit-field textarea::placeholder {color: var(--control-field-placeholder); opacity: 1;}
++.kit-field .p {font-family: var(--font-family-code); color: var(--signal-primary-ink); flex: none;}
++.kit-field .ic {appearance: none; border: 0; background: transparent; color: var(--text-light); width: 24px; height: 24px; display: inline-grid; place-items: center; padding: 0; border-radius: var(--shape-radius-key); cursor: pointer; flex: none;}
++.kit-field .ic svg {width: 14px; height: 14px;}
++.kit-field .ic.is-live {color: var(--signal-negative);}
++.kit-field.is-live {box-shadow: inset 0 0 0 var(--size-ring) var(--signal-negative);}
++@keyframes kit-breathe {0%, 100% {opacity: 1; transform: scale(1);} 50% {opacity: 0.35; transform: scale(0.7);}}
+diff --color -ruN a/commons/publishers/blog/files/theme.css b/commons/publishers/blog/files/theme.css
+--- a/commons/publishers/blog/files/theme.css	2026-11-23 23:11:36.671417132 +0100
++++ b/commons/publishers/blog/files/theme.css	2026-11-23 23:11:36.680323147 +0100
+@@ -1,61 +1,323 @@
++*,
++*::before,
++*::after {
++  box-sizing: border-box;
++  margin: 0;
++  padding: 0;
++}
++
+ :root {
+-  color-scheme: light dark;
+-  font: 18px/1.6 Georgia, "Times New Roman", serif;
++  --max-width: 680px;
++  --color-text: #333;
++  --color-text-light: #888;
++  --color-bg: #f6f6f6;
++  --color-border: #eee;
++  --color-link: #333;
++  --color-link-hover: #888;
++  --color-code-bg: #ececec;
++  --color-code-border: #dcdcdc;
++  --color-blockquote-border: #bbb;
++  --color-tag: #888;
+ }
+ 
+-body {
+-  max-width: 38rem;
+-  margin: 0 auto;
+-  padding: 2rem 1rem 6rem;
+-  background: Canvas;
+-  color: CanvasText;
++html {
++  font-size: 16px;
++  -webkit-font-smoothing: antialiased;
++  -moz-osx-font-smoothing: grayscale;
+ }
+ 
+-header {
+-  margin-bottom: 3rem;
+-  font: 0.8rem/1 ui-monospace, Menlo, monospace;
+-  letter-spacing: 0.08em;
+-  text-transform: uppercase;
++body {
++  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue",
++    sans-serif;
++  font-weight: 400;
++  color: var(--color-text);
++  background: var(--color-bg);
++  line-height: 1.7;
+ }
+ 
+ a {
+-  color: LinkText;
+-  text-underline-offset: 0.2em;
++  color: var(--color-link);
++  text-decoration: none;
++}
++
++a:hover {
++  color: var(--color-link-hover);
++}
++
++img {
++  max-width: 100%;
++  height: auto;
+ }
+ 
+-h1,
+-h2,
+-h3 {
++#top {
++  max-width: var(--max-width);
++  margin: 0 auto;
++  padding: 24px 16px 0;
++}
++
++#top nav {
++  display: flex;
++  align-items: center;
++  justify-content: space-between;
++  padding-bottom: 16px;
++  border-bottom: 1px solid var(--color-border);
++  margin-bottom: 32px;
++}
++
++.logo {
++  font-size: 1.1rem;
++  font-weight: 700;
++  letter-spacing: -0.02em;
+   line-height: 1.2;
+-  margin: 2.5rem 0 1rem;
+ }
+ 
+-h1 {
+-  font-size: 2rem;
+-  margin-top: 0;
++#top small {
++  font-size: 0.8rem;
++  white-space: nowrap;
++  color: var(--color-text-light);
++}
++
++#top small a {
++  color: var(--color-text-light);
++  transition: color 0.15s;
++}
++
++#top small a:hover {
++  color: var(--color-text);
++}
++
++main {
++  max-width: var(--max-width);
++  margin: 0 auto;
++  padding: 0 16px 64px;
++}
++
++.essays,
++.tags {
++  list-style: none;
++}
++
++.essays > li {
++  padding: 20px 0;
++  border-bottom: 1px solid var(--color-border);
++}
++
++.essays > li:first-child {
++  padding-top: 0;
++}
++
++.essays a {
++  display: block;
++}
++
++.essays h2 {
++  font-size: 1.2rem;
++  font-weight: 600;
++  margin-bottom: 4px;
++  line-height: 1.3;
++}
++
++.essays .subtitle {
++  display: block;
++  font-size: 0.9rem;
++  color: var(--color-text-light);
++  margin-bottom: 4px;
+ }
+ 
+-pre,
+-code {
+-  font: 0.85rem/1.5 ui-monospace, Menlo, monospace;
++.essays time {
++  font-size: 0.8rem;
++  color: var(--color-text-light);
+ }
+ 
+-pre {
++.meta {
++  display: flex;
++  align-items: baseline;
++  gap: 8px;
++}
++
++.tags {
++  display: flex;
++  gap: 8px;
++}
++
++.tags li {
++  font-size: 0.8rem;
++  color: var(--color-tag);
++}
++
++.essay .title {
++  font-size: 1.8rem;
++  font-weight: 700;
++  line-height: 1.3;
++  margin-bottom: 8px;
++}
++
++.essay > .subtitle {
++  display: block;
++  font-size: 1rem;
++  font-weight: 500;
++  margin-bottom: 8px;
++}
++
++.essay > time {
++  display: block;
++  font-size: 0.8rem;
++  color: var(--color-text-light);
++  margin-bottom: 32px;
++}
++
++.essay .lead {
++  width: 100%;
++  max-width: 500px;
++  border-radius: 6px;
++  margin-bottom: 12px;
++}
++
++.prose {
++  line-height: 1.8;
++}
++
++.prose h1 {
++  font-size: 1.5rem;
++  margin: 40px 0 16px;
++}
++
++.prose h2 {
++  font-size: 1.4rem;
++  margin: 32px 0 12px;
++}
++
++.prose h3 {
++  font-size: 1.1rem;
++  font-weight: 500;
++  margin: 24px 0 8px;
++}
++
++.prose p {
++  margin-bottom: 16px;
++}
++
++.prose b,
++.prose strong {
++  font-weight: 600;
++}
++
++.prose blockquote {
++  border-left: 1px solid var(--color-blockquote-border);
++  padding: 0 0 0 13px;
++  margin: 24px 0 24px -14px;
++  font-style: italic;
++}
++
++.prose blockquote > *:last-child {
++  margin-bottom: 0;
++}
++
++.prose code {
++  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
++  font-size: 0.88em;
++  background: var(--color-code-bg);
++  border: 1px solid var(--color-code-border);
++  padding: 1px 6px;
++  border-radius: 4px;
++}
++
++.prose pre {
++  margin: 16px 0;
++  padding: 16px;
++  border-radius: 6px;
+   overflow-x: auto;
+-  padding: 1rem;
+-  border: 1px solid GrayText;
+ }
+ 
+-blockquote {
+-  margin: 1.5rem 0;
+-  padding-left: 1rem;
+-  border-left: 2px solid GrayText;
++.prose pre code {
++  background: none;
++  border: 0;
++  padding: 0;
+ }
+ 
+-img {
+-  max-width: 100%;
++.prose ul,
++.prose ol {
++  padding-left: 24px;
++  margin-bottom: 16px;
++}
++
++.prose li {
++  margin-bottom: 4px;
++}
++
++.prose img {
++  margin: 16px 0;
++  border-radius: 4px;
++}
++
++.prose .footnotes {
++  margin-top: 48px;
++  padding-top: 16px;
++  border-top: 1px solid var(--color-border);
++  font-size: 0.85rem;
++  color: var(--color-text-light);
++}
++
++.neighbours {
++  display: flex;
++  justify-content: space-between;
++  margin-top: 48px;
++  padding-top: 24px;
++  border-top: 1px solid var(--color-border);
++  gap: 16px;
++}
++
++.neighbour {
++  flex: 1;
++  display: flex;
++  align-items: center;
++  gap: 12px;
++}
++
++.neighbour.previous {
++  flex-direction: row-reverse;
++  text-align: right;
++  margin-left: auto;
++}
++
++.arrow {
++  font-size: 1.2rem;
++  color: var(--color-text-light);
++  flex-shrink: 0;
++}
++
++.neighbour-title {
++  display: block;
++  font-size: 0.9rem;
++  font-weight: 600;
++  line-height: 1.3;
++}
++
++.neighbour .subtitle {
++  display: block;
++  font-size: 0.75rem;
++  color: var(--color-text-light);
++  margin-top: 2px;
++}
++
++.contents {
++  display: block;
++  width: fit-content;
++  margin: 32px auto 0;
++  font-size: 1.5rem;
++  padding: 8px;
++  color: var(--color-text-light);
++  transition: transform 0.15s;
++}
++
++.contents:hover {
++  transform: scale(1.2);
+ }
+ 
+-main > ul {
+-  padding-left: 1.2rem;
++@media (max-width: 480px) {
++  #top nav {
++    flex-direction: column;
++    align-items: flex-start;
++    gap: 8px;
++  }
+ }
+diff --color -ruN a/commons/publishers/blog/press.js b/commons/publishers/blog/press.js
+--- a/commons/publishers/blog/press.js	2026-11-23 23:11:36.671904089 +0100
++++ b/commons/publishers/blog/press.js	2026-11-23 23:11:36.681122144 +0100
+@@ -1,35 +1,91 @@
+ import { basename, extname } from "@std/path";
+-import { marked } from "npm:marked@17.0.1";
++import { createMarkdownProcessor, parseFrontmatter } from "npm:@astrojs/markdown-remark@7.3.8";
++import math from "npm:remark-math@6.0.0";
++import katex from "npm:rehype-katex@7.0.1";
++import raw from "npm:rehype-raw@7.0.0";
+ import { unified } from "npm:unified@11.0.5";
+ import uniorg from "npm:uniorg-parse@3.2.0";
+ import rehype from "npm:uniorg-rehype@2.2.0";
+ import stringify from "npm:rehype-stringify@10.0.1";
++import { Article } from "./schematics.js";
+ 
+-const HEADLINE = /^#\s+(.+?)\s*#*$/m;
+-const KEYWORD = /^#\+title:\s*(.+)$/im;
++const COMMENT = /<!--[\s\S]*?-->/g;
++const ROOTED = /^\/(?!\/)/;
++const KEYWORD = /^#\+(\w+):\s*(.+)$/gm;
++
++export const home = (page) =>
++  page.includes("/") ? "../".repeat(page.split("/").length - 1) : "./";
++
++const uncomment = (node) => {
++  if (node.type === "html") node.value = node.value.replace(COMMENT, "");
++  if (node.children) node.children.forEach(uncomment);
++};
+ 
+-const org = unified().use(uniorg).use(rehype).use(stringify);
++const uncommented = () => uncomment;
+ 
+-const titled = (pattern, text, path) => pattern.exec(text)?.[1].trim() ?? basename(path, extname(path));
++export const local = (path, page) => path.replace(ROOTED, home(page));
+ 
+-const markdown = (text, path) => ({
+-  title: titled(HEADLINE, text, path),
+-  body: marked.parse(text),
+-});
++const rehome = (node, page) => {
++  if (node.type === "element") {
++    for (const name of ["src", "href"]) {
++      if (ROOTED.test(node.properties[name])) {
++        node.properties[name] = local(node.properties[name], page);
++      }
++    }
++  }
++  if (node.children) node.children.forEach((child) => rehome(child, page));
++};
++
++const rehomed = () => (tree, file) => rehome(tree, file.path);
+ 
+-const orgset = (text, path) => ({
+-  title: titled(KEYWORD, text, path),
+-  body: `<h1>${titled(KEYWORD, text, path)}</h1>${String(org.processSync(text))}`,
++const markdown = await createMarkdownProcessor({
++  remarkPlugins: [uncommented, math],
++  rehypePlugins: [raw, katex, rehomed],
++  shikiConfig: { theme: "dracula" },
+ });
+ 
++const org = unified().use(uniorg).use(rehype).use(rehomed).use(stringify);
++
+ const MARKUP = [
+-  [/\.md$/, markdown],
+-  [/\.org$/, orgset],
++  {
++    suffix: /\.md$/,
++    front: (text) => parseFrontmatter(text).frontmatter,
++    body: async (text, page) =>
++      (await markdown.render(parseFrontmatter(text).content, { fileURL: page })).code,
++  },
++  {
++    suffix: /\.org$/,
++    front: (text) =>
++      Object.fromEntries(
++        [...text.matchAll(KEYWORD)]
++          .map(([, key, value]) => [key.toLowerCase(), value.trim()])
++          .filter(([key]) => key in Article.properties),
++      ),
++    body: async (text, page) => String(await org.process({ value: text, path: page })),
++  },
+ ];
+ 
+ export const SOURCES = /\.(md|org)$/;
+ 
+-export const pressed = (path, text) => {
+-  const [suffix, compile] = MARKUP.find(([suffix]) => suffix.test(path));
+-  return { page: path.replace(suffix, ".html"), ...compile(text, path) };
++const markup = (path) => MARKUP.find((markup) => markup.suffix.test(path));
++
++export const fronted = (path, text) => {
++  const article = Article.cast(markup(path).front(text));
++  const faults = Article.faults(article);
++  if (faults.length) {
++    throw new Error(
++      `[blog] ${path}: ${faults.map((fault) => `${fault.at} ${fault.reason}`).join(" · ")}`,
++    );
++  }
++  return {
++    path,
++    page: path.replace(markup(path).suffix, ".html"),
++    title: basename(path, extname(path)),
++    ...article,
++  };
++};
++
++export const pressed = async (path, text) => {
++  const article = fronted(path, text);
++  return { ...article, body: await markup(path).body(text, article.page) };
+ };
+diff --color -ruN a/commons/publishers/blog/schematics.js b/commons/publishers/blog/schematics.js
+--- a/commons/publishers/blog/schematics.js	1970-01-01 01:00:00.000000000 +0100
++++ b/commons/publishers/blog/schematics.js	2026-11-23 23:11:36.680887603 +0100
+@@ -0,0 +1,61 @@
++import { v } from "@vivalence/typology";
++
++export const Article = v.object({
++  title: v
++    .string()
++    .optional()
++    .desc("Its headline and its tab's title. Left out, the file's name stands in.")
++    .example("The ghost in my sh.el"),
++  subtitle: v
++    .string()
++    .optional()
++    .desc("One line under the headline, the description a link preview shows.")
++    .example("Physics hands you the nouns. Software makes you invent them."),
++  date: v
++    .string()
++    .optional()
++    .desc(
++      "The day it is dated, year.month.day. " +
++        "A source with a date is an essay: listed, chained to its neighbours. " +
++        "A source without one is a page: served, named in the header.",
++    )
++    .example("2026.02.16"),
++  tags: v.string().optional().desc("Its tags, comma-joined.").example("technical, emacs"),
++  image: v
++    .string()
++    .optional()
++    .desc("Its picture, a path from the site's root.")
++    .example("/images/EVA-1024.jpg"),
++  status: v
++    .enum(["draft", "unlisted", "published"])
++    .default("published")
++    .desc("draft: no page. unlisted: a page nobody links. published: listed.")
++    .example("unlisted"),
++});
++
++export const Site = v.object({
++  name: v
++    .string()
++    .default("blog")
++    .desc("The site's name, the header's way home.")
++    .example("crackedbeefcake"),
++  language: v.string().default("en").desc("The language its pages declare.").example("de"),
++  url: v
++    .string()
++    .optional()
++    .desc("Where the site is reached. Canonical links and link previews are minted off it.")
++    .example("https://crackedbeefcake.com"),
++  head: v
++    .string()
++    .default("")
++    .desc("Markup set into every page's head.")
++    .example('<script defer src="https://analytics.example.com/script.js"></script>'),
++});
++
++export const Desk = v.object({
++  open: v
++    .union([v.string(), v.null()])
++    .default(null)
++    .desc("The source on the desk, its path under source/.")
++    .example("on/machines.md"),
++});
+diff --color -ruN a/commons/publishers/blog/tests/blog.test.js b/commons/publishers/blog/tests/blog.test.js
+--- a/commons/publishers/blog/tests/blog.test.js	2026-11-23 23:11:36.670157261 +0100
++++ b/commons/publishers/blog/tests/blog.test.js	2026-11-23 23:11:36.678747235 +0100
+@@ -1,17 +1,74 @@
+ import { join } from "@std/path";
+-import { Aperture, contexts, Controller, mime, Mode, Path, shard, sleep, Span, specimen } from "@vivalence/typology";
++import {
++  Aperture,
++  contexts,
++  Controller,
++  mime,
++  Mode,
++  Path,
++  shard,
++  sleep,
++  Span,
++  specimen,
++} from "@vivalence/typology";
+ import { lifecycle, traits } from "@vivalence/runtime";
+ import { hello, lighthouse } from "@vivalence/runtime/scenarios";
+ import * as blog from "../blog.viva.js";
+-import { pressed } from "../press.js";
+-import { contents, framed } from "../theme/index.js";
++import { fronted, pressed } from "../press.js";
++import { Site } from "../schematics.js";
++import { paged } from "../theme/index.js";
+ 
+ const BLOG = "/attached/daemon/hello/mode/publisher/blog";
+-const BUILD = "/daemon/hello/mode/publisher/blog/build";
+-const HELLO = "# Hello\n\nThe first page, *by hand*.\n";
+-const SECOND = "#+title: Second\n\nOrg text.\n";
+-const SHEET = "body { background: hotpink; }\n";
++const MODE = "/daemon/hello/mode/publisher/blog";
+ const PICTURE = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
++const SHEET = "body { background: hotpink; }\n";
++
++const front = (keys) =>
++  `---\n${Object.entries(keys)
++    .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
++    .join("\n")}\n---\n`;
++
++const GHOST = `${front({
++  title: "The ghost in my sh.el",
++  subtitle: 'EVA & "friends"',
++  date: "2022.09.02",
++  tags: "technical, emacs",
++  image: "/images/eva.png",
++})}
++## Say "hello"
++
++A note[^1], some math $e^{i\\pi}$ and a [way home](/).
++
++<!-- never pressed -->
++
++<figure><img src="/images/eva.png" alt="eva" /></figure>
++
++\`\`\`js
++const a = 1;
++\`\`\`
++
++[^1]: The note.
++`;
++const SLOP = `${front({ title: "After the slop", date: "2026.02.16" })}\nSlop.\n`;
++const WAVES = `${front({ title: "Two steps", date: "2026.02.10", status: "unlisted" })}\nWaves.\n`;
++const MACHINES = `${front({ title: "Conscious Machines", date: "2026.08.07" })}\nMachines.\n`;
++const HIDDEN = `${front({ title: "Unfinished", date: "2026.09.01", status: "draft" })}\nNot yet.\n`;
++const LINKS = `${front({ title: "Linktree" })}\n- [Essays](/)\n`;
++const SECOND =
++  "#+title: Second\n#+date: 2026.03.01\n#+filetags: :org:\n\n* A heading\n\nOrg text, a [[/images/eva.png][picture]].\n";
++const HELLO = "# Hello\n\nThe first page, *by hand*.\n";
++
++const SOURCES = {
++  "on/eva.md": GHOST,
++  "on/slop.md": SLOP,
++  "on/waves.md": WAVES,
++  "on/machines.md": MACHINES,
++  "on/hidden.md": HIDDEN,
++  "linktree.md": LINKS,
++};
++
++const all = (sources) =>
++  Promise.all(Object.entries(sources).map(([path, text]) => pressed(path, text)));
+ 
+ const seated = (world) => join(world.root, "instance/mountpoint/daemon_hello/mode_publisher_blog");
+ 
+@@ -23,7 +80,10 @@
+       daemons: [
+         {
+           ...hello.RECIPE.daemons[0],
+-          modes: [...hello.RECIPE.daemons[0].modes, { module: "@commons/publisher/blog", traits: worn }],
++          modes: [
++            ...hello.RECIPE.daemons[0].modes,
++            { module: "@commons/publisher/blog", traits: worn },
++          ],
+         },
+       ],
+     },
+@@ -31,7 +91,9 @@
+ 
+ const signed = async (world) => {
+   await world.post("/lighthouse/signup", { username: "finn", password: "hunter22" });
+-  const login = await (await world.post("/lighthouse/login", { username: "finn", password: "hunter22" })).json();
++  const login = await (
++    await world.post("/lighthouse/login", { username: "finn", password: "hunter22" })
++  ).json();
+   return login.authority.access;
+ };
+ 
+@@ -40,9 +102,15 @@
+   await Deno.writeTextFile(join(seated(world), "source", path), text);
+ };
+ 
+-const page = async (world, path) => {
+-  const response = await world.get(`${BLOG}${path}`);
+-  return { status: response.status, type: response.headers.get("content-type"), text: await response.text() };
++const page = async (world, path, headers = {}) => {
++  const response = await fetch(`${world.origin}${BLOG}${path}`, { headers });
++  return {
++    status: response.status,
++    type: response.headers.get("content-type"),
++    etag: response.headers.get("etag"),
++    cache: response.headers.get("cache-control"),
++    text: await response.text(),
++  };
+ };
+ 
+ const until = async (world, path, held) => {
+@@ -50,258 +118,725 @@
+   for (;;) {
+     const answered = await page(world, path);
+     if (held(answered)) return answered;
+-    if (Date.now() - started > 5000) throw new Error(`${path} not as awaited after 5000 ms: ${answered.status}`);
++    if (Date.now() - started > 5000)
++      throw new Error(`${path} not as awaited after 5000 ms: ${answered.status}`);
+     await sleep.ms(50);
+   }
+ };
+ 
+-specimen.describe("blog press — a source becomes a page in the theme", () => {
+-  specimen.it("markdown: the page keeps its path, the title is its first headline", () => {
+-    specimen.expect(pressed("articles/hello.md", HELLO)).toEqual({
+-      page: "articles/hello.html",
+-      title: "Hello",
+-      body: "<h1>Hello</h1>\n<p>The first page, <em>by hand</em>.</p>\n",
++specimen.describe("blog press — a source becomes an article", () => {
++  specimen.it(
++    "markdown: the front matter is the article, the page keeps the source's path",
++    async () => {
++      const { body, ...article } = await pressed("on/eva.md", GHOST);
++      specimen.expect(article).toEqual({
++        path: "on/eva.md",
++        page: "on/eva.html",
++        title: "The ghost in my sh.el",
++        subtitle: 'EVA & "friends"',
++        date: "2022.09.02",
++        tags: "technical, emacs",
++        image: "/images/eva.png",
++        status: "published",
++      });
++      specimen.expect(body.startsWith('<h2 id="say-hello">Say “hello”</h2>')).toBe(true);
++    },
++  );
++
++  specimen.it(
++    "markdown: footnotes, math, highlighted code and raw html are pressed; a comment is not",
++    async () => {
++      const { body } = await pressed("on/eva.md", GHOST);
++      specimen.expect(body.includes('data-footnote-ref=""')).toBe(true);
++      specimen.expect(body.includes('<section data-footnotes="" class="footnotes">')).toBe(true);
++      specimen.expect(body.includes('<span class="katex">')).toBe(true);
++      specimen.expect(body.includes('<pre class="astro-code dracula"')).toBe(true);
++      specimen.expect(body.includes("<figure>")).toBe(true);
++      specimen.expect(body.includes("never pressed")).toBe(false);
++    },
++  );
++
++  specimen.it(
++    "a path from the site's root is rewritten RELATIVE to the page's depth, in markdown, raw html and org",
++    async () => {
++      const deep = await pressed("on/eva.md", GHOST);
++      specimen.expect(deep.body.includes('<a href="../">way home</a>')).toBe(true);
++      specimen.expect(deep.body.includes('<img src="../images/eva.png" alt="eva">')).toBe(true);
++      const flat = await pressed("eva.md", GHOST);
++      specimen.expect(flat.body.includes('<img src="./images/eva.png" alt="eva">')).toBe(true);
++      const org = await pressed("articles/second.org", SECOND);
++      specimen.expect(org.body.includes('<a href="../images/eva.png">picture</a>')).toBe(true);
++      const outside = await pressed(
++        "out.md",
++        "[cdn](//cdn.example/x) [site](https://example.com/y)\n",
++      );
++      specimen.expect(outside.body.includes('href="//cdn.example/x"')).toBe(true);
++      specimen.expect(outside.body.includes('href="https://example.com/y"')).toBe(true);
++    },
++  );
++
++  specimen.it(
++    "org: its keywords are the article, a keyword the article does not know is left out",
++    async () => {
++      const { body, ...article } = await pressed("articles/second.org", SECOND);
++      specimen.expect(article).toEqual({
++        path: "articles/second.org",
++        page: "articles/second.html",
++        title: "Second",
++        date: "2026.03.01",
++        status: "published",
++      });
++      specimen.expect(body.includes("Org text")).toBe(true);
++    },
++  );
++
++  specimen.it("a source with no front matter is a published page titled by its file name", () => {
++    specimen.expect(fronted("notes/untitled.md", HELLO)).toEqual({
++      path: "notes/untitled.md",
++      page: "notes/untitled.html",
++      title: "untitled",
++      status: "published",
+     });
+   });
+ 
+-  specimen.it("org: the title is its #+title keyword, set as the page's headline", () => {
+-    const article = pressed("second.org", SECOND);
+-    specimen.expect(article.page).toBe("second.html");
+-    specimen.expect(article.title).toBe("Second");
+-    specimen.expect(article.body.startsWith("<h1>Second</h1>")).toBe(true);
+-    specimen.expect(article.body.includes("Org text.")).toBe(true);
++  specimen.it("front matter that does not hold throws, naming the source and the key", () => {
++    specimen
++      .expect(() => fronted("on/eva.md", front({ status: "live" })))
++      .toThrow("[blog] on/eva.md: /status");
++    specimen
++      .expect(() => fronted("on/eva.md", "---\ndate: 2026-02-16\n---\n"))
++      .toThrow("/date must be string");
+   });
++});
+ 
+-  specimen.it("a source with no headline is titled by its file name", () => {
+-    specimen.expect(pressed("notes/untitled.md", "just text\n").title).toBe("untitled");
+-    specimen.expect(pressed("untitled.org", "just text\n").title).toBe("untitled");
+-  });
++specimen.describe("blog theme — the articles become a site", () => {
++  const site = Site.cast({ name: "crackedbeefcake" });
++  const reached = Site.cast({
++    name: "crackedbeefcake",
++    url: "https://crackedbeefcake.com",
++    head: "<script defer></script>",
++  });
++
++  specimen.it(
++    "an essay per dated source, a page per undated one, an index; a draft is none of them",
++    async () => {
++      const pages = paged(site, await all(SOURCES));
++      specimen
++        .expect(pages.map(([path]) => path))
++        .toEqual([
++          "on/eva.html",
++          "on/waves.html",
++          "on/slop.html",
++          "on/machines.html",
++          "linktree.html",
++          "index.html",
++        ]);
++    },
++  );
++
++  specimen.it(
++    "the index lists the published essays, newest first; an unlisted one and a page are not on it",
++    async () => {
++      const index = new Map(paged(site, await all(SOURCES))).get("index.html");
++      const listed = [...index.matchAll(/<a href="\.\/(on\/[^"]+)">/g)].map(([, href]) => href);
++      specimen.expect(listed).toEqual(["on/machines", "on/slop", "on/eva"]);
++      specimen.expect(index.includes("<title>crackedbeefcake</title>")).toBe(true);
++      specimen
++        .expect(index.includes('<ul class="tags"><li>#technical</li><li>#emacs</li></ul>'))
++        .toBe(true);
++      specimen.expect(index.includes("<time>2022.09.02</time>")).toBe(true);
++    },
++  );
++
++  specimen.it(
++    "an essay is chained to its published neighbours; an unlisted one is skipped, yet chained itself",
++    async () => {
++      const pages = new Map(paged(site, await all(SOURCES)));
++      const slop = pages.get("on/slop.html");
++      specimen.expect(slop.includes('<a class="neighbour next" href="../on/machines">')).toBe(true);
++      specimen.expect(slop.includes('<a class="neighbour previous" href="../on/eva">')).toBe(true);
++      specimen.expect(slop.includes("Two steps")).toBe(false);
++      const waves = pages.get("on/waves.html");
++      specimen.expect(waves.includes('<a class="neighbour next" href="../on/slop">')).toBe(true);
++      specimen.expect(waves.includes('<a class="neighbour previous" href="../on/eva">')).toBe(true);
++      specimen.expect(pages.get("on/machines.html").includes('class="neighbour next"')).toBe(false);
++    },
++  );
++
++  specimen.it(
++    "a published page is named in every header; a page reaches the sheet and home RELATIVE to its depth",
++    async () => {
++      const pages = new Map(paged(site, await all(SOURCES)));
++      const essay = pages.get("on/eva.html");
++      specimen
++        .expect(essay.includes('<small><a href="../linktree">Linktree</a></small>'))
++        .toBe(true);
++      specimen.expect(essay.includes('<link rel="stylesheet" href="../theme.css">')).toBe(true);
++      specimen.expect(essay.includes('<a class="logo" href="../">crackedbeefcake</a>')).toBe(true);
++      specimen
++        .expect(
++          essay.includes('<img class="lead" src="../images/eva.png" alt="The ghost in my sh.el">'),
++        )
++        .toBe(true);
++      const links = pages.get("linktree.html");
++      specimen.expect(links.includes('<link rel="stylesheet" href="./theme.css">')).toBe(true);
++      specimen.expect(links.includes('<a href="./">Essays</a>')).toBe(true);
++      specimen.expect(links.includes('class="essay"')).toBe(false);
++    },
++  );
++
++  specimen.it(
++    "the head: title and subtitle escaped, a link preview; canonical and picture only when the site says where it is",
++    async () => {
++      const bare = new Map(paged(site, await all(SOURCES))).get("on/eva.html");
++      specimen.expect(bare.includes("<title>The ghost in my sh.el</title>")).toBe(true);
++      specimen
++        .expect(bare.includes('<meta name="description" content="EVA &amp; &quot;friends&quot;">'))
++        .toBe(true);
++      specimen.expect(bare.includes('<meta property="og:type" content="article">')).toBe(true);
++      specimen.expect(bare.includes('<meta name="twitter:card" content="summary">')).toBe(true);
++      specimen.expect(bare.includes("canonical")).toBe(false);
++      specimen.expect(bare.includes("og:image")).toBe(false);
++      specimen.expect(bare.includes("katex.min.css")).toBe(true);
++
++      const pages = new Map(paged(reached, await all(SOURCES)));
++      const essay = pages.get("on/eva.html");
++      specimen
++        .expect(essay.includes('<link rel="canonical" href="https://crackedbeefcake.com/on/eva">'))
++        .toBe(true);
++      specimen
++        .expect(
++          essay.includes(
++            '<meta property="og:image" content="https://crackedbeefcake.com/images/eva.png">',
++          ),
++        )
++        .toBe(true);
++      specimen
++        .expect(essay.includes('<meta name="twitter:card" content="summary_large_image">'))
++        .toBe(true);
++      specimen.expect(essay.includes("<script defer></script>\n</head>")).toBe(true);
++      const index = pages.get("index.html");
++      specimen
++        .expect(index.includes('<link rel="canonical" href="https://crackedbeefcake.com/">'))
++        .toBe(true);
++      specimen.expect(index.includes("katex.min.css")).toBe(false);
++    },
++  );
+ 
+-  specimen.it("a page reaches the sheet and the index RELATIVE to its own depth; a title is escaped", () => {
+-    const nested = framed({ page: "articles/2026/deep.html", title: "a < b", body: "<p>deep</p>" });
+-    specimen.expect(nested.includes('<link rel="stylesheet" href="../../theme.css">')).toBe(true);
+-    specimen.expect(nested.includes('<a href="../../index.html">index</a>')).toBe(true);
+-    specimen.expect(nested.includes("<title>a &lt; b</title>")).toBe(true);
+-    const index = contents([{ page: "articles/hello.html", title: "Hello" }]);
+-    specimen.expect(index.includes('<li><a href="articles/hello.html">Hello</a></li>')).toBe(true);
+-    specimen.expect(index.includes('<link rel="stylesheet" href="theme.css">')).toBe(true);
++  specimen.it("the articles are not mutated", async () => {
++    const articles = await all(SOURCES);
++    const before = structuredClone(articles);
++    paged(site, articles);
++    specimen.expect(articles).toEqual(before);
+   });
+ });
+ 
+-specimen.describe("blog — the button: SURFACED, the manifest's own word; a signed-in /build presses the disk", () => {
+-  let world;
+-  let token;
+-
+-  specimen.beforeAll(async () => {
+-    world = await wearing([]);
+-    token = await signed(world);
+-    await sourced(world, "hello.md", HELLO);
+-    await sourced(world, "articles/second.org", SECOND);
+-  });
++specimen.describe(
++  "blog — the desk: SURFACED, the manifest's own word; a signed-in client writes, presses, a stranger reads",
++  () => {
++    let world;
++    let token;
++
++    const call = async (path, body) => {
++      const response = await world.post(`${MODE}${path}`, body, token);
++      return { status: response.status, body: await response.json() };
++    };
+ 
+-  specimen.afterAll(async () => {
+-    await world.stop();
+-  });
++    specimen.beforeAll(async () => {
++      world = await wearing([]);
++      token = await signed(world);
++      for (const [path, text] of Object.entries(SOURCES)) await sourced(world, path, text);
++      await Deno.mkdir(join(seated(world), "source/images"), { recursive: true });
++      await Deno.writeFile(join(seated(world), "source/images/eva.png"), PICTURE);
++    });
+ 
+-  specimen.it("a source saved by hand builds nothing by itself: no watch, no twitch without their word", async () => {
+-    await sleep.ms(800);
+-    specimen.expect((await page(world, "/hello.html")).status).toBe(404);
+-  });
++    specimen.afterAll(async () => {
++      await world.stop();
++    });
+ 
+-  specimen.it("/build sits behind the login", async () => {
+-    const refused = await world.post(BUILD, {});
+-    specimen.expect(refused.status).toBe(401);
+-    await refused.body?.cancel();
+-    specimen.expect((await page(world, "/hello.html")).status).toBe(404);
+-  });
++    specimen.it(
++      "a source saved by hand builds nothing by itself: no watch, no twitch without their word",
++      async () => {
++        await sleep.ms(800);
++        specimen.expect((await page(world, "/on/eva.html")).status).toBe(404);
++      },
++    );
+ 
+-  specimen.it("/build answers every file it wrote; a second build writes none; an edit rewrites its page alone", async () => {
+-    const first = await (await world.post(BUILD, {}, token)).json();
+-    specimen.expect(first).toEqual({ pages: ["articles/second.html", "hello.html", "index.html"] });
++    specimen.it("every route of the desk sits behind the login", async () => {
++      for (const path of [
++        "/build",
++        "/source/list",
++        "/source/read",
++        "/source/write",
++        "/source/remove",
++        "/source/preview",
++      ]) {
++        const refused = await world.post(`${MODE}${path}`, { path: "on/eva.md", text: "" });
++        specimen.expect([path, refused.status]).toEqual([path, 401]);
++        await refused.body?.cancel();
++      }
++      specimen.expect(await Deno.readTextFile(join(seated(world), "source/on/eva.md"))).toBe(GHOST);
++    });
+ 
+-    specimen.expect(await (await world.post(BUILD, {}, token)).json()).toEqual({ pages: [] });
++    specimen.it(
++      "/build answers every file it wrote; a second build writes none; an edit rewrites its page and the index",
++      async () => {
++        const first = await call("/build", {});
++        specimen.expect(first.body).toEqual({
++          pages: [
++            "on/eva.html",
++            "on/waves.html",
++            "on/slop.html",
++            "on/machines.html",
++            "linktree.html",
++            "index.html",
++          ],
++          gone: [],
++        });
++        specimen.expect((await call("/build", {})).body).toEqual({ pages: [], gone: [] });
++
++        await sourced(world, "on/slop.md", SLOP.replace("After the slop", "After the avalanche"));
++        const edited = await call("/build", {});
++        specimen.expect(edited.body.pages.includes("on/slop.html")).toBe(true);
++        specimen.expect(edited.body.pages.includes("index.html")).toBe(true);
++        specimen.expect(edited.body.pages.includes("linktree.html")).toBe(false);
++      },
++    );
+ 
+-    await sourced(world, "hello.md", `${HELLO}\nA second paragraph.\n`);
+-    specimen.expect(await (await world.post(BUILD, {}, token)).json()).toEqual({ pages: ["hello.html"] });
+-  });
++    specimen.it(
++      "a stranger reads an essay by its clean address and by its file, the index at the root, each as html",
++      async () => {
++        const clean = await page(world, "/on/eva");
++        specimen.expect([clean.status, clean.type]).toEqual([200, mime.html]);
++        specimen
++          .expect(clean.text.includes('<h1 class="title">The ghost in my sh.el</h1>'))
++          .toBe(true);
++        specimen.expect((await page(world, "/on/eva.html")).text).toBe(clean.text);
++
++        const root = await page(world, "/");
++        specimen.expect([root.status, root.type]).toEqual([200, mime.html]);
++        specimen.expect(root.text).toBe((await page(world, "/index.html")).text);
++        specimen.expect((await page(world, "")).text).toBe(root.text);
++        specimen.expect(root.text.includes("After the avalanche")).toBe(true);
+ 
+-  specimen.it("a stranger reads the pages, the index and the sheet, each under its own media type", async () => {
+-    const hand = await page(world, "/hello.html");
+-    specimen.expect([hand.status, hand.type]).toEqual([200, mime.html]);
+-    specimen.expect(hand.text.includes("<h1>Hello</h1>")).toBe(true);
+-    specimen.expect(hand.text.includes("<p>A second paragraph.</p>")).toBe(true);
+-
+-    const nested = await page(world, "/articles/second.html");
+-    specimen.expect([nested.status, nested.type]).toEqual([200, mime.html]);
+-    specimen.expect(nested.text.includes('href="../theme.css"')).toBe(true);
+-
+-    const index = await page(world, "/index.html");
+-    specimen.expect(index.text.includes('<li><a href="articles/second.html">Second</a></li>')).toBe(true);
+-    specimen.expect(index.text.includes('<li><a href="hello.html">Hello</a></li>')).toBe(true);
++        specimen.expect((await page(world, "/linktree")).status).toBe(200);
++      },
++    );
+ 
+-    const sheet = await page(world, "/theme.css");
+-    specimen.expect([sheet.status, sheet.type]).toEqual([200, "text/css"]);
+-  });
++    specimen.it(
++      "a draft has no page; an unlisted essay has one the index does not name",
++      async () => {
++        specimen.expect((await page(world, "/on/hidden")).status).toBe(404);
++        specimen.expect((await page(world, "/on/waves")).status).toBe(200);
++        specimen.expect((await page(world, "/")).text.includes("Two steps")).toBe(false);
++      },
++    );
+ 
+-  specimen.it("the sheet is the package's own file, never copied; a file of source/ that is no article answers from where it lies; his own theme.css shadows the package's", async () => {
+-    const shipped = new URL("../files/theme.css", import.meta.url).pathname;
+-    const before = world.query("select id, mount from file where path = 'theme.css'");
+-    specimen.expect(before.map((file) => file.mount)).toEqual([shipped]);
+-    specimen.expect((await page(world, "/theme.css")).text).toBe(await Deno.readTextFile(shipped));
+-
+-    await sourced(world, "theme.css", SHEET);
+-    await Deno.writeFile(join(seated(world), "source/logo.png"), PICTURE);
+-    await (await world.post(BUILD, {}, token)).body?.cancel();
+-
+-    const picture = await world.get(`${BLOG}/logo.png`);
+-    specimen.expect([picture.status, picture.headers.get("content-type")]).toEqual([200, "image/png"]);
+-    specimen.expect(new Uint8Array(await picture.arrayBuffer())).toEqual(PICTURE);
+-    specimen.expect((await page(world, "/theme.css")).text).toBe(SHEET);
+-
+-    const after = world.query("select id, path, mount from file where path in ('logo.png', 'theme.css') order by path");
+-    specimen.expect(after.map((file) => file.mount)).toEqual([
+-      join(seated(world), "source/logo.png"),
+-      join(seated(world), "source/theme.css"),
+-    ]);
+-    specimen.expect(after[1].id).toBe(before[0].id);
+-    await specimen.expect(Deno.stat(join(seated(world), "public/logo.png"))).rejects.toThrow(Deno.errors.NotFound);
+-  });
++    specimen.it(
++      "a page answers with its etag and no-cache; asked again under that etag it is 304 with no body",
++      async () => {
++        const first = await page(world, "/on/eva");
++        specimen.expect(first.etag.startsWith('"sha256-')).toBe(true);
++        specimen.expect(first.cache).toBe("no-cache");
++        const again = await page(world, "/on/eva", { "if-none-match": first.etag });
++        specimen.expect([again.status, again.text]).toEqual([304, ""]);
++      },
++    );
+ 
+-  specimen.it("a page never built is 404; no spelling of .. reaches a source", async () => {
+-    specimen.expect((await page(world, "/nope.html")).status).toBe(404);
+-    const climbs = [
+-      "/../source/hello.md",
+-      "/%2e%2e/source/hello.md",
+-      "/..%2fsource%2fhello.md",
+-      "/%2e%2e%2fsource%2fhello.md",
+-      "/articles/..%2f..%2fsource%2fhello.md",
+-    ];
+-    for (const climb of climbs) {
+-      const answered = await page(world, climb);
+-      specimen.expect([climb, answered.status, answered.text.includes("by hand")]).toEqual([climb, 404, false]);
+-    }
+-  });
++    specimen.it(
++      "the sheet is the package's own file, never copied; a picture of source/ answers from where it lies; his own theme.css shadows the package's",
++      async () => {
++        const shipped = new URL("../files/theme.css", import.meta.url).pathname;
++        const before = world.query("select id, mount from file where path = 'theme.css'");
++        specimen.expect(before.map((file) => file.mount)).toEqual([shipped]);
++        specimen
++          .expect((await page(world, "/theme.css")).text)
++          .toBe(await Deno.readTextFile(shipped));
++
++        const picture = await fetch(`${world.origin}${BLOG}/images/eva.png`);
++        specimen
++          .expect([picture.status, picture.headers.get("content-type")])
++          .toEqual([200, "image/png"]);
++        specimen.expect(new Uint8Array(await picture.arrayBuffer())).toEqual(PICTURE);
++        await specimen
++          .expect(Deno.stat(join(seated(world), "public/images/eva.png")))
++          .rejects.toThrow(Deno.errors.NotFound);
++
++        await sourced(world, "theme.css", SHEET);
++        await call("/build", {});
++        specimen.expect((await page(world, "/theme.css")).text).toBe(SHEET);
++        const after = world.query("select id, mount from file where path = 'theme.css'");
++        specimen
++          .expect(after)
++          .toEqual([{ id: before[0].id, mount: join(seated(world), "source/theme.css") }]);
++      },
++    );
+ 
+-  specimen.it("the surface holding the button is bundled from buffer/Blog.jsx and answers its signed-in fetch", async () => {
+-    const [surface] = world.query("select id, mount, entry from surface where slug = 'blog'");
+-    specimen.expect([surface.mount, surface.entry]).toEqual(["buffer/Blog.jsx", "bundle/blog.dom.solid.mjs"]);
+-    const bundle = await world.get(`/attached/surface/${surface.id}?token=${token}`);
+-    specimen.expect([bundle.status, bundle.headers.get("content-type")]).toEqual([200, mime.javascript]);
+-    specimen.expect((await bundle.text()).includes("mode.call.build()")).toBe(true);
+-  });
+-});
++    specimen.it(
++      "site.json beside source/ names the site and says where it is reached; it is no page",
++      async () => {
++        await Deno.writeTextFile(
++          join(seated(world), "site.json"),
++          JSON.stringify({ name: "crackedbeefcake", url: "https://crackedbeefcake.com" }),
++        );
++        await call("/build", {});
++        const essay = await page(world, "/on/eva");
++        specimen
++          .expect(essay.text.includes('<a class="logo" href="../">crackedbeefcake</a>'))
++          .toBe(true);
++        specimen
++          .expect(
++            essay.text.includes('<link rel="canonical" href="https://crackedbeefcake.com/on/eva">'),
++          )
++          .toBe(true);
++        specimen.expect((await page(world, "/site.json")).status).toBe(404);
++      },
++    );
+ 
+-specimen.describe("blog — the watch: BOOTED on a recipe's entry, a save under source/ is a page, nobody asking", () => {
+-  let world;
++    specimen.it(
++      "an essay turned draft, a source deleted and a picture deleted are gone with the next build, off the disk and the table",
++      async () => {
++        await sourced(
++          world,
++          "on/machines.md",
++          MACHINES.replace('date: "2026.08.07"', 'date: "2026.08.07"\nstatus: "draft"'),
++        );
++        await Deno.remove(join(seated(world), "source/on/waves.md"));
++        await Deno.remove(join(seated(world), "source/images/eva.png"));
++        const built = await call("/build", {});
++        specimen
++          .expect(built.body.gone.sort())
++          .toEqual(["images/eva.png", "on/machines.html", "on/waves.html"]);
++        for (const path of ["/on/machines", "/on/waves", "/images/eva.png"]) {
++          specimen.expect([path, (await page(world, path)).status]).toEqual([path, 404]);
++        }
++        await specimen
++          .expect(Deno.stat(join(seated(world), "public/on/waves.html")))
++          .rejects.toThrow(Deno.errors.NotFound);
++        specimen.expect((await page(world, "/")).text.includes("Conscious Machines")).toBe(false);
++        specimen.expect((await page(world, "/theme.css")).status).toBe(200);
++      },
++    );
+ 
+-  specimen.beforeAll(async () => {
+-    world = await wearing(["BOOTED"]);
+-  });
++    specimen.it(
++      "/source/list answers where the site is reached and every source, a faulty one with its fault",
++      async () => {
++        await sourced(world, "on/broken.md", front({ title: "Broken", status: "live" }));
++        const shelf = (await call("/source/list", {})).body;
++        specimen.expect(shelf.site).toBe(`${world.origin}${BLOG}`);
++        specimen
++          .expect(shelf.sources.map((source) => source.path))
++          .toEqual([
++            "linktree.md",
++            "on/broken.md",
++            "on/eva.md",
++            "on/hidden.md",
++            "on/machines.md",
++            "on/slop.md",
++          ]);
++        const broken = shelf.sources.find((source) => source.path === "on/broken.md");
++        specimen.expect(broken.article).toBe(null);
++        specimen.expect(broken.fault.startsWith("[blog] on/broken.md: /status")).toBe(true);
++        const hidden = shelf.sources.find((source) => source.path === "on/hidden.md");
++        specimen
++          .expect([hidden.fault, hidden.article.title, hidden.article.status])
++          .toEqual([null, "Unfinished", "draft"]);
++      },
++    );
+ 
+-  specimen.afterAll(async () => {
+-    await world.stop();
+-  });
++    specimen.it("a faulty source fails the build loudly, naming it; no page moves", async () => {
++      const before = (await page(world, "/")).text;
++      const failed = await call("/build", {});
++      specimen.expect(failed.status).toBe(500);
++      specimen.expect(JSON.stringify(failed.body).includes("on/broken.md: /status")).toBe(true);
++      specimen.expect((await page(world, "/")).text).toBe(before);
++    });
+ 
+-  specimen.it("a file saved by hand is served; saved again, the page follows", async () => {
+-    await sourced(world, "hello.md", HELLO);
+-    const first = await until(world, "/hello.html", (answered) => answered.status === 200);
+-    specimen.expect(first.text.includes("<h1>Hello</h1>")).toBe(true);
+-
+-    await sourced(world, "hello.md", "# Hello\n\nRewritten.\n");
+-    const second = await until(world, "/hello.html", (answered) => answered.text.includes("Rewritten."));
+-    specimen.expect(second.text.includes("by hand")).toBe(false);
+-  });
++    specimen.it(
++      "/source/write · read · remove are hands on the file; nothing is pressed until /build",
++      async () => {
++        const text = `${front({ title: "Written here", date: "2026.11.23" })}\nFrom the desk.\n`;
++        specimen
++          .expect((await call("/source/write", { path: "on/broken.md", text })).body)
++          .toEqual({ path: "on/broken.md" });
++        specimen
++          .expect(await Deno.readTextFile(join(seated(world), "source/on/broken.md")))
++          .toBe(text);
++        specimen
++          .expect((await call("/source/read", { path: "on/broken.md" })).body)
++          .toEqual({ path: "on/broken.md", text });
++        specimen.expect((await page(world, "/on/broken")).status).toBe(404);
++
++        await call("/build", {});
++        specimen
++          .expect((await page(world, "/on/broken")).text.includes("From the desk."))
++          .toBe(true);
++
++        specimen
++          .expect((await call("/source/remove", { path: "on/broken.md" })).body)
++          .toEqual({ path: "on/broken.md" });
++        specimen.expect((await call("/build", {})).body.gone).toEqual(["on/broken.html"]);
++        specimen.expect((await page(world, "/on/broken")).status).toBe(404);
++      },
++    );
+ 
+-  specimen.it("a save in a directory made after the boot is heard; an editor's lock file is no page", async () => {
+-    await sourced(world, "articles/.#second.md", "finn@machine.4242");
+-    await sourced(world, "articles/second.org", SECOND);
+-    await until(world, "/articles/second.html", (answered) => answered.status === 200);
+-    specimen.expect((await page(world, "/articles/.#second.html")).status).toBe(404);
+-    const index = await until(world, "/index.html", (answered) => answered.text.includes("articles/second.html"));
+-    specimen.expect(index.text.includes(".#second")).toBe(false);
+-  });
+-});
++    specimen.it("no path of the desk leaves source/", async () => {
++      for (const path of ["../site.json", "on/../../site.json"]) {
++        const read = await call("/source/read", { path });
++        specimen
++          .expect([path, read.status, JSON.stringify(read.body).includes("leaves source/")])
++          .toEqual([path, 500, true]);
++        const written = await call("/source/write", { path, text: "{}" });
++        specimen.expect([path, written.status]).toEqual([path, 500]);
++      }
++      specimen
++        .expect(JSON.parse(await Deno.readTextFile(join(seated(world), "site.json"))).name)
++        .toBe("crackedbeefcake");
++    });
+ 
+-specimen.describe("blog — the twitch: TWITCHY, a File entity recorded under source/ presses the blog", () => {
+-  let scenario;
+-  let daemon;
+-  let mode;
+-  let seat;
+-
+-  const recorded = async (holder, path, text) => {
+-    await Deno.mkdir(join(seat, path, ".."), { recursive: true });
+-    await Deno.writeTextFile(join(seat, path), text);
+-    await scenario.datamap.shard.scope(async () => {
+-      await daemon.entities.file.record({
+-        mode: holder,
+-        daemon: "italian",
+-        path,
+-        mount: join(seat, path),
+-        mime: mime.of(path),
+-        bytes: new TextEncoder().encode(text),
+-      });
++    specimen.it(
++      "/source/preview presses what is typed, a draft too, based on the site; nothing is written",
++      async () => {
++        const typed = HIDDEN.replace("Not yet.", "Typed, not saved.");
++        const preview = (await call("/source/preview", { path: "on/hidden.md", text: typed })).body
++          .html;
++        specimen
++          .expect(preview.includes(`<base href="${world.origin}${BLOG}/on/hidden.html">`))
++          .toBe(true);
++        specimen.expect(preview.includes('<h1 class="title">Unfinished</h1>')).toBe(true);
++        specimen.expect(preview.includes("Typed, not saved.")).toBe(true);
++        specimen
++          .expect(preview.includes('<small><a href="../linktree">Linktree</a></small>'))
++          .toBe(true);
++        specimen
++          .expect(await Deno.readTextFile(join(seated(world), "source/on/hidden.md")))
++          .toBe(HIDDEN);
++        specimen.expect((await page(world, "/on/hidden")).status).toBe(404);
++      },
++    );
++
++    specimen.it(
++      "/source/upload/:name lands a picture's bytes under source/images/; the next build serves it",
++      async () => {
++        const refused = await fetch(`${world.origin}${MODE}/source/upload/heron.png`, {
++          method: "POST",
++          body: PICTURE,
++        });
++        specimen.expect(refused.status).toBe(401);
++        await refused.body?.cancel();
++
++        const landed = await fetch(`${world.origin}${MODE}/source/upload/heron.png`, {
++          method: "POST",
++          headers: { authorization: `Bearer ${token}`, "content-type": "image/png" },
++          body: PICTURE,
++        });
++        specimen.expect(await landed.json()).toEqual({ path: "images/heron.png" });
++        specimen
++          .expect(await Deno.readFile(join(seated(world), "source/images/heron.png")))
++          .toEqual(PICTURE);
++        await call("/build", {});
++        const picture = await fetch(`${world.origin}${BLOG}/images/heron.png`);
++        specimen
++          .expect([picture.status, picture.headers.get("content-type")])
++          .toEqual([200, "image/png"]);
++        await picture.body?.cancel();
++      },
++    );
++
++    specimen.it("a page never built is 404; no spelling of .. reaches a source", async () => {
++      specimen.expect((await page(world, "/nope.html")).status).toBe(404);
++      const climbs = [
++        "/../source/on/eva.md",
++        "/%2e%2e/source/on/eva.md",
++        "/..%2fsource%2fon%2feva.md",
++        "/%2e%2e%2fsource%2fon%2feva.md",
++        "/on/..%2f..%2fsource%2fon%2feva.md",
++        "/source/on/eva.md",
++        "/on/eva.md",
++      ];
++      for (const climb of climbs) {
++        const answered = await page(world, climb);
++        specimen
++          .expect([climb, answered.status, answered.text.includes("never pressed")])
++          .toEqual([climb, 404, false]);
++      }
++    });
++
++    specimen.it(
++      "the surface holding the desk is bundled from buffer/Blog.jsx and answers its signed-in fetch; a build leaves the bundle",
++      async () => {
++        const [surface] = world.query("select id, mount, entry from surface where slug = 'blog'");
++        specimen
++          .expect([surface.mount, surface.entry])
++          .toEqual(["buffer/Blog.jsx", "bundle/blog.dom.solid.mjs"]);
++        const bundle = await world.get(`/attached/surface/${surface.id}?token=${token}`);
++        specimen
++          .expect([bundle.status, bundle.headers.get("content-type")])
++          .toEqual([200, mime.javascript]);
++        const code = await bundle.text();
++        for (const called of [
++          "source.list()",
++          "source.read(",
++          "source.write(",
++          "source.remove(",
++          "source.preview(",
++          "source.upload[",
++          "call.build()",
++        ]) {
++          specimen.expect([called, code.includes(called)]).toEqual([called, true]);
++        }
++
++        specimen.expect((await call("/build", {})).body.gone).toEqual([]);
++        specimen
++          .expect(
++            world
++              .query("select path from file where mount like '%/bundle/%'")
++              .map((file) => file.path),
++          )
++          .toEqual(["bundle/blog.dom.solid.mjs"]);
++      },
++    );
++  },
++);
++
++specimen.describe(
++  "blog — the watch: BOOTED on a recipe's entry, a save under source/ is a page, nobody asking",
++  () => {
++    let world;
++
++    specimen.beforeAll(async () => {
++      world = await wearing(["BOOTED"]);
+     });
+-    await sleep.ms(60);
+-  };
+ 
+-  const pressedPage = (path) => Deno.readTextFile(join(seat, "public", path)).catch(() => null);
++    specimen.afterAll(async () => {
++      await world.stop();
++    });
++
++    specimen.it("a file saved by hand is served; saved again, the page follows", async () => {
++      await sourced(world, "hello.md", HELLO);
++      const first = await until(world, "/hello.html", (answered) => answered.status === 200);
++      specimen.expect(first.text.includes('<h1 id="hello">Hello</h1>')).toBe(true);
++
++      await sourced(world, "hello.md", "# Hello\n\nRewritten.\n");
++      const second = await until(world, "/hello.html", (answered) =>
++        answered.text.includes("Rewritten."),
++      );
++      specimen.expect(second.text.includes("by hand")).toBe(false);
++    });
+ 
+-  specimen.beforeAll(async () => {
+-    scenario = await lighthouse.create();
+-    await scenario.seedDaemon("italian");
+-    const die = {
+-      runtime: scenario.runtime,
+-      daemon: {
+-        type: "daemon",
+-        slug: "italian",
+-        reference: new Path("/daemon/italian"),
+-        domain: {},
+-        aperture: new Aperture(),
+-        controller: new Controller({ stdout: new Span("italian") }),
++    specimen.it(
++      "a save in a directory made after the boot is heard; an editor's lock file is no page",
++      async () => {
++        await sourced(world, "articles/.#second.md", "finn@machine.4242");
++        await sourced(world, "articles/second.org", SECOND);
++        await until(world, "/articles/second.html", (answered) => answered.status === 200);
++        specimen.expect((await page(world, "/articles/.#second.html")).status).toBe(404);
++        const index = await until(world, "/index.html", (answered) =>
++          answered.text.includes("articles/second"),
++        );
++        specimen.expect(index.text.includes(".#second")).toBe(false);
+       },
+-      register: { modes: [] },
++    );
++  },
++);
++
++specimen.describe(
++  "blog — the twitch: TWITCHY, a File entity recorded under source/ presses the blog",
++  () => {
++    let scenario;
++    let daemon;
++    let mode;
++    let seat;
++
++    const recorded = async (holder, path, text) => {
++      await Deno.mkdir(join(seat, path, ".."), { recursive: true });
++      await Deno.writeTextFile(join(seat, path), text);
++      await scenario.datamap.shard.scope(async () => {
++        await daemon.entities.file.record({
++          mode: holder,
++          daemon: "italian",
++          path,
++          mount: join(seat, path),
++          mime: mime.of(path),
++          bytes: new TextEncoder().encode(text),
++        });
++      });
++      await sleep.ms(60);
+     };
+-    await lifecycle.daemon.population.datamap(die, async () => {});
+-    daemon = die.daemon;
+ 
+-    seat = await Deno.makeTempDir({ prefix: "viva-blog-twitch-" });
+-    const module = {
+-      ...blog,
+-      manifest: { ...blog.manifest, traits: [...blog.manifest.traits, "TWITCHY"] },
+-      source: new Path(new URL("../blog.viva.js", import.meta.url).pathname),
+-    };
+-    mode = Object.assign(new Mode({ module }), {
+-      daemon: "italian",
+-      mountpoint: seat,
+-      stdout: new Span("mode/publisher/blog"),
+-    });
+-    const modeDie = { ...shard.context.lift(contexts.modeDie, daemon), mode, traits: {} };
+-    await lifecycle.mode.population.core(modeDie, async () => {});
+-    await (await traits.mode.EXPOSED(mode))();
+-    traits.mode.TWITCHY(mode);
+-  });
++    const pressedPage = (path) => Deno.readTextFile(join(seat, "public", path)).catch(() => null);
+ 
+-  specimen.afterAll(async () => {
+-    await scenario.close();
+-    await Deno.remove(seat, { recursive: true });
+-  });
++    specimen.beforeAll(async () => {
++      scenario = await lighthouse.create();
++      await scenario.seedDaemon("italian");
++      const die = {
++        runtime: scenario.runtime,
++        daemon: {
++          type: "daemon",
++          slug: "italian",
++          reference: new Path("/daemon/italian"),
++          domain: {},
++          aperture: new Aperture(),
++          controller: new Controller({ stdout: new Span("italian") }),
++        },
++        register: { modes: [] },
++      };
++      await lifecycle.daemon.population.datamap(die, async () => {});
++      daemon = die.daemon;
++
++      seat = await Deno.makeTempDir({ prefix: "viva-blog-twitch-" });
++      const module = {
++        ...blog,
++        manifest: { ...blog.manifest, traits: [...blog.manifest.traits, "TWITCHY"] },
++        source: new Path(new URL("../blog.viva.js", import.meta.url).pathname),
++      };
++      mode = Object.assign(new Mode({ module }), {
++        daemon: "italian",
++        mountpoint: seat,
++        stdout: new Span("mode/publisher/blog"),
++      });
++      const modeDie = { ...shard.context.lift(contexts.modeDie, daemon), mode, traits: {} };
++      await lifecycle.mode.population.core(modeDie, async () => {});
++      await (
++        await traits.mode.EXPOSED(mode)
++      )();
++      traits.mode.TWITCHY(mode);
++    });
+ 
+-  specimen.it("a source recorded for this mode is pressed: its page and the index lie under public/", async () => {
+-    await recorded(mode.id, "source/hello.md", HELLO);
+-    specimen.expect((await pressedPage("hello.html")).includes("<h1>Hello</h1>")).toBe(true);
+-    specimen.expect((await pressedPage("index.html")).includes('<a href="hello.html">Hello</a>')).toBe(true);
+-  });
++    specimen.afterAll(async () => {
++      await scenario.close();
++      await Deno.remove(seat, { recursive: true });
++    });
+ 
+-  specimen.it("the same source recorded again with new bytes is pressed again", async () => {
+-    await recorded(mode.id, "source/hello.md", "# Hello\n\nRewritten.\n");
+-    specimen.expect((await pressedPage("hello.html")).includes("Rewritten.")).toBe(true);
+-  });
++    specimen.it(
++      "a source recorded for this mode is pressed: its page and the index lie under public/",
++      async () => {
++        await recorded(mode.id, "source/slop.md", SLOP);
++        specimen
++          .expect(
++            (await pressedPage("slop.html")).includes('<h1 class="title">After the slop</h1>'),
++          )
++          .toBe(true);
++        specimen.expect((await pressedPage("index.html")).includes('<a href="./slop">')).toBe(true);
++      },
++    );
+ 
+-  specimen.it("a file of this mode outside source/ presses nothing; a mode-less file of its daemon neither", async () => {
+-    await Deno.writeTextFile(join(seat, "source/unrecorded.md"), "# Unrecorded\n");
+-    await recorded(mode.id, "bundle/blog.dom.solid.mjs", "export default 1;\n");
+-    await recorded(null, "source/dropped.md", "# Dropped\n");
+-    specimen.expect(await pressedPage("unrecorded.html")).toBe(null);
+-    specimen.expect(mode.stdout.$history.get().filter((record) => record.track === "fault")).toEqual([]);
+-  });
+-});
++    specimen.it("the same source recorded again with new bytes is pressed again", async () => {
++      await recorded(mode.id, "source/slop.md", SLOP.replace("Slop.", "Rewritten."));
++      specimen.expect((await pressedPage("slop.html")).includes("Rewritten.")).toBe(true);
++    });
++
++    specimen.it(
++      "a file of this mode outside source/ presses nothing; a mode-less file of its daemon neither",
++      async () => {
++        await Deno.writeTextFile(join(seat, "source/unrecorded.md"), "# Unrecorded\n");
++        await recorded(mode.id, "bundle/blog.dom.solid.mjs", "export default 1;\n");
++        await recorded(null, "source/dropped.md", "# Dropped\n");
++        specimen.expect(await pressedPage("unrecorded.html")).toBe(null);
++        specimen
++          .expect(mode.stdout.$history.get().filter((record) => record.track === "fault"))
++          .toEqual([]);
++      },
++    );
++  },
++);
+diff --color -ruN a/commons/publishers/blog/theme/index.js b/commons/publishers/blog/theme/index.js
+--- a/commons/publishers/blog/theme/index.js	2026-11-23 23:11:36.670533260 +0100
++++ b/commons/publishers/blog/theme/index.js	2026-11-23 23:11:36.679375483 +0100
+@@ -1,31 +1,180 @@
++import { home, local } from "../press.js";
++
+ const ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" };
++const KATEX = "https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css";
+ 
+ const escaped = (text) => text.replace(/[&<>"]/g, (character) => ESCAPES[character]);
+ 
+-const home = (page) => "../".repeat(page.split("/").length - 1);
++const clean = (page) => page.replace(/(^|\/)index\.html$/, "$1").replace(/\.html$/, "");
++
++const reach = (from, page) => `${home(from)}${clean(page)}`;
++
++const listed = (article) => article.status === "published";
++
++const dated = (article) => article.date !== undefined;
++
++const meta = (attribute, entries) =>
++  entries
++    .filter(([, content]) => content !== undefined)
++    .map(([name, content]) => `<meta ${attribute}="${name}" content="${escaped(content)}">`);
+ 
+-export const framed = ({ page, title, body }) => `<!doctype html>
+-<html>
++export const framed = ({ site, nav, page, title, description, image, type, body }) => {
++  const canonical = site.url === undefined ? undefined : `${site.url}/${clean(page)}`;
++  const picture = site.url === undefined || !image ? undefined : `${site.url}${image}`;
++  const head = [
++    `<meta charset="utf-8">`,
++    `<meta name="viewport" content="width=device-width, initial-scale=1">`,
++    `<title>${escaped(title)}</title>`,
++    ...(canonical === undefined ? [] : [`<link rel="canonical" href="${escaped(canonical)}">`]),
++    ...meta("name", [["description", description]]),
++    ...meta("property", [
++      ["og:type", type],
++      ["og:title", title],
++      ["og:description", description],
++      ["og:url", canonical],
++      ["og:image", picture],
++    ]),
++    ...meta("name", [
++      ["twitter:card", picture === undefined ? "summary" : "summary_large_image"],
++      ["twitter:title", title],
++      ["twitter:description", description],
++      ["twitter:image", picture],
++    ]),
++    ...(body.includes('class="katex"') ? [`<link rel="stylesheet" href="${KATEX}">`] : []),
++    `<link rel="stylesheet" href="${home(page)}theme.css">`,
++    ...(site.head === "" ? [] : [site.head]),
++  ];
++  const links = nav.map(
++    (entry) => `<a href="${reach(page, entry.page)}">${escaped(entry.title)}</a>`,
++  );
++
++  return `<!doctype html>
++<html lang="${escaped(site.language)}">
+ <head>
+-<meta charset="utf-8">
+-<meta name="viewport" content="width=device-width, initial-scale=1">
+-<title>${escaped(title)}</title>
+-<link rel="stylesheet" href="${home(page)}theme.css">
++${head.join("\n")}
+ </head>
+ <body>
+-<header><a href="${home(page)}index.html">index</a></header>
++<header id="top">
++<nav>
++<a class="logo" href="${home(page)}">${escaped(site.name)}</a>
++<small>${links.join(" / ")}</small>
++</nav>
++</header>
+ <main>
+ ${body}
+ </main>
+ </body>
+ </html>
+ `;
++};
++
++const subtitle = (article) =>
++  article.subtitle === undefined
++    ? ""
++    : `<span class="subtitle">${escaped(article.subtitle)}</span>`;
+ 
+-const entry = (article) => `<li><a href="${escaped(article.page)}">${escaped(article.title)}</a></li>`;
++const neighbour = (
++  from,
++  side,
++  arrow,
++  article,
++) => `<a class="neighbour ${side}" href="${reach(from, article.page)}">
++<span class="arrow">${arrow}</span>
++<span>
++<span class="neighbour-title">${escaped(article.title)}</span>
++${subtitle(article)}
++</span>
++</a>`;
+ 
+-export const contents = (articles) =>
++const lead = (article) => {
++  const source = escaped(local(article.image, article.page));
++  return `<img class="lead" src="${source}" alt="${escaped(article.title)}">`;
++};
++
++export const essay = ({ site, nav, article, previous, next }) =>
+   framed({
++    site,
++    nav,
++    page: article.page,
++    title: article.title,
++    description: article.subtitle,
++    image: article.image,
++    type: "article",
++    body: `<article class="essay">
++<h1 class="title">${escaped(article.title)}</h1>
++${subtitle(article)}
++<time>${escaped(article.date)}</time>
++${article.image ? lead(article) : ""}
++<section class="prose">
++${article.body}
++</section>
++<nav class="neighbours">
++${next === undefined ? "" : neighbour(article.page, "next", "＜", next)}
++${previous === undefined ? "" : neighbour(article.page, "previous", "＞", previous)}
++</nav>
++<a class="contents" href="${home(article.page)}">↑</a>
++</article>`,
++  });
++
++export const page = ({ site, nav, article }) =>
++  framed({
++    site,
++    nav,
++    page: article.page,
++    title: article.title,
++    description: article.subtitle,
++    image: article.image,
++    type: "website",
++    body: `<article class="prose">
++${article.body}
++</article>`,
++  });
++
++const tags = (article) =>
++  article.tags === undefined
++    ? ""
++    : `<ul class="tags">${article.tags
++        .split(",")
++        .map((tag) => `<li>#${escaped(tag.trim())}</li>`)
++        .join("")}</ul>`;
++
++const entry = (article) => `<li>
++<a href="${reach("index.html", article.page)}">
++<h2>${escaped(article.title)}</h2>
++${subtitle(article)}
++<div class="meta">${tags(article)}<time>${escaped(article.date)}</time></div>
++</a>
++</li>`;
++
++export const contents = ({ site, nav, essays }) =>
++  framed({
++    site,
++    nav,
+     page: "index.html",
+-    title: "index",
+-    body: `<ul>\n${articles.map(entry).join("\n")}\n</ul>`,
++    title: site.name,
++    type: "website",
++    body: `<ul class="essays">
++${essays.map(entry).join("\n")}
++</ul>`,
+   });
++
++export const paged = (site, articles) => {
++  const shown = articles.filter((article) => article.status !== "draft");
++  const essays = shown.filter(dated).sort((left, right) => left.date.localeCompare(right.date));
++  const pages = shown.filter((article) => !dated(article));
++  const nav = pages.filter(listed);
++  return [
++    ...essays.map((article, at) => [
++      article.page,
++      essay({
++        site,
++        nav,
++        article,
++        previous: essays.slice(0, at).findLast(listed),
++        next: essays.slice(at + 1).find(listed),
++      }),
++    ]),
++    ...pages.map((article) => [article.page, page({ site, nav, article })]),
++    ["index.html", contents({ site, nav, essays: essays.filter(listed).toReversed() })],
++  ];
++};

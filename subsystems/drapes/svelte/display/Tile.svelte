@@ -10,7 +10,7 @@
 
 <style>
   .tile {
-    background: var(--surface-lift);
+    background: var(--plane-lift);
     color: var(--text-strong);
     padding: 14px;
     display: flex;

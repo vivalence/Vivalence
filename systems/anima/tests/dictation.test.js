@@ -5,7 +5,7 @@ import * as ghost from "@vivalence/ghost";
 import { compile, fire, screen, settle } from "@vivalence/drapes/scenarios";
 import { oracle, shape } from "../../../subsystems/drapes/tests/parts/oracle.js";
 
-const DOCK = new URL("../src/surfaces/chrome/panels/dock/", import.meta.url).pathname;
+const DOCK = new URL("../src/skins/chrome/panels/dock/", import.meta.url).pathname;
 const PARTS = new URL("../../../subsystems/drapes/parts.js", import.meta.url).pathname;
 const GESTALTEN = new URL("../../ghost/gestalten/", import.meta.url).pathname;
 const NODE_MODULES = new URL("../../../node_modules/", import.meta.url).pathname;

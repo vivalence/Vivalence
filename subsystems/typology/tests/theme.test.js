@@ -17,10 +17,10 @@ const NORTHSEA = {
     negative: { fill: "#BE7055", ink: "#D9A18D", on: "#060D14" },
   },
   zones: {
-    0: { surface: "#0E1A25", surfaceSunk: "#060D14", surfaceLift: "#1A2A38", boundary: "#243544", boundaryStrong: "#4F6175", divider: "#1A2A38" },
-    1: { surface: "#06101D", surfaceSunk: "#030812", surfaceLift: "#0A1628", boundary: "#243544", boundaryStrong: "#4F6175", divider: "#1A2A38" },
-    2: { surface: "#060D14", surfaceSunk: "#030812", surfaceLift: "#0E1A25", boundary: "#1A2A38", boundaryStrong: "#384A5E", divider: "#0E1A25", inverse: "#CFD6DE", dim: 0.5 },
-    3: { surface: "#1A2A38", surfaceSunk: "#0E1A25", surfaceLift: "#243544", boundary: "#384A5E", boundaryStrong: "#6B7E91", divider: "#243544", signal: { negative: { ink: "#EBCDC0" } } },
+    0: { plane: "#0E1A25", planeSunk: "#060D14", planeLift: "#1A2A38", boundary: "#243544", boundaryStrong: "#4F6175", divider: "#1A2A38" },
+    1: { plane: "#06101D", planeSunk: "#030812", planeLift: "#0A1628", boundary: "#243544", boundaryStrong: "#4F6175", divider: "#1A2A38" },
+    2: { plane: "#060D14", planeSunk: "#030812", planeLift: "#0E1A25", boundary: "#1A2A38", boundaryStrong: "#384A5E", divider: "#0E1A25", inverse: "#CFD6DE", dim: 0.5 },
+    3: { plane: "#1A2A38", planeSunk: "#0E1A25", planeLift: "#243544", boundary: "#384A5E", boundaryStrong: "#6B7E91", divider: "#243544", signal: { negative: { ink: "#EBCDC0" } } },
   },
 };
 
@@ -30,11 +30,11 @@ const SPARSE = {
   text: { strong: "#0B0F2D", ink: "#3D372A", muted: "#5A5240" },
   control: { contrast: "#DAD4C0", field: "#FBFAF2" },
   signal: { primary: "#045554", positive: "#41732A", caution: "#AC575C", negative: { fill: "#C74E31", ink: "#A23920" } },
-  zones: { 0: { surface: "#F5F3E8", size: { unit: ".2rem" } }, 1: { surface: "#F0EDDE", boundary: "#A0967C" }, 3: "#FBFAF2" },
+  zones: { 0: { plane: "#F5F3E8", size: { unit: ".2rem" } }, 1: { plane: "#F0EDDE", boundary: "#A0967C" }, 3: "#FBFAF2" },
 };
 
 const ZONE = {
-  surface: "#1A2A38", surfaceSunk: "#0E1A25", surfaceLift: "#243544",
+  plane: "#1A2A38", planeSunk: "#0E1A25", planeLift: "#243544",
   boundary: "#384A5E", boundaryStrong: "#6B7E91", boundarySoft: "rgba(56, 74, 94, 0.5)",
   divider: "#243544", inverse: "#E6EAEF", inverseOn: "#1A2A38",
   shadow: "rgba(0, 0, 0, 0.45)", scrim: "rgba(14, 26, 37, 0.6)", dim: 0.55,
@@ -93,7 +93,7 @@ const count = (shape) => Object.values(shape).reduce((sum, held) => sum + (theme
 const SCALARS = [
   ["Hex", ["#1A2A38", "#ffffff", "#0B0f2D"], ["#FFF", "1A2A38", "#1A2A3", "#1A2A388", "#GGGGGG", "rgb(0,0,0)", "red", "", 0, null]],
   ["Alpha", ["rgba(30, 188, 181, 0.18)", "rgba(0,0,0,.4)", "rgba(0, 0, 0, 1)", "rgba(255, 255, 255, 0)"], ["rgba(0, 0, 0)", "rgba(0, 0, 0, 1.5)", "rgb(0, 0, 0, .5)", "rgba(0 0 0 / .5)", "#000000", ""]],
-  ["Color", ["#1A2A38", "rgba(30, 188, 181, 0.18)"], ["oklch(0.5 0.1 200)", "transparent", "var(--surface)", 1]],
+  ["Color", ["#1A2A38", "rgba(30, 188, 181, 0.18)"], ["oklch(0.5 0.1 200)", "transparent", "var(--plane)", 1]],
   ["Px", ["1px", "0px", "1.5px", "999px"], [1, "1", "1rem", "-1px", "px", "1 px", "1PX"]],
   ["Percent", ["50%", "0%", "12.5%"], ["50", 50, "50px", "%"]],
   ["Rem", [".25rem", "1rem", "1.0625rem", "0.2rem"], ["1px", 1, "rem", "1 rem", "-1rem", "1em"]],
@@ -165,7 +165,7 @@ specimen.describe("theme primitive — the token space, counted", () => {
     specimen.expect(bare(theme.size)).toEqual([]);
     specimen.expect(bare(theme.text)).toEqual(["header", "strong", "ink", "light", "muted", "link", "code"]);
     specimen.expect(bare(theme.ground)).toEqual([
-      "surface", "surfaceSunk", "surfaceLift", "boundary", "boundaryStrong", "boundarySoft", "divider", "inverse", "inverseOn", "scrim",
+      "plane", "planeSunk", "planeLift", "boundary", "boundaryStrong", "boundarySoft", "divider", "inverse", "inverseOn", "scrim",
     ]);
     specimen.expect(bare(theme.control)).toHaveLength(13);
     specimen.expect(bare(theme.signal)).toHaveLength(16);
@@ -218,8 +218,8 @@ specimen.describe("theme primitive — Definition, any subset in any form", () =
   });
 
   specimen.it("retired words fault inside a zone as well", () => {
-    for (const key of ["surfaceRaised", "onInverse", "icon", "iconStrong", "scheme"]) {
-      specimen.expect([key, theme.Definition.check({ zones: { 1: { surface: "#F0EDDE", [key]: "#000000" } } })]).toEqual([key, false]);
+    for (const key of ["planeRaised", "onInverse", "icon", "iconStrong", "scheme"]) {
+      specimen.expect([key, theme.Definition.check({ zones: { 1: { plane: "#F0EDDE", [key]: "#000000" } } })]).toEqual([key, false]);
     }
   });
 
@@ -229,9 +229,9 @@ specimen.describe("theme primitive — Definition, any subset in any form", () =
       [["text", "disabled"], 2],
       [["shape", "relief"], "inset"],
       [["shape", "radius", "card"], "2px"],
-      [["control", "contrast"], "var(--surface)"],
+      [["control", "contrast"], "var(--plane)"],
       [["zones", "2", "dim"], ".5"],
-      [["zones", "0", "surface"], "#0E1A2"],
+      [["zones", "0", "plane"], "#0E1A2"],
     ];
     for (const [path, value] of cases) {
       const faults = theme.Definition.faults(swapped(NORTHSEA, path, value));
@@ -252,13 +252,13 @@ specimen.describe("theme primitive — Definition, any subset in any form", () =
   specimen.it("a zone may restate any group, per key, shorthands included", () => {
     specimen.expect(theme.Definition.faults({
       zones: {
-        0: { surface: "#F5F3E8", size: { unit: ".2rem" }, shape: { radius: "0px" }, signal: { negative: "#A23920" }, text: { muted: "#5A5240" }, control: { focus: "#045554" } },
+        0: { plane: "#F5F3E8", size: { unit: ".2rem" }, shape: { radius: "0px" }, signal: { negative: "#A23920" }, text: { muted: "#5A5240" }, control: { focus: "#045554" } },
       },
     })).toEqual([]);
   });
 
   specimen.it("a zone never nests a zone", () => {
-    specimen.expect(theme.Definition.check({ zones: { 0: { surface: "#F5F3E8", zones: { 1: "#F0EDDE" } } } })).toBe(false);
+    specimen.expect(theme.Definition.check({ zones: { 0: { plane: "#F5F3E8", zones: { 1: "#F0EDDE" } } } })).toBe(false);
   });
 });
 
@@ -299,7 +299,7 @@ specimen.describe("theme primitive — Zone and Theme, always all of it", () => 
     specimen.expect(theme.Definition.faults({ font: { family: { code: "IBM Plex Mono, monospace" } } })).toEqual([]);
     specimen.expect(theme.Definition.check({ font: { family: { mono: "IBM Plex Mono, monospace" } } })).toBe(false);
     specimen.expect(theme.Definition.check({ font: { size: { md: "1rem" } } })).toBe(false);
-    specimen.expect(theme.Definition.faults({ zones: { 2: { surface: "#FFFFFF", font: { family: { sansText: "IBM Plex Sans, sans-serif" } } } } })).toEqual([]);
+    specimen.expect(theme.Definition.faults({ zones: { 2: { plane: "#FFFFFF", font: { family: { sansText: "IBM Plex Sans, sans-serif" } } } } })).toEqual([]);
   });
 
   specimen.it("a theme holds four zones, never three, never five", () => {
@@ -308,7 +308,7 @@ specimen.describe("theme primitive — Zone and Theme, always all of it", () => 
   });
 
   specimen.it("a key outside the token space faults in a zone and in a theme", () => {
-    specimen.expect(theme.Zone.check({ ...ZONE, surfaceRaised: "#243544" })).toBe(false);
+    specimen.expect(theme.Zone.check({ ...ZONE, planeRaised: "#243544" })).toBe(false);
     specimen.expect(theme.Theme.check({ ...WHOLE, scheme: "dark" })).toBe(false);
     specimen.expect(theme.Zone.check({ ...ZONE, text: { ...ZONE.text, body: "#B4BFCB" } })).toBe(false);
   });

@@ -1,0 +1,60 @@
+.desk.is-dragging { cursor: col-resize; user-select: none; }
+.desk.is-dragging iframe { pointer-events: none; }
+.desk.is-dragging .dock { transition: none; }
+.seam.drag, .seam.drag::after { background: var(--signal-primary-ink); }
+.desk[data-mode="split"] .writing { flex: 0 0 calc(var(--share) * 100%); }
+.site { flex: 1; min-height: 0; width: 100%; border: 0; }
+.stage > .none { align-self: center; }
+.pic { overflow: hidden; }
+.pic img { width: 100%; height: 100%; object-fit: cover; }
+.lead-pic > div { min-width: 0; }
+.quiet:disabled { opacity: var(--text-disabled); cursor: default; }
+.well { position: relative; }
+.well input {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.well:focus-within { border-color: var(--signal-primary-ink); color: var(--signal-primary-ink); }
+.grid figure { position: relative; }
+.grid figure.is-lead .pic { box-shadow: 0 0 0 2px var(--signal-primary-ink); }
+.over {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+.grid figure:hover .over, .grid figure:focus-within .over, .is-narrow .over { opacity: 1; }
+.over button {
+  appearance: none;
+  border: 0;
+  height: 20px;
+  padding: 0 var(--size-space-2xs);
+  border-radius: var(--shape-radius-2xs);
+  background: var(--control-contrast);
+  color: var(--control-on);
+  font-family: var(--font-family-code);
+  font-size: var(--size-type-2xs);
+  line-height: 1;
+  cursor: pointer;
+}
+.over button:hover { background: var(--control-contrast-hover); }
+.over button:disabled { opacity: var(--text-disabled); cursor: default; }
+.over button[aria-pressed="true"] {
+  background: var(--signal-negative-tint);
+  color: var(--signal-negative-ink);
+}
+.is-narrow .over button { height: 36px; padding: 0 var(--size-space-xs); }
+.files { display: grid; margin-top: var(--size-space-sm); }
+.files > .kit-label { padding: 0 var(--size-space-xs); }
+a.row { text-decoration: none; }
+.step.l4, .step.l5, .step.l6 { padding-left: var(--size-space-xl); }
+.desk.is-narrow .cm-gutters { position: static !important; }

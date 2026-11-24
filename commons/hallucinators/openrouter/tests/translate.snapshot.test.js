@@ -179,10 +179,7 @@ specimen.describe(
           ...translator.flush(),
         ];
         specimen.expect(packets.at(-1).event).toBe("/turn/close");
-        specimen.expect(packets.at(-1).turn.meta.usage).toEqual({
-          input: 11,
-          output: 29,
-        });
+        specimen.expect(packets.at(-1).turn.meta.usage).toEqual([{ name: "input", unit: "tokens", amount: 11 }, { name: "output", unit: "tokens", amount: 29 }]);
         for (const packet of packets) {
           specimen.expect(v.primitives.hallucination.Packet.Response.check(packet)).toBe(true);
         }

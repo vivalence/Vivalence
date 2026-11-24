@@ -8,7 +8,7 @@ import * as threadProcess from "../../entities/thread/index.js";
 import * as activity from "../../entities/activity/index.js";
 import * as buffer from "../../entities/buffer/index.js";
 import * as turn from "../../entities/turn/index.js";
-import * as view from "../../entities/view/index.js";
+import * as surface from "../../entities/surface/index.js";
 import * as file from "../../entities/file/index.js";
 import * as literal from "../../entities/literal/index.js";
 import * as symbol from "../../entities/symbol/index.js";
@@ -40,7 +40,7 @@ export const connected = async (clientDie) => {
   runtime.aperture = runtime.connection.branch(runtime.reference.absolute);
   runtime.entities = new Dataspace({
     runtime,
-    entities: { daemon: daemonHost, mode, thread: threadProcess, buffer, turn, activity, terminal: terminalProcess, view, file, literal, symbol, note },
+    entities: { daemon: daemonHost, mode, thread: threadProcess, buffer, turn, activity, terminal: terminalProcess, surface, file, literal, symbol, note },
     seed: (boot) => boot.use(shard.context.bind("client", clientDie)).use(shard.context.bind("runtime", runtime)),
   });
   clientDie.controller.stdout.log({ lighthouse: runtime.remote.absolute, traits: runtime.lighthouse.manifest.traits });

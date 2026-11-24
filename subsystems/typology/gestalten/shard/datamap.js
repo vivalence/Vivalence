@@ -188,7 +188,7 @@ export function reactive(repo, twitch, { scope, filter = "user" } = {}) {
         if (scope && serialized && typeof serialized === "object") {
           const owner = filter in serialized
             ? serialized[filter]
-            : hook.input.em.getFilterParams(filter)?.[filter];
+            : hook.em.getFilterParams(filter)?.[filter];
           if (owner === undefined)
             throw new Error(
               `[reactive] ${name}/${op} is ${filter}-scoped but the ORM context carries no owner — the write escaped its request context (a lazy stream must \`carry\` it); a scoped write must never drop silently.`,
@@ -250,6 +250,11 @@ export const bind = (em, name, resolve) => async (ctx, next) => {
     .getEntityManager(em.name)
     ?.setFilterParams(name, resolve(ctx));
   await next();
+};
+
+export const forked = (datamap) => (ctx, next) => {
+  ctx.em = datamap.entities.em.fork({ keepTransactionContext: true });
+  return next();
 };
 
 export function detached(datamap) {

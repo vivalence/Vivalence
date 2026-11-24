@@ -47,7 +47,7 @@
     padding: 8px 12px;
     border: 1px solid var(--boundary);
     border-radius: 8px;
-    background: var(--surface);
+    background: var(--plane);
     color: var(--text-strong);
   }
   .entry-body.draft {

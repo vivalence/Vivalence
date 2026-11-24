@@ -1,6 +1,6 @@
 import { join } from "@std/path";
 import { Aperture, crypto, mime, Mode, Path, shape, specimen, steer, v } from "@vivalence/typology";
-import { FileEntity, ThreadEntity, traits, ViewEntity } from "@vivalence/runtime";
+import { FileEntity, ThreadEntity, traits, SurfaceEntity } from "@vivalence/runtime";
 import paladin from "@vivalence/paladin";
 import { seed } from "../scenarios/datamap.js";
 
@@ -8,7 +8,7 @@ import { seed } from "../scenarios/datamap.js";
 // views and mints the buffer mime. HOME is empty; every
 // mount lives in a temp dir of this test's own; the html bundler row reads a file and never touches esbuild.
 
-const { FILESINK, FILESET, VIEWABLE } = traits.mode;
+const { FILESINK, FILESET, SURFACED } = traits.mode;
 
 let scenario;
 let directory;
@@ -31,7 +31,7 @@ const buildMode = (slug, module = {}) => {
   return mode;
 };
 
-specimen.describe("the file traits — FILESINK · FILESET · VIEWABLE over a seeded :memory: datamap", { sanitizeResources: false, sanitizeOps: false }, () => {
+specimen.describe("the file traits — FILESINK · FILESET · SURFACED over a seeded :memory: datamap", { sanitizeResources: false, sanitizeOps: false }, () => {
   specimen.beforeAll(async () => {
     scenario = await seed();
     directory = await Deno.makeTempDir({ prefix: "filetraits-" });
@@ -113,16 +113,16 @@ specimen.describe("the file traits — FILESINK · FILESET · VIEWABLE over a se
     specimen.expect(await scenario.em.fork().count(FileEntity, { mount: { $like: `${files}%` } })).toBe(2);
   });
 
-  specimen.it("VIEWABLE: mode.buffer mints with the mode's reference mime and the schema's defaults; the declared views seat as View rows, unbuilt; the first bundle builds, a second reuses, an edit rebuilds", async () => {
-    const mode = buildMode("viewable", {
+  specimen.it("SURFACED: mode.buffer mints with the mode's reference mime and the schema's defaults; the declared surfaces seat as Surface rows, unbuilt; the first bundle builds, a second reuses, an edit rebuilds", async () => {
+    const mode = buildMode("surfaced", {
       buffer: v.buffer({ data: { title: v.string({ default: "untitled" }), count: v.number({ default: 0 }) } }),
-      views: [{ slug: "page", mime: mime.dom.html, mount: "views/page.html" }],
+      surfaces: [{ slug: "page", mime: mime.dom.html, mount: "surfaces/page.html" }],
     });
-    await Deno.mkdir(join(directory, "viewable", "views"), { recursive: true });
-    await Deno.writeTextFile(join(directory, "viewable", "views", "page.html"), "<h1>page</h1>");
+    await Deno.mkdir(join(directory, "surfaced", "surfaces"), { recursive: true });
+    await Deno.writeTextFile(join(directory, "surfaced", "surfaces", "page.html"), "<h1>page</h1>");
 
-    await VIEWABLE(mode, context());
-    specimen.expect(mode.buffer.mime).toBe("application/vnd.viva.daemon.test.mode.test.viewable+json");
+    await SURFACED(mode, context());
+    specimen.expect(mode.buffer.mime).toBe("application/vnd.viva.daemon.test.mode.test.surfaced+json");
 
     const thread = await threaded();
     const buffer = await mode.buffer({ data: { title: "Q3" }, thread: thread.id });
@@ -131,31 +131,31 @@ specimen.describe("the file traits — FILESINK · FILESET · VIEWABLE over a se
     specimen.expect(buffer.data).toEqual({ title: "Q3", count: 0 });
     specimen.expect((await mode.buffer({ data: {}, thread: thread.id })).data).toEqual({ title: "untitled", count: 0 });
 
-    specimen.expect(mode.views).toHaveLength(1);
-    const view = await reload(ViewEntity, { id: mode.views[0].id }, ["files"]);
-    specimen.expect([view.slug, view.mime]).toEqual(["page", mime.dom.html]);
-    specimen.expect([view.mount, view.entry]).toEqual(["views/page.html", "bundle/page.dom.html.mjs"]);
-    specimen.expect(view.files.getItems()).toEqual([]);
+    specimen.expect(mode.surfaces).toHaveLength(1);
+    const surface = await reload(SurfaceEntity, { id: mode.surfaces[0].id }, ["files"]);
+    specimen.expect([surface.slug, surface.mime]).toEqual(["page", mime.dom.html]);
+    specimen.expect([surface.mount, surface.entry]).toEqual(["surfaces/page.html", "bundle/page.dom.html.mjs"]);
+    specimen.expect(surface.files.getItems()).toEqual([]);
 
-    const held = await scenario.repos.view.findOneOrFail({ id: view.id }, { populate: ["sources"] });
-    const bundling = { bundler: paladin.bundler(join(directory, "viewable", "mountpoint"), join(directory, "viewable")) };
-    const compiled = await scenario.repos.view.bundle(held, bundling);
-    specimen.expect([compiled.path, compiled.mime]).toEqual([view.entry, mime.javascript]);
-    specimen.expect(compiled.mount).toBe(join(directory, "viewable", "mountpoint", view.entry));
+    const held = await scenario.repos.surface.findOneOrFail({ id: surface.id }, { populate: ["sources"] });
+    const bundling = { bundler: paladin.bundler(join(directory, "surfaced", "mountpoint"), join(directory, "surfaced")) };
+    const compiled = await scenario.repos.surface.bundle(held, bundling);
+    specimen.expect([compiled.path, compiled.mime]).toEqual([surface.entry, mime.javascript]);
+    specimen.expect(compiled.mount).toBe(join(directory, "surfaced", "mountpoint", surface.entry));
     specimen.expect(await Deno.readTextFile(compiled.mount)).toContain("<h1>page</h1>");
-    specimen.expect(held.sources.map((source) => source.path)).toEqual([join(directory, "viewable", "views", "page.html"), compiled.mount]);
-    specimen.expect((await scenario.repos.view.bundle(held, bundling)).integrity).toBe(compiled.integrity);
+    specimen.expect(held.sources.map((source) => source.path)).toEqual([join(directory, "surfaced", "surfaces", "page.html"), compiled.mount]);
+    specimen.expect((await scenario.repos.surface.bundle(held, bundling)).integrity).toBe(compiled.integrity);
 
-    await Deno.writeTextFile(join(directory, "viewable", "views", "page.html"), "<h1>page, edited</h1>");
-    const rebuilt = await scenario.repos.view.bundle(held, bundling);
+    await Deno.writeTextFile(join(directory, "surfaced", "surfaces", "page.html"), "<h1>page, edited</h1>");
+    const rebuilt = await scenario.repos.surface.bundle(held, bundling);
     specimen.expect(rebuilt.id).toBe(compiled.id);
     specimen.expect(await Deno.readTextFile(rebuilt.mount)).toContain("page, edited");
   });
 
-  specimen.it("VIEWABLE: a module without a buffer mints no mode.buffer; without views it bundles nothing", async () => {
+  specimen.it("SURFACED: a module without a buffer mints no mode.buffer; without surfaces it bundles nothing", async () => {
     const mode = buildMode("bare");
-    await VIEWABLE(mode, context());
+    await SURFACED(mode, context());
     specimen.expect(mode.buffer).toBe(undefined);
-    specimen.expect(mode.views).toBe(undefined);
+    specimen.expect(mode.surfaces).toBe(undefined);
   });
 });

@@ -60,7 +60,7 @@ export const userspace = async (die, next) => {
     ["buffer", entities.buffer, { scope: own }],
     ["turn", entities.turn, { scope: own }],
     ["note", kernel.note, { scope: own }],
-    ["view", entities.view, {}],
+    ["surface", entities.surface, {}],
     ["file", entities.file, {}],
   ];
   for (const [kind, repository, reactive] of routes) {
@@ -101,7 +101,7 @@ export const userspace = async (die, next) => {
 export const attached = async (die, next) => {
   die.runtime.attachment.use(shard.context.bind("runtime", die.runtime)).graft(attachment);
   die.runtime.attachment.branch("/file").use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
-  die.runtime.attachment.branch("/view").use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
+  die.runtime.attachment.branch("/surface").use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
   die.aperture.branch("/attached", die.runtime.attachment);
   await next();
 };

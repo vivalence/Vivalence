@@ -7,13 +7,13 @@ export const manifest = {
   description:
     "Intent-driven: open one of its intents and the thread self-configures + self-manages.",
   version: "0.1.0",
-  traits: ["VIEWABLE", "EMITTER"],
+  traits: ["SURFACED", "EMITTER"],
 };
 
 // the hub renders a self-description of how its intent configured the thread.
 export const buffer = v.buffer({ data: {} });
 
-export const views = [{ slug: "automaton", mount: "buffer/Automaton.svelte", mime: mime.dom.svelte }];
+export const surfaces = [{ slug: "automaton", mount: "buffer/Automaton.svelte", mime: mime.dom.svelte }];
 
 // AIMED intents pull `card` buffers (reuse the Group-2 target) — cross-mode again.
 export const emitter = new Vector().open(

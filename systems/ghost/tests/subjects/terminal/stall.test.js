@@ -6,7 +6,7 @@ import { hydration as bufferHydration } from "../../../entities/buffer/hydration
 
 const { describe, it, expect } = specimen;
 
-const rig = async ({ traits = ["VIEWABLE"] } = {}) => {
+const rig = async ({ traits = ["SURFACED"] } = {}) => {
   const faults = [];
   const created = [];
   const written = [];
@@ -69,7 +69,7 @@ describe("stall — the terminal keeps the seated thread's frame filled (m105 Q6
     world.stop();
   });
 
-  it("a mode without VIEWABLE gets no buffer — the frame stays empty", async () => {
+  it("a mode without SURFACED gets no buffer — the frame stays empty", async () => {
     const world = await rig({ traits: [] });
     await world.seat();
     expect([world.created, world.terminal.buffer, world.written]).toEqual([[], null, []]);

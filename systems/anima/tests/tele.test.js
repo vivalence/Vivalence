@@ -1,5 +1,5 @@
 import { specimen, trace } from "@vivalence/typology";
-import { fire, paint, settle, surface, world } from "./world.js";
+import { fire, paint, settle, skin, world } from "./world.js";
 
 const KEPT = ["role", "title", "disabled", "data-zone", "aria-label", "aria-selected", "aria-expanded", "aria-hidden", "aria-checked", "aria-pressed", "viewBox", "d"];
 
@@ -50,7 +50,7 @@ const clocked = () => {
 const seated = async (tele) => {
   const { clock, restore } = clocked();
   const held = world();
-  held.client.surface.$tele.set({ ...held.client.surface.tele, ...tele });
+  held.client.skin.$tele.set({ ...held.client.skin.tele, ...tele });
   held.seat();
   clock.t = 2;
   held.authorize();
@@ -61,7 +61,7 @@ const seated = async (tele) => {
   clock.t = 22;
   lookup.fault(new Error("no such word"));
   clock.t = 50;
-  const rig = paint(() => surface.Tele({ client: held.client }));
+  const rig = paint(() => skin.Tele({ client: held.client }));
   await settle();
   return { ...held, lookup, clock, restore, rig };
 };
@@ -71,7 +71,7 @@ specimen.describe("anima tele — the telemetry window over the client's own rec
     const held = await seated({});
     try {
       specimen.expect(held.rig.target.innerHTML).toBe("");
-      held.client.surface.$tele.set({ ...held.client.surface.$tele.get(), open: true });
+      held.client.skin.$tele.set({ ...held.client.skin.$tele.get(), open: true });
       await settle();
       specimen.expect(held.rig.target.querySelector(".tele[data-zone='3'][role='dialog']")).not.toBe(null);
       fire(held.rig.target.querySelector(".tth .iconbtn"), "click");
@@ -88,7 +88,7 @@ specimen.describe("anima tele — the telemetry window over the client's own rec
       const quoted = (id) => id.replaceAll('"', "&quot;");
       const anima = quoted(trace.key(held.controller.stdout.absolute));
       const lookup = quoted(trace.key(held.lookup.absolute));
-      held.client.surface.$tele.set({ ...held.client.surface.$tele.get(), folds: { [trace.key(held.controller.stdout.absolute)]: true }, sel: trace.key(held.lookup.absolute) });
+      held.client.skin.$tele.set({ ...held.client.skin.$tele.get(), folds: { [trace.key(held.controller.stdout.absolute)]: true }, sel: trace.key(held.lookup.absolute) });
       await settle();
       const lighthouse = trace.pathname(held.lighthouse.stdout.absolute);
       const LOGGER = `<div class="tele" data-zone="3" role="dialog" aria-label="telemetry" style="left:4px;top:48px;width:600px;height:420px">
@@ -101,7 +101,7 @@ specimen.describe("anima tele — the telemetry window over the client's own rec
       <span class="tgrip" data-fn="teleresize" aria-hidden="true"></span></div>`;
       specimen.expect(painted(held.rig.target)).toEqual(oracle(LOGGER));
       fire(held.rig.target.querySelectorAll(".trow")[2], "click");
-      specimen.expect(held.client.surface.$tele.get().sel).toBe(null);
+      specimen.expect(held.client.skin.$tele.get().sel).toBe(null);
       fire(held.rig.target.querySelector(".tfil .ghost"), "click");
       specimen.expect(held.sent).toEqual(["/telemetry/clear"]);
     } finally {
@@ -130,7 +130,7 @@ specimen.describe("anima tele — the telemetry window over the client's own rec
       const INSPECTOR = `<div class="tele" data-zone="3" role="dialog" aria-label="telemetry" style="left:4px;top:48px;width:600px;height:420px">
       ${head("inspector", 4)}
       <div class="tbody"><div class="ti">${[
-        table("client", "anima", ro("slug", "anima") + ro("type", "client") + ro("theme", held.client.theme) + ro("narrow", "false") + B("sidebar", "surface.sidebar", true) + SET("hidden", "surface.hidden", GROUPS, [])),
+        table("client", "anima", ro("slug", "anima") + ro("type", "client") + ro("theme", held.client.theme) + ro("narrow", "false") + B("sidebar", "skin.sidebar", true) + SET("hidden", "skin.hidden", GROUPS, [])),
         table("runtime", "healthy", ro("reference", "/runtime/stub") + ro("status", "healthy")),
         table("lighthouse", "authenticated", ro("standing", "authenticated") + ro("user", "beef") + ro("traits", "AUTOLOGIN") + `<div class="ir act"><button class="neg" data-line="/lighthouse/logout" data-echo="0">sign out</button></div>`),
         table("terminal", "docked", ro("terminal", "1 of 2") + E("view", "terminal.dock.view", "docked", ["docked", "full", "closed", "messenger"]) + E("align", "terminal.dock.align", "right", ["left", "right"]) + N("share", "terminal.dock.share", 0.38, 0.05, 0.2, 0.8) + E("lens", "terminal.dock.lens", ["turns", "harness", "repl"], ["turns", "harness", "repl"]) + `<div class="ir act"><button class="" data-line="/terminal/new" data-echo="0">new terminal</button><button class="neg" data-line="/terminal/close" data-echo="0">close terminal</button></div>`),
@@ -142,7 +142,7 @@ specimen.describe("anima tele — the telemetry window over the client's own rec
       <span class="tgrip" data-fn="teleresize" aria-hidden="true"></span></div>`;
       specimen.expect(painted(held.rig.target)).toEqual(oracle(INSPECTOR));
       fire(held.rig.target.querySelectorAll(".ith")[6], "click");
-      specimen.expect(held.client.surface.$tele.get().tables).toEqual({ activities: true });
+      specimen.expect(held.client.skin.$tele.get().tables).toEqual({ activities: true });
       fire(held.rig.target.querySelector(".ir.act button.neg"), "click");
       fire(held.rig.target.querySelector(".tog"), "click");
       fire(held.rig.target.querySelector(".iv.num button[aria-label='less']"), "click");
@@ -152,7 +152,7 @@ specimen.describe("anima tele — the telemetry window over the client's own rec
       const label = held.rig.target.querySelector("input[aria-label='label']");
       label.value = "six species";
       fire(label, "change");
-      specimen.expect(held.sent).toEqual(["/lighthouse/logout", "/set surface.sidebar false", "/set terminal.dock.share 0.33", "/set surface.hidden terminals", "/set terminal.dock.view docked", "/set thread.label six species"]);
+      specimen.expect(held.sent).toEqual(["/lighthouse/logout", "/set skin.sidebar false", "/set terminal.dock.share 0.33", "/set skin.hidden terminals", "/set terminal.dock.view docked", "/set thread.label six species"]);
     } finally {
       held.rig.close();
       held.restore();
@@ -160,8 +160,8 @@ specimen.describe("anima tele — the telemetry window over the client's own rec
   });
 
   specimen.it("an activity is a root: its steps fold as children, its status is the code, every signal is offered while it is not settled", () => {
-    const view = surface.teleView({
-      tele: { ...world().client.surface.tele, sel: "act-1" },
+    const view = skin.teleView({
+      tele: { ...world().client.skin.tele, sel: "act-1" },
       records: [],
       activities: [
         {

@@ -1,5 +1,5 @@
 import { specimen } from "@vivalence/typology";
-import { fire, paint, settle, surface, world } from "./world.js";
+import { fire, paint, settle, skin, world } from "./world.js";
 import { oracle, shape } from "../../../subsystems/drapes/tests/parts/oracle.js";
 
 const seated = async () => {
@@ -7,7 +7,7 @@ const seated = async () => {
   held.seat();
   held.authorize();
   held.activate();
-  const rig = paint(() => surface.Textarea({ client: held.client, terminal: held.terminal }));
+  const rig = paint(() => skin.Textarea({ client: held.client, terminal: held.terminal }));
   await settle();
   return { ...held, rig };
 };
@@ -31,23 +31,23 @@ specimen.describe("anima dock textarea — the design's dock textarea (dom.js:28
     rig.close();
   });
 
-  specimen.it("a draft opening with / wears .repl; Enter and the send key dispatch the line and clear it; the draft IS client.surface.$draft", async () => {
+  specimen.it("a draft opening with / wears .repl; Enter and the send key dispatch the line and clear it; the draft IS client.skin.$draft", async () => {
     const { rig, sent, client } = await seated();
     const field = rig.target.querySelector("textarea");
     field.value = "/modes";
     fire(field, "input");
     await settle();
     specimen.expect([rig.target.querySelector(".field").classList.contains("repl"), field.classList.contains("repl"), rig.target.querySelector(".pc").classList.contains("repl")]).toEqual([true, true, true]);
-    specimen.expect(client.surface.draft).toBe("/modes");
+    specimen.expect(client.skin.draft).toBe("/modes");
     fire(field, "keydown", { key: "Enter", shiftKey: false });
-    specimen.expect(client.surface.draft).toBe("");
+    specimen.expect(client.skin.draft).toBe("");
     field.value = "ciao";
     fire(field, "input");
     fire(rig.target.querySelector(".send"), "click");
     await settle();
     specimen.expect(sent).toEqual(["/modes", "ciao"]);
     specimen.expect(rig.target.querySelector(".field").classList.contains("repl")).toBe(false);
-    client.surface.$draft.set("/dock closed");
+    client.skin.$draft.set("/dock closed");
     await settle();
     specimen.expect(rig.target.querySelector("textarea").value).toBe("/dock closed");
     rig.close();

@@ -12,8 +12,8 @@ export const HELLO = [
   "Work each reply in this order:",
   "1. LOOK. What this machine IS you already have below. For anything deeper — a variable, another instance, a registered module, a dormant slot — pull the whole record with viva_doctor, ONCE. For a fact about the world, web_search ONCE, then web_read the one article that is the subject if you mean to quote it. That is the whole lookup: at most two calls.",
   "2. DECIDE. No tool. Is this an answer, a page, or research? An answer is prose. A page is one draw. Research is when the operator wants something looked into AND kept — read up on X, write me a page about Y.",
-  "3. ACT, one call. Answer in prose. Or draw ONCE: view_create the component, then buffer_create pinning it (`views: [slug]`) with the label and the data — first primer_load /guides/render, whose HOUSE RULES are the whole contract for what it may contain; do not draw unasked. Or hand research to the research tool in ONE call with the whole brief: it searches, reads and draws by itself and returns what it learned, so answer from that. One research call per subject, never one per question, never in a loop.",
-  "4. CHANGE, only when asked. A page the operator wants changed — more detail, a section, a fix — is ONE view_update on the same page, never a second draw; view_read gives you its source back, view_list the pages this mode holds.",
+  "3. ACT, one call. Answer in prose. Or draw ONCE: surface_create the component, then buffer_create pinning it (`surfaces: [slug]`) with the label and the data — first primer_load /guides/render, whose HOUSE RULES are the whole contract for what it may contain; do not draw unasked. Or hand research to the research tool in ONE call with the whole brief: it searches, reads and draws by itself and returns what it learned, so answer from that. One research call per subject, never one per question, never in a loop.",
+  "4. CHANGE, only when asked. A page the operator wants changed — more detail, a section, a fix — is ONE surface_update on the same page, never a second draw; surface_read gives you its source back, surface_list the pages this mode holds.",
   "",
   "Anything about the world comes from Wikipedia: web_search finds the article, web_read opens it and hands you its links and images. Quote only an article you opened, and name it. Never guess a slug, a mount or a key.",
   "A picture on a page is a src copied BYTE FOR BYTE from web_read's `images` — a Wikimedia thumbnail is served only at the width you saw it at.",
@@ -29,7 +29,7 @@ export const primer = new Vector()
   .open("hello", HELLO)
   .open("machine", (ctx) => machine(standing(ctx)))
   .graft(gestalten.primer.thread, gestalten.primer.buffer)
-  .open({ nature: "guides/render", valence: "How to draw a page — component rules, buffer.data, styling. Read before view_create.", load: "lazy" }, RENDER);
+  .open({ nature: "guides/render", valence: "How to draw a page — component rules, buffer.data, styling. Read before surface_create.", load: "lazy" }, RENDER);
 
 export const harness = new Vector();
 

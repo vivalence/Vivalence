@@ -4,7 +4,7 @@ import * as crypto from "../gestalten/belt/crypto.js";
 import { DataRepository, DataEntity, DataSchema } from "./index.ts";
 import { ModeEntity } from "./index.ts";
 import { BufferEntity } from "./index.ts";
-import { ViewEntity } from "./index.ts";
+import { SurfaceEntity } from "./index.ts";
 import { DaemonEntity } from "./index.ts";
 import { ThreadEntity } from "./index.ts";
 import { UserEntity } from "./index.ts";
@@ -83,7 +83,7 @@ export class FileEntity extends DataEntity {
   user?: Rel<UserEntity>;
   mode?: Rel<ModeEntity>;
   daemon?: Rel<DaemonEntity>;
-  view?: Rel<ViewEntity>;
+  surface?: Rel<SurfaceEntity>;
 
   buffers = new Collection<BufferEntity>(this);
   threads = new Collection<ThreadEntity>(this);
@@ -141,11 +141,11 @@ export const FileSchema = new EntitySchema<FileEntity, DataEntity>({
       deleteRule: "cascade",
     },
 
-    view: {
+    surface: {
       kind: "m:1",
-      entity: () => ViewEntity,
-      fieldName: "view",
-      inversedBy: (view) => view.files,
+      entity: () => SurfaceEntity,
+      fieldName: "surface",
+      inversedBy: (surface) => surface.files,
       nullable: true,
       updateRule: "cascade",
       deleteRule: "cascade",

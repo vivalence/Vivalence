@@ -1,6 +1,6 @@
 import { specimen, Vector } from "@vivalence/typology";
 import * as ghost from "@vivalence/ghost";
-import { fire, paint, settle, surface, world } from "./world.js";
+import { fire, paint, settle, skin, world } from "./world.js";
 import { oracle, shaped } from "../../../subsystems/drapes/tests/scenarios/shape.js";
 
 const WALKED = `<div class="ph"><span class="tag">d</span><span class="crumb">ctrl-v d</span><span class="hint"></span></div><div class="pb">
@@ -21,8 +21,8 @@ const seated = async () => {
   held.seat();
   held.authorize();
   held.activate();
-  held.terminal.repl.commands = new Vector().graft(ghost.commands.surface.dock);
-  const rig = paint(() => surface.Panel({ client: held.client }));
+  held.terminal.repl.commands = new Vector().graft(ghost.commands.skin.dock);
+  const rig = paint(() => skin.Panel({ client: held.client }));
   await settle();
   const close = () => rig.close();
   return { ...held, rig, close };
@@ -58,13 +58,13 @@ specimen.describe("panel — Dom.panel: the chord walk under ctrl-v, the palette
     await settle();
     specimen.expect(rig.target.querySelectorAll(".prow").length).toBe(3);
     specimen.expect(rig.target.querySelector(".ph input")).toBe(null);
-    client.surface.$draft.set("mode");
+    client.skin.$draft.set("mode");
     await settle();
     specimen.expect(shaped(rig.target.querySelector("section.panel"))).toBe(oracle(PALETTE));
-    client.surface.$draft.set("zzz");
+    client.skin.$draft.set("zzz");
     await settle();
     specimen.expect(shaped(rig.target.querySelector("section.panel .pb"))).toBe(oracle(NOTHING));
-    client.surface.$draft.set("mode");
+    client.skin.$draft.set("mode");
     await settle();
     fire(rig.target.querySelectorAll(".prow")[1], "click");
     await settle();
@@ -75,25 +75,25 @@ specimen.describe("panel — Dom.panel: the chord walk under ctrl-v, the palette
   specimen.it("a typed /verb with options opens the chooser: .pb.chooser › .cf filter · count, a .crow per option; a pick fills the dock textarea's draft; enter on an exact option runs it; enter on a verb wanting args fills it", async () => {
     const { rig, client, sent, terminal, close } = await seated();
     client.terminal.repl.$catalog.set(ghost.shard.keymap.catalog(terminal.repl.commands));
-    client.surface.$draft.set("/dock ");
+    client.skin.$draft.set("/dock ");
     await settle();
     specimen.expect(rig.target.querySelectorAll(".crow").length).toBe(6);
-    client.surface.$draft.set("/dock cl");
+    client.skin.$draft.set("/dock cl");
     await settle();
     specimen.expect(shaped(rig.target.querySelector("section.panel"))).toBe(oracle(CHOOSER));
     fire(rig.target.querySelector(".crow"), "click");
     await settle();
-    specimen.expect([client.surface.draft, client.terminal.repl.catalog]).toEqual(["/dock closed", null]);
+    specimen.expect([client.skin.draft, client.terminal.repl.catalog]).toEqual(["/dock closed", null]);
     client.terminal.repl.$catalog.set(ghost.shard.keymap.catalog(terminal.repl.commands));
     await settle();
-    surface.enter(client, client.terminal.repl.catalog, "/dock closed");
+    skin.enter(client, client.terminal.repl.catalog, "/dock closed");
     await settle();
     specimen.expect(sent).toEqual(["/dock closed"]);
-    specimen.expect(client.surface.draft).toBe("");
+    specimen.expect(client.skin.draft).toBe("");
     client.terminal.repl.$catalog.set(ghost.shard.keymap.catalog(terminal.repl.commands));
-    surface.enter(client, client.terminal.repl.catalog, "/spl");
+    skin.enter(client, client.terminal.repl.catalog, "/spl");
     await settle();
-    specimen.expect([client.surface.draft, client.terminal.repl.catalog]).toEqual(["/split ", null]);
+    specimen.expect([client.skin.draft, client.terminal.repl.catalog]).toEqual(["/split ", null]);
     specimen.expect(sent).toEqual(["/dock closed"]);
     await close();
   });

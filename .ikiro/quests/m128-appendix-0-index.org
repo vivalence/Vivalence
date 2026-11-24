@@ -1,0 +1,209 @@
+#+title: m128 appendix 0 — the index: everything the repository needs to be typed from its schematics, area by area, counted
+#+filetags: :typology:paladin:runtime:ghost:anima:commons:registry:schematics:types:testing:
+#+status: DECLARED, a first listing on his list of 12: ten areas are his, 1 and 6 are filled by me and wait his word; each area counted off the tree with what it owes; three moves are LANDED and are the only moves used; nothing here is designed yet
+# writer: agent · limit: 20000 chars · appendix of =m128-typed-schematics.org= · every count is a command's output over the tree, no =bak/=, no =node_modules/= (=.ikiro/reference/m128-typed-schematics/index/census.sh=)
+
+* intent
+
+/"write an appendix 0 - index where you start listing everything we need to migrate the entire repository to schematics. prototypes, entities, all testing, gestlaten,"/
+
+His list:
+
+#+BEGIN_EXAMPLE
+1. ??
+2. schematics
+3. prototypes: 51 .js
+4. entities: 19 mikro .ts, entityFactory returns any today
+5. gestalten: 85 .js
+6. ??
+7. paladin
+8. runtime
+9. ghost
+10. anima
+11. commons
+12. registry
+#+END_EXAMPLE
+
+* the three moves that exist
+
+Landed with the quest's five stops. An area below is migrated by these, and by nothing else until he rules a fourth.
+
+1. A declaration file beside a JS file that cannot carry a generic. One row in the JS file names it.
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/v.js:1
+// @ts-self-types="./v.d.ts"
+#+END_SRC
+
+2. A schematic file as =.ts=. A schematic and its held type share a name. The barrels carry both.
+
+#+BEGIN_SRC ts
+// subsystems/typology/schematics/primitives/instance.ts:194
+export type InstanceMask = StaticDecode<typeof InstanceMask>;
+#+END_SRC
+
+3. A file whose function sits outside a typed call as =.ts=. Its parameter says its own type.
+
+#+BEGIN_SRC ts
+// subsystems/paladin/instance/lifecycle/3-integration.ts:66
+export function settle(paladin: { instance: Instance }) {
+#+END_SRC
+
+* the areas
+
+Typology is 1 to 6. Each area from 7 on carries its own tests.
+
+** 1 · typology's root — filled by me, his slot reads =??=
+
+=subsystems/typology/=: =mod.ts= · =mod.client.js= · =types.d.ts=. The barrel every other area imports its types from.
+
+- LANDED: =types.d.ts= exports =Static= · =StaticDecode= · =Schematic= · =Fault= · =Position=. =primitives= reaches the root through =schematics/index.js=.
+- owed: every type of areas 2 to 5 reaches the root the way its value does, =mod.client.js= the same.
+- owed: two =export *= of one name drop it silently: a census of the root's names, value and type.
+
+** 2 · schematics
+
+| directory | files | exported schematics |
+|---+---+---|
+| =schematics/scalars= | 4 | 29 |
+| =schematics/primitives= | 18 | 225 |
+| =schematics/entities= | 16 | 18 |
+| =schematics/prototypes= | 5 | 20 |
+| =schematics/traits= | 12 | 25 |
+
+Builders still bare: =v.string(= 201 · =v.integer(= 32 · =v.number(= 15 · =v.boolean(= 8.
+
+- LANDED: =v.d.ts=. Every builder borrows typebox's signature; a schematic shows its shape.
+- measured 11-24 (=.ikiro/reference/m128-typed-schematics/schematics/verdict.py= → =verdict.log=): 313 names declared with =export const=, 169 of them schematics. 142 hold their shape, 29 of those with an =unknown= the schematic wrote itself. 27 leak: a path the type holds as =unknown= where the schematic wrote a shape. The other 144: 121 plain values, 18 functions, 5 values with =any= inside.
+- the leaks have two roots, each a function that builds a schematic from a schematic through =Object.fromEntries=: =overwrite= (=subsystems/typology/schematics/traits/overwrite.js:8=, returns =any=; 15 names of =instance.ts=, at =trait.HARNESSED= · =trait.CONVERSATIONAL=) and =whole= · =loose= (=subsystems/typology/schematics/primitives/theme.js:33= · =:34=; 12 names, the whole theme).
+- DESIGNED, move 1: =overwrite.d.ts=, probed off the tree (=schematics/overwrite.d.ts= · =overwrite.probe.ts=): both traits hold their keys, optional, nested ones too. Not on the tree. =whole= · =loose=: unprobed.
+- of the 121 plain values, 61 are the dice keys of =contexts.js= (area 3) and 16 sit in =schematics/entities/= (area 4).
+- owed: =entityFactory(schematic: unknown): any= (=subsystems/typology/schematics/v.d.ts:63=), with area 4. What =schematics/index.js= hangs on =v= (=v.thread= · =v.rel= · =v.bundle= …): a hover check of each.
+- LANDED, the root scalars: =ID= · =Slug= · =JWTToken= · =Username= · =Password= · =ModuleIdentifier= · =Instant= name themselves. =ModuleIdentifier= is worn at 14 sites, =ID= at 8 more, =Instant= is every =v.instant()=, 6 sites.
+- LANDED: =instance.ts= holds two held types, =InstanceMask= · =Requirement=. =primitives= is exported at typology's root.
+- owed: the scalars in full, =m128-appendix-I-scalars.ts.org=. The root ones first: =date= · =duration= · =datetime= · =zoned= · =url= · =mime.type= have no name yet.
+- owed: each file a consumer reads held becomes =.ts= (move 2), one type row per schematic.
+- owed: =scalars= · =entities= · =prototypes= · =traits= at typology's root beside =primitives=, the same barrel row.
+- open: a held type for every schematic, or only for the ones a consumer names.
+
+** 3 · prototypes
+
+=subsystems/typology/prototypes/=: 51 =.js=, 1 =.ts= (the barrel).
+
+- LANDED: the seven codecs say which prototype they hold (=schematics/prototypes/signatures.d.ts=).
+- owed: =vector.js= · =aperture.js= · =twitch.js= · =context.js=. The generic ones: an effect's =ctx.input= off its signature, a die's keys off the prototype's schematic (=subsystems/typology/schematics/primitives/contexts.js:22=). Move 1. Designed once in =.ikiro/reference/m128-typed-schematics/typology/prototypes/=, not tangled.
+- what rides on them, over =subsystems= · =systems= · =commons=: 271 files hold =new Vector(=. =.open(= 354 · =.branch(= 255.
+- owed: three case studies of a function outside a typed call (ruling 6): twitch inline · the runtime boot factory by a =@type= row · paladin by =.ts=. The comment guard admits =@type= with the second.
+- owed: the classes that are whole in plain JS (=path.js= · =url.js= · =signal.js= · =signature.js= …): a hover check each.
+- owed: =local-repository= · =remote-repository= · =entity-manager= · =datamap= · =dataspace=, with area 4.
+- RULED 11-24: one =.d.ts= per prototype, beside its file: =subsystems/typology/prototypes/<name>.d.ts=. Never one for the directory. /"we keep the fucking sibling next to the fucking file."/
+
+** 4 · entities
+
+=subsystems/typology/entities/=: 19 =.ts=, 6 =.js=. =schematics/entities/=: 16 files, 18 schematics.
+
+- today: =v.thread= · =v.turn= and the others made by =entityFactory= are =any=.
+- owed: the factory's return, typed off its schematic: =own= · =traits= · the relation keys.
+- owed: each mikro entity class says it holds its schematic, the way paladin's =Instance= does.
+- owed: a repository method's =(where | data, opts?)= off the entity. =RemoteRepository= the same on the other side of the wire.
+- owed: =entity.trait.NAME= off =v.<entity>.traits=.
+
+** 5 · gestalten
+
+=subsystems/typology/gestalten/=: 85 =.js=.
+
+| directory | files |
+|---+---|
+| =belt= | 29 |
+| =shard= | 19 |
+| =shape= | 15 |
+| =steer= | 6 |
+| =cast= · =is= · =bundle= | 4 each |
+| =fromm= | 3 |
+| =not= | 1 |
+
+- today: plain JS infers what it can. =is.string= is a type guard, =object.filter= returns ={ [k: string]: any }= (=.ikiro/reference/m128-typed-schematics/four/belt.s5.out.log=).
+- owed: a census of every export's hover, =any= counted, per directory.
+- owed: =steer= (=fold= · =execute= · =traverse=) carries the vector's generic, with area 3.
+- owed: =shape= walks a schematic: its return is a type of that schematic.
+- owed: =shard= is =(ctx, next)= of two subjects: its die, with area 3.
+
+** 6 · typology's testing — filled by me, his slot reads =??=
+
+=subsystems/typology/tests/=: 119 test files, 16 of them snapshot tests. 8 scenario files, 2 specimen files.
+
+- owed: a snapshot fixture tied to its schematic. A scenario's hand-built entity or mask is cast by its schematic, so a drifted fixture is red.
+- owed: the hover probe (=.ikiro/reference/m128-typed-schematics/four/stop.probe.js=) as a suite: per area, the names hovered and the count of =any=, a number that may only fall.
+- owed: the scenarios and the specimen export what areas 7 to 12 build on: their types with them.
+- tests stay =.js= until he says.
+
+** 7 · paladin
+
+=subsystems/paladin/=: 116 =.js=, 1 =.ts=, 1 =.d.ts=, 3 =.jsx=. 30 test files, 1 snapshot test, 4 scenario files.
+
+- LANDED: =Instance= · the settle beat.
+- owed: =Paladin= declares its =instance= (=subsystems/paladin/paladin/lifecycle.js:118= hangs it on).
+- owed: the two sibling beat files, the helpers above =settle= (ruling 9 deferred them).
+- owed: =dormant= has three writers and no schematic. =ModeMasks= admits a bare string after resolution.
+- owed: =ledger= · =registry= · =telemetry= · =pensieve= · =manifest=.
+- owed: the snapshot fixture tied to the mask (his intent). His ruling on what the fixture is: the stored one lacks =telemetry=.
+
+** 8 · runtime
+
+=systems/runtime/=: 221 =.js=, 1 =.ts=. Subjects: =daemon= · =lighthouse= · =mode= · =runtime= · =service=. 94 test files, 7 snapshot tests, 14 scenario files.
+
+- owed, in his order (ruling 5): the aperture and the boot vectors, then the daemon's modes.
+- owed: per subject, its prototype says the mask it holds; its beats say their die; its traits and apertures ride area 3.
+- owed: the barrel exports the runtime's types and imports typology's and paladin's.
+
+** 9 · ghost
+
+=systems/ghost/=: 204 =.js=, 20 =.jsx=. Subjects: =app= · =client= · =shell= · =terminal=. 28 test files, 4 scenario files.
+
+- owed: per subject, as the runtime's.
+- owed: the barrel exports the client's types. Where ghost and the runtime declare one thing, the thing moves to typology (his intent).
+
+** 10 · anima
+
+=systems/anima/=: 83 =.js=, 20 =.jsx=. 21 test files, 1 snapshot test. With it, mine to place here: =subsystems/dapper/= 23 =.js= · =subsystems/drapes/= 63 =.js=, 51 =.svelte=, 44 =.jsx= · =subsystems/sheets/= 35 =.js=, 19 =.jsx=.
+
+- owed: a store's =$= atom and its getter. A view's props off its =View= entity. A dapper token off the theme schematic.
+- open: what the editor does inside =.svelte= and =.jsx= with deno's language server. Unprobed.
+
+** 11 · commons
+
+=commons/=: 164 =.js=, 16 =.svelte=, 4 =.jsx=. 31 =.viva.js=. 45 test files, 11 snapshot tests.
+
+- owed: a mode's exports (the closed set) and a domain barrel, typed by one import from =@vivalence/typology=.
+- nothing is renamed here until areas 3 · 4 stand.
+
+** 12 · registry
+
+=~/.viva/registry/=: 786 =.js=, 14 =.ts=, 151 =.svelte=, 4 =.jsx=. 73 =.viva.js=. 98 test files.
+
+- owed: a package imports by URL: where its types come from, probed once on one package.
+- owed: as commons, per package.
+
+* after the last area
+
+The type check. =deno.jsonc:6= sets =compilerOptions= for jsx only, every suite runs =--no-check=. Per area: =deno check=, its reds counted once before anything is fixed. Ruling 1: not before the work is done.
+
+* never
+
+- a fourth move without his ruling.
+- a type restated beside its schematic; a held type cast at its consumer.
+- a rename of a registry package's files before the typology areas stand.
+- the type check before he says so.
+- scalars as an area of their own; vectors, dice and lifecycles as an area of their own (his list).
+
+* open
+
+His to rule:
+
+- slots 1 and 6: typology's root and typology's testing are my fill, each a directory of typology his list did not name.
+- area 2: a held type for every schematic, or only for the ones a consumer names.
+- area 10: dapper · drapes · sheets sit under anima, my placing.
+
+* next
+
+His word on slots 1 and 6. Then the first area's appendix, worked out as appendix I was.

@@ -198,7 +198,7 @@ describe("v.primitives.instance.InstanceRecipe — the file as authored: referen
     const entry = (held) => mask({ daemons: [{ manifest: { type: "daemon", slug: "x" }, modes: [{ module: "m", ...held }] }] });
     const trait = { HARNESSED: { tier: "fast", rounds: 6 }, TOOLED: { "/daemon/x/mode/game/dojo": "eager" } };
     expect(faults(entry({ traits: ["HARNESS", "TOOLING"], trait }))).toEqual([]);
-    expect(faults(entry({ trait: { VIEWABLE: {} } })).join(" ")).toContain("/daemons/0/modes/0/trait must not have additional properties");
+    expect(faults(entry({ trait: { SURFACED: {} } })).join(" ")).toContain("/daemons/0/modes/0/trait must not have additional properties");
     expect(faults(entry({ trait: { TOOLED: { "/a": "always" } } })).join(" ")).toContain("/daemons/0/modes/0/trait/TOOLED");
     expect(faults(entry({ trait: { HARNESSED: { rounds: 101 } } })).join(" ")).toContain("/daemons/0/modes/0/trait/HARNESSED/rounds must be <= 100");
     expect(faults(entry({ trait: { CONVERSATIONAL: { polish: { engaged: "yes" } } } })).join(" ")).toContain("/daemons/0/modes/0/trait/CONVERSATIONAL/polish/engaged must be boolean");

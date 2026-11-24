@@ -128,7 +128,7 @@
     align-items: center;
     gap: 6px;
     padding: 5px 6px calc(5px + var(--size-depth));
-    background: var(--surface-sunk);
+    background: var(--plane-sunk);
     color: var(--text-strong);
     box-shadow: 0 0 0 var(--size-ring) var(--boundary);
   }

@@ -1,3 +1,4 @@
+// @ts-self-types="./v.d.ts"
 import { IsOptional, Type } from "typebox";
 import { Pointer, Value } from "typebox/value";
 import { Compile } from "typebox/compile";
@@ -158,7 +159,7 @@ export const v = {
   unknown: () => enhance(Type.Unknown()),
   null: () => enhance(Type.Null()),
 
-  instant: (opts) => enhance(Type.String({ format: "date-time", ...opts })),
+  instant: (opts) => enhance(Type.String({ format: "date-time", ...opts })).$id("Instant"),
   date: (opts) => enhance(Type.String({ format: "date", ...opts })),
   duration: (opts) => enhance(Type.String({ format: "duration", ...opts })),
   datetime: (opts) =>

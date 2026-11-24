@@ -1,84 +1,84 @@
 ---
 name: mode
-description: >-
-  Author a mode the way the runtime reads it — modes/<type>/<slug>/<slug>.viva.js from the closed export
-  set (buffer + views, VIEWABLE), traits declared not deduced, no import outside the mode's directory, the
-  ground seated by paladin, the shelf synced after instance/create. Use when writing a mode, adding an export or trait to one, or when a mode's view or
-  tools do not appear.
+description: Write a mode the way the runtime reads it. A closed set of exports, declared traits, no import outside the mode.
 when_to_use: >-
-  "new mode" · "add a mode to <pkg>" · "export X from the mode" · "the mode isn't showing" · "add a tool to
-  the mode" · "set the default policy" · a `<slug>.viva.js` under `modes/` is open · "buffer view" ·
-  "application".
+  "new mode" · "add a mode to <pkg>" · "export X from the mode" · "the mode isn't showing" ·
+  "add a tool to the mode" · a `<slug>.viva.js` under `modes/` is open · "buffer view"
 ---
-<!-- limit: 7300 chars -->
-# mode — closed exports, declared traits, never leave
+<!-- limit: 3800 chars -->
+# mode — how the runtime reads a mode
 
-Canon = the runtime's read sites, never the nearest mode (09-21): `paladin/instance/lifecycle/2-resolution.js:68-111` · `runtime/subjects/mode/traits/*.js` · `commons/instances/hello-world/mode.viva.js`. Package → `package`; domain → `domain`.
+## the path
 
-## The path is code
+`modes/<type>/<slug>/<slug>.viva.js` names the type and the slug.
 
-`resolve.js:76-80`: `modes/<type>/<slug>/<slug>.viva.js` names type AND slug; any other file names the slug alone. `:93`: every mode gets a seat, `mountpoint = ${host.mountpoint}/mode_<type>_<slug>`, on either host (`:53-58`) — paladin wires the ground, never an invented env var. A ROOT-runtime mode = the recipe's `runtime.modes` (11-09); `inherit` is whole-slot: restate the ledger's `statics` + every mode, never `traits`.
+Paladin gives every mode a directory on disk: `<mountpoint>/mode_<type>_<slug>`. Never invent an env var for it.
 
-/"the mountpoint should be on EVRERY mode by default as a function of paladin doing its thing."/ · /"no overwrite needed. no custom variable."/ REJECTED: an invented `VIVA_DRONEAID_IMPORT`.
+## the exports: a closed set
 
-## The closed export set — each read at ONE runtime site
+An export is read when its trait is declared.
 
-| export | read at | trait |
-|---|---|---|
-| `manifest` | `registry.js:253` folded over its entry; `systems/runtime/subjects/daemon/lifecycle/1-population.js:64` `new Mode(mask)` | — |
-| `aperture` | `mode/lifecycle/1-population.js:20` slurped | EXPOSED |
-| `buffer` · `views` | `traits/viewable.js:7` · `:19` | VIEWABLE |
-| `harness` | `traits/harnessed.js:244` | HARNESSED |
+```
+export         trait
+manifest       -
+aperture       EXPOSED
+buffer, surfaces  SURFACED
+harness        HARNESSED
+tools          TOOLING
+emitter        EMITTER
+dataset        DATASET, INTENTED
+datasink       DATASINK
+boot           BOOTED
+freight        FRAUGHT
+repl           REPLING
+statics        -
+provider       -   (a service)
+```
 
-`yields:` = the client wire STREAMS it (`shape/connection.js:38`), `output:` = one value; prove a leaf over `authedConn.call`, never `scenario.mode.harness` alone (11-09). A slow leaf's caller passes `{ timeout }`; ghost's `timeout(8000)` is the default (11-09). A dom view renders into `element.attachShadow` with its sheet inside: a `<style>` in the light DOM is document-global — `.frame` · `.empty` are anima's (`parts.css:74,82`), the desk collapsed (11-09).
-| `tools` | `traits/tooling.js:2-3` | TOOLING |
-| `emitter` | `traits/emitter.js:4` | EMITTER |
-| `dataset` | `traits/dataset.js:17` · `intented.js:6` · `stamp` `traits/dataset.js:16` | DATASET / INTENTED |
-| `datasink` | `traits/datasink.js:9` · cross-check `mode/lifecycle/2-resolution.js:22` | DATASINK |
-| `boot` | `traits/booted.js:9` | BOOTED |
-| `freight` | `traits/fraught.js:17` | FRAUGHT |
-| `repl` | `traits/repling.js:4` | REPLING |
-| `statics` | `registry.js:254` merged key-wise; `traits/fraught.js:7` reads `.ignore` | — |
-| `provider` | `daemon/lifecycle/1-population.js:41` · `:54` — a SERVICE | — |
+- A new behaviour is a new export he names. Never a new manifest key.
+- The export's name is the module key.
 
-**APPLICATION RETIRED (m87, 10-24)** — `buffer = v.buffer({data:{…}})`; `views = [{ slug, mount, mime }]` = View rows, mount against the mode's OWN dir; a buffer shows its pins, else its mode's views. A tty face is a second view `{ slug, mount: "buffer/<slug>.jsx", mime: mime.tty.solid }` exporting `default (element, bag) → { destroy }`; keys via `bag.renderer.keyInput.prependListener` gated on `bag.focused()`. The export NAME is the module key (`Object.assign(this, module)`). A new behavior is a sibling export beef names, never a manifest key — /"never. ever. add to fucking manifest"/ 05-18.
+## traits are declared
 
-## Traits — declared, never deduced
+- The runtime runs only the traits in `manifest.traits`. `traits: []` means no tools, no routes, no calls.
+- A new trait is added in three places: `v.traits.mode` in typology, paladin's `TRAITS`, and `systems/runtime/subjects/mode/traits/index.js`.
+- `tier`, `rounds` and `effort` belong to the user. A mode sets none.
 
-`stagger` iterates `mode.manifest.traits` only (`gestalten/belt/traits.js:3-16`). Trait → export is REQUIRED; export → trait is not. A new trait joins `v.traits.mode` (`typology/schematics/traits/index.js:22`), paladin's `TRAITS` with its export's name (`paladin/prototypes/integrity.js:6`) and `runtime/subjects/mode/traits/index.js`; a word the runtime does not offer only WARNS (`mode/lifecycle/2-resolution.js:25`; 11-21 `ModeTraitsEnum` · `Mode.ts` were gone). The trait set IS the capability declaration — `traits: []` = no `mode.call`, tools, routes; a green test asserts the absence.
+## views
 
-## `tier · rounds · effort` are the USER's, never the mode's
+```js
+export const buffer = v.buffer({ data: { … } });
+export const surfaces = [{ slug, mount: "buffer/<Name>.jsx", mime: mime.dom.solid }];
+```
 
-A thread is born claiming `INTELLIGENT` (`capable` · 12 · `low`, `schematics/traits/intelligent.js`); `/tier · /effort · /rounds` change it; a mode sets none. REJECTED 10-24 m105 Q14 `shard.hal.defaults({ policy: { tier, rounds } })` in a mode — /"keep this under the control of users."/ Order `traits/harness.js`: domain's harness, mode's, `summarizing`.
+- A view is Solid `.jsx`: `export default (element, props) => ({ destroy })`.
+- A terminal face is a second view with `mime.tty.solid`.
+- A dom view renders into a shadow root, with its stylesheet inside.
+- `yields:` streams over the client wire. `output:` is one value.
 
-## No leaving the mode
+## never leave the mode
 
-/"NO. no leaving the mode! stupid. bad."/ — a mode's files never import outside the mode's directory; a domain shape is reached at runtime as `ctx.domain.schematics.X` or not at all. Shared chrome (`buffer/kit/`) is written once and COPIED per mode; `tests/kit.test.js` at the package root pins the copies byte-equal — /"edit one, copy five, the suite says when a copy drifts."/ Sanctioned reach: `tests/ → ../../../../tests/rig.js`.
+- A mode's files import nothing outside the mode's directory.
+- A domain shape is reached at runtime: `ctx.domain.schematics.X`.
+- Shared view code is copied per mode, line for line; the mode's suite holds a step that the copy still equals its source.
+- A capability is a tool first. The aperture wraps it for a route.
+- A mode guesses nothing: no default import, no product slug.
 
-Tool-first: a capability is a `tools` verb, the aperture WRAPS it for a route, the domain takes it at a second mode; a mode owning files wraps `fs_*` in its OWN coordinates (slugs, not paths), each verb once — /"wrap for context and utility."/ Single-owner rows: unique `(slug, mode)`. A mode guesses nothing (no default import, no product slug); only `.desc` Example: is concrete — /"remove all defaults from the mode"/ 09-21.
-
-## Layout
+## layout
 
 ```
 modes/<type>/<slug>/
   <slug>.viva.js
-  harness.js · types.js|schematics.js
+  harness.js
+  schematics.js
   aperture/index.js
   tools/index.js
-  buffer/<Name>.jsx (mime.dom.solid) · buffer/<name>.jsx (mime.tty.solid)
-  tests/*.test.js · fixture.js · scenarios.js
+  buffer/<Name>.jsx
+  tests/*.test.js
 ```
 
-`aperture/` only if EXPOSED beyond `/status` `/manifest`; a view is Solid `.jsx`, `export default (element, props) => ({ destroy })` (`painters.jsx:20`); tests mount via `mountMode`. REJECTED 11-09 `.svelte`.
+## after an edit
 
-Topology ⇒ `traits: ["DATASET"]`; topography ⇒ `DATASET` (+ `FRAUGHT`/`DATASINK`) → skill `topography`.
-
-## After the first edit on a shelved mode
-
-`~/.viva/instances/<slug>/` is a COPY `instance/create` made once; the runtime bundles the shelf → `mountpoint/daemon_<d>/mode_<t>_<s>/bundle/`, newest. `diff -q` every touched file, sync by hand, verify by bundling the SHELF entry → `debug`. Hexes in a view: one palette block till the theme is ordered → `design`. An `$effect` fix is proven mounted, not compiled → `change`.
-
-## Landing on a watched tree
-
-`~/.viva/registry` and `commons/` sit under `runtime/watch`: every save DEPLOYS, a file-by-file refactor deploys each broken intermediate; a multi-file change lands in ONE `rsync`. `touch` does not wake `--watch`, a content change does; the recipe is NOT watched, a recipe fault = the next boot dark — `viva instance/doctor` after a recipe edit (11-09 `traits` in `runtime`).
-
-Views complete ⇒ grep my `$effect` bodies for a symbol both sides of `=`, and `onMount(async …)` (cleanup never honoured).
+- The runtime bundles the installed copy under `~/.viva/instances/<slug>/`. Sync the touched files there (skill `debug`).
+- `~/.viva/registry` and `commons/` are watched. Every save deploys. A change of several files lands in one copy.
+- The recipe is not watched. After a recipe edit run `viva instance/doctor`.

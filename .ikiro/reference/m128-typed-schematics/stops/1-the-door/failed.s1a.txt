@@ -1,0 +1,6 @@
+  a svelte entry bundles with auto-pack ... FAILED
+  a view's style id follows its sheet: a changed sheet lands beside the one a page still holds, an unchanged one keeps its id ... FAILED
+  esbuild: atom.chain ≤ 1024 B minified and runs ... FAILED
+  vite: atom.chain ≤ 1024 B minified and runs ... FAILED
+bundle ... FAILED
+bundle weight — atom through the barrel ... FAILED

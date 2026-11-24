@@ -1,7 +1,7 @@
 import { join } from "@std/path";
 import { atom } from "nanostores";
 import { Aperture, Connection, crypto, fromm, mime, Mode, Path, shape, shard, specimen, Url, Vector } from "@vivalence/typology";
-import { lifecycle, traits, ViewEntity } from "@vivalence/runtime";
+import { lifecycle, traits, SurfaceEntity } from "@vivalence/runtime";
 import { signer } from "../../subjects/lighthouse/signer.js";
 import { seed } from "../scenarios/datamap.js";
 import { connector, lighthouseOf, SECRET } from "../scenarios/daemon.js";
@@ -84,8 +84,8 @@ specimen.describe("runtime lifecycle beats on a hand-built die", { sanitizeResou
     await Deno.writeTextFile(join(directory, "board.js"), "export default () => 'board';");
     const text = await Deno.readTextFile(join(directory, "board.js"));
     const integrity = `sha256-${await crypto.digest(text)}`;
-    const view = await repos.view.create({ mode: fixtures.mode, slug: "board", mime: mime.tty.solid, entry: "board.js" });
-    const file = await repos.file.create({ mode: fixtures.mode, view, path: "board.js", mount: join(directory, "board.js"), mime: mime.javascript, hash: integrity.slice(7), integrity, bytes: text.length });
+    const surface = await repos.surface.create({ mode: fixtures.mode, slug: "board", mime: mime.tty.solid, entry: "board.js" });
+    const file = await repos.file.create({ mode: fixtures.mode, surface, path: "board.js", mount: join(directory, "board.js"), mime: mime.javascript, hash: integrity.slice(7), integrity, bytes: text.length });
     await em.flush();
     const service = { reference: new Path("/attached/process/service/voice/tts"), attachment: new Vector().open("/ping", () => ({ pong: true })) };
     die.runtime.services = { tts: service };
@@ -176,7 +176,7 @@ specimen.describe("runtime lifecycle beats on a hand-built die", { sanitizeResou
         specimen.expect([path, (await bare.fetch(`/metadata${path}`)).status]).toEqual([path, 401]);
       }
       specimen.expect(Object.keys((await read("/aperture")).branches)).toContain("metadata");
-      specimen.expect(Object.keys(await read("/datamap"))).toContain("view");
+      specimen.expect(Object.keys(await read("/datamap"))).toContain("surface");
       specimen.expect(await read("/daemons")).toEqual([{ slug: "memo", reference: "/daemon/memo", modes: 1, metadata: "/daemon/memo/metadata" }]);
       specimen.expect(await read("/services")).toEqual([{ type: "voice", slug: "tts", reference: "/service/tts", metadata: "/service/tts/metadata" }]);
     });
@@ -244,27 +244,27 @@ specimen.describe("runtime lifecycle beats on a hand-built die", { sanitizeResou
     specimen.expect(await em.fork().count(fixtures.mode.constructor, { slug: "held" })).toBe(1);
   });
 
-  specimen.it("integration.userspace: the view and file routes answer an authorized call by the datamap shard; a bare request is refused", async () => {
+  specimen.it("integration.userspace: the surface and file routes answer an authorized call by the datamap shard; a bare request is refused", async () => {
     const die = buildDie();
     const mode = buildMode("test", "test");
     die.runtime.modes = { test: { test: mode } };
     await through(integration.userspace, die, async () => {
       const conn = await client(die);
-      const views = await conn.call("/userspace/entities/view/find", { where: {} });
-      specimen.expect(views.map((row) => row.slug)).toContain("board");
+      const surfaces = await conn.call("/userspace/entities/surface/find", { where: {} });
+      specimen.expect(surfaces.map((row) => row.slug)).toContain("board");
       const files = await conn.call("/userspace/entities/file/find", { where: { path: "board.js" } });
       specimen.expect(files).toHaveLength(1);
-      specimen.expect(Object.keys(shape.strip(die.aperture.branch("/userspace/entities")).branches).sort()).toEqual(["activity", "buffer", "file", "intent", "note", "terminal", "thread", "turn", "view"]);
+      specimen.expect(Object.keys(shape.strip(die.aperture.branch("/userspace/entities")).branches).sort()).toEqual(["activity", "buffer", "file", "intent", "note", "surface", "terminal", "thread", "turn"]);
 
       const bare = new Connection(new Url("http://test"), shard.transmitter.inline(shape.http(die.aperture)));
-      specimen.expect((await bare.fetch("/userspace/entities/view/find")).status).toBe(401);
+      specimen.expect((await bare.fetch("/userspace/entities/surface/find")).status).toBe(401);
     });
   });
 
   specimen.it("integration.entities · metadata · cortex: the host opens /entities/mode, /metadata/* for the runtime and each mode by trait, and the cortex avenues", async () => {
     const die = buildDie();
     const memo = buildMode("srs", "memo", { emitter: new Vector().open("/literal", () => "emitted") });
-    memo.manifest.traits = ["VIEWABLE", "EMITTER", "HARNESS"];
+    memo.manifest.traits = ["SURFACED", "EMITTER", "HARNESS"];
     memo.manifest.name = "Memo";
     memo.statics = { language: "latin" };
     memo.mountpoint = new Path(join(directory, "memo"));
@@ -289,7 +289,7 @@ specimen.describe("runtime lifecycle beats on a hand-built die", { sanitizeResou
     specimen.expect(Object.keys(await read("/runtime/house/metadata/datamap"))).toContain("file");
     specimen.expect(Object.keys((await read("/runtime/house/metadata/aperture")).branches)).toContain("entities");
     specimen.expect(await read("/runtime/house/metadata/modes")).toEqual([
-      { type: "srs", slug: "memo", name: "Memo", traits: ["VIEWABLE", "EMITTER", "HARNESS"], reference: "/runtime/house/mode/srs/memo", metadata: "/runtime/house/mode/srs/memo/metadata" },
+      { type: "srs", slug: "memo", name: "Memo", traits: ["SURFACED", "EMITTER", "HARNESS"], reference: "/runtime/house/mode/srs/memo", metadata: "/runtime/house/mode/srs/memo/metadata" },
       { type: "home", slug: "probe", name: "probe", traits: [], reference: "/runtime/house/mode/home/probe", metadata: "/runtime/house/mode/home/probe/metadata" },
     ]);
     for (const fact of ["statics", "mountpoint", "application", "aperture", "emitter", "harness"]) {

@@ -34,7 +34,7 @@ specimen.describe("soma", () => {
   specimen.it("a stream pours into a turn across every channel", () => {
     const textual = packets("assistant", [
       { type: "text", text: "hello world" },
-    ], { state: "complete", usage: { input: 5, output: 11 } });
+    ], { state: "complete", usage: [{ name: "input", unit: "tokens", amount: 5 }, { name: "output", unit: "tokens", amount: 11 }] });
     for (const packet of textual) specimen.expect(packet).matches(Packet.Response);
     let turn = null;
     for (const packet of textual) turn = soma.pour(turn, packet);
@@ -43,7 +43,7 @@ specimen.describe("soma", () => {
     specimen.expect(turn.parts[0].type).toBe("text");
     specimen.expect(turn.parts[0].text).toBe("hello world");
     specimen.expect(turn.meta.state).toBe("complete");
-    specimen.expect(turn.meta.usage.input).toBe(5);
+    specimen.expect(turn.meta.usage[0].amount).toBe(5);
 
     const layered = packets("assistant", [
       { type: "text", text: "analyzing..." },
@@ -223,11 +223,11 @@ specimen.describe("soma", () => {
   specimen.it("a bridge drinks the stream down to a sealed turn", async () => {
     const single = await soma.bridge(asStream(packets("assistant", [
       { type: "text", text: "bridge me" },
-    ], { state: "complete", usage: { input: 3, output: 9 } })));
+    ], { state: "complete", usage: [{ name: "input", unit: "tokens", amount: 3 }, { name: "output", unit: "tokens", amount: 9 }] })));
     specimen.expect(single.role).toBe("assistant");
     specimen.expect(single.parts[0].text).toBe("bridge me");
     specimen.expect(single.meta.state).toBe("complete");
-    specimen.expect(single.meta.usage.input).toBe(3);
+    specimen.expect(single.meta.usage[0].amount).toBe(3);
 
     const layered = await soma.bridge(asStream(packets("assistant", [
       { type: "text", text: "first" },

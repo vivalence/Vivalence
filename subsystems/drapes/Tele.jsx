@@ -56,6 +56,9 @@ export const Tele = (props) => {
           </For>
         </div>
         <span class="ins-gap" />
+        <button class="kit-seg" aria-label="copy the kept log" title="copy the kept log · /telemetry/copy" onClick={() => props.onCopy()}>
+          copy
+        </button>
         <Show when={props.faults > 0}>
           <button class="kit-seg is-fault" aria-label="faults, show them" onClick={() => props.onFaults()}>
             {`! ${props.faults}`}

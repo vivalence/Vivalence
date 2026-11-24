@@ -1,0 +1,536 @@
+entities/activity.js:9	ActivitySchematic.own.type	v.enum	—	closed	
+entities/activity.js:10	ActivitySchematic.own.status	v.string	State	tighten	controller.js:10; its description says FAULTED
+entities/activity.js:12	ActivitySchematic.own.steps[]{key}	v.string	—	key	
+entities/base.js:5	DataEntitySchema.id	ID	ID	worn	
+entities/base.js:6	DataEntitySchema.createdAt	v.instant	v.instant	worn	
+entities/base.js:7	DataEntitySchema.updatedAt	v.instant	v.instant	worn	
+entities/base.js:11	VirtualEntitySchema.id	v.string	ID	wear	
+entities/base.js:12	VirtualEntitySchema.createdAt	v.instant	v.instant	worn	
+entities/buffer.js:11	BufferSchematic.own.index	v.integer	Index	new	
+entities/buffer.js:12	BufferSchematic.own.status	v.enum	—	closed	
+entities/buffer.js:13	BufferSchematic.own.mime	mime.type	mime.type	worn	
+entities/buffer.js:14	BufferSchematic.own.data{key}	v.string	—	key	
+entities/daemon.js:9	DaemonSchematic.own.slug	v.string	Slug	ruled	the one wide pattern
+entities/daemon.js:10	DaemonSchematic.own.mask{key}	v.string	—	key	
+entities/daemon.js:11	DaemonSchematic.own.traits[]	v.string	—	bare	a trait's name, an open set
+entities/daemon.js:12	DaemonSchematic.own.trait{key}	v.string	—	key	
+entities/file.js:6	MISSING.since	v.string	v.instant	tighten	its description says ISO 8601
+entities/file.js:14	FileSchematic.own.path	v.string	FilePath	wire	
+entities/file.js:15	FileSchematic.own.mount	v.string	FilePath	wire	
+entities/file.js:16	FileSchematic.own.mime	mime.type	mime.type	worn	
+entities/file.js:17	FileSchematic.own.hash	v.string	Hash	new	
+entities/file.js:18	FileSchematic.own.integrity	v.string	Integrity	new	
+entities/file.js:19	FileSchematic.own.bytes	v.integer	Bytes	new	
+entities/file.js:20	FileSchematic.own.traits[]	v.enum	—	closed	
+entities/file.js:21	FileSchematic.own.trait{key}	v.string	—	key	
+entities/intent.js:9	IntentSchematic.own.slug	v.string	Slug	ruled	the one wide pattern
+entities/intent.js:10	IntentSchematic.own.name	v.string	—	prose	
+entities/intent.js:11	IntentSchematic.own.description	v.string	—	prose	
+entities/intent.js:12	IntentSchematic.own.traits[]	v.string	—	bare	a trait's name, an open set
+entities/intent.js:13	IntentSchematic.own.trait{key}	v.string	—	key	
+entities/literal.js:10	LiteralSchematic.own.slug	v.string	Slug	ruled	the one wide pattern
+entities/literal.js:11	LiteralSchematic.own.daemon	v.string	Slug	tighten	a daemon's slug
+entities/literal.js:12	LiteralSchematic.own.ontology	v.string	—	bare	
+entities/literal.js:15	LiteralSchematic.own.symbol{key}	v.string	—	key	
+entities/mode.js:10	ModeSchematic.own.slug	v.string	Slug	ruled	the one wide pattern
+entities/mode.js:11	ModeSchematic.own.type	v.string	—	bare	
+entities/mode.js:12	ModeSchematic.own.name	v.string	—	prose	
+entities/mode.js:13	ModeSchematic.own.description	v.string	—	prose	
+entities/mode.js:14	ModeSchematic.own.version	v.string	Version	new	
+entities/mode.js:15	ModeSchematic.own.installed	v.string	—	bare	
+entities/note.js:10	NoteSchematic.own.slug	v.string	Slug	ruled	the one wide pattern
+entities/symbol.js:10	SymbolSchematic.own.slug	v.string	Slug	ruled	the one wide pattern
+entities/terminal.js:10	TerminalSchematic.own.index	v.integer	Index	new	
+entities/thread.js:10	ThreadSchematic.own.phase	v.enum	—	closed	
+entities/thread.js:13	ThreadSchematic.own.counter	v.integer	—	bare	
+entities/turn.js:9	TurnSchematic.own.role	v.string	Role	tighten	hallucination.js:115
+entities/turn.js:10	TurnSchematic.own.parts[]{key}	v.string	—	key	
+entities/turn.js:11	TurnSchematic.own.meta{key}	v.string	—	key	
+entities/user.js:10	UserSchematic.own.slug	v.string	Slug	ruled	the one wide pattern
+entities/view.js:11	ViewSchematic.own.slug	v.string	Slug	ruled	the one wide pattern
+entities/view.js:12	ViewSchematic.own.mime	mime.type	mime.type	worn	
+entities/view.js:13	ViewSchematic.own.mount|	v.string	FilePath	wire	
+entities/view.js:13	ViewSchematic.own.mount|	v.null	—	closed	
+entities/view.js:14	ViewSchematic.own.entry	v.string	FilePath	wire	
+primitives/auth.js:6	AuthorityToken.access	JWTToken	JWTToken	worn	
+primitives/auth.js:7	AuthorityToken.refresh	JWTToken	JWTToken	worn	
+primitives/auth.js:14	UserReference.id	ID	ID	worn	
+primitives/auth.js:15	UserReference.slug	Slug	Slug	worn	
+primitives/auth.js:16	UserReference.traits[]	v.string	traits.names.user	tighten	traits/index.js:199
+primitives/auth.js:17	UserReference.trait{key}	v.string	—	key	
+primitives/auth.js:18	UserReference.authentication	v.null	—	closed	
+primitives/auth.js:26	LoginRequest.username	Username	Username	worn	
+primitives/auth.js:27	LoginRequest.password	Password	Password	worn	
+primitives/auth.js:31	SignupRequest.username	Username	Username	worn	
+primitives/auth.js:32	SignupRequest.password	Password	Password	worn	
+primitives/auth.js:36	VerifyRequest.access	JWTToken	JWTToken	worn	
+primitives/auth.js:40	RefreshRequest.refresh	JWTToken	JWTToken	worn	
+primitives/auth.js:44	LogoutRequest.refresh	JWTToken	JWTToken	worn	
+primitives/auth.js:57	VerifyResponse.success	v.boolean	—	bare	
+primitives/auth.js:62	RefreshResponse.access	JWTToken	JWTToken	worn	
+primitives/auth.js:66	LogoutResponse.success	v.boolean	—	bare	
+primitives/connection.js:5	Verb	v.enum	—	closed	
+primitives/connection.js:6	Fault.status	v.integer	—	bare	
+primitives/connection.js:6	Fault.message	v.string	—	prose	
+primitives/connection.js:11	Open.frame	ID	ID	worn	
+primitives/connection.js:12	Open.signal	Signal	Signal	worn	
+primitives/connection.js:13	Open.query	v.string	—	bare	
+primitives/connection.js:15	Open.token	v.string	—	bare	
+primitives/connection.js:16	Open.stream	v.boolean	—	bare	
+primitives/connection.js:23	Packet|.frame	ID	ID	worn	
+primitives/connection.js:24	Packet|.frame	ID	ID	worn	
+primitives/connection.js:24	Packet|.done	v.const	—	closed	
+primitives/connection.js:25	Packet|.frame	ID	ID	worn	
+primitives/connection.js:25	Packet|.close	v.const	—	closed	
+primitives/connection.js:26	Packet|.frame	ID	ID	worn	
+primitives/connection.js:26	Packet|.open	v.const	—	closed	
+primitives/connection.js:27	Packet|.frame	ID	ID	worn	
+primitives/connection.js:28	Packet|.frame	ID	ID	worn	
+primitives/connection.js:29	Packet|.nature	Signal	Signal	worn	
+primitives/connection.js:29	Packet|.flags{key}	v.string	—	key	
+primitives/contexts.js:9	params.params{key}	v.string	—	key	
+primitives/contexts.js:9	params.params{}	v.string	—	bare	
+primitives/contexts.js:13	entities.entities{key}	v.string	—	key	
+primitives/contexts.js:16	modes.modes{key}	v.string	—	key	
+primitives/contexts.js:16	modes.modes{}{key}	v.string	—	key	
+primitives/contexts.js:17	providers.providers{key}	v.string	—	key	
+primitives/contexts.js:21	mountpoint.mountpoint	Mountpoint	Mountpoint	worn	
+primitives/contexts.js:53	flags.flags[]	v.string	—	bare	
+primitives/controller.js:10	State	v.enum	—	closed	
+primitives/controller.js:12	Signal	v.enum	—	closed	
+primitives/controller.js:13	Machine.states{}.settled	v.boolean	—	bare	
+primitives/controller.js:22	Kill.flags{key}	v.string	—	key	
+primitives/controller.js:26	Record.at	v.number	—	bare	
+primitives/controller.js:27	Record.path[]	v.string	—	bare	
+primitives/controller.js:28	Record.track	v.string	Track	tighten	track.js:12
+primitives/controller.js:33	Reflection.path[]	v.string	—	bare	
+primitives/controller.js:35	Reflection.timestamp	v.instant	v.instant	worn	
+primitives/conversation.js:4	Channel|	v.const	—	closed	
+primitives/conversation.js:5	Channel|	v.const	—	closed	
+primitives/conversation.js:6	Channel|	v.const	—	closed	
+primitives/conversation.js:7	Channel|	v.const	—	closed	
+primitives/conversation.js:11	Verb|	v.const	—	closed	
+primitives/conversation.js:12	Verb|	v.const	—	closed	
+primitives/conversation.js:13	Verb|	v.const	—	closed	
+primitives/conversation.js:14	Verb|	v.const	—	closed	
+primitives/conversation.js:15	Verb|	v.const	—	closed	
+primitives/credentials.js:8	Credential.at	v.instant	v.instant	worn	
+primitives/credentials.js:14	Credentials{key}	v.string	—	key	
+primitives/hallucination.js:6	Channel|	v.const	—	closed	
+primitives/hallucination.js:7	Channel|	v.const	—	closed	
+primitives/hallucination.js:8	Channel|	v.const	—	closed	
+primitives/hallucination.js:9	Channel|	v.const	—	closed	
+primitives/hallucination.js:10	Channel|	v.const	—	closed	
+primitives/hallucination.js:11	Channel|	v.const	—	closed	
+primitives/hallucination.js:12	Channel|	v.const	—	closed	
+primitives/hallucination.js:13	Channel|	v.const	—	closed	
+primitives/hallucination.js:14	Channel|	v.const	—	closed	
+primitives/hallucination.js:18	FacultyType|	v.const	—	closed	
+primitives/hallucination.js:19	FacultyType|	v.const	—	closed	
+primitives/hallucination.js:20	FacultyType|	v.const	—	closed	
+primitives/hallucination.js:21	FacultyType|	v.const	—	closed	
+primitives/hallucination.js:22	FacultyType|	v.const	—	closed	
+primitives/hallucination.js:23	FacultyType|	v.const	—	closed	
+primitives/hallucination.js:24	FacultyType|	v.const	—	closed	
+primitives/hallucination.js:33	Part.Text.type	v.const	—	closed	
+primitives/hallucination.js:34	Part.Text.text	v.string	—	prose	
+primitives/hallucination.js:38	Part.Image.type	v.const	—	closed	
+primitives/hallucination.js:39	Part.Image.data	v.string	—	unnamed	encoded bytes
+primitives/hallucination.js:40	Part.Image.mime	v.string	mime.type	tighten	RFC 6838
+primitives/hallucination.js:44	Part.Audio.type	v.const	—	closed	
+primitives/hallucination.js:45	Part.Audio.data	v.string	—	unnamed	encoded bytes
+primitives/hallucination.js:46	Part.Audio.mime	v.string	mime.type	tighten	RFC 6838
+primitives/hallucination.js:50	Part.Video.type	v.const	—	closed	
+primitives/hallucination.js:51	Part.Video.data	v.string	—	unnamed	encoded bytes
+primitives/hallucination.js:52	Part.Video.mime	v.string	mime.type	tighten	RFC 6838
+primitives/hallucination.js:56	Part.Document.type	v.const	—	closed	
+primitives/hallucination.js:57	Part.Document.data	v.string	—	unnamed	encoded bytes
+primitives/hallucination.js:58	Part.Document.mime	v.string	mime.type	tighten	RFC 6838
+primitives/hallucination.js:62	Part.File.type	v.const	—	closed	
+primitives/hallucination.js:63	Part.File.file	v.string	ID	wear	a File's id
+primitives/hallucination.js:67	Part.Object.type	v.const	—	closed	
+primitives/hallucination.js:68	Part.Object.data{key}	v.string	—	key	
+primitives/hallucination.js:73	Part.ToolUse.type	v.const	—	closed	
+primitives/hallucination.js:74	Part.ToolUse.id	v.string	—	unnamed	the provider's id of one tool call
+primitives/hallucination.js:75	Part.ToolUse.name	v.string	—	bare	a tool's name
+primitives/hallucination.js:76	Part.ToolUse.input{key}	v.string	—	key	
+primitives/hallucination.js:84	Part.ToolResult.type	v.const	—	closed	
+primitives/hallucination.js:85	Part.ToolResult.id	v.string	—	unnamed	the provider's id of one tool call
+primitives/hallucination.js:86	Part.ToolResult.condition	v.string	Condition	tighten	prototypes/yield.js:3
+primitives/hallucination.js:87	Part.ToolResult.product{key}	v.string	—	key	
+primitives/hallucination.js:91	Part.Thinking.type	v.const	—	closed	
+primitives/hallucination.js:92	Part.Thinking.text	v.string	—	prose	
+primitives/hallucination.js:93	Part.Thinking.signature	v.string	—	bare	
+primitives/hallucination.js:97	Part.Alien.type	v.const	—	closed	
+primitives/hallucination.js:98	Part.Alien.dialect	v.string	—	bare	
+primitives/hallucination.js:115	Role|	v.const	—	closed	
+primitives/hallucination.js:115	Role|	v.const	—	closed	
+primitives/hallucination.js:115	Role|	v.const	—	closed	
+primitives/hallucination.js:118	State|	v.const	—	closed	
+primitives/hallucination.js:119	State|	v.const	—	closed	
+primitives/hallucination.js:120	State|	v.const	—	closed	
+primitives/hallucination.js:121	State|	v.const	—	closed	
+primitives/hallucination.js:122	State|	v.const	—	closed	
+primitives/hallucination.js:123	State|	v.const	—	closed	
+primitives/hallucination.js:124	State|	v.const	—	closed	
+primitives/hallucination.js:129	Usage.input	v.integer	—	bare	
+primitives/hallucination.js:130	Usage.output	v.integer	—	bare	
+primitives/hallucination.js:131	Usage.cost	v.number	—	bare	
+primitives/hallucination.js:167	Meta.usage|{key}	v.string	—	key	
+primitives/hallucination.js:168	Meta.rounds	v.integer	—	bare	
+primitives/hallucination.js:169	Meta.fault.kind	v.string	—	bare	
+primitives/hallucination.js:169	Meta.fault.message|	v.string	—	prose	
+primitives/hallucination.js:169	Meta.fault.message|	v.null	—	closed	
+primitives/hallucination.js:170	Meta.provider{key}	v.string	—	key	
+primitives/hallucination.js:186	Parts[]{key}	v.string	—	key	
+primitives/hallucination.js:194	Turn.meta|	v.null	—	closed	
+primitives/hallucination.js:218	Tune[]	v.number	Probability	wear	the same bounds
+primitives/hallucination.js:233	Tier	v.enum	—	closed	
+primitives/hallucination.js:248	Tool.name	v.string	—	bare	a tool's name
+primitives/hallucination.js:249	Tool.valence	v.string	—	prose	
+primitives/hallucination.js:256	Settings.maxTokens	v.integer	—	bare	
+primitives/hallucination.js:257	Settings.thinking	v.boolean	—	bare	
+primitives/hallucination.js:258	Settings.thinkingBudget	v.integer	—	bare	
+primitives/hallucination.js:259	Settings.temperature	v.number	—	bare	
+primitives/hallucination.js:260	Settings.tool_choice{key}	v.string	—	key	
+primitives/hallucination.js:272	Request.system{key}	v.string	—	key	
+primitives/hallucination.js:277	Request.cache.marks[]	v.string	—	bare	
+primitives/hallucination.js:285	Faculty.type	v.string	FacultyType	tighten	hallucination.js:17
+primitives/hallucination.js:286	Faculty.id	v.string	—	unnamed	a faculty's id
+primitives/hallucination.js:287	Faculty.model	v.string	—	bare	
+primitives/hallucination.js:291	Faculty.upstream	v.string	—	bare	
+primitives/hallucination.js:296	Faculty.context	v.integer	—	bare	
+primitives/hallucination.js:297	Faculty.options	v.integer	—	bare	
+primitives/hallucination.js:298	Faculty.choices|	v.integer	—	bare	
+primitives/hallucination.js:298	Faculty.choices|	v.null	—	closed	
+primitives/hallucination.js:302	Faculty.via{key}	v.string	—	key	
+primitives/hallucination.js:306	FacultyRecipe.id	v.string	—	unnamed	a faculty's id
+primitives/hallucination.js:311	FacultyMask.type	v.string	FacultyType	tighten	hallucination.js:17
+primitives/hallucination.js:311	FacultyMask.id	v.string	—	unnamed	a faculty's id
+primitives/hallucination.js:315	Probability	v.number	Probability	named	0 to 1, not exported, no $id
+primitives/hallucination.js:316	Rubric|	v.string	—	prose	
+primitives/hallucination.js:316	Rubric|{key}	v.string	—	key	
+primitives/hallucination.js:316	Rubric|	v.null	—	closed	
+primitives/hallucination.js:317	Ask|	v.string	—	prose	
+primitives/hallucination.js:317	Ask|{key}	v.string	—	key	
+primitives/hallucination.js:322	Choice.Question|.type	v.const	—	closed	
+primitives/hallucination.js:324	Choice.Question|.options{key}	v.string	—	key	
+primitives/hallucination.js:327	Choice.Question|.type	v.const	—	closed	
+primitives/hallucination.js:332	Choice.Question|.type	v.const	—	closed	
+primitives/hallucination.js:338	Choice.Round.questions{key}	v.string	—	key	
+primitives/hallucination.js:340	Choice.Answer|{key}	v.string	—	key	
+primitives/hallucination.js:340	Choice.Answer|{}	Probability	Probability	worn	
+primitives/hallucination.js:340	Choice.Answer|[]	Probability	Probability	worn	
+primitives/hallucination.js:340	Choice.Answer|	Probability	Probability	worn	
+primitives/hallucination.js:341	Choice.Verdict{key}	v.string	—	key	
+primitives/hallucination.js:346	Packet.TurnOpen.event	v.const	—	closed	
+primitives/hallucination.js:348	Packet.TurnOpen.turn.role	v.string	Role	tighten	hallucination.js:115
+primitives/hallucination.js:349	Packet.TurnOpen.turn.id	v.string	ID	wear	
+primitives/hallucination.js:354	Packet.PartOpen.event	v.const	—	closed	
+primitives/hallucination.js:355	Packet.PartOpen.index	v.integer	Index	new	
+primitives/hallucination.js:360	Packet.PartDelta.event	v.const	—	closed	
+primitives/hallucination.js:361	Packet.PartDelta.index	v.integer	Index	new	
+primitives/hallucination.js:362	Packet.PartDelta.part{key}	v.string	—	key	
+primitives/hallucination.js:366	Packet.PartDraft.event	v.const	—	closed	
+primitives/hallucination.js:367	Packet.PartDraft.index	v.integer	Index	new	
+primitives/hallucination.js:369	Packet.PartDraft.part{key}	v.string	—	key	
+primitives/hallucination.js:374	Packet.PartFull.event	v.const	—	closed	
+primitives/hallucination.js:375	Packet.PartFull.index	v.integer	Index	new	
+primitives/hallucination.js:377	Packet.PartFull.turn	v.string	ID	wear	
+primitives/hallucination.js:384	Packet.PartClose.event	v.const	—	closed	
+primitives/hallucination.js:385	Packet.PartClose.index	v.integer	Index	new	
+primitives/hallucination.js:389	Packet.TurnClose.event	v.const	—	closed	
+primitives/hallucination.js:393	Packet.TurnEager.event	v.const	—	closed	
+primitives/hallucination.js:395	Packet.TurnResume.event	v.const	—	closed	
+primitives/hallucination.js:406	Packet.TurnFull.event	v.const	—	closed	
+primitives/hallucination.js:411	Packet.ResponseClose.event	v.const	—	closed	
+primitives/hallucination.js:418	Audio.Packet.event	v.const	—	closed	
+primitives/hallucination.js:419	Audio.Packet.pts	v.number	—	bare	
+primitives/hallucination.js:421	Audio.Packet.audio.data	v.string	—	unnamed	encoded bytes
+primitives/hallucination.js:422	Audio.Packet.audio.rate	v.integer	—	bare	
+primitives/hallucination.js:423	Audio.Packet.audio.codec	v.string	—	bare	
+primitives/hallucination.js:427	Audio.Packet.audio.align[].text	v.string	—	prose	
+primitives/hallucination.js:428	Audio.Packet.audio.align[].offset	v.integer	—	bare	
+primitives/hallucination.js:429	Audio.Packet.audio.align[].start	v.number	—	bare	
+primitives/hallucination.js:430	Audio.Packet.audio.align[].end	v.number	—	bare	
+primitives/hallucination.js:438	Audio.Close.event	v.const	—	closed	
+primitives/hallucination.js:443	Audio.Played.event	v.const	—	closed	
+primitives/hallucination.js:444	Audio.Played.pts	v.number	—	bare	
+primitives/hallucination.js:469	Response.product{key}	v.string	—	key	
+primitives/hallucination.js:478	Selector.provider	v.string	Slug	tighten	a provider's slug
+primitives/hallucination.js:479	Selector.id	v.string	—	unnamed	a faculty's id
+primitives/hallucination.js:488	Policy.dialogue.rounds	v.integer	—	bare	
+primitives/hallucination.js:489	Policy.dialogue.backoff[]	v.integer	—	bare	
+primitives/hallucination.js:490	Policy.dialogue.cache.marks[]	v.string	—	bare	
+primitives/hallucination.js:495	Policy.verbatim.harmonize.window	v.integer	—	bare	
+primitives/hallucination.js:495	Policy.verbatim.harmonize.tolerance	v.number	Probability	tighten	the trait's twin is bounded 0 to 1
+primitives/hallucination.js:495	Policy.verbatim.harmonize.tail	v.integer	—	bare	
+primitives/hallucination.js:503	Policy.call.rounds	v.integer	—	bare	
+primitives/hallucination.js:517	Hallucination.dialogue.system{key}	v.string	—	key	
+primitives/hallucination.js:540	Hallucination.call.system{key}	v.string	—	key	
+primitives/hallucination.js:554	Picture.Reference.role|	v.const	—	closed	
+primitives/hallucination.js:554	Picture.Reference.role|	v.const	—	closed	
+primitives/hallucination.js:554	Picture.Reference.role|	v.const	—	closed	
+primitives/hallucination.js:554	Picture.Reference.role|	v.const	—	closed	
+primitives/hallucination.js:558	Picture.Settings.size	v.string	—	bare	
+primitives/hallucination.js:559	Picture.Settings.aspect	v.string	—	bare	
+primitives/hallucination.js:560	Picture.Settings.count	v.integer	—	bare	
+primitives/hallucination.js:561	Picture.Settings.format|	v.const	—	closed	
+primitives/hallucination.js:561	Picture.Settings.format|	v.const	—	closed	
+primitives/hallucination.js:561	Picture.Settings.format|	v.const	—	closed	
+primitives/hallucination.js:562	Picture.Settings.background|	v.const	—	closed	
+primitives/hallucination.js:562	Picture.Settings.background|	v.const	—	closed	
+primitives/hallucination.js:567	Picture.Request.prompt	v.string	—	prose	
+primitives/hallucination.js:574	Picture.Response.revised	v.string	—	prose	
+primitives/hallucination.js:575	Picture.Response.provider	v.string	Slug	tighten	a provider's slug
+primitives/hallucination.js:576	Picture.Response.id	v.string	—	unnamed	a faculty's id
+primitives/harness.js:6	Call.flags{key}	v.string	—	key	
+primitives/harness.js:10	Signal.nature	v.string	Signal	wire	a route
+primitives/harness.js:12	Signal.flags{key}	v.string	—	key	
+primitives/harness.js:16	Request.thread	v.string	ID	wear	
+primitives/harness.js:17	Request.terminal	v.string	ID	wear	
+primitives/harness.js:18	Request.turn	v.string	ID	wear	
+primitives/harness.js:21	Request.config{key}	v.string	—	key	
+primitives/harness.js:22	Request.system{key}	v.string	—	key	
+primitives/harness.js:23	Request.output{key}	v.string	—	key	
+primitives/harness.js:24	Request.tools{key}	v.string	—	key	
+primitives/home.js:4	Home.reference	v.string	Path	wire	
+primitives/instance.js:14	SecretsMask{key}	v.string	—	key	
+primitives/instance.js:17	Mountpoint	Path	Path	worn	
+primitives/instance.js:20	Mask.module	v.string	ModuleIdentifier	new	
+primitives/instance.js:26	HallucinatorMask.module	v.string	ModuleIdentifier	new	
+primitives/instance.js:36	DatamapMask.module	v.string	ModuleIdentifier	new	
+primitives/instance.js:37	DatamapMask.statics.db.file	v.string	FilePath	wire	
+primitives/instance.js:38	DatamapMask.mountpoint	Mountpoint	Mountpoint	worn	
+primitives/instance.js:55	ModeMask.module	v.string	ModuleIdentifier	new	
+primitives/instance.js:56	ModeMask.traits[]	v.string	—	bare	a trait's name, an open set
+primitives/instance.js:62	ModeMask.mountpoint|	Mountpoint	Mountpoint	worn	
+primitives/instance.js:62	ModeMask.mountpoint|	v.null	—	closed	
+primitives/instance.js:65	ModeMask.consume{key}	v.string	—	key	
+primitives/instance.js:67	ModeMask.reference	Path	Path	worn	
+primitives/instance.js:68	ModeMask.url	Url	Url	worn	
+primitives/instance.js:69	ModeMask.bundles	Mountpoint	Mountpoint	worn	
+primitives/instance.js:74	ModeMasks[]|	v.string	ModuleIdentifier	new	
+primitives/instance.js:79	RuntimeMask.manifest.type	v.string	—	bare	
+primitives/instance.js:79	RuntimeMask.manifest.slug	Slug	Slug	worn	
+primitives/instance.js:83	RuntimeMask.statics.serve	Url	Url	worn	
+primitives/instance.js:84	RuntimeMask.statics.remote	Url	Url	worn	
+primitives/instance.js:86	RuntimeMask.secrets.jwt	v.string	—	unnamed	the signing secret, minLength 24
+primitives/instance.js:87	RuntimeMask.mountpoint	Mountpoint	Mountpoint	worn	
+primitives/instance.js:88	RuntimeMask.reference	Path	Path	worn	
+primitives/instance.js:89	RuntimeMask.url	Url	Url	worn	
+primitives/instance.js:90	RuntimeMask.attach	Url	Url	worn	
+primitives/instance.js:102	LighthouseTrait.AUTOLOGIN.username	v.string	Username	tighten	adds maxLength 64
+primitives/instance.js:103	LighthouseTrait.AUTOLOGIN.password	v.string	—	bare	
+primitives/instance.js:112	LighthouseMask.secrets.jwt	v.string	—	unnamed	the signing secret, minLength 24
+primitives/instance.js:113	LighthouseMask.traits[]	v.enum	—	closed	
+primitives/instance.js:119	ClientTrait.THEMED	Themed	Themed	worn	
+primitives/instance.js:123	ClientMask.module	v.string	ModuleIdentifier	new	
+primitives/instance.js:124	ClientMask.statics.serve	Url	Url	worn	
+primitives/instance.js:125	ClientMask.mountpoint	Mountpoint	Mountpoint	worn	
+primitives/instance.js:126	ClientMask.reference	Path	Path	worn	
+primitives/instance.js:136	ServiceMask.module	v.string	ModuleIdentifier	new	
+primitives/instance.js:137	ServiceMask.mountpoint	Mountpoint	Mountpoint	worn	
+primitives/instance.js:139	ServiceMask.reference	Path	Path	worn	
+primitives/instance.js:150	DaemonMask.mountpoint	Mountpoint	Mountpoint	worn	
+primitives/instance.js:152	DaemonMask.reference	Path	Path	worn	
+primitives/instance.js:153	DaemonMask.url	Url	Url	worn	
+primitives/instance.js:154	DaemonMask.attach	Url	Url	worn	
+primitives/instance.js:156	DaemonMask.consume{key}	v.string	—	key	
+primitives/instance.js:163	Sieve{key}	v.string	—	key	
+primitives/instance.js:170	Telemetry.logger{key}	v.string	—	key	
+primitives/instance.js:194	Reference	v.string	Reference	named	a function of the prefix, no $id
+primitives/instance.js:196	SecretsRecipe{key}	v.string	—	key	
+primitives/instance.js:196	SecretsRecipe{}	Reference	Reference	worn	
+primitives/instance.js:199	Recipe.module	v.string	ModuleIdentifier	new	
+primitives/instance.js:205	HallucinatorRecipe.module	v.string	ModuleIdentifier	new	
+primitives/instance.js:214	DatamapRecipe.module	v.string	ModuleIdentifier	new	
+primitives/instance.js:230	ModeRecipe.module	v.string	ModuleIdentifier	new	
+primitives/instance.js:231	ModeRecipe.traits[]	v.string	—	bare	a trait's name, an open set
+primitives/instance.js:233	ModeRecipe.mountpoint|	v.string	Mountpoint	wire	
+primitives/instance.js:233	ModeRecipe.mountpoint|	v.null	—	closed	
+primitives/instance.js:236	ModeRecipe.consume{key}	v.string	—	key	
+primitives/instance.js:242	ModeRecipes[]|	v.string	ModuleIdentifier	new	
+primitives/instance.js:246	EnvironmentRecipe.type	v.const	—	closed	
+primitives/instance.js:247	EnvironmentRecipe.properties{key}	v.string	—	key	
+primitives/instance.js:248	EnvironmentRecipe.required[]	v.string	—	bare	
+primitives/instance.js:249	EnvironmentRecipe.additionalProperties	v.boolean	—	bare	
+primitives/instance.js:256	RuntimeRecipe.manifest.slug	Slug	Slug	worn	
+primitives/instance.js:258	RuntimeRecipe.secrets.jwt	Reference	Reference	worn	
+primitives/instance.js:267	LighthouseRecipe.secrets.jwt	Reference	Reference	worn	
+primitives/instance.js:268	LighthouseRecipe.traits[]	v.enum	—	closed	
+primitives/instance.js:277	ClientRecipe.module	v.string	ModuleIdentifier	new	
+primitives/instance.js:278	ClientRecipe.mountpoint	v.string	Mountpoint	wire	
+primitives/instance.js:289	ServiceRecipe.module	v.string	ModuleIdentifier	new	
+primitives/instance.js:290	ServiceRecipe.mountpoint	v.string	Mountpoint	wire	
+primitives/instance.js:302	DaemonRecipe.mountpoint	v.string	Mountpoint	wire	
+primitives/instance.js:304	DaemonRecipe.reference	v.string	Path	wire	
+primitives/instance.js:306	DaemonRecipe.consume{key}	v.string	—	key	
+primitives/instance.js:347	Tapped{key}	v.string	—	key	
+primitives/instance.js:350	Tapped{}.slug	Slug	Slug	worn	
+primitives/instance.js:351	Tapped{}.mount	v.string	FilePath	wire	
+primitives/instance.js:352	Tapped{}.remote	v.string	—	bare	
+primitives/instance.js:359	Requirement.at	v.string	—	bare	
+primitives/instance.js:360	Requirement.read[]	v.string	—	bare	
+primitives/instance.js:361	Requirement.unset[]	v.string	—	bare	
+primitives/kernel.js:12	Domain.schematics{key}	v.string	—	key	
+primitives/label.js:5	Label.name	v.string	—	prose	
+primitives/label.js:11	Label.description	v.string	—	prose	
+primitives/manifest.js:6	Manifest.type	v.string	—	bare	
+primitives/manifest.js:7	Manifest.slug	Slug	Slug	worn	
+primitives/manifest.js:8	Manifest.owner	v.string	—	bare	
+primitives/manifest.js:9	Manifest.version	v.string	Version	new	
+primitives/manifest.js:10	Manifest.name	v.string	—	prose	
+primitives/manifest.js:11	Manifest.description	v.string	—	prose	
+primitives/manifest.js:12	Manifest.icon.emoji	v.string	—	bare	
+primitives/manifest.js:13	Manifest.traits[]	v.string	—	bare	a trait's name, an open set
+primitives/signatures.js:7	Rank	v.enum	—	closed	
+primitives/theme.js:8	Hex	v.string	Hex	named	no $id
+primitives/theme.js:9	Alpha	v.string	Alpha	named	no $id
+primitives/theme.js:10	Color|	Hex	Hex	worn	
+primitives/theme.js:10	Color|	Alpha	Alpha	worn	
+primitives/theme.js:11	Px	v.string	Px	named	no $id
+primitives/theme.js:12	Percent	v.string	Percent	named	no $id
+primitives/theme.js:13	Rem	v.string	Rem	named	no $id
+primitives/theme.js:14	Em	v.string	Em	named	no $id
+primitives/theme.js:15	Factor	v.number	Factor	named	no $id
+primitives/theme.js:16	Ratio	v.number	Ratio	named	no $id
+primitives/theme.js:17	Leading	v.number	Leading	named	no $id
+primitives/theme.js:18	Shadow	v.string	Shadow	named	no $id
+primitives/theme.js:19	Family	v.string	Family	named	no $id
+primitives/theme.js:20	Glow	v.string	Glow	named	no $id
+primitives/theme.js:21	Filter	v.string	Filter	named	no $id
+primitives/theme.js:22	Step	v.enum	—	closed	
+primitives/theme.js:23	Round	v.enum	—	closed	
+primitives/theme.js:24	Relief	v.enum	—	closed	
+primitives/theme.js:25	Case	v.enum	—	closed	
+primitives/theme.js:26	SignalName	v.enum	—	closed	
+primitives/theme.js:27	ZoneIndex	v.enum	—	closed	
+primitives/theme.js:40	shape.radius	Px	Px	worn	
+primitives/theme.js:41	shape.radius.full|	Px	Px	worn	
+primitives/theme.js:41	shape.radius.full|	Percent	Percent	worn	
+primitives/theme.js:44	shape.label.track	Em	Em	worn	
+primitives/theme.js:45	shape.lift	Shadow	Shadow	worn	
+primitives/theme.js:46	shape.sunk	Shadow	Shadow	worn	
+primitives/theme.js:50	size.unit	Rem	Rem	worn	
+primitives/theme.js:51	size.space	Factor	Factor	worn	
+primitives/theme.js:52	size.type	Rem	Rem	worn	
+primitives/theme.js:57	size.row	Factor	Factor	worn	
+primitives/theme.js:58	size.key	Factor	Factor	worn	
+primitives/theme.js:59	size.leading.tight	Leading	Leading	worn	
+primitives/theme.js:59	size.leading.loose	Leading	Leading	worn	
+primitives/theme.js:60	size.ring	Px	Px	worn	
+primitives/theme.js:61	size.depth	Px	Px	worn	
+primitives/theme.js:65	text.header	Color	Color	worn	
+primitives/theme.js:65	text.strong	Color	Color	worn	
+primitives/theme.js:65	text.ink	Color	Color	worn	
+primitives/theme.js:65	text.light	Color	Color	worn	
+primitives/theme.js:65	text.muted	Color	Color	worn	
+primitives/theme.js:66	text.link	Color	Color	worn	
+primitives/theme.js:66	text.code	Color	Color	worn	
+primitives/theme.js:67	text.disabled	Ratio	Ratio	worn	
+primitives/theme.js:71	control.contrast	Color	Color	worn	
+primitives/theme.js:71	control.contrastHover	Color	Color	worn	
+primitives/theme.js:71	control.contrastPressed	Color	Color	worn	
+primitives/theme.js:72	control.on	Color	Color	worn	
+primitives/theme.js:72	control.onMuted	Color	Color	worn	
+primitives/theme.js:72	control.onPressed	Color	Color	worn	
+primitives/theme.js:73	control.field	Color	Color	worn	
+primitives/theme.js:73	control.fieldPlaceholder	Color	Color	worn	
+primitives/theme.js:73	control.fieldCaret	Color	Color	worn	
+primitives/theme.js:74	control.selected	Color	Color	worn	
+primitives/theme.js:74	control.focus	Color	Color	worn	
+primitives/theme.js:74	control.scrollbar	Color	Color	worn	
+primitives/theme.js:74	control.divider	Color	Color	worn	
+primitives/theme.js:77	tone.fill	Color	Color	worn	
+primitives/theme.js:77	tone.ink	Color	Color	worn	
+primitives/theme.js:77	tone.tint	Color	Color	worn	
+primitives/theme.js:77	tone.on	Color	Color	worn	
+primitives/theme.js:81	ground.plane	Color	Color	worn	
+primitives/theme.js:81	ground.planeSunk	Color	Color	worn	
+primitives/theme.js:81	ground.planeLift	Color	Color	worn	
+primitives/theme.js:82	ground.boundary	Color	Color	worn	
+primitives/theme.js:82	ground.boundaryStrong	Color	Color	worn	
+primitives/theme.js:82	ground.boundarySoft	Color	Color	worn	
+primitives/theme.js:83	ground.divider	Color	Color	worn	
+primitives/theme.js:84	ground.inverse	Color	Color	worn	
+primitives/theme.js:84	ground.inverseOn	Color	Color	worn	
+primitives/theme.js:85	ground.shadow	Color	Color	worn	
+primitives/theme.js:85	ground.scrim	Color	Color	worn	
+primitives/theme.js:86	ground.dim	Ratio	Ratio	worn	
+primitives/theme.js:90	brand.outline	Color	Color	worn	
+primitives/theme.js:91	brand.glow	Glow	Glow	worn	
+primitives/theme.js:92	brand.filter	Filter	Filter	worn	
+primitives/theme.js:97	font.family.sansHeading	Family	Family	worn	
+primitives/theme.js:98	font.family.sansText	Family	Family	worn	
+primitives/theme.js:99	font.family.serifHeading	Family	Family	worn	
+primitives/theme.js:100	font.family.serifText	Family	Family	worn	
+primitives/theme.js:101	font.family.brand	Family	Family	worn	
+primitives/theme.js:102	font.family.code	Family	Family	worn	
+primitives/theme.js:120	stated.shape.radius|	Px	Px	worn	
+primitives/theme.js:124	stated.signal||	Color	Color	worn	
+primitives/theme.js:133	Definition.zones||	Color	Color	worn	
+primitives/track.js:3	Start	v.null	—	closed	
+primitives/track.js:4	Stop	v.null	—	closed	
+primitives/track.js:5	Request.method	v.string	Verb	tighten	connection.js:5, not exported
+primitives/track.js:5	Request.path	v.string	—	bare	
+primitives/track.js:6	Response.status	v.integer	—	bare	
+primitives/track.js:7	Fault.type	v.string	—	bare	
+primitives/track.js:7	Fault.message	v.string	—	prose	
+primitives/track.js:7	Fault.code	v.string	—	bare	
+primitives/track.js:7	Fault.stack	v.string	—	prose	
+primitives/track.js:8	Log|	v.string	—	prose	
+primitives/track.js:9	Entity.schema	v.string	—	bare	
+primitives/track.js:9	Entity.id	v.string	ID	wear	
+primitives/track.js:10	Status.code	v.string	State	tighten	controller.js:10
+primitives/track.js:12	Track	v.enum	—	closed	
+prototypes/bundle.js:7	Bundle.entries[].mime	type	mime.type	worn	
+prototypes/bundle.js:8	Bundle.entries[].hash	v.string	Hash	new	
+prototypes/bundle.js:9	Bundle.entries[].mount	v.string	FilePath	wire	
+prototypes/bundle.js:10	Bundle.entries[].integrity	v.string	Integrity	new	
+prototypes/bundle.js:11	Bundle.entries[].bytes	v.integer	Bytes	new	
+prototypes/index.js:7	StatusCode|	v.const	—	closed	
+prototypes/index.js:8	StatusCode|	v.const	—	closed	
+prototypes/index.js:9	StatusCode|	v.const	—	closed	
+prototypes/index.js:10	StatusCode|	v.const	—	closed	
+prototypes/index.js:11	StatusCode|	v.const	—	closed	
+prototypes/index.js:12	StatusCode|	v.const	—	closed	
+prototypes/index.js:16	Status.timestamp	v.instant	v.instant	worn	
+prototypes/index.js:17	Status.code	v.string	StatusCode	tighten	prototypes/index.js:6, worn nowhere
+prototypes/index.js:21	ErrorResponse.success	v.const	—	closed	
+prototypes/index.js:22	ErrorResponse.message	v.string	—	prose	
+prototypes/yield.js:3	Condition	v.enum	—	closed	
+scalars/index.js:6	ID	v.string	ID	named	minLength 1
+scalars/index.js:8	slug	v.string	Slug	named	^[a-z0-9]+(?:-[a-z0-9]+)*$
+scalars/index.js:9	Slug	slug	Slug	worn	
+scalars/index.js:11	JWTToken	v.string	JWTToken	named	three dotted base64url parts
+scalars/index.js:13	Username	v.string	Username	named	1 to 64 chars
+scalars/index.js:15	Password	v.string	Password	named	minLength 1
+scalars/mime.js:11	type	v.string	mime.type	named	RFC 6838, no $id
+scalars/url.js:20	url	v.string	url	named	RFC 3986 with an authority, no $id
+traits/aimed.js:4	Aimed.mount	v.string	Signal	wire	a route
+traits/conversational.js:5	Conversational.language[]	v.string	—	bare	
+traits/conversational.js:11	Conversational.harmonize.window	v.integer	—	bare	
+traits/conversational.js:12	Conversational.harmonize.tolerance	v.number	Probability	wear	the same bounds
+traits/conversational.js:13	Conversational.harmonize.tail	v.integer	—	bare	
+traits/conversational.js:19	Conversational.polish.engaged	v.boolean	—	bare	
+traits/docked.js:5	Docked.align	v.enum	—	closed	
+traits/docked.js:6	Docked.share	v.number	—	bare	
+traits/docked.js:7	Docked.view	v.enum	—	closed	
+traits/docked.js:8	Docked.shown	v.enum	—	closed	
+traits/docked.js:10	Docked.lens[]	v.enum	—	closed	
+traits/docked.js:14	Docked.markdown	v.enum	—	closed	
+traits/harnessed.js:7	Harnessed.effort	v.enum	—	closed	
+traits/harnessed.js:8	Harnessed.rounds	v.integer	—	bare	
+traits/harnessed.js:9	Harnessed.thinking	v.boolean	—	bare	
+traits/harnessed.js:10	Harnessed.slugging	v.enum	—	closed	
+traits/index.js:135	user.THEMED	Themed	Themed	worn	
+traits/index.js:140	client.THEMED	Themed	Themed	worn	
+traits/index.js:198	worn[]	v.enum	—	closed	
+traits/primed.js:4	Primed{key}	v.string	—	key	
+traits/queueing.js:4	Queueing.depth	v.integer	—	bare	
+traits/rendered.js:5	Rendered.frame	v.string	Slug	tighten	a view's slug
+traits/rendered.js:6	Rendered.cell	v.string	Slug	tighten	a view's slug
+traits/themed.js:3	Themed	v.string	Themed	named	no constraint, no $id
+traits/tooled.js:3	Load	v.enum	—	closed	
+traits/tooled.js:4	Tooled{key}	v.string	—	key	

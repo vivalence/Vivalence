@@ -20,13 +20,13 @@
     flex-direction: column;
     gap: 8px;
     padding: 10px 12px 12px;
-    background: var(--surface-lift);
+    background: var(--plane-lift);
     color: var(--text-strong);
     border-radius: var(--shape-radius-card);
     box-shadow: 0 0 0 var(--size-ring) var(--boundary);
   }
   .card.sunk {
-    background: var(--surface-sunk);
+    background: var(--plane-sunk);
   }
   .card.click {
     cursor: pointer;

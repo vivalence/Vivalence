@@ -8,4 +8,4 @@ export * as input from "./input.js";
 export * as harnessed from "./harnessed.js";
 export * as journal from "./journal.js";
 export { outline } from "./outline.js";
-export * as view from "./view.js";
+export * as surface from "./surface.js";

@@ -41,7 +41,7 @@ export const core = async (modeDie, next) => {
     .open("/metadata/manifest", (ctx) => ctx.mode.manifest)
     .open("/metadata/cortex", (ctx) => faculties.strip(ctx.mode.cortex));
   if (modeDie.mode.module.aperture) modeDie.mode.aperture.graft(modeDie.mode.module.aperture);
-  for (const kind of ["literal", "symbol", "view", "intent", "file", "note", "thread", "turn", "buffer"]) {
+  for (const kind of ["literal", "symbol", "surface", "intent", "file", "note", "thread", "turn", "buffer"]) {
     modeDie.mode.aperture
       .branch(`/entities/${kind}`)
       .use(shard.datamap.bind(modeDie.entities.em, "mode", (ctx) => ({ mode: ctx.mode.id })))

@@ -1,0 +1,3618 @@
+diff --color -ruN blog/blog.viva.js blog/blog.viva.js
+--- blog/blog.viva.js	2026-11-24 10:56:34.000000000 +0100
++++ blog/blog.viva.js	2026-11-24 11:54:39.626403549 +0100
+@@ -9,7 +9,7 @@
+     "A blog written and pressed in one place: a .md · .org under source/ in its mountpoint " +
+     "becomes a page under public/, an essay when it is dated; " +
+     "every other file there is served from where it lies.",
+-  version: "0.4.0",
++  version: "0.5.0",
+   traits: ["EXPOSED", "ATTACHED", "SURFACED", "FILESET"],
+ };
+ 
+diff --color -ruN blog/buffer/Blog.jsx blog/buffer/Blog.jsx
+--- blog/buffer/Blog.jsx	2026-11-24 11:05:41.000000000 +0100
++++ blog/buffer/Blog.jsx	2026-11-24 11:55:58.922528679 +0100
+@@ -15,7 +15,6 @@
+ import {
+   caret,
+   figured,
+-  KEYS,
+   markup,
+   mounted,
+   outline,
+@@ -26,9 +25,12 @@
+   tuned,
+   wrapped,
+ } from "./editor.js";
++import { ICONS } from "./icons.js";
+ import styles from "./desk.css";
+ 
+-const DOTS = { fault: "is-fault", published: "is-healthy", unlisted: "is-needs", draft: "" };
++const BLANK = Desk.cast({});
++
++const DOTS = { fault: "is-fault", published: "is-healthy", unlisted: "dot-open", draft: "" };
+ 
+ const GROUPS = [
+   [(source) => source.fault !== null, "faults"],
+@@ -37,67 +39,129 @@
+   [() => true, "pages"],
+ ];
+ 
+-const STATUSES = ["draft", "unlisted", "published"];
++const STATUSES = [
++  ["draft", "stays off the site"],
++  ["unlisted", "pressed, off the index"],
++  ["published", "pressed and listed"],
++];
+ 
+ const MODES = [
+-  ["write", "write", "Mod-Alt-Digit1"],
+-  ["split", "split", "Mod-Alt-Digit2"],
+-  ["preview", "page", "Mod-Alt-Digit3"],
+-  ["focus", "focus", "Mod-Period"],
++  ["write", "Mod-Alt-Digit1"],
++  ["split", "Mod-Alt-Digit2"],
++  ["preview", "Mod-Alt-Digit3"],
++  ["focus", "Mod-Period"],
+ ];
+ 
+ const DEVICES = [
+-  ["desktop", "▭", "100%"],
+-  ["tablet", "▯", "820px"],
+-  ["phone", "▮", "390px"],
++  ["desktop", "1280"],
++  ["tablet", "768 × 1024"],
++  ["phone", "390 × 844"],
+ ];
+ 
+-const TABS = [
+-  ["post", "post"],
+-  ["media", "media"],
+-  ["outline", "outline"],
+-  ["stats", "stats"],
+-];
++const TABS = ["post", "media", "outline", "stats"];
+ 
+ const MARKS = [
+-  ["bold", "B", "bold"],
+-  ["italic", "I", "italic"],
+-  ["strike", "S", "strike through"],
+-  ["code", "</>", "code"],
+-  ["link", "⌁", "link"],
+-  ["math", "∑", "math"],
+-  ["note", "¹", "footnote"],
++  ["bold", "bold"],
++  ["italic", "italic"],
++  ["strike", "strike through"],
++  ["code", "code"],
++  ["link", "link"],
++  ["math", "math"],
++  ["note", "footnote"],
+ ];
+ 
+ const LINES = [
+-  ["heading", "H", "heading"],
+-  ["quote", "❝", "quote"],
+-  ["list", "•", "list"],
+-  ["numbered", "1.", "numbered list"],
+-  ["task", "☐", "task"],
++  ["heading", "heading"],
++  ["quote", "quote"],
++  ["list", "list"],
++  ["numbered", "numbered list"],
++  ["task", "task"],
+ ];
+ 
+-const RANGES = [
+-  ["size", "size", 12, 26, 1, "px"],
+-  ["measure", "measure", 40, 140, 2, "ch"],
+-  ["leading", "leading", 1.2, 2.4, 0.05, ""],
++const TOOLS = [
++  ["bold", "bold"],
++  ["italic", "italic"],
++  ["link", "link"],
++  ["heading", "heading"],
++  ["quote", "quote"],
++  ["list", "list"],
++  ["code", "code"],
++  ["image", "inspector · media"],
++  ["footnote", "footnote"],
+ ];
+ 
+-const SWITCHES = [
+-  ["numbers", "line numbers"],
+-  ["typewriter", "typewriter scrolling"],
+-  ["dim", "dim other paragraphs"],
+-  ["spellcheck", "spelling"],
+-  ["sync", "page follows the sheet"],
+-  ["pressing", "a save presses the blog"],
++const SWITCH = [
++  ["off", false],
++  ["on", true],
++];
++
++const SETTINGS = [
++  [
++    "measure",
++    "measure",
++    [
++      ["narrow", 54],
++      ["medium", 66],
++      ["wide", 80],
++    ],
++  ],
++  [
++    "size",
++    "type",
++    [
++      ["small", 14],
++      ["medium", 16],
++      ["large", 18],
++    ],
++  ],
++  ["numbers", "line numbers", SWITCH],
++  ["typewriter", "typewriter", SWITCH],
++  ["spellcheck", "spelling", SWITCH],
++  [
++    "font",
++    "typeface",
++    [
++      ["sans", "sans"],
++      ["serif", "serif"],
++      ["mono", "mono"],
++    ],
++  ],
++  [
++    "leading",
++    "leading",
++    [
++      ["tight", 1.3],
++      ["medium", 1.45],
++      ["loose", 1.7],
++    ],
++  ],
++  ["dim", "dim the rest", SWITCH],
++  [
++    "autosave",
++    "autosave",
++    [
++      ["never", 0],
++      ["2s", 2],
++      ["5s", 5],
++      ["10s", 10],
++      ["30s", 30],
++    ],
++  ],
++  ["pressing", "a save presses", SWITCH],
+ ];
+ 
+-const PAUSES = [0, 2, 5, 10, 30];
++const FACES = {
++  sans: "var(--font-family-sans-text)",
++  serif: "var(--font-family-serif-text)",
++  mono: "var(--font-family-code)",
++};
+ 
+ const LIMITS = { library: [180, 480], inspector: [240, 560], share: [0.2, 0.8] };
+ 
+ const NARROW = 760;
+ 
++const TYPED = "input, textarea, select, [contenteditable]";
++
+ const COUNTS = [
+   ["words", /\S+/g],
+   ["characters", /[^\n]/g],
+@@ -105,16 +169,20 @@
+   ["paragraphs", /(^|\n\n)\s*\S/g],
+   ["links", /\]\(|\[\[/g],
+   ["pictures", /!\[|\[\[\/images/g],
+-  ["notes", /\[\^[^\]]+\](?!:)|\[fn:[^\]]+\]/g],
++  ["footnotes", /\[\^[^\]]+\](?!:)|\[fn:[^\]]+\]/g],
+ ];
+ 
+-const GLYPHS = { Mod: "⌘", Shift: "⇧", Alt: "⌥", Period: ".", Comma: ",", Backslash: "\\" };
++const GLYPHS = {
++  Mod: "⌘",
++  Shift: "⇧",
++  Alt: "⌥",
++  Period: ".",
++  Comma: ",",
++  Backslash: "\\",
++};
+ 
+-const glyphed = (chord) =>
+-  chord
+-    .split("-")
+-    .map((part) => GLYPHS[part] ?? part.replace(/^(Key|Digit)/, ""))
+-    .join("");
++const glyphs = (chord) =>
++  chord.split("-").map((part) => GLYPHS[part] ?? part.replace(/^(Key|Digit)/, ""));
+ 
+ const chorded = (event) =>
+   [
+@@ -130,6 +198,8 @@
+ 
+ const grouped = (source) => GROUPS.find(([held]) => held(source))[1];
+ 
++const named = (source) => (source.fault === null ? source.article.title : source.path);
++
+ const dated = (source) =>
+   source.fault === null && source.article.date !== undefined ? source.article.date : "";
+ 
+@@ -160,14 +230,30 @@
+ 
+ const within = ([floor, ceiling], value) => Math.min(ceiling, Math.max(floor, value));
+ 
+-const fuzzy = (query, text) => {
+-  let at = 0;
+-  for (const letter of text.toLowerCase()) if (letter === query[at]) at++;
+-  return at === query.length;
+-};
+-
+ const clock = () => new Date().toTimeString().slice(0, 5);
+ 
++const Icon = (props) => (
++  <svg class="icon" viewBox="0 0 16 16" aria-hidden="true">
++    <path d={ICONS[props.name]} />
++  </svg>
++);
++
++const Key = (props) => (
++  <button
++    type="button"
++    class="key"
++    aria-label={props.label}
++    title={props.label}
++    aria-pressed={props.pressed}
++    onClick={props.onClick}>
++    <Icon name={props.icon} />
++  </button>
++);
++
++const Caps = (props) => (
++  <For each={props.glyphs}>{(glyph) => <span class="cap">{glyph}</span>}</For>
++);
++
+ const Seam = (props) => {
+   const [dragging, setDragging] = createSignal(false);
+   let seam;
+@@ -189,7 +275,7 @@
+   return (
+     <div
+       ref={seam}
+-      classList={{ seam: true, drag: dragging() }}
++      classList={{ seam: true, "is-mid": props.mid, "is-shut": props.shut, drag: dragging() }}
+       title="drag to resize · double-click resets"
+       onPointerDown={down}
+       onPointerMove={move}
+@@ -203,25 +289,26 @@
+ export const Blog = (props) => {
+   const held = from(props.buffer.$data);
+   const desk = createMemo(() => Desk.cast(held()));
+-  const open = () => desk().open;
++  const open = createMemo(() => desk().open);
+   const settings = () => desk().settings;
+   const [shelf, { refetch }] = createResource(() => props.buffer.mode.call.source.list());
+   const [drafts, setDrafts] = createStore({});
+   const [preview, setPreview] = createSignal("");
+   const [fault, setFault] = createSignal(null);
+-  const [told, setTold] = createSignal("");
+-  const [query, setQuery] = createSignal("");
+-  const [fresh, setFresh] = createSignal(null);
++  const [pressed, setPressed] = createSignal(null);
++  const [filter, setFilter] = createSignal("");
++  const [fresh, setFresh] = createSignal("");
+   const [armed, setArmed] = createSignal(null);
+   const [busy, setBusy] = createSignal(false);
+   const [dragged, setDragged] = createSignal({});
+   const [folded, setFolded] = createSignal([]);
+   const [at, setAt] = createSignal({ line: 1, column: 1, chosen: 0 });
+-  const [palette, setPalette] = createSignal(null);
++  const [asking, setAsking] = createSignal(false);
++  const [query, setQuery] = createSignal("");
+   const [picked, setPicked] = createSignal(0);
+   const [tuning, setTuning] = createSignal(false);
+   const [moving, setMoving] = createSignal("");
+-  const [stamp, setStamp] = createSignal("");
++  const [sized, setSized] = createSignal([]);
+   const [narrow, setNarrow] = createSignal(false);
+   const [drawer, setDrawer] = createSignal(null);
+   const sheets = new Map();
+@@ -229,6 +316,8 @@
+   let host;
+   let frame;
+   let view;
++  let naming;
++  let dating;
+   let showing = null;
+   let previewing;
+   let saving;
+@@ -246,58 +335,88 @@
+ 
+   const guarded = async (run) => {
+     setFault(null);
+-    setBusy(true);
+     try {
+       await run();
+     } catch (error) {
+       setFault(error.message);
+-    } finally {
+-      setBusy(false);
+     }
+   };
+ 
+   const draft = () => (open() === null ? undefined : drafts[open()]);
+ 
++  const sourced = () => open() !== null && draft() !== undefined;
++
+   const dirty = (path) => drafts[path] !== undefined && drafts[path].kept !== keyed(drafts[path]);
+ 
+-  const lying = () =>
+-    shelf() === undefined ? undefined : shelf().sources.find((source) => source.path === open());
++  const sources = () => (shelf() === undefined ? [] : shelf().sources);
++
++  const lying = () => sources().find((source) => source.path === open());
+ 
+   const live = () => lying() !== undefined && !["fault", "draft"].includes(state(lying()));
+ 
++  const paged = () =>
++    lying() === undefined || lying().fault !== null ? "" : `/${lying().article.page}`;
++
++  const recent = () =>
++    desk()
++      .recent.map((path) => sources().find((source) => source.path === path))
++      .filter((source) => source !== undefined);
++
++  const pictures = () => (shelf() === undefined ? [] : shelf().files.filter(pictured));
++
++  const others = () =>
++    shelf() === undefined ? [] : shelf().files.filter((file) => !pictured(file));
++
+   const words = () => (draft() === undefined ? 0 : counted(draft().body, /\S+/g));
+ 
++  const minutes = () => Math.max(1, Math.round(words() / 230));
++
+   const faults = () => (draft() === undefined ? [] : Article.faults(known(draft().front)));
+ 
++  const headings = () => (draft() === undefined ? [] : outline(open(), draft().body));
++
++  const heading = () => headings().findLast((entry) => entry.line <= at().line) ?? null;
++
++  const dateable = () =>
++    draft().front.date === undefined || /^\d{4}\.\d{2}\.\d{2}$/.test(draft().front.date);
++
++  const title = () => {
++    if (open() === null) return "no source";
++    if (draft() === undefined) return open();
++    return draft().front.title ?? titled(open());
++  };
++
++  const dot = () => {
++    if (lying() === undefined) return "";
++    if (faults().length > 0) return "is-fault";
++    if (dirty(open())) return "dot-unsaved";
++    return DOTS[state(lying())];
++  };
++
+   const width = (dock) => dragged()[dock] ?? desk()[dock].width;
+ 
+   const share = () => dragged().share ?? desk().share;
+ 
+-  const mode = () => (narrow() && desk().mode === "split" ? "write" : desk().mode);
++  const mode = () => {
++    if (open() === null) return "write";
++    return narrow() && desk().mode === "split" ? "write" : desk().mode;
++  };
+ 
+-  const docked = (dock) =>
+-    narrow() ? drawer() === dock : desk()[dock].shown && desk().mode !== "focus";
++  const docked = (dock) => (narrow() ? drawer() === dock : desk()[dock].shown);
+ 
+-  const shown = (sources) =>
+-    sources.filter((source) =>
+-      `${source.path} ${source.fault === null ? source.article.title : ""}`
+-        .toLowerCase()
+-        .includes(query().toLowerCase()),
+-    );
++  const worn = () => ({ ...settings(), dim: settings().dim || desk().mode === "focus" });
+ 
+   const group = (name) =>
+-    shown(shelf().sources)
++    sources()
++      .filter((source) =>
++        `${source.path} ${named(source)}`.toLowerCase().includes(filter().toLowerCase()),
++      )
+       .filter((source) => grouped(source) === name)
+       .toSorted(
+         (left, right) =>
+           dated(right).localeCompare(dated(left)) || left.path.localeCompare(right.path),
+       );
+ 
+-  const heading = () => {
+-    if (draft() === undefined) return null;
+-    return outline(open(), draft().body).findLast((entry) => entry.line <= at().line) ?? null;
+-  };
+-
+   const followed = () => {
+     if (frame === undefined || frame.contentDocument === null) return;
+     const scroller = frame.contentDocument.scrollingElement;
+@@ -306,11 +425,22 @@
+   };
+ 
+   const scrolled = (event) => {
+-    const scroller = event.target;
++    const scroller = event.currentTarget;
+     ratio = scroller.scrollTop / Math.max(1, scroller.scrollHeight - scroller.clientHeight);
+     if (settings().sync) followed();
+   };
+ 
++  const pressing = async () => {
++    setBusy(true);
++    try {
++      const built = await props.buffer.mode.call.build();
++      setPressed({ at: clock(), pages: built.pages.length });
++      await refetch();
++    } finally {
++      setBusy(false);
++    }
++  };
++
+   const uploaded = async (files) => {
+     const paths = [];
+     for (const file of [...files].filter((file) => file.type.startsWith("image/"))) {
+@@ -320,9 +450,7 @@
+       );
+       paths.push(placed.path);
+     }
+-    const built = await props.buffer.mode.call.build();
+-    setTold(`${paths.length} placed · ${built.pages.length} pressed`);
+-    await refetch();
++    await pressing();
+     return paths;
+   };
+ 
+@@ -349,10 +477,9 @@
+       sheet({
+         path,
+         body: source.body,
+-        settings: settings(),
++        settings: worn(),
+         typed: (body) => setDrafts(path, "body", body),
+         moved: setAt,
+-        scrolled,
+         dropped: placed(path),
+         pasted: placed(path),
+       }),
+@@ -370,7 +497,7 @@
+         if (drafts[path] === undefined) await load(path);
+         if (open() !== path) return;
+         editor().setState(sheets.get(path));
+-        tuned(editor(), settings());
++        tuned(editor(), worn());
+         setAt(caret(editor().state));
+         showing = path;
+         if (mode() !== "preview" && !narrow()) editor().focus();
+@@ -379,7 +506,7 @@
+   );
+ 
+   createEffect(
+-    on(settings, (now) => {
++    on(worn, (now) => {
+       if (showing !== null) tuned(editor(), now);
+     }),
+   );
+@@ -392,8 +519,8 @@
+     clearTimeout(previewing);
+     previewing = setTimeout(async () => {
+       try {
+-        const pressed = await props.buffer.mode.call.source.preview(typed);
+-        if (open() === path) setPreview(pressed.html);
++        const page = await props.buffer.mode.call.source.preview(typed);
++        if (open() === path) setPreview(page.html);
+       } catch (error) {
+         setFault(error.message);
+       }
+@@ -421,7 +548,12 @@
+ 
+   const pick = (path) => {
+     setDrawer(null);
+-    settle({ open: path });
++    setAsking(false);
++    settle({
++      open: path,
++      recent: [path, ...desk().recent.filter((seen) => seen !== path)].slice(0, 3),
++      mode: desk().mode === "focus" ? "write" : desk().mode,
++    });
+   };
+ 
+   const fronting = (key, value) =>
+@@ -438,19 +570,11 @@
+     const typed = { path, front: unwrap(drafts[path]).front, body: drafts[path].body };
+     await props.buffer.mode.call.source.write(typed);
+     setDrafts(path, "kept", keyed(typed));
+-    setStamp(`saved ${clock()}`);
+-    await refetch();
+-  };
+-
+-  const pressing = async () => {
+-    const built = await props.buffer.mode.call.build();
+-    setTold(`${built.pages.length} pressed · ${built.gone.length} gone · ${clock()}`);
+     await refetch();
+   };
+ 
+   const save = () =>
+     guarded(async () => {
+-      if (open() === null) return;
+       await written(open());
+       if (settings().pressing) await pressing();
+     });
+@@ -466,11 +590,17 @@
+     return press();
+   };
+ 
++  const begin = () => {
++    if (!docked("library")) docking("library");
++    if (fresh() === "") setFresh("on/");
++    queueMicrotask(() => naming.focus());
++  };
++
+   const create = (event) => {
+     event.preventDefault();
+     const path = fresh().trim();
+     guarded(async () => {
+-      if (!shelf().sources.some((source) => source.path === path)) {
++      if (!sources().some((source) => source.path === path)) {
+         await props.buffer.mode.call.source.write({
+           path,
+           front: { title: titled(path), date: today(), status: "draft" },
+@@ -478,7 +608,7 @@
+         });
+         await refetch();
+       }
+-      setFresh(null);
++      setFresh("");
+       pick(path);
+     });
+   };
+@@ -493,9 +623,9 @@
+     if (armed() !== path) return setArmed(path);
+     guarded(async () => {
+       await props.buffer.mode.call.source.remove({ path });
++      setArmed(null);
+       forget(path);
+       if (open() === path) await settle({ open: null });
+-      setTold(`removed ${path}`);
+       await pressing();
+     });
+   };
+@@ -520,6 +650,15 @@
+       event.target.value = "";
+     });
+ 
++  const leading = (event) => {
++    event.preventDefault();
++    const files = event.dataTransfer.files;
++    guarded(async () => {
++      const [path] = await uploaded(files);
++      if (path !== undefined) fronting("image", `/${path}`);
++    });
++  };
++
+   const docking = (dock) =>
+     narrow()
+       ? setDrawer(drawer() === dock ? null : dock)
+@@ -530,95 +669,149 @@
+     settle({ inspector: { ...desk().inspector, shown: true, tab } });
+   };
+ 
+-  const moded = (mode) => {
+-    settle({ mode });
+-    if (mode !== "preview" && showing !== null) queueMicrotask(() => editor().focus());
++  const moded = (shape) => {
++    setDrawer(null);
++    settle({ mode: shape });
++    if (shape !== "preview" && showing !== null) queueMicrotask(() => editor().focus());
++  };
++
++  const ask = () => {
++    setQuery("");
++    setPicked(0);
++    setTuning(false);
++    setDrawer(null);
++    setAsking(!asking());
+   };
+ 
+   const marked = (name) => () => wrapped(editor(), markup(open()).marks[name]);
+ 
+   const lined = (name) => () => prefixed(editor(), markup(open()).lines[name]);
+ 
+-  const sourced = () => open() !== null && draft() !== undefined;
+-
+   const COMMANDS = [
+     ["save", "Mod-KeyS", sourced, save],
+-    ["save and press", "Mod-Shift-KeyS", sourced, press],
+-    ["press the blog", null, () => true, () => guarded(pressing)],
++    ["press the site", "Mod-Shift-KeyS", () => !busy(), press],
+     ["publish", null, sourced, () => publish("published")],
+     ["unlist", null, sourced, () => publish("unlisted")],
+     ["back to draft", null, sourced, () => publish("draft")],
+-    ["new source", "Mod-Alt-KeyN", () => true, () => setFresh("on/")],
++    ["new source", "Mod-Alt-KeyN", () => true, begin],
+     ["find and replace", "Mod-KeyF", sourced, () => searched(editor())],
+-    ["move or remove this source", null, sourced, () => inspect("post")],
+     [
+       "open the live page",
+       null,
+       live,
+-      () => window.open(`${shelf().site}/${lying().article.page}`, "_blank", "noopener"),
++      () => window.open(`${shelf().site}${paged()}`, "_blank", "noopener"),
+     ],
+-    ...MODES.map(([mode, label, chord]) => [`show ${label}`, chord, () => true, () => moded(mode)]),
++    ...MODES.map(([shape, chord]) => [
++      `mode · ${shape}`,
++      chord,
++      () => open() !== null && !(narrow() && shape === "split"),
++      () => moded(shape),
++    ]),
+     [
+       "next mode",
+       "Mod-Backslash",
+-      () => true,
++      () => open() !== null,
+       () =>
+-        moded(MODES[(MODES.findIndex(([mode]) => mode === desk().mode) + 1) % MODES.length][0]),
++        moded(MODES[(MODES.findIndex(([shape]) => shape === desk().mode) + 1) % MODES.length][0]),
+     ],
+-    ["toggle the library", "Mod-Shift-KeyE", () => true, () => docking("library")],
+-    ["toggle the inspector", "Mod-Shift-KeyU", () => true, () => docking("inspector")],
+-    ...TABS.map(([tab, label]) => [`inspect ${label}`, null, () => true, () => inspect(tab)]),
+-    ...DEVICES.map(([device]) => [
+-      `page at ${device} width`,
+-      null,
+-      () => true,
+-      () => settle({ device }),
+-    ]),
++    ["library", "Mod-Shift-KeyE", () => true, () => docking("library")],
++    ["inspector", "Mod-Shift-KeyU", sourced, () => docking("inspector")],
++    ...TABS.map((tab) => [`inspector · ${tab}`, null, sourced, () => inspect(tab)]),
++    ...DEVICES.map(([device]) => [`preview · ${device}`, null, sourced, () => settle({ device })]),
++    ["preview · follow the sheet", null, sourced, () => tune({ sync: !settings().sync })],
+     ["settings", "Mod-Comma", () => true, () => setTuning(!tuning())],
+-    ["commands", "Mod-KeyP", () => true, () => setPalette(palette() === null ? "" : null)],
+-    ...MARKS.map(([name, , label]) => [label, null, sourced, marked(name)]),
+-    ...LINES.map(([name, , label]) => [label, null, sourced, lined(name)]),
+-    ...SWITCHES.map(([key, label]) => [
+-      `${label}: on or off`,
+-      null,
+-      () => true,
+-      () => tune({ [key]: !settings()[key] }),
+-    ]),
+-    ["bigger type", null, () => true, () => tune({ size: within([12, 26], settings().size + 1) })],
+-    ["smaller type", null, () => true, () => tune({ size: within([12, 26], settings().size - 1) })],
++    ["palette", "Mod-KeyP", () => true, ask],
++    ...MARKS.map(([name, label]) => [label, null, sourced, marked(name)]),
++    ...LINES.map(([name, label]) => [label, null, sourced, lined(name)]),
+     ["default settings", null, () => true, () => tune(Settings.cast({}))],
++    [
++      "remove this source",
++      null,
++      sourced,
++      () => {
++        setArmed(open());
++        inspect("post");
++      },
++    ],
+   ];
+ 
+-  const entries = () => {
+-    const asked = (palette() ?? "").toLowerCase();
+-    const commands = COMMANDS.filter(([, , when]) => when()).map(([label, chord, , run]) => ({
+-      label,
+-      hint: chord === null ? "" : glyphed(chord),
+-      run,
+-    }));
+-    const sources =
+-      shelf() === undefined
+-        ? []
+-        : shelf().sources.map((source) => ({
+-            label: `open ${source.fault === null ? source.article.title : source.path}`,
+-            hint: source.path,
+-            run: () => pick(source.path),
+-          }));
+-    return [...sources, ...commands].filter((entry) => fuzzy(asked, entry.label)).slice(0, 40);
+-  };
+-
+-  const ran = (entry) => {
+-    setPalette(null);
+-    entry.run();
++  const command = (label) => COMMANDS.find(([name]) => name === label);
++
++  const run = (label) => () => {
++    const [, , when, act] = command(label);
++    if (when()) act();
++  };
++
++  const hit = (label) => label.toLowerCase().includes(query().trim().toLowerCase());
++
++  const cut = (label) => {
++    const asked = query().trim().toLowerCase();
++    const from = asked === "" ? -1 : label.toLowerCase().indexOf(asked);
++    if (from < 0) return [label, "", ""];
++    return [
++      label.slice(0, from),
++      label.slice(from, from + asked.length),
++      label.slice(from + asked.length),
++    ];
++  };
++
++  const parts = createMemo(() => {
++    const asked = query().trim() !== "";
++    return [
++      [
++        asked ? "sources" : "recent",
++        (asked ? sources().filter((source) => hit(named(source))) : recent()).map((source) => ({
++          label: named(source),
++          sign: `kit-dot mid ${DOTS[state(source)]}`,
++          mark: "",
++          note: source.path,
++          keys: [],
++          run: () => pick(source.path),
++        })),
++      ],
++      [
++        "commands",
++        COMMANDS.filter(([label, , when]) => when() && hit(label)).map(
++          ([label, chord, , act]) => ({
++            label,
++            sign: "sign",
++            mark: "›",
++            note: "",
++            keys: chord === null ? [] : glyphs(chord),
++            run: act,
++          }),
++        ),
++      ],
++      [
++        "settings",
++        SETTINGS.flatMap(([key, label, choices]) =>
++          choices.map(([name, value]) => ({
++            label: `${label} · ${name}`,
++            sign: "sign",
++            mark: "=",
++            note: settings()[key] === value ? "set" : "",
++            keys: [],
++            run: () => tune({ [key]: value }),
++          })),
++        ).filter((row) => asked && hit(row.label)),
++      ],
++    ].filter(([, rows]) => rows.length > 0);
++  });
++
++  const listed = () => parts().flatMap(([, rows]) => rows);
++
++  const ran = (row) => {
++    setAsking(false);
++    row.run();
+   };
+ 
+   const paletted = (event) => {
+-    const listed = entries();
+-    if (event.key === "ArrowDown") setPicked((picked() + 1) % Math.max(1, listed.length));
++    const rows = listed();
++    if (event.key === "ArrowDown") setPicked((picked() + 1) % Math.max(1, rows.length));
+     else if (event.key === "ArrowUp")
+-      setPicked((picked() - 1 + listed.length) % Math.max(1, listed.length));
+-    else if (event.key === "Enter" && listed[picked()] !== undefined) ran(listed[picked()]);
+-    else if (event.key === "Escape") setPalette(null);
++      setPicked((picked() - 1 + rows.length) % Math.max(1, rows.length));
++    else if (event.key === "Enter" && rows[picked()] !== undefined) ran(rows[picked()]);
++    else if (event.key === "Escape") setAsking(false);
+     else return;
+     event.preventDefault();
+     event.stopPropagation();
+@@ -626,16 +819,22 @@
+ 
+   const key = (event) => {
+     if (event.key === "Escape") {
+-      if (palette() !== null) return setPalette(null);
++      if (asking()) return setAsking(false);
+       if (tuning()) return setTuning(false);
+       if (drawer() !== null) return setDrawer(null);
++      if (armed() !== null) return setArmed(null);
+       if (desk().mode === "focus") return moded("write");
+     }
+-    const command = COMMANDS.find(([, chord, when]) => chord === chorded(event) && when());
+-    if (command === undefined) return;
++    if (open() !== null && armed() === open() && event.target.closest(TYPED) === null) {
++      if (event.key === "y") return remove(open());
++      if (event.key === "n") return setArmed(null);
++    }
++    const chord = chorded(event);
++    const held = COMMANDS.find(([, bound, when]) => bound === chord && when());
++    if (held === undefined) return;
+     event.preventDefault();
+     event.stopPropagation();
+-    command[3]();
++    held[3]();
+   };
+ 
+   const kept = () =>
+@@ -673,273 +872,285 @@
+   const Row = (props) => (
+     <button
+       class="row"
++      classList={{ "is-unsaved": dirty(props.source.path) }}
+       aria-current={String(open() === props.source.path)}
+       title={props.source.fault === null ? props.source.path : props.source.fault}
+       onClick={() => pick(props.source.path)}>
+       <span class={`kit-dot ${DOTS[state(props.source)]}`} />
+-      <span class="n">
+-        {props.source.fault === null ? props.source.article.title : props.source.path}
+-      </span>
+-      <span class="unsaved">{dirty(props.source.path) ? "●" : ""}</span>
+-      <span class="v">{dated(props.source) || "page"}</span>
++      <span class="n">{named(props.source)}</span>
++      <span class="mark" />
++      <span class="d">{dated(props.source).slice(5)}</span>
+     </button>
+   );
+ 
+   const Library = () => (
+-    <aside class="dock library" style={{ width: `${width("library")}px` }}>
+-      <header class="dock-head">
+-        <span class="kit-label">sources</span>
+-        <span class="fill" />
+-        <button class="icon" title="new source · ⌘⌥N" onClick={() => setFresh("on/")}>
+-          +
+-        </button>
+-        <button class="icon" title="hide · ⌘⇧E" onClick={() => docking("library")}>
+-          ⟨
+-        </button>
+-      </header>
+-      <Show when={fresh() !== null}>
+-        <form class="kit-field new" onSubmit={create}>
+-          <span class="p">+</span>
++    <aside
++      class="dock library"
++      classList={{ "is-shut": !docked("library") }}
++      style={{ "--width": `${width("library")}px` }}
++      prop:inert={!docked("library")}
++      aria-label="library">
++      <div class="dock-in">
++        <label class="kit-field find">
++          <Icon name="search" />
+           <input
+-            value={fresh()}
+-            onInput={(event) => setFresh(event.target.value)}
+-            onKeyDown={(event) => {
+-              if (event.key === "Escape") setFresh(null);
+-            }}
+-            placeholder="on/a-new-essay.md"
+-            pattern=".+\.(md|org)"
+-            required
+-            ref={(element) => queueMicrotask(() => element.focus())}
+-            aria-label="a new source's path under source/"
++            value={filter()}
++            onInput={(event) => setFilter(event.target.value)}
++            placeholder="filter"
++            aria-label="filter the sources"
+           />
+-        </form>
+-      </Show>
+-      <label class="kit-field">
+-        <span class="p">⌕</span>
+-        <input
+-          value={query()}
+-          onInput={(event) => setQuery(event.target.value)}
+-          placeholder="filter"
+-          aria-label="filter the sources"
+-        />
+-      </label>
+-      <div class="scroll">
+-        <Show when={shelf()}>
++        </label>
++        <div class="groups">
+           <For each={GROUPS.map(([, name]) => name)}>
+             {(name) => (
+               <Show when={group(name).length > 0}>
+-                <button
+-                  class="group"
+-                  onClick={() =>
+-                    setFolded(
+-                      folded().includes(name)
+-                        ? folded().filter((fold) => fold !== name)
+-                        : [...folded(), name],
+-                    )
+-                  }>
+-                  <span>{folded().includes(name) ? "▸" : "▾"}</span>
+-                  <span class="kit-label">{name}</span>
+-                  <span class="count">{group(name).length}</span>
+-                </button>
+-                <Show when={!folded().includes(name)}>
+-                  <For each={group(name)}>{(source) => <Row source={source} />}</For>
+-                </Show>
++                <div class="group">
++                  <button
++                    class="group-head"
++                    aria-expanded={String(!folded().includes(name))}
++                    onClick={() =>
++                      setFolded(
++                        folded().includes(name)
++                          ? folded().filter((fold) => fold !== name)
++                          : [...folded(), name],
++                      )
++                    }>
++                    <Icon name="right" />
++                    <span class="kit-label">{name}</span>
++                    <span class="count">{group(name).length}</span>
++                  </button>
++                  <Show when={!folded().includes(name)}>
++                    <For each={group(name)}>{(source) => <Row source={source} />}</For>
++                  </Show>
++                </div>
+               </Show>
+             )}
+           </For>
+-        </Show>
++        </div>
++        <form class="kit-field is-repl fresh" onSubmit={create}>
++          <span class="p">+</span>
++          <input
++            ref={naming}
++            value={fresh()}
++            onInput={(event) => setFresh(event.target.value)}
++            placeholder="on/name.md"
++            pattern=".+\.(md|org)"
++            required
++            aria-label="new source"
++          />
++        </form>
+       </div>
+     </aside>
+   );
+ 
+   const Post = () => (
+-    <div class="form">
+-      <label class="field">
+-        <span>title</span>
++    <div class="pane is-on">
++      <Show when={faults().length > 0}>
++        <div class="faults">
++          <span>
++            front matter · {faults().length} {faults().length === 1 ? "fault" : "faults"}
++          </span>
++          <For each={faults()}>
++            {(fault) => (
++              <span>
++                ! {fault.at} · {fault.reason}
++              </span>
++            )}
++          </For>
++        </div>
++      </Show>
++      <label class="prop">
++        <span class="kit-label">title</span>
+         <input
+           value={draft().front.title ?? ""}
+           onInput={(event) => fronting("title", event.target.value)}
+           placeholder={titled(open())}
+         />
+       </label>
+-      <label class="field">
+-        <span>subtitle</span>
+-        <textarea
+-          rows="2"
++      <label class="prop">
++        <span class="kit-label">subtitle</span>
++        <input
+           value={draft().front.subtitle ?? ""}
+           onInput={(event) => fronting("subtitle", event.target.value)}
+-          placeholder="the line a link preview shows"
+         />
+       </label>
+-      <label class="field">
+-        <span>date</span>
+-        <div class="with">
+-          <input
+-            value={draft().front.date ?? ""}
+-            onInput={(event) => fronting("date", event.target.value)}
+-            placeholder="none: a page"
+-            pattern="\d{4}\.\d{2}\.\d{2}"
+-          />
+-          <button class="icon" title="today" onClick={() => fronting("date", today())}>
+-            ◷
+-          </button>
+-          <button class="icon" title="no date: a page" onClick={() => fronting("date", "")}>
+-            ×
+-          </button>
+-        </div>
+-      </label>
+-      <div class="field">
+-        <span>status</span>
+-        <span class="kit-choice">
+-          <For each={STATUSES}>
+-            {(status) => (
+-              <button
+-                type="button"
+-                aria-pressed={String(known(draft().front).status === status)}
+-                onClick={() => fronting("status", status)}>
+-                <span class={`kit-dot ${DOTS[status]}`} /> {status}
+-              </button>
+-            )}
+-          </For>
+-        </span>
++      <div class="prop has-act" classList={{ "is-fault": !dateable() }}>
++        <span class="kit-label">date</span>
++        <input
++          ref={dating}
++          class="code"
++          type={dateable() ? "date" : "text"}
++          value={
++            dateable()
++              ? (draft().front.date ?? "").replaceAll(".", "-")
++              : draft().front.date
++          }
++          onInput={(event) => fronting("date", event.target.value.replaceAll("-", "."))}
++          aria-label="date"
++        />
++        <Key
++          icon="calendar"
++          label="pick a date"
++          onClick={() => (dateable() ? dating.showPicker() : dating.focus())}
++        />
+       </div>
+-      <label class="field">
+-        <span>tags</span>
++      <label class="prop">
++        <span class="kit-label">tags</span>
+         <input
++          class="code"
+           value={draft().front.tags ?? ""}
+           onInput={(event) => fronting("tags", event.target.value)}
+-          placeholder="comma-joined"
+         />
+       </label>
+-      <div class="field">
+-        <span>lead picture</span>
++      <div class="sect">
++        <span class="kit-label">status</span>
++        <For each={STATUSES}>
++          {([status, note]) => (
++            <button
++              type="button"
++              class="kit-row tap"
++              aria-current={String(known(draft().front).status === status)}
++              onClick={() => fronting("status", status)}>
++              <span class={`kit-dot mid ${DOTS[status]}`} />
++              <span class="n">{status}</span>
++              <span />
++              <span class="v">{note}</span>
++            </button>
++          )}
++        </For>
++      </div>
++      <div class="sect">
++        <span class="kit-label">lead picture</span>
+         <Show
+           when={draft().front.image !== undefined && shelf() !== undefined}
+           fallback={
+-            <button class="ghost" onClick={() => inspect("media")}>
+-              choose from media
++            <button
++              type="button"
++              class="well"
++              onClick={run("inspector · media")}
++              onDragOver={(event) => event.preventDefault()}
++              onDrop={leading}>
++              <Icon name="image" />
++              <span>drop a picture · or pick from media</span>
+             </button>
+           }>
+-          <figure class="lead">
+-            <img src={`${shelf().site}${draft().front.image}`} alt="" />
+-            <figcaption>
+-              <span>{draft().front.image}</span>
+-              <button class="icon" title="no lead picture" onClick={() => fronting("image", "")}>
+-                ×
+-              </button>
+-            </figcaption>
+-          </figure>
++          <div class="lead-pic">
++            <div class="pic">
++              <img
++                src={`${shelf().site}${draft().front.image}`}
++                alt=""
++                onLoad={(event) =>
++                  setSized([event.target.naturalWidth, event.target.naturalHeight])
++                }
++              />
++            </div>
++            <div>
++              <span class="n">{draft().front.image.split("/").at(-1)}</span>
++              <span class="m">{sized().join(" × ")}</span>
++            </div>
++            <Key
++              icon="close"
++              label="take the lead picture off"
++              onClick={() => fronting("image", "")}
++            />
++          </div>
+         </Show>
+       </div>
+-      <For each={faults()}>
+-        {(fault) => (
+-          <span class="fault">
+-            <span class="kit-dot is-fault" />
+-            {fault.at} {fault.reason}
+-          </span>
+-        )}
+-      </For>
+-      <form class="field" onSubmit={move}>
+-        <span>path under source/</span>
+-        <div class="with">
++      <div class="sect">
++        <span class="kit-label">file</span>
++        <form class="prop has-act" onSubmit={move}>
++          <span class="kit-label">path</span>
+           <input
++            class="code"
+             value={moving()}
+             onInput={(event) => setMoving(event.target.value)}
+             pattern=".+\.(md|org)"
+             required
++            aria-label="path under source/"
+           />
+-          <Show when={moving().trim() !== open()}>
+-            <button class="ghost">move</button>
+-          </Show>
+-        </div>
+-      </form>
+-      <div class="actions">
+-        <button class="ghost" title="save and press · ⌘⇧S" onClick={press}>
+-          save and press
+-        </button>
+-        <Show when={live()}>
+-          <a href={`${shelf().site}/${lying().article.page}`} target="_blank" rel="noopener">
+-            open the live page ↗
+-          </a>
+-        </Show>
+-        <span class="fill" />
+-        <button
+-          class="danger"
+-          aria-pressed={String(armed() === open())}
+-          onClick={() => remove(open())}>
+-          {armed() === open() ? "remove it for good?" : "remove"}
+-        </button>
++          <button class="quiet" disabled={moving().trim() === open()}>
++            move
++          </button>
++        </form>
+       </div>
+     </div>
+   );
+ 
+   const Media = () => (
+-    <div class="media">
+-      <label class="drop">
+-        <input type="file" accept="image/*" multiple onChange={choose} />
+-        <span>drop or choose pictures</span>
++    <div class="pane is-on">
++      <label class="well" classList={{ "is-tall": pictures().length === 0 }}>
++        <input
++          type="file"
++          accept="image/*"
++          multiple
++          onChange={choose}
++          aria-label="add pictures"
++        />
++        <Icon name="upload" />
++        <span>
++          {pictures().length === 0
++            ? "no pictures yet · drop one here"
++            : "drop pictures · or choose"}
++        </span>
+       </label>
+-      <Show when={shelf()}>
+-        <div class="pictures">
+-          <For each={shelf().files.filter(pictured)}>
+-            {(file) => (
+-              <figure
+-                class="picture"
+-                classList={{ "is-lead": sourced() && draft().front.image === `/${file.path}` }}>
++      <div class="grid">
++        <For each={pictures()}>
++          {(file) => (
++            <figure classList={{ "is-lead": draft().front.image === `/${file.path}` }}>
++              <div class="pic">
+                 <img src={`${shelf().site}/${file.path}`} alt={file.path} loading="lazy" />
+-                <figcaption title={file.path}>{file.path.split("/").at(-1)}</figcaption>
+-                <div class="over">
+-                  <button
+-                    classList={{ "is-off": !sourced() }}
+-                    onClick={() => figured(editor(), markup(open()).figure(file.path))}>
+-                    insert
+-                  </button>
+-                  <button
+-                    classList={{ "is-off": !sourced() }}
+-                    onClick={() => fronting("image", `/${file.path}`)}>
+-                    lead
+-                  </button>
+-                  <button
+-                    aria-pressed={String(armed() === file.path)}
+-                    onClick={() => remove(file.path)}>
+-                    {armed() === file.path ? "sure?" : "✕"}
+-                  </button>
+-                </div>
+-              </figure>
++              </div>
++              <figcaption title={file.path}>{file.path.split("/").at(-1)}</figcaption>
++              <div class="over">
++                <button onClick={() => figured(editor(), markup(open()).figure(file.path))}>
++                  insert
++                </button>
++                <button onClick={() => fronting("image", `/${file.path}`)}>lead</button>
++                <button
++                  aria-pressed={String(armed() === file.path)}
++                  onClick={() => remove(file.path)}>
++                  {armed() === file.path ? "sure?" : "remove"}
++                </button>
++              </div>
++            </figure>
++          )}
++        </For>
++      </div>
++      <Show when={others().length > 0}>
++        <div class="files">
++          <span class="kit-label">other files</span>
++          <For each={others()}>
++            {(file) => (
++              <a class="row" href={`${shelf().site}/${file.path}`} target="_blank" rel="noopener">
++                <span class="kit-dot" />
++                <span class="n">{file.path}</span>
++                <span class="mark" />
++                <span class="d">{file.mime}</span>
++              </a>
+             )}
+           </For>
+         </div>
+-        <span class="kit-label">other files</span>
+-        <For each={shelf().files.filter((file) => !pictured(file))}>
+-          {(file) => (
+-            <a class="row" href={`${shelf().site}/${file.path}`} target="_blank" rel="noopener">
+-              <span class="kit-dot" />
+-              <span class="n">{file.path}</span>
+-              <span />
+-              <span class="v">{file.mime}</span>
+-            </a>
+-          )}
+-        </For>
+       </Show>
+     </div>
+   );
+ 
+   const Outline = () => (
+-    <div class="outline">
++    <div class="pane is-on">
+       <Show
+-        when={outline(open(), draft().body).length > 0}
+-        fallback={<span class="empty">no headings yet</span>}>
+-        <For each={outline(open(), draft().body)}>
++        when={headings().length > 0}
++        fallback={
++          <div class="none">
++            <Icon name="outline" />
++            <span>no headings · {markup(open()).lines.heading.trim()} starts one</span>
++          </div>
++        }>
++        <For each={headings()}>
+           {(entry) => (
+             <button
+-              class="row heading"
++              class={`step l${entry.depth}`}
+               aria-current={String(heading() !== null && heading().line === entry.line)}
+-              style={{ "padding-left": `${entry.depth * 12}px` }}
+               onClick={() => reached(editor(), entry.line)}>
+-              <span class="n">{entry.title}</span>
+-              <span />
+-              <span />
+-              <span class="v">{entry.line}</span>
++              {entry.title}
+             </button>
+           )}
+         </For>
+@@ -948,22 +1159,22 @@
+   );
+ 
+   const Stats = () => (
+-    <div class="stats">
++    <div class="pane is-on">
+       <For each={COUNTS}>
+         {([name, pattern]) => (
+           <div class="stat">
+-            <b>{counted(draft().body, pattern)}</b>
+             <span>{name}</span>
++            <b>{counted(draft().body, pattern)}</b>
+           </div>
+         )}
+       </For>
+       <div class="stat">
+-        <b>{outline(open(), draft().body).length}</b>
+         <span>headings</span>
++        <b>{headings().length}</b>
+       </div>
+       <div class="stat">
+-        <b>{Math.max(1, Math.round(words() / 230))}</b>
+         <span>minutes to read</span>
++        <b>{minutes()}</b>
+       </div>
+     </div>
+   );
+@@ -971,135 +1182,143 @@
+   const PANES = { post: Post, media: Media, outline: Outline, stats: Stats };
+ 
+   const Inspector = () => (
+-    <aside class="dock inspector" style={{ width: `${width("inspector")}px` }}>
+-      <header class="dock-head">
+-        <span class="kit-choice tabs">
+-          <For each={TABS}>
+-            {([tab, label]) => (
+-              <button
+-                aria-pressed={String(desk().inspector.tab === tab)}
+-                onClick={() => inspect(tab)}>
+-                {label}
+-              </button>
+-            )}
+-          </For>
+-        </span>
+-        <span class="fill" />
+-        <button class="icon" title="hide · ⌘⇧U" onClick={() => docking("inspector")}>
+-          ⟩
+-        </button>
+-      </header>
+-      <div class="scroll">
+-        <Show
+-          when={sourced() || desk().inspector.tab === "media"}
+-          fallback={<span class="empty">no source open</span>}>
++    <aside
++      class="dock inspector"
++      classList={{ "is-shut": !sourced() || !docked("inspector") }}
++      style={{ "--width": `${width("inspector")}px` }}
++      prop:inert={!sourced() || !docked("inspector")}
++      aria-label="inspector">
++      <div class="dock-in">
++        <div class="tabbar">
++          <span class="kit-choice tabs">
++            <For each={TABS}>
++              {(tab) => (
++                <button
++                  aria-pressed={String(desk().inspector.tab === tab)}
++                  onClick={run(`inspector · ${tab}`)}>
++                  {tab}
++                </button>
++              )}
++            </For>
++          </span>
++        </div>
++        <Show when={sourced()}>
+           {PANES[desk().inspector.tab]()}
++          <Show
++            when={armed() === open()}
++            fallback={
++              <div class="acts">
++                <button
++                  class="kit-seg"
++                  classList={{ "is-attention": dirty(open()), "is-off": !dirty(open()) }}
++                  disabled={!dirty(open())}
++                  onClick={run("save")}>
++                  save
++                </button>
++                <button class="go" disabled={busy()} onClick={run("press the site")}>
++                  {busy() ? "pressing" : "press"}
++                </button>
++                <span class="grow" />
++                <button class="quiet is-grave" onClick={run("remove this source")}>
++                  <Icon name="trash" />
++                  remove
++                </button>
++              </div>
++            }>
++            <div class="kit-consent confirm is-on">
++              <span>
++                remove <span class="arg">{open()}</span> · its pressed page goes too
++              </span>
++              <span class="keys">
++                <button onClick={() => remove(open())}>
++                  <b>y</b> remove
++                </button>
++                <button onClick={() => setArmed(null)}>
++                  <b>n</b> keep
++                </button>
++              </span>
++            </div>
++          </Show>
+         </Show>
+       </div>
+     </aside>
+   );
+ 
+   const Tuning = () => (
+-    <div class="pop settings" onKeyDown={(event) => event.stopPropagation()}>
+-      <header>
+-        <b>settings</b>
+-        <span class="fill" />
+-        <button class="ghost" onClick={() => tune(Settings.cast({}))}>
+-          defaults
+-        </button>
+-        <button class="icon" onClick={() => setTuning(false)}>
+-          ×
+-        </button>
+-      </header>
+-      <div class="setting">
+-        <span>typeface</span>
+-        <span class="kit-choice">
+-          <For each={["sans", "serif", "mono"]}>
+-            {(font) => (
+-              <button
+-                aria-pressed={String(settings().font === font)}
+-                onClick={() => tune({ font })}>
+-                {font}
+-              </button>
+-            )}
+-          </For>
+-        </span>
+-      </div>
+-      <For each={RANGES}>
+-        {([key, label, low, high, step, unit]) => (
+-          <label class="setting">
+-            <span>{label}</span>
+-            <input
+-              type="range"
+-              min={low}
+-              max={high}
+-              step={step}
+-              value={settings()[key]}
+-              onInput={(event) => tune({ [key]: Number(event.target.value) })}
+-            />
+-            <output>
+-              {settings()[key]}
+-              {unit}
+-            </output>
+-          </label>
+-        )}
+-      </For>
+-      <For each={SWITCHES}>
+-        {([key, label]) => (
+-          <label class="setting switch">
+-            <span>{label}</span>
+-            <input
+-              type="checkbox"
+-              checked={settings()[key]}
+-              onChange={() => tune({ [key]: !settings()[key] })}
+-            />
+-          </label>
++    <div
++      class="pop settings"
++      classList={{ "is-on": tuning() }}
++      onKeyDown={(event) => event.stopPropagation()}>
++      <For each={SETTINGS}>
++        {([key, label, choices]) => (
++          <div class="set">
++            <span class="kit-label">{label}</span>
++            <span class="kit-choice opts">
++              <For each={choices}>
++                {([name, value]) => (
++                  <button
++                    aria-pressed={String(settings()[key] === value)}
++                    onClick={() => tune({ [key]: value })}>
++                    {name}
++                  </button>
++                )}
++              </For>
++            </span>
++          </div>
+         )}
+       </For>
+-      <div class="setting">
+-        <span>save after a pause</span>
+-        <span class="kit-choice">
+-          <For each={PAUSES}>
+-            {(pause) => (
+-              <button
+-                aria-pressed={String(settings().autosave === pause)}
+-                onClick={() => tune({ autosave: pause })}>
+-                {pause === 0 ? "never" : `${pause}s`}
+-              </button>
+-            )}
+-          </For>
+-        </span>
+-      </div>
+     </div>
+   );
+ 
+   const Palette = () => (
+-    <div class="veil" onClick={() => setPalette(null)}>
++    <div class="veil is-on" onClick={() => setAsking(false)}>
+       <div class="pop palette" onClick={(event) => event.stopPropagation()}>
+-        <input
+-          value={palette()}
+-          onInput={(event) => {
+-            setPalette(event.target.value);
+-            setPicked(0);
+-          }}
+-          onKeyDown={paletted}
+-          placeholder="a command or a source"
+-          ref={(element) => queueMicrotask(() => element.focus())}
+-          aria-label="a command or a source"
+-        />
++        <label class="kit-field is-repl">
++          <span class="p">›</span>
++          <input
++            value={query()}
++            onInput={(event) => {
++              setQuery(event.target.value);
++              setPicked(0);
++            }}
++            onKeyDown={paletted}
++            placeholder="a source, a command, a setting"
++            ref={(element) => queueMicrotask(() => element.focus())}
++            aria-label="palette"
++          />
++        </label>
+         <div class="list">
+-          <For each={entries()}>
+-            {(entry, index) => (
+-              <button
+-                class="entry"
+-                aria-current={String(index() === picked())}
+-                onMouseEnter={() => setPicked(index())}
+-                onClick={() => ran(entry)}>
+-                <span>{entry.label}</span>
+-                <span class="hint">{entry.hint}</span>
+-              </button>
++          <For each={parts()}>
++            {([name, rows]) => (
++              <div class="part">
++                <span class="kit-label">{name}</span>
++                <For each={rows}>
++                  {(row) => (
++                    <button
++                      class="kit-row tap"
++                      aria-current={String(listed()[picked()] === row)}
++                      onMouseEnter={() => setPicked(listed().indexOf(row))}
++                      onClick={() => ran(row)}>
++                      <span class={row.sign}>{row.mark}</span>
++                      <span class="n">
++                        {cut(row.label)[0]}
++                        <b class="hit">{cut(row.label)[1]}</b>
++                        {cut(row.label)[2]}
++                      </span>
++                      <span />
++                      <span class="v">
++                        {row.note}
++                        <Caps glyphs={row.keys} />
++                      </span>
++                    </button>
++                  )}
++                </For>
++              </div>
+             )}
+           </For>
++          <Show when={parts().length === 0}>
++            <div class="none">nothing by that name</div>
++          </Show>
+         </div>
+       </div>
+     </div>
+@@ -1109,10 +1328,12 @@
+     <div
+       class="kit desk"
+       classList={{
+-        "is-focus": desk().mode === "focus",
++        "is-focus": mode() === "focus",
+         "is-narrow": narrow(),
++        "is-empty": open() === null,
+         "is-dragging": Object.values(dragged()).some((value) => value !== undefined),
+       }}
++      data-zone="1"
+       data-mode={mode()}
+       ref={(element) => {
+         root = element;
+@@ -1122,246 +1343,259 @@
+       onKeyDown={key}
+       onFocusOut={kept}>
+       <header class="titlebar">
+-        <button
+-          class="icon"
+-          aria-pressed={String(desk().library.shown)}
+-          title="library · ⌘⇧E"
+-          onClick={() => docking("library")}>
+-          ◧
+-        </button>
+-        <button class="title" title="commands · ⌘P" onClick={() => setPalette("")}>
+-          <Show when={open() !== null} fallback={<span class="muted">no source open · ⌘P</span>}>
+-            <Show when={lying()}>
+-              <span class={`kit-dot ${DOTS[state(lying())]}`} />
+-            </Show>
+-            <b>{draft() === undefined ? open() : draft().front.title ?? titled(open())}</b>
+-            <span class="muted">{open()}</span>
+-            <Show when={dirty(open())}>
+-              <span class="unsaved">● unsaved</span>
+-            </Show>
+-          </Show>
+-        </button>
+-        <span class="fill" />
+-        <Show
+-          when={narrow()}
+-          fallback={
+-            <span class="kit-choice modes">
+-              <For each={MODES}>
+-                {([shape, label, chord]) => (
+-                  <button
+-                    aria-pressed={String(mode() === shape)}
+-                    title={glyphed(chord)}
+-                    onClick={() => moded(shape)}>
+-                    {label}
+-                  </button>
+-                )}
+-              </For>
+-            </span>
+-          }>
++        <div class="fore">
++          <Key
++            icon="library"
++            label="library"
++            pressed={String(docked("library"))}
++            onClick={run("library")}
++          />
++          <button class="title" title="open the palette" onClick={run("palette")}>
++            <span class={`kit-dot ${dot()}`} />
++            <span class="name">{title()}</span>
++            <span class="path">{open()}</span>
++          </button>
++        </div>
++        <div class="modes" role="group" aria-label="mode">
++          <For each={MODES}>
++            {([shape, chord]) => (
++              <button
++                class="mode"
++                aria-pressed={String(mode() === shape)}
++                disabled={open() === null}
++                title={`${shape} · ${glyphs(chord).join("")}`}
++                onClick={run(`mode · ${shape}`)}>
++                <Icon name={shape} />
++                <span>{shape}</span>
++              </button>
++            )}
++          </For>
++        </div>
++        <div class="aft">
+           <select
+-            class="modes"
++            class="pick"
++            aria-label="mode"
+             value={mode()}
+-            onChange={(event) => moded(event.target.value)}
+-            aria-label="mode">
++            disabled={open() === null}
++            onChange={(event) => run(`mode · ${event.target.value}`)()}>
+             <For each={MODES.filter(([shape]) => shape !== "split")}>
+-              {([shape, label]) => <option value={shape}>{label}</option>}
++              {([shape]) => <option value={shape}>{shape}</option>}
+             </For>
+           </select>
+-        </Show>
+-        <button
+-          class="icon"
+-          aria-pressed={String(desk().inspector.shown)}
+-          title="inspector · ⌘⇧U"
+-          onClick={() => docking("inspector")}>
+-          ◨
+-        </button>
+-        <button
+-          class="icon"
+-          aria-pressed={String(tuning())}
+-          title="settings · ⌘,"
+-          onClick={() => setTuning(!tuning())}>
+-          ⚙
+-        </button>
+-        <Show when={sourced()}>
+-          <span class="kit-choice">
+-            <button title="⌘S" onClick={save}>
+-              save
+-            </button>
+-            <Show when={!narrow()}>
+-              <Show
+-                when={known(draft().front).status === "published"}
+-                fallback={
+-                  <button class="go" onClick={() => publish("published")}>
+-                    publish
+-                  </button>
+-                }>
+-                <button title="⌘⇧S" onClick={press}>
+-                  press
+-                </button>
+-              </Show>
++          <Key
++            icon="inspector"
++            label="inspector"
++            pressed={String(sourced() && docked("inspector"))}
++            onClick={run("inspector")}
++          />
++          <button
++            class="key wide-only"
++            aria-label="settings"
++            title="settings"
++            aria-expanded={String(tuning())}
++            onClick={run("settings")}>
++            <Icon name="settings" />
++          </button>
++          <Show when={sourced()}>
++            <Show when={dirty(open())} fallback={<span class="saved">saved</span>}>
++              <button
++                class="kit-seg is-attention save"
++                title={`save · ${glyphs(command("save")[1]).join("")}`}
++                onClick={run("save")}>
++                save
++              </button>
+             </Show>
+-          </span>
+-        </Show>
++          </Show>
++          <button class="go" disabled={busy()} onClick={run("press the site")}>
++            {busy() ? "pressing" : "press"}
++          </button>
++        </div>
+       </header>
+-      <Show when={tuning()}>
+-        <Tuning />
+-      </Show>
+-      <Show when={palette() !== null}>
+-        <Palette />
+-      </Show>
+       <div class="body">
+-        <Show when={narrow() && drawer() !== null}>
+-          <div class="veil drawn" onClick={() => setDrawer(null)} />
+-        </Show>
+-        <Show when={docked("library")}>
+-          <Library />
+-        </Show>
+-        <Show when={docked("library") && !narrow()}>
+-          <Seam
+-            onDrag={resize("library", 1)}
+-            onDone={resized("library")}
+-            onReset={() => settle({ library: { ...desk().library, width: 264 } })}
+-          />
+-        </Show>
++        <Library />
++        <Seam
++          shut={!docked("library")}
++          onDrag={resize("library", 1)}
++          onDone={resized("library")}
++          onReset={() => settle({ library: { ...desk().library, width: BLANK.library.width } })}
++        />
+         <main class="middle">
+-          <section
+-            class="writing"
+-            classList={{ "is-hidden": mode() === "preview" }}
+-            style={{ flex: mode() === "split" ? `0 0 ${share() * 100}%` : "1 1 auto" }}>
+-            <Show when={sourced() && mode() !== "focus"}>
+-              <div class="tools">
+-                <For each={MARKS}>
+-                  {([name, glyph, label]) => (
+-                    <button
+-                      class={`tool ${name}`}
+-                      title={KEYS[name] === undefined ? label : `${label} · ${KEYS[name]}`}
+-                      onClick={marked(name)}>
+-                      {glyph}
+-                    </button>
+-                  )}
+-                </For>
+-                <span class="gap" />
+-                <For each={LINES}>
+-                  {([name, glyph, label]) => (
+-                    <button class="tool" title={label} onClick={lined(name)}>
+-                      {glyph}
+-                    </button>
+-                  )}
+-                </For>
+-                <span class="gap" />
+-                <button class="tool" title="picture" onClick={() => inspect("media")}>
+-                  ▣
+-                </button>
+-                <button class="tool" title="find · ⌘F" onClick={() => searched(editor())}>
+-                  ⌕
+-                </button>
+-                <span class="fill" />
++          <section class="writing" style={{ "--share": share() }}>
++            <div class="tools">
++              <div class="crumb">
++                <span>{title()}</span>
+                 <Show when={heading()}>
+-                  <span class="crumb">§ {heading().title}</span>
++                  <span>›</span>
++                  <b>{heading().title}</b>
+                 </Show>
+               </div>
+-            </Show>
+-            <Show when={!sourced()}>
+-              <div class="welcome">
+-                <b>nothing on the desk</b>
+-                <span>pick a source in the library, or</span>
+-                <span class="kit-choice">
+-                  <button onClick={() => setFresh("on/")}>start a new one</button>
+-                  <button onClick={() => setPalette("")}>⌘P find one</button>
+-                </span>
++              <div class="marks">
++                <For each={TOOLS}>
++                  {([icon, label]) => <Key icon={icon} label={icon} onClick={run(label)} />}
++                </For>
+               </div>
+-            </Show>
+-            <div class="sheet" classList={{ "is-hidden": !sourced() }} ref={host} />
++            </div>
++            <div class="sheet" onScroll={scrolled}>
++              <div
++                class="leaf"
++                style={{
++                  "--measure": `${settings().measure}ch`,
++                  "--face": FACES[settings().font],
++                  "--type": `${settings().size}px`,
++                  "--leading": settings().leading,
++                }}>
++                <Show when={sourced()}>
++                  <div class="head">
++                    <input
++                      class="t"
++                      value={draft().front.title ?? ""}
++                      onInput={(event) => fronting("title", event.target.value)}
++                      placeholder="title"
++                      aria-label="title"
++                    />
++                    <input
++                      class="s"
++                      value={draft().front.subtitle ?? ""}
++                      onInput={(event) => fronting("subtitle", event.target.value)}
++                      placeholder="subtitle"
++                      aria-label="subtitle"
++                    />
++                  </div>
++                </Show>
++                <div ref={host} />
++              </div>
++            </div>
++            <div class="whisper">
++              <button onClick={run("mode · write")}>{words()} words · esc</button>
++            </div>
+           </section>
+-          <Show when={mode() === "split"}>
+-            <Seam onDrag={sharing} onDone={shared} onReset={() => settle({ share: 0.5 })} />
+-          </Show>
+-          <section
+-            class="pressed"
+-            classList={{ "is-hidden": ["write", "focus"].includes(mode()) }}>
++          <Seam
++            mid
++            onDrag={sharing}
++            onDone={shared}
++            onReset={() => settle({ share: BLANK.share })}
++          />
++          <section class="pressed">
+             <div class="pressbar">
+-              <span class="kit-choice">
+-                <For each={DEVICES}>
+-                  {([device, glyph]) => (
+-                    <button
+-                      aria-pressed={String(desk().device === device)}
+-                      title={`${device} width`}
+-                      onClick={() => settle({ device })}>
+-                      {glyph}
+-                    </button>
+-                  )}
+-                </For>
+-              </span>
+-              <span class="fill" />
+-              <label class="toggle">
+-                <input
+-                  type="checkbox"
+-                  checked={settings().sync}
+-                  onChange={() => tune({ sync: !settings().sync })}
+-                />
+-                follow
+-              </label>
++              <For each={DEVICES}>
++                {([device]) => (
++                  <Key
++                    icon={device}
++                    label={device}
++                    pressed={String(desk().device === device)}
++                    onClick={run(`preview · ${device}`)}
++                  />
++                )}
++              </For>
++              <span class="size">{DEVICES.find(([device]) => device === desk().device)[1]}</span>
++              <Key
++                icon="follow"
++                label="follow the sheet"
++                pressed={String(settings().sync)}
++                onClick={run("preview · follow the sheet")}
++              />
++              <span class="grow" />
+               <Show when={live()}>
+-                <a href={`${shelf().site}/${lying().article.page}`} target="_blank" rel="noopener">
+-                  live ↗
++                <a
++                  class="live"
++                  href={`${shelf().site}${paged()}`}
++                  target="_blank"
++                  rel="noopener"
++                  title="open the pressed page">
++                  <span>{paged()}</span>
++                  <Icon name="out" />
+                 </a>
+               </Show>
+             </div>
+             <div class="stage">
+-              <Show when={preview() !== ""} fallback={<span class="empty">no page yet</span>}>
+-                <iframe
+-                  ref={frame}
++              <Show when={preview() !== ""} fallback={<div class="none">no page yet</div>}>
++                <div
+                   class="page"
+-                  style={{ width: DEVICES.find(([device]) => device === desk().device)[2] }}
+-                  srcdoc={preview()}
+-                  sandbox="allow-same-origin"
+-                  onLoad={followed}
+-                  title="the page as pressed"
+-                />
++                  classList={{
++                    "is-tablet": desk().device === "tablet",
++                    "is-phone": desk().device === "phone",
++                  }}>
++                  <div class="page-head">{paged()}</div>
++                  <iframe
++                    ref={frame}
++                    class="site"
++                    srcdoc={preview()}
++                    sandbox="allow-same-origin"
++                    onLoad={followed}
++                    title="the page as pressed"
++                  />
++                </div>
+               </Show>
+             </div>
+           </section>
++          <section class="welcome">
++            <svg class="icon big" viewBox="0 0 16 16" aria-hidden="true">
++              <path d={ICONS.sheet} />
++            </svg>
++            <div class="say">nothing on the sheet</div>
++            <div class="recent">
++              <For each={recent()}>{(source) => <Row source={source} />}</For>
++            </div>
++            <div class="say">
++              <Caps glyphs={glyphs(command("palette")[1])} /> open ·{" "}
++              <Caps glyphs={glyphs(command("new source")[1])} /> new
++            </div>
++          </section>
+         </main>
+-        <Show when={docked("inspector") && !narrow()}>
+-          <Seam
+-            onDrag={resize("inspector", -1)}
+-            onDone={resized("inspector")}
+-            onReset={() => settle({ inspector: { ...desk().inspector, width: 320 } })}
+-          />
+-        </Show>
+-        <Show when={docked("inspector")}>
+-          <Inspector />
+-        </Show>
++        <Seam
++          shut={!sourced() || !docked("inspector")}
++          onDrag={resize("inspector", -1)}
++          onDone={resized("inspector")}
++          onReset={() =>
++            settle({ inspector: { ...desk().inspector, width: BLANK.inspector.width } })
++          }
++        />
++        <Inspector />
+       </div>
+       <footer class="status">
+-        <Show when={busy()}>
+-          <span class="kit-dot is-running" />
+-        </Show>
+         <Show when={sourced()}>
++          <span class="wide-only">
++            ln <b>{at().line}</b> · col <b>{at().column}</b>
++            <Show when={at().chosen > 0}>
++              {" "}
++              · <b>{at().chosen}</b> chosen
++            </Show>
++          </span>
+           <span>
+-            Ln {at().line}, Col {at().column}
++            <b>{words()}</b> words · <b>{minutes()}</b> min
+           </span>
+-          <Show when={at().chosen > 0}>
+-            <span>{at().chosen} chosen</span>
+-          </Show>
+-          <span>{words()} words</span>
+-          <span>{Math.max(1, Math.round(words() / 230))} min</span>
+-          <span>{dirty(open()) ? "● unsaved" : stamp()}</span>
+         </Show>
+-        <Show when={fault()} fallback={<span class="told">{told()}</span>}>
+-          <span class="fault">
+-            <span class="kit-dot is-fault" />
+-            {fault()}
++        <span class="grow" />
++        <Show when={busy()}>
++          <span class="run">
++            <span class="kit-dot is-running" />
++            <span>pressing</span>
+           </span>
+         </Show>
+-        <span class="fill" />
+-        <Show when={settings().autosave > 0}>
+-          <span>autosave {settings().autosave}s</span>
++        <Show when={!busy() && fault() !== null}>
++          <button class="fault-line" onClick={run("inspector · post")}>
++            <span class="kit-dot is-fault" />
++            <span>! {fault()}</span>
++          </button>
++        </Show>
++        <Show when={!busy() && fault() === null && pressed() !== null}>
++          <span>
++            pressed <b>{pressed().at}</b> · <b>{pressed().pages}</b> pages
++          </span>
+         </Show>
+-        <button class="ghost" onClick={() => setPalette("")}>
+-          ⌘P commands
+-        </button>
+       </footer>
++      <div
++        class="shade"
++        classList={{ "is-on": tuning() || (narrow() && drawer() !== null), "is-clear": tuning() }}
++        onClick={() => {
++          setDrawer(null);
++          setTuning(false);
++        }}
++      />
++      <Tuning />
++      <Show when={asking()}>
++        <Palette />
++      </Show>
+     </div>
+   );
+ };
+diff --color -ruN blog/buffer/desk.css blog/buffer/desk.css
+--- blog/buffer/desk.css	2026-11-24 11:06:20.000000000 +0100
++++ blog/buffer/desk.css	2026-11-24 11:58:21.859051083 +0100
+@@ -1,528 +1,904 @@
+-* { box-sizing: border-box; }
+ :host { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+-a { color: var(--text-link); }
+-a:hover { color: var(--text-strong); }
+-button { font: inherit; color: inherit; }
+-
+ .desk {
++  position: relative;
++  display: flex;
+   flex: 1;
+   min-height: 0;
+-  display: flex;
+   flex-direction: column;
+-  position: relative;
+-  background: var(--plane-lift);
++  overflow: hidden;
++  background: var(--plane);
+   color: var(--text-ink);
+-  font-family: var(--font-family-code);
+-  font-size: var(--size-type-xs);
++  font-family: var(--font-family-sans-text);
++  font-size: var(--size-type-sm);
++  line-height: var(--size-leading-loose);
+ }
++.desk, .desk * { box-sizing: border-box; }
+ .desk:focus { outline: 0; }
+-.fill { flex: 1; }
+-.muted { color: var(--text-muted); }
+-.unsaved { color: var(--signal-caution-ink); }
+-.empty { display: block; padding: var(--size-space-md); color: var(--text-muted); }
+-
+-.icon, .ghost, .tool, .group, .row, .entry {
++.icon {
++  width: 16px;
++  height: 16px;
++  flex: none;
++  fill: none;
++  stroke: currentColor;
++  stroke-width: 1.5;
++  stroke-linecap: round;
++  stroke-linejoin: round;
++}
++.gone { display: none; }
++.grow { flex: 1; }
++.mid { justify-self: center; }
++.dot-open { background: transparent; box-shadow: inset 0 0 0 1.5px var(--text-muted); }
++.dot-unsaved { background: var(--signal-caution); }
++.sign { color: var(--signal-primary-ink); text-align: center; }
++.key {
+   appearance: none;
+   border: 0;
++  padding: 0;
+   background: transparent;
+-  cursor: pointer;
+-}
+-.icon {
+-  width: 26px;
+-  height: 26px;
++  color: var(--text-light);
++  width: 28px;
++  height: 28px;
+   display: inline-grid;
+   place-items: center;
+   border-radius: var(--shape-radius-key);
+-  color: var(--text-muted);
+-  font-size: var(--size-type-sm);
++  cursor: pointer;
++  flex: none;
+ }
+-.icon:hover { color: var(--text-strong); background: var(--control-selected); }
+-.titlebar .icon { width: 30px; height: 30px; font-size: var(--size-type-lg); }
+-.icon[aria-pressed="true"] { color: var(--signal-primary-ink); }
+-.ghost {
+-  padding: 2px var(--size-space-xs);
++.key:hover { background: var(--control-selected); color: var(--text-strong); }
++.key[aria-pressed="true"], .key[aria-expanded="true"] {
++  background: var(--control-contrast-pressed);
++  color: var(--control-on-pressed);
++}
++.cap {
++  display: inline-block;
++  min-width: 16px;
++  margin-left: 2px;
++  padding: 0 3px;
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-2xs);
++  line-height: 16px;
++  text-align: center;
++  color: var(--signal-primary-ink);
++  box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
+   border-radius: var(--shape-radius-key);
++}
++.go {
++  appearance: none;
++  border: 0;
++  height: 28px;
++  padding: 0 var(--size-space-sm);
++  border-radius: var(--shape-radius-key);
++  background: var(--signal-primary);
++  color: var(--signal-primary-on);
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-xs);
++  font-weight: 600;
++  line-height: 1;
++  white-space: nowrap;
++  cursor: pointer;
++  flex: none;
++}
++.go:disabled { opacity: var(--text-disabled); cursor: default; }
++.quiet {
++  appearance: none;
++  border: 0;
++  background: transparent;
++  display: inline-flex;
++  align-items: center;
++  gap: var(--size-space-2xs);
++  height: 28px;
++  padding: 0 var(--size-space-xs);
++  border-radius: var(--shape-radius-key);
++  color: var(--text-light);
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-xs);
++  line-height: 1;
++  white-space: nowrap;
++  cursor: pointer;
++  flex: none;
++}
++.quiet:hover { background: var(--control-selected); color: var(--text-strong); }
++.quiet.is-grave:hover {
++  background: var(--signal-negative-tint);
++  color: var(--signal-negative-ink);
++}
++.none {
++  display: grid;
++  justify-items: center;
++  gap: var(--size-space-xs);
++  padding: var(--size-space-xl) var(--size-space-sm);
++  text-align: center;
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-xs);
+   color: var(--text-muted);
+-  box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
+ }
+-.ghost:hover { color: var(--text-strong); }
+-
+ .titlebar {
+-  display: flex;
++  flex: none;
++  display: grid;
++  grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
+   align-items: center;
+-  gap: var(--size-space-xs);
++  gap: var(--size-space-sm);
+   height: 38px;
+   padding: 0 var(--size-space-xs);
+-  box-shadow: inset 0 calc(-1 * var(--size-ring)) 0 var(--boundary);
+-  transition: opacity 200ms ease;
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-xs);
++  line-height: 1;
++  color: var(--text-muted);
+ }
+-.titlebar .title {
++.fore, .aft { display: flex; align-items: center; gap: var(--size-space-2xs); min-width: 0; }
++.aft { justify-content: flex-end; }
++.title {
+   appearance: none;
+   border: 0;
+   background: transparent;
+-  display: flex;
++  display: inline-flex;
+   align-items: center;
+   gap: var(--size-space-xs);
+-  min-width: 0;
+-  max-width: 50%;
+   height: 28px;
+-  padding: 0 var(--size-space-sm);
++  padding: 0 var(--size-space-xs);
+   border-radius: var(--shape-radius-key);
++  color: var(--text-muted);
++  min-width: 0;
+   cursor: pointer;
+-  white-space: nowrap;
+-  overflow: hidden;
+ }
+-.titlebar .title:hover { background: var(--control-selected); }
+-.titlebar .title b {
+-  color: var(--text-strong);
++.title:hover { background: var(--control-selected); }
++.title .name {
+   font-family: var(--font-family-sans-text);
+   font-size: var(--size-type-sm);
++  font-weight: 600;
++  color: var(--text-strong);
++  white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+ }
+-.kit-choice > button.go {
+-  color: var(--signal-positive-ink);
+-  box-shadow: inset 0 0 0 var(--size-ring) var(--signal-positive);
++.title .path { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 4; }
++.modes {
++  display: flex;
++  gap: 2px;
++  padding: 2px;
++  background: var(--plane-sunk);
++  box-shadow: var(--shape-sunk);
++  border-radius: var(--shape-radius-key);
+ }
+-
++.mode {
++  appearance: none;
++  border: 0;
++  background: transparent;
++  display: inline-flex;
++  align-items: center;
++  gap: var(--size-space-2xs);
++  height: 24px;
++  padding: 0 var(--size-space-xs);
++  border-radius: max(0px,calc(var(--shape-radius-key) - 2px));
++  color: var(--text-muted);
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-xs);
++  line-height: 1;
++  white-space: nowrap;
++  cursor: pointer;
++}
++.mode .icon { width: 14px; height: 14px; }
++.mode:hover { color: var(--text-ink); }
++.mode[aria-pressed="true"] {
++  background: var(--control-contrast);
++  color: var(--control-on);
++  font-weight: 600;
++  box-shadow: 0 0 0 var(--size-ring) var(--boundary);
++}
++.mode[aria-pressed="true"] .icon { color: var(--signal-primary-ink); }
++.mode:disabled { opacity: var(--text-disabled); cursor: default; }
++.pick {
++  display: none;
++  appearance: none;
++  border: 0;
++  height: 44px;
++  padding: 0 var(--size-space-sm);
++  border-radius: var(--shape-radius-key);
++  background: var(--control-contrast-pressed);
++  color: var(--control-on-pressed);
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-xs);
++  flex: none;
++}
++.saved { padding: 0 var(--size-space-xs); white-space: nowrap; }
+ .body { flex: 1; min-height: 0; display: flex; }
+-
+ .dock {
+   flex: none;
+-  min-height: 0;
+-  display: flex;
+-  flex-direction: column;
+-  gap: var(--size-space-xs);
+-  padding: var(--size-space-xs);
++  width: var(--width);
++  overflow: hidden;
++  transition: width 150ms cubic-bezier(.16,1,.3,1);
+ }
+-.dock-head { display: flex; align-items: center; gap: var(--size-space-2xs); min-height: 28px; }
+-.dock-head .kit-label { padding-left: var(--size-space-xs); }
+-.scroll {
+-  flex: 1;
+-  min-height: 0;
+-  overflow-y: auto;
++.dock.is-shut { width: 0; }
++.dock-in {
+   display: flex;
+   flex-direction: column;
+-  gap: 2px;
++  width: var(--width);
++  height: 100%;
++  min-height: 0;
+ }
+-
+ .seam {
+-  flex: none;
+-  width: 9px;
+-  margin: 0 -4px;
+   position: relative;
+-  z-index: 3;
++  flex: none;
++  width: var(--size-ring);
++  background: var(--boundary);
+   cursor: col-resize;
+-  background: linear-gradient(
+-    to right, transparent 4px, var(--boundary) 4px, var(--boundary) 5px, transparent 5px
+-  );
+-}
+-.seam:hover, .seam.drag {
+-  background: linear-gradient(
+-    to right, transparent 3px, var(--signal-primary) 3px, var(--signal-primary) 6px, transparent 6px
+-  );
+ }
+-
+-.group {
++.seam::before {
++  content: "";
++  position: absolute;
++  z-index: 1;
++  top: 0;
++  bottom: 0;
++  left: -4px;
++  right: -4px;
++}
++.seam::after {
++  content: "";
++  position: absolute;
++  z-index: 1;
++  top: 50%;
++  left: -1px;
++  width: 3px;
++  height: 28px;
++  margin-top: -14px;
++  background: var(--boundary-strong);
++  border-radius: var(--shape-radius-disc);
++}
++.seam:hover { background: var(--signal-primary-ink); }
++.seam:hover::after { background: var(--signal-primary-ink); }
++.seam.is-shut { display: none; }
++.shade {
++  display: none;
++  position: absolute;
++  z-index: 2;
++  top: 0;
++  right: 0;
++  bottom: 0;
++  left: 0;
++  background: var(--scrim);
++}
++.shade.is-on { display: block; }
++.shade.is-clear { z-index: 4; background: transparent; }
++.find { margin: var(--size-space-xs); }
++.find .icon { color: var(--text-light); }
++.groups {
++  flex: 1;
++  min-height: 0;
++  overflow-y: auto;
++  display: grid;
++  align-content: start;
++  gap: var(--size-space-xs);
++  padding: 0 var(--size-space-xs);
++}
++.group { display: grid; }
++.group-head {
++  appearance: none;
++  border: 0;
++  background: transparent;
+   display: flex;
+   align-items: center;
+-  gap: var(--size-space-xs);
+-  padding: var(--size-space-sm) var(--size-space-xs) var(--size-space-2xs);
++  gap: var(--size-space-2xs);
++  height: 24px;
++  padding: 0 var(--size-space-2xs);
++  border-radius: var(--shape-radius-key);
+   color: var(--text-muted);
++  cursor: pointer;
++}
++.group-head .icon { width: 12px; height: 12px; }
++.group-head[aria-expanded="true"] .icon { transform: rotate(90deg); }
++.group-head .count {
++  margin-left: auto;
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-2xs);
++  font-variant-numeric: tabular-nums;
+ }
+-.group .count { margin-left: auto; color: var(--text-light); }
+-
+ .row {
++  appearance: none;
++  border: 0;
++  background: transparent;
+   width: 100%;
+   display: grid;
+-  grid-template-columns: 2ch minmax(0, 1fr) 1.5ch auto;
++  grid-template-columns: 6px minmax(0,1fr) 6px auto;
+   align-items: center;
+   gap: var(--size-space-xs);
+-  height: 28px;
++  height: var(--size-row);
+   padding: 0 var(--size-space-xs);
+   border-radius: var(--shape-radius-key);
+-  color: var(--text-strong);
++  color: var(--text-ink);
++  font-size: var(--size-type-sm);
++  line-height: 1;
+   text-align: left;
+-  text-decoration: none;
++  cursor: pointer;
+ }
+ .row:hover, .row[aria-current="true"] { background: var(--control-selected); }
+-.row .n {
+-  font-family: var(--font-family-sans-text);
+-  font-size: var(--size-type-sm);
+-  white-space: nowrap;
+-  overflow: hidden;
+-  text-overflow: ellipsis;
++.row[aria-current="true"] { color: var(--text-strong); font-weight: 600; }
++.row .n { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
++.row .d {
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-2xs);
++  font-weight: 400;
++  color: var(--text-muted);
++  font-variant-numeric: tabular-nums;
++}
++.row .mark { width: 6px; height: 6px; border-radius: var(--shape-radius-disc); }
++.row.is-unsaved .mark { background: var(--signal-caution); }
++.fresh { margin: var(--size-space-xs); }
++.middle { flex: 1; min-width: 0; display: flex; }
++.writing {
++  flex: 1 1 0;
++  min-width: 0;
++  display: flex;
++  flex-direction: column;
++  background: var(--plane-lift);
+ }
+-.row .v { color: var(--text-muted); white-space: nowrap; }
+-.row.heading { grid-template-columns: minmax(0, 1fr) 0 0 auto; }
+-.row.heading[aria-current="true"] .n { color: var(--signal-primary-ink); }
+-.kit-field.new { box-shadow: inset 0 0 0 2px var(--control-focus); }
+-
+-.middle { flex: 1; min-width: 0; min-height: 0; display: flex; }
+-.writing, .pressed { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+-.pressed { flex: 1 1 auto; background: var(--plane-sunk); }
+-.is-hidden { display: none !important; }
+-
+ .tools {
++  flex: none;
+   display: flex;
+   align-items: center;
+-  gap: 1px;
+-  padding: var(--size-space-2xs) var(--size-space-sm);
+-  box-shadow: inset 0 calc(-1 * var(--size-ring)) 0 var(--boundary);
++  gap: var(--size-space-xs);
++  height: 36px;
++  padding: 0 var(--size-space-sm);
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-xs);
++  line-height: 1;
++  color: var(--text-muted);
+ }
+-.tool {
+-  min-width: 28px;
+-  height: 26px;
++.crumb {
++  flex: 1;
++  min-width: 0;
++  display: flex;
++  gap: var(--size-space-xs);
++  white-space: nowrap;
++  overflow: hidden;
++}
++.crumb b { font-weight: 400; color: var(--text-ink); overflow: hidden; text-overflow: ellipsis; }
++.marks { flex: none; display: flex; gap: 2px; }
++.sheet {
++  flex: 1;
++  min-height: 0;
++  overflow-y: auto;
++  padding: var(--size-space-xl) var(--size-space-lg) var(--size-space-3xl);
++}
++.leaf {
++  margin: 0 auto;
++  max-width: var(--measure);
++  font-family: var(--face);
++  font-size: var(--type);
++  line-height: var(--leading);
++  color: var(--text-ink);
++}
++.head { display: grid; gap: var(--size-space-2xs); margin-bottom: var(--size-space-xl); }
++.head input {
++  width: 100%;
++  border: 0;
++  outline: 0;
++  padding: 0;
++  background: transparent;
++  caret-color: var(--control-field-caret);
++}
++.head input::placeholder { color: var(--control-field-placeholder); opacity: 1; }
++.head .t {
++  font-family: var(--font-family-sans-heading);
++  font-size: calc(var(--size-type-3xl) * 1.25);
++  font-weight: 600;
++  line-height: var(--size-leading-tight);
++  color: var(--text-header);
++}
++.head .s {
++  font-family: var(--font-family-sans-text);
++  font-size: var(--size-type-lg);
++  line-height: var(--size-leading-loose);
++  color: var(--text-muted);
++}
++.whisper { display: none; }
++.whisper button {
++  appearance: none;
++  border: 0;
++  background: transparent;
++  height: 28px;
+   padding: 0 var(--size-space-xs);
+   border-radius: var(--shape-radius-key);
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-2xs);
+   color: var(--text-muted);
++  cursor: pointer;
+ }
+-.tool:hover { color: var(--text-strong); background: var(--control-selected); }
+-.tool.bold { font-weight: 700; }
+-.tool.italic { font-style: italic; }
+-.tool.strike { text-decoration: line-through; }
+-.tools .gap { width: var(--size-space-sm); }
+-.crumb { color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+-
+-.sheet { flex: 1; min-height: 0; }
+-.welcome {
+-  margin: auto;
++.pressed {
++  flex: 1 1 0;
++  min-width: 0;
+   display: flex;
+   flex-direction: column;
+-  align-items: center;
+-  gap: var(--size-space-sm);
+-  color: var(--text-muted);
+-}
+-.welcome b {
+-  color: var(--text-strong);
+-  font-family: var(--font-family-sans-text);
+-  font-size: var(--size-type-lg);
++  background: var(--plane-sunk);
+ }
+-
+ .pressbar {
++  flex: none;
+   display: flex;
+   align-items: center;
+-  gap: var(--size-space-sm);
+-  min-height: 35px;
++  gap: var(--size-space-2xs);
++  height: 36px;
+   padding: 0 var(--size-space-sm);
+-  background: var(--plane-lift);
+-  box-shadow: inset 0 calc(-1 * var(--size-ring)) 0 var(--boundary);
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-xs);
++  line-height: 1;
+   color: var(--text-muted);
+ }
+-.pressbar > * { flex: none; white-space: nowrap; }
+-.pressbar > .fill { flex: 1; }
+-.toggle { display: inline-flex; align-items: center; gap: var(--size-space-2xs); cursor: pointer; }
++.pressbar .size {
++  padding: 0 var(--size-space-xs);
++  white-space: nowrap;
++  font-variant-numeric: tabular-nums;
++}
++.live {
++  display: inline-flex;
++  align-items: center;
++  gap: var(--size-space-2xs);
++  height: 28px;
++  padding: 0 var(--size-space-xs);
++  border-radius: var(--shape-radius-key);
++  min-width: 0;
++  color: var(--text-link);
++  text-decoration: none;
++  white-space: nowrap;
++}
++.live:hover { background: var(--control-selected); color: var(--text-strong); }
++.live span { overflow: hidden; text-overflow: ellipsis; }
+ .stage {
+   flex: 1;
+   min-height: 0;
+   display: flex;
+   justify-content: center;
+-  padding: var(--size-space-sm);
+-  overflow: auto;
++  padding: var(--size-space-md);
++  box-shadow: var(--shape-sunk);
++  overflow: hidden;
+ }
+ .page {
+-  max-width: 100%;
+-  height: 100%;
+-  border: 0;
++  display: flex;
++  flex-direction: column;
++  width: 100%;
++  max-width: 1280px;
++  min-height: 0;
++  background: var(--plane-lift);
+   border-radius: var(--shape-radius-card);
+-  box-shadow: 0 0 0 var(--size-ring) var(--boundary), var(--shape-lift);
+-  background: white;
+-  transition: width 220ms ease;
++  box-shadow: 0 0 0 var(--size-ring) var(--boundary-strong),var(--shape-lift);
++  overflow: hidden;
++  transition: max-width 150ms cubic-bezier(.16,1,.3,1);
+ }
+-
+-.form {
++.page-head {
++  flex: none;
+   display: flex;
++  align-items: center;
++  height: 26px;
++  padding: 0 var(--size-space-sm);
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-2xs);
++  color: var(--text-muted);
++  white-space: nowrap;
++  overflow: hidden;
++}
++.page.is-tablet { max-width: 784px; max-height: 1040px; padding: var(--size-space-xs); }
++.page.is-phone { max-width: 406px; max-height: 860px; padding: var(--size-space-xs); }
++.page.is-tablet .page-head, .page.is-phone .page-head { display: none; }
++.page.is-tablet .site, .page.is-phone .site { border-radius: var(--shape-radius-sm); }
++.welcome {
++  display: none;
++  flex: 1;
++  min-width: 0;
+   flex-direction: column;
+-  gap: var(--size-space-sm);
+-  padding: var(--size-space-2xs);
++  align-items: center;
++  justify-content: center;
++  gap: var(--size-space-md);
++  padding: var(--size-space-lg);
++  background: var(--plane-lift);
+ }
+-.field { display: flex; flex-direction: column; gap: var(--size-space-2xs); }
+-.field > span {
++.welcome .big { width: 32px; height: 32px; color: var(--text-muted); stroke-width: .75; }
++.welcome .say {
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-xs);
+   color: var(--text-muted);
+-  font-size: var(--size-type-2xs);
+-  text-transform: uppercase;
+ }
+-.field input, .field textarea {
+-  width: 100%;
++.welcome .recent { display: grid; width: 100%; max-width: 320px; }
++.tabbar {
++  flex: none;
++  display: flex;
++  align-items: center;
++  height: 38px;
++  padding: 0 var(--size-space-xs);
++}
++.pane {
++  display: none;
++  flex: 1;
++  min-height: 0;
++  overflow-y: auto;
++  align-content: start;
++  gap: var(--size-space-2xs);
++  padding: var(--size-space-2xs) var(--size-space-xs) var(--size-space-md);
++}
++.pane.is-on { display: grid; }
++.prop {
++  display: grid;
++  grid-template-columns: 8ch minmax(0,1fr);
++  align-items: center;
++  gap: var(--size-space-xs);
+   min-height: 30px;
+-  padding: var(--size-space-2xs) var(--size-space-xs);
++  padding: 0 var(--size-space-xs);
++  border-radius: var(--shape-radius-key);
++}
++.prop.has-act { grid-template-columns: 8ch minmax(0,1fr) auto; }
++.prop:hover { background: var(--control-selected); }
++.prop:focus-within {
++  background: var(--control-field);
++  box-shadow: inset 0 0 0 2px var(--control-focus);
++}
++.prop.is-fault { box-shadow: inset 0 0 0 var(--size-ring) var(--signal-negative-ink); }
++.prop input {
++  width: 100%;
++  min-width: 0;
+   border: 0;
+   outline: 0;
+-  border-radius: var(--shape-radius-field);
+-  background: var(--control-field);
+-  box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
++  padding: 0;
++  background: transparent;
+   color: var(--text-strong);
+   font-family: var(--font-family-sans-text);
+   font-size: var(--size-type-sm);
+-  resize: vertical;
++  caret-color: var(--control-field-caret);
+ }
+-.field input:focus, .field textarea:focus { box-shadow: inset 0 0 0 2px var(--control-focus); }
+-.field input:invalid { box-shadow: inset 0 0 0 var(--size-ring) var(--signal-negative); }
+-.with { display: flex; align-items: center; gap: var(--size-space-2xs); }
+-.lead { margin: 0; display: flex; flex-direction: column; gap: var(--size-space-2xs); }
+-.lead img {
+-  width: 100%;
+-  max-height: 160px;
+-  object-fit: cover;
+-  border-radius: var(--shape-radius-card);
++.prop .code {
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-xs);
++  color: var(--text-strong);
++  font-variant-numeric: tabular-nums;
++  white-space: nowrap;
++  overflow: hidden;
++  text-overflow: ellipsis;
+ }
+-.lead figcaption { display: flex; align-items: center; color: var(--text-muted); }
+-.lead figcaption span { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+-.actions {
+-  display: flex;
+-  align-items: center;
+-  gap: var(--size-space-sm);
+-  padding-top: var(--size-space-sm);
++.prop input::-webkit-calendar-picker-indicator { display: none; }
++.sect { display: grid; gap: var(--size-space-2xs); margin-top: var(--size-space-sm); }
++.sect > .kit-label { padding: 0 var(--size-space-xs); }
++.faults {
++  display: grid;
++  gap: var(--size-space-2xs);
++  margin-bottom: var(--size-space-xs);
++  padding: var(--size-space-xs);
++  border-radius: var(--shape-radius-field);
++  background: var(--signal-negative-tint);
++  color: var(--signal-negative-ink);
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-xs);
++  line-height: 1.4;
+ }
+-.danger {
++.faults button {
+   appearance: none;
+   border: 0;
+-  padding: var(--size-space-2xs) var(--size-space-sm);
+-  border-radius: var(--shape-radius-key);
++  padding: 0;
+   background: transparent;
+-  color: var(--signal-negative-ink);
+-  box-shadow: inset 0 0 0 var(--size-ring) var(--signal-negative);
++  color: inherit;
++  text-align: left;
+   cursor: pointer;
+ }
+-.danger[aria-pressed="true"] { background: var(--signal-negative-tint); }
+-.actions { flex-wrap: wrap; }
+-.actions > * { white-space: nowrap; }
+-
+-.media { display: flex; flex-direction: column; gap: var(--size-space-sm); }
+-.drop {
+-  position: relative;
++.well {
++  appearance: none;
++  display: grid;
++  justify-items: center;
++  gap: var(--size-space-2xs);
++  width: 100%;
++  padding: var(--size-space-md) var(--size-space-sm);
++  border: var(--size-ring) dashed var(--boundary-strong);
++  border-radius: var(--shape-radius-field);
++  background: transparent;
++  color: var(--text-muted);
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-xs);
++  cursor: pointer;
++}
++.well:hover {
++  border-color: var(--signal-primary-ink);
++  background: var(--signal-primary-tint);
++  color: var(--signal-primary-ink);
++}
++.well.is-tall { padding: var(--size-space-2xl) var(--size-space-sm); }
++.pic {
+   display: grid;
+   place-items: center;
+-  min-height: 64px;
+-  border-radius: var(--shape-radius-card);
+-  box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
++  aspect-ratio: 16 / 9;
+   background: var(--plane-sunk);
++  box-shadow: var(--shape-sunk);
++  border-radius: var(--shape-radius-sm);
+   color: var(--text-muted);
+-  cursor: pointer;
+ }
+-.drop:hover { color: var(--text-strong); box-shadow: inset 0 0 0 2px var(--control-focus); }
+-.drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+-.pictures {
++.lead-pic {
+   display: grid;
+-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
++  grid-template-columns: 88px minmax(0,1fr) auto;
++  align-items: center;
+   gap: var(--size-space-xs);
++  padding: 0 var(--size-space-xs);
+ }
+-.picture {
+-  margin: 0;
+-  position: relative;
+-  display: flex;
+-  flex-direction: column;
+-  gap: var(--size-space-2xs);
+-  padding: var(--size-space-2xs);
+-  border-radius: var(--shape-radius-card);
+-  box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
++.lead-pic .n, .lead-pic .m {
++  display: block;
++  font-family: var(--font-family-code);
++  white-space: nowrap;
++  overflow: hidden;
++  text-overflow: ellipsis;
+ }
+-.picture.is-lead { box-shadow: inset 0 0 0 2px var(--signal-primary); }
+-.picture img {
+-  width: 100%;
+-  aspect-ratio: 1;
+-  object-fit: cover;
+-  border-radius: var(--shape-radius-key);
++.lead-pic .n { font-size: var(--size-type-xs); color: var(--text-strong); }
++.lead-pic .m { font-size: var(--size-type-2xs); color: var(--text-muted); }
++.grid {
++  display: grid;
++  grid-template-columns: repeat(3,minmax(0,1fr));
++  gap: var(--size-space-xs);
++  margin-top: var(--size-space-xs);
+ }
+-.picture figcaption {
++.grid figure { display: grid; gap: 2px; margin: 0; }
++.grid figcaption {
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-2xs);
+   color: var(--text-muted);
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+ }
+-.picture .over {
+-  position: absolute;
+-  inset: var(--size-space-2xs) var(--size-space-2xs) auto;
+-  display: flex;
+-  gap: 2px;
+-  opacity: 0;
+-  transition: opacity 120ms ease;
+-}
+-.picture:hover .over { opacity: 1; }
+-.over button {
++.step {
+   appearance: none;
+   border: 0;
+-  padding: 2px 6px;
++  background: transparent;
++  width: 100%;
++  display: flex;
++  align-items: center;
++  height: var(--size-row);
++  padding: 0 var(--size-space-xs);
+   border-radius: var(--shape-radius-key);
+-  background: var(--plane-lift);
+-  color: var(--text-strong);
++  color: var(--text-ink);
++  font-size: var(--size-type-sm);
++  line-height: 1;
++  text-align: left;
++  white-space: nowrap;
++  overflow: hidden;
+   cursor: pointer;
+ }
+-.over button:hover { background: var(--control-contrast-hover); }
+-.over button.is-off { opacity: var(--text-disabled); pointer-events: none; }
+-
+-.stats { display: grid; grid-template-columns: 1fr 1fr; gap: var(--size-space-xs); }
++.step:hover { background: var(--control-selected); }
++.step[aria-current="true"] {
++  background: var(--control-selected);
++  color: var(--signal-primary-ink);
++}
++.step.l3 { padding-left: var(--size-space-lg); }
+ .stat {
+   display: flex;
+-  flex-direction: column;
+-  gap: 2px;
+-  padding: var(--size-space-sm);
+-  border-radius: var(--shape-radius-card);
+-  background: var(--plane-sunk);
++  align-items: center;
++  justify-content: space-between;
++  height: var(--size-row);
++  padding: 0 var(--size-space-xs);
+ }
+ .stat b {
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-xs);
++  font-weight: 400;
+   color: var(--text-strong);
+-  font-family: var(--font-family-sans-heading);
+-  font-size: var(--size-type-xl);
++  font-variant-numeric: tabular-nums;
+ }
+-.stat span { color: var(--text-muted); }
+-
+-.pop {
+-  position: absolute;
+-  z-index: 20;
++.acts {
++  flex: none;
+   display: flex;
+-  flex-direction: column;
++  align-items: center;
+   gap: var(--size-space-xs);
+-  padding: var(--size-space-sm);
+-  border-radius: var(--shape-radius-card);
+-  background: var(--plane-lift);
+-  box-shadow: 0 0 0 var(--size-ring) var(--boundary), var(--shape-lift);
++  padding: var(--size-space-xs) var(--size-space-sm) var(--size-space-sm);
+ }
+-.pop header { display: flex; align-items: center; gap: var(--size-space-xs); }
+-.pop header b { color: var(--text-strong); }
+-.settings { top: 42px; right: var(--size-space-sm); width: 320px; }
+-.setting {
+-  display: grid;
+-  grid-template-columns: 1fr auto;
++.acts.is-away { display: none; }
++.confirm { display: none; margin: var(--size-space-xs) var(--size-space-sm) var(--size-space-sm); }
++.confirm.is-on { display: flex; }
++.status {
++  flex: none;
++  display: flex;
+   align-items: center;
+-  gap: var(--size-space-xs);
+-  min-height: 28px;
++  gap: var(--size-space-md);
++  height: 28px;
++  padding: 0 var(--size-space-sm);
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-2xs);
++  line-height: 1;
++  color: var(--text-muted);
++  white-space: nowrap;
++  overflow: hidden;
++  font-variant-numeric: tabular-nums;
+ }
+-.setting input[type="range"] {
+-  grid-column: 1 / -1;
+-  width: 100%;
+-  accent-color: var(--signal-primary);
++.status b { font-weight: 400; color: var(--text-ink); }
++.status .run { display: inline-flex; align-items: center; gap: var(--size-space-xs); }
++.fault-line {
++  appearance: none;
++  border: 0;
++  padding: 0;
++  background: transparent;
++  display: inline-flex;
++  align-items: center;
++  gap: var(--size-space-xs);
++  min-width: 0;
++  color: var(--signal-negative-ink);
++  cursor: pointer;
+ }
+-.setting output { grid-row: 1; grid-column: 2; color: var(--text-strong); }
+-.setting.switch input { accent-color: var(--signal-primary); }
+-
++.fault-line span:last-child { overflow: hidden; text-overflow: ellipsis; }
+ .veil {
++  display: none;
+   position: absolute;
+-  inset: 0;
+-  z-index: 30;
+-  background: color-mix(in srgb, var(--plane-sunk) 55%, transparent);
++  z-index: 5;
++  top: 0;
++  right: 0;
++  bottom: 0;
++  left: 0;
++  justify-content: center;
++  align-items: flex-start;
++  padding: 12vh var(--size-space-sm) 0;
++  background: var(--scrim);
+ }
+-.palette {
+-  top: 12%;
+-  left: 50%;
+-  transform: translateX(-50%);
+-  width: min(560px, 90%);
+-  padding: 0;
+-  overflow: hidden;
++.veil.is-on { display: flex; }
++.pop {
++  background: var(--plane-lift);
++  border-radius: var(--shape-radius-field);
++  box-shadow: 0 0 0 var(--size-ring) var(--boundary),var(--shape-lift);
+ }
+-.palette input {
++.palette {
++  display: flex;
++  flex-direction: column;
++  gap: var(--size-space-xs);
+   width: 100%;
+-  height: 44px;
+-  padding: 0 var(--size-space-md);
+-  border: 0;
+-  outline: 0;
+-  background: transparent;
+-  color: var(--text-strong);
+-  font-family: var(--font-family-sans-text);
+-  font-size: var(--size-type-md);
+-  box-shadow: inset 0 calc(-1 * var(--size-ring)) 0 var(--boundary);
++  max-width: 560px;
++  max-height: 70vh;
++  padding: var(--size-space-xs);
+ }
+-.palette .list { max-height: 50vh; overflow-y: auto; padding: var(--size-space-2xs); }
+-.entry {
+-  width: 100%;
+-  display: flex;
+-  justify-content: space-between;
+-  gap: var(--size-space-sm);
+-  padding: var(--size-space-xs) var(--size-space-sm);
+-  border-radius: var(--shape-radius-key);
+-  color: var(--text-ink);
+-  text-align: left;
++.palette .list { display: grid; gap: var(--size-space-xs); overflow-y: auto; }
++.palette .part { display: grid; }
++.palette .part > .kit-label { padding: var(--size-space-2xs) var(--size-space-xs); }
++.hit { font-weight: 700; color: var(--signal-primary-ink); }
++.settings {
++  display: none;
++  position: absolute;
++  z-index: 5;
++  top: 42px;
++  right: var(--size-space-xs);
++  width: 320px;
++  gap: var(--size-space-2xs);
++  padding: var(--size-space-xs);
+ }
+-.entry[aria-current="true"] { background: var(--control-selected); color: var(--text-strong); }
+-.entry .hint { color: var(--text-muted); }
+-
+-.status {
++.settings.is-on { display: grid; }
++.set {
+   display: flex;
+   align-items: center;
++  justify-content: space-between;
+   gap: var(--size-space-sm);
+-  min-height: 26px;
+-  padding: 0 var(--size-space-sm);
+-  box-shadow: inset 0 var(--size-ring) 0 var(--boundary);
+-  color: var(--text-muted);
+-  white-space: nowrap;
+-  transition: opacity 200ms ease;
++  min-height: 30px;
++  padding: 0 var(--size-space-xs);
+ }
+-.told { overflow: hidden; text-overflow: ellipsis; }
+-.fault {
++.is-empty .writing, .is-empty .pressed, .is-empty .seam.is-mid { display: none; }
++.is-empty .welcome { display: flex; }
++.desk[data-mode="write"] .pressed, .desk[data-mode="write"] .seam.is-mid { display: none; }
++.desk[data-mode="preview"] .writing, .desk[data-mode="preview"] .seam.is-mid { display: none; }
++.is-focus .titlebar, .is-focus .tools, .is-focus .status,
++.is-focus .dock, .is-focus .seam, .is-focus .pressed {
++  display: none;
++}
++.is-focus .sheet { padding-top: var(--size-space-3xl); scrollbar-width: none; }
++.is-focus .leaf { max-width: 58ch; font-size: var(--size-type-lg); }
++.is-focus .head { opacity: var(--dim); }
++.is-focus .whisper {
+   display: flex;
+-  align-items: center;
+-  gap: var(--size-space-xs);
+-  padding: var(--size-space-2xs) var(--size-space-sm);
+-  overflow-wrap: anywhere;
+-  white-space: normal;
+-  color: var(--signal-negative-ink);
+-  background: var(--signal-negative-tint);
+-  border-radius: var(--shape-radius-key);
++  position: absolute;
++  left: 0;
++  right: 0;
++  bottom: var(--size-space-sm);
++  justify-content: center;
++}
++.is-narrow .wide-only { display: none; }
++.is-narrow .titlebar { display: flex; height: 52px; gap: var(--size-space-2xs); }
++.is-narrow .fore { flex: 1; }
++.is-narrow .title { height: 44px; }
++.is-narrow .title .path, .is-narrow .modes, .is-narrow .aft .go { display: none; }
++.is-narrow .pick { display: block; }
++.is-narrow .key { width: 44px; height: 44px; }
++.is-narrow .save { height: 44px; }
++.is-narrow .seam { display: none; }
++.is-narrow .dock {
++  position: absolute;
++  z-index: 3;
++  top: 0;
++  bottom: 0;
++  left: 0;
++  width: 86%;
++  max-width: 340px;
++  background: var(--plane);
++  box-shadow: var(--shape-lift);
++  transition: transform 150ms cubic-bezier(.16,1,.3,1);
++}
++.is-narrow .dock.inspector { left: auto; right: 0; }
++.is-narrow .dock.is-shut { transform: translateX(-120%); }
++.is-narrow .dock.inspector.is-shut { transform: translateX(120%); }
++.is-narrow .dock-in { width: 100%; }
++.is-narrow .row, .is-narrow .step, .is-narrow .tap { height: 44px; }
++.is-narrow .group-head { height: 36px; }
++.is-narrow .prop, .is-narrow .set, .is-narrow .stat { min-height: 44px; }
++.is-narrow .tabbar { height: 52px; }
++.is-narrow .tabs > button, .is-narrow .opts > button {
++  height: 36px;
++  padding: 0 var(--size-space-sm);
+ }
++.is-narrow .tools {
++  height: 48px;
++  padding: 0;
++  overflow-x: auto;
++  scrollbar-width: none;
++  -webkit-mask: linear-gradient(90deg,currentColor calc(100% - 40px),transparent);
++  mask: linear-gradient(90deg,currentColor calc(100% - 40px),transparent);
++}
++.is-narrow .crumb { display: none; }
++.is-narrow .marks { padding: 0 var(--size-space-2xl) 0 var(--size-space-2xs); }
++.is-narrow .sheet { padding: var(--size-space-lg) var(--size-space-md) var(--size-space-3xl); }
++.is-narrow .head .t { font-size: var(--size-type-3xl); }
++.is-narrow .pressbar { height: 48px; padding: 0 var(--size-space-2xs); }
++.is-narrow .stage { padding: var(--size-space-xs); }
++.is-narrow .acts { flex-direction: column; align-items: stretch; }
++.is-narrow .acts > .grow { display: none; }
++.is-narrow .acts > button { height: 44px; justify-content: center; }
++.is-narrow .confirm .keys > button { height: 36px; padding: 0 var(--size-space-sm); }
++.is-narrow .status { height: 32px; }
++.is-narrow .veil { padding-top: var(--size-space-xs); }
++.is-narrow .settings { top: auto; right: 0; bottom: 0; left: 0; width: auto; }
+ 
+-.desk.is-focus .titlebar, .desk.is-focus .status { opacity: 0.08; }
+-.veil.drawn { z-index: 9; }
+ .desk.is-dragging { cursor: col-resize; user-select: none; }
+ .desk.is-dragging iframe { pointer-events: none; }
+-
+-.desk.is-narrow { font-size: var(--size-type-sm); }
+-.desk.is-narrow .body { position: relative; }
+-.desk.is-narrow .dock {
++.desk.is-dragging .dock { transition: none; }
++.seam.drag, .seam.drag::after { background: var(--signal-primary-ink); }
++.desk[data-mode="split"] .writing { flex: 0 0 calc(var(--share) * 100%); }
++.site { flex: 1; min-height: 0; width: 100%; border: 0; }
++.stage > .none { align-self: center; }
++.pic { overflow: hidden; }
++.pic img { width: 100%; height: 100%; object-fit: cover; }
++.lead-pic > div { min-width: 0; }
++.quiet:disabled { opacity: var(--text-disabled); cursor: default; }
++.well { position: relative; }
++.well input {
+   position: absolute;
+   top: 0;
++  right: 0;
+   bottom: 0;
+-  z-index: 10;
+-  width: min(88%, 380px) !important;
+-  background: var(--plane-lift);
+-  box-shadow: var(--shape-lift), 0 0 0 var(--size-ring) var(--boundary);
+-  animation: drawn 180ms cubic-bezier(0.16, 1, 0.3, 1);
++  left: 0;
++  opacity: 0;
++  cursor: pointer;
+ }
+-.desk.is-narrow .library { left: 0; }
+-.desk.is-narrow .inspector { right: 0; }
+-.desk.is-narrow .titlebar { height: 46px; gap: 2px; }
+-.desk.is-narrow .titlebar .title { max-width: none; flex: 1; padding: 0 var(--size-space-xs); }
+-.desk.is-narrow .titlebar .title b + .muted,
+-.desk.is-narrow .titlebar .title .unsaved { display: none; }
+-.titlebar > .kit-choice, .titlebar > .icon { flex: none; flex-wrap: nowrap; }
+-.desk.is-narrow .titlebar .title { min-width: 0; }
+-select.modes {
+-  flex: none;
+-  height: 34px;
+-  padding: 0 var(--size-space-xs);
++.well:focus-within { border-color: var(--signal-primary-ink); color: var(--signal-primary-ink); }
++.grid figure { position: relative; }
++.grid figure.is-lead .pic { box-shadow: 0 0 0 2px var(--signal-primary-ink); }
++.over {
++  position: absolute;
++  top: 2px;
++  left: 2px;
++  right: 2px;
++  display: flex;
++  gap: 2px;
++  opacity: 0;
++  transition: opacity 120ms ease;
++}
++.grid figure:hover .over, .grid figure:focus-within .over, .is-narrow .over { opacity: 1; }
++.over button {
++  appearance: none;
+   border: 0;
+-  border-radius: var(--shape-radius-key);
+-  background: var(--control-selected);
+-  color: var(--text-strong);
+-  font: inherit;
++  height: 20px;
++  padding: 0 var(--size-space-2xs);
++  border-radius: var(--shape-radius-2xs);
++  background: var(--control-contrast);
++  color: var(--control-on);
++  font-family: var(--font-family-code);
++  font-size: var(--size-type-2xs);
++  line-height: 1;
++  cursor: pointer;
+ }
+-.desk.is-narrow .titlebar > .fill { display: none; }
+-.desk.is-narrow .icon { width: 38px; height: 38px; font-size: var(--size-type-md); }
+-.desk.is-narrow .kit-choice > button { height: 34px; }
+-.desk.is-narrow .row { height: 42px; }
+-.desk.is-narrow .tools { overflow-x: auto; scrollbar-width: none; flex: none; }
+-.desk.is-narrow .tool { min-width: 38px; height: 36px; flex: none; }
+-.desk.is-narrow .crumb { display: none; }
+-.desk.is-narrow .status { overflow-x: auto; scrollbar-width: none; }
+-.desk.is-narrow .status .told { display: none; }
+-.desk.is-narrow .settings {
+-  left: var(--size-space-xs);
+-  right: var(--size-space-xs);
+-  width: auto;
++.over button:hover { background: var(--control-contrast-hover); }
++.over button:disabled { opacity: var(--text-disabled); cursor: default; }
++.over button[aria-pressed="true"] {
++  background: var(--signal-negative-tint);
++  color: var(--signal-negative-ink);
+ }
+-.desk.is-narrow .palette {
+-  top: var(--size-space-sm);
+-  width: calc(100% - 2 * var(--size-space-sm));
+-}
+-.desk.is-narrow .picture .over { opacity: 1; }
+-.desk.is-narrow .pressbar .kit-choice > button { padding: 0 var(--size-space-xs); }
+-@keyframes drawn {
+-  from { transform: translateX(var(--from, -12px)); opacity: 0.4; }
+-}
+-.desk.is-narrow .inspector { --from: 12px; }
+-.desk.is-focus .titlebar:hover, .desk.is-focus .status:hover { opacity: 1; }
+-.desk.is-focus .writing { background: var(--plane-sunk); }
+-.kit-row .unsaved{color:var(--signal-caution-ink);font-size:var(--size-type-2xs)}
+-.kit-choice>button.go{color:var(--signal-positive-ink);box-shadow:inset 0 0 0 var(--size-ring) var(--signal-positive)}
++.is-narrow .over button { height: 36px; padding: 0 var(--size-space-xs); }
++.files { display: grid; margin-top: var(--size-space-sm); }
++.files > .kit-label { padding: 0 var(--size-space-xs); }
++a.row { text-decoration: none; }
++.step.l4, .step.l5, .step.l6 { padding-left: var(--size-space-xl); }
++.desk.is-narrow .cm-gutters { position: static !important; }
++
+ .kit-label {font-family: var(--font-family-code); font-size: var(--size-type-2xs); color: var(--text-muted); text-transform: var(--shape-label-case); letter-spacing: var(--shape-label-track);}
+ .kit :focus-visible, .kit-tty :focus-visible {outline: 2px solid var(--control-focus); outline-offset: -2px;}
+ .kit-dot {display: inline-block; flex: none; width: 6px; height: 6px; border-radius: var(--shape-radius-disc); background: var(--text-muted);}
+@@ -554,3 +930,14 @@
+ .kit-field .ic.is-live {color: var(--signal-negative);}
+ .kit-field.is-live {box-shadow: inset 0 0 0 var(--size-ring) var(--signal-negative);}
+ @keyframes kit-breathe {0%, 100% {opacity: 1; transform: scale(1);} 50% {opacity: 0.35; transform: scale(0.7);}}
++.kit button { font: inherit; }
++.kit-seg { appearance: none; border: 0; background: transparent; color: var(--text-strong); font-family: var(--font-family-code); font-size: var(--size-type-xs); line-height: 1; height: 28px; padding: 0 var(--size-space-xs); border-radius: var(--shape-radius-key); display: inline-flex; align-items: center; gap: var(--size-space-2xs); cursor: pointer; white-space: nowrap; min-width: 0; }
++.kit-seg:hover { background: var(--control-selected); }
++.kit-seg.is-attention { background: var(--signal-caution-tint); color: var(--signal-caution-ink); box-shadow: inset 0 0 0 var(--size-ring) var(--signal-caution-ink); }
++.kit-seg.is-off, .kit-seg:disabled { opacity: var(--text-disabled); cursor: default; }
++.kit-consent { display: flex; align-items: center; flex-wrap: wrap; gap: var(--size-space-xs) var(--size-space-sm); min-height: var(--size-field); padding: var(--size-space-2xs) var(--size-space-sm); background: var(--signal-caution-tint); color: var(--signal-caution-ink); border-radius: var(--shape-radius-field); font-family: var(--font-family-code); font-size: var(--size-type-xs); line-height: 1.4; }
++.kit-consent .arg { color: var(--text-strong); }
++.kit-consent .keys { margin-left: auto; display: flex; gap: var(--size-space-xs); }
++.kit-consent .keys > button { appearance: none; border: 0; background: var(--control-contrast); color: var(--control-on); font: inherit; line-height: 1; height: 24px; padding: 0 var(--size-space-xs); border-radius: var(--shape-radius-key); cursor: pointer; }
++.kit-consent .keys > button:hover { background: var(--control-contrast-hover); }
++.kit-consent .keys b { font-weight: 700; }
+diff --color -ruN blog/buffer/editor.js blog/buffer/editor.js
+--- blog/buffer/editor.js	2026-11-24 11:00:38.000000000 +0100
++++ blog/buffer/editor.js	2026-11-24 11:57:01.729458173 +0100
+@@ -32,40 +32,38 @@
+ 
+ export const KEYS = { bold: "Mod-b", italic: "Mod-i", code: "Mod-e", link: "Mod-k" };
+ 
+-export const FONTS = {
+-  sans: "var(--font-family-sans-text)",
+-  serif: "var(--font-family-serif-text)",
+-  mono: "var(--font-family-code)",
+-};
+-
+ const theme = EditorView.theme({
+-  "&": { height: "100%", color: "var(--text-ink)", backgroundColor: "transparent" },
++  "&": { color: "var(--text-ink)", backgroundColor: "transparent" },
+   "&.cm-focused": { outline: "none" },
+-  ".cm-scroller": { overflow: "auto" },
++  ".cm-scroller": { overflow: "visible", fontFamily: "inherit", lineHeight: "inherit" },
+   ".cm-content": {
+-    width: "100%",
+-    margin: "0 auto",
+-    padding: "var(--size-space-xl) var(--size-space-md) 45vh",
+-    caretColor: "var(--signal-primary)",
++    minHeight: "50vh",
++    padding: "0",
++    caretColor: "var(--control-field-caret)",
+   },
+   ".cm-line": { padding: "0", transition: "opacity 160ms ease" },
+-  ".cm-line.cm-dim": { opacity: "0.28" },
++  ".cm-line.cm-dim": { opacity: "var(--dim)" },
+   ".cm-gutters": {
+     backgroundColor: "transparent",
+     border: "none",
+-    color: "var(--text-light)",
++    color: "var(--text-muted)",
+     fontFamily: "var(--font-family-code)",
+     fontSize: "var(--size-type-2xs)",
++    fontVariantNumeric: "tabular-nums",
++    position: "absolute !important",
++    left: "auto !important",
++    right: "calc(100% + var(--size-space-sm))",
+   },
++  ".cm-gutterElement": { lineHeight: "calc(var(--type) * var(--leading))" },
+   ".cm-activeLineGutter": { backgroundColor: "transparent", color: "var(--text-strong)" },
+   ".cm-cursor, .cm-dropCursor": {
+-    borderLeftColor: "var(--signal-primary)",
++    borderLeftColor: "var(--control-field-caret)",
+     borderLeftWidth: "2px",
+   },
+   ".cm-selectionBackground, &.cm-focused .cm-selectionBackground, ::selection": {
+     backgroundColor: tint("primary", 25),
+   },
+-  ".cm-placeholder": { color: "var(--text-muted)" },
++  ".cm-placeholder": { color: "var(--control-field-placeholder)" },
+   ".cm-panels": {
+     backgroundColor: "var(--plane-lift)",
+     color: "var(--text-ink)",
+@@ -90,28 +88,34 @@
+ });
+ 
+ const highlight = HighlightStyle.define([
+-  { tag: tags.heading1, color: "var(--text-strong)", fontWeight: "700", fontSize: "1.6em" },
+-  { tag: tags.heading2, color: "var(--text-strong)", fontWeight: "700", fontSize: "1.3em" },
+-  { tag: tags.heading3, color: "var(--text-strong)", fontWeight: "700", fontSize: "1.1em" },
+   {
+-    tag: [tags.heading4, tags.heading5, tags.heading6],
++    tag: tags.heading,
+     color: "var(--text-strong)",
+-    fontWeight: "700",
++    fontFamily: "var(--font-family-sans-heading)",
++    fontWeight: "600",
+   },
+-  { tag: tags.strong, color: "var(--text-strong)", fontWeight: "700" },
++  { tag: tags.heading1, fontSize: "var(--size-type-2xl)" },
++  { tag: tags.heading2, fontSize: "var(--size-type-xl)" },
++  { tag: tags.heading3, fontSize: "var(--size-type-lg)" },
++  { tag: tags.strong, color: "var(--text-strong)", fontWeight: "600" },
+   { tag: tags.emphasis, fontStyle: "italic" },
+   { tag: tags.strikethrough, textDecoration: "line-through", color: "var(--text-muted)" },
+   { tag: [tags.link, tags.url], color: "var(--text-link)" },
+-  { tag: tags.quote, color: "var(--text-muted)", fontStyle: "italic" },
++  { tag: tags.quote, color: "var(--text-light)", fontStyle: "italic" },
+   {
+     tag: tags.monospace,
+     fontFamily: "var(--font-family-code)",
+-    fontSize: "0.9em",
++    fontSize: ".875em",
+     color: "var(--text-code)",
++    backgroundColor: "var(--plane-sunk)",
++    borderRadius: "var(--shape-radius-2xs)",
++    padding: "0 .25em",
+   },
+   {
+     tag: [tags.processingInstruction, tags.meta, tags.contentSeparator],
+-    color: "var(--text-light)",
++    color: "var(--text-muted)",
++    fontStyle: "normal",
++    fontWeight: "400",
+   },
+   { tag: tags.list, color: "var(--signal-primary-ink)" },
+   { tag: tags.comment, color: "var(--text-muted)", fontStyle: "italic" },
+@@ -205,24 +209,12 @@
+     : { effects: EditorView.scrollIntoView(transaction.selection.main.head, { y: "center" }) },
+ );
+ 
+-const look = new Compartment();
+ const gutter = new Compartment();
+ const spelling = new Compartment();
+ const focus = new Compartment();
+ const writer = new Compartment();
+ 
+-const looks = (settings) =>
+-  EditorView.theme({
+-    ".cm-scroller": {
+-      fontFamily: FONTS[settings.font],
+-      fontSize: `${settings.size}px`,
+-      lineHeight: String(settings.leading),
+-    },
+-    ".cm-content": { maxWidth: `${settings.measure}ch` },
+-  });
+-
+ const parts = (settings) => [
+-  [look, looks(settings)],
+   [gutter, settings.numbers ? [lineNumbers(), highlightActiveLineGutter()] : []],
+   [
+     spelling,
+@@ -317,7 +309,7 @@
+   };
+ };
+ 
+-export const sheet = ({ path, body, settings, typed, moved, scrolled, dropped, pasted }) =>
++export const sheet = ({ path, body, settings, typed, moved, dropped, pasted }) =>
+   EditorState.create({
+     doc: body,
+     extensions: [
+@@ -342,7 +334,7 @@
+       placeholder("Write."),
+       EditorView.lineWrapping,
+       parts(settings).map(([compartment, held]) => compartment.of(held)),
+-      EditorView.domEventHandlers({ drop: dropped, paste: pasted, scroll: scrolled }),
++      EditorView.domEventHandlers({ drop: dropped, paste: pasted }),
+       EditorView.updateListener.of((update) => {
+         if (update.docChanged) typed(update.state.doc.toString());
+         if (update.docChanged || update.selectionSet) moved(caret(update.state));
+diff --color -ruN blog/buffer/icons.js blog/buffer/icons.js
+--- blog/buffer/icons.js	1970-01-01 01:00:00.000000000 +0100
++++ blog/buffer/icons.js	2026-11-24 11:51:56.931815986 +0100
+@@ -0,0 +1,33 @@
++export const ICONS = {
++  library: "M2.5 3.5h11v9h-11z M6 3.5v9",
++  inspector: "M2.5 3.5h11v9h-11z M10 3.5v9",
++  settings: "M2.5 5h4.5 M10 5h3.5 M2.5 11h3.5 M9 11h4.5 M7 3.5v3h3v-3z M6 9.5v3h3v-3z",
++  search: "M7 2.75a4.25 4.25 0 1 0 0 8.5a4.25 4.25 0 0 0 0-8.5z M10.2 10.2l3.3 3.3",
++  right: "M6 4l4 4-4 4",
++  close: "M4 4l8 8 M12 4l-8 8",
++  bold: "M4.5 3h4a2.5 2.5 0 0 1 0 5h-4z M4.5 8h4.75a2.5 2.5 0 0 1 0 5H4.5z",
++  italic: "M7 3h5 M4 13h5 M9.5 3l-3 10",
++  link:
++    "M6.75 9.25a2.75 2.75 0 0 0 3.9 0l2.1-2.1a2.75 2.75 0 0 0-3.9-3.9l-.85.85 " +
++    "M9.25 6.75a2.75 2.75 0 0 0-3.9 0l-2.1 2.1a2.75 2.75 0 0 0 3.9 3.9l.85-.85",
++  heading: "M3.5 3v10 M10.5 3v10 M3.5 8h7",
++  quote: "M3 4v8 M6.5 5h7 M6.5 8h7 M6.5 11h4.5",
++  list: "M6 4h7.5 M6 8h7.5 M6 12h7.5 M2.75 4h.5 M2.75 8h.5 M2.75 12h.5",
++  code: "M5.5 4.5L2 8l3.5 3.5 M10.5 4.5L14 8l-3.5 3.5",
++  image: "M2.5 3.5h11v9h-11z M2.5 10.5l3-3 2.5 2.5 2-2 3.5 3.5 M10.25 6h.5",
++  footnote: "M5 3H3v10h2 M11 3h2v10h-2 M7.25 6.25L8.5 5.5v5",
++  desktop: "M2 3h12v7.5H2z M6 13.5h4 M8 10.5v3",
++  tablet: "M4 2h8v12H4z M7.5 12h1",
++  phone: "M5 2h6v12H5z M7.5 12h1",
++  follow: "M5 3v10 M3 5l2-2 2 2 M11 13V3 M9 11l2 2 2-2",
++  out: "M9.5 3H13v3.5 M13 3L7.5 8.5 M11 9.5V13H3V5h3.5",
++  calendar: "M2.5 4h11v9.5h-11z M2.5 7h11 M5.5 2.5V5 M10.5 2.5V5",
++  upload: "M8 10.5V3 M5 6l3-3 3 3 M2.5 10.5V13h11v-2.5",
++  sheet: "M4 2h5.5L12.5 5v9H4z M9.5 2v3h3",
++  trash: "M3 4.5h10 M6.5 4.5V3h3v1.5 M4.5 4.5l.5 8.5h6l.5-8.5",
++  outline: "M3 4h10 M5.5 8h7.5 M5.5 12h5",
++  write: "M2.5 3.5h11v9h-11z M5 6.5h6 M5 9.5h4",
++  split: "M2.5 3.5h11v9h-11z M8 3.5v9 M4.5 7h1.5 M4.5 9.5h1.5 M10 6.5h1.5v3H10z",
++  preview: "M2.5 3.5h11v9h-11z M5.5 12.5V6h5v6.5",
++  focus: "M2.5 5.5v-2h2 M11.5 3.5h2v2 M13.5 10.5v2h-2 M4.5 12.5h-2v-2 M6 8h4",
++};
+diff --color -ruN blog/schematics.js blog/schematics.js
+--- blog/schematics.js	2026-11-24 10:56:34.000000000 +0100
++++ blog/schematics.js	2026-11-24 11:54:39.625324837 +0100
+@@ -55,16 +55,16 @@
+ export const Settings = v.object({
+   font: v
+     .enum(["sans", "serif", "mono"])
+-    .default("sans")
++    .default("serif")
+     .desc("The sheet's typeface.")
+     .example("serif"),
+-  size: v.integer().default(17).desc("The sheet's type size in pixels, 12 to 26.").example(18),
++  size: v.integer().default(16).desc("The sheet's type size in pixels, 12 to 26.").example(18),
+   measure: v
+     .integer()
+-    .default(72)
++    .default(66)
+     .desc("The sheet's line length in characters, 40 to 140.")
+-    .example(64),
+-  leading: v.number().default(1.7).desc("The sheet's line height, 1.2 to 2.4.").example(1.8),
++    .example(54),
++  leading: v.number().default(1.45).desc("The sheet's line height, 1.2 to 2.4.").example(1.7),
+   numbers: v.boolean().default(false).desc("Line numbers beside the sheet.").example(true),
+   typewriter: v
+     .boolean()
+@@ -124,10 +124,15 @@
+     .default("desktop")
+     .desc("The width the page is shown at.")
+     .example("phone"),
+-  library: Dock(264).default({}).desc("The panel of sources on the left."),
++  recent: v
++    .array(v.string())
++    .default([])
++    .desc("The sources last on the desk, newest first, their paths under source/.")
++    .example(["on/machines.md", "on/eva.md"]),
++  library: Dock(248).default({}).desc("The panel of sources on the left."),
+   inspector: v
+     .object({
+-      ...Dock(320).properties,
++      ...Dock(304).properties,
+       tab: v
+         .enum(["post", "media", "outline", "stats"])
+         .default("post")
+diff --color -ruN blog/tests/blog.test.js blog/tests/blog.test.js
+--- blog/tests/blog.test.js	2026-11-24 11:07:02.000000000 +0100
++++ blog/tests/blog.test.js	2026-11-24 11:54:39.626011548 +0100
+@@ -249,13 +249,14 @@
+       mode: "split",
+       share: 0.5,
+       device: "desktop",
+-      library: { shown: true, width: 264 },
+-      inspector: { shown: true, width: 320, tab: "post" },
++      recent: [],
++      library: { shown: true, width: 248 },
++      inspector: { shown: true, width: 304, tab: "post" },
+       settings: {
+-        font: "sans",
+-        size: 17,
+-        measure: 72,
+-        leading: 1.7,
++        font: "serif",
++        size: 16,
++        measure: 66,
++        leading: 1.45,
+         numbers: false,
+         typewriter: false,
+         dim: false,

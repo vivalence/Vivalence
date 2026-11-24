@@ -20,7 +20,7 @@ export const INTENTED = async (mode, modeDie) => {
     for (const peer of fromm.modes(modeDie.modes).flat) {
       if (!peer.implements("INTENTED")) continue;
       if (!is.array(peer.module.dataset?.intent)) continue;
-      await ensure(ctx.input.em, peer, ctx.input.entity);
+      await ensure(ctx.em, peer, ctx.input.entity);
     }
   });
 

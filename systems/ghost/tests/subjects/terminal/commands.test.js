@@ -3,7 +3,7 @@ import { atom } from "nanostores";
 import { useTestStorageEngine } from "@nanostores/persistent";
 import { Controller, Cortex, KeySignal, Path, ReplSignal, Span, Url, Vector, belt, mime, shape, specimen, steer, v } from "@vivalence/typology";
 import * as ghost from "@vivalence/ghost";
-import { chrome } from "../../../surfaces/index.js";
+import { chrome } from "../../../skins/index.js";
 
 useTestStorageEngine();
 
@@ -52,7 +52,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
   const root = new Controller({ stdout: new Span("ghost") });
   const mask = { manifest: { type: "client", slug: "ghost", traits: [] }, reference: new Path("/client/ghost"), modes: [], trait: {} };
   const client = new ghost.client.Client({ controller: root.branch("client"), mask, register: { modes: [] }, instance: null });
-  client.app = new ghost.app.App({ client, surface: chrome });
+  client.app = new ghost.app.App({ client, skin: chrome });
   client.app.bridge.$hidden.set(["modes"]);
   client.app.telemetry.$state.set({ ...client.app.telemetry.state, selection: "7" });
 
@@ -104,17 +104,17 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
   const thread = hydrated(Object.assign(new ghost.entities.thread.Thread(), { id: "th1", mode: memo, traits: ["LABELED"], trait: { LABELED: { name: "flamingo" } } }), v.thread.traits);
   const other = hydrated(Object.assign(new ghost.entities.thread.Thread(), { id: "th2", mode: probe }), v.thread.traits);
   const buffer = Object.assign(new ghost.entities.buffer.Buffer(), { id: "b1", thread, traits: ["LABELED"], trait: { LABELED: { name: "memo #1" } } });
-  const VIEWS = {
-    "/view/v-board": { id: "v-board", slug: "play", mime: mime.tty.solid, traits: ["FRAME"], entry: "cells/Board.js", files: [{ id: "f-board", path: "cells/Board.js", integrity: "sha256-e7f3" }] },
-    "/view/v-glance": { id: "v-glance", slug: "glance", mime: mime.tty.solid, traits: ["CELL"], entry: "cells/Glance.js", files: [{ id: "f-glance", path: "cells/Glance.js", integrity: "sha256-5d2a" }] },
+  const SURFACES = {
+    "/surface/v-board": { id: "v-board", slug: "play", mime: mime.tty.solid, traits: ["FRAME"], entry: "cells/Board.js", files: [{ id: "f-board", path: "cells/Board.js", integrity: "sha256-e7f3" }] },
+    "/surface/v-glance": { id: "v-glance", slug: "glance", mime: mime.tty.solid, traits: ["CELL"], entry: "cells/Glance.js", files: [{ id: "f-glance", path: "cells/Glance.js", integrity: "sha256-5d2a" }] },
   };
-  const board = Object.assign(new ghost.entities.buffer.Buffer(), { id: "b2", thread, mode: { id: "m-play", slug: "play", $views: atom(Object.values(VIEWS)) }, traits: ["LABELED"], trait: { LABELED: { name: "board one" } }, data: { fen: "8/8" } });
+  const board = Object.assign(new ghost.entities.buffer.Buffer(), { id: "b2", thread, mode: { id: "m-play", slug: "play", $surfaces: atom(Object.values(SURFACES)) }, traits: ["LABELED"], trait: { LABELED: { name: "board one" } }, data: { fen: "8/8" } });
   thread.$buffers = atom([buffer, board]);
   const paused = activity("a1", "PAUSED");
   const running = activity("a2", "RUNNING");
   thread.$activities = atom([paused, running]);
 
-  client.runtime = new ghost.entities.runtime.Runtime({ reference: new Path("/runtime/house"), remote: new Url("http://127.0.0.1:9"), lighthouse, connection: { branch: (path) => ({ path, call: async (route) => VIEWS[route] }) } });
+  client.runtime = new ghost.entities.runtime.Runtime({ reference: new Path("/runtime/house"), remote: new Url("http://127.0.0.1:9"), lighthouse, connection: { branch: (path) => ({ path, call: async (route) => SURFACES[route] }) } });
   client.runtime.$status.set({ code: "RUNNING" });
   const terminals = repository([], (data, count) => Object.assign(new ghost.terminal.Terminal(), { id: `t${count + 1}`, index: count, client, runtime: client.runtime, repository: terminals, controller: client.controller.branch(`terminal/t${count + 1}`), ...data }), (held, data) => {
     if (!("buffer" in data)) return;
@@ -147,7 +147,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
   thread.controller = terminal.controller.branch("thread/th1");
   client.app.bridge.$terminal.set(terminal.id);
 
-  const repl = new Vector().graft(...Object.values(ghost.commands.system), ...Object.values(ghost.commands.content), ...Object.values(ghost.commands.surface));
+  const repl = new Vector().graft(...Object.values(ghost.commands.system), ...Object.values(ghost.commands.content), ...Object.values(ghost.commands.skin));
   const run = async (line) => {
     const signal = new ReplSignal(line);
     const replDie = { signal, client, runtime: client.runtime, terminal, controller: terminal.controller.branch(signal.pathname), repl: { commands: repl }, output: undefined };
@@ -288,7 +288,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
 
   specimen.it("/filter <kind> [query] hands the keys to that list's search, the rest of the line its query; /filter/close clears a query, then hands the keys back; /filter/expand · /filter/pick · /filter/daemon · /filter/trait flip the bridge's sections; a kind outside thread · mode is VALIDATION", async () => {
     const before = { focus: client.app.bridge.focus, sections: client.app.bridge.sections };
-    client.app.bridge.$sections.set({ filter: {}, expand: {}, pick: null, hostsOff: { thread: [], mode: [] }, traits: { thread: [], mode: ["VIEWABLE"] } });
+    client.app.bridge.$sections.set({ filter: {}, expand: {}, pick: null, hostsOff: { thread: [], mode: [] }, traits: { thread: [], mode: ["SURFACED"] } });
     specimen.expect([await run("/filter mode domain chess"), client.app.bridge.focus, client.app.bridge.sections.filter]).toEqual(["searching modes", "sidebar.filter.mode", { mode: "domain chess" }]);
     specimen.expect([await run("/filter mode"), client.app.bridge.sections.filter]).toEqual(["searching modes", { mode: "domain chess" }]);
     specimen.expect([await run("/filter/close"), client.app.bridge.focus, client.app.bridge.sections.filter]).toEqual(["modes unfiltered", "sidebar.filter.mode", { mode: "" }]);
@@ -296,7 +296,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     specimen.expect([await run("/filter/expand thread"), client.app.bridge.sections.expand, await run("/filter/expand thread"), client.app.bridge.sections.expand]).toEqual(["threads whole", { thread: true }, "threads cut", {}]);
     specimen.expect([await run("/filter/pick mode"), client.app.bridge.sections.pick, await run("/filter/pick mode"), client.app.bridge.sections.pick]).toEqual(["hosts of modes", "mode", "hosts hidden", null]);
     specimen.expect([await run("/filter/daemon mode /daemon/chess"), client.app.bridge.sections.hostsOff, await run("/filter/daemon mode /daemon/chess"), client.app.bridge.sections.hostsOff]).toEqual(["/daemon/chess hidden from modes", { thread: [], mode: ["/daemon/chess"] }, "/daemon/chess shown in modes", { thread: [], mode: [] }]);
-    specimen.expect([await run("/filter/trait mode VIEWABLE"), client.app.bridge.sections.traits, await run("/filter/trait mode VIEWABLE"), client.app.bridge.sections.traits]).toEqual(["modes any VIEWABLE", { thread: [], mode: [] }, "modes VIEWABLE", { thread: [], mode: ["VIEWABLE"] }]);
+    specimen.expect([await run("/filter/trait mode SURFACED"), client.app.bridge.sections.traits, await run("/filter/trait mode SURFACED"), client.app.bridge.sections.traits]).toEqual(["modes any SURFACED", { thread: [], mode: [] }, "modes SURFACED", { thread: [], mode: ["SURFACED"] }]);
     specimen.expect(await fault("/filter buffer")).toBe("VALIDATION");
     client.app.bridge.$focus.set(before.focus);
     client.app.bridge.$sections.set(before.sections);
@@ -304,15 +304,15 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
 
   specimen.it("/focus <panel> hands the keys to the frame or the dock; bare, it flips between them; another panel is VALIDATION", async () => {
     const before = client.app.bridge.focus;
-    specimen.expect([await run("/focus frame"), client.app.bridge.focus]).toEqual(["keys to the frame", "frame.view"]);
-    specimen.expect([await run("/focus"), client.app.bridge.focus, await run("/focus"), client.app.bridge.focus]).toEqual(["keys to the dock", "dock.input", "keys to the frame", "frame.view"]);
+    specimen.expect([await run("/focus frame"), client.app.bridge.focus]).toEqual(["keys to the frame", "frame.surface"]);
+    specimen.expect([await run("/focus"), client.app.bridge.focus, await run("/focus"), client.app.bridge.focus]).toEqual(["keys to the dock", "dock.input", "keys to the frame", "frame.surface"]);
     specimen.expect(await fault("/focus sidebar")).toBe("VALIDATION");
     client.app.bridge.$focus.set(before);
   });
 
   specimen.it("/repl opens the catalog — /inspector · /tier · /effort · /model · /tool/load · /tool/preload · /tool/unload · /primer/load · /primer/preload · /primer/unload · /modes · /mode are not rank hidden, so it lists those twelve, /inspector offering no chooser — with / prefilled, a draft that is a line kept; /repl/close drops it and the typed line; /legend/close flushes the held keys", async () => {
     client.app.bridge.$draft.set("hello");
-    client.app.bridge.$focus.set("frame.view");
+    client.app.bridge.$focus.set("frame.surface");
     specimen.expect(await run("/repl")).toBeUndefined();
     specimen.expect(terminal.repl.catalog.map((command) => command.nature)).toEqual(["/inspector", "/tier", "/effort", "/model", "/tool/load", "/tool/preload", "/tool/unload", "/primer/load", "/primer/preload", "/primer/unload", "/modes", "/mode"]);
     specimen.expect(terminal.repl.catalog[0]).toMatchObject({ args: false, options: [] });
@@ -320,8 +320,8 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     client.app.bridge.$draft.set("/dock");
     await run("/repl");
     specimen.expect(client.app.bridge.draft).toBe("/dock");
-    specimen.expect([await run("/repl/close"), terminal.repl.catalog, client.app.bridge.draft, client.app.bridge.focus]).toEqual([undefined, null, "", "frame.view"]);
-    specimen.expect([await run("/repl/close"), client.app.bridge.focus]).toEqual([undefined, "frame.view"]);
+    specimen.expect([await run("/repl/close"), terminal.repl.catalog, client.app.bridge.draft, client.app.bridge.focus]).toEqual([undefined, null, "", "frame.surface"]);
+    specimen.expect([await run("/repl/close"), client.app.bridge.focus]).toEqual([undefined, "frame.surface"]);
     terminal.legend.presses.enqueue(new KeySignal("leader"));
     specimen.expect([await run("/legend/close"), terminal.legend.presses.backlog, terminal.legend.chord]).toEqual(["legend closed", [], null]);
     client.app.bridge.$draft.set("");

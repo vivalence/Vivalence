@@ -1,0 +1,14 @@
+.site{flex:1;min-height:0;overflow-y:auto;color-scheme:light;background:Canvas;color:CanvasText;font-family:ui-serif,Georgia,serif;font-size:16px;line-height:1.6}
+.site-in{max-width:62ch;margin:0 auto;padding:40px 24px 64px}
+.site h1{margin:0;font-size:2em;line-height:1.15}
+.site .s-sub{margin:.4em 0 0;color:GrayText}
+.site .s-date{margin:1.2em 0 2em;font-family:ui-monospace,monospace;font-size:.8em;color:GrayText}
+.site .blk{margin:0 0 1em}
+.site .s-h{margin:1.8em 0 .5em;font-size:1.3em;font-weight:700;line-height:1.25}
+.site .s-quote{padding-left:1.5em;font-style:italic}
+.site .s-note{margin-top:2.5em;font-size:.85em;color:GrayText}
+.site .s-cd{font-family:ui-monospace,monospace;font-size:.9em}
+.site .s-em{font-style:italic}
+.site .s-st{font-weight:700}
+.site .s-lk{color:LinkText;text-decoration:underline}
+.site .s-ref{font-size:.75em;vertical-align:super;color:LinkText}

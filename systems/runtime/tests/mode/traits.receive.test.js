@@ -1,7 +1,7 @@
 import { Aperture, Path, specimen, steer, v } from "@vivalence/typology";
 import { FileRepository, traits } from "@vivalence/runtime";
 
-const { FILESINK, VIEWABLE } = traits.mode;
+const { FILESINK, SURFACED } = traits.mode;
 
 specimen.describe("FILESINK — /files/receive reads the payload off ctx.input through the real aperture", () => {
   let mountpoint;
@@ -33,7 +33,7 @@ specimen.describe("FILESINK — /files/receive reads the payload off ctx.input t
   });
 });
 
-specimen.describe("VIEWABLE — a bare mode.buffer() seats data before the fill, so the schema's defaults land", () => {
+specimen.describe("SURFACED — a bare mode.buffer() seats data before the fill, so the schema's defaults land", () => {
   const created = [];
   const context = {
     reference: new Path("/runtime/runtime"),
@@ -46,7 +46,7 @@ specimen.describe("VIEWABLE — a bare mode.buffer() seats data before the fill,
   };
 
   specimen.it("mode.buffer() lands { history: [] }, never undefined", async () => {
-    await VIEWABLE(mode, context);
+    await SURFACED(mode, context);
     const buffer = await mode.buffer();
     specimen.expect(buffer.data).toEqual({ history: [] });
   });

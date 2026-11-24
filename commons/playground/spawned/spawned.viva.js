@@ -7,7 +7,7 @@ export const manifest = {
   description:
     "Render target — a numbered card that reports done via buffer.release().",
   version: "0.1.0",
-  traits: ["VIEWABLE"],
+  traits: ["SURFACED"],
 };
 
 // A pure render target. It owns no progression and no persistence — it just renders
@@ -17,4 +17,4 @@ export const buffer = v.buffer({
   data: { label: v.string(), index: v.integer().default(0) },
 });
 
-export const views = [{ slug: "spawned", mount: "buffer/Spawned.svelte", mime: mime.dom.svelte }];
+export const surfaces = [{ slug: "spawned", mount: "buffer/Spawned.svelte", mime: mime.dom.svelte }];

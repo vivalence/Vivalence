@@ -2,7 +2,7 @@ import { specimen, crypto, mime } from "@vivalence/typology";
 import paladin from "@vivalence/paladin";
 import esbuild from "esbuild";
 import { mountMode } from "@vivalence/runtime/scenarios";
-import { FileEntity, ViewEntity } from "@vivalence/runtime";
+import { FileEntity, SurfaceEntity } from "@vivalence/runtime";
 import * as reader from "../../../commons/playground/chaosmonkey/reader/reader.viva.js";
 
 const SOURCE = [
@@ -26,7 +26,7 @@ let mode;
 let directory;
 let bundler;
 
-specimen.describe("views bundled through the repository verb", { sanitizeResources: false, sanitizeOps: false }, () => {
+specimen.describe("surfaces bundled through the repository verb", { sanitizeResources: false, sanitizeOps: false }, () => {
   specimen.beforeAll(async () => {
     scenario = await mountMode(reader);
     mode = scenario.mode;
@@ -42,17 +42,17 @@ specimen.describe("views bundled through the repository verb", { sanitizeResourc
     await scenario.orm.close();
   });
 
-  specimen.it("a source bundles to a View row whose Files are the kept source and the content-addressed compile; entry names the compile", async () => {
-    const view = await scenario.scoped(async (em) => {
-      const row = await scenario.daemon.entities.view.generate({ mode: mode.entity.id, slug: "spawned", mime: mime.dom.svelte, source: SOURCE }, { bundler });
-      return await em.fork().findOneOrFail(ViewEntity, { id: row.id }, { populate: ["files"] });
+  specimen.it("a source bundles to a Surface row whose Files are the kept source and the content-addressed compile; entry names the compile", async () => {
+    const surface = await scenario.scoped(async (em) => {
+      const row = await scenario.daemon.entities.surface.generate({ mode: mode.entity.id, slug: "spawned", mime: mime.dom.svelte, source: SOURCE }, { bundler });
+      return await em.fork().findOneOrFail(SurfaceEntity, { id: row.id }, { populate: ["files"] });
     });
     const hash = await crypto.digest(SOURCE);
     const stem = hash.slice(0, 16);
     const artifact = await Deno.readTextFile(`${directory}/bundle/${stem}.dom.svelte.mjs`);
 
-    specimen.expect([view.slug, view.mime, view.entry]).toEqual(["spawned", mime.dom.svelte, `bundle/${stem}.dom.svelte.mjs`]);
-    const files = view.files.getItems().sort((a, b) => (a.path < b.path ? -1 : 1));
+    specimen.expect([surface.slug, surface.mime, surface.entry]).toEqual(["spawned", mime.dom.svelte, `bundle/${stem}.dom.svelte.mjs`]);
+    const files = surface.files.getItems().sort((a, b) => (a.path < b.path ? -1 : 1));
     specimen.expect(files.map((file) => [file.path, file.mime, file.mount])).toEqual([
       [`bundle/${stem}.dom.svelte`, mime.dom.svelte, `${directory}/bundle/${stem}.dom.svelte`],
       [`bundle/${stem}.dom.svelte.mjs`, mime.javascript, `${directory}/bundle/${stem}.dom.svelte.mjs`],
@@ -66,18 +66,18 @@ specimen.describe("views bundled through the repository verb", { sanitizeResourc
   });
 
   specimen.it("the same (mode, slug, mime) again is the SAME row: new Files, the old ones pruned", async () => {
-    const before = await scenario.scoped((em) => em.fork().findOneOrFail(ViewEntity, { slug: "spawned" }));
+    const before = await scenario.scoped((em) => em.fork().findOneOrFail(SurfaceEntity, { slug: "spawned" }));
     const revised = SOURCE.replace("A+", "A++");
-    const view = await scenario.scoped(async (em) => {
-      const row = await scenario.daemon.entities.view.generate({ mode: mode.entity.id, slug: "spawned", mime: mime.dom.svelte, source: revised }, { bundler });
-      return await em.fork().findOneOrFail(ViewEntity, { id: row.id }, { populate: ["files"] });
+    const surface = await scenario.scoped(async (em) => {
+      const row = await scenario.daemon.entities.surface.generate({ mode: mode.entity.id, slug: "spawned", mime: mime.dom.svelte, source: revised }, { bundler });
+      return await em.fork().findOneOrFail(SurfaceEntity, { id: row.id }, { populate: ["files"] });
     });
     const stem = (await crypto.digest(revised)).slice(0, 16);
-    specimen.expect(view.id).toBe(before.id);
-    specimen.expect(view.entry).toBe(`bundle/${stem}.dom.svelte.mjs`);
-    specimen.expect(view.files.getItems().map((file) => file.path).sort()).toEqual([`bundle/${stem}.dom.svelte`, `bundle/${stem}.dom.svelte.mjs`]);
-    specimen.expect(await scenario.scoped((em) => em.fork().count(FileEntity, { view: view.id }))).toBe(2);
-    specimen.expect(await scenario.scoped((em) => em.fork().count(ViewEntity, { slug: "spawned" }))).toBe(1);
+    specimen.expect(surface.id).toBe(before.id);
+    specimen.expect(surface.entry).toBe(`bundle/${stem}.dom.svelte.mjs`);
+    specimen.expect(surface.files.getItems().map((file) => file.path).sort()).toEqual([`bundle/${stem}.dom.svelte`, `bundle/${stem}.dom.svelte.mjs`]);
+    specimen.expect(await scenario.scoped((em) => em.fork().count(FileEntity, { surface: surface.id }))).toBe(2);
+    specimen.expect(await scenario.scoped((em) => em.fork().count(SurfaceEntity, { slug: "spawned" }))).toBe(1);
   });
 
   specimen.it("a buffer carries no bundle (m87 ruling 20): the row round-trips with its data and the json kind", async () => {

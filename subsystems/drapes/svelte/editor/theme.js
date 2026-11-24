@@ -27,7 +27,7 @@ export const theme = EditorView.theme({
   ".cm-cursor, .cm-dropCursor": { borderLeftColor: fill("primary") },
   ".cm-matchingBracket, &.cm-focused .cm-matchingBracket": { backgroundColor: `color-mix(in srgb, ${fill("primary")} 18%, transparent)`, outline: "none" },
   ".cm-foldPlaceholder": { backgroundColor: "transparent", border: "none", color: dim(50) },
-  ".cm-panels": { backgroundColor: "var(--surface-lift)", color: ink, border: "none" },
+  ".cm-panels": { backgroundColor: "var(--plane-lift)", color: ink, border: "none" },
   ".cm-searchMatch": { backgroundColor: `color-mix(in srgb, ${fill("warning")} 30%, transparent)` },
   ".cm-searchMatch.cm-searchMatch-selected": { backgroundColor: `color-mix(in srgb, ${fill("primary")} 35%, transparent)` },
 });

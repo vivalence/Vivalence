@@ -1,0 +1,79 @@
+#+title: cut 2026.11.0 — the first vivalence release
+#+status: DECLARED: three scope items in his words, one of them measured; the census is 1 green of 16; four rulings open
+# writer: agent · the file is named after =deno.jsonc:2=, the one version the tree declares; his ruling 1 may rename it
+
+* intent
+
+/"lets start planning first vivalence release. whats in scope?/
+/15-20% coverage of our new type systems we started today./
+/npm and jsr releases of vivalenve with certain capabilities./
+/... some featureset f yet to be collected."/
+
+/"this is a new ikiro primitive and method. release cutting."/
+
+* scope
+
+| item | quest | measure | now | owed |
+|---+---+---+---+---|
+| the type system | =m128-typed-schematics= | unruled (ruling 3) | — | 15–20% |
+| npm and jsr | this file | the census, greens of 16 | 1 | his ruling 2 |
+| featureset f | — | uncollected (ruling 4) | — | — |
+
+* census
+
+Deno 2.9.7. Each cell is the exit code's verdict of a dry run from the member, the tree as it stands, his open work in it.
+
+| member | jsr | npm |
+|---+---+---|
+| =subsystems/typology= | ✗ | ✗ |
+| =subsystems/paladin= | ✗ | ✗ |
+| =subsystems/dapper= | ✗ | ✗ |
+| =subsystems/drapes= | ✗ | ✗ |
+| =subsystems/sheets= | ✗ | ✗ |
+| =systems/runtime= | ✗ | ✗ |
+| =systems/ghost= | ✗ | ✗ |
+| =systems/anima= | ✗ | ✓ |
+
+The first error row of each red. A red is not yet read whole.
+
+#+BEGIN_EXAMPLE
+typology  jsr  error: RangeError: Maximum call stack size exceeded
+               at resolveExternalModuleInner (ext:deno_cli_tsc/00_typescript.js:54387:38)
+typology  npm  error: Failed to build module graph for package '@vivalence/typology'
+paladin   jsr  error: Type checking failed.
+paladin   npm  TS7006 [ERROR]: Parameter 'mask' implicitly has an 'any' type.
+dapper    jsr  error: SyntaxError: Expected ';', '}' or <eof>
+dapper    npm  error: Failed to build module graph for package '@vivalence/dapper'
+drapes    jsr  error: Expected a JavaScript or TypeScript module, but identified a Unknown module.
+drapes    npm  error: Failed to build module graph for package '@vivalence/drapes'
+sheets    jsr  error: Type checking failed.
+sheets    npm  TS7006 [ERROR]: Parameter 'prefix' implicitly has an 'any' type.
+runtime   jsr  error: Type checking failed.
+runtime   npm  TS7006 [ERROR]: Parameter 'mask' implicitly has an 'any' type.
+ghost     jsr  error: Type checking failed.
+ghost     npm  TS7006 [ERROR]: Parameter 'mask' implicitly has an 'any' type.
+anima     jsr  error[invalid-path]: package path must not contain whitespace (found ' ')
+#+END_EXAMPLE
+
+What the registries ask, read from deno's own pages:
+
+- =deno publish=: a member needs =name= · =version= (semver) · =exports=. In a workspace it takes every such member; ="publish": false= skips one. =--set-version= is refused in a workspace.
+- =deno pack=: the npm tarball. It type-checks, writes declaration files by the same check as publish, writes its own =package.json=, turns =jsr:@std/path= into =@jsr/std__path=. It writes no =bin=: the =viva= command does not ship by it.
+- Both refuse a tree with open work unless told. Provenance is written only from the pipeline.
+
+Every suite in the tree runs =--no-check= (=m128-appendix-0-index.org=, "after the last area"). Both registries run the check. The two scope items are one: a member is green when its =exports= pass the check.
+
+* rulings
+
+| # | his words | state |
+|---+---+---|
+| 1 | — | OPEN: the version. =deno.jsonc:2= says =2026.11.0=; the eight members say =0.0.1= (=subsystems/typology/deno.jsonc:3= and its seven siblings); the last tag is =v0.5.2= |
+| 2 | — | OPEN: which members ship in this release |
+| 3 | — | OPEN: 15–20% of what, counted by which command |
+| 4 | — | OPEN: featureset f |
+
+* never
+
+* next
+
+His ruling 2, the members. Then each red of those members read whole, one row a cause.

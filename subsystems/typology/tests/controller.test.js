@@ -68,6 +68,7 @@ specimen.describe("controller — one process, driven from stdin", () => {
       "hallucination start",
       "hallucination log",
       "hallucination log",
+      "hallucination usage",
       "hallucination › lookup/c1 status RUNNING",
       "hallucination › lookup/c1 start",
       "hallucination › lookup/c1 log",
@@ -81,6 +82,8 @@ specimen.describe("controller — one process, driven from stdin", () => {
       "hallucination status PAUSED",
       "hallucination status RUNNING",
       "hallucination status STOPPING",
+      "hallucination log",
+      "hallucination usage",
       "hallucination stop",
       "hallucination status STOPPED",
     ]);
@@ -122,7 +125,12 @@ specimen.describe("controller — one process, driven from stdin", () => {
     specimen.expect((await streaming.root.settled).code).toBe("ABORTED");
     specimen.expect(streaming.clock.seen.aborted).toEqual(["operator"]);
     specimen.expect(streaming.out.at(-1)).toBe("/response/close");
-    specimen.expect(streaming.journal().slice(-2)).toEqual(["hallucination status ABORTED", "hallucination stop"]);
+    specimen.expect(streaming.journal().slice(-4)).toEqual([
+      "hallucination status ABORTED",
+      "hallucination log",
+      "hallucination usage",
+      "hallucination stop",
+    ]);
   });
   specimen.it("a reason is what the caller said, or nothing; the status record carries the whole status", async () => {
     const running = () => {

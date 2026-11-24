@@ -1,10 +1,12 @@
 # release
-<!-- writer: agent · kind: ledger · limit: 80000 chars — the interface changelog; quests feed it, a tag cuts it (skill quest) -->
+<!-- writer: agent · kind: ledger · limit: 84000 chars — the interface changelog; quests feed it, a tag cuts it (skill quest) -->
 
 ## unreleased
 
 ### cli
 
+- changed the root task `runtime/watch` — its own launcher (`systems/runtime/watch.js`): a save under `systems/runtime` · `subsystems` · `commons` · the registry restarts the runtime, a datasink's drain into its `dataset/` no longer does; before, `--watch` restarted on every drain · migrate: none ⟨m127⟩
+- fixed a mode view's changed style sheet — its id hashes the sheet's text, an open view takes a rebuilt bundle's styles without a page reload; before, the id hashed the file name and the old sheet stayed · migrate: none ⟨m127⟩
 - changed `viva instance/tail` — takes a sieve as one word (`'{"/runtime/(.*)":["status","log"]}'`) and follows every running process of the instance over its socket; before, it followed ghost's `spans.log` · migrate: name `telemetry.logger.socket` in the recipe ⟨instance-telemetry Q14 · Q22⟩
 - added `viva instance/pipe <file>.jsonl '<sieve>'` — the same records into a file under the instance's logs · migrate: none ⟨instance-telemetry Q13⟩
 - removed `viva instance/tail/ghost` · `instance/tail/client` · migrate: a sieve key `/ghost/(.*)` ⟨instance-telemetry Q14⟩
@@ -14,11 +16,25 @@
 
 ### route
 
+- renamed `/attached/view/:id` → `/attached/surface/:id` · `/userspace/entities/view` → `/userspace/entities/surface` — the old addresses answer 404 · migrate: turn the address; a browser holding the old module graph reloads ⟨view-to-surface⟩
 - changed `/attached/file/:id` · `/attached/view/:id` — both ask for a login: `Authorization: Bearer` or `?token=<access>`; before, anyone holding the id read it · migrate: a client reads a File's `url` (it carries the token) or `runtime.attached(path)`; a hand-built address answers `401 MISSING_TOKEN` ⟨file-drop Q24⟩
 - added `/userspace/entities/file/upload/<path>` (the body is the bytes, `?thread=` · `?buffer=`) · `/userspace/entities/file/paste` (`{ path, mime, data, thread?, buffer? }`) — answer the File; a thread or buffer that is not the caller's answers 404 before a byte lands · migrate: none ⟨file-drop Q9 · Q23⟩
 
 ### api
 
+- renamed the entity `View` → `Surface` — table `Surface`, pivot `buffer_views` → `buffer_surfaces`, `File.view` → `File.surface`, `ViewEntity` · `ViewRepository` · `v.view` → `SurfaceEntity` · `SurfaceRepository` · `v.surface`; entities keep their ids · migrate: boot once on `2026.11.0`, the entity's own step renames the table (a mount stamped `2026.11.0` before this never hears it: mikro drops and creates) ⟨view-to-surface⟩
+- renamed `VIEWABLE` → `SURFACED` · `GENERATIVE` → `SURFACING` (a mode's trait) and the mode export `views` → `surfaces`; `mode.generator` → `mode.surface` — the words stored in `Mode.traits` are turned at the same boot · migrate: turn the word in every module manifest, `export const views` in every mode ⟨view-to-surface⟩
+- renamed the model's tools `view_create` · `view_read` · `view_update` → `surface_create` · `surface_read` · `surface_update` · migrate: a harness prompt or a stored turn naming the old tool reads a tool that is gone ⟨view-to-surface⟩
+- added the repo's version — `"version": "2026.11.0"` in the root `deno.jsonc`, read once as `paladin.version`; a missing or malformed one throws at paladin's boot · migrate: none ⟨migration-twitch Q3 · Q13 · Q16⟩
+- changed the datamap's `provider(mask, context)` — the mask carries `version`, the context carries `twitch` beside `entities`; both required · migrate: a caller hands `{ …, version: paladin.version }` and `{ twitch, entities }` ⟨migration-twitch Q8 · Q9⟩
+- added migration steps — an entity's twitch opens `/before/datamap/migrate/<release>` (tools `ctx.migrate.read` · `sql` · `renaming`) and `/after/datamap/migrate/<release>` (`read` · `sql` · `mapping`; `ctx.em` at the current release); a mount hears each release above its own stamp once, one migration per release named `…_vivalence@<release>`; a fresh mount is stamped and hears none; a mode's step is NOT heard · migrate: none; an unstamped mount reads as `0.0.0` and gets one blank stamp at its next boot ⟨migration-twitch Q2 · Q4 · Q5 · Q7⟩
+- changed a twitch effect's entity manager — `ctx.em`, forked at the twitch root inside the write's transaction; `ctx.input.em` is gone, the input holds mikro's other args (`entity` · `meta` · `changeSet`) · migrate: `ctx.input.em` → `ctx.em`, no `.fork()` on it ⟨migration-twitch Q11⟩
+- changed `shape.subscriber(twitch, { scope })` — `scope` is `{ before, after }`, each `(em, task)`; the `fork` option is removed · migrate: a hand-built subscriber's twitch wears `shard.datamap.forked(datamap)` ⟨migration-twitch Q11⟩
+- added `primitives` at `@vivalence/typology`'s root — the schematics' own barrel, value and type: `primitives.instance.InstanceMask` in a type position is the instance mask, held; before, a consumer cast it itself with `StaticDecode<typeof v.primitives.instance.InstanceMask>` · migrate: none ⟨m128⟩
+- added the types `Static` · `StaticDecode` · `Schematic` · `Fault` · `Position` at `@vivalence/typology`'s root, and declaration files for `v`, the seven codec schematics and paladin's `Instance` — an editor shows a schematic's shape, a `Url()` · `Path()` key's prototype, the instance key by key; nothing is type-checked · migrate: none ⟨m128⟩
+- removed `v.slug(options)` · `v.scalars.slug` — the builder; `v.scalars.Slug` is the one slug, written out · migrate: `v.slug()` → `v.scalars.Slug` (done in the tree and in `education`'s riddler) ⟨m128⟩
+- changed seven scalars — `ID` · `Slug` · `JWTToken` · `Username` · `Password` · `ModuleIdentifier` (new, on every mask's and recipe's `module`) · `Instant` (every `v.instant()`) carry `$id`; `ID` is worn at 8 more keys and there refuses `""` · migrate: none ⟨m128 appendix I⟩
+- renamed `subsystems/typology/schematics/primitives/instance.js` → `instance.ts` · `subsystems/paladin/instance/lifecycle/3-integration.js` → `3-integration.ts` — reached through their barrels as before · migrate: none ⟨m128⟩
 - added `telemetry.logger` on a ledger · instance recipe — `{ <target>: { <path pattern>: [tracks] } }`, a target is `console` · `socket` · a `.jsonl` path · migrate: none ⟨instance-telemetry Q4 · Q5 · Q22⟩
 - changed what a process writes when its recipe says nothing — the runtime's console prints one row a record, `status` · `fault` · `log` only; `logs/<slug>/spans.jsonl` and `<process>.spans.log` are no longer written; a browser prints nothing · migrate: name a logger in the recipe ⟨instance-telemetry Q6 · Q16⟩
 - added `paladin.telemetry`; `paladin.control(controller)` hands a root's records to it, in a browser too · migrate: none ⟨instance-telemetry Q15 · Q17⟩
@@ -54,6 +70,9 @@
 - added faculty keys `model` · `upstream` (openrouter dialogue: the request pinned to one upstream, no fallback) · migrate: none ⟨m125⟩
 
 ### client
+
+- renamed the client's UI kind `surface` → `skin` — `client.surface` → `client.skin` · `commands.surface` → `commands.skin` · `systems/ghost/surfaces/` · `systems/anima/src/surfaces/` → `skins/`; the props a frame hands a view `{ terminal, buffer, surface }` → `{ terminal, buffer, skin }` · migrate: a registry view destructures `skin` (assembly · chess · education · media · vcompany · young-ladys-primer turned 11-22) ⟨view-to-surface milestone 2⟩
+- renamed the palette's `surface` · `surfaceSunk` · `surfaceLift` → `plane` · `planeSunk` · `planeLift`; css vars `--surface` · `--surface-sunk` · `--surface-lift` → `--plane*` · migrate: a mode's CSS reads `var(--plane*)`; a mode bundle rebuilds on its next fetch, anima's members (`vivalence.dapper` · `vivalence.drapes.svelte`) on a vite restart ⟨view-to-surface milestone 2⟩
 
 - changed `belt.view.load(view, attach)` — fetches `/attached/view/:id`, sends `if-none-match`, a 304 keeps the module; a view without its File is a candidate, `pick` takes the first (`held` · `compiled` sort removed) · migrate: none ⟨m120⟩
 

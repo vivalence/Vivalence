@@ -28,9 +28,9 @@ specimen.afterAll(async () => {
 });
 
 specimen.describe("darkroom — the runtime harness leaf /picture/render, called straight", () => {
-  specimen.it("the mode declares one Solid dom view and four traits", () => {
-    specimen.expect(darkroom.manifest.traits).toEqual(["VIEWABLE", "HARNESS", "CONVERSATION", "EXPOSED"]);
-    specimen.expect(darkroom.views.map((view) => [view.slug, view.mount])).toEqual([["darkroom", "buffer/Darkroom.jsx"]]);
+  specimen.it("the mode declares one Solid dom surface and four traits", () => {
+    specimen.expect(darkroom.manifest.traits).toEqual(["SURFACED", "HARNESS", "CONVERSATION", "EXPOSED"]);
+    specimen.expect(darkroom.surfaces.map((surface) => [surface.slug, surface.mount])).toEqual([["darkroom", "buffer/Darkroom.jsx"]]);
   });
 
   specimen.it("/metadata/harness lists the picture leaf; a render answers Picture.Response with the faculty stamped", async () => {
@@ -125,7 +125,7 @@ specimen.describe("darkroom — the desk aperture writes the buffer; every pictu
     specimen.expect(iterated.data.shown).toBe(iterated.data.pictures[1].file);
   });
 
-  specimen.it("a desk the client minted empty settles into Settings: the route casts, the view primes itself with {}", async () => {
+  specimen.it("a desk the client minted empty settles into Settings: the route casts, the surface primes itself with {}", async () => {
     const minted = await scenario.daemon.entities.buffer.create({ mode: scenario.mode.id, thread: scenario.fixtures.thread.id, data: {} });
     await scenario.em.flush();
     const settled = await desk().call("/picture/settle", { buffer: minted.id, data: {} });

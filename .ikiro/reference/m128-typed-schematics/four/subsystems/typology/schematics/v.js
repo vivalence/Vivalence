@@ -1,0 +1,189 @@
+// @ts-self-types="./v.d.ts"
+import { IsOptional, Type } from "typebox";
+import { Pointer, Value } from "typebox/value";
+import { Compile } from "typebox/compile";
+import { PLAIN_DATETIME, TITLES, ZONED } from "./scalars/temporal.js";
+
+const faults = (schema, value) =>
+  [...Value.Errors(schema, value)].map((error) => {
+    const held = Pointer.Get(schema, error.schemaPath.slice(1));
+    const reason = error.keyword === "pattern" && held?.title ? `must be ${held.title}` : error.message;
+    return { at: error.instancePath || "/", reason };
+  });
+
+const positions = (schema, value, target, at) => {
+  if (value === undefined || value === null || !schema) return [];
+  if (typeof schema.$id === "string" && schema.$id === target.$id) return [{ at: at || "/", value }];
+  const into = (held, part, item) => positions(held, item, target, `${at}/${part}`);
+  if (schema.anyOf) return schema.anyOf.flatMap((variant) => positions(variant, value, target, at));
+  if (schema.allOf) return schema.allOf.flatMap((part) => positions(part, value, target, at));
+  if (schema.items) return Array.isArray(value) ? value.flatMap((item, index) => into(schema.items, index, item)) : [];
+  if (typeof value !== "object") return [];
+  const declared = Object.entries(schema.properties ?? {}).flatMap(([key, property]) => into(property, key, value[key]));
+  const patterned = Object.values(schema.patternProperties ?? {}).flatMap((property) =>
+    Object.entries(value).flatMap(([key, held]) => into(property, key, held)),
+  );
+  return [...declared, ...patterned];
+};
+
+const collect = (schema, value, target) =>
+  [...new Map(positions(schema, value, target, "").map((hit) => [hit.at, hit])).values()];
+
+const derive = (target, patch) =>
+  Object.assign(Object.defineProperties({}, Object.getOwnPropertyDescriptors(target)), patch);
+
+const plain = (value) =>
+  value !== null && typeof value === "object" && !Array.isArray(value) && !("~kind" in value) && [Object.prototype, null].includes(Object.getPrototypeOf(value));
+
+const fresh = (schema, value) => {
+  if (Type.IsArray(schema)) return Array.isArray(value) ? value.map((item) => fresh(schema.items, item)) : value;
+  if (Type.IsIntersect(schema)) return schema.allOf.reduce((held, part) => fresh(part, held), value);
+  if (!plain(value) || !(Type.IsObject(schema) || Type.IsRecord(schema))) return value;
+  const schemaOf = (key) =>
+    Type.IsRecord(schema) ? Type.RecordValue(schema) : schema.properties[key] ?? (plain(schema.additionalProperties) ? schema.additionalProperties : null);
+  return Object.fromEntries(Object.entries(value).map(([key, held]) => [key, schemaOf(key) ? fresh(schemaOf(key), held) : held]));
+};
+
+function enhance(schema) {
+  return new Proxy(schema, {
+    get(target, prop, receiver) {
+      if (["desc", "descr"].includes(prop))
+        return (d) => enhance(derive(target, { description: d }));
+      if (prop === "$id") {
+        if ("$id" in target) return target.$id;
+        return (name) => enhance(derive(target, { $id: name }));
+      }
+      if (prop === "optional") return () => enhance(Type.Optional(target));
+      if (prop === "default") {
+        if ("default" in target) return target.default;
+        return (val) => enhance(derive(target, { default: val }));
+      }
+      if (prop === "group") {
+        if ("group" in target) return target.group;
+        return (name) => enhance(derive(target, { group: name }));
+      }
+      if (prop === "example") return (...examples) => enhance(derive(target, { examples }));
+      if (prop === "eg") return (...examples) => enhance(derive(target, { examples }));
+      if (prop === "check") return (value) => Value.Check(target, value);
+      if (prop === "decode") return (value) => Value.Decode(target, value);
+      if (prop === "encode") return (value) => Value.Encode(target, value);
+      if (prop === "create") return () => Value.Create(target);
+      if (prop === "clean") return (value) => Value.Clean(target, value);
+      if (prop === "errors") return (value) => Value.Errors(target, value);
+      if (prop === "faults") return (value) => faults(target, value);
+      if (prop === "collect") return (value, held) => collect(target, value, held);
+      if (prop === "compile") return () => Compile(target);
+      if (prop === "fill") return (value) => Value.Default(target, fresh(target, value));
+      if (prop === "cast") return (value) => Value.Convert(target, Value.Default(target, fresh(target, value)));
+      if (prop === "repair") return (value) => Value.Repair(target, value);
+      return Reflect.get(target, prop, receiver);
+    },
+  });
+}
+
+export { enhance };
+
+const resolving = new Set();
+
+export function entityFactory(schematic) {
+  const { base } = schematic;
+  const factory = (spec) => {
+    if (resolving.has(schematic.$id)) {
+      return enhance(
+        Type.Intersect([base, Type.Object(schematic.own, { additionalProperties: true })], {
+          $id: schematic.$id,
+          additionalProperties: true,
+        }),
+      );
+    }
+
+    resolving.add(schematic.$id);
+    const relations = {};
+    for (const [k, thunk] of Object.entries(schematic.relations ?? {})) {
+      relations[k] = thunk();
+    }
+    resolving.delete(schematic.$id);
+
+    const full = Type.Intersect(
+      [
+        base,
+        Type.Object(schematic.own, { additionalProperties: true }),
+        Type.Object(relations, { additionalProperties: true }),
+      ],
+      { $id: schematic.$id, description: schematic.is, examples: schematic.examples, additionalProperties: true },
+    );
+
+    if (!spec) return enhance(full);
+
+    const overrides = {};
+    for (const [k, v] of Object.entries(spec)) {
+      if (schematic.narrowable?.includes(k)) {
+        overrides[k] =
+          typeof v === "object" && v !== null && !v.type && !v.anyOf && !v.allOf && !v.oneOf
+            ? Type.Object(v, { additionalProperties: true })
+            : v;
+      } else {
+        overrides[k] = v;
+      }
+    }
+
+    return enhance(Type.Intersect([full, Type.Object(overrides)], { additionalProperties: true }));
+  };
+
+  factory.$id = schematic.$id;
+  factory.schematic = schematic;
+  factory.traits = schematic.traits ?? {};
+  return factory;
+}
+
+export const v = {
+  string: (opts) => enhance(Type.String(opts)),
+  number: (opts) => enhance(Type.Number(opts)),
+  boolean: (opts) => enhance(Type.Boolean(opts)),
+  integer: (opts) => enhance(Type.Integer(opts)),
+  object: (props, opts) => enhance(Type.Object(props, opts)),
+  array: (items, opts) => enhance(Type.Array(items, opts)),
+  union: (variants, opts) => enhance(Type.Union(variants, opts)),
+  intersect: (schemas, opts) => enhance(Type.Intersect(schemas, opts)),
+  interface: (heritage, props, opts) => enhance(Type.Interface(heritage, props, opts)),
+  const: (val) => enhance(Type.Literal(val)),
+  enum: (vals, opts) =>
+    enhance(
+      Type.Union(
+        vals.map((val) => Type.Literal(val)),
+        opts,
+      ),
+    ),
+  record: (keys, values, opts) => enhance(Type.Record(keys, values, opts)),
+  any: () => enhance(Type.Any()),
+  unknown: () => enhance(Type.Unknown()),
+  null: () => enhance(Type.Null()),
+
+  instant: (opts) => enhance(Type.String({ format: "date-time", ...opts })),
+  date: (opts) => enhance(Type.String({ format: "date", ...opts })),
+  duration: (opts) => enhance(Type.String({ format: "duration", ...opts })),
+  datetime: (opts) =>
+    enhance(Type.String({ pattern: PLAIN_DATETIME, title: TITLES.datetime, ...opts })),
+  zoned: (opts) => enhance(Type.String({ pattern: ZONED, title: TITLES.zoned, ...opts })),
+
+  $ref: (schema) => enhance(Type.Ref(schema)),
+
+  diff: (a, b) => Value.Diff(a, b),
+  patch: (value, edits) => Value.Patch(value, edits),
+  equal: (a, b) => Value.Equal(a, b),
+  clone: (value) => Value.Clone(value),
+  check: (schema, value) => Value.Check(schema, value),
+  decode: (schema, value) => Value.Decode(schema, value),
+  encode: (schema, value) => Value.Encode(schema, value),
+  fill: (schema, value) => Value.Default(schema, fresh(schema, value)),
+  cast: (schema, value) => Value.Convert(schema, Value.Default(schema, fresh(schema, value))),
+  convert: (schema, value) => Value.Convert(schema, value),
+  errors: (schema, value) => Value.Errors(schema, value),
+  faults,
+  collect,
+  create: (schema) => Value.Create(schema),
+  clean: (schema, value) => Value.Clean(schema, value),
+  isOptional: (schema) => IsOptional(schema),
+  isNever: (schema) => Type.IsNever(schema),
+  compile: (schema) => Compile(schema),
+};

@@ -51,7 +51,7 @@ export async function seed(domain = {}) {
     slug: "dojo",
     type: "game",
     daemon,
-    traits: ["VIEWABLE", "INTENTED", "EMITTER"],
+    traits: ["SURFACED", "INTENTED", "EMITTER"],
     installed: "seed",
   });
   await em.flush();

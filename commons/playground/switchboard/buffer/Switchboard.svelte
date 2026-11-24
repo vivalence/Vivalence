@@ -60,7 +60,7 @@
 </div>
 
 <style>
-  .switchboard { min-height:100%; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.7rem; padding:18px; background:var(--surface-sunk); color:var(--text-strong); font-family:var(--font-family-code); }
+  .switchboard { min-height:100%; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.7rem; padding:18px; background:var(--plane-sunk); color:var(--text-strong); font-family:var(--font-family-code); }
   .tag { font-size:var(--font-size-xs); text-transform:uppercase; letter-spacing:.12em; color:var(--signal-primary-ink); }
   .readout { display:flex; gap:1rem; font-size:var(--font-size-2xs); opacity:.7; } .readout b { color:var(--signal-primary-ink); font-weight:600; }
   .row { display:flex; gap:.5rem; }

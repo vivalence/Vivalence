@@ -18,7 +18,7 @@ const retained = (signals) => {
   return { traits: ["RETAINED"], trait: { RETAINED: { driver: "SM2", status: result.status, due: new Date(result.nextAt).toISOString(), state: result.state } } };
 };
 
-describe("the card — one projection of a literal and its notes, for the deck, the tools and both views", () => {
+describe("the card — one projection of a literal and its notes, for the deck, the tools and both surfaces", () => {
   it("an untouched word carries both sides, its example, no freight, and the horizons from scratch", () => {
     expect(card(row("deus.noun"))).toEqual({
       slug: "deus.noun",
@@ -48,7 +48,7 @@ describe("the card — one projection of a literal and its notes, for the deck, 
   });
 });
 
-describe("the memo view — compiled by paladin's tty.solid row, imported from a blob as ghost does, driven by keys", { sanitizeOps: false, sanitizeResources: false }, () => {
+describe("the memo surface — compiled by paladin's tty.solid row, imported from a blob as ghost does, driven by keys", { sanitizeOps: false, sanitizeResources: false }, () => {
   const mount = async (data) => {
     const store = await Deno.makeTempDir({ prefix: "memo-bundle-" });
     const bundler = paladin.bundler(store);
@@ -75,7 +75,7 @@ describe("the memo view — compiled by paladin's tty.solid row, imported from a
       },
     };
     const setup = await testRender(() => [], { width: 80, height: 16 });
-    const handle = module.default(setup.renderer.root, { terminal, buffer: terminal.buffer, surface: { place: "frame", renderer: setup.renderer, palette: tokens.camel("northsea", "1") } });
+    const handle = module.default(setup.renderer.root, { terminal, buffer: terminal.buffer, skin: { place: "frame", renderer: setup.renderer, palette: tokens.camel("northsea", "1") } });
     const frame = async () => {
       for (let pass = 0; pass < 4; pass++) {
         await setup.renderOnce();
@@ -87,63 +87,63 @@ describe("the memo view — compiled by paladin's tty.solid row, imported from a
   };
 
   it("a bare buffer deals live; tab reveals meaning, example, freight and the four horizons; 3 grades GOOD on the thread; the session ends; tab deals again", async () => {
-    const view = await mount({});
-    let screen = await view.frame();
-    expect(view.calls[0]).toEqual({ path: "/deck", body: { limit: 10 } });
+    const surface = await mount({});
+    let screen = await surface.frame();
+    expect(surface.calls[0]).toEqual({ path: "/deck", body: { limit: 10 } });
     expect(screen).toContain("1/2 · word · untouched · Latin");
     expect(screen).toContain("deus");
     expect(screen).not.toContain("god");
 
-    view.setup.mockInput.pressTab();
-    screen = await view.frame();
+    surface.setup.mockInput.pressTab();
+    screen = await surface.frame();
     expect(screen).toContain("god");
     expect(screen).toContain("Deus caelum videt — God sees the sky");
     expect(screen).toContain("1 again 1m · 2 hard 1m · 3 good 10m · 4 easy 4d");
 
-    await view.setup.mockInput.typeText("3");
-    screen = await view.frame();
-    expect(view.calls[1]).toEqual({ path: "/grade", body: { card: "deus.noun", signal: "GOOD", thread: "th3" } });
+    await surface.setup.mockInput.typeText("3");
+    screen = await surface.frame();
+    expect(surface.calls[1]).toEqual({ path: "/grade", body: { card: "deus.noun", signal: "GOOD", thread: "th3" } });
     expect(screen).toContain("2/2 · sentence · untouched");
     expect(screen).toContain("Carpe diem");
 
-    view.setup.mockInput.pressTab();
-    screen = await view.frame();
+    surface.setup.mockInput.pressTab();
+    screen = await surface.frame();
     expect(screen).toContain("♪ voice");
-    await view.setup.mockInput.typeText("4");
-    screen = await view.frame();
-    expect(view.calls[2]).toEqual({ path: "/grade", body: { card: "carpe-diem", signal: "EASY", thread: "th3" } });
+    await surface.setup.mockInput.typeText("4");
+    screen = await surface.frame();
+    expect(surface.calls[2]).toEqual({ path: "/grade", body: { card: "carpe-diem", signal: "EASY", thread: "th3" } });
     expect(screen).toContain("sessio peracta · 2 graded — tab deals again");
 
-    view.setup.mockInput.pressTab();
-    screen = await view.frame();
-    expect(view.calls[3]).toEqual({ path: "/deck", body: { limit: 10 } });
+    surface.setup.mockInput.pressTab();
+    screen = await surface.frame();
+    expect(surface.calls[3]).toEqual({ path: "/deck", body: { limit: 10 } });
 
-    view.handle.destroy();
-    view.setup.renderer.destroy();
+    surface.handle.destroy();
+    surface.setup.renderer.destroy();
   });
 
   it("a buffer a session dealt into deals that deck without a call, and a new session landing in its data re-deals live", async () => {
-    const view = await mount({ deck: [card(row("bellum.noun"))], language: LANGUAGE });
-    let screen = await view.frame();
-    expect(view.calls).toEqual([]);
+    const surface = await mount({ deck: [card(row("bellum.noun"))], language: LANGUAGE });
+    let screen = await surface.frame();
+    expect(surface.calls).toEqual([]);
     expect(screen).toContain("1/1 · word · untouched · Latin");
     expect(screen).toContain("bellum");
 
-    view.terminal.buffer.$data.set({ deck: [card(row("gladius.noun")), card(row("miles.noun"))], language: LANGUAGE });
-    screen = await view.frame();
-    expect(view.calls).toEqual([]);
+    surface.terminal.buffer.$data.set({ deck: [card(row("gladius.noun")), card(row("miles.noun"))], language: LANGUAGE });
+    screen = await surface.frame();
+    expect(surface.calls).toEqual([]);
     expect(screen).toContain("1/2 · word · untouched · Latin");
     expect(screen).toContain("gladius");
-    view.setup.mockInput.pressTab();
-    screen = await view.frame();
+    surface.setup.mockInput.pressTab();
+    screen = await surface.frame();
     expect(screen).toContain("▣ picture");
 
-    view.handle.destroy();
-    view.setup.renderer.destroy();
+    surface.handle.destroy();
+    surface.setup.renderer.destroy();
   });
 });
 
-describe("the tablet — m32's svelte view, compiled by paladin's dom.svelte row", { sanitizeOps: false, sanitizeResources: false }, () => {
+describe("the tablet — m32's svelte surface, compiled by paladin's dom.svelte row", { sanitizeOps: false, sanitizeResources: false }, () => {
   it("compiles to one dom.svelte entry and its served module names the Latin grades", async () => {
     const bundler = paladin.bundler(await Deno.makeTempDir({ prefix: "memo-tablet-" }));
     const bundle = await bundler.bundle({ mime: mime.dom.svelte, entry: new URL("../mode/buffer/Memo.svelte", import.meta.url).pathname });

@@ -1,0 +1,456 @@
+#+title: assembly · droneaid — the strand whole: what he asked, what stands on the tree, what is open
+#+filetags: :assembly:droneaid:interceptor:quadrocopter:mari:soldering:stage:assessment:orientation:
+#+status: BENCHED 11-23 on his /"finish up all work on the drone aid and interceptor model work"/ — five quests read whole, every milestone under his four states, the tree measured that day: 259 literals, files = his db; 18 suite files, 8 green · 10 red (8 on one known issue, 2 on his hand seats); everything since 11-20 evening LANDED and unseen on his screen. Reopens on his first click, or his answer to Q4.
+# writer: agent · limit: 40000 chars
+
+* intent
+
+beef, verbatim, 11-23 (dictated):
+
+/"I want to finish up all work on the drone aid and interceptor model work that has been going on over a couple of days now. We had old quests and faults and references also. And I want to create an unindexed quest in Benched that holds all of the assembly and drone aid work that we've been doing and functions as both orientation for future work and like an assessment of the milestones and the current the current status quo for the whole package work. For that, I need you to review the all of the material, look through the intents that I had and how we broke them down into milestones and deliverables, apply our status in NOM system of landed, tangled, and so forth. Then once you've written that document, I want you to move all of the quests that touch on either Drone or assembly or whatever. I want you to move those into either done, benched, or wherever they fit. Use this also as an opportunity to reflect and improve upon Ikiro as a whole."/
+
+Read, mine: =unindexed= = unnumbered (no =mNN=); it keeps its line in =quests/index.md=. =faults= = the known issues that name the two packages.
+
+* how to read this
+
+A milestone wears ONE state: =DECLARED= (named, no design) · =DESIGNED= (ruled, no exact code) · =TANGLED= (exact code in a quest, not on the tree) · =LANDED= (on the tree, grepped 11-23). A quest wears =DONE= · =BENCHED=.
+=seen= is his screen, on m127's tables only (the older quests record no look per milestone): =walked= (his hands went through it) · =seen= (he looked, his words exist) · =chrome= (I saw it on his =:1794= through Chrome) · =unseen= (no word of his since it landed).
+The tree is two registry packages outside the repo, each its own jj: =~/.viva/registry/assembly= · =~/.viva/registry/droneaid=. A =path:n= below was grepped 11-23.
+
+* the strand — five quests and a seed
+
+| quest | his go | where it lies | state | milestones LANDED | his walks run |
+|---|---|---|---|---|---|
+| =m67-assembly-ontology= | 09-21 | =done/= | DONE 09-24 | 5 of 7 | 0 of 2 |
+| =assembly-guide= | 09-23 | =done/= | DONE 09-24 | 6 of 6 | 0 of 3 |
+| =m71-droneaid-guide= | 10-06 | =benched/= | BENCHED 10-10 | 4 of 5 | 0 of 2 |
+| =m77-droneaid-homecoming= | 10-01 | =benched/= | BENCHED 10-10 | 0 of 0 | — |
+| =assembly-mode-rename= | 11-12 | =done/= | DONE 11-12 | 1 of 1 | — |
+| =m127-interceptor-droneaid= | 11-19 | =benched/= (moved 11-23) | BENCHED 11-23 | see its three tables | 0 of 3 |
+
+Seven walks of his were written as markers between 09-22 and 10-06 and none has run: they sit =pending= at =benched/m71-droneaid-guide.org:402= … =:408=. m127 adds three (=T-player-walk= · =T-stage-same= · =T-stage-tools=). The strand's standing fact: the code landed four times over, the player was never walked first step to last.
+
+* his intents — verbatim, by quest
+
+** m67 the assembly ontology (09-21)
+
+=done/m67-assembly-ontology.org:13= /"our task today is to design an ontology for the droneaid case. the case is that we want something between an erp and an lms. the erp has sets of parts and the lms guides a user through the construction of a concrete product made from parts. parts have some hierarchichal structure internally. i construct the frame from parts and the frame is the input and a prerequisite for construction of further parts."/
+
+=:21= /"i want to construct this in 3 parts. first is an editor. i watn to be able to create parts, assemble them, group them, change and edit them, etc. some blender style stuff in threejs. ill want this as both ui and harness."/
+
+=:25= /"now work out the domain, the topology, and a single example of a topography. i guess it makes actually sense to move to a new package for the base parts. lets call it assembly. topography stays in droneaid. we will rewrite droneaid from scratch once assembly is done"/ · /"take your time. have fun. good rather than fast. good=coherent, scalable, flexible"/
+
+The ruling that named the ontology, =:64=: /"let's call them assembly and placement. Or no, I like part and placement. Part. Placement and step where part and placement are both part of the assembly ontology and step will be its own thing later for the guide tutorial."/
+
+** the assembly guide (09-23)
+
+=done/assembly-guide.org:13= /"i put A LOT of effort into the ui and ux. … there is basically nothing accidental in here. you will have to slave over this. i want two modes. one for the assembly guide editor, anohter for the assembly guide experience. i want thorough integration into the assymbly domain. the datalevel is your first job. the ontology of steps and guides and such. doesnt exist at all yet. for you to create! you own assembly. design a clean topology. implenent the two modes. make them coherent. all buffer state kept in buffer.data. auto save on editor into the appropriate literals. have fun"/
+
+** m71 the droneaid guide (10-06)
+
+=benched/m71-droneaid-guide.org:13= /"we will no take the pt10 guide and apply it to droneaid model latest. build the guide. first identity the missieng parts. create a list for us. screws and all. we create those. then we go through all steps and make a guide from it."/
+
+The ruling that reshaped it, =:187=: /"important! i want the guide, all pieces, all literals in fact, as part of the droneaid modes on disk in vcs. the drone, its parts, and the guide are something i install. and when ichange something, i wnat the dataset to be persisted to disk. dataset <> datasink loop closed. full cata/ana. we just dont run --watch on datasink modes."/
+
+=:412=, 09-24: /"these three are one. move to done whats done."/
+
+** m77 droneaid homecoming (10-01)
+
+=benched/m77-droneaid-homecoming.org:10= /"m77 - droneaid homecoming"/ — the title is all he gave. =:13= asks what it means (does droneaid move into the repo). DECLARED, untouched since.
+
+** the assembly mode rename (11-12)
+
+=done/assembly-mode-rename.org:13= /"might it make sense to aggregate/combine these? part+placement make sense. step alone or in first set or with guide?"/ · =:14= /"assembly/player/guide -> assembly/guide/player / same for assembly/editor/guide"/
+
+** m127 the interceptor (11-19 … 11-21)
+
+=benched/m127-interceptor-droneaid.org:10= /"we have a new drone to create. lets work this step by step."/
+
+=:12= /"what do we need? what does the topology offer us already? … what modes do we need to step through? iremember 4. one for model work one for guide work - both as create and consume. and i want you to parse the pdfs and attached model files and think about the work needed to get them in? what are the steps? are any parts missing? cross relate the interceptor guide with the model pieces present in ...stl?"/
+
+=:28=, the plan per milestone: /"we do two things for every one of the 5 and thats a dedicated session into A: technical demoonstration of functionality aka we build until i can use, and B: a detailed step by step scan of the content once A is settled. (later)"/
+
+=:733= … =:746=, 11-21, the stage: /"all of model and guide editor and player should have the same underlying model and implementation of color and basically everything else.  the ontology."/ · /"the guide needs to be able to add on top and control color step by step in order to highlight certain eleements during the tutorial."/ · /"and i need annotations in hte guide. i need to be able to name parts and have little boxes and lines pointing at things."/ · /"i want to start using this as soon as possible. first milestone 3d coherence, then drill me on ontology for 3 questions, paradigm first, then ui becomes simple and obvious and its a question of perfectionistic completionism on your part."/
+
+* milestones — every one, his states
+
+** m67 · assembly-guide · the rename — all LANDED, all since reshaped
+
+| quest | milestone | state | date | on the tree 11-23 |
+|---|---|---|---|---|
+| m67 | M1 the importer | LANDED | 09-22 | =modes/model/import/= |
+| m67 | the domain answers every verb | LANDED | 09-22 | =domain/assembly/= |
+| m67 | the editor's screen | LANDED | 09-22 | =modes/model/editor/= |
+| m67 | the editor's harness | LANDED | 09-22 | =modes/model/editor/harness.js= |
+| m67 | the rebuild from his design | LANDED | 09-22 | three panes of four |
+| m67 | M2 the topography | DESIGNED | — | became m71 |
+| m67 | M3 the guide | DECLARED | — | became assembly-guide · m71 |
+| assembly-guide | M1 domain · M3 topologies | LANDED | 09-23 | =topologies/guide/= |
+| assembly-guide | M2 editor re-based to composition | LANDED | 09-23 | — |
+| assembly-guide | M4 player | LANDED | 09-23 | =modes/guide/player/= |
+| assembly-guide | M5 guide editor | LANDED | 09-23 | =modes/guide/editor/= |
+| assembly-guide | M6 the land, one pass | LANDED | 09-23 | — |
+| rename | four modes by object | LANDED | 11-12 | =modes/{model,guide}/= |
+
+- m67's M2 and M3 left it as =EMPTY BY DESIGN= · =untouched= (=done/m67-assembly-ontology.org:503=).
+- assembly-guide's forks 1 · 4 · 5 · 6 · 7 were taken on my leans, his word never given (=done/assembly-guide.org:3=); fork 3 (the manual's text onto the freight) is open.
+- Reshaped since: the model editor's in-view conversation was CUT 11-20 (=cli.js= · =Composer= gone, three panes); a note's kind left the =note.*= symbols for the enum =CALLOUTS= (11-21, assembly-guide's fork 1 superseded); the hex gate became =P-palette-in-one-place= (=assembly/tests/kit.test.js=).
+- The record's own defects: =done/m67-assembly-ontology.org:3= still said =BUILDING= in =done/= (status rewritten 11-23); its row =:301= is cut mid-table into a heading, text lost.
+- Never executed: =.ikiro/reference/assembly-step-rework.md= (steps on the part). The tree took assembly-guide's shape: =SEQUENCED= on the guide, =PREPARED= deprecated not dropped.
+
+** m71 the droneaid guide
+
+| its label | milestone | state | date | on the tree 11-23 |
+|---|---|---|---|---|
+| M0 | the loop: install from disk, drain back | LANDED | 10-06 | =models.viva.js= · =guides.viva.js= |
+| M1 | the kit: 41 parts, 3 generators | LANDED | 10-06 | 58 parts today |
+| M2 | 113 placements off measured anchors | LANDED | 10-06 | layer =drone= → =quadro= nested |
+| M3 | 33 steps in 8 sections | LANDED | 10-06 | guide =droneaid= → =quadrocopter= |
+| M4 | his walk of player and editor | DECLARED | — | 7 markers =pending= |
+| fork 9 | a drained entity's owner | DECLARED | 10-06 | not on the tree |
+| fork 10 | the rename's two orphans | dissolved | 11-20 | 0 · 0 in his db |
+| fork 11 | the hub bolts' pattern | DECLARED | 10-06 | =harvest/anchors.js:51= as landed |
+
+- M0's live half (/"the live P-roundtrip waits on beef's restart"/) was PROVEN 11-20 another way: the runtime's watch became its own launcher that skips declared drains (=systems/runtime/watch.js:44= · =deno.jsonc:11=), his seat drained =placements.js= and the runtime child stayed up.
+- Fork 10 measured 11-23: =select count(*) from Symbol where slug='family.computer'= → 0; Mode =topography/model= on droneaid → 0. The 11-20 reset took both.
+- M3's suite steps =P-steps= became =P-seed= · =P-record= (tests are rules since 11-20, no count pinned).
+
+** m127 — the five milestones he ordered 11-20
+
+| # | milestone | state | seen | what stands | what does not |
+|---|---|---|---|---|---|
+| 1 | the freight | LANDED · DESIGNED | seen | 9 GLB on =models/freight/parts/= (25 files) | the manual's 66 pictures · 2 primers |
+| 2 | the kit, step one | LANDED | seen | 9 printed parts, 4 shared stages by reference | — |
+| 2 | the kit, step two: the catalogue | TANGLED | — | draft in the quest's =* as code=, blocks two · three | 16 kinds, blocked on Q4 |
+| 3 | the composition | LANDED · DECLARED | walked | 112 placements fold, =missing: []= | every seat on the frame: no source, his hands |
+| 4 | the guide =mari= | LANDED | unseen | 20 steps, 5 sections, 90 of 112 placements installed | 22 placements in no step · its own pictures · session B |
+| 4 | the guide =soldering= | LANDED | unseen | 6 steps, 3 sections, no subject | Q8: the step list · the three gates · the UK half |
+| 5 | the walk | DECLARED | unseen | — | =T-player-walk= |
+| — | eleven primers (his list) | DESIGNED | — | 0 =PRIMER= on either package | all eleven |
+| — | tools =/inspect= · =/clearance= · =/audit= | DECLARED | — | names mine | all three |
+
+Milestone 1 /"is no session of its own, it folds into the kit"/ (his 11-20, /"i dont understand freight."/). The tool =/measure= that is on the tree (=modes/model/editor/tools/index.js:118=) is the cursors' distance, not the planned read of a part's GLB.
+
+** m127 — what he asked for on the way (11-20), none of it in the five
+
+| what | his words | state | seen |
+|---|---|---|---|
+| =quadro= (was =drone=) · guide =quadrocopter= (was =droneaid=) | /"this thing is still called drone. should be quadro."/ | LANDED | seen |
+| the model editor parses part · placement only | /"be inclusive. the editor has a set of ontologies it parses. those and non else."/ | LANDED | unseen |
+| box select · set drag · sub-assembly drag · undo | /"i cant multiselect and drag/drop whole sets of pieces"/ | LANDED | walked |
+| optimistic draw, no flick | /"there's a short flick back"/ | LANDED | chrome |
+| cursors (face · bore · disc), kept | /"cursor should be more permanent. add adn remove."/ | LANDED | chrome |
+| tool =/pose=, the [Screen] is the model | /"i need a general move. … the model needs to be in context"/ | LANDED | walked |
+| edges · ghost · hide · lock | /"i want some view config in the editor"/ | LANDED | chrome |
+| a cursor paints its own face | /"the exact path of / part / face / whatever should be highlighted"/ | LANDED | unseen |
+| =undo= · =redo= chips | /"add a undo redo button pair up there"/ | LANDED | unseen |
+| no conversation inside the view | /"all ai interaction via dock."/ | LANDED | seen |
+| two carbon plates rewound | /"some parts seem to be missing a top face"/ | LANDED | unseen |
+| guide editor's class names off the chrome sheet | /"fix a."/ | LANDED | unseen |
+| a changed sheet gets a new id (repo) | /"b."/ | LANDED | unseen |
+| the watch is its own launcher (repo) | amen ×3 | LANDED | walked |
+
+** m127 — the stage (11-21), its own five
+
+| # | milestone | rides | state | seen |
+|---|---|---|---|---|
+| 1 | one world under the three modes | /"same underlying … implementation"/ | LANDED | unseen |
+| 2 | the ontology of a look | Q13 · Q14 · Q14A · Q15 · Q15A–C, all LOCKED | LANDED | unseen |
+| 3 | one reader =staged=, one writer =restaged= | 10 stops · 10 amen | LANDED | unseen |
+| — | his 75 notes migrated to a =kind= | /"go migrate notes - show me first"/ | LANDED | unseen |
+| 4 | the drawing: own colour · pose · label · callout + photo | /"work this out and land it."/ | LANDED | unseen |
+| 5 | the tools: swatches · =Pieces= · a note's pin and picture | /"tihs too"/ | LANDED | unseen |
+| — | gizmo · cursor · box select move into the kit | review stop 5 | DECLARED | — |
+
+Milestones 4 · 5 were landed with NO walk and NO stop ruled: seven cuts of mine (the quest's =** milestones 4 · 5=), not cast as diff blocks; their replay is =.ikiro/reference/m127/stage-4.build.py= + =stage-4/=.
+
+* status quo — measured 11-23
+
+** the data
+
+=deno run -A --no-check .ikiro/reference/assembly-droneaid/status.probe.js=, its output:
+
+#+BEGIN_EXAMPLE
+files { part: 58, placement: 139, guide: 3, step: 59 }
+placements by layer {
+  drive: 32,
+  frame: 28,
+  head: 2,
+  interceptor: 7,
+  quadro: 27,
+  stack: 19,
+  tail: 11,
+  top: 11,
+  vtx_mount: 2
+}
+body interceptor {
+  placements: 112,
+  parts: 37,
+  missing: [],
+  drawn: { NONE: 8, GEN: 64, GLB: 40 }
+}
+body quadro {
+  placements: 117,
+  parts: 41,
+  missing: [],
+  drawn: { GLB: 34, GEN: 71, NONE: 12 }
+}
+parts no layer places [ "battery_strap", "bolt_m3_12", "bolt_m3_28" ]
+guide mari {
+  subject: "interceptor",
+  sections: [
+    "Frame Assembly 8",
+    "Installation of motors 3",
+    "Stack (FC & ESC) 6",
+    "Tail + ELRS 1",
+    "Camera + VTX 2"
+  ],
+  steps: 20,
+  "placements its steps install": 90,
+  notes: 25
+}
+guide quadrocopter {
+  subject: "quadro",
+  sections: [
+    "Frame Assembly 10",
+    "Motors installation 3",
+    "Stack (FC & ESC) 6",
+    "Video Transmitter (VTX) 3",
+    "Receiver Installation 2",
+    "Install Camera 3",
+    "Top Plate installation 3",
+    "Checklist 3"
+  ],
+  steps: 33,
+  "placements its steps install": 113,
+  notes: 46
+}
+guide soldering {
+  subject: undefined,
+  sections: [ "Before you solder 2", "Pinouts 3", "Signs of good soldering 1" ],
+  steps: 6,
+  "placements its steps install": 0,
+  notes: 5
+}
+database, daemon droneaid, by ontology { part: 58, placement: 139, guide: 3, step: 59 }
+database against files { files: 259, database: 259, absent: [], extra: [], differs: [] }
+#+END_EXAMPLE
+
+=drawn= =NONE= is a placement whose part has neither mesh nor generator: a sub-assembly, or a counted piece.
+
+** the ontology as it stands
+
+#+BEGIN_SRC js
+// ~/.viva/registry/assembly/domain/assembly/schematics.js:21
+export const ONTOLOGIES = {
+  part: { traits: ["LABELED", "SOURCED", "MODELED", "PARAMETRIC", "COUNTED", "STAGED"], layer: true },
+  placement: { traits: ["LABELED", "PLACED", "JOINED", "STAGED"], layer: false },
+  step: { traits: ["LABELED", "ASSEMBLED", "INSTRUCTED", "ANNOTATED", "STAGED"], layer: false },
+  guide: { traits: ["LABELED", "SEQUENCED", "INSTRUCTED", "ANNOTATED", "STAGED"], layer: false },
+};
+#+END_SRC
+
+#+BEGIN_SRC js
+// ~/.viva/registry/assembly/domain/assembly/schematics.js:30
+export const CALLOUTS = ["TIP", "WARNING", "ORIENTATION", "LENGTH", "WIRES", "LOOSE", "TIGHT", "MAGNET", "FORCE"];
+export const SHOWN = ["solid", "ghost", "hidden"];
+export const COLOUR = v.union([v.enum(TINTS), v.string({ pattern: "^#[0-9a-f]{6}$" })]).desc('A colour: a theme role, or a hex. Example: "#e8590c"');
+#+END_SRC
+
+** the daemon
+
+#+BEGIN_SRC jsonc
+// ~/.viva/instances/localhost/instance.viva.jsonc:71
+      "modes": [
+        "@assembly/domain/assembly",
+        "@assembly/topology/part",
+        "@assembly/topology/placement",
+        "@assembly/topology/step",
+        "@assembly/topology/guide",
+        {
+          "module": "@droneaid/topography/models",
+          "traits": ["HARNESS", "CONVERSATION"],
+          "trait": {
+            "HARNESSED": { "tier": "fast", "rounds": 6 },
+            // "TOOLED": { "/daemon/droneaid/mode/topography/models": "eager" },
+            "CONVERSATIONAL": {
+              "language": ["en"],
+              "polish": { "engaged": false },
+            },
+          },
+        },
+        "@droneaid/topography/guides",
+        "@assembly/model/import",
+        "@assembly/model/editor",
+        "@assembly/guide/editor",
+        "@assembly/guide/player",
+        "@commons/dashboard/dataspace",
+      ],
+#+END_SRC
+
+All twelve are Mode entities of his db (=select type, slug from Mode where daemon_slug='droneaid'=). The player IS mounted: m127's 11-21 line /=guide/player= is mounted on no daemon of his instance/ read a missing bundle directory; a bundle is built on the first fetch, and nobody has opened the player since the rename (=mountpoint/daemon_droneaid/= holds =mode_guide_editor= · =mode_model_editor= only).
+
+** the suites
+
+=sh .ikiro/reference/assembly-droneaid/baseline.sh <root>=, on a copy, =HOME= empty:
+
+#+BEGIN_EXAMPLE
+exit 1   assembly/domain/assembly/tests/aperture.test.js                FAILED | 0 passed (1 step) | 1 failed (6 steps)
+exit 0   assembly/domain/assembly/tests/domain.test.js                  ok | 1 passed (10 steps) | 0 failed
+exit 0   assembly/domain/assembly/tests/generators.test.js              ok | 1 passed (5 steps) | 0 failed
+exit 1   assembly/domain/assembly/tests/literal.test.js                 FAILED | 0 passed (2 steps) | 3 failed (9 steps)
+exit 0   assembly/domain/assembly/tests/resolve.test.js                 ok | 1 passed (11 steps) | 0 failed
+exit 1   assembly/domain/assembly/tests/tools.test.js                   FAILED | 0 passed (1 step) | 1 failed (3 steps)
+exit 1   assembly/modes/guide/editor/tests/guide.test.js                FAILED | 1 passed (1 step) | 1 failed
+exit 1   assembly/modes/guide/player/tests/guide.test.js                FAILED | 1 passed (7 steps) | 1 failed
+exit 1   assembly/modes/model/editor/tests/assembly.test.js             FAILED | 3 passed (13 steps) | 1 failed (6 steps)
+exit 0   assembly/modes/model/editor/tests/cursor.test.js               ok | 3 passed (12 steps) | 0 failed
+exit 1   assembly/modes/model/editor/tests/harness.test.js              FAILED | 0 passed | 1 failed
+exit 1   assembly/modes/model/import/tests/import.test.js               FAILED | 2 passed (11 steps) | 1 failed (3 steps)
+exit 0   assembly/tests/kit.test.js                                     ok | 1 passed (3 steps) | 0 failed
+exit 0   droneaid/topographies/guides/tests/guides.test.js              ok | 1 passed (4 steps) | 0 failed
+exit 0   droneaid/topographies/guides/tests/harvest.test.js             ok | 2 passed (3 steps) | 0 failed
+exit 1   droneaid/topographies/models/tests/harvest.test.js             FAILED | 1 passed (3 steps) | 1 failed (1 step)
+exit 1   droneaid/topographies/models/tests/interceptor.test.js         FAILED | 0 passed (2 steps) | 1 failed (1 step)
+exit 0   droneaid/topographies/models/tests/models.test.js              ok | 1 passed (5 steps) | 0 failed
+#+END_EXAMPLE
+
+| red | files | cause | owner |
+|---|---|---|---|
+| =LiteralEntity.daemon is required= | 8, all =assembly= | known issue =assembly-mode-suites-red-on-daemon-required= | cause unknown, one lead ruled out |
+| =P-canonical= · =P-placements= | 2, =droneaid/models= | his hand seats: the dataset is no longer the harvest's | the tests, to be rules like =guides= |
+
+No rig of =@assembly= can WRITE a literal. Every write the strand landed since 11-20 is proven by a pure step or a page probe, never through a verb on a daemon. Ruled out 11-23 on the copy: the daemon scope the runtime binds on a daemon's aperture (=systems/runtime/subjects/daemon/lifecycle/1-population.js:62=) and the rig does not; bound on both apertures of =assembly/tests/rig.js=, the same five files stayed red on the same error. droneaid's rig is green because it writes through =DATASET=, never through a verb.
+
+* open — his to rule
+
+| # | question | where | asked |
+|---|---|---|---|
+| Q4 | what a piece with no mesh shows (16 kinds of the bill) | =benched/m127-interceptor-droneaid.org:496= | 11-21 night, unanswered |
+| Q3 | the road in: a harvest, or the four modes by hand | =:489= | lean only |
+| Q5 | how many steps | =:500= | lean only |
+| Q6 | one =qty= on a piece two kits ship | =:504= | open |
+| Q7 | shared =section.*= symbols, or the guide's own | =:508= | open |
+| Q8 | =soldering=: its steps, the three gates, the UK half | =:519= | my cut landed |
+| fork 9 | does the drain un-own what it writes | =benched/m71-droneaid-guide.org:189= | 10-06 |
+| fork 11 | the hub bolts' pattern | =:191= | 10-06 |
+| — | what =homecoming= means | =benched/m77-droneaid-homecoming.org:13= | 10-01 |
+| — | the chrome sheet's leak at its source (38 class names) | known issue =anima-section-row-global-leaks-into-modes= | 11-20 |
+| — | =models= tests as rules | m127 =* handoff=, owed mine | not yet said of =models= |
+| — | the model editor's guide branches and its =/open <guide>= tool | =modes/model/editor/buffer/Assembly.svelte=, 9 hits | 11-20 |
+| — | view slugs =assembly= · =guide= | =done/assembly-mode-rename.org:74= | 11-12 |
+
+Mine and unruled, landed anyway, each his to strike: =top= placed in the interceptor · the row layout of the unseated pieces · =family.mount= on all nine prints · the key =cursors= (he said =cursor=) · the name =pose= · the stage's =mate= button kept · a lock the tools do not read · a colour on a sub-assembly colours nothing under it · a step's seat is typed, not dragged · the colour tool is off the undo list · =tone= (=TIP= a tip, any other kind a warning).
+
+* open — mine
+
+- a real write through a verb (=/part { colour }=), once =assembly-mode-suites-red-on-daemon-required= is closed.
+- =mari=: the top plate and props (22 placements in no step) · its own pictures (17 steps show the quad manual's) · the manual's 66 pages onto the freight.
+- no suite mounts =Stage.svelte= · =StepTab.svelte= · =Inspector.svelte=; the three page probes in =.ikiro/reference/m127/= need Chrome.
+- =kit/scene.js= =spots= and =Stage.svelte= =drawn= have no pure case; no case reads a guide of no subject.
+- the harness snapshots hold the verbs without =colour=; the step topology still ships =note.*= · =warn.*= (9 hits, =topologies/step/dataset/symbols/ontological.js:9=).
+- the kit is THREE copies of one =scene.js= (=guide/editor= · =guide/player= · =model/editor=, =cmp= equal 11-23), held by =P-kit-held=, not by an import.
+- why the import wound two plates inward (=modes/model/import/harvest.py:90=) · the 49 cross-stage joins the nesting dropped.
+- droneaid's =README.md:10= says /one guide, 33 steps in 8/; three guides stand (his file).
+
+* never — collected
+
+- a harvest run over his data: =harvest.js= over =guides= resets his steps; over =models= it overwrites his seats (/"drop #1"/).
+- a coordinate typed off a picture; a seat with no source is his hand in the editor.
+- a fourth daemon (Q1) · a topography of its own for the interceptor (Q2).
+- a loose piece of the quad placed in =interceptor=, or a stage copied instead of referenced.
+- an exclusion where the consumer's set belongs (=PARSED=).
+- a symbol slug on a note · a =Note= entity for a callout (both his).
+- a hex literal in a kit or a part file (=P-palette-in-one-place=).
+- hand SQL on his db: an edit reaches it through the boot's own install; a prune is named and captured first.
+- a write under his watcher outside ONE pass, the =touch= last.
+- a =git status= · a bare =jj st= inside a registry package while his runtime runs (=* changelog=, 11-23).
+
+* the law — verbatim from =benched/m71-droneaid-guide.org:196=
+
+#+BEGIN_EXAMPLE
+A part the kit ships is a literal with qty, whether or not a mesh exists for it; the guide's bill is derived, never authored.
+A fastener is a PARAMETRIC part placed once per bolt, its placement carrying JOINED.joins on what it holds and one joint.* symbol; a step names the fastener placements it threads, and "loose" or "tight" is the step's note, not the placement's.
+No coordinate is typed from a picture: every fastener translation is a function of a measured anchor (a standoff centre, the grommet pattern, a motor centre) written in the harvest, so a re-import moves them all.
+The rows live on disk, in VCS, as the topography's DATASET; the daemon is working memory. DATASET installs them, DATASINK drains every change back; the harvest writes the dataset files ONCE in the drain's own canonical form, so a drain over an untouched install is a no-op diff.
+A step's pictures are the manual's pages on the freight (manual/<id>.webp); a step cites the page it came from in its description.
+#+END_EXAMPLE
+
+Since 11-20 the third and fourth lines bend for the interceptor: his hands own its seats, and the dataset, not the harvest, is the record of both guides (/"i want to be able to change the guides."/).
+
+* orientation — a session that reopens this
+
+#+BEGIN_EXAMPLE
+~/.viva/registry/assembly/                          its own jj; 30 paths uncommitted 11-23
+  domain/assembly/                                  schematics.js · resolve.js · traits/literal/ · generators/ · tools/ · aperture/
+  topologies/{part,placement,step,guide}/           vocabulary true of every product
+  modes/model/{import,editor}/                      editor: buffer/kit/ · buffer/{scene,feature,mate,fold}.js · tools/
+  modes/guide/{editor,player}/                      buffer/kit/{scene,frames,guide}.js · Stage.svelte
+  modes/bak/import/                                 archive, never touched
+  tests/kit.test.js                                 the three kits equal · the palette in one place
+~/.viva/registry/droneaid/                          its own jj; 36 paths uncommitted 11-23
+  topographies/models/{dataset,freight,harvest,tests}/   two bodies: quadro · interceptor
+  topographies/guides/{dataset,freight,harvest,tests}/   three guides: quadrocopter · mari · soldering
+  tests/rig.js                                      mounts ../../assembly, wants HOME empty
+~/.viva/bak/registry/                               every land's capture, 16 of this strand
+~/.viva/bak/instances/localhost-droneaid-20261120*  his db before each prune, 5
+#+END_EXAMPLE
+
+1. Open on =status.probe.js= and =baseline.sh= (both in =.ikiro/reference/assembly-droneaid/=): they are this quest's two fences, re-measured.
+2. A land is a sandbox copy first, then ONE pass into the registry, the =touch= last; his watcher restarts the runtime, done = =/beacon/status= =RUNNING= on a NEW pid.
+3. A view's bundle is rebuilt on its first fetch after a restart: his reload serves it, a bundle directory's absence says nothing about a mount.
+4. A change to the dataset files reaches his db through the boot's install (a changed stamp reinstalls); =compare-db.probe.js= · =status.probe.js= say equal.
+5. The three milestone lists of m127 (the five · the asks on the way · the stage's five) share numbers: name the list before the number.
+
+* known issues that name the strand — =.ikiro/known-issues.org=, 11-23
+
+| slug | state 11-23 |
+|---|---|
+| =assembly-mode-suites-red-on-daemon-required= | OPEN, the strand's blocker; three domain suites appended |
+| =watcher-restarts-on-vcs-metadata= | OPEN, filed 11-23 |
+| =registry-views-throw-on-a-mode-less-file= | OPEN, =modes/guide/editor/buffer/Guide.svelte:63= |
+| =assembly-fold-graft-precedence= | OPEN, half moved: the base layer alone folds now, =interior= unchanged (=resolve.js:39=) |
+| =guide-buffer-points-at-a-missing-guide= | OPEN, the editor half |
+| =anima-section-row-global-leaks-into-modes= | OPEN, ruled per view |
+| =mode-rename-leaves-mountpoint-dirs= · =pruned-mode-buffers-set-null= | OPEN |
+| =one-mode-entry-trait-without-its-export= | OPEN |
+| =tool-ctx-thread-is-an-id= | OPEN, =tools/fold.js= · =mint.js= pass =ctx.thread= |
+| =connection-aim-dedupes-arrays= | OPEN on the ledger; its blamed merge reads =arrayMergeStrategy: "replace"= today, unprobed |
+| =literal-slug-unique-index-is-per-mode= | CUT 11-23: the index is =(daemon_slug, slug)= in his db |
+
+* references
+
+| path | holds | dated |
+|---|---|---|
+| =.ikiro/reference/assembly-droneaid/= | =status.probe.js= · =baseline.sh=, this quest's fences | 11-23 |
+| =.ikiro/reference/m127/= | the stage's builders, land and rehearse scripts, six probes, =soldering/= | 11-21 |
+| =.ikiro/reference/assembly-domain-and-editor.md= | the domain · the importer · the editor dossier | 09-22, pre-m80, says so |
+| =.ikiro/reference/droneaid-guide-briefing.md= | ontology · fold · forks F1–F9 · milestones A–D | 09-22, pre-m80, says so |
+| =.ikiro/reference/assembly-step-rework.md= | a plan never executed | 09-23 |
+| =.ikiro/reference/guide-player-responsive.md= | the responsive layout, landed 10-06 | 10-03 |
+| =.ikiro/reference/assembly-mode-rename/= | =rename.py= · =prune.probe.js=, both run | 11-12 |
+| =quests/roadmap/threlte-rapier-drapes.org= | the three.js stage through drapes, prep; its =:21= names the dead pt10 scene | 09-09 |
+
+Three facts that lived only in the auto-memory (=project_assembly_step_rework.md=, folds of compacts #206 · #209 · #213), moved here 11-23, each grepped that day:
+- =kit/guide.js:20= =expand=: a part reaches every placement of it, a placement itself and what hangs under it, never its parent; a look expands the same way.
+- the guide modes' harness: =step_read= pages one step (=modes/guide/editor/tools/index.js:41= =/step/read= · =:52= =/guide/read=), =LIMIT = 40= (=harness.js:11=).
+- a tool fault is a string =message=, the =tool_result= part carries =condition= (=subsystems/typology/gestalten/belt/hallucinate.js:119=): never sniff =message.error=.
+
+* reopen
+
+- his first click: a swatch in the model editor's inspector · =Pieces= in a step of =mari= · a note's pin · =soldering= in the player. Each is the first run on his screen.
+- his answer to Q4 opens the catalogue (kit step two), then the composition's seats, then session B per step.
+- his walk of =mari= in the player closes =T-player-walk= and is the first walk of the strand.
+- =assembly-mode-suites-red-on-daemon-required= closed turns every landed write provable.
+
+* changelog
+
+- 11-23 — written on his order above. Read whole: m127 (mine) · m67 · assembly-guide · the rename · m71 · m77 · six references · the known issues (two read-only agents, their quotes re-read by row). Measured: the probe, the suites, 40 greps of landed names. =m127-interceptor-droneaid.org= moved to =benched/=, its =#+status= rewritten whole; =done/m67='s status rewritten. Departures, mine, reported: (1) a =git status= inside =~/.viva/registry/assembly= rewrote =.git/index= at 14:24:41 and his launcher restarted the runtime at 14:24:42 (=RUNNING= again, pid 79153 → 97184); (2) the first suite run kept the real =HOME= and printed three false reds on droneaid's roundtrips, rerun with =HOME= empty; (3) m77 stays in =benched/=: an empty seed is parked, not sunset; m71 stays too, its seven walk markers bar =done/=; (4) the frontier keeps ONE =tails= line for the strand instead of dropping m127's; (5) one probe past the ask, on the copy: the rig's missing daemon scope, ruled out. Landed beside it: known issues (=watcher-restarts-on-vcs-metadata= filed · three suites appended · =literal-slug-unique-index-is-per-mode= cut, ledger captured to =~/.viva/bak/ikiro/known-issues-20261123/=), =release.md= (m127's two repo-side lines lifted), the auto-memory's assembly file drained into =* references= (captured to =~/.viva/bak/ikiro/memory-20261123/=), and the ikiro lines of the pass: =codestyle.md= ×4 · =skills/quest= ×2 · =skills/unfold= ×1 · =hooks/unfold.sh= (a =sessions:= row).
+
+* handoff
+
+- goal: one place that says what the assembly · droneaid strand is, what stands and what is open, so a session reopens it without reading the six quests' 396 452 chars.
+- done: this file; the moves; =.ikiro/reference/assembly-droneaid/=.
+- next: his look at this file. Then nothing until a reopen trigger.
+- never: a milestone restated here without its grep; a quest of the strand moved to =done/= while a walk marker of it is =pending=.
+- owed: the seven walks (his) · Q4 (his) · the cause of =LiteralEntity.daemon is required= (unread, nobody's yet).

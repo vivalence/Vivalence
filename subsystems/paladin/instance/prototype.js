@@ -1,3 +1,4 @@
+// @ts-self-types="./prototype.d.ts"
 export class Instance {
   manifest = {};
   environment;

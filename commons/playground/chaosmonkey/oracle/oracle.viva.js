@@ -13,7 +13,7 @@ export const manifest = {
     "Aperture calls harness.object.render — the chaosmonkey demo case.",
   version: "0.1.0",
   traits: [
-    "VIEWABLE",
+    "SURFACED",
     "HARNESS",
     "TOOLING",
     "EXPOSED",
@@ -24,4 +24,4 @@ export const manifest = {
 
 export const buffer = v.buffer({ data: {} });
 
-export const views = [{ slug: "oracle", mount: "buffer/Oracle.svelte", mime: mime.dom.svelte }];
+export const surfaces = [{ slug: "oracle", mount: "buffer/Oracle.svelte", mime: mime.dom.svelte }];

@@ -25,7 +25,7 @@ export const Bar = (props) => {
   const pick = (name) => (column) => held.onPick(name, column);
   const mark = gesture((name) => held.onMark(name));
   return (
-    <box style={{ flexDirection: "row", height: 1, gap: 2, justifyContent: "space-between", backgroundColor: held.palette.surface }}>
+    <box style={{ flexDirection: "row", height: 1, gap: 2, justifyContent: "space-between", backgroundColor: held.palette.plane }}>
       <box style={{ flexDirection: "row", gap: 2 }}>
         <Segment palette={held.palette} open={held.chord} onPress={mark.down} onPick={mark.up}>
           <text fg={held.palette.signalPrimaryInk}>

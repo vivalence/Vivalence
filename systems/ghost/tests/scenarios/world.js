@@ -1,5 +1,5 @@
 import { parts } from "@vivalence/sheets/scenarios";
-import { bundle } from "../../surfaces/chrome/bundle.js";
+import { bundle } from "../../skins/chrome/bundle.js";
 
 export { frame, palette, screen, settle } from "@vivalence/sheets/scenarios";
 

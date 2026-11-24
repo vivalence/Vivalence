@@ -7,7 +7,7 @@ import { ModeEntity } from "./index.ts";
 import { ThreadEntity } from "./index.ts";
 import { LiteralEntity } from "./index.ts";
 import { SymbolEntity } from "./index.ts";
-import { TurnEntity, NoteEntity, FileEntity, ViewEntity } from "./index.ts";
+import { TurnEntity, NoteEntity, FileEntity, SurfaceEntity } from "./index.ts";
 
 export enum BufferStatusEnum {
   PENDING = "PENDING",
@@ -42,7 +42,7 @@ export class BufferEntity extends DataEntity {
   data: any & Opt = {};
   mime: string & Opt = mime.json;
   files = new Collection<FileEntity>(this);
-  views = new Collection<ViewEntity>(this);
+  surfaces = new Collection<SurfaceEntity>(this);
   turns = new Collection<TurnEntity>(this);
   notes = new Collection<NoteEntity>(this);
   index: number & Opt = 0;
@@ -80,7 +80,7 @@ export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
     data: { type: types.json, defaultRaw: `'{}'` },
     mime: { type: types.string, default: mime.json, nullable: true },
     files: { kind: "m:n", eager: true, entity: () => FileEntity, owner: true, pivotTable: "buffer_files", joinColumns: ["buffer_id"], inverseJoinColumns: ["file_id"] },
-    views: { kind: "m:n", entity: () => ViewEntity, owner: true, pivotTable: "buffer_views", joinColumns: ["buffer_id"], inverseJoinColumns: ["view_id"] },
+    surfaces: { kind: "m:n", entity: () => SurfaceEntity, owner: true, pivotTable: "buffer_surfaces", joinColumns: ["buffer_id"], inverseJoinColumns: ["surface_id"] },
     turns: { kind: "m:n", entity: () => TurnEntity, owner: true, pivotTable: "buffer_turns", joinColumns: ["buffer_id"], inverseJoinColumns: ["turn_id"] },
     notes: { kind: "1:m", entity: () => NoteEntity, mappedBy: (note) => note.buffer },
     index: { type: types.integer, default: 0 },
@@ -126,15 +126,15 @@ export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
 
 const twitch = new Vector().open("/before/buffer/create", async (ctx) => {
   if (ctx.input.entity.traits.includes("LABELED")) return;
-  const mode = ctx.input.entity.mode ? await ctx.input.em.findOne(ModeEntity, ctx.input.entity.mode) : null;
+  const mode = ctx.input.entity.mode ? await ctx.em.findOne(ModeEntity, ctx.input.entity.mode) : null;
   ctx.input.entity.traits = [...ctx.input.entity.traits, "LABELED"];
   ctx.input.entity.trait = { ...ctx.input.entity.trait, LABELED: { name: `${mode?.slug ?? "home"} #${ctx.input.entity.index}` } };
 });
 twitch.open("/after/thread/create", async (ctx) => {
-  const mode = await ctx.input.em.findOneOrFail(ModeEntity, ctx.input.entity.mode);
-  if (!mode.traits.includes("VIEWABLE")) return;
-  await ctx.input.em.getRepository(BufferEntity).ensure({ thread: ctx.input.entity.id, mode: mode.id, data: {} });
-  await ctx.input.em.flush();
+  const mode = await ctx.em.findOneOrFail(ModeEntity, ctx.input.entity.mode);
+  if (!mode.traits.includes("SURFACED")) return;
+  await ctx.em.getRepository(BufferEntity).ensure({ thread: ctx.input.entity.id, mode: mode.id, data: {} });
+  await ctx.em.flush();
 });
 
 export default {

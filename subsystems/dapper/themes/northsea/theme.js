@@ -12,10 +12,10 @@ export default theme({
              negative: { fill: rust[300],  ink: rust[200],  on: iron[950] } },
   brand:   { glow: "inset 0 0 12px rgba(30, 188, 181, 0.2)", filter: `drop-shadow(0 0 4px ${aqua[300]})` },
   zones: {
-    0: { surface: iron[900], surfaceSunk: iron[950], surfaceLift: iron[850], boundary: iron[800], boundaryStrong: iron[600], divider: iron[850] },
-    1: { surface: deep[900], surfaceSunk: deep[950], surfaceLift: deep[850], boundary: iron[800], boundaryStrong: iron[600], divider: iron[850] },
-    2: { surface: iron[950], surfaceSunk: deep[950], surfaceLift: iron[900], boundary: iron[850], boundaryStrong: iron[700], divider: iron[900], inverse: iron[200], dim: .5 },
-    3: { surface: iron[850], surfaceSunk: iron[900], surfaceLift: iron[800], boundary: iron[700], boundaryStrong: iron[500], divider: iron[800],
+    0: { plane: iron[900], planeSunk: iron[950], planeLift: iron[850], boundary: iron[800], boundaryStrong: iron[600], divider: iron[850] },
+    1: { plane: deep[900], planeSunk: deep[950], planeLift: deep[850], boundary: iron[800], boundaryStrong: iron[600], divider: iron[850] },
+    2: { plane: iron[950], planeSunk: deep[950], planeLift: iron[900], boundary: iron[850], boundaryStrong: iron[700], divider: iron[900], inverse: iron[200], dim: .5 },
+    3: { plane: iron[850], planeSunk: iron[900], planeLift: iron[800], boundary: iron[700], boundaryStrong: iron[500], divider: iron[800],
          signal: { negative: { ink: rust[100] } } },
   },
 });

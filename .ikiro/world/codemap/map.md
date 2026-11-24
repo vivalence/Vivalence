@@ -1,41 +1,59 @@
-<!-- writer: agent · limit: 4100 chars · launch (no paths:) · codemap total ≤52000 (cap.py) · code is the map -->
-# map — the repo at L2
+<!-- writer: agent · limit: 3600 chars · launch (no paths:) · codemap total ≤52000 (cap.py) -->
+# map — the repo in one page
 
-Shards, path-gated (`.claude/rules → world/codemap`): `typology` (the vocabulary, HOLY) · `runtime` (Die, `/runtime/<slug>` + `/daemon/<slug>`) · `testing` (scenarios = rigs, specimen = toolbox) · `paladin` (env · scopes · record · `~/.viva`) · `ghost` (`viva`, the client die) · `design` (anima · dapper · drapes; tty via ghost) · `commons` (a package, NOT a workspace member). Edge: `quests/frontier.md`. Doctrine: `codestyle.md`. CORE = `typology` · `paladin` · `runtime`, a count names its cut (/"ghost not considered core. only typology · paladin · runtime"/); a feature = a registry package.
+A shard loads when a file under its path is read: `typology` (the vocabulary, ask before touching core types) · `runtime` · `testing` · `paladin` (the environment, `~/.viva`) · `ghost` (the `viva` client) · `design` (anima, dapper, drapes) · `commons`.
 
-- **root tasks are `<container>/<verb>`; every container `test` but dapper's is `--watch`, never exits** — one file, one-shot, from the root. CLI-alive proof first.
+The live edge is `.ikiro/quests/frontier.md`. Core is typology, paladin and runtime. A feature is a registry package.
+
+## tasks and tests
+
+Root tasks are `<container>/<verb>`. A container's `test` task watches and never exits. Run one file, one shot, from the root:
+
 ```sh
-# not deno.jsonc:33
-deno test -A --no-check systems/runtime/tests/daemon/smoke.test.js   # one-shot
-DENO_DIR=~/Library/Caches/deno HOME=$(mktemp -d) deno test -A --no-check <file>  # census, DENO_DIR first
-viva --help; echo $?                                                  # 0 before any suite count
+deno test -A --no-check systems/runtime/tests/daemon/smoke.test.js
+DENO_DIR=~/Library/Caches/deno HOME=$(mktemp -d) deno test -A --no-check <file>
+viva --help; echo $?
 ```
-- **a repo test reaches another package ONLY through `accio`**; ONE module-not-found aborts the suite; `tests/snapshots/` gitignored: a fresh tree runs `SNAPSHOT_HOT=1` once.
-```js
-// systems/runtime/tests/scenarios/registry.js:8
-export async function accio(identifier) {
-  supplied ??= paladin.ledger.registry.supply();
-  await supplied;
-  return await paladin.ledger.registry.accio(identifier);
-```
-- **a save under `runtime/watch` IS a deploy**, vite `:1794` too (`lsof` first, `watch-guard.sh`); IN-PROCESS: read `Restarting!`, never `ps`; a land: ONE `touch` last, done = a NEW route answers (11-18).
-```jsonc
-// systems/runtime/deno.jsonc
-"watch": "deno run -A watch.js",   // own Deno.watchFs, skips declared datasink targets
-```
-- **ports from the ledger recipe**: runtime `:2501`, anima `:1794`; `:2501/` 404 ≠ down. `viva --help` rc 0, HOME empty: `seat` runs after `help`; a shell verb is `.open`ed (`traverse` skips a leaf branch's steps, m96 #22). Ready = the `start` track (`process.js:6`); bind beat 4, `/beacon/status` `IDLE` before.
-- **VCS = jj colocated over git** — READ only, subcommand FIRST, cite CHANGE ids; `@` IS a commit a bare read amends; bookmarks only to push.
+
+- `viva --help` must exit 0 before any suite count means anything.
+- A repo test reaches another package only through `accio`. One missing module aborts the suite.
+- `tests/snapshots/` is ignored by git. A fresh tree runs `SNAPSHOT_HOT=1` once.
+
+## the running system
+
+- The runtime is on `:2501`, anima on `:1794`. A 404 on `:2501/` does not mean down.
+- A save under `runtime/watch` is a deploy. Vite on `:1794` too. Check `lsof` first.
+- A change of several files lands in one pass. Done means a new route answers.
+
+## version control
+
+jj over git. I read, never write.
+
 ```sh
 jj log --ignore-working-copy -n 8
 jj diff -r <change>
-git show <id>:<path>          # pre-edit text: <id> from jj evolog, HEAD is @-
+git show <id>:<path>
 ```
-- **`import_map.json` is the ROOT's only**: a repo dep enters HERE, exact, never a prefix-map or inline `npm:` — bar a `commons/` mode's server, pinned (11-12); registry by URL; a twin runs `--no-lock --reload=<origin>` or `deno.lock` eats localhost. REJECTED `node-gyp` to hush a warning: relocks vite 8.
-- **mikro 7.2.3 owns the db**: migrations off `.snapshot-*.json`, never by hand; relation targets `() => X`; `pivotTable` · `joinColumns` on every m:n owner; auto-flush only on a queued persist of THAT type; `lazy` props populate BY NAME; a hook cannot flush; `wrap(x).assign` throws on an unflushed `create`; filters skip `$none/$some`; **a rebuild copies an ADDED column as `null`** → `nullable: true`; a faulted `up()` lands half (`transactional: false`) and the snapshot hides the diff; `loadStrategy` declared ONCE (`libsql.viva.js:15`).
-- **a trait is CAST once, loud, at hydration** (m105 Q4′); reads `entity.trait.NAME`. Client domain-blind: domain words are DATA; mode UI only via View rows (m87 Q10′).
-- **one dispatch shape everywhere**, every effect returns `{condition, output}`, ctx FLAT + owner `bind` (`.mode` `.daemon` `.runtime`).
-```js
-// subsystems/typology/gestalten/belt/hallucinate.js:92
-steer.dispatch.invoke(armed, new ToolCall(call.name).signal, steer.strategy.guarded)(call.input),
-```
-- **docs `documentation/` (Astro 7)**: never `@deno/vite-plugin`; MDX rejects `<!-- -->`; CSS proven on `astro build` + `preview`; NEVER `deno fmt` (~120 cols).
+
+## dependencies
+
+`import_map.json` at the root is the only one. A repo dependency enters there, exact. Never an inline `npm:`. Registry packages import by URL.
+
+## the database: mikro-orm 7
+
+- Migrations come from the snapshot files, never by hand.
+- Relation targets are `() => X`. Every many-to-many owner names `pivotTable` and `joinColumns`.
+- A hook cannot flush.
+- `wrap(x).assign` throws on an entity that was created but not flushed.
+- A rebuilt table copies an added column as `null`: make it `nullable: true`.
+- A failed `up()` lands half. Restore it, never retry.
+
+## shapes that hold everywhere
+
+- A trait is cast once at hydration. Reads are `entity.trait.NAME`.
+- The client is domain-blind. Domain words are data.
+- One dispatch shape. Every effect returns `{ condition, output }`.
+
+## docs
+
+`documentation/` is Astro. MDX rejects `<!-- -->`. Never run `deno fmt`.

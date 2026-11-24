@@ -10,4 +10,4 @@ export * as runtime from "./runtime/index.js";
 export * as symbol from "./symbol/index.js";
 export * as thread from "./thread/index.js";
 export * as turn from "./turn/index.js";
-export * as view from "./view/index.js";
+export * as surface from "./surface/index.js";

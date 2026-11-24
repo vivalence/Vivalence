@@ -1,0 +1,42 @@
+  .pinning {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .pinner {
+    border: 1px solid var(--tone);
+    border-radius: 3px;
+    background: var(--paper);
+    color: var(--tone-ink);
+    font: 500 11px var(--font-family-body);
+    padding: 2px 6px;
+    cursor: pointer;
+  }
+  .pinner:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+  .pinner.on {
+    font-weight: 700;
+  }
+  .shots {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .shot {
+    width: 54px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid var(--tone);
+    border-radius: 3px;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--paper);
+  }
+  .shot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }

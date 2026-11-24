@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="en" data-theme="porcelain">
+<head>
+<meta charset="utf-8">
+<title>blog · the desk</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/vivalence/components/bundle.css">
+<link rel="stylesheet" href="desk.css">
+<link rel="stylesheet" href="standin.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&amp;family=IBM+Plex+Mono:wght@400;600;700&amp;family=Inter:wght@400;600&amp;family=Poppins:wght@400;600&amp;family=Victor+Mono:wght@400;600;700&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="kit desk {{deskCls}}" data-zone="1" data-mode="{{modeShown}}" tabIndex="-1" onKeyDown="{{rootKey}}">
+
+<header class="titlebar">
+<div class="fore">
+<button class="key" aria-label="library" title="library" aria-pressed="{{libraryOn}}" onClick="{{cmd.library}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.library}}"></path></svg></button>
+<button class="title" title="open the palette" onClick="{{cmd.palette}}"><span class="kit-dot {{titleDot}}"></span><span class="name">{{titleShown}}</span><span class="path">{{src.path}}</span></button>
+</div>
+<div class="modes" role="group" aria-label="mode">
+<button class="mode" aria-pressed="{{m.write.on}}" disabled="{{noSource}}" title="write · ⌘1" onClick="{{m.write.pick}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.write}}"></path></svg><span>write</span></button>
+<button class="mode" aria-pressed="{{m.split.on}}" disabled="{{noSource}}" title="split · ⌘2" onClick="{{m.split.pick}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.split}}"></path></svg><span>split</span></button>
+<button class="mode" aria-pressed="{{m.preview.on}}" disabled="{{noSource}}" title="preview · ⌘3" onClick="{{m.preview.pick}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.preview}}"></path></svg><span>preview</span></button>
+<button class="mode" aria-pressed="{{m.focus.on}}" disabled="{{noSource}}" title="focus · ⌘." onClick="{{m.focus.pick}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.focus}}"></path></svg><span>focus</span></button>
+</div>
+<div class="aft">
+<select class="pick" aria-label="mode" value="{{modeShown}}" disabled="{{noSource}}" onChange="{{pickMode}}">
+<option value="write">write</option>
+<option value="preview">preview</option>
+<option value="focus">focus</option>
+</select>
+<button class="key" aria-label="inspector" title="inspector" aria-pressed="{{inspectorOn}}" onClick="{{cmd.inspector}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.inspector}}"></path></svg></button>
+<button class="key wide-only" aria-label="settings" title="settings" aria-expanded="{{settingsOn}}" onClick="{{cmd.settings}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.settings}}"></path></svg></button>
+<sc-if value="{{dirtyNow}}" hint-placeholder-val="{{false}}"><button class="kit-seg is-attention save" title="save · ⌘S" onClick="{{cmd.save}}">save</button></sc-if>
+<sc-if value="{{cleanNow}}" hint-placeholder-val="{{true}}"><span class="saved">saved</span></sc-if>
+<button class="go" disabled="{{busy}}" onClick="{{cmd.press}}">{{pressLabel}}</button>
+</div>
+</header>
+
+<div class="body">
+<aside class="dock library {{libraryCls}}" aria-label="library">
+<div class="dock-in">
+<label class="kit-field find"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.search}}"></path></svg><input value="{{filter}}" onChange="{{typeFilter}}" placeholder="filter" aria-label="filter the sources"></label>
+<div class="groups">
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+<div class="group">
+<button class="group-head" aria-expanded="{{g.open}}" onClick="{{g.toggle}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.right}}"></path></svg><span class="kit-label">{{g.name}}</span><span class="count">{{g.count}}</span></button>
+<sc-for list="{{g.rows}}" as="r" hint-placeholder-count="2">
+<button class="row {{r.cls}}" aria-current="{{r.current}}" onClick="{{r.open}}"><span class="kit-dot {{r.dot}}"></span><span class="n">{{r.title}}</span><span class="mark"></span><span class="d">{{r.date}}</span></button>
+</sc-for>
+</div>
+</sc-for>
+</div>
+<label class="kit-field is-repl fresh"><span class="p">+</span><input value="{{fresh}}" onChange="{{typeFresh}}" onKeyDown="{{freshKey}}" placeholder="essays/name.md" aria-label="new source"></label>
+</div>
+</aside>
+<div class="seam {{libraryCls}}"></div>
+
+<main class="middle">
+<section class="writing">
+<div class="tools">
+<div class="crumb"><span>{{src.title}}</span><sc-if value="{{hasCrumb}}" hint-placeholder-val="{{true}}"><span>›</span><b>{{crumb}}</b></sc-if></div>
+<div class="marks">
+<sc-for list="{{tools}}" as="t" hint-placeholder-count="9"><button class="key" aria-label="{{t.name}}" title="{{t.name}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{t.d}}"></path></svg></button></sc-for>
+</div>
+</div>
+<div class="sheet">
+<div class="leaf {{leafCls}}">
+<div class="head">
+<input class="t" value="{{src.title}}" onChange="{{edit.title}}" placeholder="title" aria-label="title">
+<input class="s" value="{{src.subtitle}}" onChange="{{edit.subtitle}}" placeholder="subtitle" aria-label="subtitle">
+</div>
+<div class="lines"><sc-for list="{{lines}}" as="l" hint-placeholder-count="8"><div class="ln {{l.cls}}" onClick="{{l.put}}"><sc-for list="{{l.parts}}" as="p" hint-placeholder-count="1"><span class="{{p.cls}}">{{p.t}}</span></sc-for><span class="caret"></span></div></sc-for></div>
+</div>
+</div>
+<div class="whisper"><button onClick="{{cmd.leave}}">{{words}} words · esc</button></div>
+</section>
+<div class="seam is-mid"></div>
+<section class="pressed">
+<div class="pressbar">
+<button class="key" aria-label="desktop" title="desktop" aria-pressed="{{dev.desktop.on}}" onClick="{{dev.desktop.pick}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.desktop}}"></path></svg></button>
+<button class="key" aria-label="tablet" title="tablet" aria-pressed="{{dev.tablet.on}}" onClick="{{dev.tablet.pick}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.tablet}}"></path></svg></button>
+<button class="key" aria-label="phone" title="phone" aria-pressed="{{dev.phone.on}}" onClick="{{dev.phone.pick}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.phone}}"></path></svg></button>
+<span class="size">{{deviceSize}}</span>
+<button class="key" aria-label="follow the sheet" title="follow the sheet" aria-pressed="{{followOn}}" onClick="{{cmd.follow}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.follow}}"></path></svg></button>
+<span class="grow"></span>
+<a class="live" href="#live" title="open the pressed page"><span>{{liveUrl}}</span><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.out}}"></path></svg></a>
+</div>
+<div class="stage">
+<div class="page {{pageCls}}">
+<div class="page-head">{{liveUrl}}</div>
+<div class="site" id="live">
+<article class="site-in">
+<h1>{{src.title}}</h1>
+<p class="s-sub">{{src.subtitle}}</p>
+<p class="s-date">{{src.date}}</p>
+<sc-for list="{{blocks}}" as="b" hint-placeholder-count="6"><div class="blk {{b.cls}}"><sc-for list="{{b.parts}}" as="p" hint-placeholder-count="1"><span class="{{p.cls}}">{{p.t}}</span></sc-for></div></sc-for>
+</article>
+</div>
+</div>
+</div>
+</section>
+<section class="welcome">
+<svg class="icon big" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.sheet}}"></path></svg>
+<div class="say">nothing on the sheet</div>
+<div class="recent">
+<sc-for list="{{recent}}" as="r" hint-placeholder-count="3">
+<button class="row" onClick="{{r.open}}"><span class="kit-dot {{r.dot}}"></span><span class="n">{{r.title}}</span><span class="mark"></span><span class="d">{{r.date}}</span></button>
+</sc-for>
+</div>
+<div class="say"><span class="cap">⌘</span><span class="cap">K</span> open · <span class="cap">⌘</span><span class="cap">N</span> new</div>
+</section>
+</main>
+
+<div class="seam {{inspectorCls}}"></div>
+<aside class="dock inspector {{inspectorCls}}" aria-label="inspector">
+<div class="dock-in">
+<div class="tabbar">
+<span class="kit-choice tabs">
+<button aria-pressed="{{tab.post.on}}" onClick="{{tab.post.pick}}">post</button>
+<button aria-pressed="{{tab.media.on}}" onClick="{{tab.media.pick}}">media</button>
+<button aria-pressed="{{tab.outline.on}}" onClick="{{tab.outline.pick}}">outline</button>
+<button aria-pressed="{{tab.stats.on}}" onClick="{{tab.stats.pick}}">stats</button>
+</span>
+</div>
+
+<div class="pane {{tab.post.cls}}">
+<sc-if value="{{matterFault}}" hint-placeholder-val="{{false}}">
+<div class="faults"><span>front matter · 1 fault</span><button onClick="{{goFault}}">! date · "24.11." is not a date · line 4</button></div>
+</sc-if>
+<label class="prop"><span class="kit-label">title</span><input value="{{src.title}}" onChange="{{edit.title}}"></label>
+<label class="prop"><span class="kit-label">subtitle</span><input value="{{src.subtitle}}" onChange="{{edit.subtitle}}"></label>
+<label class="prop has-act {{dateCls}}"><span class="kit-label">date</span><input class="code" type="{{dateType}}" value="{{dateShown}}" onChange="{{edit.date}}"><button class="key" aria-label="pick a date" onClick="{{pickDate}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.calendar}}"></path></svg></button></label>
+<label class="prop"><span class="kit-label">tags</span><input class="code" value="{{src.tags}}" onChange="{{edit.tags}}"></label>
+<div class="sect"><span class="kit-label">status</span>
+<button class="kit-row tap" aria-current="{{st.draft.on}}" onClick="{{st.draft.pick}}"><span class="kit-dot mid"></span><span class="n">draft</span><span></span><span class="v">stays off the site</span></button>
+<button class="kit-row tap" aria-current="{{st.unlisted.on}}" onClick="{{st.unlisted.pick}}"><span class="kit-dot dot-open mid"></span><span class="n">unlisted</span><span></span><span class="v">pressed, off the index</span></button>
+<button class="kit-row tap" aria-current="{{st.published.on}}" onClick="{{st.published.pick}}"><span class="kit-dot is-healthy mid"></span><span class="n">published</span><span></span><span class="v">pressed and listed</span></button>
+</div>
+<div class="sect"><span class="kit-label">lead picture</span>
+<sc-if value="{{lead}}" hint-placeholder-val="{{true}}">
+<div class="lead-pic"><div class="pic"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.image}}"></path></svg></div><div style="min-width: 0"><span class="n">desk-wide.jpg</span><span class="m">1600 × 900</span></div><button class="key" aria-label="take the lead picture off" onClick="{{dropLead}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.close}}"></path></svg></button></div>
+</sc-if>
+<sc-if value="{{noLead}}" hint-placeholder-val="{{false}}">
+<button class="well" onClick="{{setLead}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.image}}"></path></svg><span>drop a picture · or pick from media</span></button>
+</sc-if>
+</div>
+<div class="sect"><span class="kit-label">file</span>
+<div class="prop has-act"><span class="kit-label">path</span><span class="code">{{src.path}}</span><button class="quiet">move</button></div>
+</div>
+</div>
+
+<div class="pane {{tab.media.cls}}">
+<button class="well {{wellCls}}" onClick="{{addMedia}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.upload}}"></path></svg><span>{{mediaSay}}</span></button>
+<div class="grid">
+<sc-for list="{{pictures}}" as="p" hint-placeholder-count="4"><figure><div class="pic"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.image}}"></path></svg></div><figcaption>{{p.name}}</figcaption></figure></sc-for>
+</div>
+</div>
+
+<div class="pane {{tab.outline.cls}}">
+<sc-for list="{{heads}}" as="h" hint-placeholder-count="3"><button class="step {{h.cls}}" aria-current="{{h.current}}" onClick="{{h.go}}">{{h.text}}</button></sc-for>
+<sc-if value="{{noHeads}}" hint-placeholder-val="{{false}}">
+<div class="none"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.outline}}"></path></svg><span>no headings · ## starts one</span></div>
+</sc-if>
+</div>
+
+<div class="pane {{tab.stats.cls}}">
+<sc-for list="{{stats}}" as="s" hint-placeholder-count="7"><div class="stat"><span>{{s.n}}</span><b>{{s.v}}</b></div></sc-for>
+</div>
+
+<div class="acts {{actsCls}}">
+<button class="kit-seg {{saveCls}}" disabled="{{cleanNow}}" onClick="{{cmd.save}}">save</button>
+<button class="go" disabled="{{busy}}" onClick="{{cmd.press}}">{{pressLabel}}</button>
+<span class="grow"></span>
+<button class="quiet is-grave" onClick="{{cmd.remove}}"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="{{ic.trash}}"></path></svg>remove</button>
+</div>
+<div class="kit-consent confirm {{confirmCls}}">
+<span>remove <span class="arg">{{src.path}}</span> · its pressed page goes too</span>
+<span class="keys"><button onClick="{{removeYes}}"><b>y</b> remove</button><button onClick="{{removeNo}}"><b>n</b> keep</button></span>
+</div>
+</div>
+</aside>
+</div>
+
+<footer class="status">
+<span class="wide-only {{posCls}}">ln <b>{{ln}}</b> · col <b>{{col}}</b></span>
+<span class="{{posCls}}"><b>{{words}}</b> words · <b>{{minutes}}</b> min</span>
+<span class="grow"></span>
+<sc-if value="{{busy}}" hint-placeholder-val="{{false}}"><span class="run"><span class="kit-dot is-running"></span><span>pressing · {{busyN}} / {{total}}</span><span class="kit-meter"><i style="width: {{busyPct}}"></i></span></span></sc-if>
+<sc-if value="{{faultShown}}" hint-placeholder-val="{{false}}"><button class="fault-line" onClick="{{goFault}}"><span class="kit-dot is-fault"></span><span>{{faultLine}}</span></button></sc-if>
+<sc-if value="{{calm}}" hint-placeholder-val="{{true}}"><span>pressed <b>{{pressed}}</b> · <b>{{total}}</b> pages</span></sc-if>
+</footer>
+
+<div class="shade {{shadeCls}}" onClick="{{closeAll}}"></div>
+
+<div class="pop settings {{settingsCls}}">
+<div class="set"><span class="kit-label">measure</span><span class="kit-choice opts"><button aria-pressed="{{o.measure.narrow.on}}" onClick="{{o.measure.narrow.pick}}">narrow</button><button aria-pressed="{{o.measure.medium.on}}" onClick="{{o.measure.medium.pick}}">medium</button><button aria-pressed="{{o.measure.wide.on}}" onClick="{{o.measure.wide.pick}}">wide</button></span></div>
+<div class="set"><span class="kit-label">type</span><span class="kit-choice opts"><button aria-pressed="{{o.size.small.on}}" onClick="{{o.size.small.pick}}">small</button><button aria-pressed="{{o.size.medium.on}}" onClick="{{o.size.medium.pick}}">medium</button><button aria-pressed="{{o.size.large.on}}" onClick="{{o.size.large.pick}}">large</button></span></div>
+<div class="set"><span class="kit-label">line numbers</span><span class="kit-choice opts"><button aria-pressed="{{o.numbers.off.on}}" onClick="{{o.numbers.off.pick}}">off</button><button aria-pressed="{{o.numbers.on.on}}" onClick="{{o.numbers.on.pick}}">on</button></span></div>
+<div class="set"><span class="kit-label">typewriter</span><span class="kit-choice opts"><button aria-pressed="{{o.typewriter.off.on}}" onClick="{{o.typewriter.off.pick}}">off</button><button aria-pressed="{{o.typewriter.on.on}}" onClick="{{o.typewriter.on.pick}}">on</button></span></div>
+<div class="set"><span class="kit-label">spelling</span><span class="kit-choice opts"><button aria-pressed="{{o.spell.off.on}}" onClick="{{o.spell.off.pick}}">off</button><button aria-pressed="{{o.spell.on.on}}" onClick="{{o.spell.on.pick}}">on</button></span></div>
+</div>
+
+<div class="veil {{paletteCls}}" onClick="{{closeAll}}">
+<div class="pop palette" onClick="{{stop}}">
+<label class="kit-field is-repl"><span class="p">›</span><input value="{{query}}" onChange="{{typeQuery}}" onKeyDown="{{paletteKey}}" placeholder="a source, a command, a setting" aria-label="palette"></label>
+<div class="list">
+<sc-for list="{{parts}}" as="part" hint-placeholder-count="3">
+<div class="part"><span class="kit-label">{{part.name}}</span>
+<sc-for list="{{part.rows}}" as="r" hint-placeholder-count="3">
+<button class="kit-row tap" aria-current="{{r.current}}" onClick="{{r.run}}"><span class="{{r.sig}}">{{r.mark}}</span><span class="n">{{r.a}}<b class="hit">{{r.b}}</b>{{r.c}}</span><span></span><span class="v">{{r.note}}<sc-for list="{{r.keys}}" as="k" hint-placeholder-count="0"><span class="cap">{{k.t}}</span></sc-for></span></button>
+</sc-for>
+</div>
+</sc-for>
+<sc-if value="{{noRows}}" hint-placeholder-val="{{false}}"><div class="none">nothing by that name</div></sc-if>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","options":["live","welcome","write","split","preview","focus","unsaved","busy","fault-matter","fault-build","remove","outline-empty","media-empty","palette","settings"],"default":"live"},"narrow":{"editor":null},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.icons = {
+      library: "M2.5 3.5h11v9h-11z M6 3.5v9",
+      inspector: "M2.5 3.5h11v9h-11z M10 3.5v9",
+      settings: "M2.5 5h4.5 M10 5h3.5 M2.5 11h3.5 M9 11h4.5 M7 3.5v3h3v-3z M6 9.5v3h3v-3z",
+      search: "M7 2.75a4.25 4.25 0 1 0 0 8.5a4.25 4.25 0 0 0 0-8.5z M10.2 10.2l3.3 3.3",
+      right: "M6 4l4 4-4 4",
+      close: "M4 4l8 8 M12 4l-8 8",
+      bold: "M4.5 3h4a2.5 2.5 0 0 1 0 5h-4z M4.5 8h4.75a2.5 2.5 0 0 1 0 5H4.5z",
+      italic: "M7 3h5 M4 13h5 M9.5 3l-3 10",
+      link: "M6.75 9.25a2.75 2.75 0 0 0 3.9 0l2.1-2.1a2.75 2.75 0 0 0-3.9-3.9l-.85.85 M9.25 6.75a2.75 2.75 0 0 0-3.9 0l-2.1 2.1a2.75 2.75 0 0 0 3.9 3.9l.85-.85",
+      heading: "M3.5 3v10 M10.5 3v10 M3.5 8h7",
+      quote: "M3 4v8 M6.5 5h7 M6.5 8h7 M6.5 11h4.5",
+      list: "M6 4h7.5 M6 8h7.5 M6 12h7.5 M2.75 4h.5 M2.75 8h.5 M2.75 12h.5",
+      code: "M5.5 4.5L2 8l3.5 3.5 M10.5 4.5L14 8l-3.5 3.5",
+      image: "M2.5 3.5h11v9h-11z M2.5 10.5l3-3 2.5 2.5 2-2 3.5 3.5 M10.25 6h.5",
+      footnote: "M5 3H3v10h2 M11 3h2v10h-2 M7.25 6.25L8.5 5.5v5",
+      desktop: "M2 3h12v7.5H2z M6 13.5h4 M8 10.5v3",
+      tablet: "M4 2h8v12H4z M7.5 12h1",
+      phone: "M5 2h6v12H5z M7.5 12h1",
+      follow: "M5 3v10 M3 5l2-2 2 2 M11 13V3 M9 11l2 2 2-2",
+      out: "M9.5 3H13v3.5 M13 3L7.5 8.5 M11 9.5V13H3V5h3.5",
+      calendar: "M2.5 4h11v9.5h-11z M2.5 7h11 M5.5 2.5V5 M10.5 2.5V5",
+      upload: "M8 10.5V3 M5 6l3-3 3 3 M2.5 10.5V13h11v-2.5",
+      sheet: "M4 2h5.5L12.5 5v9H4z M9.5 2v3h3",
+      trash: "M3 4.5h10 M6.5 4.5V3h3v1.5 M4.5 4.5l.5 8.5h6l.5-8.5",
+      outline: "M3 4h10 M5.5 8h7.5 M5.5 12h5",
+      write: "M2.5 3.5h11v9h-11z M5 6.5h6 M5 9.5h4",
+      split: "M2.5 3.5h11v9h-11z M8 3.5v9 M4.5 7h1.5 M4.5 9.5h1.5 M10 6.5h1.5v3H10z",
+      preview: "M2.5 3.5h11v9h-11z M5.5 12.5V6h5v6.5",
+      focus: "M2.5 5.5v-2h2 M11.5 3.5h2v2 M13.5 10.5v2h-2 M4.5 12.5h-2v-2 M6 8h4",
+    };
+    this.onResize = () => this.forceUpdate();
+    this.state = this.seed(props.view, this.narrow());
+  }
+  componentDidMount() {
+    window.addEventListener("resize", this.onResize);
+  }
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.onResize);
+    clearTimeout(this.timer);
+  }
+  componentDidUpdate(before) {
+    if (before.view !== this.props.view || before.narrow !== this.props.narrow) {
+      clearTimeout(this.timer);
+      this.setState(this.seed(this.props.view, this.narrow()));
+    }
+  }
+  narrow() {
+    return this.props.narrow ?? (typeof window !== "undefined" && window.innerWidth < 760);
+  }
+  sources() {
+    const source = (id, kind, status, date, title, subtitle, body) => ({
+      id, kind, status, date, title, subtitle, body,
+      tags: kind === "page" ? "" : "desk, state",
+      path: (kind === "page" ? "pages/" : "essays/") + title.replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + ".md",
+    });
+    return [
+      source("desk", "essay", "draft", "2026-11-24", "a desk that comes back", "the shape of a writing tool is state", [
+        "## what is on screen is state",
+        "The desk keeps its shape in the buffer. A panel, a width, a mode: each is a key with a default, so a reload brings it back *as it was left*.",
+        "",
+        "Transient things stay local: an open popover, the palette's query, a drag in progress.[^1]",
+        "",
+        "## one table of commands",
+        "Every action is one entry: `[label, chord, when, run]`. Keys, the palette and buttons all read it.",
+        "",
+        "> A new button calls an entry. It never carries its own handler.",
+        "",
+        "## narrow is first class",
+        "Below 760px the docks are drawers and split falls back to **one pane**.",
+        "",
+        "[^1]: None of them survives a reload, and none should.",
+      ].join("\n")),
+      source("lines", "essay", "draft", "2026-11-20", "three lines on pressing", "", [
+        "`/build` presses every source into a static page under `public/`.",
+        "",
+        "An essay is a `.md` or `.org` file with front matter on top.",
+        "",
+        "The site is served to strangers, outside the login.",
+      ].join("\n")),
+      source("press", "essay", "published", "2026-11-12", "pressing pages", "one build, every source", [
+        "## one build",
+        "`/build` presses every source into a static page under `public/`.",
+        "",
+        "## markdown and org",
+        "Both go in. One html comes out.",
+      ].join("\n")),
+      source("matter", "essay", "published", "2026-10-30", "front matter, apart and back", "parted and joined", [
+        "## parted",
+        "The front matter comes off the top before the press.",
+        "",
+        "## joined",
+        "A save joins it back on top.",
+      ].join("\n")),
+      source("narrow", "essay", "published", "2026-10-02", "narrow is first class", "the desk at 390px", [
+        "## drawers",
+        "Below 760px the docks are drawers.",
+        "",
+        "## one pane",
+        "Split falls back to one pane. Touch targets are at least 36px.",
+      ].join("\n")),
+      source("about", "page", "published", "2026-09-14", "about", "", "One person writes this blog."),
+      source("contents", "page", "published", "2026-09-14", "contents", "", "The index lists the essays."),
+    ];
+  }
+  seed(view, narrow) {
+    const base = {
+      open: "desk", mode: "split", library: true, inspector: true, drawer: null, tab: "post", device: "phone", follow: true,
+      dirty: {}, busy: 0, pressed: "11:02", matterFault: false, buildFault: false, removing: false,
+      palette: false, query: "", settings: false, filter: "", fresh: "", shut: {}, lead: true, media: true, caret: null,
+      measure: "medium", size: "medium", numbers: "off", typewriter: "off", spell: "on", sources: this.sources(),
+    };
+    const views = {
+      live: narrow ? { mode: "write" } : {},
+      welcome: { open: null, inspector: false },
+      write: { mode: "write", inspector: false },
+      split: { library: false, inspector: false },
+      preview: { mode: "preview", library: false, inspector: false, device: narrow ? "phone" : "tablet" },
+      focus: { mode: "focus" },
+      unsaved: { mode: "write", inspector: false, dirty: { desk: true }, drawer: "library" },
+      busy: { library: false, inspector: false, busy: 3 },
+      "fault-matter": { mode: "write", matterFault: true, drawer: "inspector" },
+      "fault-build": { mode: "preview", inspector: false, device: narrow ? "phone" : "tablet", matterFault: true, buildFault: true },
+      remove: { mode: "write", removing: true, drawer: "inspector" },
+      "outline-empty": { mode: "write", open: "lines", tab: "outline", lead: false, drawer: "inspector" },
+      "media-empty": { mode: "write", tab: "media", media: false, lead: false, drawer: "inspector" },
+      palette: { mode: "write", inspector: false, palette: true, query: "pre" },
+      settings: { mode: "write", inspector: false, settings: true },
+    };
+    return { ...base, ...(views[view] || {}) };
+  }
+  inline(text, site) {
+    const out = [];
+    const push = (cls, t) => { if (t) out.push({ cls, t }); };
+    const mark = (t) => { if (!site) push("mk", t); };
+    const re = /(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*|\[\^\d+\]|\[[^\]]+\]\([^)]+\))/g;
+    let last = 0;
+    let m = re.exec(text);
+    while (m) {
+      const s = m[0];
+      push("", text.slice(last, m.index));
+      if (s[0] === "`") { mark("`"); push(site ? "s-cd" : "cd", s.slice(1, -1)); mark("`"); }
+      else if (s.startsWith("**")) { mark("**"); push(site ? "s-st" : "st", s.slice(2, -2)); mark("**"); }
+      else if (s[0] === "*") { mark("*"); push(site ? "s-em" : "em", s.slice(1, -1)); mark("*"); }
+      else if (s.startsWith("[^")) { push(site ? "s-ref" : "ref", site ? s.slice(2, -1) : s); }
+      else { const link = s.match(/\[([^\]]+)\]\(([^)]+)\)/); mark("["); push(site ? "s-lk" : "lk", link[1]); mark("](" + link[2] + ")"); }
+      last = m.index + s.length;
+      m = re.exec(text);
+    }
+    push("", text.slice(last));
+    return out;
+  }
+  parse(body) {
+    return body.split("\n").map((raw) => {
+      const head = raw.match(/^(#{1,6}) (.*)$/);
+      const note = raw.match(/^\[\^(\d+)\]: (.*)$/);
+      if (raw === "") return { kind: "blank", raw, text: "", parts: [], site: [] };
+      if (head) return { kind: "h", level: head[1].length, raw, text: head[2], parts: [{ cls: "mk", t: head[1] + " " }, ...this.inline(head[2])], site: this.inline(head[2], true) };
+      if (raw.startsWith("> ")) return { kind: "quote", raw, text: raw.slice(2), parts: [{ cls: "mk", t: "> " }, ...this.inline(raw.slice(2))], site: this.inline(raw.slice(2), true) };
+      if (note) return { kind: "note", raw, text: note[2], parts: [{ cls: "ref", t: "[^" + note[1] + "]:" }, ...this.inline(" " + note[2])], site: this.inline(note[1] + ". " + note[2], true) };
+      return { kind: "p", raw, text: raw, parts: this.inline(raw), site: this.inline(raw, true) };
+    });
+  }
+  caretOf(id, lines) {
+    const { caret } = this.state;
+    if (caret && caret.id === id && lines[caret.line]) return caret.line;
+    const heads = lines.map((l, i) => (l.kind === "h" ? i : -1)).filter((i) => i >= 0);
+    const from = heads.length > 1 ? heads[1] : 0;
+    const after = lines.findIndex((l, i) => i >= from && l.kind === "p");
+    return after >= 0 ? after : Math.max(0, lines.findIndex((l) => l.kind !== "blank"));
+  }
+  press() {
+    if (this.state.busy) return;
+    const total = this.state.sources.length;
+    const step = (n) => {
+      if (n > total) {
+        const now = new Date();
+        const at = String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0");
+        const fault = this.state.matterFault;
+        this.setState({ busy: 0, buildFault: fault, pressed: fault ? this.state.pressed : at });
+        return;
+      }
+      this.setState({ busy: n });
+      this.timer = setTimeout(() => step(n + 1), 180);
+    };
+    step(1);
+  }
+  create(path) {
+    const { sources } = this.state;
+    const clean = (path || "essays/untitled.md").trim();
+    const title = clean.split("/").pop().replace(/\.(md|org)$/, "").replace(/-/g, " ");
+    const id = "new" + sources.length;
+    const today = new Date().toISOString().slice(0, 10);
+    const fresh = { id, kind: clean.startsWith("pages/") ? "page" : "essay", status: "draft", date: today, title, subtitle: "", tags: "", path: clean, body: "" };
+    this.setState({ sources: [fresh, ...sources], open: id, fresh: "", mode: this.state.mode === "preview" ? "write" : this.state.mode, drawer: null, palette: false, query: "", removing: false });
+  }
+  commands() {
+    const s = this.state;
+    const narrow = this.narrow();
+    const on = !!s.open;
+    const set = (patch) => () => this.setState(patch);
+    const dock = (name) => () => (narrow ? this.setState({ drawer: s.drawer === name ? null : name }) : this.setState({ [name]: !s[name] }));
+    const pane = (name) => () => this.setState(narrow ? { tab: name, drawer: "inspector" } : { tab: name, inspector: true });
+    return [
+      ["save", ["⌘", "S"], on && !!s.dirty[s.open], set({ dirty: { ...s.dirty, [s.open]: false } })],
+      ["press the site", ["⌘", "⏎"], !s.busy, () => this.press()],
+      ["new source", ["⌘", "N"], true, () => this.create()],
+      ["mode · write", ["⌘", "1"], on, set({ mode: "write" })],
+      ["mode · split", ["⌘", "2"], on && !narrow, set({ mode: "split" })],
+      ["mode · preview", ["⌘", "3"], on, set({ mode: "preview" })],
+      ["mode · focus", ["⌘", "."], on, set({ mode: "focus", drawer: null })],
+      ["library", ["⌘", "\\"], true, dock("library")],
+      ["inspector", ["⌘", "I"], true, dock("inspector")],
+      ["inspector · post", [], on, pane("post")],
+      ["inspector · media", [], on, pane("media")],
+      ["inspector · outline", [], on, pane("outline")],
+      ["inspector · stats", [], on, pane("stats")],
+      ["preview · desktop", [], on, set({ device: "desktop" })],
+      ["preview · tablet", [], on, set({ device: "tablet" })],
+      ["preview · phone", [], on, set({ device: "phone" })],
+      ["preview · follow the sheet", [], on, set({ follow: !s.follow })],
+      ["settings", ["⌘", ","], true, set({ settings: !s.settings, palette: false })],
+      ["remove this source", [], on, set(narrow ? { removing: true, drawer: "inspector" } : { removing: true, inspector: true })],
+    ];
+  }
+  renderVals() {
+    const s = this.state;
+    const narrow = this.narrow();
+    const { sources, open, dirty } = s;
+    const is = (a, b) => String(a === b);
+    const blank = { id: "", title: "", subtitle: "", date: "", tags: "", path: "", status: "", body: "" };
+    const src = sources.find((x) => x.id === open) || blank;
+    const on = !!open;
+    const lines = this.parse(src.body);
+    const caret = this.caretOf(src.id, lines);
+    const headAt = lines.reduce((at, l, i) => (l.kind === "h" && i <= caret ? i : at), -1);
+    const modeShown = !on ? "write" : narrow && s.mode === "split" ? "write" : s.mode;
+    const faulty = (x) => x.id === "desk" && (s.matterFault || s.buildFault);
+    const dotOf = (x) => (faulty(x) ? "is-fault" : x.status === "published" ? "is-healthy" : x.status === "unlisted" ? "dot-open" : "");
+    const openIt = (id) => () => this.setState({ open: id, drawer: null, palette: false, query: "", removing: false, mode: s.mode === "focus" ? "write" : s.mode });
+    const row = (x) => ({ title: x.title, date: x.date.slice(5), dot: dotOf(x), cls: dirty[x.id] ? "is-unsaved" : "", current: is(x.id, open), open: openIt(x.id) });
+    const seen = sources.filter((x) => (x.title + " " + x.path).toLowerCase().includes(s.filter.toLowerCase()));
+    const group = (name, list) => ({
+      name, count: list.length, open: String(!s.shut[name]), rows: s.shut[name] ? [] : list.map(row),
+      toggle: () => this.setState({ shut: { ...s.shut, [name]: !s.shut[name] } }),
+    });
+    const groups = [
+      group("faults", seen.filter(faulty)),
+      group("drafts", seen.filter((x) => x.kind === "essay" && x.status === "draft")),
+      group("essays", seen.filter((x) => x.kind === "essay" && x.status !== "draft")),
+      group("pages", seen.filter((x) => x.kind === "page")),
+    ].filter((g) => g.count > 0);
+    const plain = src.body.replace(/\[\^\d+\]:?/g, " ").replace(/[#>*`]/g, " ");
+    const words = plain.split(/\s+/).filter(Boolean).length;
+    const count = (kind) => lines.filter((l) => l.kind === kind).length;
+    const commands = this.commands();
+    const run = (label) => () => {
+      const entry = commands.find((c) => c[0] === label);
+      if (entry && entry[2]) entry[3]();
+    };
+    const edit = (key) => (e) => this.setState({
+      sources: sources.map((x) => (x.id === open ? { ...x, [key]: e.target.value } : x)),
+      dirty: { ...dirty, [open]: true },
+      ...(key === "date" ? { matterFault: false, buildFault: false } : {}),
+    });
+    const latch = (key, names, cls) => Object.fromEntries(names.map((name) => [name, { on: is(s[key], name), cls: s[key] === name ? cls : "", pick: () => this.setState({ [key]: name }) }]));
+    const status = (name) => ({
+      on: is(src.status, name),
+      pick: () => this.setState({ sources: sources.map((x) => (x.id === open ? { ...x, status: name } : x)), dirty: { ...dirty, [open]: true } }),
+    });
+    const libraryOpen = narrow ? s.drawer === "library" : s.library;
+    const inspectorOpen = on && (narrow ? s.drawer === "inspector" : s.inspector);
+    const q = s.query.trim().toLowerCase();
+    const cut = (label) => {
+      const at = q ? label.toLowerCase().indexOf(q) : -1;
+      return at < 0 ? { a: label, b: "", c: "" } : { a: label.slice(0, at), b: label.slice(at, at + q.length), c: label.slice(at + q.length) };
+    };
+    const shut = { palette: false, query: "" };
+    const hit = (label) => !q || label.toLowerCase().includes(q);
+    const sourceRows = (q ? sources.filter((x) => hit(x.title)) : sources.slice(0, 3)).map((x) => ({
+      ...cut(x.title), sig: "kit-dot mid " + dotOf(x), mark: "", note: x.path, keys: [], run: openIt(x.id),
+    }));
+    const commandRows = commands.filter((c) => c[2] && hit(c[0])).map((c) => ({
+      ...cut(c[0]), sig: "sign", mark: "›", note: "", keys: c[1].map((t) => ({ t })), run: () => { this.setState(shut); c[3](); },
+    }));
+    const options = { measure: ["narrow", "medium", "wide"], size: ["small", "medium", "large"], numbers: ["off", "on"], typewriter: ["off", "on"], spell: ["off", "on"] };
+    const labels = { measure: "measure", size: "type", numbers: "line numbers", typewriter: "typewriter", spell: "spelling" };
+    const settingRows = Object.keys(options).flatMap((key) => options[key].map((name) => ({ key, name, label: labels[key] + " · " + name })))
+      .filter((x) => q && hit(x.label))
+      .map((x) => ({ ...cut(x.label), sig: "sign", mark: "=", note: s[x.key] === x.name ? "set" : "", keys: [], run: () => this.setState({ ...shut, [x.key]: x.name }) }));
+    const parts = [
+      { name: q ? "sources" : "recent", rows: sourceRows },
+      { name: "commands", rows: commandRows },
+      { name: "settings", rows: settingRows },
+    ].filter((p) => p.rows.length > 0);
+    parts.forEach((p, i) => p.rows.forEach((r, j) => { r.current = String(i === 0 && j === 0); }));
+    const sizes = { desktop: "1280", tablet: "768 × 1024", phone: "390 × 844" };
+    const leaf = [
+      s.measure === "narrow" ? "is-tight" : s.measure === "wide" ? "is-broad" : "",
+      s.size === "small" ? "is-small" : s.size === "large" ? "is-large" : "",
+      s.numbers === "on" ? "has-numbers" : "",
+      s.typewriter === "on" ? "is-typewriter" : "",
+    ];
+    const fault = s.buildFault && !s.busy;
+    const names = ["desk-wide.jpg", "desk-narrow.png", "palette.png", "seams.png"];
+    return {
+      ic: this.icons, src, cmd: {
+        library: run("library"), inspector: run("inspector"), settings: run("settings"), save: run("save"), press: run("press the site"),
+        remove: run("remove this source"), follow: run("preview · follow the sheet"),
+        palette: () => this.setState({ palette: true, query: "", settings: false, drawer: null }),
+        leave: () => this.setState({ mode: "write" }),
+      },
+      deskCls: [narrow ? "is-narrow" : "", modeShown === "focus" ? "is-focus" : "", on ? "" : "is-empty"].join(" "),
+      modeShown, noSource: !on,
+      titleShown: on ? src.title || "untitled" : "no source",
+      titleDot: !on ? "" : faulty(src) ? "is-fault" : dirty[open] ? "dot-unsaved" : dotOf(src),
+      m: { write: { on: is(modeShown, "write"), pick: run("mode · write") }, split: { on: is(modeShown, "split"), pick: run("mode · split") }, preview: { on: is(modeShown, "preview"), pick: run("mode · preview") }, focus: { on: is(modeShown, "focus"), pick: run("mode · focus") } },
+      pickMode: (e) => run("mode · " + e.target.value)(),
+      libraryOn: String(libraryOpen), inspectorOn: String(inspectorOpen), settingsOn: String(s.settings),
+      libraryCls: libraryOpen ? "" : "is-shut", inspectorCls: inspectorOpen ? "" : "is-shut",
+      dirtyNow: on && !!dirty[open], cleanNow: on && !dirty[open], saveCls: dirty[open] ? "is-attention" : "is-off",
+      busy: !!s.busy, pressLabel: s.busy ? "pressing" : "press",
+      filter: s.filter, typeFilter: (e) => this.setState({ filter: e.target.value }), groups,
+      fresh: s.fresh, typeFresh: (e) => this.setState({ fresh: e.target.value }),
+      freshKey: (e) => { if (e.key === "Enter" && s.fresh.trim()) this.create(s.fresh); },
+      hasCrumb: headAt >= 0, crumb: headAt >= 0 ? lines[headAt].text : "",
+      tools: ["bold", "italic", "link", "heading", "quote", "list", "code", "image", "footnote"].map((name) => ({ name, d: this.icons[name] })),
+      leafCls: leaf.join(" "), edit: { title: edit("title"), subtitle: edit("subtitle"), date: edit("date"), tags: edit("tags") },
+      lines: lines.map((l, i) => ({ cls: [l.kind, i === caret ? "is-current" : ""].join(" "), parts: l.parts, put: () => this.setState({ caret: { id: src.id, line: i } }) })),
+      words, minutes: Math.max(1, Math.round(words / 230)), ln: caret + 1, col: (lines[caret] ? lines[caret].raw.length : 0) + 1,
+      dev: latch("device", ["desktop", "tablet", "phone"], ""), deviceSize: sizes[s.device], followOn: String(s.follow),
+      pageCls: s.device === "desktop" ? "" : "is-" + s.device,
+      liveUrl: "/" + src.path.replace(/^pages\//, "").replace(/\.(md|org)$/, "") + "/",
+      blocks: lines.filter((l) => l.kind !== "blank").map((l) => ({ cls: "s-" + l.kind, parts: l.site })),
+      recent: sources.slice(0, 3).map(row),
+      tab: latch("tab", ["post", "media", "outline", "stats"], "is-on"),
+      matterFault: s.matterFault, dateCls: s.matterFault ? "is-fault" : "", dateType: s.matterFault ? "text" : "date", dateShown: s.matterFault ? "24.11." : src.date,
+      pickDate: (e) => { const input = e.currentTarget.parentNode.querySelector("input"); if (input && input.showPicker) input.showPicker(); },
+      goFault: () => this.setState(narrow ? { tab: "post", drawer: "inspector" } : { tab: "post", inspector: true }),
+      st: { draft: status("draft"), unlisted: status("unlisted"), published: status("published") },
+      lead: s.lead, noLead: !s.lead, dropLead: () => this.setState({ lead: false }), setLead: () => this.setState({ lead: true }),
+      wellCls: s.media ? "" : "is-tall", mediaSay: s.media ? "drop pictures · or choose" : "no pictures yet · drop one here",
+      pictures: s.media ? names.map((name) => ({ name })) : [], addMedia: () => this.setState({ media: true }),
+      heads: lines.map((l, i) => ({ l, i })).filter((x) => x.l.kind === "h").map((x) => ({ text: x.l.text, cls: "l" + x.l.level, current: is(x.i, headAt), go: () => this.setState({ caret: { id: src.id, line: x.i } }) })),
+      noHeads: count("h") === 0,
+      stats: [
+        { n: "words", v: words }, { n: "characters", v: src.body.length }, { n: "paragraphs", v: count("p") + count("quote") },
+        { n: "headings", v: count("h") }, { n: "footnotes", v: count("note") }, { n: "pictures", v: 0 },
+        { n: "minutes to read", v: Math.max(1, Math.round(words / 230)) },
+      ],
+      actsCls: s.removing ? "is-away" : "", confirmCls: s.removing ? "is-on" : "",
+      removeYes: () => this.setState({ sources: sources.filter((x) => x.id !== open), open: null, removing: false, drawer: null, matterFault: false, buildFault: false }),
+      removeNo: () => this.setState({ removing: false }),
+      posCls: on ? "" : "gone", busyN: s.busy, total: sources.length, busyPct: Math.round((s.busy / sources.length) * 100) + "%",
+      faultShown: fault, faultLine: narrow ? "! press failed · line 4" : "! press failed · essays/a-desk-that-comes-back.md · line 4 · date",
+      calm: !s.busy && !fault, pressed: s.pressed,
+      shadeCls: s.settings ? "is-on is-clear" : narrow && s.drawer ? "is-on" : "",
+      closeAll: () => this.setState({ drawer: null, settings: false, palette: false, query: "" }),
+      settingsCls: s.settings ? "is-on" : "", o: Object.fromEntries(Object.keys(options).map((key) => [key, latch(key, options[key], "")])),
+      paletteCls: s.palette ? "is-on" : "", query: s.query, typeQuery: (e) => this.setState({ query: e.target.value }),
+      paletteKey: (e) => {
+        if (e.key === "Escape") this.setState(shut);
+        if (e.key === "Enter" && parts.length) parts[0].rows[0].run();
+      },
+      stop: (e) => e.stopPropagation(), parts, noRows: parts.length === 0,
+      rootKey: (e) => { if (e.key === "Escape") this.setState(s.mode === "focus" ? { mode: "write" } : { drawer: null, settings: false, palette: false, query: "" }); },
+    };
+  }
+}
+</script>
+</body>
+</html>

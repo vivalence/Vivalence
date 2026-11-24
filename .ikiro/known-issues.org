@@ -1,6 +1,6 @@
 #+TITLE: Known Issues
 #+STATUS: LIVE LEDGER
-# writer: agent · kind: ledger · limit: 230000 chars — OPEN entries only, a resolved entry is CUT (skill quest)
+# writer: agent · kind: ledger · limit: 236000 chars — OPEN entries only, a resolved entry is CUT (skill quest)
 
 * harness-snapshot-test-writes-on-every-run — OPEN (11-20)
 ** Symptom
@@ -64,6 +64,20 @@ The four mode suites of =~/.viva/registry/assembly/modes/= are red on the tree a
 Unknown. NOT the test's own Mode entity lacking =daemon=: probed on a copy, =daemon: "assembly-rig"= added at =assembly.test.js:74=, the same six red. Same shape as education's =LiteralEntity.daemon is required= (this file, the education entry).
 ** Why not fixed
 Outside m127; the package is mid-move in his tree (=modes/{editor/guide => guide/editor}=). A change to a mode's aperture there is provable only by a pure step until this is green.
+** Evidence — 11-23, on a copy, =HOME= empty (=sh .ikiro/reference/assembly-droneaid/baseline.sh <root>=)
+EIGHT files, not four: the domain's own three are red on the same error (=domain/assembly/tests/aperture.test.js= =0 passed (1 step) | 1 failed (6 steps)= · =literal.test.js= =0 passed (2 steps) | 3 failed (9 steps)= · =tools.test.js= =0 passed (1 step) | 1 failed (3 steps)=), beside =modes/guide/editor= · =guide/player= · =model/editor/{assembly,harness}= · =model/import=. No rig of =@assembly= can write a literal. RULED OUT that day: the daemon scope the runtime binds on a daemon's aperture since m119 (=systems/runtime/subjects/daemon/lifecycle/1-population.js:62=) and neither rig binds; with =held.shard.bind("daemon", …)= on both apertures of the copy's =tests/rig.js= the same five files stay red on the same error. droneaid's rig is green because it writes through =DATASET=, never through a verb.
+
+* watcher-restarts-on-vcs-metadata — OPEN (found 11-23, mine, =systems/runtime/watch.js=)
+** Symptom
+A READ of a registry package's VCS state restarts his running runtime: =git -C ~/.viva/registry/assembly status --short= at 14:24:41 refreshed =.git/index=, the launcher printed its restart and =:2501= changed pid 79153 → 97184 at 14:24:42. A bare =jj st= there snapshots too (11-20, m127's changelog).
+** Root cause
+=systems/runtime/watch.js:25= watches =paladin.scope.registry= whole; =:28= =saved= skips only the declared drains, so a write under =.git/= · =.jj/= counts as a save.
+** Evidence
+=find ~/.viva/registry -newermt '2026-11-23 14:23:30' ! -newermt '2026-11-23 14:25:30'= → =assembly/.git= · =assembly/.git/index= · =droneaid/.git=; =ps -o lstart -p 97184= → 14:24:42.
+** Ruling
+none yet. Proposed: =saved= also skips a path holding a =/.git/= · =/.jj/= segment (the drains' sibling arm).
+** Workaround
+Inside a registry package: =git --no-optional-locks -C <pkg> status --short= (what =hooks/unfold.sh:13= does for the repo), =jj … --ignore-working-copy=.
 
 * relation-only-edit-pushes-nothing — OPEN (found 11-18, runtime)
 ** Symptom
@@ -165,7 +179,7 @@ None — test strings → =[ERROR]=, or =run.js:19= → =viva=.
 ** Why not fixed: outside m126; =vault.test.js:100= (=twinned.hallucinators=) never runs behind it
 
 * anima-suite-aborts-on-two-files — OPEN (found 10-23, m98 · m99 testing pass; narrowed 10-24 m105 Q8)
-11-20 (m126 replay baseline): the whole-directory run now aborts on =systems/anima/src/surfaces/chrome/mount.jsx:3= /"Unknown export './font.css' for '@vivalence/dapper'"/ (=subsystems/dapper/deno.jsonc:15= holds =./fonts.css= commented out); per file, pristine copy: 8 ok · 12 FAILED · 1 abort.
+11-20 (m126 replay baseline): the whole-directory run now aborts on =systems/anima/src/skins/chrome/mount.jsx:3= /"Unknown export './font.css' for '@vivalence/dapper'"/ (=subsystems/dapper/deno.jsonc:15= holds =./fonts.css= commented out); per file, pristine copy: 8 ok · 12 FAILED · 1 abort.
 ** Symptom
 =deno test -A --no-check systems/anima/tests= aborts before any test on =tests/pincer/spine.mount.test.js=: /"Import "solid-js/web" not a dependency and not in import map"/ (from =src/surface/index.js=). Per file (11-06) 11 of 17 abort (=anima-rig-client-terminal-gone=); =tests/oracle.snapshot.test.js= fails =writefile= into a missing =tests/snapshots/= path.
 ** Root cause
@@ -340,12 +354,12 @@ beef parked it 10-13 (/"mark as known issues"/). New paladin API: 1 · 2 · 4 ·
 * autosignup-tails — OPEN (lighthouse traits, 11-20)
 
 ** Symptom
-1. ghost paints no signin form: a tty visitor on an =AUTOSIGNUP= lighthouse cannot type a name (=systems/ghost/surfaces/chrome/panels/authentication/signin.jsx:4= is a swatch; no repl effect calls =Lighthouse.autosignup=).
+1. ghost paints no signin form: a tty visitor on an =AUTOSIGNUP= lighthouse cannot type a name (=systems/ghost/skins/chrome/panels/authentication/signin.jsx:4= is a swatch; no repl effect calls =Lighthouse.autosignup=).
 2. A name holding a password, entered with an empty password, reads "Client error: 400 — Username already taken" in anima's pane.
 3. =/lighthouse/autosignup= hand-checks its input (=if (!username)=) as =/signup= · =/login= do: a non-string · unbounded name reaches =slug=; =Username= (=subsystems/typology/schematics/scalars/index.js:13=) guards no lighthouse route.
 4. The session-seating rows stand four times: =apertures/users.js:33= · =traits/autologin.js:8= · =traits/joinable.js:13= · =traits/autosignup.js:17=.
 5. =viva instance/lighthouse/signup= demands a password (=subsystems/paladin/gestalten/commands/instance/lighthouse.js:20=): no operator call mints a passwordless user.
-6. Unseen on a served anima: the pane's submit branch (=systems/anima/src/surfaces/chrome/panels/authentication/signin.jsx:18=) and =settled= at =IDLE= under =AUTOSIGNUP=; =Lighthouse.autosignup= has zero =tests/= hits in ghost · anima.
+6. Unseen on a served anima: the pane's submit branch (=systems/anima/src/skins/chrome/panels/authentication/signin.jsx:18=) and =settled= at =IDLE= under =AUTOSIGNUP=; =Lighthouse.autosignup= has zero =tests/= hits in ghost · anima.
 7. =AUTOLOGIN= beside =AUTOSIGNUP=: the client enters as =localhost= at boot, the name pane shows only after a sign-out.
 
 ** Evidence
@@ -1401,20 +1415,6 @@ The rework is planned (=.ikiro/reference/assembly-step-rework.md=) and held behi
 ** Workaround
 Import flat (=groups: false=): nothing grafts.
 
-* literal-slug-unique-index-is-per-mode — OPEN
-** Symptom
-The domain's law is "a slug is unique in the daemon" (ruling 24); the database allows the same slug twice under two modes.
-** Root cause
-=systems/runtime/subjects/daemon/entities/kernel/Literal.ts:84= =uniques: [{ properties: ["slug", "mode"] }]= → index =Literal_slug_mode_id_unique (slug, mode_id)=. Uniqueness is enforced only by =LiteralRepository.mint= (=findOne({ slug })=).
-** Evidence
-=.schema Literal= on =~/.viva/instances/droneaid/mountpoint/daemon_droneaid/droneaid.viva.db= at compact #200.
-** Ruling
-none yet — the runtime kernel is shared by every domain; direction is beef's.
-** Why not fixed
-A per-daemon unique on =slug= alone would bind education too, where a slug's uniqueness per mode may be the intent.
-** Workaround
-The repository is the only writer; the law holds while that stays true.
-
 * guide-buffer-points-at-a-missing-guide — OPEN, the editor half (the player half fixed 10-07)
 ** Symptom
 A guide buffer whose =buffer.data.guide= names a retracted guide answers =/read refused= and never lists the guides; the runtime prints =Error: [assembly] no literal named "guide_1"= from =player/guide/aperture/index.js:16=. 10-07: four droneaid buffers held =guide_1= after m71 retracted it.
@@ -1443,7 +1443,7 @@ anima is not @assembly's; scoping the rule is an anima change.
 ** Workaround
 modes avoid the class names `row`, `actions`, `act` (the guide modes now use `controls`, `step-row`, `toc-row`, `lit`).
 ** Again, 11-20 — the kit's sheet, same class of leak
-His screenshot of =@assembly/guide/editor='s guide tab: every block centered, hairlines and fields not full width, inputs with a second border. =subsystems/drapes/parts.css= is loaded global by =systems/anima/src/surfaces/chrome/mount.jsx:4= and styles 90 classes BARE (no ancestor); =:40= =.tab= sets =align-items: center= · =white-space: nowrap= on =parts/GuideTab.svelte:25= =<div class="tab">= (its own rule sets neither), the =.field= rule (=display: flex= · an inset =box-shadow= · a background) lands on its =<input class="field">=. Census (=scratchpad/probe/leak.py=, class tokens in the markup of every =.svelte= under =~/.viva/registry= + =commons=): =.dot= 35 views · =.head= 31 · =.field= 12 · =.tabs= 12 · =.mark= 11 · =.tab= 10, 38 classes hit in all. READ off the two sheets, not measured on his DOM. Not dated: the history is squashed snaps. Proposed: stop the kit's rules at a mode view's root (one boundary) over renaming classes per view. RULED 11-20 /"fix a."/: per view for now; =@assembly/guide/editor= renamed its 13 hit names to =guide-<name>= that day, every other mode keeps its hits.
+His screenshot of =@assembly/guide/editor='s guide tab: every block centered, hairlines and fields not full width, inputs with a second border. =subsystems/drapes/parts.css= is loaded global by =systems/anima/src/skins/chrome/mount.jsx:4= and styles 90 classes BARE (no ancestor); =:40= =.tab= sets =align-items: center= · =white-space: nowrap= on =parts/GuideTab.svelte:25= =<div class="tab">= (its own rule sets neither), the =.field= rule (=display: flex= · an inset =box-shadow= · a background) lands on its =<input class="field">=. Census (=scratchpad/probe/leak.py=, class tokens in the markup of every =.svelte= under =~/.viva/registry= + =commons=): =.dot= 35 views · =.head= 31 · =.field= 12 · =.tabs= 12 · =.mark= 11 · =.tab= 10, 38 classes hit in all. READ off the two sheets, not measured on his DOM. Not dated: the history is squashed snaps. Proposed: stop the kit's rules at a mode view's root (one boundary) over renaming classes per view. RULED 11-20 /"fix a."/: per view for now; =@assembly/guide/editor= renamed its 13 hit names to =guide-<name>= that day, every other mode keeps its hits.
 
 * conversation-error-close-never-faults — OPEN (drained from the anima shard at the 09-23 baseline cut)
 ** Symptom
@@ -2408,13 +2408,13 @@ Each needs a shape: drapes split or the Solid parts on its root · where test ba
 ** Root cause
 =systems/runtime/subjects/mode/traits/filesink.js:5= =mounted = (mode) => new Path(mode.mountpoint).absolute= over a mode the APPLICATION-era =systems/runtime/tests/scenarios/mode.js= =wireMode= seated with no mountpoint (=emitters.test.js= mounts the education games). Production modes always carry one (=subsystems/paladin/instance/lifecycle/resolution.js:104=).
 ** Evidence
-=wireMode= no longer passes =views= (m106), so VIEWABLE bundles nothing there; =emitters.test.js= under the real HOME 10-24 left no =undefined/=.
+=wireMode= no longer passes =surfaces= (m106), so SURFACED bundles nothing there; =emitters.test.js= under the real HOME 10-24 left no =undefined/=.
 ** Ruling
 None — =Path= is typology core (HOLY).
 ** Why not fixed
 =Path='s coercion of a non-string is his call: throw, or keep and make =mounted= loud.
 ** Workaround
-A rig that boots VIEWABLE with =views= sets =mode.mountpoint= (=scratchpad/probe-s1.js= does).
+A rig that boots SURFACED with =surfaces= sets =mode.mountpoint= (=scratchpad/probe-s1.js= does).
 
 * anima-entry-faults-unprinted — OPEN (10-27, m108)
 A throw in =systems/anima/src/client.js='s =try= → blank =:1794=, no console error: =catch= faults into =die.controller=, nothing taps it (=logging= is not running yet). 10-27 case: =logging= used before its =const= (TDZ). Where the entry's faults print is his call (Q5A). 11-20 narrowed: a throw BELOW the mount (=reach= · =connect=) now faults onto the client's stdout (=client.js= =reported=) → =Booting='s red row + the console; a throw ABOVE it (=ghost.client.minted= · =new App=) is still untapped.
@@ -2431,7 +2431,7 @@ His — a wire-down store the cover reads · a re-subscribe on reconnect.
 ** Symptom
 Every suite over =systems/anima/tests/world.js= dies at setup: =Build failed with 5 errors= (=Could not resolve "./panes/index.js"= · =./renderers.js= · =./view.js= · =solid-js/web= · =./screen.js=); frontier's /anima rig ×11/. No case runs, so no anima cover · booting case can go red.
 ** Root cause
-=systems/anima/tests/world.js:13= =ENTRY= re-exports files the surface no longer has (=systems/anima/src/surfaces/chrome/= = =ambient layout.jsx mount.jsx panels send.js widgets=).
+=systems/anima/tests/world.js:13= =ENTRY= re-exports files the surface no longer has (=systems/anima/src/skins/chrome/= = =ambient layout.jsx mount.jsx panels send.js widgets=).
 ** Ruling
 None — the rig's entry rewritten onto =panels/index.js=; then a case: =runtime.entities === null= paints =Booting= with its =.fine= row.
 
@@ -2483,7 +2483,7 @@ None — a catalog-checked nature at =gathered=, or the chip built from the verb
 ** Symptom
 every suite on =tests/world.js= aborts (11, 11-17): =:13= =ENTRY= bundles =./panes/index.js= · =./renderers.js= · =./view.js=, none exist since m108 m2. red before any step; =regions.test.js:179= still asserts the phone pane · strip · back button, all cut 11-06 (his /"phone implements same layout"/).
 ** Ruling
-m108 milestone 4 (the rig onto =surfaces/chrome/=); the phone-pane steps die with it.
+m108 milestone 4 (the rig onto =skins/chrome/=); the phone-pane steps die with it.
 
 * popover-bounds-are-the-window — OPEN (11-06, phone pass)
 ** Symptom
@@ -2548,11 +2548,11 @@ A daemon's modes name their module in =Daemon.mask.modes= (=@chess/board/play=);
 
 * m118-darkroom-tails — OPEN (11-09, m118 DONE)
 ** Symptom
-Open on the closed quest =done/m118-darkroom.org=: the =/picture/settle= name (his); (c) tools on the desk; the =/tune= → =/tier= rename (his word); the =imagescript= pin; =generative.js:25= offers =dom.svelte=; a fence-legibility guard + a bare-letter-question Stop arm (his wiring); T-themes unwalked (=/theme parchment= re-inked nothing); a stall-minted buffer carries =data: {}= — the desk primes itself, the datamap never fills a mode schema.
+Open on the closed quest =done/m118-darkroom.org=: the =/picture/settle= name (his); (c) tools on the desk; the =/tune= → =/tier= rename (his word); the =imagescript= pin; =systems/runtime/gestalten/tools/surfacing.js:14= offers =dom.svelte=; a fence-legibility guard + a bare-letter-question Stop arm (his wiring); T-themes unwalked (=/theme parchment= re-inked nothing); a stall-minted buffer carries =data: {}= — the desk primes itself, the datamap never fills a mode schema.
 
 * buffer-create-null-thread-on-not-null-column — OPEN (11-09, m119 show-me)
 ** Symptom
-Unprobed. A GENERATIVE buffer created with no =turn= and no =ctx.thread= writes =thread: null= into a NOT NULL column.
+Unprobed. A SURFACING buffer created with no =turn= and no =ctx.thread= writes =thread: null= into a NOT NULL column.
 ** Root cause
 =systems/runtime/subjects/mode/traits/generative.js:130= ={ thread: ctx.thread ?? null }=; =subsystems/typology/entities/Buffer.ts:93= =thread= carries no =nullable=.
 ** Evidence
@@ -2779,7 +2779,7 @@ Dropping db rows is his call. Artifacts: =~/.viva/bak/instances/localhost-202611
 * dock-stop-tooltip-promises-an-unbound-esc — OPEN (found 11-16, call-faculty drill)
 
 ** Symptom
-=systems/anima/src/surfaces/chrome/panels/dock/textarea.jsx:106= titles the stop button "stop · esc · /stop"; no keymap entry sends =/stop= on =esc= (the two =esc= bindings: =/repl/close= =commands/system/repl.js:18=, =/legend/close= =leader.js:17=).
+=systems/anima/src/skins/chrome/panels/dock/textarea.jsx:106= titles the stop button "stop · esc · /stop"; no keymap entry sends =/stop= on =esc= (the two =esc= bindings: =/repl/close= =commands/system/repl.js:18=, =/legend/close= =leader.js:17=).
 
 ** Why not fixed
 What Esc does outside a dictation is his ruling; inside one it stops it (=quests/m123-call-faculty.org= Q16 · Q16A).
@@ -2834,7 +2834,7 @@ What Esc does outside a dictation is his ruling; inside one it stops it (=quests
 
 * dapper-key-edge-under-3 — OPEN (found 11-18, m121 visual pass)
 ** Symptom: a key's ring against its card: porcelain 1.51 · northsea 1.44 · parchment 2.81 · datasette 14.35 — under 3:1 on three themes
-** Root cause: =--boundary= over =--surface-lift= is a pair dapper's contrast tests never take
+** Root cause: =--boundary= over =--plane-lift= is a pair dapper's contrast tests never take
 ** Evidence: =reference/m121/visual.md= "Still open"
 ** Ruling: his — a 3:1 hairline is a theme decision (=theme-revival=)
 ** Workaround: every word on a key in =--control-on= (≥ 7.5:1); the label carries the key
@@ -2859,14 +2859,14 @@ What Esc does outside a dictation is his ruling; inside one it stops it (=quests
 ** Why not fixed: no ruling; Q36 changed the label, never the count
 
 * ghost-tty-suites-red-opentui-ffi — OPEN (found 11-20, m126 milestone 6 baseline)
-** Symptom: =systems/ghost/tests/surfaces/chrome/voice.test.js= =FAILED | 0 passed | 4 failed (15 steps)=, every step =Failed to initialize OpenTUI render library: OpenTUI native FFI is not available for this runtime yet=
+** Symptom: =systems/ghost/tests/skins/chrome/voice.test.js= =FAILED | 0 passed | 4 failed (15 steps)=, every step =Failed to initialize OpenTUI render library: OpenTUI native FFI is not available for this runtime yet=
 ** Root cause: not found. =@opentui/core@0.5.17= (=import_map.json:85=) under deno 2.9.7 refuses its native library; the same with the real =HOME= and with an empty one
 ** Evidence: run on the untouched repo and on a scratchpad copy, 11-20, identical
 ** Ruling: none yet
 ** Why not fixed: found while measuring another change; whether the tty still draws in his terminal is unread
 
 * ghost-renderers-test-expects-javascript-mime — OPEN (found 11-20, m126 milestone 6 baseline)
-** Symptom: =systems/ghost/tests/surfaces/chrome/widgets/buffer/renderers.test.js= =FAILED | 0 passed (2 steps) | 1 failed (1 step)=: the case /frame: RENDERED.frame names the slug/ expects a file mime =text/javascript=, gets =text/jsx=, and a =slug: "source"= it does not expect
+** Symptom: =systems/ghost/tests/skins/chrome/widgets/buffer/renderers.test.js= =FAILED | 0 passed (2 steps) | 1 failed (1 step)=: the case /frame: RENDERED.frame names the slug/ expects a file mime =text/javascript=, gets =text/jsx=, and a =slug: "source"= it does not expect
 ** Root cause: not found; the test or the renderer moved without the other
 ** Evidence: the untouched repo and a scratchpad copy, 11-20, identical
 ** Ruling: none yet
@@ -2912,14 +2912,14 @@ What Esc does outside a dictation is his ruling; inside one it stops it (=quests
 
 * drapes-sheet-test-red-on-inline-vars — OPEN (found 11-21 at the instance-telemetry land's census, a base-tree red on both copies)
 ** Symptom: =subsystems/drapes/tests/sheet.test.js= 5 steps red: every theme's =unresolved= holds =--viva-t= · =--viva-h= · =--depth= · =--rail=; the "layout four" step meets =--bar-inset= · =--covered-h= beside its four
-** Root cause: =subsystems/drapes/parts.css= reads four vars set INLINE by script (=anima/src/surfaces/chrome/mount.jsx:44-45= the visual viewport · =drapes/Srow.jsx:87= a node's depth and rail) and declares two layout vars of its own (=parts.css:33-34=); the test's =INLINE= table (=sheet.test.js:12=) and its layout list name none of the six
+** Root cause: =subsystems/drapes/parts.css= reads four vars set INLINE by script (=anima/src/skins/chrome/mount.jsx:44-45= the visual viewport · =drapes/Srow.jsx:87= a node's depth and rail) and declares two layout vars of its own (=parts.css:33-34=); the test's =INLINE= table (=sheet.test.js:12=) and its layout list name none of the six
 ** Evidence: =deno test -A --no-check subsystems/drapes/tests= on a copy of the tree, 11-21 twice: =FAILED ¦ 36 passed (254 steps) ¦ 1 failed (5 steps)=
 ** Why not fixed: =subsystems/drapes= holds his and a sibling session's uncommitted work (eight =.jsx= files); the sheet or the test's table, his call
 ** Workaround: none; the red is the same by name before and after any land
 
 * typed-file-upload-sends-nothing — OPEN (landed latent 11-21 with =quests/done/upload-progress.org=, said before the write)
-** Symptom: =/file/upload <path>= typed (the tty's =attach= word, =systems/ghost/surfaces/chrome/panels/dock/textarea.jsx:23=) uploads nothing and says nothing.
-** Root cause: the command answers a cold async generator (=systems/ghost/gestalten/commands/content/upload.js:43=); the repl hands a command's output back unread (=systems/ghost/subjects/terminal/repl.js:83=); only anima's dock drains it (=systems/anima/src/surfaces/chrome/panels/dock/dock.jsx=).
+** Symptom: =/file/upload <path>= typed (the tty's =attach= word, =systems/ghost/skins/chrome/panels/dock/textarea.jsx:23=) uploads nothing and says nothing.
+** Root cause: the command answers a cold async generator (=systems/ghost/gestalten/commands/content/upload.js:43=); the repl hands a command's output back unread (=systems/ghost/subjects/terminal/repl.js:83=); only anima's dock drains it (=systems/anima/src/skins/chrome/panels/dock/dock.jsx=).
 ** Evidence: READ, not run: no case of =/file/upload= with a body in =systems/ghost/tests/subjects/terminal/commands.test.js= (grep =file/upload=: zero).
 ** Ruling: none. His: who reads a command's stream when it is typed.
 ** Why not fixed: a design fork (the repl drains every stream answer · the command runs hot · the tty reads it), not a patch.
@@ -2931,3 +2931,80 @@ What Esc does outside a dictation is his ruling; inside one it stops it (=quests
 ** Evidence: =census-suites.sh= on an untouched copy and on the cut copy, 11-21: =FAILED ¦ 18 passed (63 steps) ¦ 1 failed (1 step)=, equal by name
 ** Ruling: none yet
 ** Why not fixed: outside the change that met it
+
+* mode-level-migration-steps-are-not-heard — OPEN (beef 11-23: /"we dont support migration from mode level today. mark this as a known issue."/)
+
+** Symptom
+A migration step a mode ships on its `twitch` export (`/before|after/datamap/migrate/<release>`) is never heard. /"means f.e. that domain can migrate its custom traits."/: today it cannot, a domain's renamed trait word stays stored and throws at load (=subsystems/typology/gestalten/belt/traits.js:38=).
+
+** Root cause
+The datamap dispatches the migrate signals on the runtime's twitch inside =systems/runtime/subjects/runtime/lifecycle/1-population.js= `datamap`, before any mode exists. A mode's `twitch` is grafted onto the mode's own twitch (=systems/runtime/subjects/mode/traits/twitchy.js:1=), minted later. A daemon's modes register in the daemon's own population, after the db is migrated.
+
+** Evidence
+=.ikiro/reference/migration-twitch/mode.probe.js=: grafted whole onto the runtime's twitch a mode's other effects fire twice (both twitches subscribe to one datamap).
+
+** Ruling
+beef, verbatim: /"i dont like this."/ on a sieve of the mode's migrate routes grafted onto the runtime's twitch. /"we'll just accpet that the twitch composition and execution needs to be thought through a bit more."/
+
+** Why not fixed now
+Twitch composition and execution is its own design. Entity-level steps (an entity's own `twitch`) are heard: =quests/migration-twitch.org=.
+
+** Workaround
+The step sits on an entity's twitch in typology, or the stored words are turned by SQL on the mount.
+
+* files-receive-refuses-json-bytes — OPEN (found 11-23, =reference/attached-publishing/files.probe.js= on a clone of the tree)
+** Symptom
+A signed-in =POST <mode>/files/receive= with ={ path, bytes }=, =bytes= a JSON array of numbers, answers =500 {"code":"INTERNAL","message":"expected type `Uint8Array`, got `array`"}=. No write, no File.
+** Root cause
+=systems/runtime/subjects/mode/traits/filesink.js:11= declares =bytes: v.unknown()=; the =Uint8Array= is demanded below it, by the store or the digest (unread which). JSON carries no =Uint8Array=, so the route answers only an in-process call.
+** Evidence
+11-23, one real boot, =@commons/publisher/blog= wearing =FILESINK= on a clone; the same route called in-process (=ctx.mode.call.files.receive=, a =Uint8Array=) wrote and recorded.
+** Ruling
+His: the route is in-process only (then the schematic says =Uint8Array= and the wire refuses with a 400), or the wire carries bytes (which encoding). Owed test: =systems/runtime/tests/mode/filetraits.coverage.test.js= calls =receive= in-process only.
+
+* harness-metadata-snapshot-stale — OPEN (found 11-24, the runtime suite after the =narrating= land)
+** Symptom
+=systems/runtime/tests/harness.metadata.snapshot.test.js= /"the strip pins"/ red: the strip no longer equals =tests/snapshots/harness-metadata.snapshot.json= (written 11-21 02:41, ignored by git). The suite reads =111 passed ¦ 1 failed=.
+** Root cause
+The diff is schema only: the snapshot holds ="$id": "ID"= · =minLength: 1= on ids and a usage =measures= shape the strip no longer serves. No route differs. Schematics moved after 11-21 (m128 · cortex-telemetry); which land, unread.
+** Evidence
+11-24, the file run alone, =HOME= empty; =narrating= touches no schema.
+** Workaround
+=SNAPSHOT_HOT=1= on that file rewrites it; that verifies nothing.
+
+* call-wordless-ear-turn-cuts-the-reply — OPEN (found 11-24, his calls on =:2501=, thread =01a1d1b0…=)
+** Symptom
+He speaks, the turn seals, nothing answers: no audio, no assistant turn. Twice (18:18 · 19:24).
+** Root cause
+The ear opens a user turn on any non-empty partial (=commons/hallucinators/elevenlabs/provider/index.js:69=); every ear =/turn/open= aborts the reply (=subsystems/typology/gestalten/belt/cascade.js:86=); a reply cut before its first packet leaves nothing (=:28=). 19:25:08: assistant opened =.149=, sealed =interrupted= =.182=, user opened =.183=, that turn sealed with no word at the call's end. What the partial said: unlogged.
+** Evidence
+His =runtime/watch= paste 11-24 (=narrating='s records) · =localhost.viva.db= Turn =01a20ecd-f452…= =text ""=. Not reproduced on the rig (=reference/call-faculty/francesca-call.probe.js=, a =say= clip then digital silence: three runs answered).
+** Ruling
+none. Next: the draft's text narrated, then his call again. Owed test: =subsystems/typology/tests/call.conversation.test.js=, an ear turn that seals wordless leaves the reply standing.
+
+* interrupted-reply-stores-an-empty-thinking-part — OPEN (found 11-24, same calls)
+** Symptom
+After one cut reply every call and turn on the thread fails: =anthropic 400 … messages.91.content.0.thinking: each thinking block must contain thinking=.
+** Root cause
+The cut reply is stored as =[{"type":"thinking","text":"","signature":""}]=, state =interrupted= (Turn =01a20ecd-f430…=); =commons/hallucinators/anthropic/provider/translate.js:6= =signed= keeps a part whose signature is =""=. Two user turns of =text ""= ride along (=01a20e91-46e2…= · =01a20ecd-f452…=), unprobed against anthropic.
+** Evidence
+=reference/call-faculty/poisoned-turn.probe.js= prints the block as sent.
+** Ruling
+none. His: the three stored turns (dry run first) · =signed= reads an empty signature as unsigned, test first in =commons/hallucinators/anthropic/tests/provider.test.js=.
+
+* call-fault-waits-for-the-hang-up — OPEN (found 11-24, by his log and by reading)
+** Symptom
+The mind's 400 reaches nobody until he ends the call: sealed 19:28:34.608, =FAILED= 19:28:59.406; the next call 16 s.
+** Root cause
+=subsystems/typology/gestalten/belt/cascade.js:93-96=: after a fault closes the packets the session still awaits =Promise.race([hearing, feeding])=. READ, not run; the 400 itself untimed.
+** Ruling
+none; typology core. Owed test: =call.conversation.test.js=, a mind that throws ends the stream while the ear still listens.
+
+* qa-italian-tap-check-reads-a-key-the-tap-no-longer-answers — OPEN (found 11-24, the Francesca probe)
+=systems/runtime/tests/qa/italian.test.js:62= throws unless =effect.location=; =viva registry/tap --json= answers =owner · root · record=. The suite is skipped on the repo (=VIVA_QA_REGISTRY= unset), so it never showed.
+
+* call-speaks-the-mind's-thinking — OPEN (found 11-24, his call 19:41 on thread "espanol")
+=subsystems/typology/gestalten/belt/cascade.js:13= hands the mouth the text of every =/part/delta=; a thinking delta carries =text= too (=commons/hallucinators/anthropic/provider/translate.js:219=). Measured in =~/.viva/logs/localhost/call.runtime.jsonl=: 18.7 s of audio out while the reply held 433 chars of thinking and 0 of text. The answer's audio queues behind it. No test in =subsystems/typology/tests/call.conversation.test.js= has a mind that thinks. Typology core, his word.
+
+* call-ear-dies-of-queue-overflow — OPEN (found 11-24, same call)
+=[elevenlabs] queue_overflow: Session terminated: audio data is being sent too frequently= at =commons/hallucinators/elevenlabs/provider/index.js:85=, 36.5 s into the call, 11.5 s after the reply sealed. Cause unread. It ends the call as FAILED.

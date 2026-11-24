@@ -34,6 +34,7 @@ export const datamap = async (die, next) => {
     sets.userspace,
     sets.transient,
   ]);
+  for (const held of twitch) die.runtime.twitch.graft(held);
   die.runtime.datamap = await datamapMode.provider(
     {
       mountpoint: paladin.scope.mountpoint,
@@ -41,8 +42,12 @@ export const datamap = async (die, next) => {
         db: { file: `${paladin.instance.manifest.slug}.viva.db` },
         context: { name: `runtime/${die.mask.manifest.slug}` },
       },
+      version: paladin.version,
     },
-    { entities: entities.map((descriptor) => descriptor.schema) },
+    {
+      twitch: die.runtime.twitch,
+      entities: entities.map((descriptor) => descriptor.schema),
+    },
   );
   die.runtime.entities = { ...die.runtime.datamap.entities };
   die.runtime.entities.activity = new ActivityRepository(
@@ -52,7 +57,6 @@ export const datamap = async (die, next) => {
   die.runtime.twitch
     .use(shard.context.spread(contexts.runtimeDie, die.runtime))
     .use(shard.context.bind("runtime", die.runtime));
-  for (const held of twitch) die.runtime.twitch.graft(held);
   die.runtime.twitch.branch("/after").use(shard.datamap.detached(die.runtime.datamap));
   die.runtime.datamap.registerSubscriber(die.runtime.twitch);
   await die.runtime.datamap.shard.scope(async () => {

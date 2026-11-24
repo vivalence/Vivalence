@@ -2,7 +2,7 @@ import { shape, specimen, v } from "@vivalence/typology";
 import * as runtime from "@vivalence/runtime";
 
 const { gestalten } = runtime;
-const ENTITIES = ["thread", "buffer", "turn", "mode", "daemon", "user", "terminal", "note", "view", "file", "intent", "literal", "symbol", "activity"];
+const ENTITIES = ["thread", "buffer", "turn", "mode", "daemon", "user", "terminal", "note", "surface", "file", "intent", "literal", "symbol", "activity"];
 const BASE = ["id", "createdAt", "updatedAt"];
 
 specimen.describe("gestalten.primer — one primer per entity, true to the schematic and to the mikro row", () => {

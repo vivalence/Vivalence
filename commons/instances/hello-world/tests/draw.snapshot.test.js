@@ -116,7 +116,7 @@ specimen.describe(
         module: { emitter },
         aperture: new Vector(),
         entity: { id: "mode-1" },
-        generator: {
+        surface: {
           // a stub bundler, because the real integrity hash moves with esbuild — the oracle-ask
           // timing collapse is the precedent. the View row is pinned by its stub id for the same
           // reason it would have to be collapsed against the real one.
@@ -149,10 +149,10 @@ specimen.describe(
       pin(
         {
           condition: yielded.condition,
-          buffer: yielded.product.buffer.map(({ data, mime, views, index }) => ({
+          buffer: yielded.product.buffer.map(({ data, mime, surfaces, index }) => ({
             data,
             mime,
-            views,
+            surfaces,
             index,
           })),
           counter: row.counter,

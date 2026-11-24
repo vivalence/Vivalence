@@ -7,7 +7,6 @@ import * as traits from "./traits/index.js";
 
 export const v = Object.assign(base, {
   scalars,
-  slug: scalars.slug,
   url: scalars.url,
   mime: scalars.mime.type,
   primitives,
@@ -29,7 +28,7 @@ export const v = Object.assign(base, {
   intent: entityFactory(entities.IntentSchematic),
   thread: entityFactory(entities.ThreadSchematic),
   turn: entityFactory(entities.TurnSchematic),
-  view: entityFactory(entities.ViewSchematic),
+  surface: entityFactory(entities.SurfaceSchematic),
   file: entityFactory(entities.FileSchematic),
   user: entityFactory(entities.UserSchematic),
   note: entityFactory(entities.NoteSchematic),
@@ -38,4 +37,5 @@ export const v = Object.assign(base, {
   activity: entityFactory(entities.ActivitySchematic),
 });
 export { mime } from "./scalars/index.js";
+export * as primitives from "./primitives/index.js";
 export * as contexts from "./primitives/contexts.js";

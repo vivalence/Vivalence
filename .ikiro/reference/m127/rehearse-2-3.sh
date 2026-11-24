@@ -4,7 +4,7 @@
 # `base` untouched, `edit` with the quest's two tangled sections replayed; the suites on both, red STEP names compared.
 # usage: sh .ikiro/reference/m127/rehearse-2-3.sh   → prints the temp root on its first row
 REPO=/Users/finn/vivalence/code/vivalence
-QUEST=$REPO/.ikiro/quests/m127-interceptor-droneaid.org
+QUEST=$REPO/.ikiro/quests/benched/m127-interceptor-droneaid.org
 TREE=/Users/finn/.viva/registry/assembly
 ROOT=$(mktemp -d)
 echo "$ROOT"

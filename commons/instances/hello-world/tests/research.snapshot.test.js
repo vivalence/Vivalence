@@ -50,10 +50,10 @@ specimen.describe(
             outer: {
               condition: spoken.condition,
               keys: Object.keys(spoken.product).sort(),
-              buffer: spoken.product.buffer.map(({ data, mime, views, index }) => ({
+              buffer: spoken.product.buffer.map(({ data, mime, surfaces, index }) => ({
                 data,
                 mime,
-                views,
+                surfaces,
                 index,
               })),
             },

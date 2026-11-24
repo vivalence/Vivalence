@@ -2,7 +2,7 @@ html, body {
   margin: 0;
   padding: 0;
   overflow: clip;
-  background: var(--surface);
+  background: var(--plane);
   color: var(--text-strong);
   font-family: var(--font-family-sans-text);
   line-height: var(--size-leading-loose);
