@@ -29,13 +29,13 @@ export const CONTROLS = [
     "/dictate",
   ],
   [(voice) => voice.dictation !== null, "d", "stop dictation", "live", "/dictate/stop"],
-  [
-    (voice) => voice.call === null && belt.dictation.offered(voice.commands, "/call"),
-    "l",
-    "call",
-    "",
-    "/call",
-  ],
+  // [
+  //   (voice) => voice.call === null && belt.dictation.offered(voice.commands, "/call"),
+  //   "l",
+  //   "call",
+  //   "",
+  //   "/call",
+  // ],
   [(voice) => voice.call !== null, "l", "end the call", "live", "/call/end"],
   [() => true, "p", "paste", "", "/paste"],
 ];

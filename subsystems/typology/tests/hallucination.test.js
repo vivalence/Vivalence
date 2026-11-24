@@ -55,18 +55,25 @@ function populatedCortex() {
       type: "dialogue",
       id: "dialogue-1",
       tune: [0.9, 0.3, 0.5],
-      channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
-      via: {
-        render: async ({ turns, tools }) => {
-          const text = lastUserText(turns);
-          if (tools && !hasToolResult(turns))
-            return { role: "assistant", parts: [{ type: "tool_use", id: "t1", name: tools[0].name, input: { query: text } }], meta: { state: "tools" } };
-          return { role: "assistant", parts: [{ type: "text", text: `[opus] ${text}` }], meta: { state: "complete" } };
+      channels: {
+        stream: {
+          in: [{ type: "text" }, { type: "tool_result" }, { type: "tool_use" }],
+          out: [{ type: "text" }, { type: "tool_use" }],
+          via: async ({ turns, tools }) => {
+            const text = lastUserText(turns);
+            if (tools && !hasToolResult(turns)) return stream(toolUsePackets("t1", tools[0].name, { query: text }));
+            return stream(textPackets(`[opus] ${text}`));
+          },
         },
-        stream: async ({ turns, tools }) => {
-          const text = lastUserText(turns);
-          if (tools && !hasToolResult(turns)) return stream(toolUsePackets("t1", tools[0].name, { query: text }));
-          return stream(textPackets(`[opus] ${text}`));
+        render: {
+          in: [{ type: "text" }, { type: "tool_result" }, { type: "tool_use" }],
+          out: [{ type: "text" }, { type: "tool_use" }],
+          via: async ({ turns, tools }) => {
+            const text = lastUserText(turns);
+            if (tools && !hasToolResult(turns))
+              return { role: "assistant", parts: [{ type: "tool_use", id: "t1", name: tools[0].name, input: { query: text } }], meta: { state: "tools" } };
+            return { role: "assistant", parts: [{ type: "text", text: `[opus] ${text}` }], meta: { state: "complete" } };
+          },
         },
       },
     },
@@ -74,28 +81,41 @@ function populatedCortex() {
       type: "dialogue",
       id: "dialogue-2",
       tune: [0.4, 0.6, 0.5],
-      channels: { in: ["text"], out: ["text"] },
-      via: {
-        render: async ({ turns }) => ({ role: "assistant", parts: [{ type: "text", text: `[sonnet] ${lastUserText(turns)}` }], meta: { state: "complete" } }),
-        stream: async ({ turns }) => stream(textPackets(`[sonnet] ${lastUserText(turns)}`)),
+      channels: {
+        stream: {
+          in: [{ type: "text" }],
+          out: [{ type: "text" }],
+          via: async ({ turns }) => stream(textPackets(`[sonnet] ${lastUserText(turns)}`)),
+        },
+        render: {
+          in: [{ type: "text" }],
+          out: [{ type: "text" }],
+          via: async ({ turns }) => ({ role: "assistant", parts: [{ type: "text", text: `[sonnet] ${lastUserText(turns)}` }], meta: { state: "complete" } }),
+        },
       },
     },
     {
       type: "speech",
       id: "speech-3",
       tune: [0.3, 0.7, 0.5],
-      channels: { in: ["text"], out: ["audio"] },
-      via: {
-        render: async ({ source }) => new TextEncoder().encode(source),
+      channels: {
+        render: {
+          in: [{ type: "text" }],
+          out: [{ type: "audio" }],
+          via: async ({ source }) => new TextEncoder().encode(source),
+        },
       },
     },
     {
       type: "object",
       id: "object-4",
       tune: [0.3, 0.8, 0.5],
-      channels: { in: ["text"], out: ["object"] },
-      via: {
-        render: async ({ turns, output }) => ({ role: "assistant", parts: [{ type: "object", data: { echo: lastUserText(turns) }, schema: output?.schema }], meta: { state: "complete" } }),
+      channels: {
+        render: {
+          in: [{ type: "text" }],
+          out: [{ type: "object" }],
+          via: async ({ turns, output }) => ({ role: "assistant", parts: [{ type: "object", data: { echo: lastUserText(turns) }, schema: output?.schema }], meta: { state: "complete" } }),
+        },
       },
     },
   ]);
@@ -107,8 +127,13 @@ specimen.describe("Hallucination", () => {
       let seen = null;
       const cortex = new Cortex().register([{
         type: "dialogue", id: "dialogue-5", tune: [0.5, 0.5, 0.5],
-        channels: { in: ["text"], out: ["text"] },
-        via: { render: async (request) => ((seen = request), { role: "assistant", parts: [{ type: "text", text: "ok" }], meta: { state: "complete" } }) },
+        channels: {
+          render: {
+            in: [{ type: "text" }],
+            out: [{ type: "text" }],
+            via: async (request) => ((seen = request), { role: "assistant", parts: [{ type: "text", text: "ok" }], meta: { state: "complete" } }),
+          },
+        },
       }]);
       await cortex.hallucinate.dialogue.render({
         controller: new Controller(),
@@ -126,8 +151,13 @@ specimen.describe("Hallucination", () => {
       let seen = null;
       const cortex = new Cortex().register([{
         type: "dialogue", id: "dialogue-6", tune: [0.5, 0.5, 0.5],
-        channels: { in: ["text"], out: ["text"] },
-        via: { render: async (request) => ((seen = request), { role: "assistant", parts: [{ type: "text", text: "ok" }], meta: { state: "complete" } }) },
+        channels: {
+          render: {
+            in: [{ type: "text" }],
+            out: [{ type: "text" }],
+            via: async (request) => ((seen = request), { role: "assistant", parts: [{ type: "text", text: "ok" }], meta: { state: "complete" } }),
+          },
+        },
       }]);
       await cortex.hallucinate.dialogue.render({
         controller: new Controller(),
@@ -199,14 +229,17 @@ specimen.describe("Hallucination", () => {
       let toolResultTurn = null;
       const cortex = new Cortex().register([{
         type: "dialogue", id: "dialogue-7", tune: [0.5, 0.5, 0.5],
-        channels: { in: ["text"], out: ["text"] },
-        via: {
-          render: async ({ turns }) => {
-            if (hasToolResult(turns)) {
-              toolResultTurn = turns.find((turn) => turn.parts?.some((part) => part.type === "tool_result"));
-              return { role: "assistant", parts: [{ type: "text", text: "done" }], meta: { state: "complete" } };
-            }
-            return { role: "assistant", parts: [{ type: "tool_use", id: "t1", name: "ghost", input: {} }], meta: { state: "tools" } };
+        channels: {
+          render: {
+            in: [{ type: "text" }, { type: "tool_use" }, { type: "tool_result" }],
+            out: [{ type: "text" }, { type: "tool_use" }],
+            via: async ({ turns }) => {
+              if (hasToolResult(turns)) {
+                toolResultTurn = turns.find((turn) => turn.parts?.some((part) => part.type === "tool_result"));
+                return { role: "assistant", parts: [{ type: "text", text: "done" }], meta: { state: "complete" } };
+              }
+              return { role: "assistant", parts: [{ type: "tool_use", id: "t1", name: "ghost", input: {} }], meta: { state: "tools" } };
+            },
           },
         },
       }]);
@@ -219,8 +252,13 @@ specimen.describe("Hallucination", () => {
     specimen.it("rounds ceiling closes length and render throws", async () => {
       const cortex = new Cortex().register([{
         type: "dialogue", id: "dialogue-8", tune: [0.5, 0.5, 0.5],
-        channels: { in: ["text"], out: ["text", "tool_use"] },
-        via: { render: async () => ({ role: "assistant", parts: [{ type: "tool_use", id: "t1", name: "loop", input: {} }], meta: { state: "tools" } }) },
+        channels: {
+          render: {
+            in: [{ type: "text" }, { type: "tool_use" }, { type: "tool_result" }],
+            out: [{ type: "text" }, { type: "tool_use" }],
+            via: async () => ({ role: "assistant", parts: [{ type: "tool_use", id: "t1", name: "loop", input: {} }], meta: { state: "tools" } }),
+          },
+        },
       }]);
       let error = null;
       try {
@@ -263,8 +301,13 @@ specimen.describe("Hallucination", () => {
     specimen.it("throws when no speech faculty carries a render avenue", async () => {
       const cortex = new Cortex().register([{
         type: "speech", id: "speech-9", tune: [0.5, 0.5, 0.5],
-        channels: { in: ["text"], out: ["audio"] },
-        via: { stream: async function* () {} },
+        channels: {
+          stream: {
+            in: [{ type: "text" }],
+            out: [{ type: "audio" }],
+            via: async function* () {},
+          },
+        },
       }]);
       let failure = null;
       await cortex.hallucinate.speech.render({ controller: new Controller(), source: "ciao" }).catch((error) => (failure = error));
@@ -282,11 +325,14 @@ specimen.describe("Hallucination", () => {
     specimen.it("the object avenue resolves the dialogue faculty and folds its structured turn", async () => {
       const cortex = new Cortex().register([{
         type: "dialogue", id: "dialogue-10", tune: [0.5, 0.5, 0.5],
-        channels: { in: ["text"], out: ["object"] },
-        via: {
-          render: async (request) => {
-            const data = { verdict: lastUserText(request.turns) };
-            return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" } };
+        channels: {
+          render: {
+            in: [{ type: "text" }],
+            out: [{ type: "object" }],
+            via: async (request) => {
+              const data = { verdict: lastUserText(request.turns) };
+              return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" } };
+            },
           },
         },
       }]);
@@ -304,11 +350,14 @@ specimen.describe("Hallucination", () => {
       const schema = { marker: "OUT" };
       const cortex = new Cortex().register([{
         type: "dialogue", id: "dialogue-11", tune: [0.5, 0.5, 0.5],
-        channels: { in: ["text"], out: ["object"] },
-        via: {
-          render: async (request) => {
-            seenSchema = request.output?.schema;
-            return { role: "assistant", parts: [{ type: "object", data: request.output.schema }], meta: { state: "complete" } };
+        channels: {
+          render: {
+            in: [{ type: "text" }],
+            out: [{ type: "object" }],
+            via: async (request) => {
+              seenSchema = request.output?.schema;
+              return { role: "assistant", parts: [{ type: "object", data: request.output.schema }], meta: { state: "complete" } };
+            },
           },
         },
       }]);
@@ -324,14 +373,17 @@ specimen.describe("Hallucination", () => {
     specimen.it("object synthesis runs real tools before the structured turn, lexicon-native", async () => {
       const cortex = new Cortex().register([{
         type: "dialogue", id: "dialogue-12", tune: [0.5, 0.5, 0.5],
-        channels: { in: ["text", "tool_result"], out: ["text", "tool_use", "object"] },
-        via: {
-          render: async (request) => {
-            if (!hasToolResult(request.turns))
-              return { role: "assistant", parts: [{ type: "tool_use", id: "t1", name: "drill", input: { count: 1 } }], meta: { state: "tools" } };
-            const result = request.turns.at(-1).parts.find((part) => part.type === "tool_result");
-            const data = { reply: result.product.message };
-            return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" } };
+        channels: {
+          render: {
+            in: [{ type: "text" }, { type: "tool_result" }, { type: "tool_use" }],
+            out: [{ type: "text" }, { type: "tool_use" }, { type: "object" }],
+            via: async (request) => {
+              if (!hasToolResult(request.turns))
+                return { role: "assistant", parts: [{ type: "tool_use", id: "t1", name: "drill", input: { count: 1 } }], meta: { state: "tools" } };
+              const result = request.turns.at(-1).parts.find((part) => part.type === "tool_result");
+              const data = { reply: result.product.message };
+              return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" } };
+            },
           },
         },
       }]);

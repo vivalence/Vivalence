@@ -427,32 +427,33 @@ a bug, and it is reported.
 A default may reference another key with `${VAR}`. Expansion happens on read, so the written
 `.env` keeps the reference: change `VIVA_RUNTIME_ORIGIN` once and every address moves with it.
 
-An entry with no default is one you owe. `instance/init` prompts for exactly those, in the pages
+An entry with no default is one you owe. `instance/install` prompts for exactly those, in the pages
 its `group`s describe, and writes them through a line-preserving upsert — so the comments the
 schema carried survive in your `.env`.
 
 ## run it
 
+The standalone file is no longer shipped, so there is nothing to clone under that name. The
+recipe that runs today is `@commons/instance/hello-world`:
+
 ```sh
-viva instance/create @commons/instance/standalone     # → <ledger>/instances/standalone
-viva instances/use standalone                        # select it for this shell
-viva instance/init                                  # prompts for what the schema says is owed
-viva instance/run                                   # raises the runtime and the anima client
+viva instance/clone @commons/instance/hello-world    # → <ledger>/instances/hello-world, selected
+viva instance/install                                # prompts for what the schema says is owed
+viva instance/up                                     # raises the runtime and the anima client
 ```
 
-`create` with no target shelves the instance under `<ledger>/instances/<slug>`; pass a path as a second
+`clone` with no target shelves the instance under `<ledger>/instances/<slug>`; pass a path as a second
 argument to put it anywhere else. Either way the instance never records where it lives — you needed its
-location to read its files, so storing it inside would be circular. `use` writes the *resolved path* into
+location to read its files, so storing it inside would be circular. `clone` writes the *resolved path* into
 this shell's session file, or as one upserted line in `<ledger>/.env` with `--ledger`. Everything derived —
-`mountpoint/` and its databases — grows inside the instance home. Then give the client an account against
-the instance's own lighthouse:
+`mountpoint/` and its databases — grows inside the instance home. `install` creates the first account;
+more accounts are signed up against the running instance:
 
 ```sh
-viva instance/lighthouse signup <username> <password>
+viva instance/lighthouse/signup <username> <password>
 ```
 
-The flashcard coach is `HARNESS`, so it wants `SECRET_VIVA_ANTHROPIC_API_KEY`. The deck, the review
-loop, and the Retention entity all work without one.
+[[20.01_slowstart]] walks these commands with their output.
 
 ## it runs
 

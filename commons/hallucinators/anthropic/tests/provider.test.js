@@ -516,8 +516,8 @@ specimen.describe("anthropic provider", () => {
         for (const faculty of faculties) {
           specimen.expect(faculty.type).toBe("dialogue");
           specimen.expect(Array.isArray(faculty.tune)).toBe(true);
-          specimen.expect(typeof faculty.via.render).toBe("function");
-          specimen.expect(typeof faculty.via.stream).toBe("function");
+          specimen.expect(typeof faculty.channels.render.via).toBe("function");
+          specimen.expect(typeof faculty.channels.stream.via).toBe("function");
         }
       },
     );
@@ -527,7 +527,7 @@ specimen.describe("anthropic provider", () => {
       async () => {
         const faculties = await provider(service());
         const thinking = faculties.filter((faculty) =>
-          faculty.channels.out.includes("thinking")
+          faculty.channels.stream.out.some((channel) => channel.type === "thinking")
         );
         specimen.expect(thinking).toHaveLength(3);
       },
@@ -558,7 +558,7 @@ specimen.describe("anthropic · a faculty carries its entry forward (m126 Q7A)",
     const [entry] = FACULTIES;
     const [faculty] = await provider(service([{ ...entry, tier: "actor", provider: "anthropic" }]));
     specimen.expect([faculty.type, faculty.id, faculty.tier, faculty.provider]).toEqual([entry.type, entry.id, "actor", "anthropic"]);
-    specimen.expect(Object.keys(faculty.via).length).toBeGreaterThan(0);
+    specimen.expect(Object.keys(faculty.channels).length).toBeGreaterThan(0);
     specimen.expect(entry.tier).toBeUndefined();
   });
 });

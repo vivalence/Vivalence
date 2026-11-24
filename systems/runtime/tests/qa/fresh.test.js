@@ -5,6 +5,8 @@ import { boot, exists, ledger, pin, viva } from "./rig.js";
 
 const { describe, it, expect, beforeAll, afterAll } = specimen;
 
+const ANIMA = "http://localhost:4794";
+
 describe("T-fresh — a clean ledger, ghost's verbs, hello-world from the JSON recipe, the runtime-level home", () => {
   let world;
   let shelf;
@@ -30,10 +32,18 @@ describe("T-fresh — a clean ledger, ghost's verbs, hello-world from the JSON r
     });
     expect(effect.commons.endsWith("/commons")).toBe(true);
     expect(err).not.toContain("Error");
+    await pin(join(world.root, "ledger"), { VIVA_CLIENT_ANIMA_ORIGIN: ANIMA });
   });
 
-  it("instance/clone hello-world --use --install clones the JSON recipe to the shelf, selects it, mints the jwt", async () => {
-    const { effect, err } = await viva(world, ["instance/clone", "hello-world", "--use", "--install"]);
+  it("install · stop · start with nothing selected exit 1 naming it", async () => {
+    for (const command of ["instance/install", "instance/stop", "instance/start"]) {
+      const { code, err } = await viva(world, [command]);
+      expect([command, code, err.includes("instance: nothing selected")]).toEqual([command, 1, true]);
+    }
+  });
+
+  it("instance/clone hello-world --install clones the JSON recipe to the shelf, selects it, mints the jwt", async () => {
+    const { effect, err } = await viva(world, ["instance/clone", "hello-world", "--install"]);
     expect(effect?.slug ?? err).toBe("hello-world");
     shelf = effect.target;
     expect(JSON.parse(await Deno.readTextFile(join(shelf, "instance.viva.json"))).manifest.slug).toBe("hello-world");
@@ -46,6 +56,20 @@ describe("T-fresh — a clean ledger, ghost's verbs, hello-world from the JSON r
     expect(jwt !== undefined && jwt.length >= "SECRET_VIVA_JWT=".length + 24).toBe(true);
     expect(effect.installed.env).toBe("present");
     await pin(shelf, { VIVA_RUNTIME_ORIGIN: world.origin });
+  });
+
+  it("a key the ledger's .env holds is not scaffolded into the instance's; the doctor reads the ledger's", async () => {
+    expect(await Deno.readTextFile(join(shelf, ".env"))).not.toContain("VIVA_CLIENT_ANIMA_ORIGIN=");
+    const { effect, err } = await viva(world, ["instance/doctor"]);
+    const held = effect?.env.find((entry) => entry.key === "VIVA_CLIENT_ANIMA_ORIGIN") ?? err;
+    expect([held.value, held.stratum]).toEqual([ANIMA, "ledger"]);
+  });
+
+  it("--instance=<slug> selects for one command where no session does", async () => {
+    const bare = await viva(world, ["instance/doctor"], { VIVA_PROCESS_ID: "0" });
+    expect([bare.code, bare.err.includes("instance: nothing selected")]).toEqual([1, true]);
+    const flagged = await viva(world, ["instance/doctor", "--instance=hello-world"], { VIVA_PROCESS_ID: "0" });
+    expect(flagged.effect?.mount ?? flagged.err).toBe(shelf);
   });
 
   it("instance/use hello-world --ledger writes the machine default; this shell's session still outranks it", async () => {

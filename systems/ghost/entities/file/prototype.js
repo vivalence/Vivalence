@@ -9,6 +9,7 @@ export class File extends Entity {
   traits = [];
   trait = {};
   mode = null;
+  daemon = null;
   surface = null;
   $url = null;
 

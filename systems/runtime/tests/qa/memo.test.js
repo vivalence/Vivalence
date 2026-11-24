@@ -32,8 +32,8 @@ describe("T-demo — a clean ledger, ghost's verbs, the memo demo instance: the 
     });
   });
 
-  it("instance/clone memo --use --install clones the demo recipe alone onto the shelf", async () => {
-    const { effect, err } = await viva(world, ["instance/clone", "memo", "--use", "--install"]);
+  it("instance/clone memo --install clones the demo recipe alone onto the shelf", async () => {
+    const { effect, err } = await viva(world, ["instance/clone", "memo", "--install"]);
     expect(effect?.slug ?? err).toBe("memo");
     shelf = effect.target;
     expect(effect.source).toBe("@memo/instance/memo");

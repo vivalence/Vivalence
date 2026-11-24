@@ -118,15 +118,12 @@ export default async function provider(service) {
       if (!response.ok) throw fault(Object.assign(new Error(body.error?.message ?? response.statusText), { status: response.status }));
       return readChoice(body, round);
     };
-    return { render };
+    return render;
   }
 
   function makePicture(model) {
     const render = async (request, { signal } = {}) => {
       if (request.mask) throw new Error(`[openrouter] ${model.id}: openrouter paints no mask`);
-      if (request.images.length > model.limits.references) {
-        throw new Error(`[openrouter] ${model.id} takes at most ${model.limits.references} references, ${request.images.length} given`);
-      }
       if (request.settings?.aspect && !model.limits.aspects.includes(request.settings.aspect)) {
         throw new Error(`[openrouter] ${model.id} paints ${model.limits.aspects.join(" · ")}, not ${request.settings.aspect}`);
       }
@@ -140,11 +137,26 @@ export default async function provider(service) {
       if (!response.ok) throw fault(Object.assign(new Error(body.error?.message ?? response.statusText), { status: response.status }));
       return translatePicture(body);
     };
-    return { render };
+    return render;
   }
 
   const dialogue = (model) => {
     const { render, stream } = makeDialogue(model);
+    const sides = {
+      in: [
+        { type: "text" },
+        { type: "image" },
+        { type: "document" },
+        { type: "tool_use" },
+        { type: "tool_result" },
+        { type: "thinking" },
+      ],
+      out: [
+        { type: "text" },
+        { type: "tool_use" },
+        ...(model.thinking ? [{ type: "thinking" }] : []),
+      ],
+    };
     return {
       ...model,
       type: "dialogue",
@@ -154,16 +166,13 @@ export default async function provider(service) {
       tune: model.tune,
       context: model.context,
       channels: {
-        in: [
-          "text",
-          "image",
-          "document",
-          "tool_result",
-          ...(model.thinking ? ["thinking"] : []),
-        ],
-        out: ["text", "tool_use", ...(model.thinking ? ["thinking"] : [])],
+        stream: { ...sides, via: stream },
+        render: {
+          in: sides.in,
+          out: [...sides.out, { type: "object" }],
+          via: render,
+        },
       },
-      via: { render, stream },
     };
   };
 
@@ -175,8 +184,13 @@ export default async function provider(service) {
     context: model.context,
     options: model.options,
     choices: model.choices,
-    channels: { in: ["text", "object"], out: ["object"] },
-    via: makeChoice(model),
+    channels: {
+      render: {
+        in: [{ type: "text" }, { type: "object" }],
+        out: [{ type: "object" }],
+        via: makeChoice(model),
+      },
+    },
   });
 
   const picture = (model) => ({
@@ -185,9 +199,14 @@ export default async function provider(service) {
     id: model.id,
     tune: model.tune,
     context: 0,
-    channels: { in: ["text", "image"], out: ["image"] },
+    channels: {
+      render: {
+        in: [{ type: "text" }, { type: "image", count: model.limits.references }],
+        out: [{ type: "image" }],
+        via: makePicture(model),
+      },
+    },
     limits: model.limits,
-    via: makePicture(model),
   });
 
   const TYPES = { dialogue, choice, picture };

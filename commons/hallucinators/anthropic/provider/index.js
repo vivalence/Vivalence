@@ -70,6 +70,21 @@ export default async function provider(service) {
 
   const dialogue = (model) => {
     const { render, stream } = makeDialogue(model);
+    const sides = {
+      in: [
+        { type: "text" },
+        { type: "image", mime: ["image/jpeg", "image/png", "image/gif", "image/webp"] },
+        { type: "document", mime: ["application/pdf"] },
+        { type: "tool_use" },
+        { type: "tool_result" },
+        { type: "thinking" },
+      ],
+      out: [
+        { type: "text" },
+        { type: "tool_use" },
+        ...(model.thinking ? [{ type: "thinking" }] : []),
+      ],
+    };
     return {
       ...model,
       type: "dialogue",
@@ -77,16 +92,13 @@ export default async function provider(service) {
       tune: model.tune,
       context: model.context,
       channels: {
-        in: [
-          "text",
-          "image",
-          "document",
-          "tool_result",
-          ...(model.thinking ? ["thinking"] : []),
-        ],
-        out: ["text", "tool_use", ...(model.thinking ? ["thinking"] : [])],
+        stream: { ...sides, via: stream },
+        render: {
+          in: sides.in,
+          out: [...sides.out, { type: "object" }],
+          via: render,
+        },
       },
-      via: { render, stream },
     };
   };
 

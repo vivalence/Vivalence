@@ -1,6 +1,6 @@
 ---
 name: quest
-description: Write a quest he accepts, move it when it ends, record interface changes in the release file, file defects in known issues.
+description: Write a quest he accepts, move it when it ends, file defects in known issues.
 when_to_use: >-
   "write a quest" · "create a quest" · "add this to the quest" · "update the quest" · "cast to quest" ·
   "move to done" · "sunset this quest" · "bench it" · "mark as known issue" · "known issues!"
@@ -17,13 +17,13 @@ when_to_use: >-
 * intent        his words, verbatim
 * rulings       a table: his words, the state
 * as code       the approved code, as diffs
-* milestones    a table: what he can open, its state
+* milestones    a waterfall: step, green when, state
 * never         what was ruled out
 * next          one line
 ```
 
 - Milestone states: `DECLARED` · `DESIGNED` · `TANGLED` · `LANDED`.
-- A milestone is what he opens, an area is its directory. Never a mechanism.
+- Milestones are a waterfall in build order: each step stands on the one above and says what makes it green. What he opens is a late step, never the first. An area is its directory.
 - A ruling row holds his words only. Its code sits under `* as code`.
 - No changelog, no transcript, no done list, no test count table.
 - Nothing about one moment of the machine: no pid, no restart, no clock time, no session.
@@ -49,28 +49,17 @@ python3 .ikiro/methods/apply-diffs.py --root <copy>
 ```
 .ikiro/quests/
   <live>.org    in flight
+.ikiro/bak/quests/
   done/         landed and verified
   discarded/    stopped, not landed
   benched/      parked
   roadmap/      his strands, no milestone yet
-  index.md      one line per quest
-  frontier.md   one line per live quest: name, state, next
 ```
 
 - Work without a quest gets a new one before its first ruling. It has no number until he gives one.
-- A quest moves to `done/` when nothing of mine is red and he has looked.
-- Move with `mv`. Never delete a quest. Then fix its line in `index.md` and drop its frontier line.
+- A quest moves to `.ikiro/bak/quests/done/` when nothing of mine is red and he has looked.
+- Move with `mv`. Never delete a quest.
 - Never move a quest a live session works on.
-
-## release
-
-`.ikiro/release.md` records how the interfaces changed. Newest first, under `## unreleased`.
-
-```md
-- <added|changed|renamed|removed|fixed> `<surface>` — <what a consumer sees, before → after> · migrate: <action | none>
-```
-
-A release hangs on a tag. He cuts it. The cut itself: skill `cut`.
 
 ## known issues
 

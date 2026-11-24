@@ -1,0 +1,43 @@
+{
+  "manifest": {
+    "type": "instance",
+    "slug": "droneaid",
+    "version": "0.0.1"
+  },
+  "clients": [
+    {
+      "manifest": { "type": "client", "slug": "anima", "traits": ["HOME"] },
+      "statics": { "serve": "${VIVA_CLIENT_ANIMA_SERVE}" },
+      "trait": { "HOME": { "reference": "/daemon/droneaid/mode/guide/player" } }
+    },
+    { "manifest": { "type": "client", "slug": "ghost" }, "modes": ["@commons/home/console"] }
+  ],
+  "daemons": [
+    {
+      "manifest": {
+        "type": "daemon",
+        "slug": "droneaid",
+        "version": "0.0.3",
+        "name": "DroneAid",
+        "description": "The workshop: the assembly domain, the drone and its build guide as rows installed from this package, the importer that reads a blend into them, the editors and the player.",
+        "icon": {
+          "emoji": "🛠️"
+        }
+      },
+      "modes": [
+        "@assembly/domain/assembly",
+        "@assembly/topology/part",
+        "@assembly/topology/placement",
+        "@assembly/topology/step",
+        "@assembly/topology/guide",
+        "@droneaid/topography/models",
+        "@droneaid/topography/guides",
+        "@assembly/model/import",
+        "@assembly/model/editor",
+        "@assembly/guide/editor",
+        "@assembly/guide/player",
+        "@commons/dashboard/dataspace"
+      ]
+    }
+  ]
+}

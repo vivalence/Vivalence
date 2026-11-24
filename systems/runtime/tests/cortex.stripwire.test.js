@@ -39,8 +39,8 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
   specimen.it("mirrors the faculty strip: three dialogue faculties, via keys", () => {
     const dialogue = remote.find({ type: "dialogue" });
     specimen.expect(dialogue).toHaveLength(3);
-    specimen.expect(Object.keys(dialogue[0].via).sort()).toEqual(["render", "stream"]);
-    specimen.expect(Object.keys(remote.findOne({ type: "choice" }).via)).toEqual(["render"]);
+    specimen.expect(Object.keys(dialogue[0].channels).sort()).toEqual(["render", "stream"]);
+    specimen.expect(Object.keys(remote.findOne({ type: "choice" }).channels)).toEqual(["render"]);
   });
 
   specimen.it("a choice round crosses the wire: system and questions out, a distribution per key back in the question's own shape", async () => {

@@ -8,7 +8,11 @@ async function* reply(mind, mouth, { system, turns, tools, settings }, signal) {
   let sealing = null;
   const thinking = (async function* () {
     try {
-      for await (const packet of await mind.via.stream({ system, turns, tools, settings }, { signal })) {
+      const thoughts = await mind.channels.stream.via(
+        { system, turns, tools, settings },
+        { signal },
+      );
+      for await (const packet of thoughts) {
         if (packet.event === "/turn/open") sealing = SEALED;
         if (packet.event === "/part/delta" && typeof packet.part.text === "string") words.enqueue(packet.part.text);
         if (packet.event === "/turn/close") sealing = packet;
@@ -19,7 +23,10 @@ async function* reply(mind, mouth, { system, turns, tools, settings }, signal) {
     }
   })();
   try {
-    const speaking = mouth.via.stream({ source: words.drain(signal), settings }, { signal });
+    const speaking = mouth.channels.stream.via(
+      { source: words.drain(signal), settings },
+      { signal },
+    );
     yield* soma.merge(thinking, speaking);
   } catch (fault) {
     if (!signal.aborted) throw fault;
@@ -72,7 +79,11 @@ async function* session(ear, mind, mouth, { source, system, turns, tools, settin
 
   const hearing = (async () => {
     try {
-      for await (const packet of ear.via.stream({ source: frames.drain(signal), settings }, { signal })) {
+      const listening = ear.channels.stream.via(
+        { source: frames.drain(signal), settings },
+        { signal },
+      );
+      for await (const packet of listening) {
         heard = soma.pour(heard, packet);
         switch (packet.event) {
           case "/turn/open":
@@ -100,6 +111,11 @@ export const cascade = (ear, mind, mouth) => ({
   type: "call",
   id: [ear.id, mind.id, mouth.id].join("+"),
   tune: mind.tune,
-  channels: { in: ear.channels.in, out: [...mind.channels.out, ...mouth.channels.out] },
-  via: { stream: (request, { signal }) => session(ear, mind, mouth, request, signal) },
+  channels: {
+    stream: {
+      in: [...ear.channels.stream.in, ...mind.channels.stream.in],
+      out: [...mind.channels.stream.out, ...mouth.channels.stream.out],
+      via: (request, { signal }) => session(ear, mind, mouth, request, signal),
+    },
+  },
 });

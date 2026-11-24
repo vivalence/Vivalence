@@ -18,7 +18,7 @@ const drain = async (stream) => {
   return events;
 };
 async function* frames(chunks) {
-  for (const chunk of chunks) yield { event: "/audio/packet", audio: { data: chunk, rate: 16000 } };
+  for (const chunk of chunks) yield { event: "/audio/packet", audio: { data: chunk, mime: "audio/pcm" } };
 }
 
 specimen.describe("activity — the row follows the controller", () => {

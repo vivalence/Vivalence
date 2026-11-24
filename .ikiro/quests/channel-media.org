@@ -1,0 +1,194 @@
+#+title: channel media — the cortex holds what a faculty takes and gives, by via, in media types
+#+filetags: :typology:cortex:hallucinators:
+#+status: milestones 1 – 6 LANDED on his /"go. full"/ (tree and registry, unpushed); 7 TANGLED on his /"cast to quest"/, his walk stands at stop 1 of 8; 8 DESIGNED
+# writer: agent · limit: 14000 chars · unnumbered
+
+* intent
+
+/"hallucination manages and guarantees channels and mime types in and out and provides lowering/encoding/transmutation capabilities."/
+
+/"tested in and out."/
+
+/"demo case: we receive a input of whatsapp file, and that gets pushed into a tool/aperture/faculty for transcription."/
+
+/"nobody reads it. true. nobody yet enforeces channels. perfect. here is the moment we need it."/
+
+* rulings
+
+| his words | state |
+|---|---|
+| /"standardize the set of input formats that are covered by each of our channels. meaning any provider must handle that set of formats per channel/via."/ | channels are keyed by via |
+| /"perfect. mime exactly!"/ | a channel names media types, nothing invented |
+| /"codec. must that be restrictve? could mime include a assumed set of codec and the additional key just mutates that set?"/ | a bare mime takes every parameter; a parameter narrows |
+| /"are the channels and rates really sufficient to express all the variance this systme ought to capture? i think not. if done right, do right."/ | kind · media type with parameters · bytes · count, by via |
+| /"istn this kinda double?? packets adn stream both saying the same?!"/ | no =packets= key: the avenue's =feeds= says it |
+| /"we must reject formats with detailed error messages."/ | a fault names faculty, via, format, and what is taken |
+| /"can we ignore amr? if so we do. just error out."/ | no encode path for it |
+| /"generally yes the casting of files into text is fine."/ | a file part a dialogue faculty lacks is lowered to text |
+| /"rewrite this to be more helpful. we dont need the id twice but maybe other info would be important contextual help."/ | the lowered line names kind · file · mime · size · why; no =file= key |
+| /"i dont think the harness mustknow about detials like channel encodings. thast purely domain of the cortex and hallucination."/ | the harness is untouched |
+| /"'carries' seems like a performative cringe shit name"/ | =match= |
+| /"any encoding can be done by the mode/serivce."/ | the cortex transmutes nothing |
+| /"remeber that we control the hallucinator faculties too."/ | every provider of ours is rewritten |
+| /"lets move via into channel. make channel sefl contained. channel.via"/ | a via's call sits inside its channels: =channels.<via>.via=; =Faculty.via= is gone |
+| /"filing hangs on /dialogue only today (:435). should this mabybe not be true??"/ | =filing= sits on every route that passes turns |
+| /"2 turns with a file each, right? audio+>transcipt."/ · /"a."/ | a render is turns in, a turn out, for every faculty; =source= is a stream's |
+
+Mine, said in one line each:
+
+- =take= · =give= stand beside his =match= · =lower=: =take= faults on what comes in, =give= on what comes out.
+- An =alien= part passes both ways: it is the provider's own block.
+- =thinking= is always in a dialogue faculty's =in= (both translators carry it), in =out= only when the model thinks.
+- =object= is in =out= on =render= only: both providers build it there, never on =stream=.
+- =bytes= is in the grammar and held; no faculty declares one yet. =count= is declared once, from openrouter's =limits.references=; its hand check dies.
+- Anthropic's image list is read off its vision guide: jpeg · png · gif · webp.
+- A packet is held as the part it is: ={ type: "audio", mime, data }= through =take= coming in (=transcribe= · =converse=) and =give= going out (=gated=, now around =synthesize= too). The meter reads the rate off the mime; a packet that names no rate is not timed.
+- A fixture packet of made-up bytes says =audio/pcm= with no rate: it passes a pcm channel and stays untimed, as before.
+- A render of any faculty runs the one loop =respond=: =verbatim.render= and =speech.render= lose their own executors. Speech out on =render= was never held before 7 (=vocalize= called no =give=).
+- A render transcribes every audio part of the request, one text part each; a speech render speaks every text part, one audio part each. No =count=.
+- A transcript's turn has =role: "user"=: it is what the user said, as the stream's turns are.
+- =soma.drain= opens a part with its =mime=: the out gate reads a part when it opens.
+- A filed part is lowered to a text line only for a faculty that takes text; else the fault names the part's own media type.
+- The two turns a tool round adds are lowered before the next round, as the request's turns are: =turns = [...turns, ...lowered(faculty, streamOrRender, [turn, answered])]=. A tool result is a JSON =product=, never media.
+
+* as code
+
+The diffs: =.ikiro/quests/channel-media-appendix-I-diffs.org=, generated from a built copy by =.ikiro/reference/channel-media/todiffs.py=. Generated from five staged copies by =.ikiro/reference/channel-media/appendix.py=; the via move by =viamove.py=. 54 files edited in 189 hunks, 4 new files. Milestones 5 · 6: appendix II. Milestone 7: =.ikiro/quests/channel-media-appendix-III-diffs.org=, by =appendix3.py=: 14 files in the tree, 2 in =@education=, 42 hunks.
+
+A render, as a mode calls it after 7:
+
+#+begin_src js
+const heard = await ctx.cortex.hallucinate.verbatim.render({
+  controller,
+  turns: [{ role: "user", parts: [{ type: "audio", mime: "audio/ogg", data, file }] }],
+});
+heard.turns.at(-1).parts; // [{ type: "text", text: "ci vediamo domani" }]
+#+end_src
+
+The grammar:
+
+#+begin_src js
+// subsystems/typology/schematics/primitives/hallucination.js
+export const Channel = v.object(
+  {
+    type: v.union([v.const("text"), v.const("image"), v.const("audio"), …]),
+    mime: v.array(media()).optional(),
+    bytes: v.integer({ minimum: 1 }).optional(),
+    count: v.integer({ minimum: 0 }).optional(),
+  },
+  { additionalProperties: false },
+);
+const Sides = v.object(
+  { in: v.array(Channel), out: v.array(Channel), via: v.unknown() },
+  { additionalProperties: false },
+);
+export const Channels = v.object(
+  { stream: Sides.optional(), render: Sides.optional() },
+  { additionalProperties: false },
+);
+#+end_src
+
+A faculty, as it declares:
+
+#+begin_src js
+// commons/hallucinators/deepgram/provider/index.js
+channels: {
+  stream: {
+    in: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
+    out: [{ type: "text" }],
+    via: ({ source, settings = {} }, { signal } = {}) => transcribe(…),
+  },
+},
+#+end_src
+
+A reader, and the wire (the call is stripped going out, grafted coming in):
+
+#+begin_src js
+// subsystems/typology/gestalten/belt/hallucinate.js
+stream: (faculty, request, signal) => faculty.channels.stream.via(request, { signal }),
+// subsystems/typology/gestalten/belt/cortex.js
+const sides = ({ in: taken, out }) => ({ in: taken, out });
+const bare = (channels) => ({
+  ...(channels.render && { render: sides(channels.render) }),
+  ...(channels.stream && { stream: sides(channels.stream) }),
+});
+#+end_src
+
+The seam, one place for both vias:
+
+#+begin_src js
+// subsystems/typology/gestalten/belt/hallucinate.js
+turns = lowered(faculty, streamOrRender, turns);
+…
+for await (const packet of metered.flowed(gated(faculty, streamOrRender, deliver(…)))) {
+#+end_src
+
+The faults, as the suites read them:
+
+#+begin_src text
+[verbatim] 'nova-3' takes no 'audio/amr' audio on render: it takes audio/ogg, audio/mpeg, audio/mp4, audio/aac
+[dialogue] 'plain' gives no 'tool_use' tool_use on stream: it gives text
+[dialogue] 'opus' takes at most 1 image/png on stream: 2 given
+[cortex] invalid faculty /channels/render: must have required properties via
+#+end_src
+
+* milestones
+
+| n | step | green when | state |
+|---|---|---|---|
+| 1 | the grammar: =v.media()=, =Channel=, =Channels= by via with the call inside, =Faculty.channels= required, =Faculty.via= gone; every declaration and every reader rewritten; strip · wire carry channels | =mime.media= cases, =schematics/channels.test.js=, =Cortex.register= cases, =cortex.stripwire.test.js=; four hallucinators · reader green | LANDED · AMEN (his walk, stops 1 · 2) |
+| 2 | =match= · =lower= · =take= · =give= in =belt/channel.js= | =channel.test.js=, 15 cases | LANDED · AMEN (stops 3 – 7) |
+| 3 | held in: dialogue · object · call lower a turn's parts before the provider; a painter's references are taken | =channels= cases =in · stream= · =in · render= · the tool round · the painter | LANDED · AMEN (stops 8 · 10) |
+| 4 | held out: one generator around the pump reads =/part/open= · =/part/full= · =/turn/full= on both vias; a painter's pictures | =channels= cases =out · stream= · =out · render= | LANDED · AMEN (stop 9) |
+| 4b | filing on every route that passes turns: =/object= and =/call= gain the =filing= shard =/dialogue= has; a file part reaches the faculty as bytes | =systems/runtime/tests/harness.filing.test.js=, 4 cases; red on =/object= · =/call= before | LANDED |
+| 5 | the three registry fixtures follow: =@assembly= =tests/hal.js= · =modes/model/editor/tests/scripted.js=, =@vcompany= =vdex.snapshot.test.js= | both packages' suites equal pristine by step name (=36 passed (203 steps) · 19 failed=, red at base); left unmoved, =P-loop= · =P-named= · =P-refused= · the vdex snapshots go red | LANDED (appendix II; his go per repo) |
+| 6 | a packet carries its media type: =Audio.Packet= =rate= + =codec= become one =mime=; packets are held in and out | the =channels= case /a packet: an undeclared media type faults, in and out/; =dictation.conversation.test.js= /audio packets demand a media type/ | LANDED (appendix II) |
+| 7 | a render is turns in, a turn out: =verbatim.render= · =speech.render= run =respond=; deepgram's nova gains a =render= channel (ogg · mpeg · mp4 · aac) over =POST /v1/listen=; elevenlabs' speech render gives an =audio/mpeg= part; =@education= =harvest/sources/tts.js= reads the part | the =channels= cases /an ear on render/ · /a mouth on render/; =deepgram/tests/provider.test.js= /a file on render/; =elevenlabs= /render speaks each text part/; the harvest suite | TANGLED (appendix III) |
+| 8 | the demo: the bot files what it hears, the whatsapp provider keeps =mime_type= as sent, a =/transcribe= tool | a voice note in → the model reads =[attached audio · file … · audio/ogg; codecs=opus · 18 kB · <faculty> cannot read audio]= → the tool returns the transcript | DESIGNED |
+
+Steps 3 and 4 are one section of the appendix: they share one file.
+
+How 1 – 4 were made green, on copies, never the tree:
+
+#+begin_src sh
+sh .ikiro/reference/channel-media/replay.sh <copy> 1   # then the suites, then 2, 3, 4
+#+end_src
+
+- Section 3 · 4 lands only on section 1: four of its hunks stand on lines section 1 writes.
+- =systems/runtime/tests/snapshots/cortex-contract-strip.snapshot.json= is pinned to the old shape and ignored by git: one =SNAPSHOT_HOT=1= run of =cortex-contract.snapshot.test.js= after 1.
+- The declarations were rewritten by =.ikiro/reference/channel-media/regrammar.py=; bare test faculties were opened by =open.py= (a local =ANY=).
+
+After 7, on copies: typology =178 passed (808 steps) · 0 failed=; commons =20 passed (213 steps) · 1 failed=, the =bak/= file; runtime =113 passed (725 steps) · 1 failed=, the base red; the stub and =@assembly= · =@vcompany= as before by failing step name; harvest =1 passed (4 steps)=.
+
+After the landing of 1 – 6, on a copy of the tree: typology =178 passed (806 steps)=; runtime =113 passed (725 steps) · 1 failed=, the base red; commons =19 passed (211 steps) · 1 failed=, the =bak/= file.
+
+What the suites do not prove:
+
+- Of anima's fifteen test files that touch a cortex or its world, fourteen are red in the tree before this change and as red after, same error lines; one is green both times. A break hidden behind them is not excluded.
+- =commons/fixtures/testing/hal/stub= · =commons/editors/darkroom= · =commons/instances/hello-world= are red before and after, same lines (=.ikiro/known-issues.org=, =commons-suites-red-at-base=).
+- No live provider was called. Deepgram's file endpoint is read off its docs (=POST /v1/listen=, raw body, =results.channels[0].alternatives[0].transcript=), never called; its docs name ogg · mp3 · mp4 · aac, not amr.
+- After 7 a =verbatim.stream= call without =source= passes the gate and fails inside the faculty; a speech render's input chars are the provider's report, no longer the cortex's count.
+- The seam reads what a part declares, never its bytes: a lying mime, a duration, a picture's dimensions are not held (=.ikiro/known-issues.org=, =channel-seam-trusts-a-declared-mime=).
+
+What he sees after 1 – 4 land:
+
+- A voice note on a turn reaches the model as one line of text, not as its base64. Today both translators stringify it into the prompt (=commons/hallucinators/anthropic/provider/translate.js=, the =default= arm).
+- A faculty whose =channels= are missing or untrue stops the boot with the path of the fault.
+- A recipe is untouched: =limits.references= stays the ledger's word.
+
+* never
+
+- =codec= · =rate= · =codecs= keys; =pcm_16000= · =mp3_44100_128=; =audio/L16= (big-endian by RFC 3551, ours is little).
+- A faculty-wide list. =packets= on a channel. verbatim's =event=.
+- =Faculty.via= beside the channels; =register= checking that a via has channels; a list of via names on the wire.
+- =carries= · =admitted= as names.
+- =transcript= · =vocalize= · =vocalizing= · =sourcing= · a =verbatim= derivation; =source= on a render; a render that returns a string or bare bytes.
+- The harness reading a faculty's channels; =HANDED= changed.
+- A faculty chosen by the request's parts (=findOne({ carries })=).
+- The cortex re-encoding a source.
+- An encode path for amr.
+- A channel declared as a =v= schematic: /"v is for schematics"/. Channels are data.
+
+* next
+
+His walk of milestone 7: stop 1 of 8 (the request schematics) awaits his amen. Then his =go= lands 7; then 8.

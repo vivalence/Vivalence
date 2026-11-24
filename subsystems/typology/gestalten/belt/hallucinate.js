@@ -5,6 +5,7 @@ import { record } from "../../prototypes/span.js";
 import { ToolCall } from "../../prototypes/toolcall.js";
 import { Vector } from "../../prototypes/vector.js";
 import * as fromm from "../fromm/index.js";
+import * as channel from "./channel.js";
 import * as object from "./object.js";
 import * as pcm from "./pcm.js";
 import * as soma from "./soma.js";
@@ -141,9 +142,37 @@ const answer = async (policy, turn) => ({
 });
 
 const pump = {
-  stream: (faculty, request, signal) => faculty.via.stream(request, { signal }),
-  render: async (faculty, request, signal) => soma.drain(await faculty.via.render(request, { signal })),
+  stream: (faculty, request, signal) => faculty.channels.stream.via(request, { signal }),
+  render: async (faculty, request, signal) =>
+    soma.drain(await faculty.channels.render.via(request, { signal })),
 };
+
+const PARTS = {
+  "/part/open": (packet) => [packet.part],
+  "/part/full": (packet) => [packet.part],
+  "/turn/full": (packet) => packet.turn.parts,
+  "/audio/packet": (packet) => [
+    { type: "audio", mime: packet.audio.mime, data: packet.audio.data },
+  ],
+};
+
+async function* gated(faculty, via, packets) {
+  for await (const packet of packets) {
+    if (packet.event in PARTS)
+      for (const part of PARTS[packet.event](packet)) channel.give(faculty, via, part);
+    yield packet;
+  }
+}
+
+async function* taken(faculty, via, packets) {
+  for await (const packet of packets) {
+    if (packet.event in PARTS) channel.take(faculty, via, PARTS[packet.event](packet));
+    yield packet;
+  }
+}
+
+const lowered = (faculty, via, turns) =>
+  turns.map((turn) => ({ ...turn, parts: channel.lower(faculty, via, turn.parts) }));
 
 const BEAT = 1000;
 
@@ -162,13 +191,18 @@ const parted = (part) => {
   return [{ name: "output", unit: "chars", amount: found[1](part), channel: part.type, by: "cortex" }];
 };
 
+const sampled = (packet) => {
+  const { essence, parameters } = channel.media(packet.audio.mime);
+  return essence === "audio/pcm" && "rate" in parameters ? Number(parameters.rate[0]) : null;
+};
+
 const PACKETED = [
   [(packet) => typeof packet === "string", (text) => ({ unit: "chars", amount: text.length, channel: "text" })],
   [
-    (packet) => packet.event === "/audio/packet" && String(packet.audio.codec).startsWith("pcm_"),
+    (packet) => packet.event === "/audio/packet" && sampled(packet) !== null,
     (packet) => ({
       unit: "seconds",
-      amount: pcm.bytes(packet.audio.data).byteLength / 2 / packet.audio.rate,
+      amount: pcm.bytes(packet.audio.data).byteLength / 2 / sampled(packet),
       channel: "audio",
     }),
   ],
@@ -258,6 +292,7 @@ export async function* respond(faculty, streamOrRender, request, policy) {
   let turns = request.turns;
   let rounds = 0;
   try {
+    turns = lowered(faculty, streamOrRender, turns);
     while (rounds < policy.rounds) {
       if (!(await controller.proceed())) {
         yield { event: "/response/close", response: { meta: { state: "abort", rounds } } };
@@ -269,11 +304,20 @@ export async function* respond(faculty, streamOrRender, request, policy) {
       let closed = "abort";
       try {
         for await (const packet of metered.flowed(
-          deliver(
-            (signal) => pump[streamOrRender](faculty, { ...declared(request, policy.tools), turns }, signal),
-            policy.backoff,
-            span,
-            controller.abort.signal,
+          gated(
+            faculty,
+            streamOrRender,
+            deliver(
+              (signal) =>
+                pump[streamOrRender](
+                  faculty,
+                  { ...declared(request, policy.tools), turns },
+                  signal,
+                ),
+              policy.backoff,
+              span,
+              controller.abort.signal,
+            ),
           ),
         )) {
           if (!(await controller.proceed())) {
@@ -302,7 +346,7 @@ export async function* respond(faculty, streamOrRender, request, policy) {
       }
       const answered = await answer(policy, turn);
       yield { event: "/turn/full", turn: answered };
-      turns = [...turns, turn, answered];
+      turns = [...turns, ...lowered(faculty, streamOrRender, [turn, answered])];
     }
     yield { event: "/response/close", response: { meta: { state: "length", rounds } } };
   } catch (fault) {
@@ -356,11 +400,13 @@ export async function* transcribe(faculty, { source, settings }, policy) {
   policy.controller.start();
   span.log({ faculty: faculty.type, harmonize: policy.harmonize });
   try {
-    const heard = faculty.via.stream(
-      { source: metered.fed(source), settings },
+    const heard = faculty.channels.stream.via(
+      { source: metered.fed(taken(faculty, "stream", source)), settings },
       { signal: policy.controller.abort.signal },
     );
-    yield* metered.flowed(stamped(verbatim.harmonize(heard, policy.harmonize)));
+    yield* metered.flowed(
+      stamped(verbatim.harmonize(gated(faculty, "stream", heard), policy.harmonize)),
+    );
     closed = "complete";
   } catch (fault) {
     closed = "error";
@@ -387,18 +433,23 @@ export async function* converse(faculty, { source, settings, ...request }, polic
   span.log({ faculty: faculty.type, id: faculty.id });
   const fed = (async function* () {
     try {
-      yield* metered.fed(source);
+      yield* metered.fed(taken(faculty, "stream", source));
     } finally {
       answers.close();
     }
   })();
   let turn = null;
   try {
-    const heard = faculty.via.stream(
-      { ...request, source: soma.merge(fed, answers.drain()), settings },
+    const heard = faculty.channels.stream.via(
+      {
+        ...request,
+        turns: lowered(faculty, "stream", request.turns),
+        source: soma.merge(fed, answers.drain()),
+        settings,
+      },
       { signal: policy.controller.abort.signal },
     );
-    for await (const packet of metered.flowed(stamped(heard))) {
+    for await (const packet of metered.flowed(stamped(gated(faculty, "stream", heard)))) {
       turn = soma.pour(turn, packet);
       yield packet;
       if (packet.event !== "/turn/close" || state(turn) !== "tools") continue;
@@ -427,7 +478,16 @@ export async function* synthesize(faculty, { source, settings }, policy) {
   try {
     const spoken = typeof source === "string" ? source : metered.fed(source);
     metered.count("input", source);
-    yield* metered.flowed(faculty.via.stream({ source: spoken, settings }, { signal: policy.controller.abort.signal }));
+    yield* metered.flowed(
+      gated(
+        faculty,
+        "stream",
+        faculty.channels.stream.via(
+          { source: spoken, settings },
+          { signal: policy.controller.abort.signal },
+        ),
+      ),
+    );
     closed = "complete";
   } catch (fault) {
     closed = "error";
@@ -448,7 +508,10 @@ export async function vocalize(faculty, { source, settings }, policy) {
   span.log({ faculty: faculty.type });
   try {
     metered.count("input", source);
-    const audio = await faculty.via.render({ source, settings }, { signal: policy.controller.abort.signal });
+    const audio = await faculty.channels.render.via(
+      { source, settings },
+      { signal: policy.controller.abort.signal },
+    );
     voiced = [{ name: "output", unit: "bytes", amount: audio.byteLength, channel: "audio", by: "cortex" }];
     closed = "complete";
     return audio;
@@ -472,7 +535,14 @@ export async function depict(faculty, request, policy) {
   let reported = [];
   try {
     metered.count("input", request.prompt);
-    const response = await faculty.via.render(request, { signal: policy.controller.abort.signal });
+    channel.take(faculty, "render", [
+      ...request.images.map((reference) => reference.image),
+      ...(request.mask ? [request.mask] : []),
+    ]);
+    const response = await faculty.channels.render.via(request, {
+      signal: policy.controller.abort.signal,
+    });
+    for (const image of response.images) channel.give(faculty, "render", image);
     painted = [
       { name: "input", unit: "images", amount: request.images.length, channel: "image", by: "cortex" },
       { name: "output", unit: "images", amount: response.images.length, channel: "image", by: "cortex" },
@@ -498,7 +568,9 @@ export async function choose(faculty, round, policy) {
   let closed = "error";
   const asked = { name: "input", unit: "questions", amount: Object.keys(round.questions).length, by: "cortex" };
   try {
-    const verdict = await faculty.via.render(round, { signal: policy.controller.abort.signal });
+    const verdict = await faculty.channels.render.via(round, {
+      signal: policy.controller.abort.signal,
+    });
     span.log({ verdict });
     closed = "complete";
     return verdict;

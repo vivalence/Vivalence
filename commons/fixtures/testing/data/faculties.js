@@ -103,34 +103,52 @@ export function faculties() {
       tune: [0.9, 0.3, 0.5],
       context: 200000,
       channels: {
-        in: ["text", "image", "document", "tool_result", "thinking"],
-        out: ["text", "thinking", "tool_use"],
-      },
-      via: {
-        render: async (request) => {
-          const { turns, tools, output } = request;
-          const text = lastUserText(turns);
-          if (output?.schema) {
-            const data = { query: text };
-            return {
-              role: "assistant",
-              parts: [{ type: "object", data }],
-              meta: { state: "complete" },
-            };
-          }
-          const lookup = tools?.find((tool) => tool.name === "lookup");
-          if (lookup && !hasToolResult(turns)) {
-            return toolUseTurn("t1", lookup.name, { query: text });
-          }
-          return textTurn(`[opus] ${text}`);
+        stream: {
+          in: [
+            { type: "text" },
+            { type: "image" },
+            { type: "document" },
+            { type: "tool_result" },
+            { type: "thinking" },
+            { type: "tool_use" },
+          ],
+          out: [{ type: "text" }, { type: "thinking" }, { type: "tool_use" }],
+          via: async ({ turns, tools }) => {
+            const text = lastUserText(turns);
+            const lookup = tools?.find((tool) => tool.name === "lookup");
+            if (lookup && !hasToolResult(turns)) {
+              return toolUseStream("t1", lookup.name, { query: text })();
+            }
+            return textStream(`[opus] ${text}`)();
+          },
         },
-        stream: async ({ turns, tools }) => {
-          const text = lastUserText(turns);
-          const lookup = tools?.find((tool) => tool.name === "lookup");
-          if (lookup && !hasToolResult(turns)) {
-            return toolUseStream("t1", lookup.name, { query: text })();
-          }
-          return textStream(`[opus] ${text}`)();
+        render: {
+          in: [
+            { type: "text" },
+            { type: "image" },
+            { type: "document" },
+            { type: "tool_result" },
+            { type: "thinking" },
+            { type: "tool_use" },
+          ],
+          out: [{ type: "text" }, { type: "thinking" }, { type: "tool_use" }, { type: "object" }],
+          via: async (request) => {
+            const { turns, tools, output } = request;
+            const text = lastUserText(turns);
+            if (output?.schema) {
+              const data = { query: text };
+              return {
+                role: "assistant",
+                parts: [{ type: "object", data }],
+                meta: { state: "complete" },
+              };
+            }
+            const lookup = tools?.find((tool) => tool.name === "lookup");
+            if (lookup && !hasToolResult(turns)) {
+              return toolUseTurn("t1", lookup.name, { query: text });
+            }
+            return textTurn(`[opus] ${text}`);
+          },
         },
       },
     },
@@ -140,14 +158,28 @@ export function faculties() {
       tune: [0.4, 0.6, 0.5],
       context: 200000,
       channels: {
-        in: ["text", "image", "tool_result"],
-        out: ["text", "tool_use"],
-      },
-      via: {
-        render: async ({ turns }) =>
-          textTurn(`[sonnet] ${lastUserText(turns)}`),
-        stream: async ({ turns }) =>
-          textStream(`[sonnet] ${lastUserText(turns)}`)(),
+        stream: {
+          in: [
+            { type: "text" },
+            { type: "image" },
+            { type: "tool_result" },
+            { type: "tool_use" },
+          ],
+          out: [{ type: "text" }, { type: "tool_use" }],
+          via: async ({ turns }) =>
+            textStream(`[sonnet] ${lastUserText(turns)}`)(),
+        },
+        render: {
+          in: [
+            { type: "text" },
+            { type: "image" },
+            { type: "tool_result" },
+            { type: "tool_use" },
+          ],
+          out: [{ type: "text" }, { type: "tool_use" }],
+          via: async ({ turns }) =>
+            textTurn(`[sonnet] ${lastUserText(turns)}`),
+        },
       },
     },
     {
@@ -155,9 +187,12 @@ export function faculties() {
       id: "haiku",
       tune: [0.1, 1.0, 0.5],
       context: 200000,
-      channels: { in: ["text", "tool_result"], out: ["text"] },
-      via: {
-        render: async ({ turns }) => textTurn(`[haiku] ${lastUserText(turns)}`),
+      channels: {
+        render: {
+          in: [{ type: "text" }, { type: "tool_result" }, { type: "tool_use" }],
+          out: [{ type: "text" }],
+          via: async ({ turns }) => textTurn(`[haiku] ${lastUserText(turns)}`),
+        },
       },
     },
     {
@@ -167,9 +202,15 @@ export function faculties() {
       context: 32000,
       options: 26,
       choices: null,
-      channels: { in: ["text", "object"], out: ["object"] },
-      via: {
-        render: async ({ questions }) => Object.fromEntries(Object.entries(questions).map(([key, question]) => [key, decided(question)])),
+      channels: {
+        render: {
+          in: [{ type: "text" }, { type: "object" }],
+          out: [{ type: "object" }],
+          via: async ({ questions }) =>
+            Object.fromEntries(
+              Object.entries(questions).map(([key, question]) => [key, decided(question)]),
+            ),
+        },
       },
     },
   ];
@@ -182,29 +223,29 @@ export function verbatimFaculty(overrides = {}) {
     tune: [0.4, 0.5, 0.1],
     context: 0,
     channels: {
-      in: [{ type: "audio", codec: "pcm_16000" }],
-      out: [{ type: "event" }],
-    },
-    via: {
-      stream: async function* ({ source }) {
-        const heard = [];
-        yield { event: "/turn/open", turn: { role: "user" } };
-        yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
-        for await (const packet of source) {
-          heard.push(packet.audio.data);
+      stream: {
+        in: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
+        out: [{ type: "text" }],
+        via: async function* ({ source }) {
+          const heard = [];
+          yield { event: "/turn/open", turn: { role: "user" } };
+          yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
+          for await (const packet of source) {
+            heard.push(packet.audio.data);
+            yield {
+              event: "/part/draft",
+              index: 0,
+              part: { text: heard.join(" ").trim() },
+            };
+          }
           yield {
-            event: "/part/draft",
+            event: "/part/delta",
             index: 0,
             part: { text: heard.join(" ").trim() },
           };
-        }
-        yield {
-          event: "/part/delta",
-          index: 0,
-          part: { text: heard.join(" ").trim() },
-        };
-        yield { event: "/part/close", index: 0 };
-        yield { event: "/turn/close", turn: {} };
+          yield { event: "/part/close", index: 0 };
+          yield { event: "/turn/close", turn: {} };
+        },
       },
     },
     ...overrides,
@@ -218,18 +259,18 @@ export function speechFaculty(overrides = {}) {
     tune: [0.3, 0.5, 0.1],
     context: 0,
     channels: {
-      in: [{ type: "text" }],
-      out: [{ type: "audio", codec: "pcm_16000" }],
-    },
-    via: {
-      stream: async function* ({ source }) {
-        for await (const chunk of source) {
-          yield {
-            event: "/audio/packet",
-            audio: { data: "audio:" + chunk, rate: 16000 },
-          };
-        }
-        yield { event: "/audio/close", audio: { meta: { state: "complete" } } };
+      stream: {
+        in: [{ type: "text" }],
+        out: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
+        via: async function* ({ source }) {
+          for await (const chunk of source) {
+            yield {
+              event: "/audio/packet",
+              audio: { data: "audio:" + chunk, mime: "audio/pcm" },
+            };
+          }
+          yield { event: "/audio/close", audio: { meta: { state: "complete" } } };
+        },
       },
     },
     ...overrides,

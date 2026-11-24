@@ -1,79 +1,125 @@
-#+title: cut 2026.11.0 — the first vivalence release
-#+status: DECLARED: three scope items in his words, one of them measured; the census is 1 green of 16; four rulings open
-# writer: agent · the file is named after =deno.jsonc:2=, the one version the tree declares; his ruling 1 may rename it
+#+title: release v2026.11.0 — the first vivalence release
+#+status: WRITTEN 11-27 on his /"write a release v2026.11.0"/: ten items in his words, nine in the tree, transcription DESIGNED; unmarked: no tag, no bookmark, =master= 6 changes behind
+# writer: agent · limit: 12000 chars · the file is named after =deno.jsonc:2=, the one version the tree declares
 
 * intent
 
-/"lets start planning first vivalence release. whats in scope?/
-/15-20% coverage of our new type systems we started today./
-/npm and jsr releases of vivalenve with certain capabilities./
-/... some featureset f yet to be collected."/
+/"lets cut our current 26.11.0 release./
+/whatsapp mode. transcription faculties. channel recast. what else?"/
 
-/"this is a new ikiro primitive and method. release cutting."/
+/"these are 26.11"/ · /"dictation. ignore two way call. thats 26.12"/ · /"TOOLING/PRIMER offer, TOOLED/PRIMED load.  12.11"/ (read as =26.11=) · /"ignore the rest."/ · /"define the release scope. 26.11"/ · /"write a release v2026.11.0"/
 
-* scope
+/"so. vN.N.N is for lts. vYYYY.MM.N is rolling./
+/id like to start publishing releases./
+/first rolling today./
+/to github and gitlab and docker registry."/
 
-| item | quest | measure | now | owed |
-|---+---+---+---+---|
-| the type system | =m128-typed-schematics= | unruled (ruling 3) | — | 15–20% |
-| npm and jsr | this file | the census, greens of 16 | 1 | his ruling 2 |
-| featureset f | — | uncollected (ruling 4) | — | — |
+* the release
 
-* census
+Each item is his words, the quest it is read as, what ships, what does not. Read off the quests and =.ikiro/bak/release.md= on 11-27. The file paths, the traits and the tools named below were grepped in =systems= · =subsystems= · =commons= that day; the rest is the quests' word. No suite was run for this file.
 
-Deno 2.9.7. Each cell is the exit code's verdict of a dry run from the member, the tree as it stands, his open work in it.
+** whatsapp mode — =whatsapp-agent=
 
-| member | jsr | npm |
-|---+---+---|
-| =subsystems/typology= | ✗ | ✗ |
-| =subsystems/paladin= | ✗ | ✗ |
-| =subsystems/dapper= | ✗ | ✗ |
-| =subsystems/drapes= | ✗ | ✗ |
-| =subsystems/sheets= | ✗ | ✗ |
-| =systems/runtime= | ✗ | ✗ |
-| =systems/ghost= | ✗ | ✗ |
-| =systems/anima= | ✗ | ✓ |
+- added the service =commons/social/whatsapp= (=ATTACHED= · =EXPOSED=): one WhatsApp number of the Cloud API. Its hook is one address: Meta's challenge on GET, a signed delivery on POST, checked over the exact bytes of the body, queued, answered 200
+- added the bot =commons/social/personal= (=BOOTED= · =HARNESS= · =TOOLING= · =SURFACED= · =EXPOSED= · =TWITCHY= · =PRIMER=): it pulls its platform's queue; a message is a Turn of a Thread, the answer goes back as text
+- added =statics.users= on the bot: address → user slug. Every other sender is dropped before anything is fetched
+- added a service's aperture: trait =EXPOSED= on a service, mounted at =/runtime/<slug>/service/<slug>= behind the login; =whatsapp/graph.js= (=graph= · =meta=) manages the number through it
+- added the sort of a delivery by the number it was sent to (=metadata.phone_number_id=); an unknown number is dropped
+- added the bot's surface =desk=: settings read-only · tiles · 14 days · threads
+- added =Request.bytes()=: a body's exact bytes, read once
+- not in: =/tell= · Telegram · editing settings on the desk
+- owed: 11-27's code (=graph.js= · =EXPOSED= on a service · the number sort) is not on prod
 
-The first error row of each red. A red is not yet read whole.
+** transcription faculties — =channel-media= 7 · 8, =whatsapp-agent= 9
 
-#+BEGIN_EXAMPLE
-typology  jsr  error: RangeError: Maximum call stack size exceeded
-               at resolveExternalModuleInner (ext:deno_cli_tsc/00_typescript.js:54387:38)
-typology  npm  error: Failed to build module graph for package '@vivalence/typology'
-paladin   jsr  error: Type checking failed.
-paladin   npm  TS7006 [ERROR]: Parameter 'mask' implicitly has an 'any' type.
-dapper    jsr  error: SyntaxError: Expected ';', '}' or <eof>
-dapper    npm  error: Failed to build module graph for package '@vivalence/dapper'
-drapes    jsr  error: Expected a JavaScript or TypeScript module, but identified a Unknown module.
-drapes    npm  error: Failed to build module graph for package '@vivalence/drapes'
-sheets    jsr  error: Type checking failed.
-sheets    npm  TS7006 [ERROR]: Parameter 'prefix' implicitly has an 'any' type.
-runtime   jsr  error: Type checking failed.
-runtime   npm  TS7006 [ERROR]: Parameter 'mask' implicitly has an 'any' type.
-ghost     jsr  error: Type checking failed.
-ghost     npm  TS7006 [ERROR]: Parameter 'mask' implicitly has an 'any' type.
-anima     jsr  error[invalid-path]: package path must not contain whitespace (found ' ')
-#+END_EXAMPLE
+DESIGNED. Nothing of it is in the tree.
 
-What the registries ask, read from deno's own pages:
+- owed: verbatim over a file, =via.render= on deepgram or elevenlabs (ogg · mpeg · mp4 · aac; =audio/amr= faults before the provider)
+- owed: the bot files what it hears; the whatsapp provider keeps =mime_type= as sent
+- owed: a =/transcribe= tool, a voice note in → its transcript. The nature =/transcribe= is held today by =commons/services/ocr/tools/index.js:8=
 
-- =deno publish=: a member needs =name= · =version= (semver) · =exports=. In a workspace it takes every such member; ="publish": false= skips one. =--set-version= is refused in a workspace.
-- =deno pack=: the npm tarball. It type-checks, writes declaration files by the same check as publish, writes its own =package.json=, turns =jsr:@std/path= into =@jsr/std__path=. It writes no =bin=: the =viva= command does not ship by it.
-- Both refuse a tree with open work unless told. Provenance is written only from the pipeline.
+** channel recast — =channel-media= 1 · 2 · 3 · 4 · 4b · 5 · 6
 
-Every suite in the tree runs =--no-check= (=m128-appendix-0-index.org=, "after the last area"). Both registries run the check. The two scope items are one: a member is green when its =exports= pass the check.
+- changed a faculty's declaration: =Channel= · =Channels= (=subsystems/typology/schematics/primitives/hallucination.js:8= · =:263=), keyed by via, in media types; =Faculty.channels= is required, =Faculty.via= is gone, the call sits at =channels.<via>.via= · migrate: every hallucinator declares its channels by via (anthropic · openrouter · elevenlabs · deepgram done)
+- added =match= · =lower= · =take= · =give= (=subsystems/typology/gestalten/belt/channel.js=): what comes in and what goes out is held against the channel; a fault names the faculty, the via, the format and what is taken
+- changed a file part a dialogue faculty cannot read: lowered to one text line naming kind · file · mime · size · why
+- changed =/object= · =/call=: they file as =/dialogue= does; a file part reaches the faculty as bytes
+- changed =Audio.Packet=: =rate= + =codec= became one =mime= · migrate: a packet names its media type; one without is refused where a channel is declared
+- owed: unpushed, tree and registry
+
+** migration-twitch — =migration-twitch=
+
+- added the version: ="version": "2026.11.0"= in the root =deno.jsonc=, read once as =paladin.version=; a missing or malformed one throws at paladin's boot
+- added migration steps: an entity's twitch opens =/before/datamap/migrate/<release>= and =/after/datamap/migrate/<release>=; a mount hears each release above its own stamp once; a fresh mount is stamped and hears none · migrate: none; an unstamped mount reads as =0.0.0=
+- changed a twitch effect's entity manager: =ctx.em=, forked at the twitch root inside the write's transaction · migrate: =ctx.input.em= → =ctx.em=, no =.fork()= on it
+- changed =shape.subscriber(twitch, { scope })=: =scope= is ={ before, after }=; the =fork= option is removed
+- changed the datamap's =provider(mask, context)=: the mask carries =version=, the context carries =twitch= beside =entities=
+- not in: a mode's step is not heard (known issue)
+
+** ledger-faculties — =ledger-faculties=
+
+- changed who names the models: a hallucinator's ledger entry lists its =faculties= (=commons/ledger/ledger.viva.json=); the provider translates each by =type= and holds no table of its own · migrate: an entry without =faculties= loads none
+- changed every hallucinator to it: anthropic · openrouter · elevenlabs · deepgram; a hallucinator package exports no =faculties=
+- removed the tier =eager= · migrate: a stored thread's ="tier":"eager"= → ="fast"=
+- on prod since 11-18. The =tiers= table the quest put in the ledger is gone again: no =tiers= key in =commons/ledger/ledger.viva.json= today
+
+** cortex-telemetry — =cortex-telemetry=
+
+- added =Measure= · =Limit= · =Usage= (=subsystems/typology/schematics/primitives/track.js:13= · =:26= · =:41=): one record per provider call, every faculty metered inside the hallucination, written on the track =usage= of the controller's stdout span · migrate: a recipe's sieve names =usage=, the default drops the track
+- changed =turn.meta.usage=: a list of measures; the old receipt ={ input, output, cost }= is healed on load
+- added the readers: paladin's console line · anima's sidebar and telemetry panel · =chars/s= in the modeline, the sidebar and the dock
+- not in: persistence
+- owed: no real call seen; the readers are unwalked and untested
+
+** attached-publishing — =attached-publishing=
+
+- added =ATTACHED= on a mode: it serves what it bundled outside the login, under =/attached/runtime/<runtime>/mode/<type>/<slug>/=
+- added =TWITCHY=: a mode exports =twitch= from its module, mounted like its aperture and tools
+- added the mode =commons/publishers/blog= (=FILESET=): one =/build= route, the button wired
+- not in: =ATTACHED= taking ={ files: true }= · the desk to the comp · a page born a page (both TANGLED, unlanded)
+
+** surface- rewrite from view — =view-to-surface=
+
+- renamed the entity =View= → =Surface=: table =Surface=, pivot =buffer_views= → =buffer_surfaces=, =File.view= → =File.surface=, =v.view= → =v.surface=; entities keep their ids · migrate: boot once on =2026.11.0=, the entity's own step renames the table
+- renamed =/attached/view/:id= → =/attached/surface/:id= · =/userspace/entities/view= → =/userspace/entities/surface=; the old addresses answer 404
+- renamed a mode's traits =VIEWABLE= → =SURFACED= · =GENERATIVE= → =SURFACING=, the mode export =views= → =surfaces= · migrate: turn the word in every module manifest
+- renamed the model's tools =view_create= · =view_read= · =view_update= → =surface_create= · =surface_read= · =surface_update=
+- renamed the client's UI kind =surface= → =skin= and the palette's =surface*= → =plane*= (=--plane=, =--plane-sunk=, =--plane-lift=)
+- owed: prod waits its deploy. =VIEWABLE= still stands in 5 files of the tree
+
+** dictation — =m123-call-faculty=, the verbatim half
+
+- added =/dictate=: speak, the words grow as a draft at the input and sit at the caret on stop; Enter sends them as a turn, trash drops them, Esc keeps them
+- added the faculty =verbatim= (medium → content) on elevenlabs; audio is never stored
+- added the polish: a repair of the spoken words, off per thread with =polish.engaged: false=
+- a ledger without an ear: no =/dictate=, no control, nothing throws
+- not in: the two-way call (=2026.12.0=) · capture in the tty · deepgram live
+- owed: his anima walk with his mic; =T-dictate= passed in suites, never live
+
+** TOOLING/PRIMER offer, TOOLED/PRIMED load — =m122-harness-layout=
+
+- added the thread traits =TOOLED= · =PRIMED=: a mode offers by =TOOLING= · =PRIMER=, a thread loads. A path is =eager= · =lazy= · =none=; the thread stores an add-only delta over the mode's default
+- added the tools =modes_index= · =tool_load= · =tool_preload= · =tool_unload= · =primer_load=
+- renamed the thread traits =INTELLIGENT= → =HARNESSED= · =VOCAL= → =CONVERSATIONAL=, healed at the cast
+- removed the mode trait =AGENTIC= and the tool =primer_read= · migrate: another mode's tools by =tool_load <reference>=
+- owed: the anima walk; examples into the signatures of 16 of 17 tools
 
 * rulings
 
 | # | his words | state |
 |---+---+---|
-| 1 | — | OPEN: the version. =deno.jsonc:2= says =2026.11.0=; the eight members say =0.0.1= (=subsystems/typology/deno.jsonc:3= and its seven siblings); the last tag is =v0.5.2= |
-| 2 | — | OPEN: which members ship in this release |
-| 3 | — | OPEN: 15–20% of what, counted by which command |
-| 4 | — | OPEN: featureset f |
+| 1 | /"ignore the rest."/ | CLOSED 11-27: the release names the ten items above. Whatever else landed since =master= sits in the tree unnamed |
+| 2 | — | OPEN: transcription is DESIGNED. The mark waits for =channel-media= 7 · 8, or the item moves to =2026.12.0= |
+| 3 | /"first rolling today. to github and gitlab and docker registry."/ | OPEN, three places. GitLab: =.gitlab-ci.yml= runs on every push, a tag too; it builds four images, pushes =alpine= and the short hash, never the version, then calls both Coolify deploys. GitHub: no workflow, =.github= holds =FUNDING.yml= alone. Registry: =registry.vivalence.org/beef/viva/vivalence/{viva,runtime,anima,documentation}=, =arm64=. The last tag is =v0.5.2=; =master= (=otzvowtz=, 11-06) is 6 changes behind =@=. Remotes, read by him 11-27: =github= =git@github.com:vivalence/Vivalence.git= · =origin= =ssh://git@git.vivalence.org:2222/beef/viva.git= (the registry's project) · =presentation= =ssh://git@git.vivalence.org:2222/vivalence/vivalence.git= (unruled). The tag and the pushes are his: the guard refuses me every ref and remote command, its help too |
+
+* the mark — LANDED 11-27 on his two /"go"/, =.gitlab-ci.yml=, on disk
+
+=deno.jsonc:2= is the version, the tag echoes it. On a tag the pipeline fails before the first build when the tag is not =v= + that version, else it also pushes =:<tag>= on the four images. Run with =docker= stubbed: no tag 8 pushes · =v2026.11.0= 12 pushes · =v2026.11.1= and =v0.6.0= exit 1, 0 builds. The real pipeline is unrun. His: the tag (=jj tag set=, then =git push <remote> <tag>=: =jj git push= carries no tag) and the bump to =2026.11.1= right after; =systems/runtime/tests/mint.test.js= names =2026.11.0=.
 
 * never
 
+the two-way call (=m123-call-faculty=, =/call=, milestone 8) · npm and jsr · the type system (=m128-typed-schematics=, his /"typed schematics is 26.12"/) · featureset f: =.ikiro/cut/2026.12.0.org=.
+
 * next
 
-His ruling 2, the members. Then each red of those members read whole, one row a cause.
+His ruling 2, then the mark.

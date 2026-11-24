@@ -9,6 +9,7 @@
 =:7= =const DRY = false;= feeds =snapshot(schema, { base, dry: DRY, … })= (=:10=): the suite captures, it never compares a frozen file.
 ** Evidence
 11-20, the baseline of the =media= → =mime= rename: three gitignored snapshots rewritten on the live tree, source unchanged.
+11-26: =systems/runtime/tests/span-tracked.snapshot.test.js= does the same to =systems/runtime/tests/snapshots/span-tracked.snapshot.json=: a baseline run of the runtime suite on the live tree wrote it and the watcher restarted his runtime that second.
 ** Ruling
 none
 ** Why not fixed
@@ -18,6 +19,31 @@ Run it on a sandbox copy only.
 
 Issues we know about and have NOT fixed. Each entry: symptom, root cause hypothesis,
 evidence, attempts, why not fixed now, fallback workaround.
+
+* channel-seam-trusts-a-declared-mime — OPEN (found 11-27, his /"mark this as a known isuse."/)
+** Symptom
+A part whose =mime= does not match its bytes passes the cortex: an amr recording declared =audio/ogg= reaches the provider, and the fault is the provider's, late and in its words.
+** Root cause
+=subsystems/typology/gestalten/belt/channel.js= (quest =channel-media.org=, milestone 2) reads what a part declares: =type= · =mime= · the length of =data=. It never reads the bytes. A duration and a picture's dimensions are unheld for the same reason.
+** Evidence
+=match= compares =part.mime= to the channel's list; no case sniffs a header.
+** Workaround
+The writer of the part states the true mime: the WhatsApp provider keeps Meta's =mime_type= as sent.
+
+* commons-suites-red-at-base — OPEN (found 11-26, the channel-media baseline)
+** Symptom
+Three suites are red on the untouched tree, each run alone from the root with an empty =HOME=:
+- =commons/fixtures/testing/hal/stub/tests/=: =3 passed · 1 failed=, /"the dialogue faculty at its deepest tune"/ expects =usage: { input, output }=, gets the measure list.
+- =commons/editors/darkroom/tests/=: =0 passed · 1 failed (7 steps)=, =Cannot read properties of null (reading 'branch')= at =/mode/editor/darkroom/picture/hallucinate=.
+- =commons/instances/hello-world/tests/=: =17 passed · 2 failed (7 steps)=, =Cannot read properties of undefined (reading 'branch')=.
+** Root cause
+Unread.
+** Evidence
+11-26, same lines on the tree and on a copy carrying the channel-media change.
+** Why not fixed
+Outside =quests/channel-media.org=.
+** Workaround
+Compare a change against the same red, by name.
 
 * runtime-answers-before-its-routes-mount — OPEN (found 11-20, instance-telemetry census, his paste)
 ** Symptom
@@ -43,7 +69,9 @@ Unread; a string where the record's array of natures is expected.
 ** Ruling
 None; =quests/done/instance-telemetry.org= Q3 gives the mode a controller, the field itself is typology's.
 
-* registry-views-throw-on-a-mode-less-file — OPEN (found 11-20, landed latent 11-21, =done/file-drop.org= milestone 3)
+* registry-views-throw-on-a-mode-less-file — LANDED 11-24 on his /"fix."/ (tree + =@education= · =@assembly=, unpushed; prod still throws until his push and a deploy) (found 11-20, landed latent 11-21, =done/file-drop.org= milestone 3)
+** Landed 11-24
+Q14 · Q17 as cast: =mode.$files= (=ghost/entities/mode/hydration.js=) · =daemon.$files= (=ghost/entities/daemon/hydration.js=, NOT the lifecycle the quest named: a console client's daemons never run it, =entities= null, measured) · =runtime.$files= (=ghost/subjects/client/factory.js=), a plain =files= getter each, client File =daemon=; the 11 rows read =buffer.mode.daemon.$files= (the store, a Svelte view stays live on it) · =dojo.jsx= =buffer.mode.daemon.files=. Met on prod and localhost 11-24: four dropped screenshots, mode-less, killed dojo. Checked: =ghost/tests/entities/file/file.test.js= step 2 · ghost suite equal by name (23 red before and after) · dojo · wakaru · model/editor · guide/editor walked on =:1794=, bundles rebuilt, zero =file.mode.daemon= left in the registry.
 ** Symptom
 A view that lists files dies with =TypeError: Cannot read properties of null (reading 'daemon')= once ONE File with no mode is in the client's file store. Dormant on localhost 11-21: 331 Files, all with a mode. The first file dropped on the dock, or the first picture a model returns, is mode-less.
 ** Root cause
@@ -57,16 +85,21 @@ Milestone 3 was never cast; the quest went to =done/= on his word 11-21 with it 
 ** Workaround
 None once a mode-less File exists; until then nothing shows.
 
-* assembly-mode-suites-red-on-daemon-required — OPEN (found 11-20, m127 baseline, registry =@assembly=)
+* assembly-mode-suites-red-after-daemon-fix — OPEN (found 11-20, daemon cause fixed 11-26, registry =@assembly=)
 ** Symptom
-The four mode suites of =~/.viva/registry/assembly/modes/= are red on the tree as it stands, before any edit of mine: =model/editor/tests/assembly.test.js= =FAILED | 4 passed (15 steps) | 1 failed (6 steps)= (=P-verbs= · =P-tools= · =P-harness= · =P-bom= · =P-crud= · =P-retract=), =model/editor/tests/harness.test.js= =0 passed | 1 failed=, =guide/editor/tests/guide.test.js= =1 passed (2 steps) | 1 failed=, =model/import/tests/import.test.js= =2 passed (11 steps) | 1 failed (3 steps)=, =guide/player/tests/guide.test.js= =1 passed (5 steps) | 1 failed=. Every one: =ValidationError: Value for LiteralEntity.daemon is required, 'undefined' found= on the first =/part= through the mode's bound aperture. The pure steps and droneaid's own rig (=~/.viva/registry/droneaid/tests/rig.js=) are green.
+Four suites of =~/.viva/registry/assembly/modes/= are red on assertions: =guide/player/tests/guide.test.js= =1 passed (10 steps) | 1 failed (2 steps)= (=P-tools= · =P-harness=), =guide/editor/tests/guide.test.js=, =model/editor/tests/assembly.test.js=, =model/editor/tests/harness.test.js=. Green: =domain/assembly/tests/{aperture,domain,tools,literal}.test.js= · =model/import/tests/import.test.js=.
 ** Root cause
-Unknown. NOT the test's own Mode entity lacking =daemon=: probed on a copy, =daemon: "assembly-rig"= added at =assembly.test.js:74=, the same six red. Same shape as education's =LiteralEntity.daemon is required= (this file, the education entry).
+Not traced. These assertions sat behind =LiteralEntity.daemon is required=, which is gone: the package's one literal create named no =daemon= (=domain/assembly/traits/literal/placed.js:64=); it now writes =daemon: root.daemon=, off the ontological symbol.
 ** Why not fixed
-Outside m127; the package is mid-move in his tree (=modes/{editor/guide => guide/editor}=). A change to a mode's aperture there is provable only by a pure step until this is green.
-** Evidence — 11-23, on a copy, =HOME= empty (=sh .ikiro/reference/assembly-droneaid/baseline.sh <root>=)
-EIGHT files, not four: the domain's own three are red on the same error (=domain/assembly/tests/aperture.test.js= =0 passed (1 step) | 1 failed (6 steps)= · =literal.test.js= =0 passed (2 steps) | 3 failed (9 steps)= · =tools.test.js= =0 passed (1 step) | 1 failed (3 steps)=), beside =modes/guide/editor= · =guide/player= · =model/editor/{assembly,harness}= · =model/import=. No rig of =@assembly= can write a literal. RULED OUT that day: the daemon scope the runtime binds on a daemon's aperture since m119 (=systems/runtime/subjects/daemon/lifecycle/1-population.js:62=) and neither rig binds; with =held.shard.bind("daemon", …)= on both apertures of the copy's =tests/rig.js= the same five files stay red on the same error. droneaid's rig is green because it writes through =DATASET=, never through a verb.
+Each red is a mode's tool or harness wording against its test; none was read.
 
+* guide-player-stage-janky — OPEN (found 11-26, registry =@assembly=)
+** Symptom
+The guide player's stage animates in jumps where the guide editor is smooth, on the same kit (=modes/guide/{player,editor}/buffer/kit/= differ in 0 lines).
+** Root cause
+Not watched: the runtime was down. Landed without curing it: =framed= keeps its identity across unrelated writes (=modes/guide/player/buffer/Guide.svelte:126=); the overview opens at explode 0 (=:171=). Suspects left: =toggleDone= writes twice 350ms apart and each echo replaces =local= whole (=:186=); the step list scrolls smooth over a step that opens with no height ease (=:247=).
+** Why not fixed
+Needs the player and the editor watched side by side on a live runtime.
 * watcher-restarts-on-vcs-metadata — OPEN (found 11-23, mine, =systems/runtime/watch.js=)
 ** Symptom
 A READ of a registry package's VCS state restarts his running runtime: =git -C ~/.viva/registry/assembly status --short= at 14:24:41 refreshed =.git/index=, the launcher printed its restart and =:2501= changed pid 79153 → 97184 at 14:24:42. A bare =jj st= there snapshots too (11-20, m127's changelog).
@@ -3008,3 +3041,77 @@ none; typology core. Owed test: =call.conversation.test.js=, a mind that throws 
 
 * call-ear-dies-of-queue-overflow — OPEN (found 11-24, same call)
 =[elevenlabs] queue_overflow: Session terminated: audio data is being sent too frequently= at =commons/hallucinators/elevenlabs/provider/index.js:85=, 36.5 s into the call, 11.5 s after the reply sealed. Cause unread. It ends the call as FAILED.
+
+* a-scope-inherits-the-ambient-context — LANDED 11-24 on his /"run and test."/ (tree, undeployed)
+** Symptom
+Prod 11-24 after a deploy: =/attached/surface/<id>= 404 =SurfaceEntity not found= for every surface outside one daemon (13 of 18), until a restart.
+** Root cause
+=Datamap.shard.scope= = =RequestContext.create(orm.em, task)=; mikro's =fork()= starts from =this.getContext(false)= (=EntityManager.js:1887=) and copies its filter params (=:1910=): a scope opened while another is ambient inherits its =daemon= · =mode= · =user=. On a boot that reinstalls a dataset the install's scope (=mode/traits/dataset.js:60=) stayed ambient for later requests (the carrier is NOT pinned), and =Mode='s =daemon= filter rode the auto-joined ref into the =Surface= lookup.
+** Evidence
+A patched =EntityManager.js= mounted into a clone of prod: 40 =daemon= writes at boot, none on the root; the request's manager forked from the install's fork. Clone, first boot with 3 reinstalls: 5 of 18 surfaces before, 18 of 18 with the fix.
+** Fix
+=subsystems/typology/prototypes/datamap.js:16= passes ={ disableContextResolution: true }=: a scope forks the root. =systems/runtime/tests/datamap.scope.test.js= (red before, green after); census rig beside base: equal by name but that test.
+** Open
+Until deployed: restart the runtime once after any deploy that reinstalls a dataset.
+** Carrier — PINNED 11-25
+Deno 2.9.7: a dynamic =import()= of a module not yet loaded, awaited inside an =AsyncLocalStorage= scope, leaves that scope's context as what every later =Deno.serve= handler enters with, until the next such import (=.ikiro/reference/scope/import-leaks-context.probe.js=). Here: =paladin.read.data= (=read.js:39=) under =pull= (=mode/traits/dataset.js:51=). Moving =pull= before the install's scope leaks the outer traits scope instead: a mode boots under a scope.
+** Still reads the ambient context
+=shard/datamap.js:256= =forked= · =:251= =bind= · =prototypes/datamap.js:19= =carry= · =mode/traits/harness.js:286= · any =entities.<kind>= call outside a scope. Other reachable imports: =paladin/gestalten/belt/bundler.js:29= · =commons/services/ocr/provider/=. Upstream: not searched, not reported.
+
+* home-seats-a-thread-no-guide-open — OPEN (found 11-26, fresh ubuntu walk)
+** Symptom
+Client =HOME= on =/daemon/droneaid/mode/guide/player=: a new visitor's terminal sits in the player with an empty stage; the mentor answers /"the builder has no guide open"/.
+** Root cause
+=systems/ghost/subjects/client/traits/home.js:14= creates a thread in the mode and nothing more; the player draws a buffer on a guide.
+** Ruling
+none
+** Unknown
+Where a wrong HOME reference's fault shows: =home.js:26= sends it to the terminal's stdout; the browser console and the runtime log carried nothing, the terminal's own panel was not opened.
+
+* install-docs-name-dead-commands — OPEN (found 11-26, fresh ubuntu walk)
+** Symptom
+=ledger/init= · =registry/list= · =instance/create= · =instance/init= · =instance/run= · =instances/use= · =instances/list= · =--init= answer nothing; the shell has =ledger/install= · =registry/doctor= · =instance/clone= · =instance/install= · =instance/up= · =instance/start=.
+** Evidence
+Lines still carrying one, 11-26: =subsystems/paladin/paladin/lifecycle.js:53= · =subsystems/paladin/prototypes/instances.js:58=. No line under =documentation/content= or in the root README carries one. =31.02_instance-from-scratch.mdx= clones =@commons/instance/standalone=, which no package supplies; =12.01_anatomy-of-an-instance.mdx= says =instance/up= refuses on faults, and =up.js= never reads them.
+** Ruling
+none
+
+* social-service-suite-dies-at-boot-once — OPEN (11-26)
+** Symptom
+=deno test -A --no-check commons/social/=: one run of three, =whatsapp/tests/service.test.js= failed with =runtime exited 1 before ready= · =r/house FAILED=; alone and on the next whole run it passed.
+** Root cause
+Unread. Four suites boot runtimes at once while his watcher restarts on the same save.
+** Evidence
+11-26, the run that landed =twitch.js=; =FAILED / 3 passed (32 steps) / 1 failed=, then =ok / 4 passed (38 steps)=.
+** Ruling
+none
+** Why not fixed
+Not reproduced on demand.
+** Workaround
+Run the suite again; read the child's log tail when it recurs.
+
+* dock-walk-findings-11-26 — OPEN (11-26)
+** Symptom
+In anima: a bare =/thread= prints nothing on screen (its answer is ={ which }=) · the input wraps clipped on the left while typing =/mode bot/personal= · empty =harness/runtime= threads appear in pairs at one instant (=01a2178f-8a59…= · =01a2178f-8aab…=, 82 ms apart).
+** Root cause
+Unread, each.
+** Evidence
+Screens of 11-26 and =~/.viva/instances/localhost/mountpoint/localhost.viva.db=.
+** Ruling
+none
+** Why not fixed
+Outside =quests/whatsapp-agent.org=.
+** Workaround
+Seat a thread by id: =/thread <end of its id>=.
+
+* is-citizen-reads-a-key-nobody-writes — OPEN (found 11-26, quest =paladin-belt=)
+** Symptom
+None seen on screen. Read, not probed.
+** Root cause
+=subsystems/paladin/gestalten/belt/is.js:30= asks =paladin.deployed=. The getter is =paladin.is.deployed= (=is.js:22=); nothing writes =paladin.deployed=, so the branch never returns false.
+** Evidence
+A grep for a writer of =deployed= under =subsystems/paladin= returns the getter alone. Three sites read =is.citizen= or =is.deployed=.
+** Why not fixed
+The quest =paladin-belt= changes names and style, never what a predicate answers. It carries the same signal over.
+** Workaround
+none

@@ -13,7 +13,7 @@ export class Datamap {
       this.entities[meta.className.toLowerCase().replace("entity", "")] = orm.em.getRepository(meta.class);
     }
     this.shard = {
-      scope: (task) => RequestContext.create(orm.em, task),
+      scope: (task) => RequestContext.create(orm.em, task, { disableContextResolution: true }),
       bind: (name, resolve) => datamap.bind(orm.em, name, resolve),
       carry: () => {
         const context = RequestContext.currentRequestContext();

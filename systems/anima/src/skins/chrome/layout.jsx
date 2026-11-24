@@ -95,6 +95,7 @@ const Seated = () => {
   const sidebar = from(app.bridge.$sidebar);
   const dock = () => {
     terminals();
+    viewport();
     return terminal.dock;
   };
   const sided = () => (viewport().narrow ? pane() === "sidebar" : sidebar().open);

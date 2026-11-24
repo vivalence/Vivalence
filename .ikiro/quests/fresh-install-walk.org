@@ -1,0 +1,308 @@
+#+title: fresh-install-walk — a clean ubuntu container, set up by hand, every break on the way named
+#+status: the walk runs by hand on ubuntu and by compose off the published images; the package's =ledger.json= rename waits for his push
+
+* intent
+
+"two goals: a: get the installation routine validated and updated. b: get the droneaid instance up"
+
+"we will do a run where i pull and enter an empty viva docker image and manulaly set up the environemt you created. you give me the full steps. i want to touch on the problems were facing."
+
+"write teh guide into a quest unindexed for me work off of"
+
+* rulings
+
+| his words | state |
+|---|---|
+| "The ledger's .env values are never consulted, -- this is the mistake i think. id expect the ledgers values to be considered." | LANDED: a key the ledger's =.env= holds is not scaffolded into the instance's |
+| "its a bit annoying that the shell is constantly covering and thus deleting all the fullscreen past comman history." | LANDED |
+| "better. but soo much whitespace." | LANDED: the cursor rewinds over the footer |
+| "if i send both, then password should be used" | LANDED: =instance/lighthouse/signup <name> <password>= on a name-only lighthouse signs up and sets the password |
+| "login now for two should require the correct pw while three dont need none" | LANDED: =signin <name> <password>= checks the password; =signin <name>= signs a passwordless name in on a lighthouse with =AUTOSIGNUP=, and is refused for a name that holds one |
+| "apt-get update && apt-get install -y --no-install-recommends vim ranger. add to the base image for the future" | in =.ikiro/reference/fresh-install/Dockerfile= |
+
+* the walk
+
+The kit is =.ikiro/reference/fresh-install/=: =Dockerfile=, =ledger.viva.json=, =instance.viva.json=.
+
+** 0 · on the mac, from the repo root
+
+#+begin_src sh
+docker build -f .ikiro/reference/fresh-install/Dockerfile -t viva-fresh:walk2 .
+docker rm -f viva-manual
+docker run -it --name viva-manual -p 4501:4501 -p 4794:4794 \
+  -v ~/.viva/registry/assembly:/taps/assembly:ro \
+  -v ~/.viva/registry/droneaid:/taps/droneaid:ro \
+  -v $PWD/.ikiro/reference/fresh-install:/kit:ro viva-fresh:walk2 bash
+#+end_src
+
+=docker rm -f viva-manual= removes the last walk's container and its ledger.
+
+** 1 · the ledger
+
+#+begin_src sh
+viva --help
+viva ledger/install ~/.viva
+cp /kit/ledger.viva.json ~/.viva/ledger.viva.json
+#+end_src
+
+- With a path the command asks nothing. Bare =viva ledger/install= opens the form.
+- The first line printed is =paladin.scope overwrite=: break 11.
+- The recipe installed by default is =commons/ledger/ledger.viva.json=: four hallucinators, fifteen faculties, traits =JOINABLE= and =AUTOLOGIN=. The kit's recipe is the flat one: =AUTOSIGNUP=, one OpenRouter =dialogue= faculty.
+
+** 2 · ports and the key, in the ledger's =.env= only
+
+#+begin_src sh
+cat >> ~/.viva/.env <<'EOF'
+VIVA_RUNTIME_ORIGIN="http://0.0.0.0:4501"
+VIVA_CLIENT_ANIMA_ORIGIN="http://0.0.0.0:4794"
+PUBLIC_VIVA_RUNTIME_REMOTE="http://localhost:4501/"
+EOF
+#+end_src
+
+Then the key, as two separate entries: pasted as one block, =read= takes the =echo= line as the key.
+
+#+begin_src sh
+read -rs KEY
+#+end_src
+
+Paste the OpenRouter key, Enter.
+
+#+begin_src sh
+echo "SECRET_VIVA_OPENROUTER_API_KEY=\"$KEY\"" >> ~/.viva/.env
+viva ledger/doctor
+#+end_src
+
+The doctor's =environment= table shows =4501= and =4794=, and =secrets= names the key.
+
+** 3 · packages and the instance
+
+#+begin_src sh
+viva registry/tap /taps/assembly
+viva registry/tap /taps/droneaid
+viva instance/clone @droneaid/instance/droneaid
+cp /kit/instance.viva.json ~/.viva/instances/droneaid/instance.viva.json
+viva instance/use droneaid --ledger
+viva instance/install
+grep -v '^#' ~/.viva/instances/droneaid/.env
+viva instance/doctor 
+#+end_src
+
+- =grep= shows =SECRET_VIVA_JWT= and no origin; the doctor shows both origins at stratum =ledger=.
+- =esc= on the environment form aborts the command, though the footer says skip: break 13. The =.env= and the JWT are written before the form, so the walk goes on to step 4.
+- In a terminal =viva instance/install= opens the environment form, boots the instance, asks for an admin and ends in break 2. The line =[probe …] fetch failed … Connection refused= is the wait for the boot, not a fault: break 10. Do not interrupt it.
+- The kit's recipe adds =HOME= on anima: =/daemon/droneaid/mode/guide/player=.
+
+** 4 · start
+
+#+begin_src sh
+viva instance/start
+curl -s localhost:4501/beacon/status
+#+end_src
+
+Wait for ="code":"RUNNING"=. An admin with a password, the way that works on this lighthouse:
+
+#+begin_src sh
+viva instance/lighthouse/signup admin admin # username password
+#+end_src
+
+** 5 · the browser, on the mac
+
+=http://localhost:4794=, a name, no password.
+
+- Lands in =[player ‹guide/player›]=. "which guides are there" lists three.
+- The screen beside the thread is empty: break 1.
+- Any existing name without a password lets anyone in: break 3.
+
+** 6 · the smaller ones, in the container
+
+#+begin_src sh
+viva instance/rename nobody other; echo $?
+viva instance/clone hello-world
+viva instance/use hello-world doctor key:ORIGIN --ledger
+viva instance/use droneaid --ledger
+viva
+viva instance/down
+#+end_src
+
+** 7 · leave
+
+#+begin_src sh
+exit
+docker rm -f viva-manual
+#+end_src
+
+* the walk, off the published images
+
+A push to GitLab builds four images and publishes them, tag =alpine= and the commit's short hash: =registry.vivalence.org/beef/viva/vivalence/{viva,runtime,anima,documentation}=. They pull without a login. They are =arm64= only.
+
+No shell work inside a container. The instance folder of the droneaid package is the compose project: =~/.viva/registry/droneaid/instances/droneaid/= holds =instance.viva.json=, =docker-compose.yml=, =Dockerfile=, =ledger.json=, =.env.example=. It is the prod compose of runtime and anima, both services on one host, without the proxy labels.
+
+** 0 · the folder, on the server
+
+#+begin_src sh
+git clone https://github.com/vivalence/registry-droneaid.git
+cd registry-droneaid/instances/droneaid
+cp .env.example .env
+openssl rand -base64 24
+vim .env
+#+end_src
+
+In =.env=: =SECRET_VIVA_JWT= is the line =openssl= printed, =SECRET_VIVA_OPENROUTER_API_KEY= the key, =PUBLIC_VIVA_RUNTIME_REMOTE= and =VIVA_CLIENT_ANIMA_ORIGIN= the two addresses a browser reaches, =VIVA_TAG= a commit's short hash to pin the images or =alpine= for the newest. The compose files reach GitHub only after his push of the package.
+
+** 1 · what the folder holds
+
+- =Dockerfile=: =FROM …/runtime:${VIVA_TAG}=, then =viva registry/tap= of =registry-assembly= and =registry-droneaid= from GitHub. The packages are baked into the image at build.
+- =ledger.json=: the flat ledger recipe (not named =*.viva.json=: the registry would read it as a module and fault it), mounted over the image's =/viva/ledger/ledger.viva.json=: lighthouse =AUTOSIGNUP=, one OpenRouter =dialogue= faculty.
+- =instance.viva.json=: the recipe with =HOME= on anima. The folder is mounted read-only at =/viva/instance= in both services; its =.env= is read there as the instance's.
+- volume =mountpoint=: the database, =/viva/mountpoint/droneaid.viva.db=.
+
+** 2 · up
+
+#+begin_src sh
+docker compose build runtime
+docker compose up -d
+docker compose ps
+curl -s localhost:2501/beacon/status
+#+end_src
+
+=runtime= turns =healthy= in about 25 seconds; =anima= starts after it, bundles at every start, then answers 200 on its port.
+
+** 3 · users
+
+#+begin_src sh
+docker compose exec runtime viva instance/lighthouse/signup admin <password>
+docker compose exec runtime viva instance/lighthouse/signin admin <password>
+#+end_src
+
+The shell in the container dials =PUBLIC_VIVA_RUNTIME_REMOTE=, the browser's address: break 15. On a host port other than 2501 that address does not resolve inside the container and both commands fail; an =-e= override does not help, the instance's =.env= outranks it.
+
+** 4 · a new version
+
+#+begin_src sh
+docker compose build --pull --no-cache runtime
+docker compose pull anima
+docker compose up -d --force-recreate
+#+end_src
+
+The build taps each package's GitHub =master= as it is that minute: the runtime and the packages move together.
+
+** what ran, what did not
+
+Ran on the mac from a copy of the instance folder, images of commit =0df66eef=, host ports 4501 and 4794: build, up, =healthy=, 259 literals in the database, =instance/doctor= with no problem and no fault, autosignup from the host, anima's page and bundle served. =viva instance/clone @droneaid/instance/droneaid= carries the four new files, and the doctor of the clone is clean.
+
+Not ran: step 0 as written (the files are not on GitHub), step 3 on port 2501, step 4, the page in a browser, a server, an =amd64= host, a domain behind a proxy.
+
+* as code
+
+Landed:
+
+#+begin_src diff
+// systems/ghost/subjects/shell/lifecycle/3-integration.js:19
+-  const renderer = await createCliRenderer({ screenMode: "split-footer", exitOnCtrlC: false });
++  const renderer = await createCliRenderer({
++    screenMode: "split-footer",
++    clearOnShutdown: false,
++    exitOnCtrlC: false,
++  });
++  const height = renderer.footerHeight;
+#+end_src
+
+#+begin_src diff
+// systems/ghost/subjects/shell/lifecycle/3-integration.js:31
+     renderer.destroy();
++    Deno.stdout.writeSync(new TextEncoder().encode(`\x1b[${height}A\x1b[J`));
+#+end_src
+
+The check is =.ikiro/reference/fresh-install/hold.probe.sh <history lines>=, run in the image: a 30-row
+tmux pane, =viva ledger/install= answered, the screen captured. No suite reaches =hold=: it is set only
+in a terminal.
+
+Landed, =subsystems/paladin/gestalten/commands/instance/lighthouse.js=: =/instance/lighthouse/signup= takes =signup=, =/instance/lighthouse/signin= takes =signin=, both with =password= optional in their input.
+
+#+begin_src js
+const shown = (ctx, answer) =>
+  ctx.signal.flags.json === true ? answer : { status: answer.status, user: answer.user };
+
+const PASSWORD = {
+  title: "sign up",
+  pages: [{
+    title: "password",
+    fields: [{ name: "password", label: "password", kind: "password", initial: "" }],
+  }],
+  actions: ["commit", "abort"],
+};
+
+const signup = async (ctx) => {
+  const [username, password] = ctx.signal.body;
+  if (!username) throw new Error("usage: viva instance/lighthouse/signup <username> [password]");
+  await mount(paladin);
+  const runtime = new Connection(paladin.instance.runtime.statics.remote);
+  const traits = paladin.instance.lighthouse.traits;
+  const named = !traits.includes("JOINABLE") && !traits.includes("INVITATIONAL");
+  if (password && named) {
+    await runtime.call("/lighthouse/autosignup", { username });
+    const proof = await operator(paladin.secret.get("SECRET_VIVA_JWT"));
+    const reset = { operator: proof, username, password };
+    return shown(ctx, await runtime.call("/lighthouse/password", reset));
+  }
+  if (password) return shown(ctx, await runtime.call("/lighthouse/signup", { username, password }));
+  if (traits.includes("AUTOSIGNUP")) {
+    return shown(ctx, await runtime.call("/lighthouse/autosignup", { username }));
+  }
+  if (!ctx.hold) {
+    throw new Error("instance/lighthouse/signup: this lighthouse needs <username> <password>");
+  }
+  const asked = await ctx.hold(views.form, PASSWORD);
+  if (asked.aborted) return { aborted: true };
+  const typed = { username, password: asked.values.password };
+  return shown(ctx, await runtime.call("/lighthouse/signup", typed));
+};
+
+const signin = async (ctx) => {
+  const [username, password] = ctx.signal.body;
+  if (!username) throw new Error("usage: viva instance/lighthouse/signin <username> [password]");
+  await mount(paladin);
+  const runtime = new Connection(paladin.instance.runtime.statics.remote);
+  if (password) return shown(ctx, await runtime.call("/lighthouse/login", { username, password }));
+  if (!paladin.instance.lighthouse.traits.includes("AUTOSIGNUP")) {
+    throw new Error("instance/lighthouse/signin: this lighthouse needs <username> <password>");
+  }
+  return shown(ctx, await runtime.call("/lighthouse/autosignup", { username }));
+};
+#+end_src
+
+* milestones
+
+Each is a break the walk shows. Green when the walk step named passes without the workaround.
+
+| n | break | walk step | green when | state |
+|---|---|---|---|---|
+| 1 | the player lands on an empty screen; =/step= says "the builder has no guide open" (known issue =home-seats-a-thread-no-guide-open=) | 5 | a guide is open, or the screen offers the three to pick | DECLARED |
+| 2 | =instance/install <user> <pass>= and the install form's admin page on an =AUTOSIGNUP=-only lighthouse: =404 @ /lighthouse/signup=; they call the route from =install.js:78=, not through =instance/lighthouse/signup=, which now signs up by name, and with a password sets it as operator (LANDED) | 3 | =instance/install admin <pass>= makes the admin | open |
+| 3 | autosignup takes any string as a name (=A b!=) and signs anyone in as an existing name that holds no password | 5 | a bad name is refused; his ruling on the second half | DECLARED |
+| 4 | =instance/clone= (exists, no match), =instance/rename=, =instance/delete= on a missing slug print =error …= and exit 0 | 6 | exit 1 | DECLARED |
+| 5 | =instance/down= after =instance/up --logged=: "still holds the lock after 15 s", exit 1; seen once, not reproduced after =instance/start= | 6 | reproduced or struck | DECLARED |
+| 6 | bare =viva= in the image: =Module 404 @commons/home/console= (=.dockerignore= drops =commons/fixtures=); seen without a terminal only | 6 | =viva= opens the chrome in the container | DECLARED |
+| 7 | =instance/use <other> doctor --ledger= runs the doctor on the selected instance, not =<other>= | 6 | the doctor's =mount= is =<other>='s | DECLARED |
+| 8 | =instance/clone hello-world <target>= refused while slug =hello-world= is recorded | 6 | his ruling: refuse or place | DECLARED |
+| 9 | a form, picker or confirm wipes the visible screen when it closes | 1, 3 | history stays on screen, no blank block | LANDED |
+| 10 | the wait for a boot prints only a =[probe] fetch failed= line; =--install= boots in a terminal and only scaffolds without one | 3 | the wait says it waits | DECLARED |
+| 11 | =paladin.scope overwrite= on =ledger/install=; =lighthouse ?= in the doctor; =registry/tab= says =Not found= with no hint; =registry/tap file:///…= read as a store path; =instance/start nonsense= says "supervisor exited 1"; =instance/use <slug> --install= ignores the flag it does not have, silently | 1, 3 | each line gone or named | DECLARED |
+| 12 | the docs name dead commands (known issue =install-docs-name-dead-commands=); the default ledger recipe has no flat variant | 1 | his ruling | DECLARED |
+| 13 | the environment form says =esc → skip=; =esc= answers =aborted= (=form.jsx:20=) and =instance/install= returns there (=install.js:160=): no key skips the page and goes on | 3 | =esc= on the environment page goes on to the boot, or the footer says abort | DECLARED |
+| 14 | =viva instance/start= in =viva:alpine=: anima exits 1, =Cannot find module ./rolldown-binding.linux-arm64-musl.node=; the supervisor exits with it. =runtime= alone not tried there | off the images | his ruling: anima runs only from its own image, or =instance/start= says so | DECLARED |
+| 15 | the shell in a container dials the public address for =instance/lighthouse/*= | off the images, 3 | the command reaches its own runtime without an override | DECLARED |
+| 16 | the public GitHub =vivalence= is at =fea8a8b0= (10-14): no =embed= task, the README's step 0 fails there. The images are =arm64= only | — | his ruling | DECLARED |
+| 17 | no suite reaches what landed here: the footer of a form (=hold=), =signup= and =signin= by parameters, the tokens left out of the outline | — | a step in =systems/runtime/tests/qa/fresh.test.js= on a lighthouse with =AUTOSIGNUP= for the three sign-up cases and the two sign-in cases; a terminal test for =hold= | owed |
+| 18 | a =*.viva.json= without a manifest inside a package faults =registry/doctor= (=no manifest.slug — unfit to register=) and nothing in the package's suite says so | — | a test in the droneaid package: the registry's integrity over the package holds no fault | owed |
+
+* never
+
+- =screenMode: "main-screen"= for the forms: it paints from row 1 over the history.
+- Ports and keys copied into each instance's =.env=: the ledger's are read.
+- A ledger recipe named =*.viva.json= inside a package: the registry reads it as a module.
+- =viva instance/start= for anima inside =viva:alpine=: anima runs from its own image.
+
+* next
+
+His push of the package (the =ledger.json= rename), then =registry/doctor= in a fresh build; then break 1.

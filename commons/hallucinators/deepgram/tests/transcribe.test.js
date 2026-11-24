@@ -148,7 +148,7 @@ specimen.describe(
       async () => {
         FakeSocket.instances = [];
         async function* spoken() {
-          yield { event: "/audio/packet", audio: { data: btoa("\x01\x02"), rate: 16000 } };
+          yield { event: "/audio/packet", audio: { data: btoa("\x01\x02"), mime: "audio/pcm" } };
         }
         const flow = run(spoken());
         await sleep.ms(1);

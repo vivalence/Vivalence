@@ -7,7 +7,7 @@
 import { specimen, Controller, soma, Cortex, Vector } from "@vivalence/typology";
 import { create } from "./scenarios/cortex.js";
 
-// A Faculty is a dumb, stateless, single-shot provider: {type, tune, channels, via:{render,stream}}.
+// A Faculty is a dumb, stateless, single-shot provider: {type, tune, channels:{render,stream}}, each {in, out, via}.
 // render(turns, config) → one Turn. stream(turns, config) → AsyncGen<Packet>. Nothing else.
 // This literal IS the whole provider contract — the anthropic provider ships the same shape.
 function tutor() {
@@ -23,24 +23,27 @@ function tutor() {
     type: "dialogue",
     id: "dialogue-1",
     tune: [0.9, 0.3, 0.5], // [intelligence, speed, thrift]
-    channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
-    via: {
-      render: async (request) => {
-        const { turns, tools, output } = request;
-        // A structured output was asked for → the provider returns an object turn.
-        if (output?.schema) {
-          const data = { query: lastUser(turns) };
-          return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" } };
-        }
-        // A real tool is on the table and unanswered → call it, then the loop feeds the result back.
-        if (tools?.length && !answered(turns)) {
-          return {
-            role: "assistant",
-            parts: [{ type: "tool_use", id: "call-1", name: tools[0].name, input: { query: lastUser(turns) } }],
-            meta: { state: "tools" },
-          };
-        }
-        return { role: "assistant", parts: [{ type: "text", text: `answer: ${lastUser(turns)}` }], meta: { state: "complete" } };
+    channels: {
+      render: {
+        in: [{ type: "text" }, { type: "tool_result" }, { type: "tool_use" }],
+        out: [{ type: "text" }, { type: "tool_use" }, { type: "object" }],
+        via: async (request) => {
+          const { turns, tools, output } = request;
+          // A structured output was asked for → the provider returns an object turn.
+          if (output?.schema) {
+            const data = { query: lastUser(turns) };
+            return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" } };
+          }
+          // A real tool is on the table and unanswered → call it, then the loop feeds the result back.
+          if (tools?.length && !answered(turns)) {
+            return {
+              role: "assistant",
+              parts: [{ type: "tool_use", id: "call-1", name: tools[0].name, input: { query: lastUser(turns) } }],
+              meta: { state: "tools" },
+            };
+          }
+          return { role: "assistant", parts: [{ type: "text", text: `answer: ${lastUser(turns)}` }], meta: { state: "complete" } };
+        },
       },
     },
   };

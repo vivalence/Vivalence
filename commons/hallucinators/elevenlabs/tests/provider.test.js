@@ -105,7 +105,7 @@ function listen(ear, source, settings = {}, abort = new AbortController()) {
   let fault = null;
   const done = (async () => {
     try {
-      for await (const packet of ear.via.stream({ source, settings }, { signal: abort.signal })) {
+      for await (const packet of ear.channels.stream.via({ source, settings }, { signal: abort.signal })) {
         collected.push(packet);
       }
     } catch (error) {
@@ -143,18 +143,18 @@ specimen.describe("elevenlabs provider", () => {
       ]);
 
       for (const voice of speech) {
-        specimen.expect(typeof voice.via.stream).toBe("function");
-        specimen.expect(typeof voice.via.render).toBe("function");
+        specimen.expect(typeof voice.channels.stream.via).toBe("function");
+        specimen.expect(typeof voice.channels.render.via).toBe("function");
         specimen.expect(Array.isArray(voice.tune)).toBe(true);
-        specimen.expect(voice.channels.out[0].codec).toBe("pcm_16000");
-        specimen.expect(voice.channels.out[1].codec).toBe("mp3_44100_128");
+        specimen.expect(voice.channels.stream.out[0].mime).toEqual(["audio/pcm;rate=16000;channels=1"]);
+        specimen.expect(voice.channels.stream.out[1].mime).toEqual(["audio/mpeg"]);
       }
 
       const ear = faculties.find((each) => each.type === "verbatim");
       specimen.expect(ear.id).toBe("scribe_v3_live");
       specimen.expect(ear.tune).toEqual([0.8, 0.9, 0.7]);
-      specimen.expect(ear.channels.in[0].codec).toBe("pcm_16000");
-      specimen.expect(typeof ear.via.stream).toBe("function");
+      specimen.expect(ear.channels.stream.in[0].mime).toEqual(["audio/pcm;rate=16000;channels=1"]);
+      specimen.expect(typeof ear.channels.stream.via).toBe("function");
       specimen.expect(ear).matches(v.primitives.hallucination.Faculty);
     },
   );
@@ -167,7 +167,7 @@ specimen.describe("elevenlabs provider", () => {
       const voice = await faculty("speech");
       const packets = [];
       const signal = new AbortController().signal;
-      for await (const packet of voice.via.stream({ source: "buongiorno" }, { signal })) {
+      for await (const packet of voice.channels.stream.via({ source: "buongiorno" }, { signal })) {
         packets.push(packet);
       }
 
@@ -202,7 +202,7 @@ specimen.describe("elevenlabs provider", () => {
       const abort = new AbortController();
       const packets = [];
       const flow = (async () => {
-        for await (const packet of voice.via.stream({ source: text }, { signal: abort.signal })) {
+        for await (const packet of voice.channels.stream.via({ source: text }, { signal: abort.signal })) {
           packets.push(packet);
         }
       })();
@@ -227,7 +227,7 @@ specimen.describe("elevenlabs provider", () => {
       const packets = [];
       let fault = null;
       try {
-        for await (const packet of voice.via.stream({ source: "buongiorno" }, { signal: new AbortController().signal })) {
+        for await (const packet of voice.channels.stream.via({ source: "buongiorno" }, { signal: new AbortController().signal })) {
           packets.push(packet);
         }
       } catch (error) {
@@ -318,8 +318,8 @@ specimen.describe("elevenlabs scribe — the ear speaks the one content grammar"
     await sleep.ms(1);
     const ws = ScribeSocket.instances[0];
     ws.open();
-    source.enqueue({ event: "/audio/packet", pts: 0, audio: { data: PCM, rate: 16000 } });
-    source.enqueue({ event: "/audio/packet", pts: 0.1, audio: { data: TWO, rate: 16000 } });
+    source.enqueue({ event: "/audio/packet", pts: 0, audio: { data: PCM, mime: "audio/pcm" } });
+    source.enqueue({ event: "/audio/packet", pts: 0.1, audio: { data: TWO, mime: "audio/pcm" } });
     await sleep.ms(1);
 
     specimen.expect(ws.sent).toEqual([
@@ -406,7 +406,7 @@ specimen.describe("elevenlabs scribe — the ear speaks the one content grammar"
     await sleep.ms(1);
     const ws = ScribeSocket.instances[0];
     ws.open();
-    source.enqueue({ event: "/audio/packet", audio: { data: PCM, rate: 16000 } });
+    source.enqueue({ event: "/audio/packet", audio: { data: PCM, mime: "audio/pcm" } });
     ws.said({ message_type: "partial_transcript", text: "grazie" });
     await sleep.ms(1);
     source.close();
@@ -440,7 +440,7 @@ specimen.describe("elevenlabs scribe — the ear speaks the one content grammar"
     await sleep.ms(1);
     const ws = ScribeSocket.instances[0];
     ws.open();
-    source.enqueue({ event: "/audio/packet", audio: { data: PCM, rate: 16000 } });
+    source.enqueue({ event: "/audio/packet", audio: { data: PCM, mime: "audio/pcm" } });
     ws.said({ message_type: "partial_transcript", text: "eh" });
     await sleep.ms(1);
     source.close();
@@ -538,7 +538,7 @@ specimen.describe("elevenlabs · a faculty carries its entry forward (m126 Q7A)"
     const [entry] = FACULTIES;
     const [faculty] = await provider({ secrets: { key: "fake-key" }, faculties: [{ ...entry, tier: "tongue", provider: "elevenlabs" }] });
     specimen.expect([faculty.type, faculty.id, faculty.tier, faculty.provider]).toEqual([entry.type, entry.id, "tongue", "elevenlabs"]);
-    specimen.expect(Object.keys(faculty.via).length).toBeGreaterThan(0);
+    specimen.expect(Object.keys(faculty.channels).length).toBeGreaterThan(0);
     specimen.expect(entry.tier).toBeUndefined();
   });
 });

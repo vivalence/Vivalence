@@ -2,6 +2,7 @@ import { Vector } from "@vivalence/typology";
 
 export class Service {
   type = "service";
+  aperture = new Vector();
   attachment = new Vector();
   mask = null;
   module = null;

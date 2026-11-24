@@ -21,28 +21,31 @@ function contractFaculty() {
     id: "dialogue-1",
     tune: [0.9, 0.3, 0.5],
     context: 200000,
-    channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
-    via: {
-      render: async (request) => {
-        if (request.tools && !answered(request.turns)) {
+    channels: {
+      render: {
+        in: [{ type: "text" }, { type: "tool_result" }, { type: "tool_use" }],
+        out: [{ type: "text" }, { type: "tool_use" }],
+        via: async (request) => {
+          if (request.tools && !answered(request.turns)) {
+            return {
+              role: "assistant",
+              parts: [
+                {
+                  type: "tool_use",
+                  id: "call-1",
+                  name: "lookup",
+                  input: { query: "casa" },
+                },
+              ],
+              meta: { state: "tools" },
+            };
+          }
           return {
             role: "assistant",
-            parts: [
-              {
-                type: "tool_use",
-                id: "call-1",
-                name: "lookup",
-                input: { query: "casa" },
-              },
-            ],
-            meta: { state: "tools" },
+            parts: [{ type: "text", text: "casa means house" }],
+            meta: { state: "complete" },
           };
-        }
-        return {
-          role: "assistant",
-          parts: [{ type: "text", text: "casa means house" }],
-          meta: { state: "complete" },
-        };
+        },
       },
     },
   };

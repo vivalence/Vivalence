@@ -127,6 +127,9 @@ def transcripts():
                 message = row.get("message") or {}
                 if row.get("type") == "user" and not row.get("isMeta"):
                     text = user_text(message)
+                    for name in re.findall(r"<command-name>/?([\w:-]+)</command-name>", text or ""):
+                        if glob.glob(f"{ROOT}/skills/{name}/SKILL.md") + glob.glob(f"{ROOT}/bak/skills/{name}/SKILL.md"):
+                            session["skills"][name] += 1
                     if not text or text.lstrip().startswith("<"):
                         continue
                     session["turns"] += 1
@@ -217,11 +220,15 @@ def main():
     for guard in sorted(wired - seen):
         lines.append(f"| {guard} (wired, silent) | 0 | 0 | {sum(n for cls, n in all_time.items() if cls.startswith(guard + ' '))} |")
         fired.append(f"guard-silent {guard} — wired, no real fire in {WEEKS} weeks: the rule holds unprompted (retire?) or the match is dead (exercise it)")
-    written = {os.path.basename(p)[:-3] for p in glob.glob(f"{ROOT}/hooks/*-guard.sh") + glob.glob(f"{ROOT}/hooks/*-gate.sh") + [f"{ROOT}/hooks/loaded.sh"]}
+    written = {os.path.basename(p)[:-3] for p in glob.glob(f"{ROOT}/hooks/*-guard.sh") + glob.glob(f"{ROOT}/hooks/*-gate.sh")}
     unwired = sorted(written - wired)
     if unwired:
         lines.append(f"\n- written, not wired (settings.json is his): {' · '.join(unwired)}")
         fired.append(f"guard-unwired {' · '.join(unwired)} — a rule cited as a guard that never runs; propose the settings.json entry or retire the script")
+    dangling = sorted(wired - written)
+    if dangling:
+        lines.append(f"\n- wired, not written (settings.json is his): {' · '.join(dangling)}")
+        fired.append(f"guard-dangling {' · '.join(dangling)} — settings.json runs a script that is gone: every call errors 127; propose the settings.json cut or restore the script")
 
     lines.append("\n## rule loads — InstructionsLoaded rows (hooks/loaded.sh)\n")
     loaded = loads()
@@ -272,11 +279,10 @@ def main():
     for s in sorted(sessions, key=lambda s: s["date"]):
         for m in s["model"]:
             model_first.setdefault(m, s["date"])
-    molts = sorted(glob.glob(f"{ROOT}/reference/molt/*/readings.md"))
+    molts = sorted(glob.glob(f"{ROOT}/reference/molt/*/readings.md") + glob.glob(f"{ROOT}/bak/reference/molt/*/readings.md"))
     last_molt = datetime.date.fromisoformat(os.path.basename(os.path.dirname(molts[-1]))) if molts else None
-    research = age_days(newest(f"{ROOT}/reference/harnesses/**/*.md"))
-    frontier = age_days(os.path.getmtime(f"{ROOT}/quests/frontier.md"))
-    done = sorted(glob.glob(f"{ROOT}/quests/done/*.org"), key=os.path.getmtime)
+    research = age_days(newest(f"{ROOT}/bak/reference/harnesses/**/*.md"))
+    done = sorted(glob.glob(f"{ROOT}/bak/quests/done/*.org"), key=os.path.getmtime)
     closed_since = [p for p in done if last_molt and datetime.date.fromtimestamp(os.path.getmtime(p)) > last_molt] if last_molt else done
     oldest = min((s["date"] for s in sessions), default=None)
     retention = conf.get("cleanupPeriodDays")
@@ -287,7 +293,6 @@ def main():
         lines.append(f"| model {m} first seen | {d} |")
     lines.append(f"| last molt | {last_molt or 'never'} |")
     lines.append(f"| research age (reference/harnesses) | {research} days |")
-    lines.append(f"| frontier age | {frontier} days |")
     lines.append(f"| quests in done/ closed since last molt | {len(closed_since)} |")
     lines.append(f"| oldest transcript | {oldest} · cleanupPeriodDays {retention if retention is not None else 'unset (30 — the sweep is silent)'} |")
     lines.append(f"| memory/*.md newer than the last molt | {len(memories)} |")

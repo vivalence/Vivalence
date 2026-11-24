@@ -20,6 +20,7 @@ export const execution = new Vector()
     return next();
   })
   .use((shellDie, next) => (shellDie.signal.flags.help === true ? rerouted("/help")(shellDie) : next()))
+  .use(integration.selecting)
   .use(integration.commanding)
   .graft(commands)
   .do(rerouted("/chrome"));

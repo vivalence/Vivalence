@@ -1,0 +1,14 @@
+source:
+https://github.com/joshwcomeau/button-sounds
+https://buttons.joshwcomeau.com/
+Encoded from the upstream package/audio/*.wav masters (48kHz stereo). MIT, see LICENSE.
+
+ffmpeg -i <name>.wav -ac 1 -b:a 96k <name>.mp3
+
+Each mp3 is a sprite at 96k mono. sprites.json, read off npm button-sounds@1.0.0, gives every sample of a sound
+as its down and up segments, [start, length] in milliseconds.
+
+Upstream names the ps5-* files ps4-*; sprites.json keys them by file.
+bonus-synth-cracks-trills and lock-closed-old have no sample map upstream.
+
+The whole set, unfiltered.

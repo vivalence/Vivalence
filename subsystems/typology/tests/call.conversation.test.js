@@ -30,14 +30,17 @@ const ear = (id = "scribe_v3_live") => ({
   id,
   provider: "elevenlabs",
   tune: [0.8, 0.9, 0.7],
-  channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
-  via: {
-    stream: async function* ({ source }, { signal }) {
-      const scribe = turned();
-      for await (const frame of source) {
-        if (signal.aborted) return;
-        yield* scribe(JSON.parse(atob(frame.audio.data)));
-      }
+  channels: {
+    stream: {
+      in: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
+      out: [{ type: "text" }],
+      via: async function* ({ source }, { signal }) {
+        const scribe = turned();
+        for await (const frame of source) {
+          if (signal.aborted) return;
+          yield* scribe(JSON.parse(atob(frame.audio.data)));
+        }
+      },
     },
   },
 });
@@ -65,14 +68,17 @@ const mind = (id = "fake-mind", tune = [0.6, 0.4, 0.4]) => ({
   type: "dialogue",
   id,
   tune,
-  channels: { in: [{ type: "text" }], out: [{ type: "event" }] },
-  via: {
-    stream: ({ turns }, { signal }) => {
-      const last = turns.at(-1);
-      if (last.parts[0].type === "tool_result") return text("Sono le ", "tre.")(signal);
-      if (last.parts[0].text.includes("ore")) return tool();
-      if (last.parts[0].text.includes("storia")) return text("C'era ", "una volta ", "un re ", "molto ", "stanco.")(signal);
-      return text("Dimmi.")(signal);
+  channels: {
+    stream: {
+      in: [{ type: "text" }, { type: "tool_use" }, { type: "tool_result" }],
+      out: [{ type: "text" }, { type: "tool_use" }],
+      via: ({ turns }, { signal }) => {
+        const last = turns.at(-1);
+        if (last.parts[0].type === "tool_result") return text("Sono le ", "tre.")(signal);
+        if (last.parts[0].text.includes("ore")) return tool();
+        if (last.parts[0].text.includes("storia")) return text("C'era ", "una volta ", "un re ", "molto ", "stanco.")(signal);
+        return text("Dimmi.")(signal);
+      },
     },
   },
 });
@@ -81,21 +87,24 @@ const mouth = (id = "fake-mouth", tune = [0.5, 0.5, 0.1]) => ({
   type: "speech",
   id,
   tune,
-  channels: { in: [{ type: "text" }], out: [{ type: "audio", codec: "pcm_16000" }] },
-  via: {
-    stream: async function* ({ source }, { signal }) {
-      let pts = 0;
-      for await (const chunk of source) {
-        await sleep(25);
-        if (signal.aborted) return;
-        yield { event: "/audio/packet", pts, audio: { data: btoa(chunk), rate: 16000, codec: "pcm_16000" } };
-        pts += 0.4;
-      }
+  channels: {
+    stream: {
+      in: [{ type: "text" }],
+      out: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
+      via: async function* ({ source }, { signal }) {
+        let pts = 0;
+        for await (const chunk of source) {
+          await sleep(25);
+          if (signal.aborted) return;
+          yield { event: "/audio/packet", pts, audio: { data: btoa(chunk), mime: "audio/pcm;rate=16000;channels=1" } };
+          pts += 0.4;
+        }
+      },
     },
   },
 });
 
-const frame = (data) => ({ event: "/audio/packet", audio: { data: btoa(JSON.stringify(data)), rate: 16000 } });
+const frame = (data) => ({ event: "/audio/packet", audio: { data: btoa(JSON.stringify(data)), mime: "audio/pcm" } });
 const said = (words) => [
   frame({ message_type: "partial_transcript", text: words.split(" ").slice(0, 2).join(" ") }),
   frame({ message_type: "committed_transcript", text: words }),

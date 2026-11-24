@@ -1,0 +1,325 @@
+#+title: whatsapp agent — a personal bot texted from WhatsApp, then Telegram
+#+filetags: :whatsapp:telegram:mode:service:social:
+#+status: steps 1-7 of 11 GREEN (11-26): 1-5 landed in =commons/social/=, 6 · 7 ran on his =localhost= instance with real Meta and a real model, through a quick tunnel whose name dies with its process.
+# writer: agent · limit: 26000 chars · UNNUMBERED · rewritten whole at the fold of 11-25; the file before: =.ikiro/reference/whatsapp-agent/quest-before-fold-11-25.org=
+
+* intent
+
+| # | beef, verbatim |
+|---+----------------|
+| A | /"I would like to have a WhatsApp bot, kind of like Claude, same general architecture. So it's probably some service to connect to WhatsApp and then all of the stuff that I need for like sending and receiving messages."/ |
+| B | /"I would like, for example, the ability to send a bit of audio and have that transcribed as input for agents."/ |
+| C | /"i dont mean a chat client that has all my chats. i wamt one agent i can chat with from inside whatsapp and vivalence."/ |
+| D | /"cloud api."/ |
+| scope | /"The social bot will contain UI to both set the bot itself up, whatever settings we might need, or like statistics, dev UI, then another surface for basically a mirror of the chat interface. […] then probably a bunch of tools to allow others to connect to it, as and send WhatsApp messages. And then we have to think about what tools the harness of the bot needs to have"/ |
+
+* the law
+
+- One bot is one mode. One owner: the service drops every other sender before it fetches anything.
+- A service is transport: it knows an address, never a User or a Thread. The mode owns the turn.
+- The hook's guard is the signature over the exact bytes of the body. It checks, queues, answers 200, nothing else.
+- A message is a Turn of a Thread. No store of messages beside Thread.
+- LLMs only through the mode's harness.
+
+* rulings
+
+| # | beef | state |
+|---+------+-------|
+| Q1 | /"it does make sense to assume that each provider has a specific way of implementing, and that it makes sense to split those out into different packages. […] we do the same with the providers for LLMs."/ | one module per platform, one dogma all implement |
+| Q2 | /"a."/ | the platform is the module; =bot= is a kind it offers, =client= later |
+| Q3 | /"for now we should stick to A. That is the personal and personal bot. And if we want a public bot, then I'll create another mode in there called public that will basically run on the same ontology."/ | =/tell=, owner only |
+| Q5 | /"we do want that on the mask statics. Especially because that allows for setups like keeping keys or secrets in an environment variable."/ · /"q5a"/ | =owner= typed on the platform service's =statics=; no pairing in v1 |
+| Q6 | /"b"/ | inside commons, ids =@commons/bot/personal= · =@commons/service/<platform>=; =@social= dead as an owner |
+| Q7 | /"a and b"/ · /"2"/ | the operator set, always armed: thread · entity · buffer · modes · tool · fs · shell |
+| Q9 | /"b"/ | a voice note in v1, decoded in the package (=ogg-opus-decoder=) |
+| Q10 | /"If we integrate the conversation with Thread, that will be very nice."/ · /"b"/ | messages are Turns; the current thread is the newest of the mode; =/new= or a silence gap makes the next (6 h); AMEN 11-26 as it stands in =received.js:17-30=: one current thread per user and mode, the gap from the newest turn of any role, no platform in the key so messengers share it |
+| Q11 | /"A for v1. B comes later."/ | =user= (a slug) on the mode's =statics=, =owner= (an address) on each service |
+| order | /"important note: we start with whatsapp"/ | WhatsApp first, Telegram second |
+| Q12 | /"services could have attachment traits."/ · /"your reference queue is going to be the architecture for us today."/ · /"Pull on the queue."/ | the service is =ATTACHED= and owns the hook; the mode pulls through its provider. Out: a twitch from service to mode (=dispatch= shotguns and returns nothing, =subsystems/typology/prototypes/twitch.js:25=) |
+| Q13 | /"this seems like were working around an underlying architectural issue."/ · /"taken here is nono. i dont like. extra machinery."/ · /"lets keep the readers on request."/ | LANDED 11-25: =Request.bytes()= (=subsystems/typology/prototypes/request.js:43=), =shape.http= parses from it. Dead: =req.clone()= · a transport reading by the route's declared input. Owed: reader · darkroom · blog onto =bytes()= |
+| waterfall | /"those arent milestones. milestone number one whatapp texts back comes way later. reorder this into a waterfall"/ · /"yess. amen."/ | the table under =* milestones= |
+| kinds | /"what other types? research full gambit of range. futuroe oriented."/ · /"amen."/ | the two-kind =type= is dead; =Message= carries typology parts and =about= |
+| home | /"synthezise the @social commons schematic."/ · /"b"/ · /"go"/ | =commons/social/=: =schematics.js= · =whatsapp/= · =telegram/= · =personal/= |
+| failure | /"think about this again"/ · /"amen"/ | a failed media fetch is an alien part with =fault=; the owner is filtered before any fetch |
+
+* milestones — a waterfall, AMEN 11-25
+
+Each step stands on the one above.
+
+| # | step | green when | state |
+|---+------+------------+-------|
+| 1 | the dogma | =Message= is one schematic every platform casts to | LANDED 11-25 |
+| 2 | the WhatsApp service, offline | a signed delivery is queued, an unsigned one refused, the challenge echoes; fetch and =send= hit a fake Graph | LANDED 11-25 |
+| 3 | the bot mode pulls | a Message from a fake service reaches the mode; the release ends the pull; a fault does not exit the runtime | LANDED 11-25 |
+| 4 | a message is a Turn | the mode makes a thread for its owner (=statics.user=, on his instance the slug =localhost=) the dock lists; =/new= and the gap make the next; a duplicate id is dropped | LANDED 11-25 |
+| 5 | the harness answers | the turn runs with the operator set armed; the reply leaves through =send= in WhatsApp markup under its cap | LANDED 11-26 |
+| 6 | Meta reaches the instance | the recipe on his instance, his public address, his keys: Meta's challenge passes and a delivery arrives | GREEN 11-26 |
+| 7 | a WhatsApp text comes back as a reply | his phone | GREEN 11-26 |
+| 8 | =/tell= | another mode's =/tell= reaches his phone | DESIGNED |
+| 9 | a voice note | an Ogg/Opus note enters as its transcript | DESIGNED; PCM into verbatim unprobed |
+| 10 | the desk · the chat mirror | setup · settings · statistics · dev; the thread mirrored | S1 AMEN 11-26. Rich desk LANDED 11-26 from =.ikiro/reference/whatsapp-agent/step10/personal/= (=desk/Desk.svelte= · =aperture.js= · + =SURFACED= =EXPOSED=). Tree =ok / 4 passed (37 steps)=; =/settings= 401 on his runtime; harness on made-up turns. Unrun: his dock. No: dropped deliveries · faults · =send= results |
+| 11 | Telegram | steps 2 · 6 · 7 on the second platform | DESIGNED |
+
+* landed
+
+| file | holds |
+|------+-------|
+| =commons/social/schematics.js= | =Message= · =About= (parts: text · image · audio · video · document · alien; =about= ={ id, act }=, act reply · reaction · edit · delete) |
+| =commons/social/whatsapp/service.viva.js= | manifest, =ATTACHED=, id =@commons/service/whatsapp= (resolves by id, the served suite boots it so) |
+| =commons/social/whatsapp/attachment.js= | =/webhook=: GET challenge against =secrets.verify=, POST signature against =secrets.app= over =ctx.request.bytes()=, enqueue, 200; all else 403 |
+| =commons/social/whatsapp/heard.js= | =heard(payload, owner, fetched)=: one delivery into Messages |
+| =commons/social/whatsapp/provider.js= | =inbox= (the queue both sides share) · =messages(signal)= · =send(address, text)= |
+| =commons/social/personal/personal.viva.js= · =boot.js= | the bot mode =@commons/bot/personal=, traits =BOOTED= · =HARNESS= · =TOOLING=; one pull per platform in =statics.platforms=, a fault recorded, release ends it |
+| =commons/social/personal/received.js= · =tools.js= | a Message → the owner's thread (=statics.user=, gap =statics.idle=, =/new=, duplicate dropped) → the harness → =send=; the Q7 tools |
+| =commons/social/whatsapp/provider.js= (11-26) | + =format= · =send= in pieces of at most 4096 |
+| suites: =tests/schematics.test.js= · =whatsapp/tests/heard.test.js= · =whatsapp/tests/service.test.js= · =personal/tests/received.test.js= | =ok / 4 passed (35 steps)= 11-26; each red once on a deliberate break |
+
+The hook answers at =/attached/process/service/service/whatsapp/webhook=, no login. The running prototype and its probes: =.ikiro/reference/whatsapp-agent/= (=social/= · =service.probe.js= · =heard.probe.js= · =social.probe.js=).
+
+* as code — the recipe and steps 8 · 9 not yet in the tree; steps 3 · 4 · 5 below are LANDED
+
+The recipe, AMEN 11-25: the service is named twice. Hosted it holds what proves a request is Meta's; consumed it holds what fetches and sends. Every secret is documented under =environment= or the runtime refuses to boot. It enters his instance at step 6.
+
+#+BEGIN_SRC json
+// commons/instances/<slug>/instance.viva.json
+"services": [
+  {
+    "manifest": { "type": "service", "slug": "whatsapp" },
+    "module": "@commons/service/whatsapp",
+    "secrets": {
+      "app": "${SECRET_VIVA_WHATSAPP_APP}",
+      "verify": "${SECRET_VIVA_WHATSAPP_VERIFY}"
+    }
+  }
+],
+"daemons": [
+  {
+    "modes": [
+      { "module": "@commons/bot/personal", "statics": { "user": "localhost" } }
+    ],
+    "consume": {
+      "whatsapp": {
+        "module": "@commons/service/whatsapp",
+        "statics": {
+          "graph": "https://graph.facebook.com/v26.0",
+          "number": "${VIVA_WHATSAPP_NUMBER_ID}",
+          "owner": "4915100000000"
+        },
+        "secrets": { "token": "${SECRET_VIVA_WHATSAPP_TOKEN}" }
+      }
+    }
+  }
+],
+"environment": {
+  "properties": {
+    "SECRET_VIVA_WHATSAPP_APP": {
+      "type": "string",
+      "description": "The Meta app's secret; signs every delivery."
+    },
+    "SECRET_VIVA_WHATSAPP_VERIFY": {
+      "type": "string",
+      "description": "The word Meta repeats when it checks the webhook."
+    },
+    "SECRET_VIVA_WHATSAPP_TOKEN": {
+      "type": "string",
+      "description": "The Graph API token of the number."
+    }
+  }
+}
+#+END_SRC
+
+Unmeasured in it: =VIVA_WHATSAPP_NUMBER_ID= as an env reference (the suite uses a literal) · =v26.0= read off one source.
+
+Step 3, S1 AMEN 11-25: the bot mode's owner is the trait =BOOTED= (=systems/runtime/subjects/mode/traits/booted.js:5=): =boot='s return is the off-switch. The platforms it pulls sit on its =statics=, the mask wins. Prototype that ran: =.ikiro/reference/whatsapp-agent/social/personal/= · =pull.probe.js=.
+
+#+BEGIN_SRC js
+// commons/social/personal/personal.viva.js
+export { boot } from "./boot.js";
+
+export const manifest = {
+  type: "bot",
+  slug: "personal",
+  name: "Personal",
+  description: "One owner's agent, reached from their messengers: it pulls each platform it names.",
+  version: "0.1.0",
+  traits: ["BOOTED"],
+};
+
+export const statics = { platforms: ["whatsapp"] };
+#+END_SRC
+
+S2 AMEN 11-25: one pull per platform; a fault from either side is a =fault= record on the mode's telemetry and the loop goes on (the failed message is lost); release aborts, then waits for the pulls. Ran: text · a delivery without =contacts= · text → log · fault · log, beacon 200, =SIGTERM= exit 0.
+
+#+BEGIN_SRC js
+// commons/social/personal/boot.js
+import { received } from "./received.js";
+
+const pulled = async (modeDie, messages, signal) => {
+  while (!signal.aborted)
+    try {
+      for await (const message of messages(signal)) await received(modeDie, message);
+    } catch (error) {
+      modeDie.mode.stdout.fault(error);
+    }
+};
+
+export const boot = (modeDie, mode) => {
+  const release = new AbortController();
+  const pulls = mode.statics.platforms.map((platform) =>
+    pulled(modeDie, modeDie.providers[platform].messages, release.signal),
+  );
+  return () => {
+    release.abort();
+    return Promise.all(pulls);
+  };
+};
+#+END_SRC
+
+S3 AMEN 11-25: =received= is the seam step 4 fills; today it writes the Message to the mode's telemetry. Suite =commons/social/personal/tests/boot.test.js= ran beside the prototype: =ok / 2 passed (8 steps)=, red once with the catch cut. Open: the id =@commons/bot/personal= unrun (booted by path) · a faulted message is lost · the unconsumed-platform fault does not name the platform · step 2's suite still boots a stand-in listener.
+
+#+BEGIN_SRC js
+// commons/social/personal/received.js
+export const received = (modeDie, message) => modeDie.mode.stdout.log(message);
+#+END_SRC
+
+Step 4, AMEN 11-25 (the code and its four choices), probed (=.ikiro/reference/whatsapp-agent/step4/personal/= · =turn.probe.js=), LANDED 11-25 (tree =ok / 4 passed (33 steps)=; =tests/boot.test.js= removed, =tests/received.test.js= in). Ran: A · B · A again · gap · C · =/new= · =/new= again · gap · D · a reply → 3 threads, turns A·B / C / D·R, each chained; the owner lists 3 over =/userspace/entities/thread/find=, another user 0; a message before the user exists is a fault. Amen'd: the Message minus =parts= sits on =turn.meta.provider= (no typology change; =Meta= is closed but =provider= is a free record); the gap is our clock against the thread's newest turn, any role; =/new= is no Turn and an empty thread is reused; the locked =current= dissolves into =received=; the user filter is set on the scoped em (=setFilterParams=, no leak into a later scope, run). Two lines of the amen'd fence were over 100 wide and are reshaped below (=silent= named, the =chain= call broken), same result. Suite =tests/received.test.js= beside the prototype: =ok / 1 passed (9 steps)=, red with the duplicate check cut. The land replaces =commons/social/personal/tests/boot.test.js= (its cases lean on step 3's =received=; the served suite carries fault · release) and adds =idle: 21600= to =statics=. Open: the thread wears no traits (step 5) · media base64 lands in the Turn · =statics.user= has no default and boot does not check it · the dock's own screen unwalked.
+
+#+BEGIN_SRC js
+// commons/social/personal/received.js
+export const received = (modeDie, message) =>
+  modeDie.datamap.shard.scope(async () => {
+    const { parts, ...provider } = message;
+    const user = await modeDie.entities.user.findOneOrFail({ slug: modeDie.mode.statics.user });
+    modeDie.entities.em.setFilterParams("user", { user: user.id });
+    const mine = { user: user.id, mode: modeDie.mode.id };
+    const seen = await modeDie.entities.turn.count({
+      thread: mine,
+      meta: { provider: { platform: message.platform, id: message.id } },
+    });
+    if (seen) return;
+    const newest = { orderBy: { createdAt: "DESC" }, limit: 1 };
+    const [thread] = await modeDie.entities.thread.find(mine, newest);
+    const [turn] = thread ? await modeDie.entities.turn.find({ thread: thread.id }, newest) : [];
+    const fresh = parts[0].text === "/new";
+    const silent = turn && Date.now() - turn.createdAt.getTime();
+    const lapsed = silent > modeDie.mode.statics.idle * 1000;
+    const current =
+      !thread || (turn && (fresh || lapsed)) ? await modeDie.entities.thread.create(mine) : thread;
+    await modeDie.entities.em.flush();
+    if (fresh) return;
+    await modeDie.entities.turn.chain({
+      thread: current.id,
+      role: "user",
+      parts,
+      meta: { provider },
+    });
+  });
+#+END_SRC
+
+Step 5, prototype that ran: =.ikiro/reference/whatsapp-agent/step5/= · =answer.probe.js= (stub LLM =@commons/hallucinator/stub=, fake Graph). S1 AMEN 11-26: =personal.viva.js= exports =tools= (=tools.js=, the Q7 fence below) and wears =["BOOTED", "HARNESS", "TOOLING"]=; =HARNESS= dresses the mode's threads itself (=systems/runtime/subjects/mode/traits/harness.js:403=), stored =["HARNESSED","TOOLED"]=; 22 tools armed, =/shell/run= · =/fs/write= among them, the owner filter the only gate. No primer of its own yet. S2 AMEN 11-26: =received= drops its own =turn.chain=: it picks the Turn id (=v7=), calls =modeDie.mode.harness.dialogue.stream({ thread, turn, parts, system: { messenger: provider.format } })= (the harness chains the user Turn, =harness.js:144=), writes =meta.provider= on that Turn, folds the packets (=soma.transcript=) and sends every assistant text part joined by a blank line; the file whole is =step5/personal/received.js=. Ran: answer sent, duplicate unanswered, tool round sends only its last text. Unrun: a harness fault or an answer without text is silence · a crash between the chain and the id lets a retry be answered twice · =system.messenger= reaching the prompt · no partial sends. S3 AMEN 11-26: the WhatsApp provider gains =format= (the markup paragraph the mode passes as =system.messenger=) and =send= posts =pieces(text)= in order, each at most =CAP = 4096=, cut at the last line break else space in the later half, else hard; =send= returns a list. File whole: =step5/whatsapp/provider.js=. Ran: 5005 chars → 4096 + 909; 9007 with one early space → 4096 + 4096 + 815. Unsure: 4096 not re-read at Meta · a cut inside a monospace block · piece two failing after piece one left · the wording of =format= unread by any LLM. Suite =step5/personal/tests/received.test.js= (step 4's nine cases on the stub LLM and a fake Graph, plus: the answer goes to the sender and the thread is harnessed · over the cap it leaves in pieces): =ok / 1 passed (11 steps)=, red with =pieces= cut out. Its gap is 2 s of real time: slow machines may flake.
+S4 AMEN 11-26. Open: no test for a harness fault · an answer without text · a piece failing mid-send · a tool doing real work; no primer; no real LLM has run it; step 2's suite keeps its stand-in listener.
+
+The harness's tools (Q7).
+
+#+BEGIN_SRC js
+// commons/social/personal/personal.viva.js
+export const tools = new Vector()
+  .graft(gestalten.tools.thread, gestalten.tools.entity, gestalten.tools.buffer)
+  .graft(gestalten.tools.modes, gestalten.tools.tool)
+  .graft(paladin.tools.fs, paladin.tools.shell);
+#+END_SRC
+
+A voice note to =pcm_16000= (Q9).
+
+#+BEGIN_SRC js
+// commons/social/personal/decoded.js
+import { OggOpusDecoder } from "npm:ogg-opus-decoder@1.6.14";
+
+export const decoded = async (bytes) => {
+  const decoder = new OggOpusDecoder({ sampleRate: 16000, forceStereo: false });
+  await decoder.ready;
+  const { channelData } = await decoder.decodeFile(bytes);
+  decoder.free();
+  return Int16Array.from(channelData[0], (sample) => Math.max(-1, Math.min(1, sample)) * 32767);
+};
+#+END_SRC
+
+The tool another mode calls (Q3).
+
+#+BEGIN_SRC js
+// commons/social/personal/tell.js
+export const tell = new Vector().open(
+  {
+    nature: "/tell",
+    valence: "Send the owner a message on their messenger. Example: /tell 'the report is ready'",
+    input: v.object({ text: v.string().desc("the message, plain text").example("the report is ready") }),
+  },
+  (ctx) => bots.whatsapp.send(owner.whatsapp, ctx.input.text),
+);
+#+END_SRC
+
+My findings on =tell= · =decoded=, none amen'd, each to be shown before its step:
+- =current= is dissolved into =received= (step 4, amen'd).
+- =tell= reads =bots= and =owner=, stand-ins of a probe: the provider is =ctx.providers.whatsapp=, and the owner's address sits on the service's mask, which the provider does not hand out.
+- =decoded= clamps by hand where =pcm.encode= stands (=subsystems/typology/gestalten/belt/pcm.js:4=; same samples, worst difference 1, =decoded.probe.js=).
+- three lines of =tell= · =decoded= are wider than 100.
+
+* open
+
+Found by running, each named with the step that owns it.
+
+| what | measured | owner |
+|------+----------+-------|
+| a throw inside a mode's detached pull exits the whole runtime | one Graph 404 in a stand-in mode, the next request got =Connection refused= | step 3: the pull needs an owner that stops it at release and survives a fault; one hole with the off-switch (a trait returns ={ terminate }=, =subsystems/typology/gestalten/belt/traits.js:14=; a module's own twitch has no such return) |
+| Meta delivers at least once | read in Meta's docs, not run | step 4: drop a seen message id where a message becomes a Turn; needs the platform id on a Turn, undesigned |
+| the queue is memory | read | a restart between the 200 and the pull loses what was queued |
+| one queue per module | =inbox.probe.js=: of two listeners one takes all | a second consuming mode (=public=) needs its own |
+| media held whole as base64 | read | a 16 MB video is about 21 MB in the Message |
+| a removed reaction | unrun; believed to arrive without an emoji | a text part with no text |
+| a document's =filename= · =audio.voice= | dropped | typology's parts have no key; no reader yet |
+| =send= outside the 24 h window | unrun | Graph refuses free text, =send= throws its words |
+| =fault= written inside Meta's block | as amen'd | my least sure line |
+
+Rejected by measure: the hook translating and fetching before its 200 so Meta retries. It ran, but Meta asks for the 200 at once and a slow hook brings retries and duplicates.
+
+Kinds across platforms (read 11-25: WhatsApp · Telegram · Matrix · Signal · iMessage · RCS · Slack · Discord): only text and a file with a mime are universal; voice is a flag on an audio file on three of them; five carry several things in one message; every act points back at an earlier message; typing · read · delivered are a third stream, no Message.
+
+* QA
+
+- /"I send 'hi' on WhatsApp, I get the agent's reply on WhatsApp."/
+#+marker_qa: whatsapp-agent/T-echo · pending · text round trip
+- /"I open the thread in the dock, I see both turns."/
+#+marker_qa: whatsapp-agent/T-one-thread · pending · same thread from both terminals
+- /"I ask in the dock what I said on WhatsApp, it knows."/
+#+marker_qa: whatsapp-agent/T-shared-history · pending · history crosses terminals
+- /"I send a voice note, the thread shows my words as text and the agent answers them."/
+#+marker_qa: whatsapp-agent/T-voice-note · pending · verbatim
+- /"Someone else messages the number, nothing happens."/
+#+marker_qa: whatsapp-agent/T-allowlist · pending · one sender only
+
+* never
+
+- one service holding every platform
+- =@social= as an owner; a package outside commons
+- the bot messaging anyone but its owner (=/send=): that is =public=, another mode
+- pairing in v1; a writable mask as a side effect of this quest
+- a store of messages beside Thread: buffer data, files, a mode database, the platform's history
+- one eternal thread
+- text only
+- a closed enum of message kinds; a new body kind in =v=; =req.clone()=
+- the hook doing work before its 200
+
+* later
+
+Dock answers · quote · typing · primer LANDED (=twitch.js=; models write =meta.provider=) · voice replies · templates outside the 24 h window · a production number with business verification · pairing from the desk (needs a user trait). Policy: Meta's terms bar general-purpose AI assistants as the primary service; one-owner test number: unreviewed.
+
+* sources
+
+- https://developers.facebook.com/documentation/business-messaging/whatsapp/webhooks/reference/messages
+- https://developers.facebook.com/documentation/business-messaging/whatsapp/webhooks/overview
+- https://developers.facebook.com/docs/graph-api/changelog/versions
+- https://core.telegram.org/bots/api
+
+* next
+
+Steps 6 · 7 GREEN 11-26 on =~/.viva/instances/localhost/=: the bot is a RUNTIME mode (his word: /"whatsapp not inside the daemon. set it up as a runtime mode."/), =runtime.modes= holds ={ module: "@commons/bot/personal", statics: { user: "localhost" }, consume: { whatsapp } }=, top-level =services= hosts the hook; five variables in its =.env= (=SECRET_VIVA_WHATSAPP_APP · _VERIFY · _TOKEN=, =VIVA_WHATSAPP_NUMBER_ID=, =VIVA_WHATSAPP_OWNER=); the files as they were: =~/.viva/bak/instances/localhost-20261126/=. The suite moved to a runtime mode ran 11 of 11 (=.ikiro/reference/whatsapp-agent/step6/runtime-mode.test.js=); with the variables unset the runtime boots and the hook refuses 403. Public address: =cloudflared tunnel --url "http://[::1]:2501"=, no account, all of =:2501= public while it runs; standing address unbuilt (NetBird through O000 my pick, unread). Hook path =/attached/process/service/service/whatsapp/webhook=. Learned at Meta: a test number cannot be written first, its template opens the chat · saving the webhook subscribes the field only, the account delivers after =POST /<messaging account id>/subscribed_apps= · Meta subscribed at =v27.0=, the recipe sends at =v26.0= and it sent. First answer: "oi" → =openai/gpt-6.1-sol= over OpenRouter, 1.9 s, 3186 tokens in, in Portuguese (no primer). Tails: the temporary token lapses in about a day · app secret and token were typed into a session transcript, rotate. Order, his 11-26: /"lets do 10 for debugging and then do 9 as the original goal"/, step 8 after. Step 10 starts from scratch: my first question (where deliveries that made no Turn are kept, in memory or stored) he called /"very unclear"/, it is REJECTED as asked: it used my nouns and no example of his. Read for it, all that stands: a mode gets screen through =SURFACED= + =export const surfaces= (=systems/runtime/subjects/mode/traits/surfaced.js:5=, sibling =commons/dashboards/dataspace/dataspace.viva.js:15=, the component takes ={ terminal }=); the bot wears no surface; its thread is stored =["HARNESSED","TOOLED"]= with both turns; whether the dock lists and opens it is UNWALKED. What he cannot see today: a delivery that made no Turn (Meta's sent · delivered · read notices, a foreign sender, a refused signature) · what =send= returned · a harness fault. Start: walk his dock for the bot thread on his word, then show him his own "oi" and what the screen lacked. Mine: a primer for the mode · what he sees on a harness fault or a textless answer (today silence). Owed tests: the pull against a fake provider (five cases dropped at step 4) · harness fault · a piece failing mid-send · a removed reaction. Owed since step 2: reader · darkroom · blog onto =bytes()=.

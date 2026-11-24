@@ -11,8 +11,9 @@ when_to_use: >-
 ## 1 · prepare
 
 - Read the subject whole: the quest, the diff (`jj diff -r <change>`), or the drill's locks.
-- Check each hunk on the tree: landed, only in the quest, or drifted.
+- Check each hunk on the tree: landed, only in the quest, or drifted. A hunk built for the walk is in its quest before stop 1.
 
+- Rate every name the walk touches against the familiarity map. A stop of names at 4 and up is one line in the closing table.
 - Cut the stops. One concern per stop, 5 to 12 stops, in flow order: entity, contract, datamap, remote, UI.
 - Mechanical hunks and tests go into one closing table. They are not stops.
 - An open fork is asked before its stop, never inside it.
@@ -49,14 +50,14 @@ A stop:
 
 - It is code. One paragraph of prose, no more.
 - Every fence names a repo path that exists, or a new file declared in this stop.
-- A fence is a copy of its source. Never typed from memory.
-- Siblings or a chain are stacked fences, one per step, numbered from root to leaf.
+- A fence is the code as it will stand in his file, copied from what ran. A probe's own code, config or stand-in path never reaches his screen: what it measured is told as plain result lines.
+- A chain is one fence in call order, root to leaf. Never one fragment per fence.
 - The caller is shown whole: who runs it, when, and what hands it its input.
 - The snapshot is one real entity, whole, as printed.
-- A fence is 15 lines at most.
+- A fence stands alone: every name it reads is defined inside it, or named in a `//` line on top (what it is, where it is declared). Whole functions, never a slice of one. No length cap.
 - No fork, no lean, no `go?` inside a stop.
 - The counter `S3/8` is on every reply of the walk.
-- What he already knows is not explained.
+- Each name in a stop is shown at its familiarity level. A stop leads with the lowest level it leans on.
 
 ## his answer
 

@@ -10,6 +10,18 @@ export const PATTERN = `^${TYPE}/${TREE}${RESTRICTED}${SUFFIX}$`;
 export const type = (opts) =>
   v.string({ pattern: PATTERN, title: "RFC 6838 media type (type/[tree.]subtype[+suffix])", ...opts });
 
+const TOKEN = "[A-Za-z0-9!#$%&'*+.^_`|~-]+";
+const PARAMETER = `(?:\\s*;\\s*${TOKEN}=(?:${TOKEN}|"[^"]*"))*`;
+
+export const MEDIA = `^${TYPE}/${TREE}${RESTRICTED}${SUFFIX}${PARAMETER}$`;
+
+export const media = (opts) =>
+  v.string({
+    pattern: MEDIA,
+    title: "RFC 2045 media type with parameters (type/subtype;name=value)",
+    ...opts,
+  });
+
 export const VENDOR = "application/vnd.viva";
 
 export const dom = {

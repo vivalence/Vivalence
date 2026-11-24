@@ -75,6 +75,7 @@ const listed = (section) =>
     words: words(node.textContent),
     html: node.outerHTML,
   }));
+const read = (data) => Object.keys(data.done).length === data.article.blocks;
 const minutes = (blocks, wpm = 200) => Math.max(1, Math.ceil(blocks.reduce((sum, block) => sum + block.words, 0) / wpm));
 const sourced = (address) => {
   const url = new URL(address);
@@ -253,6 +254,17 @@ export const Reader = (props) => {
     await finish([id]);
     setDrag(null);
   };
+  const unread = () =>
+    book() === undefined
+      ? []
+      : [...book().querySelectorAll("[data-chapter] > [data-block]")]
+        .map((node) => node.dataset.block)
+        .filter((id) => !(id in held().done));
+  createEffect(() => {
+    if (book() === undefined || held().article.blocks !== null) return;
+    const blocks = book().querySelectorAll("[data-chapter] > [data-block]").length;
+    settle({ article: { ...held().article, blocks } });
+  });
   const undo = () => {
     const [newest] = Object.values(held().done).sort((a, b) => b.localeCompare(a));
     return settle({ done: Object.fromEntries(Object.entries(held().done).filter(([, time]) => time !== newest)) });
@@ -276,7 +288,8 @@ export const Reader = (props) => {
   };
   const reading = () => buffers()
     .map((buffer) => ({ buffer, data: Reading.cast(buffer.data) }))
-    .filter((entry) => entry.data.article !== null);
+    .filter((entry) => entry.data.article !== null)
+    .sort((a, b) => Number(read(a.data)) - Number(read(b.data)));
 
   const typeface = async () => {
     const [file] = await props.buffer.mode.entities.file.find({ path: "OpenDyslexic-Regular.woff2" });
@@ -516,7 +529,9 @@ export const Reader = (props) => {
     event.preventDefault();
     window.open(link.href, "_blank", "noopener");
   };
-  const [scrolled, setScrolled] = createSignal(false);
+  const [scroll, setScroll] = createSignal({ top: 0, peak: 0 });
+  const scrolled = (previous, top) => ({ top, peak: top > previous.top ? top : previous.peak });
+  const away = () => scroll().top > 10 && scroll().peak - scroll().top <= 60;
   const [near, setNear] = createSignal(false);
   const neared = (event) => setNear(event.clientY - event.currentTarget.getBoundingClientRect().top < 150);
   const [framed, setFramed] = createSignal(new Set());
@@ -571,7 +586,7 @@ export const Reader = (props) => {
 
   const Next = () => (
     <div class="rd-stage is-end">
-      <span class="kit-label">chapter read</span>
+      <span class="kit-label">{following() ? "chapter read" : "article read"}</span>
       <Show when={following()}>
         {(next) => (
           <button class="kit-seg rd-next" onClick={() => turn(next().id)}>
@@ -586,7 +601,7 @@ export const Reader = (props) => {
   const readable = () =>
     cortex()
       .find({ type: "dialogue", via: "render" })
-      .some((faculty) => faculty.channels.in.includes("document"));
+      .some((faculty) => faculty.channels.render.in.some((channel) => channel.type === "document"));
 
   const Intake = () => {
     const [options, setOptions] = createSignal(held().intake.options);
@@ -699,7 +714,7 @@ export const Reader = (props) => {
           </Show>
 
           <Show when={held().article !== null && !shelved() && held().intake === null && parsing() === null}>
-            <div class="rd-top" classList={{ "is-away": scrolled() && !near() }}>
+            <div class="rd-top" classList={{ "is-away": away() && !near() }}>
               <button class="kit-seg" aria-label="back" title="back" onClick={back}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                   <path d="M4 11l8-7 8 7" />
@@ -723,6 +738,13 @@ export const Reader = (props) => {
                   <path d="M4 9h10a6 6 0 0 1 0 12h-3" />
                 </svg>
                 <span class="rd-wide">undo</span>
+              </button>
+              <button class="kit-seg" disabled={unread().length === 0} onClick={() => finish(unread())} aria-label="article read" title="article read">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <path d="M2 12.5l4.5 4.5L16 7.5" />
+                  <path d="M10 15.5l1.5 1.5L21 7.5" />
+                </svg>
+                <span class="rd-wide">read</span>
               </button>
               <button class="kit-seg" aria-label="parse again" title="parse again" onClick={reopen}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
@@ -868,7 +890,7 @@ export const Reader = (props) => {
                 </nav>
                 </Show>
 
-                <div class="rd-scroll" ref={scroller} onScroll={(event) => setScrolled(event.currentTarget.scrollTop > 10)}>
+                <div class="rd-scroll" ref={scroller} onScroll={(event) => setScroll(scrolled(scroll(), event.currentTarget.scrollTop))}>
                   <Show when={settings().face === "reader" && settings().pace !== "scroll"}>
                     <div class="rd-sheet f-reader rd-paced" classList={{ "is-speed": settings().pace === "speed" }} role="button" tabindex="0" onClick={paced}>
                       <article

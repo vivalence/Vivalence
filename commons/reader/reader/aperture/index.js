@@ -183,6 +183,7 @@ async function* parsed(ctx) {
       original: intake.original,
       book: written.id,
       chapter: before === null ? "c1" : titled(before, after, previous.chapter),
+      blocks: book.blocks,
     },
     intake: null,
     done: before === null ? {} : carried(before, after, buffer.data.done),

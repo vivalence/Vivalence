@@ -28,8 +28,9 @@ export const metadata = (context) => {
 const faculty = (cortex, type, via) => async (ctx) => {
   const { provider, id, tier, tune, ...request } = ctx.input;
   const held = cortex.findOne({ type, via, provider, id, tier, tune });
-  if (!held?.via?.[via]) throw new Error(`[cortex] no '${type}' faculty resolves a '${via}' avenue`);
-  ctx.output = await held.via[via](request);
+  if (!held?.channels[via])
+    throw new Error(`[cortex] no '${type}' faculty resolves a '${via}' avenue`);
+  ctx.output = await held.channels[via].via(request);
 };
 
 export const cortex = (context) => {

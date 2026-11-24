@@ -272,4 +272,26 @@ specimen.describe("http shape serving static files", () => {
     const missing = await handler(new Request("http://localhost/static/nope"));
     specimen.expect(missing.status).toBe(404);
   });
+
+  specimen.it("a JSON route gets its input and the exact bytes of one body", async () => {
+    const vector = new Vector();
+    vector.open("hook", async (ctx) => ({
+      input: ctx.input,
+      bytes: new TextDecoder().decode(await ctx.request.bytes()),
+      once: (await ctx.request.bytes()) === (await ctx.request.bytes()),
+    }));
+    vector.open("file", async (ctx) => ({ input: ctx.input, bytes: [...(await ctx.request.bytes())] }));
+    const handler = shape.http(vector);
+    const post = (path, type, body) =>
+      handler(new Request(`http://localhost/${path}`, { method: "POST", headers: { "content-type": type }, body }));
+
+    const hook = await (await post("hook", "application/json", '{"a":  1}')).json();
+    specimen.expect(hook).toEqual({ input: { a: 1 }, bytes: '{"a":  1}', once: true });
+
+    const file = await (await post("file", "application/pdf", new Uint8Array([37, 80]))).json();
+    specimen.expect(file).toEqual({ input: null, bytes: [37, 80] });
+
+    const broken = await (await post("hook", "application/json", "{nope")).json();
+    specimen.expect(broken).toEqual({ input: null, bytes: "{nope", once: true });
+  });
 });

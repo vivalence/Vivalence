@@ -24,6 +24,7 @@ export * as hallucinate from "./hallucinate.js";
 export * as control from "./control.js";
 export * as monad from "./monad.js";
 export * as cortex from "./cortex.js";
+export * as channel from "./channel.js";
 export * as reference from "./reference.js";
 
 export * as strings from "./string.js"; // depracated

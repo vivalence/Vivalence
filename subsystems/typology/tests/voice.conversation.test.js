@@ -20,16 +20,19 @@ function stubSpeechFaculty() {
     id: "speech-1",
     tune: [0.3, 0.5, 0.1],
     context: 0,
-    channels: { in: [{ type: "text" }], out: [{ type: "audio" }] },
-    via: {
-      stream: async function* (textChunks) {
-        for await (const chunk of textChunks) {
-          yield {
-            nature: "packet",
-            audio:  "audio:" + chunk,
-            pts:    Date.now(),
-          };
-        }
+    channels: {
+      stream: {
+        in: [{ type: "text" }],
+        out: [{ type: "audio" }],
+        via: async function* (textChunks) {
+          for await (const chunk of textChunks) {
+            yield {
+              nature: "packet",
+              audio:  "audio:" + chunk,
+              pts:    Date.now(),
+            };
+          }
+        },
       },
     },
   };
@@ -41,17 +44,20 @@ function stubVerbatimFaculty() {
     id: "verbatim-2",
     tune: [0.4, 0.5, 0.1],
     context: 0,
-    channels: { in: [{ type: "audio" }], out: [{ type: "event" }] },
-    via: {
-      stream: async function* (audioSource) {
-        const accumulated = [];
-        yield { nature: "turn.start" };
-        for await (const chunk of audioSource) {
-          accumulated.push(chunk);
-          yield { nature: "partial", transcript: accumulated.join("") };
-        }
-        yield { nature: "final", transcript: accumulated.join("") };
-        yield { nature: "turn.end" };
+    channels: {
+      stream: {
+        in: [{ type: "audio" }],
+        out: [{ type: "text" }],
+        via: async function* (audioSource) {
+          const accumulated = [];
+          yield { nature: "turn.start" };
+          for await (const chunk of audioSource) {
+            accumulated.push(chunk);
+            yield { nature: "partial", transcript: accumulated.join("") };
+          }
+          yield { nature: "final", transcript: accumulated.join("") };
+          yield { nature: "turn.end" };
+        },
       },
     },
   };
@@ -111,7 +117,7 @@ function CONVERSATION(mode) {
     const speechPath = (async () => {
       const speech = mode.cortex.findOne({ type: "speech", tier: "fast", via: "stream" });
       if (!speech) return;
-      for await (const packet of speech.via.stream(soma.textFromPackets(audioBranch), {})) {
+      for await (const packet of speech.channels.stream.via(soma.textFromPackets(audioBranch), {})) {
         live.send.speech.packet(packet);
       }
       live.send.speech.close({});
@@ -129,7 +135,7 @@ function CONVERSATION(mode) {
         const audio = new Queue();
         const asr   = mode.cortex.findOne({ type: "verbatim", tier: "fast", via: "stream" });
         (async () => {
-          for await (const event of asr.via.stream(audio.drain(), {})) {
+          for await (const event of asr.channels.stream.via(audio.drain(), {})) {
             state.conversation.send.verbatim?.packet?.(event);
           }
         })();

@@ -93,7 +93,7 @@ export class Cortex {
       : [...this.faculties.values()].flat();
     return stored.filter(
       (faculty) =>
-        (!query.via || faculty.via[query.via]) &&
+        (!query.via || faculty.channels[query.via]) &&
         (!query.provider || faculty.provider === query.provider) &&
         (!query.id || faculty.id === query.id),
     );

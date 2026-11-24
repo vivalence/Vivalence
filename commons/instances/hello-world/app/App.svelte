@@ -474,7 +474,7 @@
               <span class="bright">{faculty.config?.model ?? faculty.type}</span>
               <span class="trace">{faculty.provider}</span>
               <span class="spring"></span>
-              <span class="trace">{contextWindow(faculty.context)} · tune {faculty.tune.join(" ")} · {faculty.via.join(" ")}</span>
+              <span class="trace">{contextWindow(faculty.context)} · tune {faculty.tune.join(" ")} · {Object.keys(faculty.channels).join(" ")}</span>
             </div>
           {/each}
           {#if !report.daemon.cortex.length}

@@ -1,5 +1,18 @@
 import { specimen, Controller, Vector, Span, NotFound, belt, steer, trace, v } from "@vivalence/typology";
 
+const KINDS = [
+  "text",
+  "image",
+  "audio",
+  "video",
+  "document",
+  "object",
+  "tool_use",
+  "tool_result",
+  "thinking",
+].map((type) => ({ type }));
+const ANY = { in: KINDS, out: KINDS };
+
 const { state, deliver, dispatch, respond, render, signalOf, nameOf } = belt.hallucinate;
 const { Packet, Response } = v.primitives.hallucination;
 
@@ -21,12 +34,15 @@ function scriptedFaculty(script) {
   return {
     faculty: {
       type: "dialogue",
-      via: {
-        render: async (request) => {
-          seen.push(request);
-          const step = script[cursor++];
-          if (typeof step === "function") return step(request);
-          return step;
+      channels: {
+        render: {
+          ...ANY,
+          via: async (request) => {
+            seen.push(request);
+            const step = script[cursor++];
+            if (typeof step === "function") return step(request);
+            return step;
+          },
         },
       },
     },
@@ -237,9 +253,12 @@ specimen.describe("belt.hallucinate", () => {
     specimen.it("closes error when the faculty faults unrecoverably", async () => {
       const faculty = {
         type: "dialogue",
-        via: {
-          render: async () => {
-            throw new Error("provider down");
+        channels: {
+          render: {
+            ...ANY,
+            via: async () => {
+              throw new Error("provider down");
+            },
           },
         },
       };
@@ -267,7 +286,7 @@ specimen.describe("belt.hallucinate", () => {
     });
 
     specimen.it("throws when the response closes non-complete", async () => {
-      const faculty = { type: "dialogue", via: { render: async () => { throw new Error("down"); } } };
+      const faculty = { type: "dialogue", channels: { render: { ...ANY, via: async () => { throw new Error("down"); } } } };
       let thrown = null;
       try {
         await render(faculty, { turns: [userTurn("hi")] }, { rounds: 2, backoff: [], tools: new Vector(), controller: new Controller() });
@@ -280,9 +299,12 @@ specimen.describe("belt.hallucinate", () => {
     specimen.it("the thrown message carries the provider fault — the reason a 500 was minted is never dropped", async () => {
       const refused = {
         type: "dialogue",
-        via: {
-          render: async () => {
-            throw { kind: "request", retryable: false, provider: { status: 401, message: "Could not resolve authentication method" } };
+        channels: {
+          render: {
+            ...ANY,
+            via: async () => {
+              throw { kind: "request", retryable: false, provider: { status: 401, message: "Could not resolve authentication method" } };
+            },
           },
         },
       };
@@ -295,7 +317,7 @@ specimen.describe("belt.hallucinate", () => {
       specimen.expect(thrown.message).toContain("closed error after 1 rounds");
       specimen.expect(thrown.message).toContain("Could not resolve authentication method");
 
-      const plain = { type: "dialogue", via: { render: async () => { throw new Error("down"); } } };
+      const plain = { type: "dialogue", channels: { render: { ...ANY, via: async () => { throw new Error("down"); } } } };
       thrown = null;
       try {
         await render(plain, { turns: [userTurn("hi")] }, { rounds: 2, backoff: [], tools: new Vector(), controller: new Controller() });
@@ -311,12 +333,12 @@ specimen.describe("belt.hallucinate", () => {
     const { Usage } = v.primitives.track;
 
     const tenth = btoa(String.fromCharCode(...new Uint8Array(3200)));
-    const pcm = () => ({ event: "/audio/packet", audio: { data: tenth, rate: 16000, codec: "pcm_16000" } });
+    const pcm = () => ({ event: "/audio/packet", audio: { data: tenth, mime: "audio/pcm;rate=16000;channels=1" } });
     const tokens = (input, output) => [
       { name: "input", unit: "tokens", amount: input },
       { name: "output", unit: "tokens", amount: output },
     ];
-    const bench = (type, via) => ({ type, provider: "bench", id: `bench/${type}`, via });
+    const bench = (type, via) => ({ type, provider: "bench", id: `bench/${type}`, channels: Object.fromEntries(Object.entries(via).map(([key, call]) => [key, { ...ANY, via: call }])) });
     const hallucination = () => new Controller({ stdout: new Span("hallucination") });
     const used = (controller) => controller.stdout.history.filter((record) => record.track === "usage").map((record) => record.data);
     const counted = (record) =>
@@ -397,7 +419,7 @@ specimen.describe("belt.hallucinate", () => {
         },
       });
       const controller = hallucination();
-      const source = microphone([pcm(), pcm(), { event: "/audio/packet", audio: { data: "not base64!", rate: 16000 } }]);
+      const source = microphone([pcm(), pcm(), { event: "/audio/packet", audio: { data: "not base64!", mime: "audio/ogg" } }]);
       let heard = "";
       for await (const packet of transcribe(faculty, { source }, { controller }))
         if (packet.event === "/part/delta") heard += packet.part.text;
@@ -498,5 +520,218 @@ specimen.describe("belt.hallucinate", () => {
         "output tokens bench 2",
       ]);
     });
+  });
+});
+
+specimen.describe("channels — what a faculty takes and gives, held on both vias", () => {
+  const { depict } = belt.hallucinate;
+  const policy = () => ({
+    rounds: 2,
+    backoff: [],
+    tools: new Vector(),
+    controller: new Controller(),
+  });
+  const WORDS = { in: [{ type: "text" }], out: [{ type: "text" }] };
+  const voice = {
+    type: "audio",
+    mime: "audio/ogg; codecs=opus",
+    data: "AAAA",
+    file: "01a1b1c0",
+  };
+  const said = (parts) => [{ role: "user", parts }];
+
+  const mind = (given) => {
+    const seen = [];
+    const packets = async function* (request) {
+      seen.push(request);
+      yield { event: "/turn/open", turn: { role: "assistant" } };
+      yield { event: "/part/open", index: 0, part: given };
+      yield { event: "/part/close", index: 0 };
+      yield { event: "/turn/close", turn: { meta: { state: "complete" } } };
+    };
+    return {
+      seen,
+      faculty: {
+        type: "dialogue",
+        id: "plain",
+        channels: {
+          stream: {
+            ...WORDS,
+            via: packets,
+          },
+          render: {
+            ...WORDS,
+            via: async (request) => {
+              seen.push(request);
+              return { role: "assistant", parts: [given], meta: { state: "complete" } };
+            },
+          },
+        },
+      },
+    };
+  };
+
+  const closed = async (faculty, via, turns) => {
+    let close = null;
+    for await (const packet of respond(faculty, via, { turns }, policy()))
+      if (packet.event === "/response/close") close = packet.response.meta;
+    return close;
+  };
+
+  for (const via of ["stream", "render"]) {
+    specimen.it(`in · ${via}: an audio file part reaches the faculty as text`, async () => {
+      const { faculty, seen } = mind({ type: "text", text: "ok" });
+      const heard = said([{ type: "text", text: "listen" }, voice]);
+      const meta = await closed(faculty, via, heard);
+      specimen.expect(meta.state).toBe("complete");
+      specimen.expect(seen[0].turns[0].parts).toEqual([
+        { type: "text", text: "listen" },
+        {
+          type: "text",
+          text:
+            "[attached audio · file 01a1b1c0 · audio/ogg; codecs=opus · 3 bytes · " +
+            `${faculty.id} cannot read audio]`,
+        },
+      ]);
+    });
+
+    specimen.it(`in · ${via}: no file, no channel: error before the provider`, async () => {
+      const { faculty, seen } = mind({ type: "text", text: "ok" });
+      const bare = said([{ type: "audio", mime: "audio/amr", data: "AAAA" }]);
+      const meta = await closed(faculty, via, bare);
+      specimen.expect(meta.state).toBe("error");
+      specimen.expect(meta.fault.message).toBe(
+        `[dialogue] 'plain' takes no 'audio/amr' audio on ${via}: it takes text`,
+      );
+      specimen.expect(seen).toHaveLength(0);
+    });
+
+    specimen.it(`out · ${via}: a part the faculty did not declare closes error`, async () => {
+      const { faculty } = mind({ type: "tool_use", id: "t1", name: "lookup", input: {} });
+      const meta = await closed(faculty, via, said([{ type: "text", text: "hi" }]));
+      specimen.expect(meta.state).toBe("error");
+      specimen.expect(meta.fault.message).toBe(
+        `[dialogue] 'plain' gives no 'tool_use' tool_use on ${via}: it gives text`,
+      );
+    });
+  }
+
+  specimen.it("in: a turn the tool loop adds is held before the next round", async () => {
+    const { faculty, seen } = scriptedFaculty([toolTurn("u1", "lookup", {}), sealed("never")]);
+    const deaf = {
+      ...faculty,
+      id: "deaf",
+      channels: {
+        render: {
+          in: [{ type: "text" }, { type: "tool_use" }],
+          out: [{ type: "text" }, { type: "tool_use" }],
+          via: faculty.channels.render.via,
+        },
+      },
+    };
+    const tools = toolVector("lookup", async () => ({ message: "house" }));
+    let close = null;
+    for await (const packet of respond(deaf, "render", { turns: said([]) }, { ...policy(), tools }))
+      if (packet.event === "/response/close") close = packet.response.meta;
+    specimen.expect(close.state).toBe("error");
+    specimen.expect(close.fault.message).toBe(
+      "[dialogue] 'deaf' takes no 'tool_result' tool_result on render: it takes text, tool_use",
+    );
+    specimen.expect(seen).toHaveLength(1);
+  });
+
+  specimen.it("a packet: an undeclared media type faults, in and out", async () => {
+    const { transcribe, synthesize } = belt.hallucinate;
+    const PCM = [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }];
+    const packet = (mime) => ({ event: "/audio/packet", audio: { data: "AAAA", mime } });
+    const ear = {
+      type: "verbatim",
+      id: "ear",
+      channels: {
+        stream: {
+          in: PCM,
+          out: [{ type: "text" }],
+          via: async function* ({ source }) {
+            for await (const _packet of source);
+          },
+        },
+      },
+    };
+    const mouth = {
+      type: "speech",
+      id: "mouth",
+      channels: {
+        stream: {
+          in: [{ type: "text" }],
+          out: PCM,
+          via: async function* () {
+            yield packet("audio/mpeg");
+          },
+        },
+      },
+    };
+    const heard = async function* (mime) {
+      yield packet(mime);
+    };
+    const faulted = async (packets) => {
+      try {
+        for await (const _packet of packets);
+      } catch (fault) {
+        return fault.message;
+      }
+    };
+    const browser = "audio/pcm;rate=48000;channels=1";
+    specimen.expect(await faulted(transcribe(ear, { source: heard(browser) }, policy()))).toBe(
+      `[verbatim] 'ear' takes no '${browser}' audio on stream: it takes ${PCM[0].mime[0]}`,
+    );
+    const right = transcribe(ear, { source: heard(PCM[0].mime[0]) }, policy());
+    specimen.expect(await faulted(right)).toBe(undefined);
+    specimen.expect(await faulted(synthesize(mouth, { source: "ciao" }, policy()))).toBe(
+      `[speech] 'mouth' gives no 'audio/mpeg' audio on stream: it gives ${PCM[0].mime[0]}`,
+    );
+  });
+
+  specimen.it("in: the request is not mutated", async () => {
+    const { faculty } = mind({ type: "text", text: "ok" });
+    const turns = said([voice]);
+    await closed(faculty, "render", turns);
+    specimen.expect(turns).toEqual([{ role: "user", parts: [voice] }]);
+    specimen.expect(turns[0].parts[0]).toBe(voice);
+  });
+
+  specimen.it("a painter: count and mime hold in, before the call; mime holds out", async () => {
+    const calls = [];
+    const png = { type: "image", mime: "image/png", data: "AAAA" };
+    const painter = (painted) => ({
+      type: "picture",
+      id: "brush",
+      channels: {
+        render: {
+          in: [{ type: "text" }, { type: "image", mime: ["image/png"], count: 1 }],
+          out: [{ type: "image", mime: ["image/png"] }],
+          via: async (request) => {
+            calls.push(request);
+            return { images: [painted] };
+          },
+        },
+      },
+    });
+    const asked = (faculty, images) =>
+      depict(faculty, { prompt: "a fox", images }, { controller: new Controller() }).then(
+        (response) => response.images.length,
+        (fault) => fault.message,
+      );
+    const style = (image) => ({ image, role: "style" });
+    specimen.expect(await asked(painter(png), [style(png), style(png)])).toBe(
+      "[picture] 'brush' takes at most 1 image/png on render: 2 given",
+    );
+    specimen.expect(await asked(painter(png), [style({ ...png, mime: "image/heic" })])).toBe(
+      "[picture] 'brush' takes no 'image/heic' image on render: it takes text, image/png",
+    );
+    specimen.expect(calls).toHaveLength(0);
+    specimen.expect(await asked(painter({ ...png, mime: "image/webp" }), [])).toBe(
+      "[picture] 'brush' gives no 'image/webp' image on render: it gives image/png",
+    );
+    specimen.expect(await asked(painter(png), [style(png)])).toBe(1);
   });
 });

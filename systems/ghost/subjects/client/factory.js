@@ -1,3 +1,4 @@
+import { computed } from "nanostores";
 import { Connection, Dataspace, Path, Url, monad, shape, shard } from "@vivalence/typology";
 import { Client } from "./prototype.js";
 import { execution } from "./lifecycle/index.js";
@@ -43,6 +44,9 @@ export const connected = async (clientDie) => {
     entities: { daemon: daemonHost, mode, thread: threadProcess, buffer, turn, activity, terminal: terminalProcess, surface, file, literal, symbol, note },
     seed: (boot) => boot.use(shard.context.bind("client", clientDie)).use(shard.context.bind("runtime", runtime)),
   });
+  runtime.$files = computed([runtime.entities.mode.$entities, runtime.entities.file.$entities], (modes, files) =>
+    files.filter((file) => modes.filter((mode) => mode.daemon === null).includes(file.mode) || (file.mode === null && file.daemon === null)),
+  );
   clientDie.controller.stdout.log({ lighthouse: runtime.remote.absolute, traits: runtime.lighthouse.manifest.traits });
   return clientDie;
 };

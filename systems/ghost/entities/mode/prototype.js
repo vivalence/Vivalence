@@ -18,6 +18,7 @@ export class Mode extends Entity {
   connection = null;
   call = null;
   harness = null;
+  $files = null;
 
   constructor(citizen = null) {
     super();
@@ -28,12 +29,16 @@ export class Mode extends Entity {
     return { type: this.type, slug: this.slug, name: this.name, description: this.description, version: this.version, traits: this.traits };
   }
 
+  get files() {
+    return this.$files.get();
+  }
+
   implements(trait) {
     return this.traits.includes(trait.toUpperCase());
   }
 
   toJSON() {
-    const { module, metadata, ...base } = super.toJSON();
+    const { module, metadata, $files, ...base } = super.toJSON();
     return base;
   }
 }

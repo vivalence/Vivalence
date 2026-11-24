@@ -2,6 +2,19 @@ import { TIER_POINTS } from "./scenarios/tiers.js";
 import { specimen, belt, Controller, Cortex, Span, Vector, nearest, shard, v } from "@vivalence/typology";
 import { metronome } from "./scenarios/metronome.js";
 
+const KINDS = [
+  "text",
+  "image",
+  "audio",
+  "video",
+  "document",
+  "object",
+  "tool_use",
+  "tool_result",
+  "thinking",
+].map((type) => ({ type }));
+const ANY = { in: KINDS, out: KINDS };
+
 function mockFaculties() {
   const text = (tag) => ({
     role: "assistant",
@@ -12,37 +25,68 @@ function mockFaculties() {
   return [
     {
       type: "dialogue", id: "dialogue-2", tune: [0.9, 0.3, 0.5],
-      channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
-      via: {
-        render: async () => text("[opus]"),
-        stream: async function* () { yield { event: "/turn/open", turn: { role: "assistant" } }; yield { event: "/turn/close", meta: {} }; },
+      channels: {
+        stream: {
+          in: [{ type: "text" }, { type: "tool_result" }, { type: "tool_use" }],
+          out: [{ type: "text" }, { type: "tool_use" }],
+          via: async function* () { yield { event: "/turn/open", turn: { role: "assistant" } }; yield { event: "/turn/close", meta: {} }; },
+        },
+        render: {
+          in: [{ type: "text" }, { type: "tool_result" }, { type: "tool_use" }],
+          out: [{ type: "text" }, { type: "tool_use" }],
+          via: async () => text("[opus]"),
+        },
       },
     },
     {
       type: "dialogue", id: "dialogue-3", tune: [0.4, 0.6, 0.5],
-      channels: { in: ["text"], out: ["text"] },
-      via: {
-        render: async () => text("[sonnet]"),
-        stream: async function* () { yield { event: "/turn/open", turn: { role: "assistant" } }; yield { event: "/turn/close", meta: {} }; },
+      channels: {
+        stream: {
+          in: [{ type: "text" }],
+          out: [{ type: "text" }],
+          via: async function* () { yield { event: "/turn/open", turn: { role: "assistant" } }; yield { event: "/turn/close", meta: {} }; },
+        },
+        render: {
+          in: [{ type: "text" }],
+          out: [{ type: "text" }],
+          via: async () => text("[sonnet]"),
+        },
       },
     },
     {
       type: "dialogue", id: "dialogue-4", tune: [0.1, 1.0, 0.5],
-      channels: { in: ["text"], out: ["text"] },
-      via: { render: async () => text("[haiku]") },
+      channels: {
+        render: {
+          in: [{ type: "text" }],
+          out: [{ type: "text" }],
+          via: async () => text("[haiku]"),
+        },
+      },
     },
     {
       type: "speech", id: "speech-5", tune: [0.3, 0.7, 0.2],
-      channels: { in: ["text"], out: ["audio"] },
-      via: {
-        render: async () => ({ role: "assistant", parts: [{ type: "audio", data: "abc", mime: "audio/mp3" }], meta: {} }),
-        stream: async function* () { yield { event: "/turn/open", turn: { role: "assistant" } }; yield { event: "/turn/close", meta: {} }; },
+      channels: {
+        stream: {
+          in: [{ type: "text" }],
+          out: [{ type: "audio" }],
+          via: async function* () { yield { event: "/turn/open", turn: { role: "assistant" } }; yield { event: "/turn/close", meta: {} }; },
+        },
+        render: {
+          in: [{ type: "text" }],
+          out: [{ type: "audio" }],
+          via: async () => ({ role: "assistant", parts: [{ type: "audio", data: "abc", mime: "audio/mp3" }], meta: {} }),
+        },
       },
     },
     {
       type: "object", id: "object-6", tune: [0.3, 0.8, 0.5],
-      channels: { in: ["text"], out: ["object"] },
-      via: { render: async () => ({ role: "assistant", parts: [{ type: "object", data: {} }], meta: {} }) },
+      channels: {
+        render: {
+          in: [{ type: "text" }],
+          out: [{ type: "object" }],
+          via: async () => ({ role: "assistant", parts: [{ type: "object", data: {} }], meta: {} }),
+        },
+      },
     },
   ];
 }
@@ -72,8 +116,13 @@ specimen.describe("Cortex", () => {
 
     const supplied = {
       type: "dialogue", id: "kept", tune: [0.2, 0.8, 0.5],
-      channels: { in: ["text"], out: ["text"] },
-      via: { render: async () => ({}) },
+      channels: {
+        render: {
+          in: [{ type: "text" }],
+          out: [{ type: "text" }],
+          via: async () => ({}),
+        },
+      },
     };
     const padded = new Cortex().register([supplied]);
     specimen.expect(supplied.tune).toEqual([0.2, 0.8, 0.5]);
@@ -99,7 +148,7 @@ specimen.describe("Cortex", () => {
     specimen.expect(cortex.findOne({ type: "dialogue", id: "dialogue-3" }).tune).toEqual([0.4, 0.6, 0.5]);
 
     const streamable = cortex.findOne({ type: "dialogue", tier: "frugal", via: "stream" });
-    specimen.expect(streamable.via.stream).toBeDefined();
+    specimen.expect(streamable.channels.stream.via).toBeDefined();
     specimen.expect(streamable.tune).not.toEqual([0.1, 1.0, 0.5]);
 
     let error = null;
@@ -131,7 +180,7 @@ specimen.describe("Cortex", () => {
     specimen.expect(donorOnly.find({ type: "object" })).toHaveLength(0);
     const derived = donorOnly.findOne({ type: "object" });
     specimen.expect(derived).toBeDefined();
-    specimen.expect(derived.via.render).toBeDefined();
+    specimen.expect(derived.channels.render.via).toBeDefined();
     specimen.expect(donorOnly.findOne({ type: "object", via: "stream" })).toBe(undefined);
 
     specimen.expect(populatedCortex().findOne({ type: "object" }).tune).toEqual([0.3, 0.8, 0.5]);
@@ -196,8 +245,13 @@ specimen.describe("Cortex", () => {
         : 0.9;
     const chooser = {
       type: "choice", id: "bench/chooser", tune: [0.4, 1.0, 0.9], context: 32000, options: 3, choices: 3,
-      channels: { in: ["text", "object"], out: ["object"] },
-      via: { render: async (round) => { seen.push(round); return Object.fromEntries(Object.entries(round.questions).map(([key, question]) => [key, answered(question)])); } },
+      channels: {
+        render: {
+          in: [{ type: "text" }, { type: "object" }],
+          out: [{ type: "object" }],
+          via: async (round) => { seen.push(round); return Object.fromEntries(Object.entries(round.questions).map(([key, question]) => [key, answered(question)])); },
+        },
+      },
     };
     const cortex = new Cortex().register([chooser]);
     specimen.expect(cortex.findOne({ type: "choice", via: "stream" })).toBe(undefined);
@@ -238,10 +292,10 @@ specimen.describe("Cortex", () => {
   specimen.it("a tier is a name in typology's table: the faculty wearing it wins on its cortex, else the nearest to its point; a cortex is built from its faculties; eager is no tier (m126 Q3A · Q26 · Q27)", () => {
     const { TIERS } = v.primitives.hallucination;
     const faculties = [
-      { type: "dialogue", id: "slow-smart", tune: TIERS.capable.tune, via: { render: () => {} } },
-      { type: "dialogue", id: "fast-smart", tune: TIERS.unleashed.tune, via: { render: () => {} } },
-      { type: "speech", id: "leandro", tune: TIERS.tongue.tune, via: { stream: () => {} } },
-      { type: "speech", id: "francesca", tune: [0.9, 0.1, 0.1], tier: "tongue", via: { stream: () => {} } },
+      { type: "dialogue", id: "slow-smart", tune: TIERS.capable.tune, channels: { render: { ...ANY, via: () => {} } } },
+      { type: "dialogue", id: "fast-smart", tune: TIERS.unleashed.tune, channels: { render: { ...ANY, via: () => {} } } },
+      { type: "speech", id: "leandro", tune: TIERS.tongue.tune, channels: { stream: { ...ANY, via: () => {} } } },
+      { type: "speech", id: "francesca", tune: [0.9, 0.1, 0.1], tier: "tongue", channels: { stream: { ...ANY, via: () => {} } } },
     ];
     const cortex = new Cortex(faculties);
     specimen.expect(cortex.find({ type: "dialogue" }).map((faculty) => faculty.id).sort()).toEqual(["fast-smart", "slow-smart"]);
@@ -254,5 +308,63 @@ specimen.describe("Cortex", () => {
     specimen.expect(cortex.tiers).toBeUndefined();
     specimen.expect(Object.keys(TIERS)).toEqual(["frugal", "fast", "balanced", "capable", "unleashed", "ear", "tongue", "actor", "director"]);
     specimen.expect(() => cortex.findOne({ type: "dialogue", tier: "eager" })).toThrow("[cortex] invalid query /tier");
+  });
+});
+
+specimen.describe("Cortex.register — a faculty declares its channels, each via inside", () => {
+  const render = async () => ({});
+  const WORDS = { in: [{ type: "text" }], out: [{ type: "text" }] };
+  const refused = (faculty) => {
+    try {
+      const plain = { type: "dialogue", id: "plain", tune: [0.5, 0.5, 0.5], ...faculty };
+      new Cortex().register([plain]);
+    } catch (fault) {
+      return fault.message;
+    }
+  };
+
+  specimen.it("a faculty without channels is refused", () => {
+    specimen.expect(refused({})).toBe(
+      "[cortex] invalid faculty /: must have required properties channels",
+    );
+  });
+
+  specimen.it("a channel in the string grammar is refused", () => {
+    const stringed = { render: { in: ["text"], out: ["text"], via: render } };
+    specimen.expect(refused({ channels: stringed })).toBe(
+      "[cortex] invalid faculty /channels/render/in/0: must be object",
+    );
+  });
+
+  specimen.it("a faculty-wide list, a foreign key, a mime that is none: each refused", () => {
+    const taking = (channel) => ({
+      channels: { render: { in: [channel], out: [], via: render } },
+    });
+    specimen.expect(refused({ channels: WORDS })).toContain("/channels");
+    specimen.expect(refused(taking({ type: "audio", codec: "pcm_16000" }))).toContain(
+      "/channels/render/in/0",
+    );
+    specimen.expect(refused(taking({ type: "audio", mime: ["ogg"] }))).toContain(
+      "/channels/render/in/0/mime/0",
+    );
+  });
+
+  specimen.it("a via is its channels: one without its call is refused, the old key too", () => {
+    specimen.expect(refused({ channels: { render: WORDS } })).toBe(
+      "[cortex] invalid faculty /channels/render: must have required properties via",
+    );
+    specimen.expect(refused({ channels: { render: { ...WORDS, via: render } }, via: { render } }))
+      .toBe(undefined);
+  });
+
+  specimen.it("find by via reads the channels: a faculty of one via is not found on the other", () => {
+    const cortex = new Cortex().register([
+      { type: "dialogue", id: "plain", tune: [0.5, 0.5, 0.5], channels: { render: { ...WORDS, via: render } } },
+    ]);
+    specimen.expect(cortex.find({ type: "dialogue", via: "render" }).map((faculty) => faculty.id))
+      .toEqual(["plain"]);
+    specimen.expect(cortex.find({ type: "dialogue", via: "stream" })).toEqual([]);
+    specimen.expect(cortex.findOne({ type: "dialogue", via: "render" }).channels.render.via)
+      .toBe(render);
   });
 });

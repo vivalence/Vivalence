@@ -22,6 +22,12 @@ build-and-push:
 
   script:
     - export VIVA_STAMP="$CI_COMMIT_SHORT_SHA $CI_COMMIT_SHORT_SHA $CI_COMMIT_TIMESTAMP"
+    - export VIVA_VERSION="v$(grep -m1 '"version"' deno.jsonc | cut -d'"' -f4)"
+    - |
+      if [ -n "$CI_COMMIT_TAG" ] && [ "$CI_COMMIT_TAG" != "$VIVA_VERSION" ]; then
+        echo "tag $CI_COMMIT_TAG is not the tree's version $VIVA_VERSION (deno.jsonc)"
+        exit 1
+      fi
 
     - docker build -f ./Dockerfile -t vivalence/viva:alpine -t vivalence/viva:$CI_COMMIT_SHORT_SHA .
     - docker build -f ./systems/runtime/Dockerfile -t vivalence/runtime:alpine .
@@ -34,6 +40,10 @@ build-and-push:
         docker tag vivalence/$image:alpine $REGISTRY/vivalence/$image:$CI_COMMIT_SHORT_SHA
         docker push $REGISTRY/vivalence/$image:alpine
         docker push $REGISTRY/vivalence/$image:$CI_COMMIT_SHORT_SHA
+        if [ -n "$CI_COMMIT_TAG" ]; then
+          docker tag vivalence/$image:alpine $REGISTRY/vivalence/$image:$CI_COMMIT_TAG
+          docker push $REGISTRY/vivalence/$image:$CI_COMMIT_TAG
+        fi
       done
 
 deploy-anima:

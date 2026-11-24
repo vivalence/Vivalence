@@ -35,4 +35,20 @@ specimen.describe("the client's File rows — every row at boot, each url servin
     specimen.expect(response.headers.get("x-viva-integrity")).toBe(row.integrity);
     specimen.expect(clientDie.runtime.entities.file.$entities.get().every((file) => typeof file.path === "string")).toBe(true);
   });
+
+  specimen.it("an owner lists its files: a mode the Files naming it, a daemon those of its modes; a File naming nobody is the runtime's and no daemon's", async () => {
+    const stored = () => clientDie.runtime.entities.file.$entities.get();
+    const [row] = stored();
+    specimen.expect(row.mode.files).toEqual(stored().filter((file) => file.mode === row.mode));
+    specimen.expect(row.mode.daemon.files).toEqual(stored().filter((file) => file.mode !== null && file.mode.daemon === row.mode.daemon));
+    let loose = null;
+    const body = new Blob([new Uint8Array([1, 2, 3])]).stream();
+    for await (const packet of clientDie.runtime.entities.file.upload({ path: "loose.bin", mime: "application/octet-stream", body }))
+      if (packet.event === "/file") loose = packet.file;
+    specimen.expect(loose.mode).toBe(null);
+    specimen.expect(loose.daemon).toBe(null);
+    specimen.expect(clientDie.runtime.files).toContain(loose);
+    for (const daemon of clientDie.runtime.entities.daemon.$entities.get()) specimen.expect(daemon.files).not.toContain(loose);
+    specimen.expect(row.mode.daemon.files).toEqual(stored().filter((file) => file.mode !== null && file.mode.daemon === row.mode.daemon));
+  });
 });

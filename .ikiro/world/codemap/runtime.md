@@ -1,7 +1,7 @@
 ---
 paths: ["systems/runtime/**", "systems/ghost/subjects/client/**"]
 ---
-<!-- writer: agent · limit: 8100 chars · per item from methods/census.py · code is the map · paths relative to systems/runtime -->
+<!-- writer: agent · limit: 8100 chars · code is the map · paths relative to systems/runtime -->
 # codemap: runtime — five subjects, the lexicon beside (m91, 10-19)
 
 **The runtime is a PURE EXECUTIVE: paladin masks · wires · maps, it reads finished fields /"runtime should be a pure executive function."/. A subject owns a dir under `subjects/` (10-22; `daemon/` = `subjects/daemon/`): `runtime/ lighthouse/ daemon/ service/ mode/` = `prototype.js` · `lifecycle/index.js` (`execution` + its phases) · `traits/` · `apertures/`; `gestalten/ schematics/` hold what no subject owns. `typology.js` is predicative, keyed by subject; `Runtime Lighthouse Daemon Service` also flat (2 tests import `Daemon`).**
@@ -69,7 +69,7 @@ import { stamp } from "../traits/dataset.js";
 // systems/runtime/tests/door.test.js:6
   const sentences = (held) => schematics.Instance.faults(held).map(({ at, reason }) => `${at} ${reason}`);
 ```
-**`service/` — `Service` (`die.runtime.services[slug]`), `ATTACHED` masks only: 0 wearers.** RULED (`reference/services/`): runtime RUNS · OWNS services, paladin hands tools, never spawns; type = ADDRESS, trait = EXPORT. THREE trait homes: `<subject>/traits/index.js`.
+**`service/` — `Service` (`die.runtime.services[slug]`), `ATTACHED` masks only: 0 wearers.** RULED: runtime RUNS · OWNS services, paladin hands tools, never spawns; type = ADDRESS, trait = EXPORT. THREE trait homes: `<subject>/traits/index.js`.
 ```js
 // subsystems/paladin/prototypes/integrity.js:35 — no IMPLIED table on disk (11-19): a trait is DECLARED, RULES checks its export
 export const RULES = [

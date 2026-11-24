@@ -1,0 +1,158 @@
+#+title: paladin belt — the members renamed and grouped: read write remove link find hash watch bundle vcs
+#+filetags: :paladin:belt:naming:ledger:telemetry:
+#+status: TANGLED 11-27. The whole change stands as diffs in the appendix, replayed exact on a copy. Nothing is in the tree.
+# writer: agent · limit: 16000 chars
+
+* intent
+
+/"paladin has a lot of weird tools. its a set that has grown. now its quite well defined."/
+
+/"its time to clean up. its time to assert some order an naming. just the paladin belt."/
+
+/"belt names are also kinda vibey and yappy. id like to be more boring."/
+
+/"the ordering and grouping and naming of all the paladin belt stuff must be in coherence with the naming ontology."/
+
+/"runtime and clients must stay coherent and the whole process tested and validated end to end."/
+
+* rulings
+
+| what | his words |
+|---|---|
+| the order | /"a. 1. By direction. Paladin is the subject, each member is what paladin does across box ↔ viva"/ |
+| link | /"paladin.resolve path ← source · env ← expand -> paladin.link!"/ · /"doublecheck link tho. is that what the content of the function actually does. then link."/ |
+| the labels | /"drop the knows crosses holds offers paradigms. they are wrong."/ |
+| vault | /"link and vault. singular."/ |
+| the subset | /"then we do find and write and remove. hash."/ |
+| scribe | /"scribe gets merged into text."/ |
+| the set | /"so we have read write link vault remove env find watch. thats the set."/ |
+| bundle | /"bundler to bundle also."/ |
+| vcs | /"lets bunch the git clone and stuff into paladin.vcs.*"/ |
+| watch | /"watch files. watch directory."/ |
+| locks | /"ok. by set."/ · /"ledger.locks also good."/ |
+| logs | /"lets scope logs under telemetry. paladin.telemetry.log"/ |
+| entities | /"no we dont do entities now."/ |
+| registry packages | /"green: all of them tested, running, pushed, on prod run."/ |
+| the rest | /"prune the rest"/ |
+| bound | /"the core distinction in your proposals is whether belt is bound onto paladin. or if itss disparate tools. i vote bound."/ |
+| closure | /"closures. a. but dont split these functions into a million sub functions that clutter up the file."/ |
+| watch, two leaves | /"a"/ on: =watch.directory= and =watch.files= over one listener |
+| comments | /"a"/ on: every comment in the belt goes, the switched-off code and the reasons |
+| unread leaves | /"a but keep json"/ on: =find.read= =read.file= =check.path= and =belt/scribe.js= are cut, =find.json= stays |
+| bundle, an object | /"a"/ on: =paladin.bundle.directory(directory, origin)= is today's function; =members= and =under= beside it |
+| state.env · state.line | /"a"/ on: they move into =envfile=, =state.js= is deleted |
+
+* as code
+
+A rename is a table. The code itself is =.ikiro/quests/paladin-belt-appendix-I-diffs.org=: 18 files whole, 9 removed, 205 diff hunks in 105 files of the tree and the registry packages. =sh .ikiro/reference/paladin-belt/replay.sh <copy of the tree> <copy of the registry>= lands it on copies; the replay equals the staged copy file by file.
+
+** the belt, 202 sites
+
+#+BEGIN_SRC text
+on disk                          after                              sites
+paladin.source()                 paladin.link.path()                    6
+paladin.expand()                 paladin.link.env()                     7
+paladin.read.locate              paladin.link.part                      1
+paladin.state.text               paladin.write.text                    10
+paladin.state.scribe             paladin.write.text                     9
+paladin.state.json               paladin.write.json                    12
+paladin.state.jsonl              paladin.write.jsonl                    4
+paladin.state.dir                paladin.write.dir                     14
+paladin.state.open               paladin.write.open                     1
+paladin.state.store              paladin.write.bytes                   13
+paladin.state.land               paladin.write.stream                   3
+paladin.state.remove             paladin.remove.file                    6
+paladin.state.env                paladin.envfile.write                 22
+paladin.state.line               paladin.envfile.entry                  6
+paladin.find.type                paladin.find.modules                   3
+paladin.prime.directory          paladin.find.primer                    4
+paladin.stamp.tree · fold        paladin.hash.tree · fold               3
+paladin.watch()                  paladin.watch.directory()              2
+paladin.bundler()                paladin.bundle.directory()            39
+paladin.bundler.members · under  paladin.bundle.members · under
+paladin.clone()                  paladin.vcs.clone()                    9
+paladin.clone.remote()           paladin.vcs.remote()
+#+END_SRC
+
+- =paladin.vault= keeps its name and its leaves =held= =store=.
+- =paladin.read= =paladin.env= =paladin.find.walk index describe viva recipe skip data= keep their names.
+- =paladin.write.text= takes the body of =state.scribe=: skip when the file already holds the text, write through =<file>.tmp=, rename, return whether it changed. The blunt body of =state.text= dies.
+- =paladin.watch.files(paths, heard)= is born beside =watch.directory(path, heard)=. Ran in =.ikiro/reference/paladin-belt/style/belt/watch.js=.
+
+** the ledger and telemetry, 57 sites
+
+#+BEGIN_SRC text
+on disk                          after                              sites
+ledger.lock(slug).read()         ledger.locks.read(slug)               49
+ledger.lock(slug).write(record)  ledger.locks.write(slug, record)
+ledger.lock(slug).remove()       ledger.locks.remove(slug)
+ledger.locks()                   ledger.locks.list()
+ledger.log(slug)                 paladin.telemetry.log(slug)            8
+#+END_SRC
+
+- =Log= keeps =append= =open= =base=.
+- The locks set ran as a probe over a temp ledger: =.ikiro/reference/paladin-belt/locks.probe.js=.
+
+** the style of a belt file
+
+One =export const <member> = (paladin) => { paladin.<member> = { … } }= per file. The leaves are written inline in the member. No helper functions around them, no class, no comments: the 169 comment signals of today's belt go. Ran whole in =.ikiro/reference/paladin-belt/style/belt/=.
+
+#+BEGIN_SRC js
+// subsystems/paladin/gestalten/belt/remove.js
+export const remove = (paladin) => {
+  paladin.remove = {
+    file: (path) => Deno.remove(path.absolute ?? path).catch(() => {}),
+  };
+};
+#+END_SRC
+
+** the directory
+
+#+BEGIN_SRC text
+subsystems/paladin/gestalten/belt/
+├─ index.js      one export per file, and FULL
+├─ read.js       loses locate
+├─ write.js      ← state.js: text json jsonl dir open · bytes ← store · stream ← land
+├─ remove.js     ← state.js: remove
+├─ envfile.js    gains write ← state.env · entry ← state.line
+├─ link.js       ← source.js + expand.js + read.js locate
+├─ find.js       ← find.js + prime.js · type → modules
+├─ hash.js       ← stamp.js
+├─ watch.js      directory · files
+├─ bundle.js     ← bundler.js
+├─ vcs.js        ← clone.js
+├─ vault.js · is.js · scope.js · check.js · publish.js · control.js     names kept, restyled
+└─ ignore.js · faculties.js                                            not installers, stay
+#+END_SRC
+
+=state.js= =source.js= =expand.js= =prime.js= =stamp.js= =bundler.js= =clone.js= =scribe.js= are gone.
+
+=prototypes/lock.js= is gone too: =prototypes/locks.js= holds the =Locks= set, =Ledger= keeps one as =ledger.locks=, =Die= asks it by slug. =Telemetry.log(slug)= makes the =Log=.
+
+Beyond the names, on the way: =write.text= is the scribe body · =find.walk= reads sibling directories at once, same order · =bundle.under= hands =directory= alone to =bundle.directory= (today the array index rides in as =origin=) · a path given as a function is refused · the =scope= installer is not async · the bundler's =rows= is =compilers=, its error text unchanged.
+
+* milestones
+
+| n | step | green when | state |
+|---|---|---|---|
+| 1 | baseline | the suites of =subsystems/paladin= =systems/runtime= =systems/ghost= =systems/anima= =commons= run once on an untouched copy, their failing tests kept by name | TANGLED |
+| 2 | the belt, the ledger set, =telemetry.log=, every caller, test and doc in the tree | on a copy with the appendix in, each suite of step 1 fails the same tests as the baseline and no other | TANGLED |
+| 3 | the registry packages | =assembly= =chess= =education= =media= =vcompany=: tested, running, pushed, on prod run. Lands in one pass with step 2 | TANGLED |
+| 4 | end to end | a fresh instance boots, a mode writes a file, a view bundles, a tap clones, a lock is held and released, =viva= tails a running instance | DECLARED |
+
+- The baseline is red before the change, on the untouched copy: paladin 1 failing test, runtime 1, ghost 6, commons 8. The paladin one is =known-issues.org= =paladin-vault-twin-deno-not-defined=; the others are not matched against the known issues yet. The anima suite aborts on a copy, with and without the change: it proves nothing here.
+- The five registry packages' own tests, run on the copies, fail the same tests with and without the change. All five are red before it (=assembly= 5 failing, =chess= 12, =education= 10, =media= 3, =vcompany= 14), so "tested" in his green for step 3 is not reached by this quest alone.
+- =documentation/= holds no old name: no file of it changes.
+- =mod.client.js= is the browser's paladin. Its one test is the red twin, so no suite covers the client belt =[vault, is, control]=.
+
+* never
+
+- The labels =knows= =crosses= =holds= =offers=.
+- =credentials= or =vaults= as the member's name. It is =vault=.
+- =replace= as a member. The scribe body is =write.text=.
+- Mikro entities or a virtual entity set for the ledger's records.
+- =write.os= =write.envfile= =write.upload= =watch.signals=.
+
+* next
+
+His look at the appendix, then his word to land steps 2 and 3 in one pass.

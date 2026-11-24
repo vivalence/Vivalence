@@ -1,6 +1,19 @@
 import { belt, specimen, v, Controller, Cortex, Span, shard, sse, Context, sleep } from "@vivalence/typology";
 import { Audio, Packet } from "../schematics/primitives/hallucination.js";
 
+const KINDS = [
+  "text",
+  "image",
+  "audio",
+  "video",
+  "document",
+  "object",
+  "tool_use",
+  "tool_result",
+  "thinking",
+].map((type) => ({ type }));
+const ANY = { in: KINDS, out: KINDS };
+
 const invalid = (schema, value) => [...v.errors(schema, value)].length > 0;
 const conversed = (conversational = {}) =>
   belt.traits.cast({ id: "dictation", traits: ["CONVERSATIONAL"], trait: { CONVERSATIONAL: conversational } }, v.thread.traits).CONVERSATIONAL;
@@ -28,9 +41,11 @@ specimen.describe("a dictation speaks the one content grammar; audio its own fam
     specimen.expect(invalid(Packet.Response, { nature: "partial", transcript: "x" })).toBe(true);
   });
 
-  specimen.it("audio packets demand a rate", () => {
-    specimen.expect(invalid(Audio.Any, { event: "/audio/packet", audio: { data: "aGk=", rate: 24000 } })).toBe(false);
+  specimen.it("audio packets demand a media type", () => {
+    specimen.expect(invalid(Audio.Any, { event: "/audio/packet", audio: { data: "aGk=", mime: "audio/pcm;rate=24000;channels=1" } })).toBe(false);
     specimen.expect(invalid(Audio.Any, { event: "/audio/packet", audio: { data: "aGk=" } })).toBe(true);
+    const unparsed = { event: "/audio/packet", audio: { data: "aGk=", mime: "pcm_16000" } };
+    specimen.expect(invalid(Audio.Any, unparsed)).toBe(true);
     specimen.expect(invalid(Audio.Any, { event: "/audio/close", audio: {} })).toBe(false);
   });
 });
@@ -57,16 +72,19 @@ function scriptedFaculty(hypotheses, final) {
     id: "verbatim-1",
     tune: [0.4, 0.5, 0.1],
     context: 0,
-    channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
-    via: {
-      stream: async function* ({ source }) {
-        yield* opened();
-        let index = 0;
-        for await (const _ of source) {
-          if (index < hypotheses.length) yield draft(hypotheses[index++]);
-        }
-        while (index < hypotheses.length) yield draft(hypotheses[index++]);
-        yield* sealed(final);
+    channels: {
+      stream: {
+        in: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
+        out: [{ type: "text" }],
+        via: async function* ({ source }) {
+          yield* opened();
+          let index = 0;
+          for await (const _ of source) {
+            if (index < hypotheses.length) yield draft(hypotheses[index++]);
+          }
+          while (index < hypotheses.length) yield draft(hypotheses[index++]);
+          yield* sealed(final);
+        },
       },
     },
   };
@@ -78,15 +96,18 @@ function fastDialogue(correct, delay = 0, id = "dialogue-2") {
     id,
     tune: [0.4, 1.0, 0.8],
     context: 1000,
-    channels: { in: ["text"], out: ["text"] },
-    via: {
-      render: async ({ turns }) => {
-        if (delay) await sleep.ms(delay);
-        return {
-          role: "assistant",
-          parts: [{ type: "text", text: correct(turns.at(-1).parts[0].text) }],
-          meta: { state: "complete" },
-        };
+    channels: {
+      render: {
+        in: [{ type: "text" }],
+        out: [{ type: "text" }],
+        via: async ({ turns }) => {
+          if (delay) await sleep.ms(delay);
+          return {
+            role: "assistant",
+            parts: [{ type: "text", text: correct(turns.at(-1).parts[0].text) }],
+            meta: { state: "complete" },
+          };
+        },
       },
     },
   };
@@ -95,7 +116,7 @@ function fastDialogue(correct, delay = 0, id = "dialogue-2") {
 const source = (chunks) =>
   sse.encode(
     (async function* () {
-      for (const chunk of chunks) yield { event: "/audio/packet", audio: { data: chunk, rate: 16000 } };
+      for (const chunk of chunks) yield { event: "/audio/packet", audio: { data: chunk, mime: "audio/pcm" } };
     })(),
   );
 
@@ -154,11 +175,14 @@ specimen.describe("dictation flow — hal.verbatim over the cortex", () => {
     const efforts = [];
     const mind = (id) => ({
       ...fastDialogue((text) => `${id}: ${text}`, 0, id),
-      via: {
-        render: async ({ turns, settings }) => {
-          asked.push(id);
-          efforts.push(settings.effort);
-          return { role: "assistant", parts: [{ type: "text", text: `${id}: ${turns.at(-1).parts[0].text}` }], meta: { state: "complete" } };
+      channels: {
+        render: {
+          ...ANY,
+          via: async ({ turns, settings }) => {
+            asked.push(id);
+            efforts.push(settings.effort);
+            return { role: "assistant", parts: [{ type: "text", text: `${id}: ${turns.at(-1).parts[0].text}` }], meta: { state: "complete" } };
+          },
         },
       },
     });
@@ -176,7 +200,7 @@ specimen.describe("dictation flow — hal.verbatim over the cortex", () => {
   specimen.it("polish failure degrades silently, the words intact, the stream closes", async () => {
     const cortex = new Cortex().register([
       scriptedFaculty(["hi"], "hi there"),
-      { ...fastDialogue((text) => text), via: { render: async () => { throw new Error("provider down"); } } },
+      { ...fastDialogue((text) => text), channels: { render: { ...ANY, via: async () => { throw new Error("provider down"); } } } },
     ]);
     const ctx = new Context({ request: { url: "http://socket/harness/verbatim/stream", body: {}, raw: { body: source(["hi"]) } } });
     ctx.cortex = cortex;
@@ -199,7 +223,7 @@ specimen.describe("dictation flow — hal.verbatim over the cortex", () => {
         await sleep.ms(5);
       }
     };
-    const faculty = { ...scriptedFaculty([], ""), via: { stream: () => turns() } };
+    const faculty = { ...scriptedFaculty([], ""), channels: { stream: { ...ANY, via: () => turns() } } };
     const cortex = new Cortex().register([faculty, fastDialogue((text) => text.toUpperCase(), 60)]);
     const ctx = new Context({ request: { url: "http://socket/harness/verbatim/stream", body: {}, raw: { body: source(["x"]) } } });
     ctx.cortex = cortex;

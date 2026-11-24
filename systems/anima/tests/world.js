@@ -5,6 +5,19 @@ import { tokens } from "@vivalence/dapper";
 import { Controller, Cortex, Span, Vector } from "@vivalence/typology";
 import * as ghost from "@vivalence/ghost";
 
+const KINDS = [
+  "text",
+  "image",
+  "audio",
+  "video",
+  "document",
+  "object",
+  "tool_use",
+  "tool_result",
+  "thinking",
+].map((type) => ({ type }));
+const ANY = { in: KINDS, out: KINDS };
+
 export { fire, settle, words };
 
 const SKIN = new URL("../src/skins/", import.meta.url).pathname;
@@ -115,7 +128,7 @@ export const world = () => {
     client.runtime = {
       lighthouse,
       entities,
-      cortex: new Cortex().register([{ type: "dialogue", provider: "stub", id: "seer", tune: [0.4, 1.0, 0.8], via: { stream: () => {}, render: () => {} } }]),
+      cortex: new Cortex().register([{ type: "dialogue", provider: "stub", id: "seer", tune: [0.4, 1.0, 0.8], channels: { stream: { ...ANY, via: () => {} }, render: { ...ANY, via: () => {} } } }]),
       reference: { absolute: "/runtime/stub" },
       $status: atom({ code: "HEALTHY" }),
       get status() {

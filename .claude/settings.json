@@ -35,27 +35,9 @@
           },
           {
             "type": "command",
-            "command": "IKIRO_GUARD_MODE=warn \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/log-guard.sh\"",
-            "timeout": 10,
-            "statusMessage": "log-guard: never log a mask"
-          },
-          {
-            "type": "command",
-            "command": "IKIRO_GUARD_MODE=warn \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/import-guard.sh\"",
-            "timeout": 10,
-            "statusMessage": "import-guard: no leaving the mode"
-          },
-          {
-            "type": "command",
             "command": "IKIRO_GUARD_MODE=warn \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/watch-guard.sh\"",
             "timeout": 10,
             "statusMessage": "watch-guard: a watched tree lands in one burst"
-          },
-          {
-            "type": "command",
-            "command": "IKIRO_GUARD_MODE=warn \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/kernel-guard.sh\"",
-            "timeout": 10,
-            "statusMessage": "kernel-guard: plans are quests \u00b7 fair-source copy"
           },
           {
             "type": "command",
@@ -73,19 +55,6 @@
             "command": "IKIRO_GUARD_MODE=warn \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/agent-guard.sh\"",
             "timeout": 10,
             "statusMessage": "agent-guard: a fan-out is a proposal"
-          }
-        ]
-      }
-    ],
-    "PreCompact": [
-      {
-        "matcher": "manual",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR/.ikiro/hooks/compact-gate.sh\"",
-            "timeout": 10,
-            "statusMessage": "compact-gate: fold the session before /compact"
           }
         ]
       }

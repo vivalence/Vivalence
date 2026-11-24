@@ -10,7 +10,7 @@ const rig = async ({ traits = ["SURFACED"] } = {}) => {
   const faults = [];
   const created = [];
   const written = [];
-  const runtime = { entities: {} };
+  const runtime = { entities: {}, lighthouse: { user: { trait: {} } } };
   const hydrate = async (vector, entity) => vector.carry[0]({ entity, runtime }, async () => {});
   runtime.entities.thread = { $entities: atom([]) };
   runtime.entities.turn = { $entities: atom([]) };
@@ -35,7 +35,7 @@ const rig = async ({ traits = ["SURFACED"] } = {}) => {
   const thread = Object.assign(new ghost.entities.thread.Thread(), { id: "th1", mode: { id: "m1", traits }, phase: "manual" });
   await hydrate(threadHydration, thread);
   runtime.entities.thread.$entities.set([thread]);
-  const terminal = Object.assign(new ghost.terminal.Terminal(), { id: "t1", client: { runtime }, controller: { stdout: { fault: (error) => faults.push(error) } } });
+  const terminal = Object.assign(new ghost.terminal.Terminal(), { id: "t1", client: { app: null, mask: { trait: {} }, runtime }, controller: { stdout: { fault: (error) => faults.push(error) } } });
   terminal.repository = {
     async updateOne(where, data) {
       written.push(data);
@@ -64,7 +64,13 @@ describe("stall — the terminal keeps the seated thread's frame filled (m105 Q6
     await world.seat();
     expect(world.created).toEqual([{ mode: "m1", thread: "th1", data: {} }]);
     expect(world.terminal.buffer).toBe(world.thread.$buffers.get()[0]);
-    expect(world.written).toEqual([{ buffer: "b0" }]);
+    expect(world.written).toEqual([
+      {
+        buffer: "b0",
+        traits: ["DOCKED"],
+        trait: { DOCKED: { view: "docked", shown: "docked" } },
+      },
+    ]);
     expect(world.faults).toEqual([]);
     world.stop();
   });

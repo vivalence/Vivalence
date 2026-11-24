@@ -1,7 +1,7 @@
 ---
 paths: ["subsystems/typology/**", "systems/runtime/**", "systems/anima/**", "systems/ghost/**"]
 ---
-<!-- writer: agent · limit: 9400 chars · per item from methods/census.py · code is the map · paths relative to subsystems/typology -->
+<!-- writer: agent · limit: 9400 chars · code is the map · paths relative to subsystems/typology -->
 # codemap: typology — HOLY; ask before touching core types
 Less is More, Code is Data, Schema is God · `cast` or die · `as` however · `fromm` from inside. The CONTAINER: imports no runtime·paladin, `Deno.*` only in server `shard/`; a prototype is /"functions on top of data"/ (10-03).
 

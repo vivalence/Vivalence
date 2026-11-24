@@ -8,10 +8,15 @@ import { NotFound } from "../../prototypes/errors/vector.js";
 export function http(vector) {
   return async (req) => {
     const ct = req.headers.get("content-type") || "";
-    const body = ct.includes("application/json") ? await req.json().catch(() => null) : null;
     const ctx = new Context({
-      request: { body, url: req.url, method: req.method, headers: Object.fromEntries(req.headers), raw: req },
+      request: { url: req.url, method: req.method, headers: Object.fromEntries(req.headers), raw: req },
     });
+    ctx.input = ct.includes("application/json")
+      ? await ctx.request
+          .bytes()
+          .then((bytes) => JSON.parse(new TextDecoder().decode(bytes)))
+          .catch(() => null)
+      : null;
 
     try {
       const signal = new Signal(new URL(req.url));

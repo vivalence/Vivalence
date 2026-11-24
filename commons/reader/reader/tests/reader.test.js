@@ -68,12 +68,15 @@ const writer = () => ({
   type: "dialogue",
   id: "scripted-writer",
   tune: [0.9, 0.3, 0.5],
-  channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
-  via: {
-    render: async (request) => {
-      seen.push(request);
-      const data = { html: '<h1 data-block="b1">Tides</h1>' };
-      return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" } };
+  channels: {
+    render: {
+      in: [{ type: "text" }, { type: "tool_result" }, { type: "tool_use" }],
+      out: [{ type: "text" }, { type: "tool_use" }],
+      via: async (request) => {
+        seen.push(request);
+        const data = { html: '<h1 data-block="b1">Tides</h1>' };
+        return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" } };
+      },
     },
   },
 });
@@ -83,22 +86,25 @@ const transcriber = () => ({
   type: "dialogue",
   id: "scripted-transcriber",
   tune: [0.7, 0.4, 0.5],
-  channels: { in: ["text", "document"], out: ["text"] },
-  via: {
-    render: async (request) => {
-      read.push(request);
-      const from = Number(/pages (\d+)–/.exec(request.turns.at(-1).parts[1].text)[1]);
-      const blocks = from === 1
-        ? [
-          { kind: "chapter", title: "I. The Moon" },
-          { kind: "paragraph", text: "The moon pulls <hard>." },
-          { kind: "note", marker: "1", text: "Measured in 1907." },
-          { kind: "chapter", title: "II. The Sea" },
-          { kind: "table", header: ["port", "high water"], rows: [["Brest", "06:12"]] },
-        ]
-        : [{ kind: "heading", level: 2, text: "Gauges" }, { kind: "figure", page: 10, caption: "Fig. 3. A gauge." }];
-      const data = { blocks };
-      return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" } };
+  channels: {
+    render: {
+      in: [{ type: "text" }, { type: "document" }],
+      out: [{ type: "object" }],
+      via: async (request) => {
+        read.push(request);
+        const from = Number(/pages (\d+)–/.exec(request.turns.at(-1).parts[1].text)[1]);
+        const blocks = from === 1
+          ? [
+            { kind: "chapter", title: "I. The Moon" },
+            { kind: "paragraph", text: "The moon pulls <hard>." },
+            { kind: "note", marker: "1", text: "Measured in 1907." },
+            { kind: "chapter", title: "II. The Sea" },
+            { kind: "table", header: ["port", "high water"], rows: [["Brest", "06:12"]] },
+          ]
+          : [{ kind: "heading", level: 2, text: "Gauges" }, { kind: "figure", page: 10, caption: "Fig. 3. A gauge." }];
+        const data = { blocks };
+        return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" } };
+      },
     },
   },
 });
@@ -162,6 +168,8 @@ specimen.describe("reader — the mode as declared", () => {
   specimen.it("a fresh buffer is Reading filled: no article, no intake, no marks, no cursor; face and pace are device settings", () => {
     specimen.expect(Reading.cast(buffer.data)).toEqual({ article: null, intake: null, done: {}, cursor: null });
     specimen.expect(Reading.cast({})).toEqual({ article: null, intake: null, done: {}, cursor: null });
+    specimen.expect(Reading.cast({ article: { url: null, title: "Tides", original: "f1", book: "f2" } }).article)
+      .toEqual({ url: null, title: "Tides", original: "f1", book: "f2", chapter: "c1", blocks: null });
     specimen.expect(Settings.cast({})).toEqual({
       face: "reader",
       pace: "scroll",
@@ -243,6 +251,7 @@ specimen.describe("reader — /add a page: fetch · snapshot · intake, then /pa
     specimen.expect(read.data.intake).toBe(null);
     specimen.expect(read.data.article.title).toBe("How a Tide Table Is Made");
     specimen.expect(read.data.article.chapter).toBe("c1");
+    specimen.expect(read.data.article.blocks).toBe(6);
     specimen.expect(filed(read, read.data.article.book).path).toMatch(/^books\/[0-9a-f]+\.html$/);
     specimen.expect(read.trait.LABELED).toEqual({ name: "How a Tide Table Is Made" });
     specimen.expect([...Reading.errors(read.data)]).toEqual([]);

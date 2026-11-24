@@ -11,7 +11,7 @@ export const CONTROLS = [
   [() => true, "a", "attach", "", "/file/upload"],
   [(commands, dictation) => dictation === null && resolves(commands, "/dictate"), "d", "dictate", "", "/dictate"],
   [(commands, dictation) => dictation !== null, "d", "stop dictation", "live", "/dictate/stop"],
-  [(commands, dictation, call) => call === null && resolves(commands, "/call"), "l", "call", "", "/call"],
+  // [(commands, dictation, call) => call === null && resolves(commands, "/call"), "l", "call", "", "/call"],
   [(commands, dictation, call) => call !== null, "l", "end the call", "live", "/call/end"],
   [() => true, "p", "paste", "", "/paste"],
 ];

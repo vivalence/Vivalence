@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 ARG VIVA_BASE=vivalence/viva:alpine
 FROM ${VIVA_BASE} AS viva
 
@@ -7,10 +8,23 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends nginx \
     && rm -rf /var/lib/apt/lists/* /etc/nginx/sites-enabled/default
 
-COPY --from=viva /deno-dir /deno-dir
-COPY --from=viva /viva /viva
-
 WORKDIR /viva/repository
+
+COPY deno.jsonc deno.lock import_map.json ./
+COPY systems/runtime/deno.jsonc ./systems/runtime/deno.jsonc
+COPY systems/anima/deno.jsonc ./systems/anima/deno.jsonc
+COPY systems/ghost/deno.jsonc ./systems/ghost/deno.jsonc
+COPY subsystems/typology/deno.jsonc ./subsystems/typology/deno.jsonc
+COPY subsystems/paladin/deno.jsonc ./subsystems/paladin/deno.jsonc
+COPY subsystems/dapper/deno.jsonc ./subsystems/dapper/deno.jsonc
+COPY subsystems/drapes/deno.jsonc ./subsystems/drapes/deno.jsonc
+COPY subsystems/sheets/deno.jsonc ./subsystems/sheets/deno.jsonc
+COPY documentation/deno.jsonc ./documentation/deno.jsonc
+
+RUN deno install --allow-scripts=npm:better-sqlite3,npm:argon2,npm:svelte-preprocess
+
+COPY --from=viva --exclude=repository/node_modules /viva /viva
+
 ENV VIVA_REPOSITORY_MOUNT=/viva/repository \
     VIVA_LEDGER_MOUNT=/viva/ledger \
     VIVA_REGISTRY_MOUNT=/viva/ledger/registry \

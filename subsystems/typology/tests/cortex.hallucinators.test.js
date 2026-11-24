@@ -1,6 +1,19 @@
 import { TIER_POINTS } from "./scenarios/tiers.js";
 import { specimen, Cortex } from "@vivalence/typology";
 
+const KINDS = [
+  "text",
+  "image",
+  "audio",
+  "video",
+  "document",
+  "object",
+  "tool_use",
+  "tool_result",
+  "thinking",
+].map((type) => ({ type }));
+const ANY = { in: KINDS, out: KINDS };
+
 function makeService(slug, faculties) {
   return {
     manifest: { owner: "@vivalence", type: "hallucinator", slug },
@@ -13,19 +26,19 @@ specimen.describe("Cortex hallucinators", () => {
     const services = [
       {
         service: makeService("anthropic", [
-          { type: "dialogue", id: "dialogue-1", tune: [0.4, 0.6, 0.6], via: { stream: async function* () {} } },
+          { type: "dialogue", id: "dialogue-1", tune: [0.4, 0.6, 0.6], channels: { stream: { ...ANY, via: async function* () {} } } },
         ]),
         mask: { module: "@vivalence/hallucinator/anthropic", secrets: { anthropic: "key-a" } },
       },
       {
         service: makeService("elevenlabs", [
-          { type: "speech", id: "speech-2", tune: [0.3, 0.5, 0.1], via: { stream: async function* () {} } },
+          { type: "speech", id: "speech-2", tune: [0.3, 0.5, 0.1], channels: { stream: { ...ANY, via: async function* () {} } } },
         ]),
         mask: { module: "@vivalence/hallucinator/elevenlabs", secrets: { elevenlabs: "key-e" } },
       },
       {
         service: makeService("deepgram", [
-          { type: "verbatim", id: "verbatim-3", tune: [0.4, 0.5, 0.1], via: { stream: async function* () {} } },
+          { type: "verbatim", id: "verbatim-3", tune: [0.4, 0.5, 0.1], channels: { stream: { ...ANY, via: async function* () {} } } },
         ]),
         mask: { module: "@vivalence/hallucinator/deepgram", secrets: { deepgram: "key-d" } },
       },
@@ -62,13 +75,13 @@ specimen.describe("Cortex hallucinators", () => {
     const services = [
       {
         service: makeService("anthropic", [
-          { type: "dialogue", id: "dialogue-4", tune: [0.6, 0.6, 0.6], via: { stream: async function* () {} } },
+          { type: "dialogue", id: "dialogue-4", tune: [0.6, 0.6, 0.6], channels: { stream: { ...ANY, via: async function* () {} } } },
         ]),
         mask: { module: "anthropic", secrets: { anthropic: "k1" } },
       },
       {
         service: makeService("openai", [
-          { type: "dialogue", id: "dialogue-5", tune: TIER_POINTS.fast, via: { stream: async function* () {} } },
+          { type: "dialogue", id: "dialogue-5", tune: TIER_POINTS.fast, channels: { stream: { ...ANY, via: async function* () {} } } },
         ]),
         mask: { module: "openai", secrets: { openai: "k2" } },
       },

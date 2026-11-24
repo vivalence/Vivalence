@@ -87,17 +87,20 @@ const signup = async (values) => {
 const settled = (work) => work.then((value) => ({ status: "fulfilled", value }), (reason) => ({ status: "rejected", reason }));
 
 async function effect(ctx) {
-  const home = paladin.scope.instance.absolute;
-  const file = paladin.scope.instance.branch(".env");
   populate(paladin);
   await mount(paladin);
+  const home = paladin.scope.instance.absolute;
+  const file = paladin.scope.instance.branch(".env");
 
   const absent = !(await paladin.read.text(file).catch(() => null));
   const owing = () =>
     owed(paladin.check.environment(paladin.instance)).some((group) => group.fields.some((row) => paladin.check.wrong.includes(row.verdict)));
-  const scaffolded = absent && Object.keys(paladin.instance.environment?.properties ?? {}).length > 0 && owing();
+  const unheld = Object.entries(paladin.instance.environment?.properties ?? {}).filter(
+    ([key]) => paladin.env.get(key) === null && paladin.secret.get(key) === null,
+  );
+  const scaffolded = absent && unheld.length > 0 && owing();
   if (scaffolded) {
-    await paladin.state.text(file, paladin.envfile.scaffold(paladin.instance.environment));
+    await paladin.state.text(file, paladin.envfile.scaffold(v.environment(Object.fromEntries(unheld))));
     populate(paladin);
     await mount(paladin);
   }

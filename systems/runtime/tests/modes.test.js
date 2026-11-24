@@ -18,6 +18,19 @@ import { Daemon, Runtime, gestalten, lifecycle } from "@vivalence/runtime";
 import { Service } from "../subjects/service/prototype.js";
 import paladin from "@vivalence/paladin";
 
+const KINDS = [
+  "text",
+  "image",
+  "audio",
+  "video",
+  "document",
+  "object",
+  "tool_use",
+  "tool_result",
+  "thinking",
+].map((type) => ({ type }));
+const ANY = { in: KINDS, out: KINDS };
+
 const { modes } = gestalten.belt;
 
 const rung = (type) => ({
@@ -148,8 +161,8 @@ specimen.describe("lifecycle.mode.population.providers — a mode's own consume 
 
   specimen.it("population.acid: a mode wires its OWN mask and builds its OWN cortex from what its providers return; the die's cortex is the mode's (m126 Q5 · Q12 · Q26)", async () => {
     const ledger = paladin.ledger;
-    const leandro = { type: "speech", id: "leandro", tune: [0.3, 0.9, 0.5], via: { stream: () => {} } };
-    const francesca = { type: "speech", id: "francesca", tune: [0.9, 0.1, 0.1], tier: "tongue", via: { stream: () => {} } };
+    const leandro = { type: "speech", id: "leandro", tune: [0.3, 0.9, 0.5], channels: { stream: { ...ANY, via: () => {} } } };
+    const francesca = { type: "speech", id: "francesca", tune: [0.9, 0.1, 0.1], tier: "tongue", channels: { stream: { ...ANY, via: () => {} } } };
     const wired = [];
     paladin.ledger = {
       registry: {

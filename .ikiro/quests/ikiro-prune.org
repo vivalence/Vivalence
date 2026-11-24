@@ -47,6 +47,7 @@ Probes and their outputs: =reference/molt/2026-11-22/= (=voice= · =yap= · =usa
 
 * open
 
+- Guards retired to =bak/hooks/= and unwired from =.claude/settings.json=: =log-guard= · =import-guard= · =kernel-guard= · =compact-gate=. Mask logging, mode imports and the compact gate are unenforced. His ruling: restore one, or leave.
 - What a quest keeps. Proposed: intent · rulings · as code · milestones with their state · next · never. The changelog, the dialogue, done lists, test count tables and machine state go. His ruling at the quest skill.
 
 * next

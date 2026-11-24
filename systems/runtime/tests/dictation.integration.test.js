@@ -16,7 +16,7 @@ function launch(aperture, port = 0) {
 }
 
 async function* frames(chunks) {
-  for (const chunk of chunks) yield { event: "/audio/packet", audio: { data: chunk, rate: 16000 } };
+  for (const chunk of chunks) yield { event: "/audio/packet", audio: { data: chunk, mime: "audio/pcm" } };
 }
 
 async function drain(source) {
@@ -96,7 +96,7 @@ specimen.describe("dictation integration — duplex verbatim over one socket, th
     const controller = new AbortController();
 
     async function* trickle() {
-      yield { event: "/audio/packet", audio: { data: "only", rate: 16000 } };
+      yield { event: "/audio/packet", audio: { data: "only", mime: "audio/pcm" } };
       await sleep.ms(30);
       controller.abort();
       await sleep.ms(1000);

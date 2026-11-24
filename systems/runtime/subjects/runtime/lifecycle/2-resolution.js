@@ -37,6 +37,7 @@ export const modes = (factory) => async (die, next) => {
 export const attach = async (die, next) => {
   for (const service of Object.values(die.runtime.services)) {
     die.aperture.branch(service.reference, service.attachment);
+    die.runtime.aperture.branch(`/service/${service.slug}`, service.aperture);
   }
   await next();
 };

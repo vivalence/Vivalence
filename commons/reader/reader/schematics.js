@@ -13,6 +13,10 @@ export const Article = v.object({
   original: v.string().desc('The file as dropped or fetched: epub · pdf · html. Example: "01a1bd04-…"'),
   book: v.string().desc('Our html: a section per chapter, a data-block per block. Example: "01a1bd05-…"'),
   chapter: v.string().default("c1").desc('The open section. Example: "c3"'),
+  blocks: v
+    .union([v.integer(), v.null()])
+    .default(null)
+    .desc("Blocks in the book; read when as many are done. Null until opened. Example: 9"),
 });
 
 export const EpubOptions = v.object({

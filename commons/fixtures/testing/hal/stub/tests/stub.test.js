@@ -53,7 +53,7 @@ specimen.describe("stub · the faculties", () => {
   specimen.it("streams the scripted number of deltas, and takes the scripted time doing it", async () => {
     const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
     const started = performance.now();
-    const events = (await drain(deep.via.stream({ turns: [said("hi --deltas 4 --pace 30ms")] }))).map((packet) => packet.event);
+    const events = (await drain(deep.channels.stream.via({ turns: [said("hi --deltas 4 --pace 30ms")] }))).map((packet) => packet.event);
     specimen.expect(events.filter((event) => event === "/part/delta").length).toBe(4);
     specimen.expect(events.at(-1)).toBe("/turn/close");
     specimen.expect(performance.now() - started >= 90).toBe(true);
@@ -62,12 +62,12 @@ specimen.describe("stub · the faculties", () => {
   specimen.it("calls the armed tool for --rounds, then answers — the round comes off the turns", async () => {
     const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
     const tools = [{ name: "lookup" }];
-    const first = await drain(deep.via.stream({ tools, turns: [said("go --tool lookup --rounds 2 --pace 1ms")] }));
+    const first = await drain(deep.channels.stream.via({ tools, turns: [said("go --tool lookup --rounds 2 --pace 1ms")] }));
     specimen.expect(first.at(-1).turn.meta.state).toBe("tools");
     specimen.expect(first.find((packet) => packet.part?.type === "tool_use").part.name).toBe("lookup");
     const folded = first.reduce((turn, packet) => soma.pour(turn, packet), null);
     specimen.expect(folded.parts).toEqual([{ type: "tool_use", id: "stub-0", name: "lookup", input: { query: "go --tool lookup --rounds 2 --pace 1ms" } }]);
-    const third = await drain(deep.via.stream({ tools, turns: [said("go --tool lookup --rounds 2 --pace 1ms"), answered("lookup"), answered("lookup")] }));
+    const third = await drain(deep.channels.stream.via({ tools, turns: [said("go --tool lookup --rounds 2 --pace 1ms"), answered("lookup"), answered("lookup")] }));
     specimen.expect(third.at(-1).turn.meta.state).toBe("complete");
   });
 
@@ -76,7 +76,7 @@ specimen.describe("stub · the faculties", () => {
     const abort = new AbortController();
     setTimeout(() => abort.abort("SIGKILL"), 60);
     const started = performance.now();
-    await drain(deep.via.stream({ turns: [said("wait --stall 30s --deltas 3")] }, { signal: abort.signal }));
+    await drain(deep.channels.stream.via({ turns: [said("wait --stall 30s --deltas 3")] }, { signal: abort.signal }));
     specimen.expect(performance.now() - started < 1000).toBe(true);
   });
 
@@ -84,31 +84,31 @@ specimen.describe("stub · the faculties", () => {
     const [deep] = await provider({ statics: STATICS, faculties: STUB_FACULTIES });
     const abort = new AbortController();
     setTimeout(() => abort.abort("SIGKILL"), 80);
-    const events = await drain(deep.via.stream({ turns: [said("--run hung")] }, { signal: abort.signal }));
+    const events = await drain(deep.channels.stream.via({ turns: [said("--run hung")] }, { signal: abort.signal }));
     specimen.expect(events).toEqual([]);
   });
 
   specimen.it("--fault retryable throws with the flag the belt's backoff reads", async () => {
     const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
-    const thrown = await deep.via.render({ turns: [said("x --fault retryable")] }).catch((error) => error);
+    const thrown = await deep.channels.render.via({ turns: [said("x --fault retryable")] }).catch((error) => error);
     specimen.expect(thrown.retryable).toBe(true);
-    const fatal = await deep.via.render({ turns: [said("x --fault")] }).catch((error) => error);
+    const fatal = await deep.channels.render.via({ turns: [said("x --fault")] }).catch((error) => error);
     specimen.expect(fatal.retryable).toBe(false);
   });
 
   specimen.it("--close length seals an assistant turn with NO parts and that state — what gpt-5.1 did on 09-23", async () => {
     const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
-    const events = await drain(deep.via.stream({ turns: [said("hi --close length")] }));
+    const events = await drain(deep.channels.stream.via({ turns: [said("hi --close length")] }));
     specimen.expect(events.map((event) => event.event)).toEqual(["/turn/open", "/turn/close"]);
     specimen.expect(events.at(-1).turn.meta).toEqual({ state: "length", provider: { finish_reason: "length", model: "stub-deep" } });
-    const turn = await deep.via.render({ turns: [said("hi --close filter")] });
+    const turn = await deep.channels.render.via({ turns: [said("hi --close filter")] });
     specimen.expect(turn.parts).toEqual([]);
     specimen.expect(turn.meta.state).toBe("filter");
   });
 
   specimen.it("render pours the same script into one turn, the object part its one home", async () => {
     const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
-    const turn = await deep.via.render({
+    const turn = await deep.channels.render.via({
       turns: [said("x --object '{\"answer\":\"42\"}'")],
       output: { schema: { type: "object", properties: { answer: { type: "string" } }, required: ["answer"] } },
     });
@@ -121,12 +121,12 @@ specimen.describe("stub · the faculties", () => {
     const verbatim = faculties.find((faculty) => faculty.type === "verbatim");
     const speech = faculties.find((faculty) => faculty.type === "speech");
     async function* frames() {
-      yield { event: "/audio/packet", audio: { data: "buon", rate: 16000 } };
-      yield { event: "/audio/packet", audio: { data: "giorno", rate: 16000 } };
+      yield { event: "/audio/packet", audio: { data: "buon", mime: "audio/pcm" } };
+      yield { event: "/audio/packet", audio: { data: "giorno", mime: "audio/pcm" } };
     }
     const signal = new AbortController().signal;
     const settings = { script: "--pace 1ms" };
-    const events = await drain(verbatim.via.stream({ source: frames(), settings }, { signal }));
+    const events = await drain(verbatim.channels.stream.via({ source: frames(), settings }, { signal }));
     specimen.expect(events).toEqual([
       { event: "/turn/open", turn: { role: "user" } },
       { event: "/part/open", index: 0, part: { type: "text", text: "" } },
@@ -139,7 +139,7 @@ specimen.describe("stub · the faculties", () => {
     for (const packet of events) specimen.expect(packet).matches(v.primitives.hallucination.Packet.Response);
     const folded = events.reduce((turn, packet) => soma.pour(turn, packet), null);
     specimen.expect(folded).toEqual({ role: "user", parts: [{ type: "text", text: "buon giorno" }] });
-    const spoken = await drain(speech.via.stream({ source: ["ciao"] }, { signal }));
+    const spoken = await drain(speech.channels.stream.via({ source: ["ciao"] }, { signal }));
     specimen.expect(spoken.map((packet) => packet.event)).toEqual(["/audio/packet", "/audio/close"]);
     for (const packet of spoken) specimen.expect(packet).matches(v.primitives.hallucination.Audio.Any);
   });
@@ -157,7 +157,7 @@ specimen.describe("stub · a faculty carries its entry forward (m126 Q7A)", () =
     const [entry] = STUB_FACULTIES;
     const [faculty] = await provider({ statics: {}, faculties: [{ ...entry, tier: "actor", provider: "stub" }] });
     specimen.expect([faculty.type, faculty.id, faculty.tier, faculty.provider]).toEqual([entry.type, entry.id, "actor", "stub"]);
-    specimen.expect(Object.keys(faculty.via).length).toBeGreaterThan(0);
+    specimen.expect(Object.keys(faculty.channels).length).toBeGreaterThan(0);
     specimen.expect(entry.tier).toBeUndefined();
   });
 });

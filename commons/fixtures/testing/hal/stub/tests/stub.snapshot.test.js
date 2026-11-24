@@ -43,7 +43,7 @@ describe("stub · every scripted run, packet by packet and folded", () => {
     const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
     const runs = {};
     for (const [name, request] of Object.entries(RUNS)) {
-      const packets = await drain(deep.via.stream(request));
+      const packets = await drain(deep.channels.stream.via(request));
       for (const packet of packets) expect(v.primitives.hallucination.Packet.Response.check(packet)).toBe(true);
       runs[name] = { packets, folded: packets.reduce((turn, packet) => soma.pour(turn, packet), null) };
     }
@@ -54,6 +54,6 @@ describe("stub · every scripted run, packet by packet and folded", () => {
   it("the same request twice is the same stream", async () => {
     const [deep] = await provider({ statics: {}, faculties: STUB_FACULTIES });
     const request = RUNS["two rounds, the second"];
-    expect(await drain(deep.via.stream(request))).toEqual(await drain(deep.via.stream(request)));
+    expect(await drain(deep.channels.stream.via(request))).toEqual(await drain(deep.channels.stream.via(request)));
   });
 });

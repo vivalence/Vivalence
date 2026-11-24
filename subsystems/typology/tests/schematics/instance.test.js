@@ -225,7 +225,7 @@ describe("recipe in, mask out — every pair is a named primitive (m126 Q37)", (
     expect(FacultyRecipe.faults({ id: "leandro", tier: "tongue" })).toEqual([]);
     expect(FacultyMask.faults({ id: "leandro", tier: "tongue" })).toEqual([{ at: "/", reason: "must have required properties type" }]);
     expect(FacultyMask.faults({ type: "speech", id: "leandro", tier: "tongue" })).toEqual([]);
-    expect(Faculty.faults({ type: "speech", id: "leandro", tier: "tongue" }).map(({ reason }) => reason)).toEqual(["must have required properties tune, via"]);
+    expect(Faculty.faults({ type: "speech", id: "leandro", tier: "tongue" }).map(({ reason }) => reason)).toEqual(["must have required properties tune, channels"]);
   });
 
   it("every type holds a recipe and a mask under one name; the ledger file is a recipe alone", () => {

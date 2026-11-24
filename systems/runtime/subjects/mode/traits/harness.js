@@ -424,12 +424,14 @@ export const HARNESS = (mode, modeDie) => {
       .use(attending)
       .use(narrating)
       .use(persisting)
+      .use(filing)
       .open(
         { nature: "stream", feeds: v.union([Audio.Packet, Audio.Played]), yields: Packet.Call },
         shard.hal.call({ polish: POLISH, tier: "fast" }),
       );
 
   harness.branch("/dialogue").use(chaining).use(persisting).use(filing);
+  harness.branch("/object").use(filing);
   harness.branch("/dialogue").open({ nature: "render", input: v.primitives.harness.Request, output: v.primitives.hallucination.Response }, async (ctx) => ctx.cortex.hallucinate.dialogue.render(await primed(ctx)));
   harness.branch("/dialogue").open({ nature: "stream", input: v.primitives.harness.Request, yields: Packet.Response }, async (ctx) => ctx.cortex.hallucinate.dialogue.stream(await primed(ctx)));
   harness.branch("/object").open({ nature: "render", input: v.primitives.harness.Request, output: v.primitives.hallucination.Response }, async (ctx) => ctx.cortex.hallucinate.object.render(await primed(ctx)));

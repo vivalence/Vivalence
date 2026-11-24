@@ -20,11 +20,14 @@ const scripted = {
   id: "script",
   tune: [0.9, 0.3, 0.5],
   context: 200000,
-  channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
-  via: {
-    render: async (request) => {
-      rounds.push(request.tools.map((tool) => tool.name));
-      return script.shift() ?? textTurn("done");
+  channels: {
+    render: {
+      in: [{ type: "text" }, { type: "tool_result" }, { type: "tool_use" }],
+      out: [{ type: "text" }, { type: "tool_use" }],
+      via: async (request) => {
+        rounds.push(request.tools.map((tool) => tool.name));
+        return script.shift() ?? textTurn("done");
+      },
     },
   },
 };

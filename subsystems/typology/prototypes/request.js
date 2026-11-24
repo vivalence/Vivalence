@@ -40,6 +40,10 @@ export class Request {
     return this.raw?.body || null;
   }
 
+  bytes() {
+    return (this.read ??= new Response(this.raw?.body).bytes());
+  }
+
   async *subscribe() {
     const body = this.raw?.body;
     if (!body) return;

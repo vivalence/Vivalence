@@ -37,7 +37,7 @@ const audioChunk = (audio, commit) =>
     message_type: "input_audio_chunk",
     audio_base_64: audio.data,
     commit,
-    sample_rate: audio.rate,
+    sample_rate: RATE,
   });
 
 async function pump(ws, source, session) {
@@ -47,7 +47,7 @@ async function pump(ws, source, session) {
   }
   session.spent = true;
   if (ws.readyState !== WebSocket.OPEN) return;
-  if (session.speaking) ws.send(audioChunk({ data: "", rate: RATE }, true));
+  if (session.speaking) ws.send(audioChunk({ data: "" }, true));
   else ws.close();
 }
 
@@ -200,7 +200,7 @@ export default async function provider(service) {
             yield {
               event: "/audio/packet",
               pts: samples / RATE,
-              audio: { data: data.audio, rate: RATE, codec: "pcm_16000" },
+              audio: { data: data.audio, mime: "audio/pcm;rate=16000;channels=1" },
             };
             samples += pcm.bytes(data.audio).byteLength / 2;
           }
@@ -217,20 +217,21 @@ export default async function provider(service) {
       }
     };
 
+    const sides = {
+      in: [{ type: "text" }],
+      out: [
+        { type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] },
+        { type: "audio", mime: ["audio/mpeg"] },
+      ],
+    };
+
     return {
       ...entry,
       type: "speech",
       id: entry.id,
       tune: entry.tune,
       context: 0,
-      channels: {
-        in: [{ type: "text" }],
-        out: [{ type: "audio", codec: "pcm_16000" }, {
-          type: "audio",
-          codec: "mp3_44100_128",
-        }],
-      },
-      via: { stream, render },
+      channels: { stream: { ...sides, via: stream }, render: { ...sides, via: render } },
     };
   }
 
@@ -250,8 +251,13 @@ export default async function provider(service) {
       type: "verbatim",
       id: entry.id,
       tune: entry.tune,
-      channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
-      via: { stream: transcribe },
+      channels: {
+        stream: {
+          in: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
+          out: [{ type: "text" }],
+          via: transcribe,
+        },
+      },
     };
   }
 

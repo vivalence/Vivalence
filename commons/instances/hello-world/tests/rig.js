@@ -4,6 +4,19 @@ const { EMITTER, SURFACING, HARNESS } = traits.mode;
 import { drawing, emitter } from "../page/index.js";
 import { web } from "../tools/web.js";
 
+const KINDS = [
+  "text",
+  "image",
+  "audio",
+  "video",
+  "document",
+  "object",
+  "tool_use",
+  "tool_result",
+  "thinking",
+].map((type) => ({ type }));
+const ANY = { in: KINDS, out: KINDS };
+
 // the offline rig for the nested agent: a REAL cortex holding a fixture faculty, the REAL
 // EMITTER trait, the REAL respond() loop — and a stub bundler, because that is the one thing
 // that needs esbuild. the fixture faculty is scripted turn by turn; everything between the
@@ -46,12 +59,15 @@ export const faculty = (script) => {
       type: "dialogue",
       id: "dialogue-1",
       tune: [0.5, 0.5, 0.5],
-      via: {
-        stream: async function* (request) {
-          seen.push(request);
-          const turn = script[seen.length - 1] ?? script.at(-1);
-          if (turn instanceof Error) throw turn;
-          yield* soma.drain(turn);
+      channels: {
+        stream: {
+          ...ANY,
+          via: async function* (request) {
+            seen.push(request);
+            const turn = script[seen.length - 1] ?? script.at(-1);
+            if (turn instanceof Error) throw turn;
+            yield* soma.drain(turn);
+          },
         },
       },
     },

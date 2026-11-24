@@ -9,6 +9,7 @@ export const v = Object.assign(base, {
   scalars,
   url: scalars.url,
   mime: scalars.mime.type,
+  media: scalars.mime.media,
   primitives,
   environment: primitives.environment,
   entities,

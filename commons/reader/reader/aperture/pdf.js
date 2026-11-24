@@ -193,7 +193,9 @@ export const chaptered = (blocks, title) =>
     }));
 
 const reading = (cortex) => {
-  const documents = cortex.find({ type: "dialogue", via: "render" }).filter((faculty) => faculty.channels.in.includes("document"));
+  const documents = cortex
+    .find({ type: "dialogue", via: "render" })
+    .filter((faculty) => faculty.channels.render.in.some((channel) => channel.type === "document"));
   if (documents.length === 0) throw new Error("reader: no dialogue faculty in this cortex reads documents");
   return nearest(documents, v.primitives.hallucination.TIERS.capable.tune);
 };

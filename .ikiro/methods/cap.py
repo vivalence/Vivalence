@@ -6,7 +6,7 @@
     python3 .ikiro/methods/cap.py --guard    # PreToolUse[Write|Edit] body: reads the hook JSON on stdin,
                                              # warns on a write whose RESULT would exceed the file's limit
 
-Capped: codestyle.md (24800) · README.md · known-issues.org · release.md · quests/frontier.md ·
+Capped: codestyle.md (24800) · README.md · known-issues.org ·
 world/codemap/*.md (the dir TOTALS <= 58400) · skills/*/SKILL.md (each its own). Quests and reference/ are content, never capped.
 Over cap the write warns and lands (beef: warn, no interrupt); the file is consolidated in the same turn. Nothing is evicted elsewhere.
 """
@@ -19,7 +19,7 @@ LIMIT = re.compile(r"limit: (\d+) chars")
 def capped():
     headed = [f for f in glob.glob(f"{ROOT}/reference/**/*.org", recursive=True) + glob.glob(f"{ROOT}/reference/**/*.md", recursive=True)
               if LIMIT.search(open(f, encoding="utf-8").read())]
-    files = (glob.glob(f"{ROOT}/*.md") + glob.glob(f"{ROOT}/*.org") + [f"{ROOT}/quests/frontier.md"]
+    files = (glob.glob(f"{ROOT}/*.md") + glob.glob(f"{ROOT}/*.org")
              + glob.glob(f"{ROOT}/quests/*.org") + headed
              + glob.glob(f"{ROOT}/world/codemap/*.md") + glob.glob(f"{ROOT}/skills/*/SKILL.md"))
     return sorted(f for f in set(files) if not os.path.islink(f))
@@ -29,7 +29,7 @@ def is_capped(path):
     path = os.path.abspath(path)
     return path in {os.path.abspath(f) for f in capped()} or (
         path.startswith(os.path.abspath(ROOT) + os.sep)
-        and not any(seg in path for seg in ("/quests/", "/reference/", "/hooks/", "/methods/"))
+        and not any(seg in path for seg in ("/quests/", "/reference/", "/hooks/", "/methods/", "/bak/"))
         and path.endswith((".md", ".org")))
 
 

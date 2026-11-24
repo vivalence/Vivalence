@@ -10,6 +10,11 @@ export const until = async (predicate, ms = 5000) => {
 
 export const tick = () => sleep.ms(20);
 
+const WORDS = {
+  in: [{ type: "text" }, { type: "tool_use" }, { type: "tool_result" }],
+  out: [{ type: "text" }, { type: "tool_use" }],
+};
+
 export function metronome(script, type = "dialogue") {
   const seen = { requests: [], aborted: [] };
   const gate = promise.waiter();
@@ -51,8 +56,7 @@ export function metronome(script, type = "dialogue") {
       type,
       id: `metronome-${type}`,
       tune: [0.5, 0.5, 0.5],
-      channels: { in: ["text"], out: ["text"] },
-      via: { stream, render: (request, options) => collect(stream(request, options)) },
+      channels: { stream: { ...WORDS, via: stream }, render: { ...WORDS, via: (request, options) => collect(stream(request, options)) } },
     },
   };
 }

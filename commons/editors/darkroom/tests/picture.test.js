@@ -9,11 +9,14 @@ const painter = () => ({
   type: "picture",
   id: "scripted-picture",
   tune: [0.5, 0.5, 0.5],
-  channels: { in: ["text", "image"], out: ["image"] },
-  via: {
-    render: async (request) => {
-      seen.push(request);
-      return { images: [{ type: "image", mime: "image/png", data: PNG }] };
+  channels: {
+    render: {
+      in: [{ type: "text" }, { type: "image" }],
+      out: [{ type: "image" }],
+      via: async (request) => {
+        seen.push(request);
+        return { images: [{ type: "image", mime: "image/png", data: PNG }] };
+      },
     },
   },
 });

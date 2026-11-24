@@ -30,9 +30,9 @@ specimen.describe("deepgram provider", () => {
       );
       for (const faculty of faculties) {
         specimen.expect(faculty.type).toBe("verbatim");
-        specimen.expect(typeof faculty.via.stream).toBe("function");
+        specimen.expect(typeof faculty.channels.stream.via).toBe("function");
         specimen.expect(faculty.tune.length).toBe(3);
-        specimen.expect(faculty.channels.in[0].codec).toBe("pcm_16000");
+        specimen.expect(faculty.channels.stream.in[0].mime).toEqual(["audio/pcm;rate=16000;channels=1"]);
       }
       specimen.expect(faculties[0].config.language).toEqual([]);
       specimen.expect(faculties[1].config.turns).toBe(true);
@@ -49,7 +49,7 @@ specimen.describe("deepgram provider", () => {
       const original = globalThis.WebSocket;
       globalThis.WebSocket = DialedSocket;
       try {
-        const dialed = faculties[0].via.stream({ source: [] }, { signal: new AbortController().signal });
+        const dialed = faculties[0].channels.stream.via({ source: [] }, { signal: new AbortController().signal });
         await specimen.expect(dialed.next()).rejects.toThrow(
           "wss://api.deepgram.com/v2/listen?model=flux-general-multi&",
         );
@@ -167,7 +167,7 @@ specimen.describe("deepgram · a faculty carries its entry forward (m126 Q7A)", 
     const [entry] = FACULTIES;
     const [faculty] = await provider({ secrets: { key: "fake-key" }, faculties: [{ ...entry, tier: "ear", provider: "deepgram" }] });
     specimen.expect([faculty.type, faculty.id, faculty.tier, faculty.provider]).toEqual([entry.type, entry.id, "ear", "deepgram"]);
-    specimen.expect(Object.keys(faculty.via).length).toBeGreaterThan(0);
+    specimen.expect(Object.keys(faculty.channels).length).toBeGreaterThan(0);
     specimen.expect(entry.tier).toBeUndefined();
   });
 });

@@ -118,10 +118,29 @@ export default async function provider(service) {
       id: entry.id,
       tune: entry.tune,
       context: entry.context,
-      channels: { in: ["text", "image", "document", "tool_result"], out: ["text", "tool_use", "object"] },
-      via: {
-        stream: (request, { signal } = {}) => dialogue(seat, request, signal),
-        render: (request, { signal } = {}) => soma.bridge(dialogue(seat, request, signal)),
+      channels: {
+        stream: {
+          in: [
+            { type: "text" },
+            { type: "image" },
+            { type: "document" },
+            { type: "tool_result" },
+            { type: "tool_use" },
+          ],
+          out: [{ type: "text" }, { type: "tool_use" }, { type: "object" }],
+          via: (request, { signal } = {}) => dialogue(seat, request, signal),
+        },
+        render: {
+          in: [
+            { type: "text" },
+            { type: "image" },
+            { type: "document" },
+            { type: "tool_result" },
+            { type: "tool_use" },
+          ],
+          out: [{ type: "text" }, { type: "tool_use" }, { type: "object" }],
+          via: (request, { signal } = {}) => soma.bridge(dialogue(seat, request, signal)),
+        },
       },
     };
   };
@@ -131,22 +150,25 @@ export default async function provider(service) {
     type: "verbatim",
     id: entry.id,
     tune: entry.tune,
-    channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
-    via: {
-      stream: async function* ({ source, settings = {} }, { signal } = {}) {
-        const script = plan({ settings }, statics);
-        const heard = [];
-        yield { event: "/turn/open", turn: { role: "user" } };
-        yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
-        for await (const packet of source) {
-          heard.push(packet.audio.data);
-          await pause(script.pace, signal);
-          yield { event: "/part/draft", index: 0, part: { text: heard.join(" ") } };
-        }
-        await pause(script.stall, signal);
-        yield { event: "/part/delta", index: 0, part: { text: heard.join(" ") } };
-        yield { event: "/part/close", index: 0 };
-        yield { event: "/turn/close", turn: {} };
+    channels: {
+      stream: {
+        in: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
+        out: [{ type: "text" }],
+        via: async function* ({ source, settings = {} }, { signal } = {}) {
+          const script = plan({ settings }, statics);
+          const heard = [];
+          yield { event: "/turn/open", turn: { role: "user" } };
+          yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
+          for await (const packet of source) {
+            heard.push(packet.audio.data);
+            await pause(script.pace, signal);
+            yield { event: "/part/draft", index: 0, part: { text: heard.join(" ") } };
+          }
+          await pause(script.stall, signal);
+          yield { event: "/part/delta", index: 0, part: { text: heard.join(" ") } };
+          yield { event: "/part/close", index: 0 };
+          yield { event: "/turn/close", turn: {} };
+        },
       },
     },
   });
@@ -156,17 +178,28 @@ export default async function provider(service) {
     type: "speech",
     id: entry.id,
     tune: entry.tune,
-    channels: { in: [{ type: "text" }], out: [{ type: "audio", codec: "pcm_16000" }] },
-    via: {
-      stream: async function* ({ source }, { signal } = {}) {
-        const chunks = typeof source === "string" ? [source] : source;
-        for await (const chunk of chunks) {
-          await pause(40, signal);
-          yield { event: "/audio/packet", audio: { data: `audio:${chunk}`, rate: 16000 } };
-        }
-        yield { event: "/audio/close", audio: { meta: { state: "complete" } } };
+    channels: {
+      stream: {
+        in: [{ type: "text" }],
+        out: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
+        via: async function* ({ source }, { signal } = {}) {
+          const chunks = typeof source === "string" ? [source] : source;
+          for await (const chunk of chunks) {
+            await pause(40, signal);
+            yield { event: "/audio/packet", audio: { data: `audio:${chunk}`, mime: "audio/pcm" } };
+          }
+          yield { event: "/audio/close", audio: { meta: { state: "complete" } } };
+        },
       },
-      render: ({ source }) => Promise.resolve({ audio: `audio:${typeof source === "string" ? source : "stream"}`, rate: 16000 }),
+      render: {
+        in: [{ type: "text" }],
+        out: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
+        via: ({ source }) =>
+          Promise.resolve({
+            audio: `audio:${typeof source === "string" ? source : "stream"}`,
+            rate: 16000,
+          }),
+      },
     },
   });
 

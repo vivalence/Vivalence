@@ -14,12 +14,16 @@ export class Daemon extends Entity {
   call = null;
   cortex = null;
   $status = atom({ code: "IDLE" });
+  $files = null;
 
   get status() {
     return this.$status.get();
   }
   get modes() {
     return this.entities.mode.$entities.get().filter((mode) => mode.daemon === this);
+  }
+  get files() {
+    return this.$files.get();
   }
 
   toJSON() {

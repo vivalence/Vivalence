@@ -1,20 +1,38 @@
 import { Type } from "typebox";
 import { enhance, v } from "../v.js";
 import { ID } from "../scalars/index.js";
+import { media } from "../scalars/mime.js";
 import { Condition } from "../prototypes/yield.js";
 import { Measure } from "./track.js";
 
-export const Channel = v.union([
-  v.const("text"),
-  v.const("image"),
-  v.const("audio"),
-  v.const("video"),
-  v.const("document"),
-  v.const("object"),
-  v.const("tool_use"),
-  v.const("tool_result"),
-  v.const("thinking"),
-]);
+export const Channel = v.object(
+  {
+    type: v.union([
+      v.const("text"),
+      v.const("image"),
+      v.const("audio"),
+      v.const("video"),
+      v.const("document"),
+      v.const("object"),
+      v.const("tool_use"),
+      v.const("tool_result"),
+      v.const("thinking"),
+    ]),
+    mime: v
+      .array(media())
+      .optional()
+      .desc('Media types taken or given; a parameter narrows. Example: ["audio/ogg;codecs=opus"]'),
+    bytes: v
+      .integer({ minimum: 1 })
+      .optional()
+      .desc("The largest one part, in bytes. Example: 5242880"),
+    count: v
+      .integer({ minimum: 0 })
+      .optional()
+      .desc("The most parts of this kind in one request. Example: 16"),
+  },
+  { additionalProperties: false },
+);
 
 export const FacultyType = v.union([
   v.const("dialogue"),
@@ -231,10 +249,23 @@ export const REQUIRES = {
   CONVERSATION: [["call"], ["verbatim", "dialogue", "speech"]],
 };
 
-export const Channels = v.object({
-  in: v.array(Channel),
-  out: v.array(Channel),
-});
+const Sides = v.object(
+  {
+    in: v.array(Channel),
+    out: v.array(Channel),
+    via: v
+      .unknown()
+      .desc("The provider's call for this via. Example: (request, { signal }) => …"),
+  },
+  { additionalProperties: false },
+);
+
+export const Channels = v
+  .object({ stream: Sides.optional(), render: Sides.optional() }, { additionalProperties: false })
+  .desc(
+    "What a faculty takes and gives and the call that does it, by via. " +
+      'Example: { render: { in: [{ type: "text" }], out: [{ type: "text" }], via: render } }',
+  );
 
 export const Tool = v.object({
   name: v.string(),
@@ -269,10 +300,6 @@ export const Request = v.object({
   cache: v.object({ marks: v.array(v.string()) }).optional(),
 });
 
-// the register-time guard checks only what the cortex resolves on — type, tune,
-// and a delivery record. `channels` is descriptive metadata the cortex never
-// reads, so it's validated loosely (any array); Channels above stays the strict
-// documented vocabulary for consumers that DO care about the encoding.
 export const Faculty = v.object({
   type: v.string(),
   id: v.string().desc('The faculty, exact — a model id, a voice id. Example: "openai/gpt-image-2"'),
@@ -288,10 +315,7 @@ export const Faculty = v.object({
   context: v.integer().optional(),
   options: v.integer({ minimum: 2 }).optional().desc("Depth — the largest answer space one choice question may carry. Example: 255"),
   choices: v.union([v.integer({ minimum: 1 }), v.null()]).optional().desc("Width — questions in one choice render; null unbounded. Example: 1"),
-  channels: v
-    .object({ in: v.array(v.unknown()), out: v.array(v.unknown()) }, { additionalProperties: true })
-    .optional(),
-  via: v.record(v.string(), v.unknown()),
+  channels: Channels,
 });
 
 export const FacultyRecipe = v.object(
@@ -410,8 +434,7 @@ Audio.Packet = v.object({
   pts: v.number().optional(),
   audio: v.object({
     data: v.string(),
-    rate: v.integer(),
-    codec: v.string().optional(),
+    mime: media().desc('The packet\'s media type. Example: "audio/pcm;rate=16000;channels=1"'),
     align: v
       .array(
         v.object({

@@ -274,7 +274,7 @@ specimen.describe("runtime lifecycle beats on a hand-built die", { sanitizeResou
 
     await run(integration.entities, die);
     await run(integration.metadata, die);
-    die.runtime.cortex = { findOne: ({ type, via }) => (type === "dialogue" ? { via: { [via]: async (request) => ({ echoed: request }) } } : null) };
+    die.runtime.cortex = { findOne: ({ type, via }) => (type === "dialogue" ? { channels: { [via]: { via: async (request) => ({ echoed: request }) } } } : null) };
     await run(integration.cortex, die);
     die.runtime.cortex = null;
     const runtime = die.aperture.branch("/runtime/house", die.runtime.aperture);

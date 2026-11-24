@@ -14,6 +14,7 @@ export class Runtime {
   lighthouse = null;
   entities = null;
   $status = atom({ code: "IDLE" });
+  $files = null;
 
   constructor(fields) {
     Object.assign(this, fields);
@@ -24,6 +25,9 @@ export class Runtime {
   }
   get modes() {
     return this.entities.mode.$entities.get().filter((mode) => mode.daemon === null);
+  }
+  get files() {
+    return this.$files.get();
   }
   get attach() {
     return this.connection.branch("/attached");

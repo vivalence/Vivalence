@@ -1,10 +1,10 @@
 ---
 paths: ["subsystems/paladin/**", "systems/runtime/**", "systems/ghost/**", "**/.viva/**"]
 ---
-<!-- writer: agent · limit: 6200 chars · per item from methods/census.py · code is the map · the composition compiler + the ledger ~/.viva -->
+<!-- writer: agent · limit: 6200 chars · code is the map · the composition compiler + the ledger ~/.viva -->
 # codemap: paladin · ledger — two subjects, the ledger, the lexicon (m91, 10-19)
 
-- **`gestalten/belt/` — 13 `default` closures over `paladin` (`find read check state is scope publish source clone bundler expand envfile control`), one importer `index.js` → `paladin/prototype.js` + `gestalten/index.js`, reach 51; `ignore.js` `IGNORE` (`bak archive slp node_modules .git .DS_Store *.bak .#* #*#`) — ONE list, `skip` takes it WHOLE, a mount under `bak/` is Module 404 — ← `find.js` + `gestalten/tools/fs.js`; `scribe.js` DEAD (`state.js:44`).**
+- **`gestalten/belt/` — 17 `default` closures over `paladin` (`read find prime check state envfile is scope publish source clone bundler expand vault stamp control watch`), one importer `index.js` → `paladin/prototype.js` + `gestalten/index.js`, reach 51; `ignore.js` `IGNORE` (`bak archive slp node_modules .git .DS_Store *.bak .#* #*#`) — ONE list, `skip` takes it WHOLE, a mount under `bak/` is Module 404 — ← `find.js` + `gestalten/tools/fs.js`; `scribe.js` DEAD; quest `paladin-belt` renames it.**
 ```js
 // subsystems/paladin/tests/expand.test.js:75
     const held = paladin.expand(

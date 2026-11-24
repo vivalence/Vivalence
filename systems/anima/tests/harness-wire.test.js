@@ -8,14 +8,17 @@ const seer = () => ({
   id: "dialogue-1",
   tune: [0.9, 0.3, 0.5],
   context: 200000,
-  channels: { in: ["text"], out: ["text"] },
-  via: {
-    stream: async () =>
-      soma.drain({
-        role: "assistant",
-        parts: [{ type: "text", text: "the mist parts" }],
-        meta: { state: "complete" },
-      }),
+  channels: {
+    stream: {
+      in: [{ type: "text" }],
+      out: [{ type: "text" }],
+      via: async () =>
+        soma.drain({
+          role: "assistant",
+          parts: [{ type: "text", text: "the mist parts" }],
+          meta: { state: "complete" },
+        }),
+    },
   },
 });
 

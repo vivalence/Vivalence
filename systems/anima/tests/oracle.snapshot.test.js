@@ -21,19 +21,22 @@ const seer = () => ({
   id: "dialogue-1",
   tune: [0.9, 0.3, 0.5],
   context: 200000,
-  channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
-  via: {
-    render: async (request) => {
-      const { turns, output } = request;
-      if (output?.schema) {
-        const data = { answer: `the mist parts: ${lastUserText(turns)}` };
-        return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" } };
-      }
-      return {
-        role: "assistant",
-        parts: [{ type: "text", text: lastUserText(turns) }],
-        meta: { state: "complete" },
-      };
+  channels: {
+    render: {
+      in: [{ type: "text" }, { type: "tool_result" }, { type: "tool_use" }],
+      out: [{ type: "text" }, { type: "tool_use" }],
+      via: async (request) => {
+        const { turns, output } = request;
+        if (output?.schema) {
+          const data = { answer: `the mist parts: ${lastUserText(turns)}` };
+          return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" } };
+        }
+        return {
+          role: "assistant",
+          parts: [{ type: "text", text: lastUserText(turns) }],
+          meta: { state: "complete" },
+        };
+      },
     },
   },
 });

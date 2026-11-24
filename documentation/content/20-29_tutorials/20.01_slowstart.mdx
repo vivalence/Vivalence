@@ -6,23 +6,25 @@ author: claude (agent)
 
 The README quickstart is a "Hello World" in five commands. This page walks the same five
 steps slowly: what each command touches, which variable backs it, what the default is, and
-where you can diverge from it.
+where you can diverge from it. Every walkthrough below was run on a clean Ubuntu 24.04
+container; `~` stands for the home it ran in.
 
 ## 0 — install
 
 **control**
 
 ```sh
-curl -fsSL https://deno.land/install.sh | sh            # then open a fresh shell
+# debian/ubuntu: apt-get update && apt-get install -y curl ca-certificates unzip git sqlite3
+curl -fsSL https://deno.land/install.sh | sh -s -- -y   # -y persists PATH in your rc
+export PATH="$HOME/.deno/bin:$PATH"                     # this shell only
 git clone https://github.com/vivalence/vivalence.git
 cd vivalence
-deno task embed                                         # dependencies, then `viva` linked into ~/.deno/bin
+deno task embed                                         # dependencies, then the `viva` link
 ```
 
-Deno 2.7+ is the only prerequisite; the repo carries everything else. `deno task embed`
-is two moves: `deno task install` fetches the workspace, then `systems/ghost/install.sh`
-links the CLI — `~/.deno/bin/viva` becomes a symlink to the repo's `ghost.sh`. The deno
-installer already put `~/.deno/bin` on your PATH.
+Deno 2.7+ is the only prerequisite; the repo carries everything else. No compiler is needed.
+`deno task embed` fetches the workspace and links the CLI: `~/.deno/bin/viva` points at the
+checkout.
 
 **environment** — `VIVA_REPOSITORY_MOUNT`, written by the installer into
 `~/.config/viva/env`. Every `viva` sources that file first, so the CLI knows its repo from
@@ -31,79 +33,111 @@ anywhere and your shell rc stays untouched.
 **walkthrough**
 
 ```sh
-$ deno task embed
-Task install deno install --allow-scripts=npm:sqlite3,npm:better-sqlite3,npm:argon2,npm:svelte-preprocess
-Download https://registry.npmjs.org/…
-Task ghost/install sh systems/ghost/install.sh "$(pwd)"
-viva → /home/you/vivalence  ·  config: /home/you/.config/viva/env
-
 $ cat ~/.config/viva/env
 export VIVA_REPOSITORY_MOUNT="/home/you/vivalence"
 
-$ viva ledger/doctor                                    # proves the link; the ledger itself is step 1
+$ viva --help
+viva · 25 commands
+
+every command takes
+  --json  print the command's output as JSON
+  --help  this listing
 ```
 
-One thing rides along invisibly: `ghost.sh` exports `VIVA_PROCESS_ID`, the pid of the shell
-that invoked it. That id is what later lets each terminal hold its own instance
-([step 4](#4--viva-instanceuse--init--user)).
+`viva --help` exiting 0 proves the link; the ledger itself is step 1. One thing rides along
+invisibly: the launcher exports `VIVA_PROCESS_ID`, the pid of the shell that invoked it. That
+id is what later lets each terminal hold its own instance
+([step 4](#4--viva-instanceuse--install--lighthouse)).
 
-## 1 — `viva ledger/init`
+## 1 — `viva ledger/install`
 
 **control**
 
 ```sh
-viva ledger/init [path]
+viva ledger/install [path]
 ```
 
 Creates the **ledger** — the one directory Vivalence owns on your machine. Everything the
-system remembers between runs lives under it: some config, the registry of tapped packages,
-a home for instances, plus locks, logs, and sessions.
+system remembers between runs lives under it: its recipe and environment, the registry of
+tapped packages, a home for instances, plus locks, logs, and sessions.
 
-**environment** — `VIVA_LEDGER_MOUNT`. The wizard persists your choice into
-`~/.config/viva/env`. An explicit `[path]` skips the wizard and skips persisting — a
-one-off, not a decision.
+**environment** — `VIVA_LEDGER_MOUNT`. Bare, the command opens a form and persists your choice
+into `~/.config/viva/env`. An explicit `[path]` skips the form and skips persisting — for
+scripts, docker, CI; a path other than `~/.viva` then needs `export VIVA_LEDGER_MOUNT=<path>`.
 
 **default** — `~/.viva`.
 
 **walkthrough**
 
 ```sh
-$ viva ledger/init
-# wizard: pick the home, persist VIVA_LEDGER_MOUNT
+$ viva ledger/install ~/.viva
+mount       ~/.viva
+persisted   false
+ledger      ~/.viva
+scaffolded  locks · logs · registry · instances · sessions
+commons     ~/vivalence/commons
+recipe      ~/.viva/ledger.viva.json
+env         ~/.viva/.env
+fill        SECRET_VIVA_JWT · SECRET_VIVA_ANTHROPIC_API_KEY · …
 
-$ tree ~/.viva
-~/.viva/
-  .env                                  the machine's own environment file, scaffolded from its schema
-  instances.json     {}                 known instances on this machine
-  instances/                            created instances land here
-  registry/                             remote packages clone here
-  locks/                                what is running
-  logs/                                 per-instance streams
-  sessions/                             per-shell selections
+$ ls -a ~/.viva
+.env               the machine's environment file, scaffolded from the recipe's schema
+environment.json   that schema
+ledger.viva.json   the ledger recipe: runtime, lighthouse, datamap, hallucinators, clients
+instances.json     known instances on this machine
+instances/         cloned instances land here
+registry.json      tapped packages; the checkout's commons/ is already in it
+registry/          remote packages clone here
+locks/             what is running
+logs/              per-instance streams
+sessions/          per-shell selections
+
+$ cat ~/.viva/.env
+## addresses
+# Scheme and authority the runtime is reachable at. Every address below derives from it.
+VIVA_RUNTIME_ORIGIN="http://localhost:2501"
+# Scheme and authority the anima browser client is reachable at.
+VIVA_CLIENT_ANIMA_ORIGIN="http://localhost:1794"
+…
+## keys
+# Signing secret. Minted by viva instance/install when blank, never by ledger/install; …
+# SECRET_VIVA_JWT=""
+# Machine-wide Anthropic key. A key left blank leaves its hallucinator dormant.
+# SECRET_VIVA_ANTHROPIC_API_KEY=""
+# Machine-wide OpenRouter key.
+# SECRET_VIVA_OPENROUTER_API_KEY=""
 
 $ viva ledger/doctor
+homes
+  ledger     ~/.viva
+  store      ~/.viva/registry
+  instances  ~/.viva/instances
+  record     ~/.viva/registry.json
 
-✓ ledger       ~/.viva
-  .env            present       1 vars · 4 secrets · 5 blank
-  registry.json   0 tapped      0 pinned · 0 store · 0 stale  → registry/doctor
-  registry/       0 resident    0 untapped
-  instances.json  0 recorded
-  instances/      0 shelved     0 orphan · 0 dangling · 0 shadowed
-  locks/          0 running
-  sessions/       0 shells
-  logs/           0 files
-
-✓ repository   ~/vivalence
-✗ instance     —
-  ✗ mountpoint   —
+recipe
+  path      ~/.viva/ledger.viva.json
+  slots     environment · runtime · lighthouse · datamap · hallucinators · clients
+…
+instances    —
+locks        —
+sessions     —
+logs         —
+environment
+  key                         value                         stratum
+  VIVA_RUNTIME_ORIGIN         http://localhost:2501         ledger
+  VIVA_CLIENT_ANIMA_ORIGIN    http://localhost:1794         ledger
 ```
 
+The ledger's `.env` is where a machine keeps what every instance shares: the two origins (the
+ports) and the provider keys. An instance reads them from here at stratum `ledger`; it only
+writes into its own `.env` what the ledger does not hold (step 4). `ledger.viva.json` is yours
+to edit: its `lighthouse.traits` say how a visitor gets in, its `hallucinators` which models
+load.
+
 Machine state, never git-managed at the top level — its *children* are the git units.
-`viva ledger/doctor` is the report card, shaped like the tree above: one line per organ with
-its count and its anomalies — stale locations, untapped residents, dangling or orphaned
-instances, dead locks — then every environment variable with the stratum that won it. What
-the packages *supply* is `viva registry/doctor`'s (step 2).
-[[12.02_anatomy-of-the-ledger]] is the deep anatomy.
+`viva ledger/doctor` is the report card: the homes, the recipe, the records, then every
+environment variable with the stratum that won it. What the packages *supply* is
+`viva registry/doctor`'s (step 2). [[12.02_anatomy-of-the-ledger]] is the deep anatomy.
 
 ## 2 — `viva registry/tap`
 
@@ -121,54 +155,80 @@ recorded and its modes can be used throughout your system.
 
 **environment** — `VIVA_REGISTRY_MOUNT` moves the store.
 
-**default** — the store is `<ledger>/registry/`. The first registry verb you run seeds the
-record with the repo's own package: `@commons/package/commons` — the standard library, with
-its development playground and test fixtures inside. `viva registry/list`
-shows them; `viva registry/doctor` reads the record against the store and lists what every
-tap supplies.
+**default** — the store is `<ledger>/registry/`. `ledger/install` already recorded the repo's
+own package: `@commons/package/commons` — the standard library. `viva registry/doctor` reads
+the record against the store and lists what every tap supplies.
 
 **walkthrough**
 
 ```sh
 $ viva registry/doctor
+record
+  path     ~/.viva/registry.json
+  tapped   1
+  stale    —
+  entries
+    owner     slug     mount                 root                  remote
+    @commons  commons  ~/vivalence/commons   ~/vivalence/commons   —
 
-record    1 tapped · 0 stale              /home/you/.viva/registry.json
-store     0 resident · 0 untapped         /home/you/.viva/registry
-pensieve  24 modes · 10 types · 1 owners
-integrity 0 faulted
+store
+  path      ~/.viva/registry
+  resident  —
+  untapped  —
 
-@commons       24 modes  /home/you/vivalence/commons
-  package        commons
-  chaosmonkey    oracle  reader  vision
-  dashboard      dataspace
-  datamap        libsql
-  demo           hello-world
-  fixture        language-learning
-  hallucinator   anthropic  deepgram  elevenlabs  openrouter  stub
-  instance       fixture  hello-world  playground
-  playground     automaton  card  dealer  spawned  spawner  switchboard
-  service        nlp-stanza  reader
+integrity  —
+pensieve
+  modules  20
+  types    13
+  owners   1
+
+packages
+  owner     mount                 root                  modules
+  @commons  ~/vivalence/commons   ~/vivalence/commons   20
+    types
+      package       commons
+      bot           personal
+      dashboard     dataspace
+      datamap       libsql
+      demo          hello-world
+      editor        darkroom
+      hallucinator  anthropic · deepgram · elevenlabs · openrouter
+      harness       runtime
+      instance      hello-world · playground
+      ledger        ledger
+      publisher     blog
+      reader        reader
+      service       nlp-stanza · ocr-tesseract · reader · whatsapp
 
 $ viva registry/tap https://github.com/vivalence/registry-education
-owner                          @education
-root                           /home/you/.viva/registry/registry-education
+owner   @education
+root    ~/.viva/registry/registry-education
 
 $ cat ~/.viva/registry.json
 {
-  "@commons": { "slug": "commons", "mount": "/home/you/vivalence/commons" },
-  "@education": { "slug": "education", "mount": "./registry/registry-education", "remote": "https://github.com/vivalence/registry-education" }
+  "@commons": {
+    "slug": "commons",
+    "mount": "/home/you/vivalence/commons"
+  },
+  "@education": {
+    "slug": "education",
+    "mount": "./registry/registry-education",
+    "remote": "https://github.com/vivalence/registry-education"
+  }
 }
 
 $ ls ~/.viva/registry/registry-education
-README.md  bak  domain  education.viva.js  modes  topographies  topologies
+README.md  bak  domain  education.viva.js  instances  modes  tests  topographies  topologies
 ```
 
-The record is keyed by the owner each package declares. The checkout path is absolute and was
-recorded by the first registry verb you ran — `supply()` seeds the record from
-`<repository>/commons` when `registry.json` does not exist yet, so the standard library is there
-before you tap anything. The remote one was cloned beside the record, so its `mount` is relative
-to `registry.json`, and its `remote` is kept so it can be cloned again. `untap @education` removes
-the row and keeps the working copy.
+The record is keyed by the owner each package declares. The checkout path is absolute. The
+remote one was cloned beside the record, so its `mount` is relative to `registry.json`, and its
+`remote` is kept so it can be cloned again. `untap @education` removes the entry and keeps the
+working copy.
+
+`integrity` names every file a package holds that cannot register. The registry reads every
+`*.viva.js` and `*.viva.json` under a package as a module: a file with that ending and no
+manifest is listed there as `no manifest.slug — unfit to register`.
 
 What a package looks like — `@commons/package/commons`, the standard library:
 
@@ -190,51 +250,44 @@ Every leaf is a mode with its own `*.viva.js`; the package is the one module at 
 that claims the tree. A mode is referenced by owner/type/slug — `@commons/instance/hello-world`
 — where the type comes from the manifest, never the directory name.
 
-To start a package rather than adopt one, bootstrap it: with no source you get a bare
-manifest; with one, that package's tree is cloned and re-declared to the destination — the
-directory name becomes the slug, the slug at-signed becomes the owner. Either way the result
-is tapped.
-
-```sh
-viva registry/bootstrap ~/code/mine
-viva registry/bootstrap ~/code/mine viva
-```
-
-## 3 — `viva instance/create`
+## 3 — `viva instance/clone`
 
 **control**
 
 ```sh
-viva instance/create <source: @owner/instance/slug | path> [target: path] [--slug=<name>] [--use]
+viva instance/clone [source: slug | @owner/instance/slug | path] [target: path]
+                    [--slug=<name>] [--install]
 ```
 
 An **instance** is one runnable system: a runtime, its daemons, its clients — declared in
-one directory. `create` copies the recipe out of the registry. A full copy, yours to edit and
-version: the declaration with its own `environment` schema, and once running a
-`mountpoint/` with databases and bundles. Two runs of the same recipe are two copies, not
-two moods of one.
+one directory. `clone` copies the recipe out of the registry. A full copy, yours to edit and
+version: the declaration, and once running a `mountpoint/` with databases and bundles. Two
+clones of the same recipe are two copies, not two moods of one.
 
 **environment** — `VIVA_INSTANCE_MOUNT` names the one instance a runtime renders — and a
-`*_MOUNT` is always a **path, never a slug**. Paladin throws on a slug; slug→path is the
-operator verbs' job.
+`*_MOUNT` is always a **path, never a slug**. Slug to path is the shell commands' job.
 
 **default** — the copy lands in `<ledger>/instances/<slug>` and is recorded in
-`instances.json`. The slug is the recipe's; `--slug=<name>` names the copy yourself, and a
-held slug is a hard error — no suffixing, pick another. `--use` selects the copy for this
-shell in the same call — step 4's `instance/use`, folded in.
+`instances.json`. The slug is the recipe's; `--slug=<name>` names the copy yourself. The
+clone is selected for this shell; `--install` runs step 4 on it.
 
 **walkthrough**
 
 ```sh
-$ viva instance/create @commons/instance/hello-world
-source                         @commons/instance/hello-world
-slug                           hello-world
-from                           ~/vivalence/commons/instances/hello-world
-target                         ~/.viva/instances/hello-world
-env                            VIVA_INSTANCE_MOUNT=~/.viva/instances/hello-world
+$ viva instance/clone @commons/instance/hello-world
+source  @commons/instance/hello-world
+slug    hello-world
+from    ~/vivalence/commons/instances/hello-world
+target  ~/.viva/instances/hello-world
+selected
+  selected  ~/.viva/instances/hello-world
+  stratum   session
+  mount     ~/.viva/instances/hello-world
+  record    ~/.viva/sessions/95964.json
 
 $ ls ~/.viva/instances/hello-world
-README.md  app  docker-compose.yml  harness.js  instance.viva.json  mode.viva.js  page  tests  tools
+README.md  app  docker-compose.yml  harness.js  instance.viva.json  mode.viva.js  page
+tests  tools
 
 $ cat ~/.viva/instances.json
 {
@@ -244,34 +297,43 @@ $ cat ~/.viva/instances.json
     "updatedAt": "…"
   }
 }
+
+$ viva instance/clone hello --slug=second
+source  @commons/instance/hello-world
+slug    second
+from    ~/vivalence/commons/instances/hello-world
+target  ~/.viva/instances/second
+# and `second` is now this shell's selection
 ```
 
-`viva instance/create hello` lands the same way — a bare slug resolves against the registry, and
-the `source` line prints what it resolved to. `viva instances/list` shows every instance in `~/.viva/instances`. Note what the instance directory
-does *not* contain: its own location. You needed its location to read its files, so storing
-it inside would be circular. Location is the ledger's knowledge.
+A bare slug resolves against the registry, and the `source` line prints what it resolved to.
+In a terminal, a slug that matches nothing or several opens a picker. Note what the instance
+directory does *not* contain: its own location. You needed its location to read its files, so
+storing it inside would be circular. Location is the ledger's knowledge.
 
-## 4 — `viva instance/use` · `init` · `user`
+## 4 — `viva instance/use` · `install` · `lighthouse`
 
 **control**
 
 ```sh
-viva instance/use <slug> [--ledger]
-viva instance/init [username password]
-viva instance/lighthouse/<signup|signin|password> <username> <password>
+viva instance/use [slug] [--ledger]
+viva instance/install [username password]
+viva instance/lighthouse/signup <username> [password]
+viva instance/lighthouse/signin <username> [password]
+viva instance/lighthouse/password <username> <password>
 ```
 
-`use` selects one instance out of the set for this shell. `init` completes one boot
-lifecycle: it populates `.env`, prompting for what cannot be deduced — mostly service
-secrets; it runs the instance once; it asks you to create the first user. `user signup`
-adds users to a running instance.
+`use` selects one instance out of the set for this shell. `install` completes one boot
+lifecycle: it writes the instance's `.env`, asking in a form for what cannot be deduced —
+mostly service keys; it runs the instance once; it asks you to create the first user; it
+stops the instance again. The `lighthouse` commands talk to a running instance (step 5).
 
 **environment** — the selection `use` writes ends up as `VIVA_INSTANCE_MOUNT`, resolved
 to a path. Per shell it lives in `<ledger>/sessions/<shell-pid>.json` (the
 `VIVA_PROCESS_ID` from step 0); with `--ledger` it is one line in `<ledger>/.env`, the
 machine's own environment file.
 
-**default** — nothing is selected. Every instance verb resolves its target the same way,
+**default** — nothing is selected. Every instance command resolves its target the same way,
 strongest voice first:
 
 ```
@@ -285,109 +347,178 @@ ledger    viva instance/use <slug> --ledger   this machine
 `--instance` targets one command, the directory you stand in targets implicitly, `use`
 makes a shell decision, `--ledger` a machine decision. Two terminals can `use` two instances
 and work them in parallel. Bare `viva instance/use` prints the current selection and which
-voice won it; `viva ledger/doctor` prints the same for every variable. The full seven-strata
-ladder — these plus the instance's own files — is [[12.02_anatomy-of-the-ledger]].
+voice won it. The full seven-strata ladder — these plus the instance's own files — is
+[[12.02_anatomy-of-the-ledger]].
 
 **walkthrough**
 
 ```sh
-$ viva instance/use hello-world
-selected                       ~/.viva/instances/hello-world
-stratum                        session
-mount                          ~/.viva/instances/hello-world
-record                         ~/.viva/sessions/95964.json
-# trailing segments chain under /instance: viva instance/use hello-world init
+$ viva instance/use hello-world          # step 3's last clone took the selection; take it back
+selected  ~/.viva/instances/hello-world
+stratum   session
+mount     ~/.viva/instances/hello-world
+record    ~/.viva/sessions/95964.json
 
-$ viva instance/init
-# three pages — environment: what the schema could not mint (here, only the optional Anthropic
-# key) · booting: runtime + anima spawn · create admin — then the instance is up under you:
- ● auth/signup SUCCESS  01a06cf7-2687-730f-b320-1db4b265c166
- ● runtime pid 90730 · alive
- ● anima pid 90731 · alive
- enter → stop + exit
+$ viva instance/install you changeme
+# the same as the form, without it: write .env, boot, sign the admin up, stop
+mount       ~/.viva/instances/hello-world
+lighthouse  booted
+signup
+  status     SUCCESS
+  user
+    id      01a218e0-45aa-7391-aa17-84c0347f88f9
+    slug    you
 
 $ cat ~/.viva/instances/hello-world/.env
-## addresses
-# Scheme and authority the runtime is reachable at. Every address below derives from it.
-VIVA_RUNTIME_ORIGIN="http://localhost:2501"
-…
 ## keys
-# Signing secret. Minted by viva instance/init; rotate with: openssl rand -base64 24
+# Signing secret. Minted by viva instance/install when blank, never by ledger/install; …
 SECRET_VIVA_JWT="P5BP…"
-# Anthropic key. Without one the daemon attaches no hallucinator and /hello/agent answers as the bot.
+# Machine-wide Anthropic key. A key left blank leaves its hallucinator dormant.
 # SECRET_VIVA_ANTHROPIC_API_KEY=""
 
-$ viva instance/init you changeme
-# the same, headless — refuses until .env is complete
-
 $ viva instance/doctor
+mount       ~/.viva/instances/hello-world
 …
-problems                       —
-faults                         —
-dormant                        daemons.hello.hallucinators[0]
-lock                           null
+env
+  !  key                             value                   stratum  reason
+  !  PUBLIC_VIVA_RUNTIME_REMOTE      http://localhost:2501/  ledger   —
+  —  SECRET_VIVA_ANTHROPIC_API_KEY   —                       —        —
+  !  SECRET_VIVA_JWT                 ***                     instan   —
+  !  VIVA_CLIENT_ANIMA_ORIGIN        http://localhost:1794   ledger   —
+  !  VIVA_RUNTIME_ORIGIN             http://localhost:2501   ledger   —
+
+problems    —
+faults      —
+dormant
+  runtime.hallucinators[0]  @commons/hallucinator/anthropic — empty key
+lock        —
 ```
 
-One environment file — `.env`, never committed — and one schema, the `environment` object
-in `instance.viva.json`. `init` scaffolds `.env` from the schema — prose, groups, defaults —
-then asks only for what is still blank. A JSON schema holds no function, so the one secret that must be random is
-minted by `init` itself, once, at scaffold (`systems/ghost/belt/envfile.js`) — the minted value
-is what the file holds, and the wizard has nothing to ask for it. Defaults reference each other with `${VAR}`,
-expanded on read, so nine addresses derive from one origin and moving to a real host is a
-single edit. A `SECRET_*` key is a secret wherever it is written. Then `init` boots the
-instance piped, signs the first user up at the runtime — `/lighthouse/signup`, the identity
-the runtime carries itself; there is no signup UI — and shuts down again. `instance/doctor` afterwards: every key with its
-verdict, plus daemons, services, clients, runtime — and two lines the instance schematic adds:
-`faults`, what it refused (an address that is not a URL), and `dormant`, hallucinators dropped
-because their key is blank (the Anthropic one above). `instance/run` refuses while a verdict or a
-fault stands, and points back here.
+Two environment files and one schema. The ledger's `.env` holds what the machine shares; the
+instance's `.env` — never committed — is written with only the keys nothing else holds yet.
+Here that is one: the signing secret, minted by `install` itself. The addresses are read from
+the ledger, as the `stratum` column says. A key you write into the instance's `.env` wins over
+the ledger's for that instance — that is how a second instance gets its own ports. Defaults
+reference each other with `${VAR}`, expanded on read, so every address derives from one origin
+and moving to a real host is a single edit. A `SECRET_*` key is a secret wherever it is written.
 
-## 5 — `viva instance/run`
+`instance/doctor` afterwards: every key with its value and the stratum that won it, plus
+`faults`, what the schematic refused (an address that is not a URL), and `dormant`,
+hallucinators dropped because their key is blank. Put a provider key into `~/.viva/.env` and
+the matching line leaves `dormant`.
+
+**who gets in** is the lighthouse's `traits`, in `ledger.viva.json`:
+
+| traits | `signup <name>` | `signup <name> <password>` | `signin <name>` |
+| --- | --- | --- | --- |
+| `JOINABLE` | asks for the password in a form | signs up | refused: needs the password |
+| `AUTOSIGNUP` | signs up, no password | signs up, sets it | signs in a passwordless name |
+
+Both commands print `status` and `user`; `--json` adds the tokens. A name that holds a password
+is never entered by name alone.
+
+## 5 — `viva instance/up` · `start`
 
 **control**
 
 ```sh
-viva instance/run [runtime | anima]
-viva instance/stop [runtime | anima]
+viva instance/up [runtime | anima]       # attached: output on this terminal
+viva instance/down
+viva instance/start [runtime | anima]    # detached: logged under <ledger>/logs/<slug>/
+viva instance/stop
 viva instance/delete [slug] [--force]
 ```
 
-Boots the instance's children as supervised processes and registers each in the ledger's
-locks — `<instance>_<process>.lock`, holding the pid. Naming one child runs just that one.
-`delete` is the undo of steps 3 and 4: the record, dead locks, logs, and every shell session
-that had selected it go, and so does the directory when it sits in `~/.viva/instances` under
-`<ledger>/instances/` — a directory you tapped from elsewhere stays. It refuses while a child
-is running and asks before acting unless `--force` is given.
+Boots the instance's children as supervised processes and records them in the instance's one
+lock, `<ledger>/locks/<slug>.lock`. Naming one child runs just that one. `delete` is the undo
+of steps 3 and 4: the record, dead locks, logs, and every shell session that had selected it
+go, and so does the directory when it sits under `<ledger>/instances/` — a directory you
+tapped from elsewhere stays. It refuses while a child is running and asks before acting unless
+`--force` is given.
 
 **walkthrough**
 
 ```sh
-$ viva instance/run
+$ viva instance/start
+status      started
+instance    hello-world
+supervisor  1962
+processes
+  process  pid   serve                   status  exit
+  runtime  2000  http://localhost:2501/  ALIVE   —
+  anima    2001  http://localhost:1794/  ALIVE   —
 
-run runtime=8924 anima=8925
-  VITE v6.3.3  ready in 1467 ms
-  ➜  Local:   http://127.0.0.1:1794/
-Status:RUNNING
+logs        ~/.viva/logs/hello-world
+next        viva instance/stop
 
-$ ls ~/.viva/locks
-hello-world_runtime.lock  hello-world_anima.lock
+$ curl -s localhost:2501/beacon/status
+{"timestamp":"…","code":"RUNNING"}
+
+$ ls ~/.viva/locks ~/.viva/logs/hello-world
+~/.viva/locks:
+hello-world.lock
+
+~/.viva/logs/hello-world:
+anima.out.log  runtime.out.log
+
+$ viva instance/lighthouse/signup second changeme
+status  SUCCESS
+user
+  id      01a218e0-73c0-703a-8c2d-321c2ad459ac
+  slug    second
+
+$ viva instance/lighthouse/signin second wrong
+[ERROR] /instance/lighthouse/signin: Unauthorized — Invalid username or password
+  @ /lighthouse/login
+
+$ viva instance/stop
+status      stopped
+instance    hello-world
 ```
 
-For `hello-world` that is two processes:
+`ALIVE` in the table means the process is up; the runtime answers once `/beacon/status` says
+`RUNNING`, some seconds later. For `hello-world` that is two processes:
 
 | process   | what                    | where                   |
 | --------- | ----------------------- | ----------------------- |
 | `runtime` | daemons, entities, HTTP | `http://localhost:2501` |
-| `anima`  | the browser client      | `http://localhost:1794` |
+| `anima`   | the browser client      | `http://localhost:1794` |
 
 The runtime hosts everything as one path tree under one origin: itself under
 `/runtime/<slug>` (`/runtime/runtime` by default), daemons under `/daemon/<slug>`, each
 host's modes under `<host>/mode/<type>/<slug>`, attached services like `nlp-stanza` under
-`/attached/process/…`, files by row under `/attached/file/:id`, a view's bundle under
-`/attached/view/:id` (built at its first fetch), identity under `/lighthouse/…`.
+`/attached/process/…`, identity under `/lighthouse/…`.
 
 Open **http://localhost:1794**, log in with the account from step 4, and you are inside:
 the client attaches to the daemons and renders their modes.
+
+On a server, the origins bind and the remote is what a browser reaches. In `~/.viva/.env`:
+
+```sh
+VIVA_RUNTIME_ORIGIN="http://0.0.0.0:2501"
+VIVA_CLIENT_ANIMA_ORIGIN="http://0.0.0.0:1794"
+PUBLIC_VIVA_RUNTIME_REMOTE="http://<the server's address>:2501/"
+```
+
+## 6 — or from the published images
+
+Every push builds four images, tag `alpine` and the commit's short hash, pulled without a
+login: `registry.vivalence.org/beef/viva/vivalence/{viva,runtime,anima,documentation}`. They
+are `arm64` only. An instance folder can be a compose project over them: `runtime` with the
+packages tapped at build, `anima` from its own image, the folder mounted read-only as the
+instance. The `@droneaid` package ships one:
+
+```sh
+git clone https://github.com/vivalence/registry-droneaid.git
+cd registry-droneaid/instances/droneaid
+cp .env.example .env            # SECRET_VIVA_JWT (openssl rand -base64 24), a provider key
+docker compose build runtime
+docker compose up -d
+curl -s localhost:2501/beacon/status
+```
+
+No `viva` on the host is needed. The runtime turns healthy in about 25 seconds, anima answers
+after it on `:1794`. The database lives in the compose volume `mountpoint`.
 
 ## read on
 

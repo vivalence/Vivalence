@@ -65,7 +65,7 @@ describe("T-italian — language-learning boots empty beside chess, the dojo's c
     await Deno.mkdir(join(world.root, "recipe"));
     await Deno.writeTextFile(join(world.root, "recipe/instance.viva.json"), JSON.stringify(RECIPE("italian", [ITALIAN, CHESS]), null, 2));
     await Deno.copyFile(PROBE, join(world.root, "recipe/probe.viva.js"));
-    const { effect, err } = await viva(world, ["instance/clone", join(world.root, "recipe"), "--slug=italian", "--use", "--install"]);
+    const { effect, err } = await viva(world, ["instance/clone", join(world.root, "recipe"), "--slug=italian", "--install"]);
     if (!effect?.target) throw new Error(`instance/clone failed: ${err}`);
     shelf = effect.target;
     await pin(shelf, { VIVA_RUNTIME_ORIGIN: world.origin });

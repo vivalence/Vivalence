@@ -11,7 +11,7 @@ Vivalence is part framework, part platform, and part operating system. It sits s
 ## Can I ...?
 
 **...run a Muse on my own box?**
-An instance is that VM: daemon, harness, tools, memory, sqlite, all in one directory you own. `viva instance/create` and it runs. Ship your own Muse as a mode.
+An instance is that VM: daemon, harness, tools, memory, sqlite, all in one directory you own. `viva instance/clone` and it runs. Ship your own Muse as a mode.
 
 **...give my agent their own agent?**
 sure
@@ -182,15 +182,16 @@ The instance the mode ships in, as one JSON file: its manifest and its one daemo
 ```
 
 ```jsonc
-// commons/ledger/ledger.viva.json — what `viva ledger/init` clones; a string slot is a path, or a ${KEY} naming a path or the content
+// commons/ledger/ledger.viva.json — what `viva ledger/install` clones; a string slot is a path, or a ${KEY} naming a path or the content
 {
   "instances": "./instances.json",
   "registry": "./registry.json",
   "environment": "./environment.json",
   "runtime": {
     "statics": { "serve": "${VIVA_RUNTIME_SERVE}", "remote": "${PUBLIC_VIVA_RUNTIME_REMOTE}" },
-    "secrets": { "jwt": "${SECRET_VIVA_JWT}" }
+    "modes": ["@commons/harness/runtime"]
   },
+  "lighthouse": { "secrets": { "jwt": "${SECRET_VIVA_JWT}" }, "traits": ["JOINABLE", "AUTOLOGIN"] },
   "datamap": { "module": "@commons/datamap/libsql" },
   "hallucinators": [
     {
@@ -206,13 +207,16 @@ The instance the mode ships in, as one JSON file: its manifest and its one daemo
     { "module": "@commons/hallucinator/elevenlabs", "secrets": { "key": "${SECRET_VIVA_ELEVENLABS_API_KEY}" }, "faculties": [ … ] },
     { "module": "@commons/hallucinator/deepgram", "secrets": { "key": "${SECRET_VIVA_DEEPGRAM_API_KEY}" }, "faculties": [ … ] }
   ],
-  "clients": [{ "manifest": { "type": "client", "slug": "anima" }, "statics": { "serve": "${VIVA_CLIENT_ANIMA_SERVE}" } }]
+  "clients": [
+    { "manifest": { "type": "client", "slug": "anima" }, "statics": { "serve": "${VIVA_CLIENT_ANIMA_SERVE}" } },
+    { "manifest": { "type": "client", "slug": "ghost" }, "modes": ["@commons/home/console"] }
+  ]
 }
 ```
 
 A hallucinator row loads only the faculties it lists — models, voices, their tunes; a row whose key is empty sleeps. `tiers` gives each of the five tier names its point; the runtime refuses to start without all five.
 
-Identity is the runtime's own: `SECRET_VIVA_JWT` signs its users, and every daemon behind it authenticates against that one remote. There is no identity service to declare.
+Identity is the runtime's own lighthouse: `SECRET_VIVA_JWT` signs its users, and every daemon behind it authenticates against that one remote. Its `traits` say how a visitor gets in — `JOINABLE` opens `/signup`, `AUTOLOGIN` enters every visitor as one user, `AUTOSIGNUP` enters a visitor under the name they type, no password. There is no identity service to declare.
 
 # Quickstart
 
@@ -244,32 +248,40 @@ deno task embed  # system dry-run and `viva` in `~/.deno/bin`
 
 The CLI remembers the repo via `$VIVA_REPOSITORY_MOUNT` in `~/.config/viva/env`. From here on you should be able to run `viva`. Test this with e.g. `$ viva ledger/doctor`.
 
-### 1 — `viva ledger/init`
+### 1 — `viva ledger/install`
 
 ```sh
-viva ledger/init
+viva ledger/install          # a form: where the ledger lives
+# viva ledger/install ~/.viva # no form — scripts, docker, CI
 ```
 
-Creates the `ledger` — the one directory Vivalence owns on your machine (default `~/.viva` -  the wizard lets you move it and persists `VIVA_LEDGER_MOUNT`). The ledger holds everything the system needs to remember: some config, the registry of tapped packages, a home for instances, plus locks, logs, and sessions. It's machine state, not git-managed at top level. 
+Creates the `ledger` — the one directory Vivalence owns on your machine (default `~/.viva` — the form lets you move it and persists `VIVA_LEDGER_MOUNT` in `~/.config/viva/env`; given a path it asks nothing and persists nothing, so a path other than `~/.viva` needs `export VIVA_LEDGER_MOUNT=<path>`). The ledger holds everything the system needs to remember: some config, the registry of tapped packages, a home for instances, plus locks, logs, and sessions. It's machine state, not git-managed at top level. 
 
 The doctor should tell you that:
 ```sh
 viva ledger/doctor
 
-✓ ledger       ~/.viva
-  .env            present       0 vars · 0 secrets
-  registry.json   0 tapped      0 pinned · 0 store · 0 stale  → registry/doctor
-  registry/       0 resident    0 untapped
-  instances.json  0 recorded
-  instances/      0 shelved     0 orphan · 0 dangling · 0 shadowed
-  locks/          0 running
-  sessions/       0 shells
-  logs/           0 files
+homes
+  ledger     ~/.viva
+  store      ~/.viva/registry
+  instances  ~/.viva/instances
+  record     ~/.viva/registry.json
 
-✓ repository   ~/vivalence
-✗ instance     —                # see steps #3-#5
-  ✗ mountpoint   —
+recipe
+  path      ~/.viva/ledger.viva.json
+  slots     environment · runtime · lighthouse · datamap · hallucinators · clients
+…
+instances    —                 # see steps #3-#5
+locks        —
+sessions     —
+logs         —
+environment
+  key                         value                         stratum
+  VIVA_RUNTIME_ORIGIN         http://localhost:2501         ledger
+  VIVA_CLIENT_ANIMA_ORIGIN    http://localhost:1794         ledger
 ```
+
+`~/.viva/.env` holds what every instance on the machine shares: the two origins (the ports) and the provider keys. `~/.viva/ledger.viva.json` is the ledger recipe, yours to edit: `lighthouse.traits` say how a visitor gets in, `hallucinators` which models load.
 
 
 ### 2 — `viva registry/tap`
@@ -280,16 +292,16 @@ viva registry/tap <source: path | git url> [target: path]
 
 Adds a `package` to the registry. Packages are modes whose job is to carry other modes: datasets, domains, services, instance recipes. `tap` loads a package from either a local path or a git URL. Local is recorded into the ledger, remote is cloned into either the ledger's default `/registry` — or into an optional `[target]`. Either way, the package is recorded and its modes can be used throughout your system.
 
-`viva registry/list` seeds the record from the checkout's `commons/` on its first run — the standard library is recorded before you tap anything; `tap` adds to that set:
+`ledger/install` already tapped the checkout's `commons/` — the standard library is recorded before you tap anything; `tap` adds to that set, and `viva registry/doctor` shows it:
 ```sh
-viva registry/list
+viva registry/doctor
 
-packages
-  0
-    mount                      ~/vivalence/commons
-    owner                      @commons
-    modes                      21
-    identifier                 @commons/package/commons
+record
+  path     ~/.viva/registry.json
+  tapped   1
+  entries
+    owner      slug      mount                 root                  remote
+    @commons   commons   ~/vivalence/commons   ~/vivalence/commons   —
 ```
 
 Load packages from vcs or path with `registry/tap`:
@@ -297,44 +309,47 @@ Load packages from vcs or path with `registry/tap`:
 viva registry/tap https://github.com/vivalence/registry-education
 ```
 
-### 3 — `viva instance/create`
+### 3 — `viva instance/clone`
 
 ```sh
-viva instance/create @commons/instance/hello-world
+viva instance/clone @commons/instance/hello-world
 
-# or as one: create it and bind it to this shell
-# viva instance/create @commons/instance/hello-world --use  # --init
+# or as one: clone it and run its first boot
+# viva instance/clone @commons/instance/hello-world --install
 ```
 
-An `instance` is one runnable system: a runtime, its daemons, its clients — declared in one directory. `create` copies the recipe out of the registry onto the ledger's instances (`~/.viva/instances/hello-world/`) or any custom path - recorded in `~/.viva/instances.json`. List all of them with `viva instances/list`
+An `instance` is one runnable system: a runtime, its daemons, its clients — declared in one directory. `clone` copies the recipe out of the registry onto the ledger's instances (`~/.viva/instances/hello-world/`) or any custom path - recorded in `~/.viva/instances.json`. `viva ledger/doctor` counts them; `viva instance/use` with no argument opens the picker.
 
 The standard library `@commons/package/commons` holds common utilities like our `hello-world` instance.
 
-### 4 — `viva instance/init`
+### 4 — `viva instance/install`
 
-`instance/init` completes a boot lifecycle. 
+`instance/install` completes a boot lifecycle. 
 It populates `.env` — defaults and minted secrets are written, you're prompted only for what can't be deduced (service keys). 
 It runs the instance once.
 It asks you to create the first user.
 
 ```sh
 viva instance/use hello-world     # pid level bind
-viva instance/init                 # populates instance .env
+viva instance/install              # populates instance .env, the forms, the first user
 
-# or as one: viva instance/use hello-world init
+# or as one: viva instance/use hello-world install
+# no form:   viva instance/install <username> <password>
 ```
-`instance/use` selects one instance out of the set for this shell. 
+`instance/use` selects one instance out of the set for this shell; `viva instance/use hello-world --ledger` makes it the machine's default, for every shell. A script that owns no shell names the instance itself: `VIVA_INSTANCE_MOUNT=~/.viva/instances/hello-world viva instance/install`.
 
-To sign up additional users, use `viva instance/lighthouse/signup <username> <password>` — it talks to the running runtime, so the instance has to be up (step 5).
+The instance's `.env` is written with only the keys nothing else holds yet; a key set in `~/.viva/.env` is read from there by every instance. A key written into `~/.viva/instances/hello-world/.env` wins over the ledger's for that instance. 
+
+To sign up additional users, use `viva instance/lighthouse/signup <username> [password]` — it talks to the running runtime, so the instance has to be up (step 5). On a lighthouse with `AUTOSIGNUP` the name alone signs up; with a password too, the password is set. `viva instance/lighthouse/signin <username> [password]` checks an account the same way. Both print `status` and `user`; `--json` adds the tokens.
 
 Running `viva instance/doctor` should provide you with an overview of the environment, runtime, clients, daemons, and services — plus `faults` (what the schematic refused) and `dormant` (hallucinators whose key is blank).
 
-### 5 — `viva instance/run`
+### 5 — `viva instance/up`
 
-The daily driver command to get an instance running is `instance/run`
+The daily driver command to get an instance running is `instance/up` — attached, its output on this terminal. `instance/start` runs the same detached, logged under `~/.viva/logs/<slug>/`.
 
 ```sh
-viva instance/run
+viva instance/up
 
 run runtime=8924 anima=8925
   VITE v6.3.3  ready in 1467 ms
@@ -352,16 +367,29 @@ Boots the instance's children as supervised processes and records them in the in
 
 Open **http://localhost:1794**, log in with the account from step 4, and you're inside: the client attaches to the daemons and renders their modes. 
 
-Run one child on its own with `viva instance/run runtime` or `viva instance/run anima` — each boots only that process, and the instance's one lock lists whichever are up; `all` is the default. `viva instance/stop` tears down whatever is running and clears the locks. `viva instance/delete` removes the instance from the machine — its record, dead locks, logs, the shell sessions that had selected it, and the directory when it lives in `~/.viva/instances` under `~/.viva/instances/`; a directory you tapped from elsewhere stays. It refuses while a child is running, and asks first unless you pass `--force`.
+Run one child on its own with `viva instance/up runtime` or `viva instance/up anima` — each boots only that process, and the instance's one lock lists whichever are up; `all` is the default. `viva instance/stop` tears down whatever is running and clears the locks. `viva instance/delete` removes the instance from the machine — its record, dead locks, logs, the shell sessions that had selected it, and the directory when it lives in `~/.viva/instances` under `~/.viva/instances/`; a directory you tapped from elsewhere stays. It refuses while a child is running, and asks first unless you pass `--force`.
 
 ### 6 — Summary and next steps
 
 - [x] `deno task embed` — `viva` linked into `~/.deno/bin`, this checkout pinned in `~/.config/viva/env`
-- [x] `ledger/init`       — `~/.viva` exists: the one directory Vivalence owns on your machine
+- [x] `ledger/install`    — `~/.viva` exists: the one directory Vivalence owns on your machine
 - [x] `registry/tap`      — `@commons` recorded from the checkout, `@education` tapped; their modes resolve by reference from any shell
-- [x] `instance/create`   — `hello-world` copied into `~/.viva/instances`, yours to edit and version
-- [x] `instance/init`     — the instance's `.env` populated, your account registered with its runtime
-- [x] `instance/run`      — runtime serving on `:2501`, anima on `:1794`, and you're ready to log in and explore.
+- [x] `instance/clone`    — `hello-world` copied into `~/.viva/instances`, yours to edit and version
+- [x] `instance/install`  — the instance's `.env` populated, your account registered with its runtime
+- [x] `instance/up`       — runtime serving on `:2501`, anima on `:1794`, and you're ready to log in and explore.
+
+### 7 — or run from the published images
+
+Every push builds four images, tag `alpine` and the commit's short hash, pulled without a login: `registry.vivalence.org/beef/viva/vivalence/{viva,runtime,anima,documentation}`. They are `arm64` only. An instance folder can be a compose project over them; the `@droneaid` package ships one, and no `viva` on the host is needed:
+
+```sh
+git clone https://github.com/vivalence/registry-droneaid.git
+cd registry-droneaid/instances/droneaid
+cp .env.example .env            # SECRET_VIVA_JWT (openssl rand -base64 24), a provider key
+docker compose build runtime    # the runtime image plus the tapped packages
+docker compose up -d
+curl -s localhost:2501/beacon/status
+```
 
 Continue here:
 - [ ] the <a target="_blank" href="https://docs.vivalence.org/20.01_slowstart">Slowstart</a> — the same climb, with the machinery explained at depth.

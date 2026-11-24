@@ -30,11 +30,14 @@ function scriptedCortex(script, seen) {
       type: "dialogue",
       id: "dialogue-1",
       tune: [0.5, 0.5, 0.5],
-      channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
-      via: {
-        render: async (request) => {
-          seen.push(request);
-          return script[cursor++];
+      channels: {
+        render: {
+          in: [{ type: "text" }, { type: "tool_result" }, { type: "tool_use" }],
+          out: [{ type: "text" }, { type: "tool_use" }],
+          via: async (request) => {
+            seen.push(request);
+            return script[cursor++];
+          },
         },
       },
     },
@@ -175,13 +178,16 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
             type: "dialogue",
             id: "dialogue-2",
             tune: [0.5, 0.5, 0.5],
-            channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
-            via: {
-              stream: async () => {
-                const script = scripts[cursor++];
-                return (async function* () {
-                  for (const packet of script) yield packet;
-                })();
+            channels: {
+              stream: {
+                in: [{ type: "text" }, { type: "tool_result" }, { type: "tool_use" }],
+                out: [{ type: "text" }, { type: "tool_use" }],
+                via: async () => {
+                  const script = scripts[cursor++];
+                  return (async function* () {
+                    for (const packet of script) yield packet;
+                  })();
+                },
               },
             },
           },
@@ -214,16 +220,19 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
             type: "dialogue",
             id: "dialogue-3",
             tune: [0.5, 0.5, 0.5],
-            channels: { in: ["text"], out: ["object"] },
-            via: {
-              render: async (request) => {
-                seen.push(request);
-                const data = v.fill(request.output.schema, { verdict: "casa" });
-                return {
-                  role: "assistant",
-                  parts: [{ type: "object", data }],
-                  meta: { state: "complete" },
-                };
+            channels: {
+              render: {
+                in: [{ type: "text" }],
+                out: [{ type: "object" }],
+                via: async (request) => {
+                  seen.push(request);
+                  const data = v.fill(request.output.schema, { verdict: "casa" });
+                  return {
+                    role: "assistant",
+                    parts: [{ type: "object", data }],
+                    meta: { state: "complete" },
+                  };
+                },
               },
             },
           },

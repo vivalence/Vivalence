@@ -45,7 +45,7 @@ English to Latin, classical and ecclesiastical. Ten topics from Religio to Sermo
 
 ```sh
 viva ledger/install
-viva instance/clone memo --use --install
+viva instance/clone memo --install
 viva instance/up
 viva
 ```

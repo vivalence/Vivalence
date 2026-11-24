@@ -21,8 +21,8 @@ Two or more workarounds on one mechanism. A need nobody owns. His word. One work
 3. Write the needs. Three to nine sentences of what a consumer or his screen needs, without one noun of the implementation.
 4. Write the assumptions the current wiring makes. Tag each: he ruled it, a need forces it, or it is history. Only history is free to die. A ruled one is asked.
 5. Close the files. Write the wiring fresh from steps 3 and 4. Start at the consumer's call, then the data shape, then the owners, then the dispatch. Write two, structurally different.
-6. Compare each with what is: what dies, what moves, what is born. A redesign that removes no workaround is a rename, drop it. If the fresh one equals what is, say so: the defect is local.
-7. Report in his nouns. What is, as code. Then one question with two options as code (skill `drill-me`).
+6. Compare each with what is: what dies, what moves, what is born, read off the code the new call runs through end to end, never off the sketch. A redesign that removes no workaround is a rename, drop it. If the fresh one equals what is, say so: the defect is local.
+7. Report in his nouns. What is, as code. Then one question with two options as code (skill `drill-me`): it asks what he sees or does, in a sentence he could have said, never where the system keeps a thing. Two options that look the same on his screen today are no question: I take the one his own words already name and say so.
 
 ## questions that open a wiring
 
@@ -38,4 +38,4 @@ Two or more workarounds on one mechanism. A need nobody owns. His word. One work
 - A new primitive where typology already has one.
 - A third workaround "for now".
 - A pattern name instead of code in our tree.
-- My worksheet words in the reply.
+- My worksheet words in the reply, as a heading over a group too.

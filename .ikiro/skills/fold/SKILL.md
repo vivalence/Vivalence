@@ -20,6 +20,8 @@ Make two lists.
 - His: what he said, what he approved, what landed, what is still open.
 - Mine: every correction, every guard that fired, every claim that turned out false.
 
+- His familiarity: each thing he said he knows, explained himself, ruled, or asked to have explained. Move its level in the familiarity map, add the ones not listed.
+
 ## 2 · fix each failure
 
 1. Find the rule that should have stopped it. Search ikiro for it.
@@ -43,12 +45,11 @@ For each defect: which test should have gone red first? Add it to the sibling su
 ## 4 · hand over
 
 - Quest: approved code goes into `* as code`. Each milestone gets its state. Then what is next, and what was ruled out.
-- Frontier: one line per live quest. Name, state, next.
 - A defect that outlives the quest goes to `known-issues.org`.
 
 ## 5 · report
 
-One row per failure: what went wrong, the sentence now, its file and line.
+One row per failure, under his subject and never above it: what went wrong, the sentence now, its file and line.
 
 ## another session is live
 

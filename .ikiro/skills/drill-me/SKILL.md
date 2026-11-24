@@ -46,8 +46,8 @@ A or B?
 
 A question:
 
-- He can answer it cold. It says what he cannot do today, in his nouns, with one worked example on his real data.
-- Each option shows what he would write and what he would then see.
+- He can answer it cold: one thing he did today on his real data, what his screen hid, in his nouns, never mine.
+- Each option is named by the one thing that differs for him, and shows what he would write and what he would then see.
 - Code is whole and real. It names its repo path and who calls it. No `…`, no prose inside the fence.
 - A question whose effect he never sees is mine. I decide it and say so in one line.
 - What a lock, a ruled name or the tree's style answers in its own scope is looked up, never asked.

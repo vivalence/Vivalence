@@ -34,9 +34,8 @@ async function effect(ctx) {
   await tree(mount, destination);
   await paladin.ledger.instances.write(slug, { mount: destination });
 
-  const created = { source, slug, from: mount, target: destination, env: `VIVA_INSTANCE_MOUNT=${destination}` };
-
-  if (ctx.signal.flags.use) created.selected = await ctx.call(["instance/use", destination]);
+  const created = { source, slug, from: mount, target: destination };
+  created.selected = await ctx.call(["instance/use", destination]);
   if (ctx.signal.flags.install) {
     paladin.env.set("VIVA_INSTANCE_MOUNT", destination, "flag");
     created.installed = await ctx.call(["instance/install"]);
@@ -47,11 +46,10 @@ async function effect(ctx) {
 export const clone = new Vector().open(
   {
     nature: "/instance/clone",
-    valence: "create an instance from a registry source — a bare slug resolves against the registry, an ambiguous or missing one opens the picker; no target lands it in <ledger>/instances/<slug>. Example: viva instance/clone hello-world --use --install",
+    valence: "create an instance from a registry source — a bare slug resolves against the registry, an ambiguous or missing one opens the picker; no target lands it in <ledger>/instances/<slug>; the clone is selected for this shell. Example: viva instance/clone hello-world --install",
     input: v.object({
       source: v.string().desc("slug | @owner/instance/slug | ../path — preset for the picker. Example: hello-world").optional(),
       target: v.string().desc("destination dir, defaults to <ledger>/instances/<slug>. Example: ./chess").optional(),
-      use: v.boolean().desc("select it for this shell once created").group("flags").optional(),
       install: v.boolean().desc("run instance/install on it once created").group("flags").optional(),
       slug: v.string().desc("the slug to record it under. Example: readmen").group("flags").optional(),
     }),

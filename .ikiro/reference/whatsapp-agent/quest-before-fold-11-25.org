@@ -1,0 +1,565 @@
+#+title: whatsapp agent — one agent, one thread, two terminals: WhatsApp (Cloud API) and vivalence
+#+filetags: :whatsapp:mode:service:verbatim:harness:aperture:
+#+status: DESIGNED 11-24 — not tangled; two rulings gate the build (public route · verbatim render avenue). Unnumbered: numbering is beef's. Read against master =fea8a8b= (10-12 "snap").
+# writer: agent · UNNUMBERED
+
+* intent
+
+| # | beef, verbatim |
+|---+----------------|
+| A | /"I would like to have a WhatsApp bot, kind of like Claude, same general architecture. So it's probably some service to connect to WhatsApp and then all of the stuff that I need for like sending and receiving messages."/ |
+| B | /"I would like, for example, the ability to send a bit of audio and have that transcribed as input for agents."/ |
+| C | /"i dont mean a chat client that has all my chats. i wamt one agent i can chat with from inside whatsapp and vivalence."/ |
+| D | /"cloud api."/ |
+
+* the law
+
+- ONE agent = one mode. WhatsApp is a second terminal onto the same thread, never a second agent (intent C).
+- ONE user: the allowlisted number maps to beef's existing User. No contact table, no per-sender user.
+- the service is transport only (=commons/services/reader= shape): no cortex, no prompt. The mode owns the turn.
+- LLMs only through =ctx.mode.harness=. A voice note becomes a TEXT part before the dialogue sees it.
+- a reply leaves on the channel its turn came in on. A turn typed in vivalence is not mirrored to WhatsApp.
+- the webhook's guard is the signature (=X-Hub-Signature-256=, HMAC-SHA256 of the raw body with the app secret), never a flag.
+
+* terrain — measured 11-24
+
+| claim | where |
+|-------+-------|
+| every daemon route sits behind lighthouse auth | =systems/runtime/lifecycle/daemon/resolution.js:5= |
+| a handler reads headers at =ctx.request.headers= | =systems/runtime/lifecycle/lighthouse/signer.js:46= |
+| a consumed service is reached at =ctx.services.<key>= | =commons/instances/hello-world/tools/web.js:72= · =systems/runtime/lifecycle/daemon/population.js:54= |
+| service secrets arrive at =service.secrets= | =commons/hallucinators/deepgram/provider/index.js:122= |
+| a mode drives its own dialogue server-side | =commons/instances/hello-world/tools/research.js= (=ctx.mode.harness.dialogue.stream=) |
+| =/dialogue= persists turns | =systems/runtime/traits/harnessed.js:197= |
+| the harness opens =/verbatim= =stream= only | =systems/runtime/traits/harnessed.js:190-195= |
+| both deepgram faculties take =pcm_16000= over a socket, =via.stream= only | =commons/hallucinators/deepgram/provider/index.js= |
+| =transcribing(cortex, "render")= picks a faculty by =via: "render"= … | =subsystems/typology/gestalten/shard/hallucinate.js:61-64= |
+| … but =transcript= then folds =faculty.via.stream= | =subsystems/typology/gestalten/belt/hallucinate.js:204-221= |
+
+Not measured: how a handler reads the RAW request body (the signature needs the exact bytes) · whether any route today is reachable without a lighthouse token · the flush broadcast (taken from =codemap/runtime.md=, not walked).
+
+Outside: a voice note arrives =type: "audio"=, =audio/ogg; codecs=opus=, with a media id; the bytes are fetched with the access token; a webhook media id lives 7 days. A fresh Cloud API app carries a test number good for 5 allowlisted recipients, no business verification.
+
+* the rulings, as built
+
+| item | beef | built as |
+|------+------+----------|
+| transport | /"cloud api."/ | webhook in, Graph out; no linked-device socket, no =BOOTED= |
+| shape | /"one agent i can chat with from inside whatsapp and vivalence"/ | one mode, one thread, user = beef |
+
+* deliverables
+
+| path | kind | holds |
+|------+------+-------|
+| =<pkg>/services/whatsapp/whatsapp.viva.js= | new | =verify= · =send= · =media= |
+| =<pkg>/modes/agent/whatsapp/whatsapp.viva.js= | new | manifest · aperture · harness |
+| =<pkg>/modes/agent/whatsapp/aperture/index.js= | new | =/webhook= challenge and receive |
+| =<pkg>/modes/agent/whatsapp/harness.js= | new | defaults · WhatsApp =FORMAT= on =/dialogue= |
+| =<pkg>/instances/<slug>/instance.viva.json= | edit | =consume.whatsapp= + secrets |
+| =systems/runtime/traits/harnessed.js= | edit | =/verbatim= =render= |
+| =commons/hallucinators/deepgram/provider/index.js= | edit | per the verbatim ruling |
+| a public route | his ruling | per the route ruling |
+
+=<pkg>= is beef's to name.
+
+** sketch — the service
+
+#+BEGIN_SRC js
+// <pkg>/services/whatsapp/whatsapp.viva.js
+const graph = "https://graph.facebook.com/v25.0";
+
+const hex = (buffer) => [...new Uint8Array(buffer)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+
+const signature = async (secret, body) => {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return `sha256=${hex(await crypto.subtle.sign("HMAC", key, body))}`;
+};
+
+export const manifest = { type: "service", slug: "whatsapp", name: "WhatsApp Cloud", version: "0.0.1", traits: [] };
+
+export function provider(service) {
+  const { token, secret, number } = service.secrets;
+  const authorized = { authorization: `Bearer ${token}` };
+  return {
+    verify: async (body, claimed) => (await signature(secret, body)) === claimed,
+    send: (to, text) =>
+      fetch(`${graph}/${number}/messages`, {
+        method: "POST",
+        headers: { ...authorized, "content-type": "application/json" },
+        body: JSON.stringify({ messaging_product: "whatsapp", to, type: "text", text: { body: text } }),
+      }),
+    media: async (id) => {
+      const { url } = await (await fetch(`${graph}/${id}`, { headers: authorized })).json();
+      return new Uint8Array(await (await fetch(url, { headers: authorized })).arrayBuffer());
+    },
+  };
+}
+#+END_SRC
+
+=verify= compares in plain time here; the landing uses a constant-time compare.
+
+** sketch — the mode
+
+#+BEGIN_SRC js
+// <pkg>/modes/agent/whatsapp/whatsapp.viva.js
+export { aperture } from "./aperture/index.js";
+export { harness } from "./harness.js";
+
+export const manifest = {
+  type: "agent",
+  slug: "whatsapp",
+  traits: ["HARNESSED", "CONVERSATIONAL", "TOOLING", "AGENTIC", "EXPOSED"],
+};
+#+END_SRC
+
+#+BEGIN_SRC js
+// <pkg>/modes/agent/whatsapp/aperture/index.js
+import { soma, Vector } from "@vivalence/typology";
+
+const heard = async (ctx, message) =>
+  message.type === "audio"
+    ? (await ctx.mode.harness.verbatim.render({ source: await ctx.services.whatsapp.media(message.audio.id) })).transcript
+    : message.text.body;
+
+const answered = async (ctx, thread, text) => {
+  let folded = null;
+  for await (const record of await ctx.mode.harness.dialogue.stream({ thread, parts: [{ type: "text", text }] })) folded = soma.transcript(folded, record);
+  return folded.output.message;
+};
+
+export const aperture = new Vector().open("/webhook", receive);
+#+END_SRC
+
+=receive= (not sketched — it stands on the two unmeasured rows): verify the signature over the raw body · answer 200 before the turn runs · drop a message id already seen · drop a sender off the allowlist · =heard= → =answered= → =ctx.services.whatsapp.send=. The GET challenge (=hub.challenge=) is the same route's second verb.
+
+* milestones
+
+| noun | green when |
+|------+------------|
+| the public route | Meta's challenge and a signed POST reach the mode without a lighthouse token; an unsigned POST does not |
+| the echo | a WhatsApp text comes back as a WhatsApp reply |
+| the one thread | that exchange is in the same thread the dock shows, and a dock turn sees the WhatsApp history |
+| the voice note | an Ogg/Opus note enters the thread as its transcript |
+| the format | replies render in WhatsApp markup, cut under its length cap |
+
+* blast table
+
+| consumer | touched by |
+|----------+------------|
+| =systems/runtime/traits/harnessed.js= | =/verbatim= =render= — every HARNESSED mode gains the verb |
+| =subsystems/typology/gestalten/belt/hallucinate.js= | only under verbatim ruling B |
+| =commons/hallucinators/deepgram= | a =via.render= on nova |
+| daemon aperture auth | the route ruling |
+| =~/.viva= | the shelf copy of the instance · secrets |
+
+* testing assessment
+
+- the service: =verify= against a fixed body and secret; =send= · =media= against a stubbed =fetch=.
+- the mode: =mountMode= with the stub hallucinator and a fake =whatsapp= service; a signed text payload yields one =send=; a replayed id yields none; an unsigned one never reaches the harness.
+- COVERAGE GAP: the live Graph API and a real Ogg/Opus note through deepgram — a probe, not a suite.
+
+* QA
+
+- /"I send 'hi' on WhatsApp, I get the agent's reply on WhatsApp."/
+#+marker_qa: whatsapp-agent/T-echo · pending · text round trip
+- /"I open the thread in the dock, I see both turns."/
+#+marker_qa: whatsapp-agent/T-one-thread · pending · same thread from both terminals
+- /"I ask in the dock what I said on WhatsApp, it knows."/
+#+marker_qa: whatsapp-agent/T-shared-history · pending · history crosses terminals
+- /"I send a voice note, the thread shows my words as text and the agent answers them."/
+#+marker_qa: whatsapp-agent/T-voice-note · pending · verbatim render
+- /"Someone else messages the number, nothing happens."/
+#+marker_qa: whatsapp-agent/T-allowlist · pending · one sender only
+
+* deferred
+
+Gating, his:
+- the public route — every daemon route is behind =lighthouse.authenticate=; Meta's webhook carries no token. A: a trait-gated route grafted ahead of the lighthouse (the signature is its guard). B: a relay outside the runtime that holds a lighthouse token and forwards.
+- the verbatim render avenue — A: decode Ogg/Opus to =pcm_16000= packets and feed the existing =via.stream= (=transcript= already folds a stream; needs an opus decoder; no provider change). B: =via.render(bytes)= on deepgram's prerecorded endpoint and =transcript= calling =via.render= (changes what the render avenue means for verbatim; whether the endpoint takes Ogg/Opus as-is is a probe).
+
+Later:
+- mirroring a dock turn out to WhatsApp · voice replies (speech faculty yields mp3/pcm, a voice note wants Ogg/Opus) · templates for a reply outside the 24h window · images and documents in · a production number with business verification.
+- policy: Meta's Business API terms bar general-purpose AI assistants as the primary service; the EU position is contested. A single-owner agent on a test number is a different case, unreviewed here.
+
+* sources
+
+- https://developers.facebook.com/documentation/business-messaging/whatsapp/webhooks/reference/messages/audio/
+- https://developers.facebook.com/documentation/business-messaging/whatsapp/business-phone-numbers/media
+- https://developers.facebook.com/docs/whatsapp/cloud-api/get-started/
+- https://www.tlt.com/insights-and-events/insight/ai-chatbots-and-competition-law-a-look-into-the-meta-whatsapp-antitrust-investigations
+
+* handoff
+
+Rule the public route first: every milestone stands on it. Then the echo on the test number, then the verbatim ruling.
+
+* rulings — the drill, 11-24
+
+These rule over every block above them: the names (=<pkg>=, =agent/whatsapp=), the =aperture= route and the one-platform shape above are superseded.
+
+| # | beef | state |
+|---+------+-------|
+| Q1 | /"it does make sense to assume that each provider has a specific way of implementing, and that it makes sense to split those out into different packages. […] we do the same with the providers for LLMs."/ | one module per platform, one dogma all implement |
+| Q2 | /"a."/ | the platform is the module; =bot= is a kind it offers, =client= later |
+| Q3 | /"for now we should stick to A. That is the personal and personal bot. And if we want a public bot, then I'll create another mode in there called public that will basically run on the same ontology."/ | =/tell=, owner only |
+| Q5 | /"we do want that on the mask statics. Especially because that allows for setups like keeping keys or secrets in an environment variable."/ · /"I'm not sure that the bot is actually the right place to put that information. As far as I understand, that is what the service needs."/ · /"q5a"/ | =owner= typed on the platform service's =statics=; no pairing in v1 (it waits for a writable mask) |
+| Q6 | /"b"/ | inside commons: =@commons/bot/personal= · =@commons/service/<platform>=; =@social= is dead |
+| Q7 | /"a and b"/ · /"2"/ | the operator set, always armed: thread · entity · buffer · modes · tool · fs · shell |
+| Q8 | /"b"/ | Telegram first, WhatsApp second |
+| Q9 | /"b"/ | a voice note in v1, decoded in the package (=ogg-opus-decoder=) |
+
+Scope, his: /"The social bot will contain UI to both set the bot itself up, whatever settings we might need, or like statistics, dev UI, then another surface for basically a mirror of the chat interface. […] then probably a bunch of tools to allow others to connect to it, as and send WhatsApp messages. And then we have to think about what tools the harness of the bot needs to have"/
+
+Probes: =.ikiro/reference/whatsapp-agent/= (=tools= · =pairing= · =harness-tools= · =opus= · =dogma=).
+| Q10 | /"Probably there are many small questions."/ · /"If we integrate the conversation with Thread, that will be very nice."/ · /"b"/ | messages are Turns of a Thread; the current thread is the newest of the mode; =/new= or a silence gap makes the next one (gap: no number from him, 6 h as the default) |
+| Q11 | /"A for v1. B comes later."/ | =user= (a slug) typed on the mode's =statics=, =owner= on each service; later: addresses learned per User by pairing from the desk (needs a user trait, typology) |
+| order | /"important note: we start with whatsapp"/ | WhatsApp is built first, Telegram second; the three WhatsApp gaps move to the front |
+
+| Q12 | /"services could have attachment traits."/ · /"your reference queue is going to be the architecture for us today."/ · /"Pull on the queue."/ | the service is =ATTACHED= and owns the hook; it enqueues each Message; the mode pulls through its provider. A twitch from service to mode is out: =dispatch= shotguns and returns nothing (=subsystems/typology/prototypes/twitch.js:25=, =twitch.probe.js=) |
+
+| Q13 | /"this seems like were working around an underlying architectural issue."/ · /"taken here is nono. i dont like. extra machinery."/ · /"no typology update here now."/ · /"lets keep the readers on request."/ | the body's readers live on =Request= (=stream= · =subscribe= stand; =bytes= is the missing one, read once). Dead: =req.clone()= at =http.js:11= · a transport that reads by the route's declared input (=taken=, body kinds in =v=). LANDED 11-25: =Request.bytes()= (=subsystems/typology/prototypes/request.js:43=) · =shape.http= parses from it (=subsystems/typology/gestalten/shape/http.js:10=) · one test (=subsystems/typology/tests/gestalten/shape/http.test.js=, red on the untouched twin); census of both twins equal by name, typology 170 ok. Empty · broken · GET unchanged; the silent =null= on broken JSON stands. Owed: the three hand copies (reader · darkroom · blog) onto =bytes()= |
+
+Q12 as it ran (=.ikiro/reference/whatsapp-agent/inbox.probe.js=): a message enqueued before any mode listens is kept and delivered; an abort ends every listener; of two listeners one takes all (=Queue.drain= hands each message to one). In a real runtime (=hosted.probe.js=, temp instance, free port): one module listed in =services[]= and in a daemon's =consume= shares its queue; the hook at =/attached/process/service/service/inbox/webhook= answers 200 with no token, its ctx holds =runtime= · =service= · =mask=; a =TWITCHY= mode starts its pull on =/after/mode/boot= and reads =ctx.providers.inbox= there. The raw body, measured (=raw.probe.js=): through =shape.http= a JSON hook sees =bodyUsed: true=, =arrayBuffer()= throws "Body already consumed", and a signature over the re-stringified body does not match. =req.clone().json()= at =http.js:11= leaves the bytes readable (=clone.probe.js=: 5→6 µs at 200 B, 8→11 µs at 20 kB, 394→608 µs at 2 MB); not landed, typology suite not run on it. The loop's end, read: a trait that returns ={ terminate }= is run at release (=subsystems/typology/gestalten/belt/traits.js:14=, =systems/runtime/gestalten/belt/modes.js:23=, sibling =systems/runtime/subjects/mode/traits/booted.js:11=); a module's own twitch has no such return. Unchecked: the loop's end in a run (the probe passes no abort signal) · the queue is memory, a restart between the 200 and the pull loses the message. Superseded by Q12: gap =attached.js:4= (the mode attachment needs no providers), the terrain's =ctx.services= (it is =ctx.providers=, =commons/reader/reader/aperture/pdf.js:22=).
+
+* as code — locked in the drill
+
+The recipe (Q5 · Q8 · Q11), AMEN 11-25 as S1/4 of step 2: the service is named twice. Hosted it holds what proves a request is Meta's; consumed it holds what fetches and sends. =owner= is an address, =user= a slug. Every secret is documented under =environment= or the runtime refuses to boot. Telegram's entry returns with step 11.
+
+#+BEGIN_SRC json
+// commons/instances/<slug>/instance.viva.json
+"services": [
+  {
+    "manifest": { "type": "service", "slug": "whatsapp" },
+    "module": "@commons/service/whatsapp",
+    "secrets": {
+      "app": "${SECRET_VIVA_WHATSAPP_APP}",
+      "verify": "${SECRET_VIVA_WHATSAPP_VERIFY}"
+    }
+  }
+],
+"daemons": [
+  {
+    "modes": [
+      { "module": "@commons/bot/personal", "statics": { "user": "beef" } }
+    ],
+    "consume": {
+      "whatsapp": {
+        "module": "@commons/service/whatsapp",
+        "statics": {
+          "graph": "https://graph.facebook.com/v26.0",
+          "number": "${VIVA_WHATSAPP_NUMBER_ID}",
+          "owner": "4915100000000"
+        },
+        "secrets": { "token": "${SECRET_VIVA_WHATSAPP_TOKEN}" }
+      }
+    }
+  }
+],
+"environment": {
+  "properties": {
+    "SECRET_VIVA_WHATSAPP_APP": {
+      "type": "string",
+      "description": "The Meta app's secret; signs every delivery."
+    },
+    "SECRET_VIVA_WHATSAPP_VERIFY": {
+      "type": "string",
+      "description": "The word Meta repeats when it checks the webhook."
+    },
+    "SECRET_VIVA_WHATSAPP_TOKEN": {
+      "type": "string",
+      "description": "The Graph API token of the number."
+    }
+  }
+}
+#+END_SRC
+
+The harness's tools (Q7).
+
+#+BEGIN_SRC js
+// commons/social/personal/personal.viva.js
+export const tools = new Vector()
+  .graft(gestalten.tools.thread, gestalten.tools.entity, gestalten.tools.buffer)
+  .graft(gestalten.tools.modes, gestalten.tools.tool)
+  .graft(paladin.tools.fs, paladin.tools.shell);
+#+END_SRC
+
+Which thread a message enters (Q10). =null= makes a new one. The gap defaults to 6 hours.
+
+#+BEGIN_SRC js
+// commons/social/personal/current.js
+export const current = (idle) => (threads, message) =>
+  message.text === "/new" || threads.length === 0 || message.at - threads.at(-1).spoken > idle
+    ? null
+    : threads.at(-1);
+#+END_SRC
+
+A voice note to =pcm_16000= (Q9).
+
+#+BEGIN_SRC js
+// commons/social/personal/decoded.js
+import { OggOpusDecoder } from "npm:ogg-opus-decoder@1.6.14";
+
+export const decoded = async (bytes) => {
+  const decoder = new OggOpusDecoder({ sampleRate: 16000, forceStereo: false });
+  await decoder.ready;
+  const { channelData } = await decoder.decodeFile(bytes);
+  decoder.free();
+  return Int16Array.from(channelData[0], (sample) => Math.max(-1, Math.min(1, sample)) * 32767);
+};
+#+END_SRC
+
+The tool another mode calls (Q3). =bots= and =owner= are stand-ins of the probe; their source is the consumed services.
+
+#+BEGIN_SRC js
+// commons/social/personal/tell.js
+export const tell = new Vector().open(
+  {
+    nature: "/tell",
+    valence: "Send the owner a message on their messenger. Example: /tell 'the report is ready'",
+    input: v.object({ text: v.string().desc("the message, plain text").example("the report is ready") }),
+  },
+  (ctx) => bots.whatsapp.send(owner.whatsapp, ctx.input.text),
+);
+#+END_SRC
+
+The dogma (step 1), AMEN 11-25. Supersedes the two-kind =type= · =text= · =media= of =dogma.probe.js=. Home ruled 11-25 (his /"b"/, then /"go"/): =commons/social/schematics.js=, LANDED with =commons/social/tests/schematics.test.js= (1 passed, 10 steps; red once on a broken copy). The folder: =commons/social/= holds =schematics.js= · =whatsapp/= · =telegram/= · =personal/=; the ids stay =@commons/service/<platform>= · =@commons/bot/personal=.
+
+#+BEGIN_SRC js
+// commons/social/schematics.js
+import { v } from "@vivalence/typology";
+
+const { Part } = v.primitives.hallucination;
+
+export const About = v.object({
+  id: v.string().desc("the earlier message's id on that platform").example("wamid.HBgM"),
+  act: v
+    .enum(["reply", "reaction", "edit", "delete"])
+    .desc("what this message does to the earlier one")
+    .example("reply"),
+});
+
+export const Message = v.object({
+  platform: v.string().desc("the messenger it came in on").example("whatsapp"),
+  id: v.string().desc("its id there, unique per platform").example("wamid.HBgN"),
+  from: v.string().desc("the address a reply goes to").example("4915100000000"),
+  name: v.string().desc("the sender's display name").example("Finn"),
+  at: v.integer().desc("unix seconds, the platform's clock").example(1732440000),
+  parts: v
+    .array(v.union([Part.Text, Part.Image, Part.Audio, Part.Video, Part.Document, Part.Alien]))
+    .desc("what it carries, in order; a kind the platform has and we do not is an alien part"),
+  about: About.optional().desc("set when it acts on an earlier message; absent on a fresh one"),
+});
+#+END_SRC
+
+Step 2, the hook, AMEN 11-25 as S2/4 (ran in =service.probe.js=: challenge 200, wrong word · unsigned · forged · non-hex 403, signed 200 and queued).
+
+#+BEGIN_SRC js
+// commons/social/whatsapp/attachment.js
+import { decodeHex } from "@std/encoding";
+import { Vector } from "@vivalence/typology";
+import { inbox } from "./provider.js";
+
+const refused = () => new Response(null, { status: 403 });
+
+const signed = async (secret, signature, bytes) =>
+  crypto.subtle.verify(
+    "HMAC",
+    await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["verify"],
+    ),
+    decodeHex(signature.slice("sha256=".length)),
+    bytes,
+  );
+
+const answer = {
+  GET: (ctx) =>
+    ctx.request.url.query["hub.verify_token"] === ctx.mask.secrets.verify
+      ? new Response(ctx.request.url.query["hub.challenge"])
+      : refused(),
+  POST: async (ctx) => {
+    const signature = ctx.request.headers.get("x-hub-signature-256") ?? "";
+    const bytes = await ctx.request.bytes();
+    const genuine = await signed(ctx.mask.secrets.app, signature, bytes).catch(() => false);
+    if (!genuine) return refused();
+    inbox.enqueue(ctx.input);
+    return new Response(null, { status: 200 });
+  },
+};
+
+export const attachment = new Vector().open("/webhook", (ctx) => answer[ctx.request.method](ctx));
+#+END_SRC
+
+Step 2, a delivery becomes Messages, AMEN 11-25 as S3/4, then AMEN again corrected (his /"think about this again"/): the owner is filtered BEFORE any fetch (as first drawn a stranger's media was downloaded, measured), and a media fetch that fails is an alien part holding Meta's block and =fault=, so the message survives and the stream never throws. Ran in =heard.probe.js= · =service.probe.js=. Loses a document's =filename= and =audio.voice=; a removed reaction unrun. Found on the way, not the service's: a throw in a mode's detached pull exits the runtime (step 3, one hole with the off-switch) · Meta delivers at least once, nothing drops a duplicate (step 4, by message id) · REJECTED by measure and Meta's guidance: the hook fetching before its 200 so Meta retries (slow hook, retries, duplicates).
+
+#+BEGIN_SRC js
+// commons/social/whatsapp/heard.js
+const media = (kind) => (message, fetched) =>
+  fetched(message[kind].id).then(
+    (held) => [
+      { type: kind, ...held },
+      ...(message[kind].caption ? [{ type: "text", text: message[kind].caption }] : []),
+    ],
+    (fault) => [
+      { type: "alien", dialect: "whatsapp", block: { ...message, fault: fault.message } },
+    ],
+  );
+
+const carried = {
+  text: (message) => [{ type: "text", text: message.text.body }],
+  reaction: (message) => [{ type: "text", text: message.reaction.emoji }],
+  image: media("image"),
+  audio: media("audio"),
+  video: media("video"),
+  document: media("document"),
+};
+
+const about = (message) =>
+  message.type === "reaction"
+    ? { about: { id: message.reaction.message_id, act: "reaction" } }
+    : message.context?.id
+      ? { about: { id: message.context.id, act: "reply" } }
+      : {};
+
+export const heard = (payload, owner, fetched) =>
+  Promise.all(
+    payload.entry.flatMap((entry) =>
+      entry.changes.flatMap((change) =>
+        (change.value.messages ?? [])
+          .filter((message) => message.from === owner)
+          .map(async (message) => ({
+            platform: "whatsapp",
+            id: message.id,
+            from: message.from,
+            name: change.value.contacts[0].profile.name,
+            at: Number(message.timestamp),
+            parts: carried[message.type]
+              ? await carried[message.type](message, fetched)
+              : [{ type: "alien", dialect: "whatsapp", block: message }],
+            ...about(message),
+          })),
+      ),
+    ),
+  );
+#+END_SRC
+
+Step 2, the provider, AMEN 11-25 as S4/4 (=service.probe.js=: a stand-in mode pulled and echoed; Graph a fake on a free port, no call to Meta yet). Not in it: markup and the cap (step 5) · the 24 h window · a queue per consumer · a queue that survives a restart · media held whole in memory as base64.
+
+#+BEGIN_SRC js
+// commons/social/whatsapp/provider.js
+import { encodeBase64 } from "@std/encoding";
+import { Queue } from "@vivalence/typology";
+import { heard } from "./heard.js";
+
+export const inbox = new Queue();
+
+const answered = async (response) => {
+  if (!response.ok) throw new Error(`whatsapp: ${response.status} ${await response.text()}`);
+  return response;
+};
+
+export function provider(service) {
+  const headers = { authorization: `Bearer ${service.secrets.token}` };
+
+  const fetched = async (id) => {
+    const held = await fetch(`${service.statics.graph}/${id}`, { headers })
+      .then(answered)
+      .then((response) => response.json());
+    const bytes = await fetch(held.url, { headers })
+      .then(answered)
+      .then((response) => response.bytes());
+    return { data: encodeBase64(bytes), mime: held.mime_type };
+  };
+
+  return {
+    async *messages(signal) {
+      for await (const payload of inbox.drain(signal))
+        yield* await heard(payload, service.statics.owner, fetched);
+    },
+    send: (address, text) =>
+      fetch(`${service.statics.graph}/${service.statics.number}/messages`, {
+        method: "POST",
+        headers: { ...headers, "content-type": "application/json" },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          to: address,
+          type: "text",
+          text: { body: text },
+        }),
+      })
+        .then(answered)
+        .then((response) => response.json()),
+  };
+}
+#+END_SRC
+
+The entry, mechanical, shown in the walk's closing.
+
+#+BEGIN_SRC js
+// commons/social/whatsapp/service.viva.js
+export { attachment } from "./attachment.js";
+export { provider } from "./provider.js";
+
+export const manifest = {
+  type: "service",
+  slug: "whatsapp",
+  name: "WhatsApp",
+  description:
+    "One WhatsApp number of the Cloud API: its webhook, hosted, hands every signed delivery on; " +
+    "consumed, it yields the owner's messages and sends text.",
+  version: "0.1.0",
+  traits: ["ATTACHED"],
+};
+#+END_SRC
+
+Step 2 LANDED 11-25 on his /"land"/: =commons/social/whatsapp/= =service.viva.js= · =attachment.js= · =heard.js= · =provider.js= + =tests/heard.test.js= · =tests/service.test.js=, built in a copy, one pass; =commons/social/= =ok | 3 passed (24 steps)=, red on two deliberate breaks (owner filter cut · signature unchecked). =@commons/service/whatsapp= resolves by id (the served suite boots it so). The recipe (S1) is NOT in any instance: step 6. No call has gone to Meta. Next: step 3, the bot mode pulls, with an owner for its pull (off-switch · a fault must not exit the runtime).
+
+Not locked, drawn by me and seen by him (/"good assessment"/ is no lock): the package tree, the =Message= dogma (=.ikiro/reference/whatsapp-agent/dogma.probe.js=), the five members of a =bot=, the build order.
+
+* milestones — after the drill
+
+A waterfall, 11-25, AMEN (his: /"those arent milestones. milestone number one whatapp texts back comes way later. reorder this into a waterfall"/). Each step stands on the one above.
+
+| # | step | green when | state |
+|---+------+------------+-------|
+| 1 | the dogma | =Message= and what a platform service offers are one schematic every platform casts to | LANDED 11-25: =commons/social/schematics.js= |
+| 2 | the WhatsApp service, offline | a recorded signed POST is enqueued as a Message, an unsigned one is refused, the challenge GET echoes; =send= and the media fetch hit a fake Graph | LANDED 11-25: =commons/social/whatsapp/= (4 files + 2 suites) |
+| 3 | the bot mode pulls | a Message enqueued by a fake service reaches the mode; the release ends the pull | off-switch undesigned |
+| 4 | a message is a Turn | the mode makes a thread for =beef= the dock lists; =/new= and the gap make the next | unprobed |
+| 5 | the harness answers | the turn runs with the operator set armed, the reply leaves through =send= in WhatsApp markup under its cap | DESIGNED |
+| 6 | Meta reaches the instance | the recipe on his instance, his public address, his keys: Meta's challenge passes | his |
+| 7 | a WhatsApp text comes back as a reply | his phone | |
+| 8 | =/tell= | another mode's =/tell= reaches his phone | DESIGNED |
+| 9 | a voice note | an Ogg/Opus note enters as its transcript | DESIGNED; PCM into verbatim unprobed |
+| 10 | the desk · the chat mirror | setup · settings · statistics · dev; the thread mirrored | DECLARED |
+| 11 | Telegram | steps 2 · 6 · 7 again on the second platform | DESIGNED |
+
+The gaps, measured:
+
+| gap | where | size |
+|-----+-------+------|
+| a webhook's body bytes are consumed before the handler | closed 11-25, Q13: =ctx.request.bytes()= | landed |
+| the attachment route sees no providers | =systems/runtime/subjects/mode/traits/attached.js:4= | runtime, 1 line |
+| a public HTTPS address onto the instance | outside the tree | his |
+| a thread made server-side by a mode | no site in runtime or commons | a probe |
+| the dogma's home and name | =commons/services/message.js= is a placeholder | his |
+
+Owed test: a message without =from= is refused (=Message.cast= passed a one-key object in the probe; the refusing method is unread).
+
+Step 1, drawn 11-25, AMEN 11-25 (the fence under =* as code=) (=.ikiro/reference/whatsapp-agent/social.probe.js=): after his /"what other types? research full gambit of range. futuroe oriented."/ eight platforms were read (WhatsApp · Telegram · Matrix · Signal · iMessage · RCS · Slack · Discord). The two-kind =type= enum is dead: =Message= carries =parts= in typology's =Part= words (text · image · audio · video · document · alien) and an optional =about= ={ id, act }= (reply · reaction · edit · delete). Ran on seven WhatsApp kinds, =v.faults= empty on each, loud on a missing key, a foreign part, a foreign act. Open: its home (his /"the @social commons schematic"/ against Q6) · bytes fetched before the enqueue · voice told apart from audio (no reader) · presence is no Message.
+
+* never
+
+- one service holding every platform
+- =@social= as an owner; a package outside commons
+- the bot messaging anyone but its owner (=/send=): that is =public=, another mode
+- pairing in v1; a writable mask as a side effect of this quest
+- a store of messages beside Thread: buffer data, files, a mode database, the platform's history
+- one eternal thread
+- text only
+
+* next
+
+11-25: gap 1 closed (Q13), gap 2 superseded (Q12). No package file exists yet. Next: the mode's off-switch (design) · the probe: a thread made by a mode for =beef= that the dock lists · his: the public address, the dogma's home and name, the Meta keys.

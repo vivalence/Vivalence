@@ -633,13 +633,13 @@ specimen.describe("openrouter provider", () => {
         specimen.expect(faculties).toHaveLength(7);
         for (const faculty of faculties.filter((faculty) => faculty.type === "dialogue")) {
           specimen.expect(Array.isArray(faculty.tune)).toBe(true);
-          specimen.expect(typeof faculty.via.render).toBe("function");
-          specimen.expect(typeof faculty.via.stream).toBe("function");
+          specimen.expect(typeof faculty.channels.render.via).toBe("function");
+          specimen.expect(typeof faculty.channels.stream.via).toBe("function");
         }
         const [choice] = faculties.filter((faculty) => faculty.type === "choice");
         specimen.expect(choice.id).toBe("typesafe/jev-1.13");
         specimen.expect([choice.context, choice.options, choice.choices]).toEqual([32000, 255, null]);
-        specimen.expect(Object.keys(choice.via)).toEqual(["render"]);
+        specimen.expect(Object.keys(choice.channels)).toEqual(["render"]);
       },
     );
 
@@ -681,7 +681,7 @@ specimen.describe("openrouter provider", () => {
       async () => {
         const faculties = await provider({ secrets: { key: "fake-key" }, faculties: FACULTIES });
         const thinking = faculties.filter((faculty) =>
-          faculty.channels.out.includes("thinking")
+          faculty.channels.render.out.some((channel) => channel.type === "thinking")
         );
         specimen.expect(thinking).toHaveLength(3);
       },
@@ -742,7 +742,7 @@ specimen.describe("openrouter provider", () => {
       ]);
       specimen.expect(faculties.slice(-3)).toEqual(pictures);
       for (const each of pictures) {
-        specimen.expect(Object.keys(each.via)).toEqual(["render"]);
+        specimen.expect(Object.keys(each.channels)).toEqual(["render"]);
         specimen.expect(each.context).toBe(0);
         specimen.expect(each.limits.mask).toBe(false);
         specimen.expect([...v.primitives.hallucination.Faculty.errors(each)]).toEqual([]);
@@ -752,7 +752,7 @@ specimen.describe("openrouter provider", () => {
     specimen.it("a bare prompt posts model, prompt, aspect_ratio and n with the bearer key", async () => {
       stub(200, OK);
       const flux = await faculty("black-forest-labs/flux-3-image");
-      await flux.via.render({ prompt: "a red fox", images: [], settings: { aspect: "16:9", count: 2, seed: 7 } });
+      await flux.channels.render.via({ prompt: "a red fox", images: [], settings: { aspect: "16:9", count: 2, seed: 7 } });
       specimen.expect(calls).toHaveLength(1);
       specimen.expect(calls[0].url).toBe("https://openrouter.ai/api/v1/images");
       specimen.expect(calls[0].init.headers.Authorization).toBe("Bearer sk-or-test");
@@ -762,7 +762,7 @@ specimen.describe("openrouter provider", () => {
     specimen.it("two references post as two input_references data urls", async () => {
       stub(200, OK);
       const gpt = await faculty("openai/gpt-image-2.6-sunburst");
-      await gpt.via.render({
+      await gpt.channels.render.via({
         prompt: "put the mug on the desk",
         images: [{ image: picture("AAAA"), role: "init" }, { image: { type: "image", mime: "image/jpeg", data: "BBBB" }, role: "subject" }],
         settings: { format: "webp", background: "opaque", size: "1536x1024" },
@@ -783,7 +783,7 @@ specimen.describe("openrouter provider", () => {
     specimen.it("the answer is a valid Picture.Response, mime from media_type", async () => {
       stub(200, OK);
       const gemini = await faculty("google/gemini-nano-banana-2.1");
-      const response = await gemini.via.render({ prompt: "a red fox", images: [] });
+      const response = await gemini.channels.render.via({ prompt: "a red fox", images: [] });
       specimen.expect(response).toEqual({
         images: [{ type: "image", mime: "image/png", data: PNG }],
         meta: { usage: [{ name: "input", unit: "tokens", amount: 12 }, { name: "output", unit: "tokens", amount: 4160 }, { name: "cost", unit: "usd", amount: 0.04 }], provider: { usage: OK.usage } },
@@ -795,29 +795,26 @@ specimen.describe("openrouter provider", () => {
       stub(200, OK);
       const gpt = await faculty("openai/gpt-image-2.6-sunburst");
       const request = { prompt: "fill the hole", images: [{ image: picture("AAAA"), role: "init" }], mask: picture("MMMM") };
-      await specimen.expect(gpt.via.render(request)).rejects.toThrow("openrouter paints no mask");
+      await specimen.expect(gpt.channels.render.via(request)).rejects.toThrow("openrouter paints no mask");
       specimen.expect(calls).toHaveLength(0);
     });
 
-    specimen.it("more references than the row's limit are refused before any fetch", async () => {
-      stub(200, OK);
+    specimen.it("the row's reference limit is the image channel's count", async () => {
       const gemini = await faculty("google/gemini-nano-banana-2.1");
-      const images = Array.from({ length: 15 }, () => ({ image: picture("AAAA"), role: "style" }));
-      await specimen.expect(gemini.via.render({ prompt: "collage", images })).rejects.toThrow("at most 14 references, 15 given");
-      specimen.expect(calls).toHaveLength(0);
+      specimen.expect(gemini.channels.render.in).toEqual([{ type: "text" }, { type: "image", count: 14 }]);
     });
 
     specimen.it("an aspect the row lacks is refused before any fetch", async () => {
       stub(200, OK);
       const gpt = await faculty("openai/gpt-image-2.6-sunburst");
-      await specimen.expect(gpt.via.render({ prompt: "a wide fox", images: [], settings: { aspect: "21:9" } })).rejects.toThrow("not 21:9");
+      await specimen.expect(gpt.channels.render.via({ prompt: "a wide fox", images: [], settings: { aspect: "21:9" } })).rejects.toThrow("not 21:9");
       specimen.expect(calls).toHaveLength(0);
     });
 
     specimen.it("a 502 faults overloaded, retryable", async () => {
       stub(502, { error: { message: "Generation failed" } });
       const flux = await faculty("black-forest-labs/flux-3-image");
-      const error = await flux.via.render({ prompt: "a fox", images: [] }).catch((caught) => caught);
+      const error = await flux.channels.render.via({ prompt: "a fox", images: [] }).catch((caught) => caught);
       specimen.expect(error).toEqual({ kind: "overloaded", retryable: true, provider: { status: 502, message: "Generation failed" } });
     });
 
@@ -848,7 +845,7 @@ specimen.describe("openrouter · a faculty carries its entry forward (m126 Q7A)"
     const [entry] = FACULTIES;
     const [faculty] = await provider({ secrets: { key: "fake-key" }, faculties: [{ ...entry, tier: "director", provider: "openrouter" }] });
     specimen.expect([faculty.type, faculty.id, faculty.tier, faculty.provider]).toEqual([entry.type, entry.id, "director", "openrouter"]);
-    specimen.expect(Object.keys(faculty.via).length).toBeGreaterThan(0);
+    specimen.expect(Object.keys(faculty.channels).length).toBeGreaterThan(0);
     specimen.expect(entry.tier).toBeUndefined();
   });
 });

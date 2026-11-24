@@ -20,7 +20,7 @@ Every number comes from a log or a transcript. None is kept by hand.
 - A guard fires often: the rule under it fails. Make the warn a deny. If it fires wrongly, fix the guard.
 - A guard is written but not wired: hand him the settings entry, or delete the script.
 - Many corrections in a week: read those turns. Each one rewrites one sentence in the skill that missed.
-- A skill never fires: its trigger words are wrong, or it is dead. Use his spelling. A dead skill merges into its neighbour.
+- A skill he never types and I never call: wrong trigger (use his spelling), or dead (merge it). One he typed stays.
 - A document grew: rewrite it shorter. Never raise a limit to make room.
 - A new model: for each rule ask "would the bare model do this anyway?". The candidates go to him as a list.
 - Research older than 60 days: one sweep of how others build harnesses, saved to `.ikiro/reference/harnesses/<date>.md`.

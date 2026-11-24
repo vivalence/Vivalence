@@ -3,7 +3,7 @@ import paladin from "../../../mod.js";
 import { instance } from "../belt/index.js";
 
 export async function halt() {
-  const home = paladin.scope.instance.absolute;
+  const home = instance.home();
   const held = await paladin.ledger.instances.lookup(home);
   if (!held) throw new Error(`instance: mount ${home} not recorded — viva instance/clone records one`);
 

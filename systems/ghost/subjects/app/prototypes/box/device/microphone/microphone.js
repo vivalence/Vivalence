@@ -70,7 +70,11 @@ export class Microphone {
   async *frames(signal = this.feed.signal) {
     let pts = 0;
     for await (const samples of this.in.drain(signal)) {
-      yield { event: "/audio/packet", pts, audio: { data: pcm.encode(samples), rate: this.rate } };
+      yield {
+        event: "/audio/packet",
+        pts,
+        audio: { data: pcm.encode(samples), mime: `audio/pcm;rate=${this.rate};channels=1` },
+      };
       pts += samples.length / this.rate;
     }
   }

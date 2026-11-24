@@ -5,6 +5,19 @@ import { Controller, Cortex, KeySignal, Path, ReplSignal, Span, Url, Vector, bel
 import * as ghost from "@vivalence/ghost";
 import { chrome } from "../../../skins/index.js";
 
+const KINDS = [
+  "text",
+  "image",
+  "audio",
+  "video",
+  "document",
+  "object",
+  "tool_use",
+  "tool_result",
+  "thinking",
+].map((type) => ({ type }));
+const ANY = { in: KINDS, out: KINDS };
+
 useTestStorageEngine();
 
 const unranked = (commands) =>
@@ -392,7 +405,14 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     specimen.expect(await run('/buffer "memo #1"')).toBe("buffer #b1 · memo #1");
     specimen.expect(await run("/buffer memo #1")).toBe("buffer #b1 · memo #1");
     specimen.expect(terminal.buffer).toBe(buffer);
-    specimen.expect(terminals.writes.at(-1)).toEqual({ where: { id: "t1" }, data: { buffer: "b1" } });
+    specimen.expect(terminals.writes.at(-1)).toEqual({
+      where: { id: "t1" },
+      data: {
+        buffer: "b1",
+        traits: ["DOCKED"],
+        trait: { DOCKED: { view: "docked", shown: "docked" } },
+      },
+    });
     specimen.expect(await fault("/buffer nope")).toBe(undefined);
   });
 
@@ -528,7 +548,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
 
   specimen.it("/model pins HARNESSED.provider · id on the seated thread; /tier unpins", async () => {
     const pin = { provider: "openrouter", id: "openai/gpt-5" };
-    client.runtime.cortex = new Cortex().register([{ type: "dialogue", ...pin, tune: TIER_POINTS.fast, via: { stream: {} } }]);
+    client.runtime.cortex = new Cortex().register([{ type: "dialogue", ...pin, tune: TIER_POINTS.fast, channels: { stream: { ...ANY, via: {} } } }]);
     specimen.expect(await run("/model openrouter openai/gpt-5")).toEqual({ HARNESSED: pin });
     specimen.expect(threads.writes.at(-1).data.trait.HARNESSED).toMatchObject(pin);
     const seated = threads.$entities.get().find((thread) => thread.id === "th1");
@@ -542,7 +562,7 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
   });
 
   specimen.it("/model narrows the cortex's dialogue models: words that name one pin it; none or several open the chooser over all of them and write nothing; its catalog entry takes no argument, so Enter on it dispatches", async () => {
-    const faculty = (provider, id) => ({ type: "dialogue", provider, id, tune: TIER_POINTS.fast, via: { stream: {} } });
+    const faculty = (provider, id) => ({ type: "dialogue", provider, id, tune: TIER_POINTS.fast, channels: { stream: { ...ANY, via: {} } } });
     client.runtime.cortex = new Cortex().register([faculty("openrouter", "openai/gpt-5"), faculty("openrouter", "openai/gpt-5-mini"), faculty("anthropic", "claude-opus")]);
     const written = threads.writes.length;
     specimen.expect(await run("/model opus")).toEqual({ HARNESSED: { provider: "anthropic", id: "claude-opus" } });

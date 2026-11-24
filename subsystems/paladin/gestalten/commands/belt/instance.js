@@ -1,5 +1,6 @@
 import { Connection } from "@vivalence/typology";
 import paladin from "../../../mod.js";
+import { NOTHING } from "../../../prototypes/instances.js";
 import * as lens from "./lens.js";
 import { pick } from "./pick.js";
 
@@ -14,8 +15,13 @@ export async function locate(ctx, token) {
   return { mount: chosen.row.mount };
 }
 
+export function home() {
+  if (!("instance" in paladin.scope)) throw new Error(NOTHING);
+  return paladin.scope.instance.absolute;
+}
+
 export async function register() {
-  const mount = paladin.scope.instance.absolute;
+  const mount = home();
   const held = await paladin.ledger.instances.lookup(mount);
   if (!held) {
     throw new Error(`instance: mount ${mount} not recorded — viva instance/clone records one, viva instance/tap records a dir placed by hand`);

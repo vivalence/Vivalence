@@ -16,16 +16,16 @@ async function collectStream(stream) {
 
 function captureDefault(cortex) {
   const picked       = cortex.findOne({ type: "dialogue", via: "stream", tier: "capable" });
-  const originalStream = picked.via.stream;
+  const originalStream = picked.channels.stream.via;
   let capturedRequest = null;
-  picked.via.stream  = async (request) => {
+  picked.channels.stream.via  = async (request) => {
     capturedRequest = request;
     return originalStream(request);
   };
   return {
     get turns() { return capturedRequest?.turns; },
     get request() { return capturedRequest; },
-    restore()   { picked.via.stream = originalStream; },
+    restore()   { picked.channels.stream.via = originalStream; },
   };
 }
 

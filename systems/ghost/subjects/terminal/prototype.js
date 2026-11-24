@@ -1,5 +1,5 @@
 import { atom } from "nanostores";
-import { Entity, is } from "@vivalence/typology";
+import { Entity, is, traits } from "@vivalence/typology";
 import * as belt from "../../gestalten/belt/index.js";
 import { Legend } from "./legend.js";
 import { Repl } from "./repl.js";
@@ -41,7 +41,14 @@ export class Terminal extends Entity {
     this.$buffer.set(value);
   }
   get dock() {
-    return { ...belt.dock.DEFAULT_DOCK, ...this.client.mask.trait.DOCKED, ...this.client.runtime.lighthouse.user.trait.DOCKED, ...this.trait.DOCKED };
+    const narrow = this.client.app !== null && this.client.app.bridge.viewport.narrow;
+    return {
+      ...belt.dock.DEFAULT_DOCK,
+      ...(narrow ? { align: "bottom" } : {}),
+      ...this.client.mask.trait.DOCKED,
+      ...this.client.runtime.lighthouse.user.trait.DOCKED,
+      ...this.trait.DOCKED,
+    };
   }
 
   toJSON() {
@@ -62,6 +69,8 @@ export class Terminal extends Entity {
 
   setBuffer(buffer) {
     if (buffer === null) return this.repository.updateOne({ id: this.id }, { buffer: null });
-    return this.repository.updateOne({ id: this.id }, { buffer: buffer.id });
+    if (this.dock.view !== "full") return this.repository.updateOne({ id: this.id }, { buffer: buffer.id });
+    const DOCKED = { view: "docked", shown: "docked" };
+    return this.repository.updateOne({ id: this.id }, { buffer: buffer.id, ...traits.patch(this, { DOCKED }) });
   }
 }

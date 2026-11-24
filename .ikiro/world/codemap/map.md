@@ -3,7 +3,7 @@
 
 A shard loads when a file under its path is read: `typology` (the vocabulary, ask before touching core types) · `runtime` · `testing` · `paladin` (the environment, `~/.viva`) · `ghost` (the `viva` client) · `design` (anima, dapper, drapes) · `commons`.
 
-The live edge is `.ikiro/quests/frontier.md`. Core is typology, paladin and runtime. A feature is a registry package.
+Core is typology, paladin and runtime. A feature is a registry package.
 
 ## tasks and tests
 
@@ -22,7 +22,7 @@ viva --help; echo $?
 ## the running system
 
 - The runtime is on `:2501`, anima on `:1794`. A 404 on `:2501/` does not mean down.
-- A save under `runtime/watch` is a deploy. Vite on `:1794` too. Check `lsof` first.
+- A save under `runtime/watch` is a deploy onto his recipe as it stands: a key new code reads is in the recipe first. Vite on `:1794` too. Check `lsof` first.
 - A change of several files lands in one pass. Done means a new route answers.
 
 ## version control

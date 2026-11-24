@@ -152,27 +152,27 @@ export default async function provider(service) {
     tune: entry.tune,
     context: 0,
     channels: {
-      in: [{ type: "audio", codec: "pcm_16000" }],
-      out: [{ type: "event" }],
+      stream: {
+        in: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
+        out: [{ type: "text" }],
+        via: ({ source, settings = {} }, { signal } = {}) =>
+          transcribe(
+            `wss://api.deepgram.com/v1/listen?` +
+              `model=${entry.model}&encoding=linear16&sample_rate=16000&` +
+              `language=${spoken(settings.language)}&` +
+              `interim_results=true&punctuate=true&vad_events=true&` +
+              `utterance_end_ms=${settings.utteranceEnd ?? 1000}&endpointing=${
+                settings.endpointing ?? 100
+              }`,
+            protocols,
+            source,
+            nova(),
+            { type: "CloseStream" },
+            signal,
+          ),
+      },
     },
     config: { language: [] },
-    via: {
-      stream: ({ source, settings = {} }, { signal } = {}) =>
-        transcribe(
-          `wss://api.deepgram.com/v1/listen?` +
-            `model=${entry.model}&encoding=linear16&sample_rate=16000&` +
-            `language=${spoken(settings.language)}&` +
-            `interim_results=true&punctuate=true&vad_events=true&` +
-            `utterance_end_ms=${settings.utteranceEnd ?? 1000}&endpointing=${
-              settings.endpointing ?? 100
-            }`,
-          protocols,
-          source,
-          nova(),
-          { type: "CloseStream" },
-          signal,
-        ),
-    },
   });
 
   const fluxFaculty = (entry) => ({
@@ -182,28 +182,28 @@ export default async function provider(service) {
     tune: entry.tune,
     context: 0,
     channels: {
-      in: [{ type: "audio", codec: "pcm_16000" }],
-      out: [{ type: "event" }],
+      stream: {
+        in: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
+        out: [{ type: "text" }],
+        via: ({ source, settings = {} }, { signal } = {}) =>
+          transcribe(
+            `wss://api.deepgram.com/v2/listen?` +
+              `model=${entry.model}&encoding=linear16&sample_rate=16000&` +
+              `eot_threshold=${settings.eotThreshold ?? 0.7}` +
+              (settings.eagerThreshold
+                ? `&eager_eot_threshold=${settings.eagerThreshold}`
+                : "") +
+              (settings.eotTimeout ? `&eot_timeout_ms=${settings.eotTimeout}` : "") +
+              hinted(settings.language),
+            protocols,
+            source,
+            flux,
+            { type: "CloseStream" },
+            signal,
+          ),
+      },
     },
     config: { turns: true },
-    via: {
-      stream: ({ source, settings = {} }, { signal } = {}) =>
-        transcribe(
-          `wss://api.deepgram.com/v2/listen?` +
-            `model=${entry.model}&encoding=linear16&sample_rate=16000&` +
-            `eot_threshold=${settings.eotThreshold ?? 0.7}` +
-            (settings.eagerThreshold
-              ? `&eager_eot_threshold=${settings.eagerThreshold}`
-              : "") +
-            (settings.eotTimeout ? `&eot_timeout_ms=${settings.eotTimeout}` : "") +
-            hinted(settings.language),
-          protocols,
-          source,
-          flux,
-          { type: "CloseStream" },
-          signal,
-        ),
-    },
   });
 
   const FAMILIES = [

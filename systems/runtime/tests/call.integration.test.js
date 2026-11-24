@@ -9,23 +9,26 @@ const ear = {
   id: "utterance-ear",
   tune: [0.4, 0.5, 0.1],
   context: 0,
-  channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
-  via: {
-    stream: async function* ({ source }) {
-      for await (const packet of source) {
-        yield { event: "/turn/open", turn: { role: "user" } };
-        yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
-        yield { event: "/part/draft", index: 0, part: { text: packet.audio.data } };
-        yield { event: "/part/delta", index: 0, part: { text: packet.audio.data } };
-        yield { event: "/part/close", index: 0 };
-        yield { event: "/turn/close", turn: {} };
-      }
+  channels: {
+    stream: {
+      in: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
+      out: [{ type: "text" }],
+      via: async function* ({ source }) {
+        for await (const packet of source) {
+          yield { event: "/turn/open", turn: { role: "user" } };
+          yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
+          yield { event: "/part/draft", index: 0, part: { text: packet.audio.data } };
+          yield { event: "/part/delta", index: 0, part: { text: packet.audio.data } };
+          yield { event: "/part/close", index: 0 };
+          yield { event: "/turn/close", turn: {} };
+        }
+      },
     },
   },
 };
 
 async function* microphone(words, hangup = 400) {
-  for (const word of words) yield { event: "/audio/packet", audio: { data: word, rate: 16000 } };
+  for (const word of words) yield { event: "/audio/packet", audio: { data: word, mime: "audio/pcm" } };
   await sleep.ms(hangup);
 }
 
