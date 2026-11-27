@@ -11,7 +11,7 @@ sh .ikiro/reference/channel-media/replay.sh <registry copy> 7r
 
 * milestone 7 — a render is turns in, a turn out
 
-14 files edited.
+18 files edited.
 
 #+begin_src diff
 // subsystems/typology/gestalten/belt/channel.js:49
@@ -29,6 +29,13 @@ sh .ikiro/reference/channel-media/replay.sh <registry copy> 7r
 +        ? part
 +        : attached(faculty, part),
      ),
+#+end_src
+
+#+begin_src diff
+// subsystems/typology/gestalten/belt/cortex.js:13
+     ...(faculty.provider && { provider: faculty.provider }),
+-    ...(faculty.config && { config: faculty.config }),
+   }));
 #+end_src
 
 #+begin_src diff
@@ -119,6 +126,13 @@ sh .ikiro/reference/channel-media/replay.sh <registry copy> 7r
 #+end_src
 
 #+begin_src diff
+// subsystems/typology/gestalten/shard/hal.js:102
+       speak: organ(conversational.speak),
+-      ...(policy.rounds && { rounds: policy.rounds }),
+     },
+#+end_src
+
+#+begin_src diff
 // subsystems/typology/gestalten/shard/hallucinate.js:34
      ...(request.output && { output: request.output }),
 -    ...(request.source && { source: request.source }),
@@ -195,22 +209,44 @@ sh .ikiro/reference/channel-media/replay.sh <registry copy> 7r
 #+end_src
 
 #+begin_src diff
+// subsystems/typology/schematics/primitives/hallucination.js:498
+
++const Loop = {
++  rounds: v
++    .integer({ minimum: 1, default: 10 })
++    .desc("Rounds per request; a tool call opens the next. Example: 3"),
++  backoff: v
++    .array(v.integer(), { default: [1000, 4000] })
++    .desc("Retry waits in ms. Example: [1000, 4000]"),
++};
++
+ export const Policy = {};
+#+end_src
+
+#+begin_src diff
+// subsystems/typology/schematics/primitives/hallucination.js:501
+   ...shared,
+-  rounds: v.integer({ minimum: 1, default: 10 }).desc("Tool rounds per turn. Example: 3"),
+-  backoff: v.array(v.integer(), { default: [1000, 4000] }).desc("Retry waits in ms. Example: [1000, 4000]"),
++  ...Loop,
+   cache: v.object({ marks: v.array(v.string()) }).optional().desc('System keys, and "tools", that take a cache breakpoint; lowering projects it to Request.cache and derives it when absent. Example: { marks: ["context", "tools"] }'),
+#+end_src
+
+#+begin_src diff
 // subsystems/typology/schematics/primitives/hallucination.js:509
    harmonize: v.object({ window: v.integer().optional(), tolerance: v.number().optional(), tail: v.integer().optional() }).optional().desc("belt.verbatim.harmonize options, applied over the faculty's stream. Example: { window: 2 }"),
-+  rounds: v.integer({ minimum: 1, default: 1 }).desc("Rounds per render. Example: 1"),
-+  backoff: v
-+    .array(v.integer(), { default: [1000, 4000] })
-+    .desc("Retry waits in ms. Example: [1000, 4000]"),
++  ...Loop,
  }, { default: {} });
 -Policy.speech = v.object({ ...shared }, { default: {} });
-+Policy.speech = v.object({
-+  ...shared,
-+  rounds: v.integer({ minimum: 1, default: 1 }).desc("Rounds per render. Example: 1"),
-+  backoff: v
-+    .array(v.integer(), { default: [1000, 4000] })
-+    .desc("Retry waits in ms. Example: [1000, 4000]"),
-+}, { default: {} });
++Policy.speech = v.object({ ...shared, ...Loop }, { default: {} });
  Policy.call = v.object({
+#+end_src
+
+#+begin_src diff
+// subsystems/typology/schematics/primitives/hallucination.js:516
+   speak: v.object({ ...shared }).optional().desc('The mouth a cascade speaks with. Example: { id: "21m00Tcm4TlvDq8ikWAM" }'),
+-  rounds: v.integer({ minimum: 1, default: 10 }).desc("Tool rounds per turn. Example: 3"),
+ }, { default: {} });
 #+end_src
 
 #+begin_src diff
@@ -492,6 +528,21 @@ sh .ikiro/reference/channel-media/replay.sh <registry copy> 7r
 #+end_src
 
 #+begin_src diff
+// commons/hallucinators/deepgram/provider/index.js:148
+   const novaFaculty = (entry) => ({
+     ...entry,
+     type: "verbatim",
+     id: entry.id,
+     tune: entry.tune,
+-    context: 0,
+     channels: {
+       stream: {
+         in: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
+         out: [{ type: "text" }],
+         via: ({ source, settings = {} }, { signal } = {}) =>
+#+end_src
+
+#+begin_src diff
 // commons/hallucinators/deepgram/provider/index.js:172
            ),
        },
@@ -516,7 +567,38 @@ sh .ikiro/reference/channel-media/replay.sh <registry copy> 7r
 +        }),
 +      },
      },
-     config: { language: [] },
+-    config: { language: [] },
+   });
+#+end_src
+
+#+begin_src diff
+// commons/hallucinators/deepgram/provider/index.js:178
+   const fluxFaculty = (entry) => ({
+     ...entry,
+     type: "verbatim",
+     id: entry.id,
+     tune: entry.tune,
+-    context: 0,
+     channels: {
+       stream: {
+         in: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
+         out: [{ type: "text" }],
+         via: ({ source, settings = {} }, { signal } = {}) =>
+#+end_src
+
+#+begin_src diff
+// commons/hallucinators/deepgram/provider/index.js:205
+     },
+-    config: { turns: true },
+   });
+#+end_src
+
+#+begin_src diff
+// commons/hallucinators/deepgram/tests/provider.test.js:36
+       }
+-      specimen.expect(faculties[0].config.language).toEqual([]);
+-      specimen.expect(faculties[1].config.turns).toBe(true);
+     },
 #+end_src
 
 #+begin_src diff
@@ -635,8 +717,9 @@ sh .ikiro/reference/channel-media/replay.sh <registry copy> 7r
 #+end_src
 
 #+begin_src diff
-// commons/hallucinators/elevenlabs/provider/index.js:233
-       context: 0,
+// commons/hallucinators/elevenlabs/provider/index.js:232
+       tune: entry.tune,
+-      context: 0,
 -      channels: { stream: { ...sides, via: stream }, render: { ...sides, via: render } },
 +      channels: {
 +        stream: {
@@ -697,6 +780,28 @@ sh .ikiro/reference/channel-media/replay.sh <registry copy> 7r
 +  });
 
    specimen.it("stream yields Audio.Packet from a plain string, pts by samples; a bare empty text ends the input (a flush keeps the socket open)", async () => {
+#+end_src
+
+#+begin_src diff
+// commons/hallucinators/openrouter/provider/index.js:200
+     tune: model.tune,
+-    context: 0,
+     channels: {
+#+end_src
+
+#+begin_src diff
+// commons/hallucinators/openrouter/provider/index.js:208
+     },
+-    limits: model.limits,
+   });
+#+end_src
+
+#+begin_src diff
+// commons/hallucinators/openrouter/tests/provider.test.js:745
+         specimen.expect(Object.keys(each.channels)).toEqual(["render"]);
+-        specimen.expect(each.context).toBe(0);
++        specimen.expect("context" in each).toBe(false);
+         specimen.expect(each.limits.mask).toBe(false);
 #+end_src
 
 * milestone 7 — the registry caller follows

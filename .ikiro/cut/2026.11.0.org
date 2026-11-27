@@ -1,5 +1,5 @@
 #+title: release v2026.11.0 — the first vivalence release
-#+status: WRITTEN 11-27 on his /"write a release v2026.11.0"/: ten items in his words, nine in the tree, transcription DESIGNED; unmarked: no tag, no bookmark, =master= 6 changes behind
+#+status: PUBLISHED 11-27: tag =v2026.11.0= on =skmzmyss= =ddeb3f8d=, on =origin= and =github=, =:v2026.11.0= on the four images at 14:11; ten items in his words, nine in the tree, transcription DESIGNED
 # writer: agent · limit: 12000 chars · the file is named after =deno.jsonc:2=, the one version the tree declares
 
 * intent
@@ -85,7 +85,7 @@ DESIGNED. Nothing of it is in the tree.
 - renamed a mode's traits =VIEWABLE= → =SURFACED= · =GENERATIVE= → =SURFACING=, the mode export =views= → =surfaces= · migrate: turn the word in every module manifest
 - renamed the model's tools =view_create= · =view_read= · =view_update= → =surface_create= · =surface_read= · =surface_update=
 - renamed the client's UI kind =surface= → =skin= and the palette's =surface*= → =plane*= (=--plane=, =--plane-sunk=, =--plane-lift=)
-- owed: prod waits its deploy. =VIEWABLE= still stands in 5 files of the tree
+- owed: prod waits its deploy
 
 ** dictation — =m123-call-faculty=, the verbatim half
 
@@ -109,17 +109,32 @@ DESIGNED. Nothing of it is in the tree.
 | # | his words | state |
 |---+---+---|
 | 1 | /"ignore the rest."/ | CLOSED 11-27: the release names the ten items above. Whatever else landed since =master= sits in the tree unnamed |
-| 2 | — | OPEN: transcription is DESIGNED. The mark waits for =channel-media= 7 · 8, or the item moves to =2026.12.0= |
-| 3 | /"first rolling today. to github and gitlab and docker registry."/ | OPEN, three places. GitLab: =.gitlab-ci.yml= runs on every push, a tag too; it builds four images, pushes =alpine= and the short hash, never the version, then calls both Coolify deploys. GitHub: no workflow, =.github= holds =FUNDING.yml= alone. Registry: =registry.vivalence.org/beef/viva/vivalence/{viva,runtime,anima,documentation}=, =arm64=. The last tag is =v0.5.2=; =master= (=otzvowtz=, 11-06) is 6 changes behind =@=. Remotes, read by him 11-27: =github= =git@github.com:vivalence/Vivalence.git= · =origin= =ssh://git@git.vivalence.org:2222/beef/viva.git= (the registry's project) · =presentation= =ssh://git@git.vivalence.org:2222/vivalence/vivalence.git= (unruled). The tag and the pushes are his: the guard refuses me every ref and remote command, its help too |
+| 2 | — | OPEN: transcription is DESIGNED and unmarked: =v2026.11.1= or =2026.12.0= |
+| 3 | /"first rolling today. to github and gitlab and docker registry."/ | CLOSED 11-27: his tag on =origin= (=ssh://git@git.vivalence.org:2222/beef/viva.git=) and =github= (=git@github.com:vivalence/Vivalence.git=); the four images carry it. The remote =presentation= (=…/vivalence/vivalence.git=) is unruled |
 
-* the mark — LANDED 11-27 on his two /"go"/, =.gitlab-ci.yml=, on disk
+* the mark — PUBLISHED 11-27
 
-=deno.jsonc:2= is the version, the tag echoes it. On a tag the pipeline fails before the first build when the tag is not =v= + that version, else it also pushes =:<tag>= on the four images. Run with =docker= stubbed: no tag 8 pushes · =v2026.11.0= 12 pushes · =v2026.11.1= and =v0.6.0= exit 1, 0 builds. The real pipeline is unrun. His: the tag (=jj tag set=, then =git push <remote> <tag>=: =jj git push= carries no tag) and the bump to =2026.11.1= right after; =systems/runtime/tests/mint.test.js= names =2026.11.0=.
+=deno.jsonc:2= is the version, the tag echoes it. On a tag the pipeline (=.gitlab-ci.yml=, his two /"go"/) fails before the first build when the tag is not =v= + that version, else it also pushes =:<tag>= on the four images. The job's script with =docker= stubbed: no tag 8 pushes · =v2026.11.0= 12 · =v2026.11.1= and =v0.6.0= exit 1, 0 builds.
+
+His, 14:05: =jj describe= · =jj new= · =jj tag set= on =@-= · =git push origin v2026.11.0= · =git push github v2026.11.0=.
+
+The registry at 14:11:33, =registry.vivalence.org/beef/viva/vivalence/<image>=, =:v2026.11.0= and =:ddeb3f8d= one digest each:
+
+#+BEGIN_EXAMPLE
+viva           sha256:b0db0612b755838438ffcf8cb7d7eeddcf453d9022eeb227aac9f28fff548144
+runtime        sha256:81835848c360f6d605bfaea8a252387a6a19bae9aad18b7c4c9800504f87ebe6
+anima          sha256:bf91882d773e624440456266924b6fa6f510eb74a21309094fed5dd3b381b4b4
+documentation  sha256:f4305ebfc3911b9b0e4526956fbd0c037d7597b25eda00a1a94391d072a619e2
+#+END_EXAMPLE
 
 * never
 
 the two-way call (=m123-call-faculty=, =/call=, milestone 8) · npm and jsr · the type system (=m128-typed-schematics=, his /"typed schematics is 26.12"/) · featureset f: =.ikiro/cut/2026.12.0.org=.
 
-* next
+* handoff
 
-His ruling 2, then the mark.
+- next :: his tag =v2026.11.1=. =deno.jsonc:2= reads =2026.11.1= since 11-27 (his /"bump the versionfor em"/), =mint.test.js= 6 passed after. A tag pipeline also moves =:2026.11= on the four images (his /"go"/, stubbed: =v2026.11.1= 16 pushes). The deploys are unread
+- open, his :: ruling 2 · =master= moved locally, unpushed: its push runs a second pipeline and deploy · the =presentation= remote · both Coolify app uuids stand plain in =.gitlab-ci.yml=, now on GitHub · a release page on GitHub and GitLab
+- owed :: no test holds the tag guard: it ran as the job's script with =docker= stubbed, four tags, by hand
+- never :: a version read off git inside an image (=.dockerignore= drops =.git= · =.jj=) · a tag typed by hand: it is read off =deno.jsonc= · =jj git push= for a tag: it carries bookmarks only
+- LTS =vN.N.N= :: the guard refuses it, the tree holds one version; it needs its own source

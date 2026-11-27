@@ -27,11 +27,13 @@ viva --help; echo $?
 
 ## version control
 
-jj over git. I read, never write.
+jj over git. I read with these, never write. A tag leaves by `git push <remote> <tag>`.
 
 ```sh
 jj log --ignore-working-copy -n 8
 jj diff -r <change>
+jj bookmark list --ignore-working-copy
+jj tag list --ignore-working-copy
 git show <id>:<path>
 ```
 

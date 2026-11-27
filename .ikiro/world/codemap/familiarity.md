@@ -100,6 +100,11 @@
   "Meta's two levels: the app (one callback) · a number (its own override)": 2,
   "a service hosted and consumed: two masks, one module": 2,
   "the bot's own number on its consumed entry": 4,
-  "a delivery sorted by the number it was sent to · numbers": 2
+  "a delivery sorted by the number it was sent to · numbers": 2,
+
+  // release
+  "vYYYY.MM.N rolling · vN.N.N LTS · a cut file per release": 7,
+  "the root deno.jsonc version: the tag echoes it, a mount is stamped by it": 2,
+  "jj describe · new · tag set, git push <remote> <tag>": 3
 }
 ```

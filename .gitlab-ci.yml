@@ -23,6 +23,7 @@ build-and-push:
   script:
     - export VIVA_STAMP="$CI_COMMIT_SHORT_SHA $CI_COMMIT_SHORT_SHA $CI_COMMIT_TIMESTAMP"
     - export VIVA_VERSION="v$(grep -m1 '"version"' deno.jsonc | cut -d'"' -f4)"
+    - export VIVA_CHANNEL="$(echo "$VIVA_VERSION" | cut -c2- | cut -d. -f1,2)"
     - |
       if [ -n "$CI_COMMIT_TAG" ] && [ "$CI_COMMIT_TAG" != "$VIVA_VERSION" ]; then
         echo "tag $CI_COMMIT_TAG is not the tree's version $VIVA_VERSION (deno.jsonc)"
@@ -43,6 +44,8 @@ build-and-push:
         if [ -n "$CI_COMMIT_TAG" ]; then
           docker tag vivalence/$image:alpine $REGISTRY/vivalence/$image:$CI_COMMIT_TAG
           docker push $REGISTRY/vivalence/$image:$CI_COMMIT_TAG
+          docker tag vivalence/$image:alpine $REGISTRY/vivalence/$image:$VIVA_CHANNEL
+          docker push $REGISTRY/vivalence/$image:$VIVA_CHANNEL
         fi
       done
 

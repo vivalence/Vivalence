@@ -1,6 +1,6 @@
 #+title: channel media — the cortex holds what a faculty takes and gives, by via, in media types
 #+filetags: :typology:cortex:hallucinators:
-#+status: milestones 1 – 6 LANDED on his /"go. full"/ (tree and registry, unpushed); 7 TANGLED on his /"cast to quest"/, his walk stands at stop 1 of 8; 8 DESIGNED
+#+status: milestones 1 – 6 LANDED on his /"go. full"/ (tree and registry, unpushed); 7 TANGLED, his walk at stop 1 of 8; 8 DESIGNED
 # writer: agent · limit: 14000 chars · unnumbered
 
 * intent
@@ -32,7 +32,8 @@
 | /"remeber that we control the hallucinator faculties too."/ | every provider of ours is rewritten |
 | /"lets move via into channel. make channel sefl contained. channel.via"/ | a via's call sits inside its channels: =channels.<via>.via=; =Faculty.via= is gone |
 | /"filing hangs on /dialogue only today (:435). should this mabybe not be true??"/ | =filing= sits on every route that passes turns |
-| /"2 turns with a file each, right? audio+>transcipt."/ · /"a."/ | a render is turns in, a turn out, for every faculty; =source= is a stream's |
+| /"2 turns with a file each, right? audio+>transcipt."/ · /"a."/ | a render is turns in, a turn out, for dialogue · object · verbatim · speech; =source= is a stream's |
+| /"make this coherent."/ · /"amen."/ | =rounds= · =backoff= are one =Loop=; a call has no =rounds=; no =config=, no =context: 0= on a faculty |
 
 Mine, said in one line each:
 
@@ -53,7 +54,7 @@ Mine, said in one line each:
 
 * as code
 
-The diffs: =.ikiro/quests/channel-media-appendix-I-diffs.org=, generated from a built copy by =.ikiro/reference/channel-media/todiffs.py=. Generated from five staged copies by =.ikiro/reference/channel-media/appendix.py=; the via move by =viamove.py=. 54 files edited in 189 hunks, 4 new files. Milestones 5 · 6: appendix II. Milestone 7: =.ikiro/quests/channel-media-appendix-III-diffs.org=, by =appendix3.py=: 14 files in the tree, 2 in =@education=, 42 hunks.
+The diffs: =.ikiro/quests/channel-media-appendix-I-diffs.org=, by =.ikiro/reference/channel-media/appendix.py= over =todiffs.py=. 54 files edited in 189 hunks, 4 new files. Milestones 5 · 6: appendix II. Milestone 7: =.ikiro/quests/channel-media-appendix-III-diffs.org=, by =appendix3.py=: 18 files in the tree, 2 in =@education=, 54 hunks.
 
 A render, as a mode calls it after 7:
 
@@ -191,4 +192,4 @@ What he sees after 1 – 4 land:
 
 * next
 
-His walk of milestone 7: stop 1 of 8 (the request schematics) awaits his amen. Then his =go= lands 7; then 8.
+His walk of 7: stop 1 of 8 awaits his amen. Owed: =App.svelte:477= guards an absent =context=. His =go= lands 7.
