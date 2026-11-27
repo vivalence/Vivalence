@@ -212,7 +212,7 @@ describe("populate — binding: each channel lands in its declared stratum", () 
     expect(paladin.scope.credentials.absolute).toBe(`${home}/credentials.json`);
     for (const key of keys) {
       const record = [];
-      paladin.expand(`\${${key}}`, record, flag(key));
+      paladin.link.env(`\${${key}}`, record, flag(key));
       expect(record[0].read).toEqual([key]);
     }
   });

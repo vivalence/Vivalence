@@ -21,7 +21,7 @@ export class Instances {
   }
   async persist(all) {
     if (this.held) throw new Error(`instances: inline ("${this.from}") — read-only; declare a path to write`);
-    await this.paladin.state.json(this.path, all);
+    await this.paladin.write.json(this.path, all);
   }
   async read(slug) {
     return (await this.all())[slug] ?? null;
@@ -51,7 +51,7 @@ export class Instances {
     if (!token) throw new Error(NOTHING);
     if (local(token)) {
       const spelled = isAbsolute(token) || token.startsWith(".") ? token : `./${token}`;
-      const mount = this.paladin.source(spelled).absolute;
+      const mount = this.paladin.link.path(spelled).absolute;
       return (await this.lookup(mount)) ?? { slug: null, mount };
     }
     const held = await this.read(token);

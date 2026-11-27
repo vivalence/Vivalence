@@ -27,7 +27,7 @@ async function effect(ctx) {
   if (!held) return { error: `instance: ${mount} not recorded — nothing to delete` };
   const { slug } = held;
 
-  const lock = await paladin.ledger.lock(slug).read();
+  const lock = await paladin.ledger.locks.read(slug);
   if (lock) {
     const running = lock.processes.map((entry) => entry.process).join(" ");
     return { error: `'${slug}' is running (supervisor ${lock.pid}: ${running}) — viva instance/stop first` };
@@ -56,7 +56,7 @@ async function effect(ctx) {
   }
 
   if (history) await Deno.remove(logs, { recursive: true });
-  for (const name of sessions) await paladin.state.remove(paladin.scope.ledger.branch(`sessions/${name}`));
+  for (const name of sessions) await paladin.remove.file(paladin.scope.ledger.branch(`sessions/${name}`));
   if (shelved) await Deno.remove(mount, { recursive: true });
   await paladin.ledger.instances.remove(slug);
 

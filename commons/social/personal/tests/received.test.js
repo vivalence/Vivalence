@@ -1,4 +1,4 @@
-import { encodeHex } from "@std/encoding";
+import { encodeBase64, encodeHex } from "@std/encoding";
 import { join } from "@std/path";
 import { hello } from "@vivalence/runtime/scenarios";
 import { sleep, specimen } from "@vivalence/typology";
@@ -12,6 +12,10 @@ const FINN = { profile: { name: "Finn" } };
 const REFUSED = ["wamid.NODOTS"];
 const MODE = "@commons/bot/personal";
 const SERVICE = "@commons/service/whatsapp";
+const VOICE = {
+  mime: "audio/ogg; codecs=opus",
+  bytes: new TextEncoder().encode("OggS-a-voice-note"),
+};
 
 const SECRETS = {
   SECRET_VIVA_WHATSAPP_APP: "app-secret",
@@ -161,6 +165,10 @@ describe("the bot answers — a message is a Turn, the harness replies through s
 
   beforeAll(async () => {
     graph = Deno.serve({ port: 0, onListen: () => {} }, async (request) => {
+      const asked = new URL(request.url);
+      if (asked.pathname === "/media.VOICE")
+        return Response.json({ url: `${asked.origin}/held/voice`, mime_type: VOICE.mime });
+      if (asked.pathname === "/held/voice") return new Response(VOICE.bytes);
       const posted = await request.json();
       if (posted.typing_indicator) {
         typed.push(posted);
@@ -306,6 +314,72 @@ describe("the bot answers — a message is a Turn, the harness replies through s
     expect(sent.slice(before).map((post) => [post.to, post.text.body])).toEqual([
       [OWNER, "> from the dock\n> line two"],
       [OWNER, "[stub] from the dock\nline two.."],
+    ]);
+  });
+
+  it("a voice note is filed: the Turn holds the file, the model reads its line", async () => {
+    await delivered("wamid.V", undefined, 1, {
+      type: "audio",
+      text: undefined,
+      audio: { id: "media.VOICE", mime_type: VOICE.mime, voice: true },
+    });
+    const [turn] = world.query(
+      "select id, parts from Turn where json_extract(meta, '$.provider.id') = 'wamid.V'",
+    );
+    const held = JSON.parse(turn.parts)[0].file;
+    const [file] = world.query(`select id, mount, mime, bytes from File where id = '${held}'`);
+    expect(JSON.parse(turn.parts)).toEqual([{ type: "file", file: file.id }]);
+    expect([file.mime, file.bytes]).toEqual([VOICE.mime, VOICE.bytes.length]);
+    expect(file.mount.includes("mode_bot_personal/files/audio.")).toBe(true);
+    expect(sent.at(-1).text.body.includes(`[attached audio · file ${file.id}`)).toBe(true);
+    expect(world.query("select turn_id, file_id from turn_files")).toEqual([
+      { turn_id: turn.id, file_id: file.id },
+    ]);
+  });
+
+  it("a filed voice note is transcribed by hand: a file part in, its text out", async () => {
+    const [turn] = world.query(
+      "select thread, parts from Turn where json_extract(meta, '$.provider.id') = 'wamid.V'",
+    );
+    const response = await world.post(
+      "/daemon/hello/mode/bot/personal/harness/verbatim/render",
+      { thread: turn.thread, turns: [{ role: "user", parts: JSON.parse(turn.parts) }] },
+      finn,
+    );
+    const heard = await response.json();
+    expect(response.status).toBe(200);
+    expect(heard.turns.at(-1)).toEqual({
+      role: "user",
+      parts: [{ type: "text", text: `heard:${encodeBase64(VOICE.bytes)}` }],
+      meta: heard.turns.at(-1).meta,
+    });
+  });
+
+  it("the bot transcribes a voice note itself: the tool makes a text file", async () => {
+    const [voice] = world.query(
+      "select thread, parts from Turn where json_extract(meta, '$.provider.id') = 'wamid.V'",
+    );
+    const held = JSON.parse(voice.parts)[0].file;
+    await delivered(
+      "wamid.T",
+      `write it down --tool file_transcribe --input '{"file":"${held}"}'`,
+      1,
+    );
+    const turns = world.query(
+      `select id, parts from Turn where thread = '${voice.thread}' order by created_at`,
+    );
+    const [called, answered, said] = turns.slice(-3).map((turn) => JSON.parse(turn.parts));
+    const [text] = answered[0].product.file;
+    const [file] = world.query(`select mime, bytes, mount from File where id = '${text.id}'`);
+    expect(called[0].input).toEqual({ file: held });
+    expect(answered.map((part) => part.type)).toEqual(["tool_result"]);
+    expect(answered[0].condition).toBe("NOMINAL");
+    expect(said[0].text.startsWith(`[stub] heard:${encodeBase64(VOICE.bytes)}`)).toBe(true);
+    expect([text.mime, file.mime]).toEqual(["text/plain", "text/plain"]);
+    expect(file.mount.includes("mode_bot_personal/files/verbatim.")).toBe(true);
+    expect(await Deno.readTextFile(file.mount)).toBe(`heard:${encodeBase64(VOICE.bytes)}`);
+    expect(world.query(`select turn_id from turn_files where file_id = '${text.id}'`)).toEqual([
+      { turn_id: turns.at(-2).id },
     ]);
   });
 

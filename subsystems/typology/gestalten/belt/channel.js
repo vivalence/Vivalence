@@ -47,7 +47,7 @@ const PADDED = [
   [() => true, 0],
 ];
 
-const weight = (part) =>
+export const weight = (part) =>
   Math.floor((part.data.length * 3) / 4) - PADDED.find(([padded]) => padded(part.data))[1];
 
 const bounded = (faculty, via, parts) => {
@@ -97,7 +97,9 @@ export const lower = (faculty, via, parts) =>
     faculty,
     via,
     parts.map((part) =>
-      taken(faculty, via, part) || !("file" in part) ? part : attached(faculty, part),
+      taken(faculty, via, part) || !("file" in part) || !taken(faculty, via, { type: "text" })
+        ? part
+        : attached(faculty, part),
     ),
   );
 

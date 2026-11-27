@@ -188,7 +188,7 @@ specimen.describe("Cortex", () => {
     specimen.expect(new Cortex().register([mockFaculties()[3]]).findOne({ type: "object" })).toBe(undefined);
   });
 
-  specimen.it("hallucinate: gate → fill → lowered Request; verbatim.render derives from the stream", async () => {
+  specimen.it("hallucinate: gate → fill → lowered Request; an ear renders a turn", async () => {
     const { Request } = v.primitives.hallucination;
     const clock = metronome([{ packets: [{ event: "/turn/full", turn: { role: "assistant", parts: [{ type: "text", text: "ok" }], meta: { state: "complete" } } }] }]);
     const spoken = metronome(
@@ -227,10 +227,24 @@ specimen.describe("Cortex", () => {
     specimen.expect(request.cache).toEqual({ marks: ["b"] });
     specimen.expect((await root.settled).code).toBe("DONE");
 
-    spoken.release(5);
+    const ear = {
+      type: "verbatim",
+      id: "ear",
+      tune: [0.5, 0.5, 0.5],
+      channels: {
+        render: {
+          in: [{ type: "audio", mime: ["audio/ogg"] }],
+          out: [{ type: "text" }],
+          via: async () => ({ role: "user", parts: [{ type: "text", text: "buongiorno" }] }),
+        },
+      },
+    };
     const heard = new Controller({ stdout: new Span("hallucination") });
-    const text = await cortex.hallucinate.verbatim.render({ controller: heard, source: (async function* () {})(), policy: { harmonize: { window: 1 } } });
-    specimen.expect(text).toBe("buongiorno");
+    const transcribed = await new Cortex().register([ear]).hallucinate.verbatim.render({
+      controller: heard,
+      turns: [{ role: "user", parts: [{ type: "audio", mime: "audio/ogg", data: "AAAA" }] }],
+    });
+    specimen.expect(transcribed.turns.at(-1).parts).toEqual([{ type: "text", text: "buongiorno" }]);
     specimen.expect((await heard.settled).code).toBe("DONE");
     specimen.expect(shard.hallucinate.routing([{ nature: "verbatim" }, { nature: "render" }])).toEqual({ avenue: "verbatim", via: "render" });
   });

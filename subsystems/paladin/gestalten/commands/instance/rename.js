@@ -18,7 +18,7 @@ async function effect(ctx) {
   const prior = held.slug;
 
   if (await paladin.ledger.instances.read(next)) return { error: `instance: '${next}' already held` };
-  const lock = await paladin.ledger.lock(prior).read();
+  const lock = await paladin.ledger.locks.read(prior);
   if (lock) return { error: `'${prior}' is running (supervisor ${lock.pid}) — viva instance/stop first` };
 
   await paladin.ledger.instances.rename(prior, next);
@@ -38,7 +38,7 @@ async function effect(ctx) {
         if (!entry.name.endsWith(".json")) continue;
         const session = paladin.scope.ledger.branch(`sessions/${entry.name}`);
         const payload = await paladin.read.json(session, null);
-        if (payload?.VIVA_INSTANCE_MOUNT === mount) await paladin.state.json(session, { ...payload, VIVA_INSTANCE_MOUNT: dir });
+        if (payload?.VIVA_INSTANCE_MOUNT === mount) await paladin.write.json(session, { ...payload, VIVA_INSTANCE_MOUNT: dir });
       }
     }
   }

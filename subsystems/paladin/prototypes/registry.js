@@ -61,7 +61,7 @@ export class Registry {
 
   async write(record) {
     if (this.held) throw new Error(`registry: inline ("${this.from}") — read-only; declare a path to write`);
-    return await this.paladin.state.json(this.path, record);
+    return await this.paladin.write.json(this.path, record);
   }
 
   async tapped() {
@@ -118,7 +118,7 @@ export class Registry {
 
   async discover(scope) {
     if (!scope || !(await Deno.stat(scope.absolute).catch(() => null))) return [];
-    return (await this.paladin.find.type(scope, "package")).map(declared);
+    return (await this.paladin.find.modules(scope, "package")).map(declared);
   }
 
   async seed(scope) {
@@ -199,12 +199,12 @@ export class Registry {
   async tap(source, target) {
     let location = source;
     let remote = null;
-    if (this.paladin.clone.remote(source)) {
+    if (this.paladin.vcs.remote(source)) {
       if (!target && !this.paladin.scope.registry)
         throw new Error(`[registry] tap ${source}: no package store — a remote tap clones into scope.registry (set VIVA_REGISTRY_MOUNT)`);
       const slug = source.split("/").at(-1).replace(/\.git$/, "");
       const destination = target ? new Path(target) : this.paladin.scope.registry.branch(slug);
-      await this.paladin.clone(source, destination);
+      await this.paladin.vcs.clone(source, destination);
       location = destination.absolute;
       remote = source;
     } else if (target) {
@@ -215,7 +215,7 @@ export class Registry {
     if (!stat)
       throw new Error(`[registry] tap ${source}: nothing at ${root.absolute} — pass a path, a remote, or a location already in the store`);
     const home = stat.isFile ? new Path(dirname(root.absolute)) : root;
-    const found = await this.paladin.find.type(home, "package");
+    const found = await this.paladin.find.modules(home, "package");
     const rooted = found.filter((module) => dirname(module.source.absolute) === home.absolute);
     const declarations = rooted.length ? rooted : found;
     if (!declarations.length)

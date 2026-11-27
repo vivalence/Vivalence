@@ -54,7 +54,7 @@ const named = (html, name) =>
 const stored = async (ctx, buffer, folder, extension, type, bytes) => {
   const path = `${folder}/${await crypto.digestBytes(bytes)}.${extension}`;
   const mount = join(ctx.mode.mountpoint.absolute, path);
-  await paladin.state.store(mount, bytes);
+  await paladin.write.bytes(mount, bytes);
   const file = await ctx.entities.file.record({ mode: ctx.mode.id, path, mount, mime: type, bytes });
   buffer.files.add(file);
   return file;

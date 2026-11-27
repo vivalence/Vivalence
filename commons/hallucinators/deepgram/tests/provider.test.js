@@ -34,8 +34,6 @@ specimen.describe("deepgram provider", () => {
         specimen.expect(faculty.tune.length).toBe(3);
         specimen.expect(faculty.channels.stream.in[0].mime).toEqual(["audio/pcm;rate=16000;channels=1"]);
       }
-      specimen.expect(faculties[0].config.language).toEqual([]);
-      specimen.expect(faculties[1].config.turns).toBe(true);
     },
   );
 
@@ -160,6 +158,49 @@ specimen.describe("deepgram provider", () => {
       valid(heard);
     },
   );
+});
+
+specimen.describe("deepgram · a file on render", () => {
+  specimen.it("an audio part is posted as bytes under its media type", async () => {
+    const [ear, flux] = await provider({ secrets: { key: "fake-key" }, faculties: FACULTIES });
+    const asked = [];
+    const original = globalThis.fetch;
+    globalThis.fetch = async (url, init) => {
+      asked.push({ url, headers: init.headers, body: [...init.body] });
+      return Response.json({
+        results: { channels: [{ alternatives: [{ transcript: "ci vediamo domani" }] }] },
+      });
+    };
+    try {
+      const turn = await ear.channels.render.via({
+        turns: [
+          {
+            role: "user",
+            parts: [{ type: "audio", mime: "audio/ogg; codecs=opus", data: "T2dnUw==" }],
+          },
+        ],
+        settings: { language: ["it"] },
+      });
+      specimen.expect(turn).toEqual({
+        role: "user",
+        parts: [{ type: "text", text: "ci vediamo domani" }],
+      });
+      specimen.expect(turn).matches(v.primitives.hallucination.Turn);
+      specimen.expect(asked).toEqual([
+        {
+          url: "https://api.deepgram.com/v1/listen?model=nova-3&language=it&punctuate=true",
+          headers: { Authorization: "Token fake-key", "Content-Type": "audio/ogg; codecs=opus" },
+          body: [79, 103, 103, 83],
+        },
+      ]);
+      specimen.expect(ear.channels.render.in).toEqual([
+        { type: "audio", mime: ["audio/ogg", "audio/mpeg", "audio/mp4", "audio/aac"] },
+      ]);
+      specimen.expect("render" in flux.channels).toBe(false);
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
 });
 
 specimen.describe("deepgram · a faculty carries its entry forward (m126 Q7A)", () => {

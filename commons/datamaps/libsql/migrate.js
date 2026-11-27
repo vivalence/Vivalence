@@ -1,6 +1,7 @@
 import { TSMigrationGenerator } from "@mikro-orm/migrations";
-import { steer } from "@vivalence/typology";
-import { compare, parse } from "@std/semver";
+import { belt, steer } from "@vivalence/typology";
+
+const { compare, parse } = belt.release;
 
 const creates = (table) => (sql) => sql.startsWith(`create table \`${table}\` `);
 

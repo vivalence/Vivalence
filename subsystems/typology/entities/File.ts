@@ -7,6 +7,7 @@ import { BufferEntity } from "./index.ts";
 import { SurfaceEntity } from "./index.ts";
 import { DaemonEntity } from "./index.ts";
 import { ThreadEntity } from "./index.ts";
+import { TurnEntity } from "./index.ts";
 import { UserEntity } from "./index.ts";
 
 const present = async (mount) => {
@@ -87,6 +88,7 @@ export class FileEntity extends DataEntity {
 
   buffers = new Collection<BufferEntity>(this);
   threads = new Collection<ThreadEntity>(this);
+  turns = new Collection<TurnEntity>(this);
   [EntityRepositoryType]?: FileRepository;
 }
 
@@ -153,6 +155,7 @@ export const FileSchema = new EntitySchema<FileEntity, DataEntity>({
 
     buffers: { kind: "m:n", entity: () => BufferEntity, mappedBy: (buffer) => buffer.files },
     threads: { kind: "m:n", entity: () => ThreadEntity, mappedBy: (thread) => thread.files },
+    turns: { kind: "m:n", entity: () => TurnEntity, mappedBy: (turn) => turn.files },
   },
 });
 

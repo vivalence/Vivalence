@@ -39,7 +39,7 @@ export const buffer = new Vector()
           return { condition: "ERROR", message: `${named(row)} loads no file of its own kind ${row.mime} — a source needs a content buffer, buffer_create makes one.` };
         }
         const bytes = new TextEncoder().encode(ctx.input.source);
-        await paladin.state.store(file.mount, bytes);
+        await paladin.write.bytes(file.mount, bytes);
         await ctx.entities.file.rewrite(file, bytes);
       }
       await ctx.entities.em.flush();

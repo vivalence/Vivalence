@@ -40,7 +40,7 @@ async function effect(ctx) {
     return await supervise(ctx, slug, attachment);
   } catch (error) {
     if (attachment === "logged") {
-      const file = await paladin.ledger.log(slug).open("supervisor", "out");
+      const file = await paladin.telemetry.log(slug).open("supervisor", "out");
       await file.write(new TextEncoder().encode(`${error.stack}\n`));
       file.close();
     }

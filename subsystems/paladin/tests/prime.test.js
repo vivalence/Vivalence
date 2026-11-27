@@ -11,7 +11,7 @@ Deno.test("paladin prime — a directory is a Primer, the frontmatter sniffed pe
   await Deno.writeTextFile(`${root}/skills/render/SKILL.md`, "---\nname: render\ndescription: >-\n  Render a page,\n  folded\nlicense: MIT\n---\nSKILL BODY");
   await Deno.writeTextFile(`${root}/notes.txt`, "not a primer file");
 
-  const primer = await paladin.prime.directory(new Path(root));
+  const primer = await paladin.find.primer(new Path(root));
 
   await t.step("no frontmatter is eager text; ours is the pattern; the standard's description is the valence, lazy", async () => {
     assertEquals(await shape.primer.load(primer), {

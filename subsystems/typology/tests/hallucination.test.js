@@ -102,7 +102,12 @@ function populatedCortex() {
         render: {
           in: [{ type: "text" }],
           out: [{ type: "audio" }],
-          via: async ({ source }) => new TextEncoder().encode(source),
+          via: async ({ turns }) => ({
+            role: "assistant",
+            parts: turns
+              .flatMap((turn) => turn.parts)
+              .map((part) => ({ type: "audio", mime: "audio/mpeg", data: btoa(part.text) })),
+          }),
         },
       },
     },
@@ -291,11 +296,16 @@ specimen.describe("Hallucination", () => {
     });
   });
 
-  specimen.describe("speech render → vocalize", () => {
-    specimen.it("returns the faculty's finished bytes for a source text", async () => {
-      const bytes = await populatedCortex().hallucinate.speech.render({ controller: new Controller(), source: "ciao" });
-      specimen.expect(bytes instanceof Uint8Array).toBe(true);
-      specimen.expect(new TextDecoder().decode(bytes)).toBe("ciao");
+  specimen.describe("speech render → a turn of audio", () => {
+    specimen.it("returns a turn whose audio part names its media type", async () => {
+      const said = await populatedCortex().hallucinate.speech.render({
+        controller: new Controller(),
+        turns: [{ role: "assistant", parts: [{ type: "text", text: "ciao" }] }],
+      });
+      specimen.expect(said.meta.state).toBe("complete");
+      specimen.expect(said.turns.at(-1).parts).toEqual([
+        { type: "audio", mime: "audio/mpeg", data: btoa("ciao") },
+      ]);
     });
 
     specimen.it("throws when no speech faculty carries a render avenue", async () => {
@@ -310,7 +320,12 @@ specimen.describe("Hallucination", () => {
         },
       }]);
       let failure = null;
-      await cortex.hallucinate.speech.render({ controller: new Controller(), source: "ciao" }).catch((error) => (failure = error));
+      await cortex.hallucinate.speech
+        .render({
+          controller: new Controller(),
+          turns: [{ role: "assistant", parts: [{ type: "text", text: "ciao" }] }],
+        })
+        .catch((error) => (failure = error));
       specimen.expect(failure?.message).toContain("no 'speech' faculty resolves a 'render' avenue");
     });
   });

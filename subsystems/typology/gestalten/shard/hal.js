@@ -100,7 +100,6 @@ export const call = ({ polish, tier } = {}) => async (ctx) => {
       hear: organ(conversational.hear),
       mind: { provider: policy.provider, id: policy.id, tier: policy.tier ?? tier, tune: policy.tune },
       speak: organ(conversational.speak),
-      ...(policy.rounds && { rounds: policy.rounds }),
     },
   });
   ctx.output = controlled(controller, repairing(ctx, controller, polish)(packets));

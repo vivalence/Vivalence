@@ -53,7 +53,11 @@ async function* dialogue(model, request, signal) {
       index: 0,
       part: { type: "tool_use", id: `stub-${script.round}`, name: armed.name, input: {} },
     };
-    yield { event: "/part/delta", index: 0, part: { input: { query: spoken(request.turns) } } };
+    yield {
+      event: "/part/delta",
+      index: 0,
+      part: { input: script.input ?? { query: spoken(request.turns) } },
+    };
     await pause(script.stall || script.pace, signal);
     yield { event: "/part/close", index: 0 };
     yield { event: "/turn/close", turn: { meta: { state: "tools" } } };
@@ -170,6 +174,17 @@ export default async function provider(service) {
           yield { event: "/turn/close", turn: {} };
         },
       },
+      render: {
+        in: [{ type: "audio", mime: ["audio/ogg", "audio/mpeg", "audio/mp4", "audio/aac"] }],
+        out: [{ type: "text" }],
+        via: ({ turns }) =>
+          Promise.resolve({
+            role: "user",
+            parts: turns
+              .flatMap((turn) => turn.parts)
+              .map((audio) => ({ type: "text", text: `heard:${audio.data}` })),
+          }),
+      },
     },
   });
 
@@ -193,11 +208,13 @@ export default async function provider(service) {
       },
       render: {
         in: [{ type: "text" }],
-        out: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
-        via: ({ source }) =>
+        out: [{ type: "audio", mime: ["audio/mpeg"] }],
+        via: ({ turns }) =>
           Promise.resolve({
-            audio: `audio:${typeof source === "string" ? source : "stream"}`,
-            rate: 16000,
+            role: "assistant",
+            parts: turns
+              .flatMap((turn) => turn.parts)
+              .map((part) => ({ type: "audio", mime: "audio/mpeg", data: `audio:${part.text}` })),
           }),
       },
     },

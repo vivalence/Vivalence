@@ -5,7 +5,7 @@ import { instance } from "../belt/index.js";
 import * as views from "../views/index.js";
 
 export const sweep = async (ctx, roots, scope) => {
-  const bundlers = (await Promise.all(roots.map((root) => paladin.bundler.under(root)))).flat();
+  const bundlers = (await Promise.all(roots.map((root) => paladin.bundle.under(root)))).flat();
   const plan = await Promise.all(bundlers.map((bundler) => bundler.prune({ dry: true })));
   const files = plan.reduce((sum, held) => sum + held.removed.length, 0);
   const bytes = plan.reduce((sum, held) => sum + held.bytes, 0);

@@ -14,7 +14,7 @@ export const FILESINK = (mode, modeDie) => {
     },
     async (ctx) => {
       const mount = join(new Path(mode.mountpoint).absolute, ctx.input.path);
-      await paladin.state.store(mount, ctx.input.bytes);
+      await paladin.write.bytes(mount, ctx.input.bytes);
       return modeDie.entities.file.record({
         mode: mode.entity.id,
         path: ctx.input.path,

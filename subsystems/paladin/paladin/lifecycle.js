@@ -1,7 +1,6 @@
 import * as dotenv from "@std/dotenv";
 import { isAbsolute, join } from "@std/path";
-import { format, parse } from "@std/semver";
-import { Path, Signature, v } from "@vivalence/typology";
+import { Path, release, Signature, v } from "@vivalence/typology";
 import { Instance } from "../instance/prototype.js";
 
 export function belt(paladin, installs) {
@@ -53,7 +52,7 @@ export async function scopes(paladin) {
               `try: viva instances/use ${token}`,
           );
         if (isAbsolute(token)) return new Path(token);
-        return paladin.source(token);
+        return paladin.link.path(token);
       },
     ],
 
@@ -111,7 +110,8 @@ export async function scopes(paladin) {
 
 export async function version(paladin) {
   const root = await paladin.read.json(paladin.scope.repository.branch("deno.jsonc"));
-  paladin.version = format(parse(root.version));
+  release.parse(root.version);
+  paladin.version = root.version;
 }
 
 export function instance(paladin) {
@@ -174,7 +174,7 @@ export async function statements(paladin) {
   if (home && !(await Deno.stat(home.absolute).catch(() => null))) return;
 
   for (const mount of mounts.flat().filter(Boolean)) {
-    await paladin.state.dir(mount.absolute);
+    await paladin.write.dir(mount.absolute);
   }
 }
 

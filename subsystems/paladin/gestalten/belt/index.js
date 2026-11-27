@@ -1,39 +1,54 @@
-import find from "./find.js";
-import read from "./read.js";
-import prime from "./prime.js";
-import check from "./check.js";
-import state from "./state.js";
-import is from "./is.js";
-import scope from "./scope.js";
-import publish from "./publish.js";
-import source from "./source.js";
-import clone from "./clone.js";
-import bundler from "./bundler.js";
-import expand from "./expand.js";
-import envfile from "./envfile.js";
-import vault from "./vault.js";
-import stamp from "./stamp.js";
-import control from "./control.js";
-import watch from "./watch.js";
+import { read } from "./read.js";
+import { find } from "./find.js";
+import { check } from "./check.js";
+import { write } from "./write.js";
+import { remove } from "./remove.js";
+import { envfile } from "./envfile.js";
+import { is } from "./is.js";
+import { scope } from "./scope.js";
+import { publish } from "./publish.js";
+import { link } from "./link.js";
+import { vcs } from "./vcs.js";
+import { bundle } from "./bundle.js";
+import { vault } from "./vault.js";
+import { hash } from "./hash.js";
+import { control } from "./control.js";
+import { watch } from "./watch.js";
 
-export const FULL = [read, find, prime, check, state, envfile, is, scope, publish, source, clone, bundler, expand, vault, stamp, control, watch];
-
-export default {
-  vault,
-  stamp,
-  find,
-  read,
-  prime,
+export {
+  bundle,
   check,
-  state,
+  control,
+  envfile,
+  find,
+  hash,
+  is,
+  link,
+  publish,
+  read,
+  remove,
+  scope,
+  vault,
+  vcs,
+  watch,
+  write,
+};
+
+export const FULL = [
+  read,
+  find,
+  check,
+  write,
+  remove,
+  envfile,
   is,
   scope,
   publish,
-  source,
-  clone,
-  bundler,
-  expand,
-  envfile,
+  link,
+  vcs,
+  bundle,
+  vault,
+  hash,
   control,
   watch,
-};
+];

@@ -113,14 +113,18 @@ async function settle({ tools, controller }, call) {
     );
     child.stdout.log({ condition: spoken.condition });
     child.stop();
-    return { call, result: { condition: spoken.condition, product: spoken.product } };
+    return {
+      call,
+      result: { condition: spoken.condition, product: spoken.product },
+      parts: spoken.parts,
+    };
   } catch (fault) {
     child.fault(fault);
     const message =
       fault instanceof NotFound
         ? `unknown tool: ${call.name} — armed: ${armory(tools) || "(none)"}`
         : fault.message;
-    return { call, result: { condition: "ERROR", product: { message } } };
+    return { call, result: { condition: "ERROR", product: { message } }, parts: [] };
   }
 }
 
@@ -131,15 +135,21 @@ export async function dispatch(policy, parts) {
   return settled;
 }
 
-const answer = async (policy, turn) => ({
-  role: "user",
-  parts: (await dispatch(policy, turn.parts)).map(({ call, result }) => ({
-    type: "tool_result",
-    id: call.id,
-    condition: result.condition,
-    product: result.product,
-  })),
-});
+const answer = async (policy, turn) => {
+  const settled = await dispatch(policy, turn.parts);
+  return {
+    role: "user",
+    parts: [
+      ...settled.map(({ call, result }) => ({
+        type: "tool_result",
+        id: call.id,
+        condition: result.condition,
+        product: result.product,
+      })),
+      ...settled.flatMap(({ parts }) => parts),
+    ],
+  };
+};
 
 const pump = {
   stream: (faculty, request, signal) => faculty.channels.stream.via(request, { signal }),
@@ -181,14 +191,24 @@ const now = () => performance.timeOrigin + performance.now();
 const USAGE = new Vector().open("usage", record(Usage));
 
 const PARTED = [
-  [(part) => typeof part.text === "string", (part) => part.text.length],
-  [(part) => part.input !== undefined, (part) => JSON.stringify(part.input).length],
+  [
+    (part) => typeof part.text === "string",
+    (part) => ({ unit: "chars", amount: part.text.length }),
+  ],
+  [
+    (part) => part.input !== undefined,
+    (part) => ({ unit: "chars", amount: JSON.stringify(part.input).length }),
+  ],
+  [
+    (part) => typeof part.data === "string",
+    (part) => ({ unit: "bytes", amount: channel.weight(part) }),
+  ],
 ];
 
 const parted = (part) => {
   const found = PARTED.find(([carries]) => carries(part));
   if (!found) return [];
-  return [{ name: "output", unit: "chars", amount: found[1](part), channel: part.type, by: "cortex" }];
+  return [{ name: "output", ...found[1](part), channel: part.type, by: "cortex" }];
 };
 
 const sampled = (packet) => {
@@ -418,12 +438,6 @@ export async function* transcribe(faculty, { source, settings }, policy) {
   }
 }
 
-export async function transcript(faculty, input, policy) {
-  let folded = null;
-  for await (const packet of transcribe(faculty, input, policy)) folded = soma.transcript(folded, packet);
-  return folded === null ? "" : soma.spoken(folded);
-}
-
 export async function* converse(faculty, { source, settings, ...request }, policy) {
   const span = policy.controller.stdout;
   const metered = meter(span, faculty, "stream");
@@ -495,32 +509,6 @@ export async function* synthesize(faculty, { source, settings }, policy) {
     throw fault;
   } finally {
     span.usage(metered.closed(closed));
-    policy.controller.stop();
-  }
-}
-
-export async function vocalize(faculty, { source, settings }, policy) {
-  const span = policy.controller.stdout;
-  const metered = meter(span, faculty, "render");
-  let closed = "error";
-  let voiced = [];
-  policy.controller.start();
-  span.log({ faculty: faculty.type });
-  try {
-    metered.count("input", source);
-    const audio = await faculty.channels.render.via(
-      { source, settings },
-      { signal: policy.controller.abort.signal },
-    );
-    voiced = [{ name: "output", unit: "bytes", amount: audio.byteLength, channel: "audio", by: "cortex" }];
-    closed = "complete";
-    return audio;
-  } catch (fault) {
-    policy.controller.fault(fault);
-    throw fault;
-  } finally {
-    const closing = metered.closed(closed);
-    span.usage({ ...closing, measures: [...closing.measures, ...voiced] });
     policy.controller.stop();
   }
 }

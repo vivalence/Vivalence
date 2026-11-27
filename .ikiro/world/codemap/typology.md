@@ -67,7 +67,7 @@ const { wrap } = shard.cors;
     const { vector } = house();
     const result = steer.trie.survey(vector);
 ```
-**client export pipeline: `mod.ts` ⟷ `mod.client.js` (swapped by `subsystems/paladin/gestalten/belt/bundler.js:29`) over each `index.client.js`.** Server-only: `prototypes/index.ts` seek·freight·cargo·dataset·datasink·action·mode·yield·pool·twitch·datamap, `gestalten/` `bundle`. `tests/bundle/weight.test.js:7` caps `atom.chain` at 1024 B: a load-time `v.x =` un-shakes it.
+**client export pipeline: `mod.ts` ⟷ `mod.client.js` (swapped by `subsystems/paladin/gestalten/belt/bundle.js:109`) over each `index.client.js`.** Server-only: `prototypes/index.ts` seek·freight·cargo·dataset·datasink·action·mode·yield·pool·twitch·datamap, `gestalten/` `bundle`. `tests/bundle/weight.test.js:7` caps `atom.chain` at 1024 B: a load-time `v.x =` un-shakes it.
 ```js
 // subsystems/typology/mod.client.js:1
 export * from "./prototypes/index.client.js";
@@ -107,7 +107,7 @@ const Nascent = v.object({ mime: v.mime(), source: v.string({ minLength: 1 }) })
     specimen.expect(templated.default).toBe("${VIVA_RUNTIME_ORIGIN}/");
     specimen.expect(JSON.parse(JSON.stringify(v.url())).pattern).toBe(v.scalars.PATTERN);
 ```
-**`specimen/`: `index.js` is+3 stars+{snapshot} · `snapshot.js`; 2 direct, first `subsystems/paladin/gestalten/belt/scribe.js` (product).**
+**`specimen/`: `index.js` is+3 stars+{snapshot} · `snapshot.js`; 1 direct, `subsystems/typology/mod.ts:10`.**
 ```js
 // subsystems/typology/tests/mode-entity.snapshot.test.js:11
   it("captures mode-entity", () => {

@@ -146,8 +146,12 @@ specimen.describe("elevenlabs provider", () => {
         specimen.expect(typeof voice.channels.stream.via).toBe("function");
         specimen.expect(typeof voice.channels.render.via).toBe("function");
         specimen.expect(Array.isArray(voice.tune)).toBe(true);
-        specimen.expect(voice.channels.stream.out[0].mime).toEqual(["audio/pcm;rate=16000;channels=1"]);
-        specimen.expect(voice.channels.stream.out[1].mime).toEqual(["audio/mpeg"]);
+        specimen.expect(voice.channels.stream.out).toEqual([
+          { type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] },
+        ]);
+        specimen.expect(voice.channels.render.out).toEqual([
+          { type: "audio", mime: ["audio/mpeg"] },
+        ]);
       }
 
       const ear = faculties.find((each) => each.type === "verbatim");
@@ -158,6 +162,30 @@ specimen.describe("elevenlabs provider", () => {
       specimen.expect(ear).matches(v.primitives.hallucination.Faculty);
     },
   );
+
+  specimen.it("render speaks each text part into one audio/mpeg part", async () => {
+    const [voice] = await provider({ secrets: { key: "fake-key" }, faculties: FACULTIES });
+    const asked = [];
+    const original = globalThis.fetch;
+    globalThis.fetch = async (url, init) => {
+      asked.push({ url, body: JSON.parse(init.body) });
+      return new Response(new Uint8Array([73, 68, 51]));
+    };
+    try {
+      const turn = await voice.channels.render.via({
+        turns: [{ role: "assistant", parts: [{ type: "text", text: "a domani" }] }],
+      });
+      specimen.expect(turn).toEqual({
+        role: "assistant",
+        parts: [{ type: "audio", mime: "audio/mpeg", data: "SUQz" }],
+        meta: { usage: [{ name: "input", unit: "chars", amount: 8, channel: "text" }] },
+      });
+      specimen.expect(turn).matches(v.primitives.hallucination.Turn);
+      specimen.expect(asked.map((call) => call.body.text)).toEqual(["a domani"]);
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
 
   specimen.it("stream yields Audio.Packet from a plain string, pts by samples; a bare empty text ends the input (a flush keeps the socket open)", async () => {
     SpeechSocket.instances = [];
@@ -530,6 +558,84 @@ specimen.describe("elevenlabs scribe — the ear speaks the one content grammar"
       { event: "/part/draft", index: 0, part: { text: "basta" } },
     ]);
     specimen.expect(flow.fault()).toBe(null);
+  });
+});
+
+specimen.describe("elevenlabs · a file on render", () => {
+  specimen.it("an audio part is posted as a form: the model, the file under its media type", async () => {
+    const [live, scribe] = await provider({
+      secrets: { key: "fake-key" },
+      faculties: [
+        FACULTIES[2],
+        { type: "verbatim", id: "scribe_v3", model: "scribe_v3", tune: [0.8, 0.9, 0.7] },
+      ],
+    });
+    const asked = [];
+    const original = globalThis.fetch;
+    globalThis.fetch = async (url, init) => {
+      const file = init.body.get("file");
+      asked.push({
+        url,
+        headers: init.headers,
+        model: init.body.get("model_id"),
+        language: init.body.get("language_code"),
+        mime: file.type,
+        bytes: [...new Uint8Array(await file.arrayBuffer())],
+      });
+      return Response.json({ language_code: "ita", text: "ci vediamo domani", words: [] });
+    };
+    try {
+      const turn = await scribe.channels.render.via({
+        turns: [
+          {
+            role: "user",
+            parts: [{ type: "audio", mime: "audio/ogg; codecs=opus", data: "T2dnUw==" }],
+          },
+        ],
+        settings: { language: ["it"] },
+      });
+      specimen.expect(turn).toEqual({
+        role: "user",
+        parts: [{ type: "text", text: "ci vediamo domani" }],
+      });
+      specimen.expect(turn).matches(v.primitives.hallucination.Turn);
+      specimen.expect(asked).toEqual([
+        {
+          url: "https://api.elevenlabs.io/v1/speech-to-text",
+          headers: { "xi-api-key": "fake-key" },
+          model: "scribe_v3",
+          language: "it",
+          mime: "audio/ogg; codecs=opus",
+          bytes: [79, 103, 103, 83],
+        },
+      ]);
+      specimen.expect(Object.keys(scribe.channels)).toEqual(["render"]);
+      specimen.expect(Object.keys(live.channels)).toEqual(["stream"]);
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
+
+  specimen.it("a refusal is a fault that carries the status and the body", async () => {
+    const [scribe] = await provider({
+      secrets: { key: "fake-key" },
+      faculties: [{ type: "verbatim", id: "scribe_v3", model: "scribe_v3", tune: [0.8, 0.9, 0.7] }],
+    });
+    const original = globalThis.fetch;
+    globalThis.fetch = async () => new Response("invalid_model_id", { status: 422 });
+    try {
+      await specimen
+        .expect(
+          scribe.channels.render.via({
+            turns: [
+              { role: "user", parts: [{ type: "audio", mime: "audio/ogg", data: "T2dnUw==" }] },
+            ],
+          }),
+        )
+        .rejects.toThrow("[elevenlabs] listen 422: invalid_model_id");
+    } finally {
+      globalThis.fetch = original;
+    }
   });
 });
 

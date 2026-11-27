@@ -743,7 +743,7 @@ specimen.describe("openrouter provider", () => {
       specimen.expect(faculties.slice(-3)).toEqual(pictures);
       for (const each of pictures) {
         specimen.expect(Object.keys(each.channels)).toEqual(["render"]);
-        specimen.expect(each.context).toBe(0);
+        specimen.expect("context" in each).toBe(false);
         specimen.expect(each.limits.mask).toBe(false);
         specimen.expect([...v.primitives.hallucination.Faculty.errors(each)]).toEqual([]);
       }

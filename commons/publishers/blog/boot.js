@@ -4,6 +4,6 @@ import { Path } from "@vivalence/typology";
 
 export const boot = async (modeDie, mode) => {
   const source = join(new Path(mode.mountpoint).absolute, "source");
-  await paladin.state.dir(source);
-  return paladin.watch(source, () => mode.call.build().catch((error) => mode.stdout.fault(error)));
+  await paladin.write.dir(source);
+  return paladin.watch.directory(source, () => mode.call.build().catch((error) => mode.stdout.fault(error)));
 };

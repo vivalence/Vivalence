@@ -4,10 +4,10 @@ paths: ["subsystems/paladin/**", "systems/runtime/**", "systems/ghost/**", "**/.
 <!-- writer: agent · limit: 6200 chars · code is the map · the composition compiler + the ledger ~/.viva -->
 # codemap: paladin · ledger — two subjects, the ledger, the lexicon (m91, 10-19)
 
-- **`gestalten/belt/` — 17 `default` closures over `paladin` (`read find prime check state envfile is scope publish source clone bundler expand vault stamp control watch`), one importer `index.js` → `paladin/prototype.js` + `gestalten/index.js`, reach 51; `ignore.js` `IGNORE` (`bak archive slp node_modules .git .DS_Store *.bak .#* #*#`) — ONE list, `skip` takes it WHOLE, a mount under `bak/` is Module 404 — ← `find.js` + `gestalten/tools/fs.js`; `scribe.js` DEAD; quest `paladin-belt` renames it.**
+- **`gestalten/belt/` — 16 files, each `paladin.<member>` (`read find check write remove envfile is scope publish link vcs bundle vault hash control watch`); `index.js` (`FULL`) ← `mod.js:5` · `typology.js:9` · `gestalten/index.js:1`; `ignore.js` `IGNORE` (`bak archive slp node_modules .git .DS_Store *.bak .#* #*#`) — ONE list, `skip` takes it WHOLE, a mount under `bak/` is Module 404 — ← `find.js` + `gestalten/tools/fs.js`.**
 ```js
-// subsystems/paladin/tests/expand.test.js:75
-    const held = paladin.expand(
+// subsystems/paladin/tests/expand.test.js:76
+    const held = paladin.link.env(
       { serve: "${VIVA_PROBE_SERVE}", port: "${VIVA_PROBE_PORT}", key: "${SECRET_VIVA_PROBE_A}", gone: "${SECRET_VIVA_PROBE_B}", plain: "kept", count: 3 },
       record,
       "runtime",
@@ -34,11 +34,11 @@ paths: ["subsystems/paladin/**", "systems/runtime/**", "systems/ghost/**", "**/.
     expect(fresh.ledger.registry).toBeInstanceOf(Registry);
     expect(fresh.ledger.registry).toBe(fresh.ledger.registry);
 ```
-- **`ledger/` untested — `die.js` · `lock.js` · `log.js` ← `prototype.js`; `process.js` ← `die.js`; `instances.js` (`NOTHING Instances`) ← `prototype.js` + `instance/prototype.js`; reach 1–2.** A lock read DELETES a dead lock. `instances.json` `{slug: {mount}}` IS identity, a MAP, a collision throws; `manifest.slug` names the recipe (/"amen!"/).
+- **`prototypes/` — `locks.js` `Locks` (`read write remove list`) · `instances.js` (`NOTHING Instances`) ← `ledger/prototype.js`; `process.js` ← `ledger/die.js`; `log.js` ← `telemetry.js` (`paladin.telemetry.log(slug)`) ← `paladin/prototype.js`.** A lock read DELETES a dead lock. `instances.json` `{slug: {mount}}` IS identity, a MAP, a collision throws; `manifest.slug` names the recipe (/"amen!"/).
 ```js
-// subsystems/paladin/ledger/lock.js:23
+// subsystems/paladin/prototypes/locks.js:29
     if (!alive(lock.pid) || (lock.processes.length > 0 && lock.processes.every(gone))) {
-      await this.remove();
+      await this.remove(slug);
       return null;
     }
 ```

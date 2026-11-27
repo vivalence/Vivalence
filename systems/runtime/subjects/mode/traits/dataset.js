@@ -17,7 +17,7 @@ export const stamp = async (mode) => {
   const dataset = new Dataset(mode.module.dataset ?? {});
   const mount = mode.module.source;
   const files = [["installer", await installer]];
-  if (mode.module.fileset) files.push(...(await paladin.stamp.tree(`${mount.dirname}/${mode.module.fileset.path}`)));
+  if (mode.module.fileset) files.push(...(await paladin.hash.tree(`${mount.dirname}/${mode.module.fileset.path}`)));
   for (const sources of Object.values(dataset.sources)) {
     for (const source of sources) {
       if (source.load) {
@@ -29,11 +29,11 @@ export const stamp = async (mode) => {
         continue;
       }
       const at = `${mount.dirname}/${source.walk ?? source.read}`;
-      if (source.walk) files.push(...(await paladin.stamp.tree(at)));
+      if (source.walk) files.push(...(await paladin.hash.tree(at)));
       else files.push([source.read, await crypto.digestBytes(await Deno.readFile(at).catch(() => new Uint8Array()))]);
     }
   }
-  return paladin.stamp.fold(files);
+  return paladin.hash.fold(files);
 };
 const DATASPACE = new Set(["symbol", "literal"]);
 const progress = (phase) => fn.every(5, (done, total) => phase.log({ done, total }));

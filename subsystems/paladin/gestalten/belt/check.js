@@ -2,258 +2,118 @@ import { is, v } from "@vivalence/typology";
 
 const WRONG = ["UNDOCUMENTED", "REQUIRED", "INVALID"];
 
-export default function check(config) {
-  const createResult = (issues, input) => {
-    const result = Array.isArray(issues) ? issues : [issues];
-    result.fails = result.length > 0;
-    result.throw = (EP = null) => {
-      if (!result.fails) return;
-      const messages = result.map((issue) => issue.message).join("; ");
-      console.log(`[CONFIG.CHECK ERROR]`, { input, result, messages });
+export const check = (paladin) => {
+  const result = (issues, input) => {
+    const held = Array.isArray(issues) ? issues : [issues];
+    held.fails = held.length > 0;
+    held.throw = (EP = null) => {
+      if (!held.fails) return;
+      const messages = held.map((issue) => issue.message).join("; ");
+      console.log(`[CONFIG.CHECK ERROR]`, { input, result: held, messages });
       throw new (EP || Error)(messages);
     };
-    return result;
+    return held;
   };
 
-  const envValidator = (key) => {
-    const value = config.env.get(key) || config.env.secrets?.get(key);
-
-    if (!value) {
-      return {
-        type: "env",
-        key,
-        message: `Environment variable ${key} is missing`,
-      };
-    }
-
-    return null;
-  };
-
-  const pathValidator = (path) => {
-    const resolvedPath = typeof path === "function" ? path() : path;
-
-    try {
-      Deno.statSync(resolvedPath);
-      return null;
-    } catch (error) {
-      if (error instanceof Deno.errors.NotFound) {
-        return {
-          type: "path",
-          path: resolvedPath,
-          message: `Path ${resolvedPath} does not exist`,
-        };
-      }
-      throw error;
-    }
-  };
-
-  // the authored schema against what the thunks were observed to read.
-  const environment = (instance) => {
-    const schema = instance.environment?.properties ?? {};
-    const rows = [];
-    const seen = new Set();
-
-    // a secret is reported as PRESENT or absent, never as itself. everything else shows the
-    // RESOLVED value — the raw ${...} source text is already in the scope's own vars.
-    const raw = (key) => (key.startsWith("SECRET_") ? config.secret.get(key) : config.env.get(key));
-    const reading = (key) =>
-      key.startsWith("SECRET_")
-        ? { value: config.secret.get(key) ? "***" : null, stratum: config.secret.provenance(key) }
-        : { value: config.env.get(key), stratum: config.env.provenance(key) };
-    const invalid = (key) => {
-      const held = schema[key];
-      const value = raw(key);
-      if (!held || is.empty(value)) return null;
-      return v.faults(held, v.convert(held, value))[0]?.reason ?? null;
-    };
-    const row = (key, at, held) => ({
-      key,
-      at,
-      ...reading(key),
-      describe: held?.description ?? null,
-      group: held?.group ?? null,
-      required: held ? !v.isOptional(held) : null,
-      reason: invalid(key),
-    });
-    const verdict = (held, unset, reason) =>
-      !held
-        ? "UNDOCUMENTED"
-        : !unset
-          ? reason
-            ? "INVALID"
-            : "ok"
-          : v.isOptional(held)
-            ? "optional"
-            : "REQUIRED";
-
-    for (const entry of instance.paladin.requirements) {
-      for (const key of entry.read) {
-        seen.add(key);
-        const held = schema[key];
-        const shaped = row(key, entry.at, held);
-        rows.push({ ...shaped, verdict: verdict(held, entry.unset.includes(key), shaped.reason) });
-      }
-    }
-
-    // SUPERSEDED — an UNREAD verdict with a `consumer:` escape hatch. wrong for 5 of 17 keys.
-    // for (const [key, held] of Object.entries(schema)) {
-    //   if (seen.has(key)) continue;
-    //   rows.push({ key, at: held.consumer ? `consumer:${held.consumer}` : null,
-    //               verdict: held.consumer ? "external" : "UNREAD", ... });
-    // }
-    // rows.fails = rows.some((row) => ["UNDOCUMENTED", "UNREAD", "REQUIRED"].includes(row.verdict));
-
-    for (const [key, held] of Object.entries(schema)) {
-      if (seen.has(key)) continue;
-      const shaped = row(key, null, held);
-      const unset = is.empty(raw(key));
-      rows.push({
-        ...shaped,
-        verdict: shaped.reason
-          ? "INVALID"
-          : unset && !v.isOptional(held)
-            ? "REQUIRED"
-            : "documented",
-      });
-    }
-
-    rows.sort((a, b) => a.key.localeCompare(b.key) || (a.at ?? "").localeCompare(b.at ?? ""));
-    rows.fails = rows.some((held) => WRONG.includes(held.verdict));
-    return rows;
-  };
-
-  // the mounted instance's whole verdict: schematic faults + wrong env rows. fails → not bootable.
-  const instance = (held) => {
-    const wrong = environment(held)
-      .filter((row) => WRONG.includes(row.verdict))
-      .map((row) => ({
-        type: "env",
-        key: row.key,
-        message: `${row.key} ${row.verdict}${row.at ? ` at ${row.at}` : ""}${row.reason ? ` — ${row.reason}` : ""}`,
-      }));
-    const named = new Set(environment(held).filter((row) => WRONG.includes(row.verdict)).map((row) => row.at));
-    const faults = held.paladin.faults
-      .filter((fault) => ![...named].some((at) => at && fault.startsWith(`${at} `)))
-      .map((message) => ({ type: "instance", message }));
-    return createResult([...faults, ...wrong], "viva instance/doctor");
-  };
-
-  config.check = {
-    environment,
-    instance,
+  paladin.check = {
     wrong: WRONG,
+
     env: (input) => {
       const keys = Array.isArray(input) ? input : [input];
-      const issues = keys.map(envValidator).filter(Boolean);
-      return createResult(issues, input);
+      const issues = keys
+        .filter((key) => !(paladin.env.get(key) || paladin.env.secrets?.get(key)))
+        .map((key) => ({
+          type: "env",
+          key,
+          message: `Environment variable ${key} is missing`,
+        }));
+      return result(issues, input);
     },
 
-    path: (input) => {
-      const paths = Array.isArray(input) ? input : [input];
-      const issues = paths.map(pathValidator).filter(Boolean);
+    environment: (instance) => {
+      const schema = instance.environment?.properties ?? {};
+      const raw = (key) =>
+        key.startsWith("SECRET_") ? paladin.secret.get(key) : paladin.env.get(key);
+      const reading = (key) =>
+        key.startsWith("SECRET_")
+          ? {
+              value: paladin.secret.get(key) ? "***" : null,
+              stratum: paladin.secret.provenance(key),
+            }
+          : { value: paladin.env.get(key), stratum: paladin.env.provenance(key) };
+      const invalid = (key) => {
+        const held = schema[key];
+        const value = raw(key);
+        if (!held || is.empty(value)) return null;
+        return v.faults(held, v.convert(held, value))[0]?.reason ?? null;
+      };
+      const shape = (key, at, held) => ({
+        key,
+        at,
+        ...reading(key),
+        describe: held?.description ?? null,
+        group: held?.group ?? null,
+        required: held ? !v.isOptional(held) : null,
+        reason: invalid(key),
+      });
+      const verdict = (held, unset, reason) =>
+        !held
+          ? "UNDOCUMENTED"
+          : !unset
+            ? reason
+              ? "INVALID"
+              : "ok"
+            : v.isOptional(held)
+              ? "optional"
+              : "REQUIRED";
 
-      return createResult(issues, input);
+      const read = instance.paladin.requirements.flatMap((entry) =>
+        entry.read.map((key) => {
+          const shaped = shape(key, entry.at, schema[key]);
+          return {
+            ...shaped,
+            verdict: verdict(schema[key], entry.unset.includes(key), shaped.reason),
+          };
+        }),
+      );
+      const seen = new Set(read.map((held) => held.key));
+      const documented = Object.entries(schema)
+        .filter(([key]) => !seen.has(key))
+        .map(([key, held]) => {
+          const shaped = shape(key, null, held);
+          const unset = is.empty(raw(key));
+          return {
+            ...shaped,
+            verdict: shaped.reason
+              ? "INVALID"
+              : unset && !v.isOptional(held)
+                ? "REQUIRED"
+                : "documented",
+          };
+        });
+
+      const verdicts = [...read, ...documented].sort(
+        (a, b) => a.key.localeCompare(b.key) || (a.at ?? "").localeCompare(b.at ?? ""),
+      );
+      verdicts.fails = verdicts.some((held) => WRONG.includes(held.verdict));
+      return verdicts;
+    },
+
+    instance: (held) => {
+      const wrong = paladin.check
+        .environment(held)
+        .filter((entry) => WRONG.includes(entry.verdict));
+      const named = new Set(wrong.map((entry) => entry.at));
+      const faults = held.paladin.faults
+        .filter((fault) => ![...named].some((at) => at && fault.startsWith(`${at} `)))
+        .map((message) => ({ type: "instance", message }));
+      const issues = wrong.map((entry) => {
+        const at = entry.at ? ` at ${entry.at}` : "";
+        const reason = entry.reason ? ` — ${entry.reason}` : "";
+        const message = `${entry.key} ${entry.verdict}${at}${reason}`;
+        return { type: "env", key: entry.key, message };
+      });
+      return result([...faults, ...issues], "viva instance/doctor");
     },
   };
-}
-
-// export default function check(config) {
-//   const createChecker = (validator) => (constraints) => {
-//     const results = [];
-
-//     for (const constraint of constraints) {
-//       const result = validator(constraint);
-
-//       if (!result.valid && result.required) {
-//         results.push(result);
-//       }
-//       // if (!result.valid && result.required) {throw new Error(`Constraint failed: ${result.message}`);}
-//     }
-
-//     return results;
-//   };
-
-//   const envValidator = (constraint) => {
-//     if (typeof constraint === "string") constraint = { key: constraint };
-//     const { key, required = true, type = "string", message } = constraint;
-//     const value = config.env.get(key) || config.env.secrets?.get(key);
-
-//     const result = {
-//       key,
-//       value,
-//       required,
-//       valid: false,
-//       message: message || `Environment variable ${key} is missing or invalid`,
-//     };
-
-//     if (!value && required) {
-//       return result;
-//     }
-
-//     if (!value && !required) {
-//       result.valid = true;
-//       return result;
-//     }
-
-//     // Type validation
-//     switch (type) {
-//       case "string":
-//         result.valid = typeof value === "string" && value.length > 0;
-//         break;
-//       case "number":
-//         result.valid = !isNaN(Number(value));
-//         break;
-//       case "boolean":
-//         result.valid = ["true", "false", "1", "0"].includes(
-//           value.toLowerCase(),
-//         );
-//         break;
-//       default:
-//         result.valid = true;
-//     }
-
-//     return result;
-//   };
-
-//   const pathValidator = (constraint) => {
-//     if (typeof constraint === "string") constraint = { path: constraint };
-//     const { path, required = true, type = "exists", message } = constraint;
-//     const resolvedPath = typeof path === "function" ? path() : path;
-
-//     const result = {
-//       path: resolvedPath,
-//       required,
-//       valid: false,
-//       message: message || `Path ${resolvedPath} constraint failed`,
-//     };
-
-//     try {
-//       const stat = Deno.statSync(resolvedPath);
-
-//       switch (type) {
-//         case "exists":
-//           result.valid = true;
-//           break;
-//         case "file":
-//           result.valid = stat.isFile;
-//           break;
-//         case "directory":
-//           result.valid = stat.isDirectory;
-//           break;
-//         default:
-//           result.valid = true;
-//       }
-//     } catch (error) {
-//       if (error instanceof Deno.errors.NotFound && !required) {
-//         result.valid = true;
-//       }
-//     }
-
-//     return result;
-//   };
-
-//   config.check = {
-//     env: createChecker(envValidator),
-//     path: createChecker(pathValidator),
-//   };
-// }
+};

@@ -45,16 +45,16 @@ specimen.describe("writing files that are a pure function of the rows", () => {
   specimen.it("reaches a fixpoint — a second write of unchanged rows touches nothing", async () => {
     const target = `${corpus.dirname}/out/symbols.json`;
     const text = canonical(topography.structural);
-    specimen.expect(await paladin.state.scribe(target, text)).toBe(true);
-    specimen.expect(await paladin.state.scribe(target, text)).toBe(false);
-    specimen.expect(await paladin.state.scribe(target, canonical([...topography.structural].reverse()))).toBe(false);
+    specimen.expect(await paladin.write.text(target, text)).toBe(true);
+    specimen.expect(await paladin.write.text(target, text)).toBe(false);
+    specimen.expect(await paladin.write.text(target, canonical([...topography.structural].reverse()))).toBe(false);
   });
 
   specimen.it("round-trips EVERY write codec back through find.data — no one-way doors", async () => {
     const { Datasink } = await import("@vivalence/typology");
     for (const [named, extension] of [["json", "json"], ["js", "js"], ["jsonl", "jsonl"]]) {
       const dirname = `${corpus.dirname}/codec-${named}`;
-      await paladin.state.scribe(`${dirname}/rows.${extension}`, Datasink.canonical(topography.nouns, named));
+      await paladin.write.text(`${dirname}/rows.${extension}`, Datasink.canonical(topography.nouns, named));
       const reloaded = await paladin.find.data(dirname);
       specimen.expect(reloaded.map((row) => row.slug)).toEqual(["casa.noun", "del.contraction"]);
     }
@@ -62,7 +62,7 @@ specimen.describe("writing files that are a pure function of the rows", () => {
 
   specimen.it("round-trips through the reader it will be re-installed by", async () => {
     const target = `${corpus.dirname}/out/literals.json`;
-    await paladin.state.scribe(target, canonical(topography.nouns));
+    await paladin.write.text(target, canonical(topography.nouns));
     const reloaded = await paladin.read.json(target);
     specimen.expect(reloaded.map((row) => row.slug)).toEqual(["casa.noun", "del.contraction"]);
   });

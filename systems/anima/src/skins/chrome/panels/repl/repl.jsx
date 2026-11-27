@@ -88,9 +88,6 @@ const Listed = (props) => {
   const listed = () => rows(props.catalog, typed());
   return (
     <>
-      <div class="ph">
-        <span class="tag">{chooser() === null ? "repl" : chooser().tag}</span>
-      </div>
       <parts.Field
         id="repl"
         data-focus="repl.input"

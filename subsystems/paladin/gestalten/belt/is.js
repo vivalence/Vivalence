@@ -1,9 +1,7 @@
 import { CurrentOS, CurrentRuntime, OperatingSystem, Runtime } from "@cross/runtime";
 
-// whatever can be computed from role, mode, and runtime.
-export default function (paladin) {
+export const is = (paladin) => {
   paladin.is = {
-    // envoy // citizen
     get sudo() {
       return ["SUDO"].includes(paladin.role);
     },
@@ -20,7 +18,6 @@ export default function (paladin) {
       return paladin.role === "CLIENT";
     },
     get deployed() {
-      // no write access
       return (
         ["CLIENT"].includes(paladin.role) ||
         [Runtime.Browser].includes(CurrentRuntime)
@@ -28,7 +25,6 @@ export default function (paladin) {
     },
     get citizen() {
       if (paladin.deployed) return false;
-      // write access
       return [Runtime.Deno, Runtime.Bun, Runtime.Node].includes(CurrentRuntime);
     },
     get tty() {
@@ -41,8 +37,7 @@ export default function (paladin) {
       return [OperatingSystem.macOS, OperatingSystem.iOS].includes(CurrentOS);
     },
     get veryimportant() {
-      // load registry
       return ["SUDO", "RUNTIME"].includes(paladin.role);
     },
   };
-}
+};

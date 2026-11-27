@@ -128,7 +128,7 @@ surfacing.open(
         const path = `${buffer.id}.${mime.extension(ctx.input.mime)}`;
         const mount = join(new Path(ctx.mode.mountpoint).absolute, path);
         const bytes = new TextEncoder().encode(ctx.input.source);
-        await paladin.state.store(mount, bytes);
+        await paladin.write.bytes(mount, bytes);
         buffer.files.add(
           await ctx.entities.file.record({
             mode: ctx.mode.entity.id,

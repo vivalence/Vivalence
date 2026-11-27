@@ -37,7 +37,7 @@ export const buffer = new Vector().open(
     return `buffer #${found.id} · ${name}`;
   },
 ).open(
-  { nature: "/buffer/new", rank: "hidden", valence: "a new buffer on the seated thread, framed. Example: /buffer/new" },
+  { nature: "/buffer/new", valence: "a new buffer on the seated thread, framed. Example: /buffer/new" },
   async (ctx) => {
     const made = await ctx.client.runtime.entities.buffer.create({ thread: ctx.terminal.thread.id, mode: ctx.terminal.mode.id });
     await ctx.terminal.setBuffer(made);

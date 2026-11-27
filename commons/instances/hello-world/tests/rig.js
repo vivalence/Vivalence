@@ -128,7 +128,7 @@ export const rig = async (script) => {
         history: async () => [],
         chain: async (turn) => ({ id: "turn-1", ...turn }),
       },
-      em: { flush: async () => {}, fork: () => ({ create: (Entity, data) => ({ ...data }), flush: async () => {}, clear: () => {}, getReference: () => null }) },
+      em: { flush: async () => {}, fork: () => ({ create: (Entity, data) => ({ ...data, files: { set: () => {} } }), flush: async () => {}, clear: () => {}, getReference: () => null }) },
       surface: held,
       buffer: {
         find: async () => [],

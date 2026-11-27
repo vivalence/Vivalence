@@ -3115,3 +3115,53 @@ A grep for a writer of =deployed= under =subsystems/paladin= returns the getter 
 The quest =paladin-belt= changes names and style, never what a predicate answers. It carries the same signal over.
 ** Workaround
 none
+
+* a-call-has-no-round-bound — OPEN
+** Symptom
+A call (=hallucinate.call.stream=) answers tool calls without end; no policy key bounds it.
+** Root cause
+=converse= (=subsystems/typology/gestalten/belt/hallucinate.js=) answers every =tools= close and reads no =rounds=; the cascade calls its mind's =channels.stream.via= directly, never =respond=.
+** Evidence
+=grep -rn "policy.rounds" subsystems/typology/gestalten=: one reader, inside =respond=.
+** Workaround
+None.
+
+* a-media-type-with-a-parameter-is-named-bin — OPEN
+** Symptom
+A file landed with a media type that carries a parameter (=audio/ogg; codecs=opus=) is named =<name>.<hash>.bin=; its =mime= is stored right.
+** Root cause
+=mime.extension= (=subsystems/typology/schematics/scalars/mime.js:77=) looks the type up by exact string.
+** Evidence
+=commons/social/personal/tests/received.test.js= /a voice note is filed/: the mount ends =audio.0d4a9a35.bin=.
+** Workaround
+None.
+
+* a-plain-text-file-is-named-org — OPEN
+** Symptom
+A file landed as =text/plain= is named =<name>.<hash>.org=, not =.txt=.
+** Root cause
+=mime.extension= (=subsystems/typology/schematics/scalars/mime.js:77=) takes the first extension whose type matches; =org= stands before =txt= (=:64=).
+** Evidence
+The bot's =/file/transcribe= on a copy: the transcript's mount ends =files/verbatim.1f44e57e.org=.
+** Workaround
+None.
+
+* a-lazy-tool-key-lists-the-tools-already-loaded — OPEN
+** Symptom
+A thread whose =TOOLED= holds a broad lazy key over a narrower eager one reads the eager tools twice: declared, and again in the =preloaded= section as "load on demand".
+** Root cause
+=preloaded= (=systems/runtime/subjects/mode/traits/harness.js:127=) lists everything a lazy key finds (=:129=) and never asks whether a deeper key already loaded it.
+** Evidence
+A scratch boot of the bot with ={ "<harness>": "eager", "/runtime/house": "lazy" }=: 24 tools declared, the 16 harness ones also in =preloaded=. On his recipe that listing is 5,303 chars a request, counted by =.ikiro/reference/whatsapp-agent/broad.probe.js=.
+** Workaround
+Name the lazy keys narrowly.
+
+* a-broad-lazy-primer-key-demotes-the-modes-own-sections — OPEN
+** Symptom
+A mode whose =PRIMED= holds a lazy key covering its own home loses its own primer sections from the system prompt: each becomes one listed line.
+** Root cause
+=composing= (=systems/runtime/subjects/mode/traits/harness.js:133=) seats every section a key finds with the key's load (=:139=); the mode's own sections are found like any other. Whether that is meant is unruled.
+** Evidence
+The same scratch boot with =PRIMED: { "/runtime/house": "lazy" }=: the bot's =role= left the system prompt and stood as =/role= under =primer=. With ="/runtime/house/mode/bot/personal": "eager"= beside it, =role= is back (407 chars).
+** Workaround
+An eager key on the mode's own reference, as =~/.viva/instances/localhost/instance.viva.jsonc:24= now holds.

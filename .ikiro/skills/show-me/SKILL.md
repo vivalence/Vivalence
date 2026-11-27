@@ -53,7 +53,7 @@ A stop:
 - A fence is the code as it will stand in his file, copied from what ran. A probe's own code, config or stand-in path never reaches his screen: what it measured is told as plain result lines.
 - A chain is one fence in call order, root to leaf. Never one fragment per fence.
 - The caller is shown whole: who runs it, when, and what hands it its input.
-- The snapshot is one real entity, whole, as printed.
+- The snapshot is one real entity, whole, printed that turn. A consequence is one input and what came back, never a phrase.
 - A fence stands alone: every name it reads is defined inside it, or named in a `//` line on top (what it is, where it is declared). Whole functions, never a slice of one. No length cap.
 - No fork, no lean, no `go?` inside a stop.
 - The counter `S3/8` is on every reply of the walk.

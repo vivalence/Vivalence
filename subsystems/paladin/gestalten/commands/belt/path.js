@@ -9,4 +9,4 @@ export const pin = (token) =>
     ? resolve(cwd(), token)
     : token;
 
-export const source = (token) => (paladin.clone.remote(token) ? token : pin(token));
+export const source = (token) => (paladin.vcs.remote(token) ? token : pin(token));

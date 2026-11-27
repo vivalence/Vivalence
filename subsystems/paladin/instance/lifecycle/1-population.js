@@ -67,7 +67,7 @@ export async function recipe(paladin) {
     throw new Error(`instance.mount: ${file.absolute} environment ${retyped.join(" ")} retypes the ledger's key — an instance narrows a key, restating its type`);
 
   const record = [];
-  const at = (label) => (declaration) => paladin.expand(declaration, record, label);
+  const at = (label) => (declaration) => paladin.link.env(declaration, record, label);
   const slug = (declaration) => declaration.manifest?.slug;
   const dress = (label) => (entry) => {
     const declared = entry.mountpoint;

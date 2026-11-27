@@ -33,7 +33,7 @@ export class Process extends Wafer {
   async resolve() {
     const std = STDIO[this.attachment];
     const file = this.attachment === "logged"
-      ? await this.ledger.log(this.identity.instance).open(this.identity.process, "out")
+      ? await this.ledger.paladin.telemetry.log(this.identity.instance).open(this.identity.process, "out")
       : null;
     this.child = new Deno.Command(this.command.bin, {
       args: this.command.args,

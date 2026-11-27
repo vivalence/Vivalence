@@ -11,7 +11,6 @@ export const strip = (cortex) =>
     ...(faculty.choices !== undefined && { choices: faculty.choices }),
     channels: bare(faculty.channels),
     ...(faculty.provider && { provider: faculty.provider }),
-    ...(faculty.config && { config: faculty.config }),
   }));
 
 const sides = ({ in: taken, out }) => ({ in: taken, out });

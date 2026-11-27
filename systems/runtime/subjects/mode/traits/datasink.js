@@ -67,7 +67,7 @@ export const DATASINK = (mode, modeDie) => {
           for (const row of slice) claimed.add(row.slug);
           const path = `${mode.module.source.dirname}/${target}`;
           if (
-            await paladin.state.scribe(
+            await paladin.write.text(
               path,
               Datasink.canonical(slice, sink.target.codec),
             )

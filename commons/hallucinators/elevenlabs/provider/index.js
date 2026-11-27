@@ -1,3 +1,4 @@
+import { decodeBase64, encodeBase64 } from "@std/encoding/base64";
 import { pcm, Queue, v } from "@vivalence/typology";
 
 const RATE = 16000;
@@ -111,6 +112,23 @@ async function* hear(url, headers, source, signal) {
 const languageCode = (languages = []) =>
   languages.length === 1 ? `&language_code=${languages[0]}` : "";
 
+async function listen(key, model, audio, languages = [], signal) {
+  const form = new FormData();
+  form.append("model_id", model);
+  form.append("file", new Blob([decodeBase64(audio.data)], { type: audio.mime }));
+  if (languages.length === 1) form.append("language_code", languages[0]);
+  const response = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
+    method: "POST",
+    signal,
+    headers: { "xi-api-key": key },
+    body: form,
+  });
+  if (!response.ok)
+    throw new Error(`[elevenlabs] listen ${response.status}: ${await response.text()}`);
+  const heard = await response.json();
+  return { type: "text", text: heard.text };
+}
+
 const Speech = v.object({
   type: v.const("speech"),
   id: v.string(),
@@ -134,7 +152,7 @@ export default async function provider(service) {
   const apiKey = service.secrets.key;
 
   function makeSpeech(entry) {
-    const render = async ({ source, settings = {} }, { signal } = {}) => {
+    const voiced = async (text, settings, signal) => {
       const url = `https://api.elevenlabs.io/v1/text-to-speech/${entry.voice}` +
         `?output_format=mp3_44100_128`;
       const res = await fetch(url, {
@@ -142,7 +160,7 @@ export default async function provider(service) {
         signal,
         headers: { "xi-api-key": apiKey, "Content-Type": "application/json" },
         body: JSON.stringify({
-          text: source,
+          text,
           model_id: entry.model,
           voice_settings: {
             stability: settings.stability ?? 0.5,
@@ -155,7 +173,29 @@ export default async function provider(service) {
           `[elevenlabs] render ${res.status}: ${await res.text()}`,
         );
       }
-      return new Uint8Array(await res.arrayBuffer());
+      return {
+        type: "audio",
+        mime: "audio/mpeg",
+        data: encodeBase64(await res.arrayBuffer()),
+      };
+    };
+
+    const render = async ({ turns, settings = {} }, { signal } = {}) => {
+      const texts = turns.flatMap((turn) => turn.parts).map((part) => part.text);
+      return {
+        role: "assistant",
+        parts: await Promise.all(texts.map((text) => voiced(text, settings, signal))),
+        meta: {
+          usage: [
+            {
+              name: "input",
+              unit: "chars",
+              amount: texts.join("").length,
+              channel: "text",
+            },
+          ],
+        },
+      };
     };
 
     const stream = async function* ({ source, settings = {} }, { signal } = {}) {
@@ -217,25 +257,27 @@ export default async function provider(service) {
       }
     };
 
-    const sides = {
-      in: [{ type: "text" }],
-      out: [
-        { type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] },
-        { type: "audio", mime: ["audio/mpeg"] },
-      ],
-    };
-
     return {
       ...entry,
       type: "speech",
       id: entry.id,
       tune: entry.tune,
-      context: 0,
-      channels: { stream: { ...sides, via: stream }, render: { ...sides, via: render } },
+      channels: {
+        stream: {
+          in: [{ type: "text" }],
+          out: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
+          via: stream,
+        },
+        render: {
+          in: [{ type: "text" }],
+          out: [{ type: "audio", mime: ["audio/mpeg"] }],
+          via: render,
+        },
+      },
     };
   }
 
-  function makeVerbatim(entry) {
+  function makeLive(entry) {
     const transcribe = ({ source, settings = {} }, { signal } = {}) =>
       hear(
         `${SCRIBE}?model_id=${entry.model}&audio_format=pcm_16000` +
@@ -261,7 +303,48 @@ export default async function provider(service) {
     };
   }
 
-  const TYPES = { speech: makeSpeech, verbatim: makeVerbatim };
+  const makeScribe = (entry) => ({
+    ...entry,
+    type: "verbatim",
+    id: entry.id,
+    tune: entry.tune,
+    channels: {
+      render: {
+        in: [
+          {
+            type: "audio",
+            mime: [
+              "audio/ogg",
+              "audio/opus",
+              "audio/mpeg",
+              "audio/mp4",
+              "audio/aac",
+              "audio/wav",
+              "audio/flac",
+              "audio/webm",
+            ],
+          },
+        ],
+        out: [{ type: "text" }],
+        via: async ({ turns, settings = {} }, { signal } = {}) => ({
+          role: "user",
+          parts: await Promise.all(
+            turns
+              .flatMap((turn) => turn.parts)
+              .map((audio) => listen(apiKey, entry.model, audio, settings.language, signal)),
+          ),
+        }),
+      },
+    },
+  });
 
-  return service.faculties.map((entry) => TYPES[entry.type](entry));
+  const FAMILIES = [
+    [(entry) => entry.type === "speech", makeSpeech],
+    [(entry) => entry.model.endsWith("_live") || entry.model.endsWith("_realtime"), makeLive],
+    [() => true, makeScribe],
+  ];
+
+  return service.faculties.map((entry) =>
+    FAMILIES.find(([matches]) => matches(entry))[1](entry)
+  );
 }

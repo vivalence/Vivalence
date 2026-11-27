@@ -5,10 +5,10 @@ export class Log {
   }
 
   append(span) {
-    return this.paladin.state.jsonl(this.base.branch("spans.jsonl"), span.json);
+    return this.paladin.write.jsonl(this.base.branch("spans.jsonl"), span.json);
   }
 
   open(process, stream) {
-    return this.paladin.state.open(this.base.branch(`${process}.${stream}.log`));
+    return this.paladin.write.open(this.base.branch(`${process}.${stream}.log`));
   }
 }

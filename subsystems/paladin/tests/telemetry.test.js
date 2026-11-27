@@ -23,8 +23,8 @@ const paladin = (telemetry, { browser = false, logs = "/ledger/logs" } = {}) => 
   const stub = {
     instance: { manifest: { slug: "probe" }, telemetry },
     is: { browser },
-    ledger: { log: (slug) => ({ base: new Path(`${logs}/${slug}`) }) },
-    state: {
+    scope: { ledger: { branch: (path) => new Path(path.replace(/^\/logs/, logs)) } },
+    write: {
       jsonl: (path, entry) => appended.push([path.absolute, entry.track]),
       dir: (path) => Deno.mkdir(path.absolute, { recursive: true }),
     },

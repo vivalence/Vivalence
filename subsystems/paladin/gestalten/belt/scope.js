@@ -1,8 +1,5 @@
-import { Path } from "@vivalence/typology";
-
-export default async function (paladin) {
+export const scope = (paladin) => {
   const scopes = new Map();
-  // paladin._scopes = scopes;
 
   paladin.scopes = (declarations) => {
     declarations.forEach(([name, condition, resolver]) => {
@@ -39,54 +36,4 @@ export default async function (paladin) {
       },
     },
   );
-}
-
-// instance: new Path(paladin.env.get("VIVA_INSTANCE_MOUNT")).branch("instance"),
-// const [control,proxy] = new Scope();
-// importmap: await paladin.read.json(paladin.join.system("import_map.json")),
-
-// return;
-// paladin.scope = {
-//   // legacy:
-//   get circuits() {
-//   },
-//   get tilde() {
-//     return paladin.scope.instance;
-//   },
-//   //
-//   get system() {
-//     return new Path(paladin.env.get("VIVA_REPOSITORY_MOUNT"));
-//   },
-//   get instance() {
-//     const env = paladin.env.get("VIVA_INSTANCE_MOUNT");
-//     const path = new Path(env);
-//     return path;
-//   },
-//   get registry() {
-//     // return new Path(paladin.env.get("VIVA_REGISTRY_MOUNT"));
-//     let envpath;
-//     if (Deno.env.has("VIVA_REGISTRY_MOUNT")) {
-//       envpath = Deno.env.get("VIVA_REGISTRY_MOUNT");
-//     } else envpath = paladin.scope.system.branch("registry").absolute;
-//     return new Path(envpath);
-//   },
-//     let envpath;
-//     if (Deno.env.has("VIVA_CIRCUITRY_MOUNT")) {
-//       envpath = Deno.env.get("VIVA_CIRCUITRY_MOUNT");
-//     return new Path(envpath);
-//   },
-//   get mountpoint() {
-//     let envpath;
-//     if (Deno.env.has("VIVA_MOUNTPOINT_MOUNT")) {
-//       envpath = Deno.env.get("VIVA_MOUNTPOINT_MOUNT");
-//     } else envpath = paladin.scope.instance.branch("mountpoint").absolute;
-//     return new Path(envpath);
-//   },
-//   get environment() {
-//     let envpath;
-//     if (Deno.env.has("VIVA_ENVIRONMENT_MOUNT")) {
-//       envpath = Deno.env.get("VIVA_ENVIRONMENT_MOUNT");
-//     } else envpath = paladin.scope.instance.branch("environment").absolute;
-//     return new Path(envpath);
-//   },
-// };
+};

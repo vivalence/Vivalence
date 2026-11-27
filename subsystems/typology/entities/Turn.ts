@@ -4,7 +4,7 @@ import { v } from "../schematics/index.js";
 import { DataRepository, DataEntity, DataSchema } from "./index.ts";
 import { ModeEntity } from "./index.ts";
 import { ThreadEntity } from "./index.ts";
-import { BufferEntity, NoteEntity } from "./index.ts";
+import { BufferEntity, FileEntity, NoteEntity } from "./index.ts";
 
 export class TurnRepository extends DataRepository {
   async create({ thread, ...fields }: any, options?) {
@@ -55,6 +55,7 @@ export class TurnEntity extends DataEntity {
   thread!: Rel<ThreadEntity>;
   mode?: Rel<ModeEntity>;
   buffers = new Collection<BufferEntity>(this);
+  files = new Collection<FileEntity>(this);
   notes = new Collection<NoteEntity>(this);
 
   [EntityRepositoryType]?: TurnRepository;
@@ -118,6 +119,14 @@ export const TurnSchema = new EntitySchema<TurnEntity, DataEntity>({
     },
 
     buffers: { kind: "m:n", entity: () => BufferEntity, mappedBy: (buffer) => buffer.turns },
+    files: {
+      kind: "m:n",
+      entity: () => FileEntity,
+      owner: true,
+      pivotTable: "turn_files",
+      joinColumns: ["turn_id"],
+      inverseJoinColumns: ["file_id"],
+    },
     notes: { kind: "1:m", entity: () => NoteEntity, mappedBy: (note) => note.turn },
   },
 });

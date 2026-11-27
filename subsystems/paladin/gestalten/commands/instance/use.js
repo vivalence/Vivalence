@@ -31,10 +31,10 @@ async function effect(ctx) {
   const record = paladin.scope.ledger.branch(ledger ? ".env" : `sessions/${shell}.json`);
   const tag = ledger ? "ledger" : "session";
 
-  if (ledger) await paladin.state.env(record, { VIVA_INSTANCE_MOUNT: mount });
+  if (ledger) await paladin.envfile.write(record, { VIVA_INSTANCE_MOUNT: mount });
   else {
     const held = (await paladin.read.json(record, null)) ?? {};
-    await paladin.state.json(record, { ...held, VIVA_INSTANCE_MOUNT: mount });
+    await paladin.write.json(record, { ...held, VIVA_INSTANCE_MOUNT: mount });
   }
   paladin.env.set("VIVA_INSTANCE_MOUNT", mount, tag);
 

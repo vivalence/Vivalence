@@ -4,7 +4,7 @@ import { instance } from "../belt/index.js";
 
 async function effect(ctx) {
   const slug = await instance.register();
-  const held = await paladin.ledger.lock(slug).read();
+  const held = await paladin.ledger.locks.read(slug);
   if (held) throw new Error(`${slug} already running (supervisor ${held.pid}) — viva instance/stop`);
 
   const target = ctx.signal.body[0];
@@ -32,7 +32,7 @@ async function effect(ctx) {
   const logs = paladin.scope.ledger.branch(`logs/${slug}`).absolute;
   const settled = await Promise.race([
     instance.until(async () => {
-      const lock = await paladin.ledger.lock(slug).read();
+      const lock = await paladin.ledger.locks.read(slug);
       return lock?.status === "ALIVE" ? lock : null;
     }, 60_000),
     supervisor.status.then((exit) => ({ exit })),

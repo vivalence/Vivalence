@@ -46,9 +46,12 @@ export class Cortex {
 
     this.#hallucinator
       .branch("/verbatim")
-      .use(hallucinate.sourcing())
-      .open({ nature: "stream", feeds: Audio.Packet, yields: Packet.Response }, hallucinate.transcribing(this, "stream"))
-      .open("render", hallucinate.transcribing(this, "render"));
+      .use(hallucinate.lowering())
+      .open(
+        { nature: "stream", feeds: Audio.Packet, yields: Packet.Response },
+        hallucinate.transcribing(this),
+      )
+      .open({ nature: "render", output: Response }, hallucinate.rendering(this, "verbatim"));
 
     this.#hallucinator
       .branch("/call")
@@ -57,9 +60,9 @@ export class Cortex {
 
     this.#hallucinator
       .branch("/speech")
-      .use(hallucinate.sourcing())
+      .use(hallucinate.lowering())
       .open({ nature: "stream", yields: Audio.Any }, hallucinate.synthesizing(this))
-      .open("render", hallucinate.vocalizing(this));
+      .open({ nature: "render", output: Response }, hallucinate.rendering(this, "speech"));
 
     this.#hallucinator
       .branch("/choice")
@@ -132,10 +135,6 @@ const DERIVATIONS = {
   object: (cortex, query) => {
     if (query.via && query.via !== "render") return undefined;
     return cortex.findOne({ ...query, type: "dialogue", via: "render" });
-  },
-  verbatim: (cortex, query) => {
-    if (query.via !== "render") return undefined;
-    return cortex.findOne({ ...query, type: "verbatim", via: "stream" });
   },
   call: (cortex, query) => {
     const ear = cortex.findOne({ ...query.hear, type: "verbatim", via: "stream" });

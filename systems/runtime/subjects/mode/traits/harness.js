@@ -3,7 +3,7 @@ import { decodeBase64, encodeBase64 } from "@std/encoding/base64";
 import paladin from "@vivalence/paladin";
 import { belt, contexts, Controller, fromm, mime, shape, shard, soma, steer, ToolCall, v, Vector } from "@vivalence/typology";
 import { v7 } from "uuid";
-import { TurnEntity } from "@vivalence/runtime";
+import { FileEntity, TurnEntity } from "@vivalence/runtime";
 import * as gestalten from "../../../gestalten/index.js";
 
 const { Packet, Audio, REQUIRES } = v.primitives.hallucination;
@@ -100,6 +100,16 @@ const arming = async (ctx) => {
   tools.use(shard.context.bind("mode", ctx.mode));
   if (ctx.user) tools.use(shard.context.bind("user", ctx.user)); //@beef both nonoptional in near future
   tools.use(shard.context.bind("thread", ctx.input.thread));
+  tools.use(async (toolDie, next) => {
+    await next();
+    if (!toolDie.output?.product?.file) return;
+    toolDie.output = {
+      ...toolDie.output,
+      parts: await Promise.all(
+        toolDie.output.product.file.map((file) => handed(ctx)({ type: "file", file: file.id })),
+      ),
+    };
+  });
   return tools;
 };
 
@@ -147,6 +157,7 @@ const chaining = async (ctx, next) => {
     id: ctx.input.turn,
     role: "user",
     parts: ctx.input.parts,
+    files: soma.files(ctx.input.parts),
     parent: ctx.hallucination.turns.at(-1) ?? null,
     thread: ctx.input.thread,
     mode: ctx.mode.id,
@@ -196,6 +207,13 @@ const HANDED = [
 ];
 
 const handed = (ctx) => async (part) => {
+  if (part.type === "tool_result" && "file" in part.product)
+    return [
+      part,
+      ...(await Promise.all(
+        part.product.file.map((file) => handed(ctx)({ type: "file", file: file.id })),
+      )),
+    ];
   if (part.type !== "file") return part;
   const file = await ctx.entities.file.findOneOrFail({ id: part.file, threads: ctx.thread.id });
   const found = HANDED.find(([carries]) => carries(file.mime));
@@ -204,21 +222,32 @@ const handed = (ctx) => async (part) => {
 };
 
 const filed = (ctx) => async (part) => {
+  if ("file" in part && part.type !== "file") return [];
   if (!("mime" in part)) return part;
-  const landed = await paladin.state.land(
-    ctx.runtime.mountpoint,
+  const landed = await paladin.write.stream(
+    ctx.mode.mountpoint,
     { path: join("files", part.type), mime: part.mime },
     new Blob([decodeBase64(part.data)]).stream(),
   );
-  const file = await ctx.entities.file.upload({ ...landed, thread: ctx.thread.id });
+  const file = await ctx.entities.file.upload({
+    ...landed,
+    mode: ctx.mode.id,
+    user: ctx.user.id,
+    thread: ctx.thread.id,
+  });
   return { type: "file", file: file.id };
+};
+
+const arriving = async (ctx, next) => {
+  ctx.input.parts = await Promise.all(ctx.input.parts.map(filed(ctx)));
+  await next();
 };
 
 const swapped = (turns, swap) =>
   Promise.all(
     turns.map(async (turn) => ({
       role: turn.role,
-      parts: await Promise.all(turn.parts.map(swap)),
+      parts: (await Promise.all(turn.parts.map(swap))).flat(),
       meta: turn.meta,
     })),
   );
@@ -227,7 +256,7 @@ const WHOLE = {
   "/part/full": async (packet, file) => ({ ...packet, part: await file(packet.part) }),
   "/turn/full": async (packet, file) => ({
     ...packet,
-    turn: { ...packet.turn, parts: await Promise.all(packet.turn.parts.map(file)) },
+    turn: { ...packet.turn, parts: (await Promise.all(packet.turn.parts.map(file))).flat() },
   }),
 };
 
@@ -289,8 +318,9 @@ async function* recording(ctx, packets) {
   try {
     for await (const packet of packets) {
       if (packet.event === "/part/full" && packet.turn) {
-        const sealed = await em.findOneOrFail(TurnEntity, packet.turn);
+        const sealed = await em.findOneOrFail(TurnEntity, packet.turn, { populate: ["files"] });
         sealed.parts = sealed.parts.with(packet.index, packet.part);
+        sealed.files.set(soma.files(sealed.parts).map((id) => em.getReference(FileEntity, id)));
         await em.flush();
       }
       if (OPENING.includes(packet.event)) {
@@ -307,6 +337,7 @@ async function* recording(ctx, packets) {
       folded = soma.transcript(folded, packet);
       if (SEALING.includes(packet.event)) {
         Object.assign(parent, { parts: folded.turns.at(-1).parts, meta: folded.turns.at(-1).meta });
+        parent.files.set(soma.files(parent.parts).map((id) => em.getReference(FileEntity, id)));
         await em.flush();
       }
       yield packet;
@@ -348,6 +379,7 @@ const appending = async (ctx, turns) => {
     parent = await ctx.entities.turn.chain({
       role: turn.role,
       parts: turn.parts,
+      files: soma.files(turn.parts),
       meta: turn.meta,
       parent,
       thread: ctx.input.thread,
@@ -418,6 +450,25 @@ export const HARNESS = (mode, modeDie) => {
         shard.hal.verbatim({ polish: POLISH, tier: "fast" }),
       );
 
+  if (modeDie.cortex.find({ type: "verbatim", via: "render" }).length > 0)
+    harness
+      .branch("/verbatim")
+      .use(filing)
+      .open(
+        {
+          nature: "render",
+          input: v.primitives.harness.Request,
+          output: v.primitives.hallucination.Response,
+        },
+        (ctx) =>
+          ctx.cortex.hallucinate.verbatim.render({
+            controller: ctx.controller.branch("verbatim"),
+            turns: ctx.hallucination.turns,
+            settings: { language: ctx.conversational.language },
+            policy: ctx.conversational.hear,
+          }),
+      );
+
   if (REQUIRES.CONVERSATION.some((types) => types.every(streams)))
     harness
       .branch("/call")
@@ -430,7 +481,7 @@ export const HARNESS = (mode, modeDie) => {
         shard.hal.call({ polish: POLISH, tier: "fast" }),
       );
 
-  harness.branch("/dialogue").use(chaining).use(persisting).use(filing);
+  harness.branch("/dialogue").use(arriving).use(chaining).use(persisting).use(filing);
   harness.branch("/object").use(filing);
   harness.branch("/dialogue").open({ nature: "render", input: v.primitives.harness.Request, output: v.primitives.hallucination.Response }, async (ctx) => ctx.cortex.hallucinate.dialogue.render(await primed(ctx)));
   harness.branch("/dialogue").open({ nature: "stream", input: v.primitives.harness.Request, yields: Packet.Response }, async (ctx) => ctx.cortex.hallucinate.dialogue.stream(await primed(ctx)));

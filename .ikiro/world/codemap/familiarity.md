@@ -65,16 +65,22 @@
 
   // runtime
   "ATTACHED on a service (a route with no login)": 5,
-  "TOOLED · PRIMED mask starters": 4,
+  "TOOLED · PRIMED mask starters": 6,
+  "a broad reference as a mask key (/runtime/runtime · /daemon)": 4,
   "ctx.providers.<key> (a consumed service)": 3,
   "one module hosted in services[] and consumed": 3,
   "the hallucination architecture: faculty → cortex → avenue → belt → trait": 1,
   "Audio.Packet (live audio on a stream; never a part)": 0,
   "Channel grammar · channels.<via>.via": 6,
-  "a render: turns in, a turn out, every faculty": 6,
+  "a render: turns in, a turn out (dialogue · object · verbatim · speech)": 6,
+  "Policy: Selector · Loop (rounds · backoff)": 3,
+  "a mouth's render: one audio part per text part": 1,
   "belt/channel.js: match · lower · take · give": 3,
   "a fault's kind on /response/close": 0,
-  "harness filing: handed · filed": 4,
+  "harness filing: handed · filed": 1,
+  "entities.file.upload (the File entity for bytes land already wrote)": 0,
+  "Turn.files: the harness writes it (soma.files)": 6,
+  "a tool's turn: answer builds it from tool results": 1,
   "harness as api: ctx.mode.harness.dialogue.stream": 5,
   "the primer: sections · five writers · PRIMED": 0,
   "thread called = director, child = actor; /actor · /director": 6,
@@ -103,8 +109,9 @@
   "a delivery sorted by the number it was sent to · numbers": 2,
 
   // release
-  "vYYYY.MM.N rolling · vN.N.N LTS · a cut file per release": 7,
-  "the root deno.jsonc version: the tag echoes it, a mount is stamped by it": 2,
-  "jj describe · new · tag set, git push <remote> <tag>": 3
+  "vYYYY.MM.N rolling, month two digits · vN.N.N LTS": 7,
+  "deno.jsonc version → tag → mount stamp": 3,
+  ":2026.11 moves, :v2026.11.N never": 1,
+  "jj describe · new · tag set, git push <remote> <tag>": 4
 }
 ```

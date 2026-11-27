@@ -1,0 +1,53 @@
+#+title: release v2026.11.3 — the tree since the channel tag, a pipeline on tags only
+#+status: DECLARED 11-27: =deno.jsonc:2= reads =2026.11.3=, no tag, nothing pushed; four suites run before the version moved, three carry reds
+# writer: agent · limit: 5000 chars · named after =deno.jsonc:2=
+
+* intent
+
+/"release 2026.11.3"/
+
+/"change the gitlab build pipe to only fire one tag in our formatting."/
+
+/"and wire up a webhook auto deploy of anima and runtime between coolify adn gitlab."/ · /"on prod"/
+
+* the release
+
+The tree is =v2026.11.1= plus his open work: 150 files, 3239 insertions, 1535 deletions (=jj diff -r @ --stat=, 11-27, before the two files below). Read off that stat and the quests' status lines, no diff read.
+
+- changed =deno.jsonc:2=: =2026.11.1= → =2026.11.3=. =2026.11.2= is never published: his number
+- changed =.gitlab-ci.yml:3=: a pipeline starts on a tag =vYYYY.MM.N= only (=^v[0-9]{4}\.[0-9]{2}\.[0-9]+$=). A branch push builds nothing, moves no image, deploys nothing
+- added =subsystems/typology/gestalten/belt/release.js= =parse= · =compare=, the month in two digits, at =commons/datamaps/libsql/migrate.js= and =subsystems/paladin/paladin/lifecycle.js=
+- =channel-media= 7 · 8a – 8e, by its status line: the cortex, =belt/hallucinate.js=, =Turn.files=, the elevenlabs and deepgram providers, the bot's tools
+- =subsystems/paladin/gestalten/belt=: the belt as =read write remove link find hash watch bundle vcs envfile vault=; =prototypes/locks.js= stands where =lock.js= stood
+- =systems/runtime/watch.js= · =systems/runtime/subjects/mode/traits/harness.js=
+- no migration step: =/before/datamap/migrate/= and =/after/datamap/migrate/= open under =2026.11.0= only. A mount is restamped and hears nothing
+
+* the suites, 11-27, one shot from the root, =HOME= empty
+
+| suite | passed | failed |
+|---+---+---|
+| =subsystems/typology/tests= | 179 | 0 |
+| =subsystems/paladin/tests= | 63 | 1 |
+| =systems/runtime/tests= | 113 | 1 |
+| commons, seven folders | 52 | 6 |
+
+- paladin: =vault.test.js:87=, the twin, known issue =paladin-vault-twin-deno-not-defined=
+- runtime: =harness.metadata.snapshot.test.js:21= /"the strip pins"/, a pin under =tests/snapshots/=, which git ignores. Cause unread
+- commons: =hello-world= 2 (known issue =commons-suites-red-at-base=) · =memo= 3 files (=OpenTUI native FFI is not available= · =svelte/internal/disclose-version= unresolved), cause unread · =commons/hallucinators/bak/hal/tests/hallucinator.test.js= imports =Agent=, which typology does not export
+- commons folders run: =fixtures/memo/tests= · =hallucinators= · =social= · =publishers/blog/tests= · =instances/hello-world/tests=
+- after the version moved: =viva --help= exit 0 · =release.test.js= 1 passed (5 steps)
+
+* the deploy, as read on prod 11-27
+
+- =.gitlab-ci.yml:52= =deploy-anima= · =:61= =deploy-runtime= exist only when =COOLIFY_TOKEN= and =COOLIFY_BASE= are set. GitLab holds no CI variable: project, group and instance tables are empty. The two jobs have never existed
+- Coolify: the API is on, no address list, =https://cool.vivalence.com=. One token, named =COOLIFY_TOKEN=, abilities =deploy= · =read=, never used
+- =https://cool.vivalence.com/api/v1/deploy?uuid=none= from a container on S000 answers 401
+- a service's deploy by API is =StartService::run= (=app/Http/Controllers/Api/DeployController.php:561=). Never run on these two
+- the runtime's =.env= keys are all in Coolify's table
+
+* handoff
+
+- next, his :: the two variables in GitLab, then the five lines of =.ikiro/world/codemap/release.md= with =v2026.11.3=
+- open, his :: with the variables set, the tag's push deploys prod: no backup before it, no rehearsal, a rebuild that taps each registry package's =master=
+- owed :: the reds above · no test holds the tag rule · =.gitlab-ci.yml:28= and =:44= still ask =-n "$CI_COMMIT_TAG"=, always true now
+- mine, on his machines :: =curlimages/curl:latest= pulled on S000 by my probe · =jj st= ran once without =--ignore-working-copy=

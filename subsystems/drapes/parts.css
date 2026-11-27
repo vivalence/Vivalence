@@ -619,6 +619,7 @@ button.srow.meter:hover { background: var(--control-selected); }
 .field .pc.repl { color: var(--signal-primary-ink); }
 .field .pc:hover, .field .pc.on { background: var(--control-selected); color: var(--signal-primary-ink); }
 .field.dict .pc { color: var(--signal-negative); }
+.field.repl > .pc { width: auto; white-space: pre; }
 .field .scrim { position: fixed; }
 .field .ctlmenu { position: absolute; left: 0; bottom: calc(100% + .25rem); z-index: 22; width: 13.75rem; padding: .25rem; display: grid; background: var(--plane-lift); border-radius: var(--shape-radius-card); box-shadow: var(--shape-lift), inset 0 0 0 var(--size-ring) var(--boundary-strong); animation: push .12s cubic-bezier(.16,1,.3,1); }
 .field .ctlmenu .krow { grid-template-columns: 1.25rem 1fr auto; }

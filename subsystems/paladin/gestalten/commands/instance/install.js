@@ -100,13 +100,13 @@ async function effect(ctx) {
   );
   const scaffolded = absent && unheld.length > 0 && owing();
   if (scaffolded) {
-    await paladin.state.text(file, paladin.envfile.scaffold(v.environment(Object.fromEntries(unheld))));
+    await paladin.write.text(file, paladin.envfile.scaffold(v.environment(Object.fromEntries(unheld))));
     populate(paladin);
     await mount(paladin);
   }
   const minted = paladin.envfile.mint(paladin.instance.environment, await dotenv.load({ envPath: file.absolute }));
   if (Object.keys(minted).length) {
-    await paladin.state.env(file, minted);
+    await paladin.envfile.write(file, minted);
     populate(paladin);
     await mount(paladin);
   }
@@ -118,7 +118,7 @@ async function effect(ctx) {
   const incomplete = (env) => ({ mount: home, env, fill, ...(invalid.length ? { invalid } : {}), next: `fill ${file.absolute}, then: viva instance/install` });
 
   const commit = async (values) => {
-    await paladin.state.env(file, values);
+    await paladin.envfile.write(file, values);
     populate(paladin);
     await mount(paladin);
     return { env: "written", filled: Object.keys(values) };

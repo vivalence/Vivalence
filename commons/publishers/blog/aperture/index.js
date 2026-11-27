@@ -89,7 +89,7 @@ const within = (ctx, path) => {
 
 const sources = async (ctx) => {
   const source = join(seat(ctx), "source");
-  await paladin.state.dir(source);
+  await paladin.write.dir(source);
   const files = await paladin.find.walk(SOURCES)(source);
   const read = await Promise.all(
     files.map(async (file) => ({
@@ -102,7 +102,7 @@ const sources = async (ctx) => {
 
 const kept = async (ctx) => {
   const source = join(seat(ctx), "source");
-  await paladin.state.dir(source);
+  await paladin.write.dir(source);
   return (await paladin.find.walk(/./)(source))
     .filter((file) => !SOURCES.test(file.absolute))
     .map((file) => relative(source, file.absolute))
@@ -140,7 +140,7 @@ export const aperture = new Vector()
       const held = [];
       for (const [page, text] of paged(await settings(ctx), articles)) {
         const mount = join(seat(ctx), "public", page);
-        if (await paladin.state.scribe(mount, text)) written.push(page);
+        if (await paladin.write.text(mount, text)) written.push(page);
         held.push(mount);
         await ctx.entities.file.record({
           mode: ctx.mode.id,
@@ -171,7 +171,7 @@ export const aperture = new Vector()
       );
       for (const file of gone) {
         if (file.mount.startsWith(join(seat(ctx), "public") + SEPARATOR))
-          await paladin.state.remove(file.mount);
+          await paladin.remove.file(file.mount);
         await ctx.entities.file.remove({ id: file.id });
       }
       return { pages: written, gone: gone.map((file) => file.path) };
@@ -221,7 +221,7 @@ export const aperture = new Vector()
         if (error instanceof Deno.errors.NotFound) return "";
         throw error;
       });
-      await paladin.state.scribe(mount, joined(ctx.input.path, ctx.input, text));
+      await paladin.write.text(mount, joined(ctx.input.path, ctx.input, text));
       return { path: ctx.input.path };
     },
   )
@@ -252,7 +252,7 @@ export const aperture = new Vector()
       const to = within(ctx, ctx.input.to);
       if (await Deno.stat(to).then(() => true, () => false))
         throw new Error(`[blog] '${ctx.input.to}' is taken`);
-      await paladin.state.dir(dirname(to));
+      await paladin.write.dir(dirname(to));
       await Deno.rename(within(ctx, ctx.input.path), to);
       return { path: ctx.input.to };
     },
@@ -289,7 +289,7 @@ export const aperture = new Vector()
     async (ctx) => {
       const path = join("images", ctx.params.name);
       const bytes = new Uint8Array(await new Response(ctx.request.raw.body).arrayBuffer());
-      await paladin.state.store(within(ctx, path), bytes);
+      await paladin.write.bytes(within(ctx, path), bytes);
       return { path };
     },
   );

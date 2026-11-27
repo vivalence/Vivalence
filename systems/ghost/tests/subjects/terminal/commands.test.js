@@ -323,12 +323,16 @@ specimen.describe("commands — each dispatched on a stub client and terminal: i
     client.app.bridge.$focus.set(before);
   });
 
-  specimen.it("/repl opens the catalog — /inspector · /tier · /effort · /model · /tool/load · /tool/preload · /tool/unload · /primer/load · /primer/preload · /primer/unload · /modes · /mode are not rank hidden, so it lists those twelve, /inspector offering no chooser — with / prefilled, a draft that is a line kept; /repl/close drops it and the typed line; /legend/close flushes the held keys", async () => {
+  specimen.it("/repl opens the catalog — every command that is not rank hidden and none that is, /inspector offering no chooser — with / prefilled, a draft that is a line kept; /repl/close drops it and the typed line; /legend/close flushes the held keys", async () => {
     client.app.bridge.$draft.set("hello");
     client.app.bridge.$focus.set("frame.surface");
     specimen.expect(await run("/repl")).toBeUndefined();
-    specimen.expect(terminal.repl.catalog.map((command) => command.nature)).toEqual(["/inspector", "/tier", "/effort", "/model", "/tool/load", "/tool/preload", "/tool/unload", "/primer/load", "/primer/preload", "/primer/unload", "/modes", "/mode"]);
-    specimen.expect(terminal.repl.catalog[0]).toMatchObject({ args: false, options: [] });
+    const shown = steer.trie.leaves(terminal.repl.commands)
+      .filter((leaf) => leaf.steps.at(-1).rank !== "hidden")
+      .map((leaf) => "/" + leaf.steps.map((step) => step.nature).join("/"));
+    specimen.expect(terminal.repl.catalog.map((command) => command.nature)).toEqual(shown);
+    specimen.expect(shown.length).toBeGreaterThan(0);
+    specimen.expect(terminal.repl.catalog.find((command) => command.nature === "/inspector")).toMatchObject({ args: false, options: [] });
     specimen.expect([client.app.bridge.draft, client.app.bridge.focus]).toEqual(["/", "repl.input"]);
     client.app.bridge.$draft.set("/dock");
     await run("/repl");

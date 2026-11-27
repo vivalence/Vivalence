@@ -69,11 +69,11 @@ const shelf = async (recipe) => {
 
 const keys = (rows) => rows.flatMap((row) => row.read ?? [row.key]).sort();
 
-describe("paladin.expand — a ${KEY} is read through the strata and recorded, no thunk fires", () => {
+describe("paladin.link.env — a ${KEY} is read through the strata and recorded, no thunk fires", () => {
   it("a whole-string reference keeps the value's type; a blank one is null and named unset", () => {
     const paladin = mk({ VIVA_PROBE_SERVE: "http://localhost:2501/", VIVA_PROBE_PORT: 2501 }, { SECRET_VIVA_PROBE_A: "shh" });
     const record = [];
-    const held = paladin.expand(
+    const held = paladin.link.env(
       { serve: "${VIVA_PROBE_SERVE}", port: "${VIVA_PROBE_PORT}", key: "${SECRET_VIVA_PROBE_A}", gone: "${SECRET_VIVA_PROBE_B}", plain: "kept", count: 3 },
       record,
       "runtime",
@@ -90,7 +90,7 @@ describe("paladin.expand — a ${KEY} is read through the strata and recorded, n
   it("a reference inside a string interpolates as text, a blank one as empty, and every key it names is recorded", () => {
     const paladin = mk({ VIVA_PROBE_ORIGIN: "http://localhost:2501" });
     const record = [];
-    const held = paladin.expand({ serve: "${VIVA_PROBE_ORIGIN}/${VIVA_PROBE_PATH}" }, record, "runtime.statics");
+    const held = paladin.link.env({ serve: "${VIVA_PROBE_ORIGIN}/${VIVA_PROBE_PATH}" }, record, "runtime.statics");
     expect(held.serve).toBe("http://localhost:2501/");
     expect(record).toEqual([{ at: "runtime.statics.serve", read: ["VIVA_PROBE_ORIGIN", "VIVA_PROBE_PATH"], unset: ["VIVA_PROBE_PATH"] }]);
   });
@@ -98,13 +98,13 @@ describe("paladin.expand — a ${KEY} is read through the strata and recorded, n
   it("arrays label by index, objects by key; without a record nothing is recorded and the value still expands", () => {
     const paladin = mk({ VIVA_PROBE_SERVE: "x" });
     const record = [];
-    paladin.expand([{ statics: { serve: "${VIVA_PROBE_SERVE}" } }], record, "hallucinators");
+    paladin.link.env([{ statics: { serve: "${VIVA_PROBE_SERVE}" } }], record, "hallucinators");
     expect(record.map((row) => row.at)).toEqual(["hallucinators[0].statics.serve"]);
-    expect(paladin.expand({ serve: "${VIVA_PROBE_SERVE}" })).toEqual({ serve: "x" });
+    expect(paladin.link.env({ serve: "${VIVA_PROBE_SERVE}" })).toEqual({ serve: "x" });
   });
 
-  it("expand has no scan — the mount's record is the only reading of a recipe", () => {
-    expect(mk().expand.scan).toBeUndefined();
+  it("link.env has no scan — the mount's record is the only reading of a recipe", () => {
+    expect(mk().link.env.scan).toBeUndefined();
   });
 });
 

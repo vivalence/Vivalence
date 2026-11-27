@@ -42,14 +42,14 @@ Deno.test({
     const paladin = await mkPaladin();
     const die = await paladin.ledger.boot([served("alpha", "setTimeout(() => Deno.exit(0), 400);"), served("beta", "setTimeout(() => Deno.exit(0), 400);")], { instance: "spawn", attachment: "piped" });
     assertEquals(die.good.processes.length, 2);
-    const booting = await paladin.ledger.lock("spawn").read();
+    const booting = await paladin.ledger.locks.read("spawn");
     assertEquals(booting.status, "SPAWNED");
     assertEquals(booting.pid, Deno.pid);
     assertEquals(booting.processes.map((held) => held.process), ["alpha", "beta"]);
     assert(booting.processes.every((held) => held.pid > 0));
 
     await die.integrate();
-    assertEquals((await paladin.ledger.lock("spawn").read()).status, "ALIVE");
+    assertEquals((await paladin.ledger.locks.read("spawn")).status, "ALIVE");
     assert(die.status.is("alive"));
     assert(die.good.processes.every((process) => process.status.is("alive")));
 
@@ -57,7 +57,7 @@ Deno.test({
     assertEquals(exits.map((exit) => exit.success), [true, true]);
     assertEquals(signal, null);
     assert(die.status.is("exited"));
-    assertEquals(await paladin.ledger.lock("spawn").read(), null);
+    assertEquals(await paladin.ledger.locks.read("spawn"), null);
   },
 });
 
@@ -72,7 +72,7 @@ Deno.test({
     assert(die.status.is("stopped"));
     const mute = die.good.processes[1];
     assertEquals((await mute.perpetuate()).success, false);
-    assertEquals(await paladin.ledger.lock("half").read(), null);
+    assertEquals(await paladin.ledger.locks.read("half"), null);
   },
 });
 
@@ -85,7 +85,7 @@ Deno.test({
     const die = await paladin.ledger.boot([unanswered("late", MUTE, { deadline: 300 })], { instance: "late", attachment: "piped" });
     await assertRejects(() => die.integrate(), Error, "late not ready after 300 ms");
     assert(die.status.is("stopped"));
-    assertEquals(await paladin.ledger.lock("late").read(), null);
+    assertEquals(await paladin.ledger.locks.read("late"), null);
   },
 });
 
@@ -102,7 +102,7 @@ Deno.test({
     const { exits, signal } = await settled;
     assertEquals(signal, "SIGTERM");
     assertEquals(exits[0].success, false);
-    assertEquals(await paladin.ledger.lock("sleeper").read(), null);
+    assertEquals(await paladin.ledger.locks.read("sleeper"), null);
   },
 });
 
@@ -141,15 +141,15 @@ Deno.test({
   async fn() {
     const paladin = await mkPaladin();
     const first = await paladin.ledger.boot([child("one", MUTE)], { instance: "held", attachment: "piped" });
-    const claim = await paladin.ledger.lock("held").read();
+    const claim = await paladin.ledger.locks.read("held");
     await assertRejects(
       () => paladin.ledger.boot([child("two", MUTE)], { instance: "held", attachment: "piped" }),
       Error,
       "held already running",
     );
-    assertEquals(await paladin.ledger.lock("held").read(), claim);
+    assertEquals(await paladin.ledger.locks.read("held"), claim);
     await first.disintegrate();
-    assertEquals(await paladin.ledger.lock("held").read(), null);
+    assertEquals(await paladin.ledger.locks.read("held"), null);
   },
 });
 
@@ -161,10 +161,10 @@ Deno.test({
     const paladin = await mkPaladin();
     const die = await paladin.ledger.boot([child("mine", MUTE)], { instance: "shared", attachment: "piped" });
     const foreign = { pid: Deno.pid, token: "someone-else", instance: "shared", status: "ALIVE", processes: [] };
-    await paladin.ledger.lock("shared").write(foreign);
+    await paladin.ledger.locks.write("shared", foreign);
     await die.disintegrate();
-    assertEquals(await paladin.ledger.lock("shared").read(), foreign);
-    await paladin.ledger.lock("shared").remove();
+    assertEquals(await paladin.ledger.locks.read("shared"), foreign);
+    await paladin.ledger.locks.remove("shared");
   },
 });
 
@@ -176,7 +176,7 @@ Deno.test({
     const paladin = await mkPaladin();
     const die = await paladin.ledger.boot([child("free", "setTimeout(() => Deno.exit(0), 400);")], { attachment: "piped" });
     await die.integrate();
-    assertEquals(die.lock, null);
+    assertEquals(await paladin.ledger.locks.list(), []);
     await die.perpetuate();
   },
 });
@@ -191,20 +191,20 @@ Deno.test({
     const steady = served("steady", "setTimeout(() => {}, 60000);");
     const die = await paladin.ledger.boot([brief, steady], { instance: "rows", attachment: "piped" });
     await die.integrate();
-    const alive = await paladin.ledger.lock("rows").read();
+    const alive = await paladin.ledger.locks.read("rows");
     assertEquals(alive.processes.map(({ process, serve, status }) => ({ process, serve, status })), [
       { process: "brief", serve: brief.serve, status: "ALIVE" },
       { process: "steady", serve: steady.serve, status: "ALIVE" },
     ]);
     await die.good.processes[0].perpetuate();
     await die.writing;
-    const after = await paladin.ledger.lock("rows").read();
+    const after = await paladin.ledger.locks.read("rows");
     assertEquals(after.status, "ALIVE");
     assertEquals(after.processes.map(({ process, status }) => [process, status]), [["brief", "EXITED"], ["steady", "ALIVE"]]);
     assertEquals(after.processes[0].exit.code, 3);
     assertEquals(after.processes[1].exit, null);
     await die.disintegrate();
-    assertEquals(await paladin.ledger.lock("rows").read(), null);
+    assertEquals(await paladin.ledger.locks.read("rows"), null);
   },
 });
 
@@ -215,7 +215,7 @@ Deno.test({
   async fn() {
     const paladin = await mkPaladin();
     const holder = await paladin.ledger.boot([{ ...child("runtime", MUTE), serve: "http://localhost:47010/" }], { instance: "first", attachment: "piped" });
-    const claim = await paladin.ledger.lock("first").read();
+    const claim = await paladin.ledger.locks.read("first");
     const error = await assertRejects(
       () => paladin.ledger.boot([{ ...child("runtime", MUTE), serve: "http://0.0.0.0:47010/" }], { instance: "second", attachment: "piped" }),
       Error,
@@ -223,13 +223,13 @@ Deno.test({
     );
     assert(error.message.includes(`under supervisor ${Deno.pid}`));
     assert(error.message.includes("viva instance/stop --instance=first"));
-    assertEquals(await paladin.ledger.lock("second").read(), null);
-    assertEquals(await paladin.ledger.lock("first").read(), claim);
+    assertEquals(await paladin.ledger.locks.read("second"), null);
+    assertEquals(await paladin.ledger.locks.read("first"), claim);
     const elsewhere = await paladin.ledger.boot([{ ...child("runtime", MUTE), serve: "http://localhost:47011/" }], { instance: "second", attachment: "piped" });
-    assertEquals((await paladin.ledger.locks()).map((held) => held.instance).sort(), ["first", "second"]);
+    assertEquals((await paladin.ledger.locks.list()).map((held) => held.instance).sort(), ["first", "second"]);
     await elsewhere.disintegrate();
     await holder.disintegrate();
-    assertEquals(await paladin.ledger.locks(), []);
+    assertEquals(await paladin.ledger.locks.list(), []);
   },
 });
 
@@ -239,10 +239,10 @@ Deno.test({
   sanitizeResources: false,
   async fn() {
     const paladin = await mkPaladin();
-    assertEquals(await paladin.ledger.locks(), []);
-    await paladin.ledger.lock("gone").write({ pid: 4999999, instance: "gone", processes: [] });
-    assertEquals(await paladin.ledger.locks(), []);
-    assertEquals(await paladin.ledger.lock("gone").read(), null);
+    assertEquals(await paladin.ledger.locks.list(), []);
+    await paladin.ledger.locks.write("gone", { pid: 4999999, instance: "gone", processes: [] });
+    assertEquals(await paladin.ledger.locks.list(), []);
+    assertEquals(await paladin.ledger.locks.read("gone"), null);
   },
 });
 
@@ -252,11 +252,11 @@ Deno.test({
   sanitizeResources: false,
   async fn() {
     const paladin = await mkPaladin();
-    const lock = paladin.ledger.lock("watched");
-    await lock.write({ pid: Deno.pid, instance: "watched", status: "ALIVE", processes: [{ process: "runtime", pid: 4999999, status: "ALIVE" }, { process: "anima", pid: Deno.pid, status: "ALIVE" }] });
-    assertEquals((await lock.read()).processes.map(({ process, status }) => [process, status]), [["runtime", "EXITED"], ["anima", "ALIVE"]]);
-    await lock.write({ pid: Deno.pid, instance: "watched", status: "ALIVE", processes: [{ process: "runtime", pid: 4999999, status: "ALIVE" }] });
-    assertEquals(await lock.read(), null);
-    assertEquals(await paladin.read.json(lock.path, null), null);
+    const locks = paladin.ledger.locks;
+    await locks.write("watched", { pid: Deno.pid, instance: "watched", status: "ALIVE", processes: [{ process: "runtime", pid: 4999999, status: "ALIVE" }, { process: "anima", pid: Deno.pid, status: "ALIVE" }] });
+    assertEquals((await locks.read("watched")).processes.map(({ process, status }) => [process, status]), [["runtime", "EXITED"], ["anima", "ALIVE"]]);
+    await locks.write("watched", { pid: Deno.pid, instance: "watched", status: "ALIVE", processes: [{ process: "runtime", pid: 4999999, status: "ALIVE" }] });
+    assertEquals(await locks.read("watched"), null);
+    assertEquals(await paladin.read.json(locks.mount("watched"), null), null);
   },
 });

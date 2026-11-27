@@ -38,9 +38,9 @@ export async function surfaced() {
   const handler = shape.http(aperture);
 
   const builds = [];
-  const bundler = paladin.bundler;
-  paladin.bundler = Object.assign((...held) => {
-    const made = bundler(...held);
+  const unwatched = paladin.bundle.directory;
+  paladin.bundle.directory = (...held) => {
+    const made = unwatched(...held);
     return {
       ...made,
       bundle: (input) => {
@@ -48,7 +48,7 @@ export async function surfaced() {
         return made.bundle(input);
       },
     };
-  }, bundler);
+  };
 
   const surface = mode.surfaces[0];
   return {
@@ -62,7 +62,7 @@ export async function surfaced() {
     edit: (path, text) => Deno.writeTextFile(join(directory, "board", path), text),
     restart: () => scenario.repos.surface.em.clear(),
     async close() {
-      paladin.bundler = bundler;
+      paladin.bundle.directory = unwatched;
       await scenario.orm.close();
       await Deno.remove(directory, { recursive: true });
     },

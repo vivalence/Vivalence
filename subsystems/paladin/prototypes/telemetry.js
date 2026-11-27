@@ -1,4 +1,5 @@
 import { control, fn, Pattern, Signal, Span, sse, trace, v } from "@vivalence/typology";
+import { Log } from "./log.js";
 
 const natures = (signature) => signature.array.filter((segment) => segment.nature != null);
 
@@ -194,12 +195,16 @@ export class Telemetry {
     this.paladin = paladin;
   }
 
+  log(instance) {
+    return new Log(this.paladin, instance);
+  }
+
   get logs() {
-    return this.paladin.ledger.log(this.paladin.instance.manifest.slug).base;
+    return this.log(this.paladin.instance.manifest.slug).base;
   }
 
   append(target, record) {
-    return this.paladin.state.jsonl(this.logs.branch(target), record);
+    return this.paladin.write.jsonl(this.logs.branch(target), record);
   }
 
   drain(target) {
@@ -262,7 +267,7 @@ export class Telemetry {
     const { stdout } = this.controller;
     const [root] = trace.pathname(stdout.absolute).split("/");
     const path = this.logs.branch(`${root}.${Deno.pid}.sock`).absolute;
-    this.paladin.state
+    this.paladin.write
       .dir(this.logs)
       .then(() => this.accept(Deno.listen({ transport: "unix", path }), span))
       .catch((error) => stdout.log({ socket: path, refused: error.message }));
@@ -306,7 +311,7 @@ export class Telemetry {
     const span = new Span("watched");
     span.pipe.tap(sink(ordered(logger, KINDS.console), print));
     span.pipe.tap(sink(ordered(logger, KINDS.file), write));
-    await this.paladin.state.dir(this.logs);
+    await this.paladin.write.dir(this.logs);
     const dialed = new Set();
     const dial = async (path) => {
       dialed.add(path);

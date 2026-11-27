@@ -16,7 +16,7 @@ const building = new Map();
 const bundled = (runtime, surface) => {
   if (!building.has(surface.id)) {
     const mode = seated(runtime, surface.mode.id);
-    const bundler = paladin.bundler(new Path(mode.mountpoint).absolute, mode.module.source.dirname);
+    const bundler = paladin.bundle.directory(new Path(mode.mountpoint).absolute, mode.module.source.dirname);
     const build = surface.mount === null
       ? runtime.entities.file.findOneOrFail({ surface: surface.id, path: surface.entry })
       : runtime.entities.surface.bundle(surface, { bundler });

@@ -1,3 +1,4 @@
+import { decodeBase64 } from "@std/encoding/base64";
 import { pcm, Queue, v } from "@vivalence/typology";
 
 function line(url, protocols) {
@@ -67,6 +68,19 @@ export async function* transcribe(
     if (ws.readyState === WebSocket.OPEN) ws.close();
     await feeding;
   }
+}
+
+async function listen(url, key, audio, signal) {
+  const response = await fetch(url, {
+    method: "POST",
+    signal,
+    headers: { Authorization: `Token ${key}`, "Content-Type": audio.mime },
+    body: decodeBase64(audio.data),
+  });
+  if (!response.ok)
+    throw new Error(`[deepgram] listen ${response.status}: ${await response.text()}`);
+  const heard = await response.json();
+  return { type: "text", text: heard.results.channels[0].alternatives[0].transcript };
 }
 
 const spoken = (languages = []) => (languages.length === 1 ? languages[0] : "multi");
@@ -150,7 +164,6 @@ export default async function provider(service) {
     type: "verbatim",
     id: entry.id,
     tune: entry.tune,
-    context: 0,
     channels: {
       stream: {
         in: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
@@ -171,8 +184,27 @@ export default async function provider(service) {
             signal,
           ),
       },
+      render: {
+        in: [{ type: "audio", mime: ["audio/ogg", "audio/mpeg", "audio/mp4", "audio/aac"] }],
+        out: [{ type: "text" }],
+        via: async ({ turns, settings = {} }, { signal } = {}) => ({
+          role: "user",
+          parts: await Promise.all(
+            turns
+              .flatMap((turn) => turn.parts)
+              .map((audio) =>
+                listen(
+                  `https://api.deepgram.com/v1/listen?model=${entry.model}` +
+                    `&language=${spoken(settings.language)}&punctuate=true`,
+                  apiKey,
+                  audio,
+                  signal,
+                ),
+              ),
+          ),
+        }),
+      },
     },
-    config: { language: [] },
   });
 
   const fluxFaculty = (entry) => ({
@@ -180,7 +212,6 @@ export default async function provider(service) {
     type: "verbatim",
     id: entry.id,
     tune: entry.tune,
-    context: 0,
     channels: {
       stream: {
         in: [{ type: "audio", mime: ["audio/pcm;rate=16000;channels=1"] }],
@@ -203,7 +234,6 @@ export default async function provider(service) {
           ),
       },
     },
-    config: { turns: true },
   });
 
   const FAMILIES = [

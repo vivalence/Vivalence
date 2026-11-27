@@ -1,22 +1,17 @@
-import { cast, is, Path } from "@vivalence/typology";
-import { dirname, isAbsolute, resolve as absolute } from "@std/path";
+import { cast, is } from "@vivalence/typology";
 import * as jsonc from "@std/jsonc";
 import { extract } from "@std/front-matter/yaml";
 import { test as fronted } from "@std/front-matter/test";
 
-const CONTENT = /^\s*[[{]/;
+export const read = (paladin) => {
+  paladin.read = {
+    text: async (path) => await Deno.readTextFile(path.absolute ?? path),
 
-export default function read(paladin) {
-  const resolve = (path) => path?.absolute || path;
-
-  const readers = {
-    text: async (path) => await Deno.readTextFile(resolve(path)),
-
-    bytes: async (path) => await Deno.readFile(resolve(path)),
+    bytes: async (path) => await Deno.readFile(path.absolute ?? path),
 
     json: async (path, fallback) => {
       try {
-        return jsonc.parse(await Deno.readTextFile(resolve(path)));
+        return jsonc.parse(await Deno.readTextFile(path.absolute ?? path));
       } catch (error) {
         if (fallback !== undefined) return fallback;
         throw error;
@@ -25,71 +20,42 @@ export default function read(paladin) {
 
     jsonl: async (path, fallback) => {
       try {
-        const text = await Deno.readTextFile(resolve(path));
-        return text.split("\n").filter(Boolean).map((line) => JSON.parse(line));
+        const text = await Deno.readTextFile(path.absolute ?? path);
+        return text.split("\n").filter(Boolean).map((entry) => JSON.parse(entry));
       } catch (error) {
         if (fallback !== undefined) return fallback;
         throw error;
       }
     },
 
-    module: async (path) => (resolve(path).endsWith(".json") ? await readers.json(path) : await import(resolve(path))),
+    module: async (path) => {
+      const file = path.absolute ?? path;
+      return file.endsWith(".json") ? await paladin.read.json(path) : await import(file);
+    },
 
     data: async (path) => {
-      const module = await import(resolve(path));
+      const module = await import(path.absolute ?? path);
       return module.default ?? module;
     },
 
-    viva: async (path) => cast.viva(await readers.module(path)),
+    viva: async (path) => cast.viva(await paladin.read.module(path)),
 
     frontmatter: async (path) => {
-      const text = await Deno.readTextFile(resolve(path));
+      const text = await Deno.readTextFile(path.absolute ?? path);
       if (!fronted(text)) return { attrs: {}, body: text };
       const { attrs, body } = extract(text);
       return { attrs, body };
     },
-  };
 
-  const locate = (source, value, at) => {
-    const origin = resolve(source);
-    if (!is.string(value)) return { held: value, from: origin };
-    const record = [];
-    const spoken = paladin.expand(value, record, at);
-    const unset = record.flatMap((row) => row.unset);
-    if (unset.length) throw new Error(`${origin} ${at}: ${unset.join(" ")} unset — "${value}" names no file and no content`);
-    if (CONTENT.test(spoken)) return { held: jsonc.parse(spoken), from: value };
-    return { path: new Path(isAbsolute(spoken) ? spoken : absolute(dirname(origin), spoken)), from: value };
+    part: async (source, value, at) => {
+      if (is.string(value) && value.startsWith("@")) return { module: value };
+      const located = paladin.link.part(source, value, at);
+      if (!located.path) return located.held;
+      return await paladin.read.json(located.path).catch((error) => {
+        const reason = error?.code === "ENOENT" ? "no such file" : error.message;
+        const origin = source.absolute ?? source;
+        throw new Error(`${origin} ${at}: "${value}" → ${located.path.absolute} — ${reason}`);
+      });
+    },
   };
-
-  const part = async (source, value, at) => {
-    if (is.string(value) && value.startsWith("@")) return { module: value };
-    const located = locate(source, value, at);
-    if (!located.path) return located.held;
-    return await paladin.read.json(located.path).catch((error) => {
-      throw new Error(`${resolve(source)} ${at}: "${value}" → ${located.path.absolute} — ${error?.code === "ENOENT" ? "no such file" : error.message}`);
-    });
-  };
-
-  const readFile = async (path) => {
-    const resolved = resolve(path);
-    if (resolved.match(/\.(viva.js|viva.org|viva.svelte)$/)) return await readers.viva(path);
-    if (resolved.match(/\.jsonl$/)) return await readers.jsonl(path);
-    if (resolved.match(/\.(jsonc?|json)$/)) return await readers.json(path);
-    if (resolved.match(/\.(js|ts|mjs|jsx|tsx)$/)) return await readers.module(path);
-    return await readers.text(path);
-  };
-
-  paladin.read = {
-    file: readFile,
-    text: readers.text,
-    bytes: readers.bytes,
-    viva: readers.viva,
-    json: readers.json,
-    jsonl: readers.jsonl,
-    module: readers.module,
-    data: readers.data,
-    frontmatter: readers.frontmatter,
-    locate,
-    part,
-  };
-}
+};

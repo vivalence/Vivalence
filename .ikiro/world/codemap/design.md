@@ -30,7 +30,7 @@ paths: ["systems/anima/**", "subsystems/dapper/**", "subsystems/drapes/**"]
           thread: next.thread,
 ```
 - **`svelte/editor/` is in no export; `vim.js` DEAD.** The Svelte barrel = ONE member; sizes read at `prod: true` (dev ~3x).
-- **a DOM view imports `MEMBERS` (paladin `bundler.js:43`), no alias; anima's `viva:members` builds + maps. A `vite.config.mjs` edit needs HIS restart.**
+- **a DOM view imports `MEMBERS` (paladin `bundle.js:52`), no alias; anima's `viva:members` builds + maps. A `vite.config.mjs` edit needs HIS restart.**
 
 ## dapper
 

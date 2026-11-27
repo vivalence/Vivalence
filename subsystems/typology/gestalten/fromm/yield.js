@@ -17,11 +17,11 @@ const text = (parts) =>
 const bag = (entries) =>
   Object.fromEntries(Object.entries(entries).filter(([, value]) => value != null));
 
-const wrap = (thing) => {
-  if (thing.product) return { condition: thing.condition ?? "NOMINAL", product: thing.product };
-  const product = Object.fromEntries(Object.entries(thing).filter(([key]) => key !== "condition"));
-  return { condition: thing.condition ?? "NOMINAL", product };
-};
+const wrap = ({ condition = "NOMINAL", parts = [], ...payload }) => ({
+  condition,
+  product: payload.product ? payload.product : payload,
+  parts,
+});
 
 const yieldmap = [
   [
@@ -76,7 +76,7 @@ const probe = (thing) => yieldmap.find(([, sniff]) => sniff(thing));
 
 const reader = (thing) => {
   const [kind, , fill] = probe(thing);
-  const filled = fill(thing);
+  const filled = { parts: [], ...fill(thing) };
   return {
     get kind() {
       return kind;
@@ -86,6 +86,9 @@ const reader = (thing) => {
     },
     get product() {
       return filled.product;
+    },
+    get parts() {
+      return filled.parts;
     },
   };
 };

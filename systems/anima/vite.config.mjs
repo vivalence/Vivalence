@@ -169,7 +169,7 @@ const CHUNKS = "/assets/members/";
 const members = () => {
   const built = belt.fn.inflight(async () => {
     const { default: paladin } = await import("@vivalence/paladin");
-    return await paladin.bundler.members();
+    return await paladin.bundle.members();
   });
   return {
     name: "viva:members",

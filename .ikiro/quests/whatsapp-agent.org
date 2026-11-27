@@ -127,7 +127,7 @@ Unread: whether a provider passes a part's =file= id to the model · whether a m
 - New faculties for this quest are fine. Waterfall below: /"good ordering. we use that for guidance."/
 ** superseded by =.ikiro/quests/channel-media.org=: the channel row, =carried=, the mime cut at the whatsapp provider (it now keeps =mime_type= as sent).
 ** acked, not amen'd: =filed= in =received.js= (/"yes ok. thats the receiver to file."/)
-Lands under =modeDie.runtime.mountpoint= =files/<type>=, never =mode.mountpoint= (that is the module's source dir). Unrun. Owed: audio case in =received.test.js=.
+Landed in the harness instead (=arriving= · =filed=, channel-media 8a): under the mode's mountpoint, =files/<type>=; on his instance that is =mountpoint/mode_bot_personal/files/=. The audio case is in =received.test.js=.
 ** the deliverable moved out: =.ikiro/quests/channel-media.org= (channels by via, media types, held in and out). Its milestones 7 · 8 are this quest's verbatim-over-a-file and demo.
 ** waterfall (guidance)
 1. A filed · 2. B1 ffmpeg aperture over the local binary · 3. B2 provider + tools over the aperture · 4. B3 bot consumes ffmpeg · 5. C1 verbatim =via.render= over a file · 6. C2 =/transcribe= tool: File id → .txt File on thread → file part on turn · 7. E prod (verbatim key: deepgram is filtered there) · 8. D dock audio painter, File on buffer.
@@ -172,6 +172,48 @@ My findings on =tell= · =decoded=, none amen'd, each to be shown before its ste
 - =tell= reads =bots= and =owner=, stand-ins of a probe: the provider is =ctx.providers.whatsapp=, and the owner's address sits on the service's mask, which the provider does not hand out.
 - =decoded= clamps by hand where =pcm.encode= stands (=subsystems/typology/gestalten/belt/pcm.js:4=; same samples, worst difference 1, =decoded.probe.js=).
 - three lines of =tell= · =decoded= are wider than 100.
+
+* the bot's tools off the runtime — 11-27, his order: /"wire these tools, the runtime tools, in that way"/
+
+| milestone | state |
+|-----------+-------|
+| the mask: =TOOLED= · =PRIMED= on the bot in =~/.viva/instances/localhost/instance.viva.jsonc:24= | landed on his =go=; parsed, no fault; his live runtime not walked |
+| the cut in =commons/social/personal/tools.js= | shown, not on disk; ran 20/20 in a scratch copy of commons |
+
+His edit, the spec: no =/daemon= key under =TOOLED=. It stays under =PRIMED=.
+
+The cut, as shown. It and the mask are one item: the cut without the mask leaves the bot no fs, shell, entity, buffer or thread tool.
+
+#+BEGIN_SRC diff
+// commons/social/personal/tools.js
+ import { join } from "@std/path";
+ import paladin from "@vivalence/paladin";
+-import { gestalten } from "@vivalence/runtime";
+ import { v, Vector } from "@vivalence/typology";
+
+-const transcribe = new Vector().open(
++export const tools = new Vector().open(
+   {
+     nature: "/file/transcribe",
+@@
+     return { product: { file: [{ id: file.id, mime: file.mime }] } };
+   },
+ );
+-
+-export const tools = new Vector()
+-  .graft(gestalten.tools.thread, gestalten.tools.entity, gestalten.tools.buffer)
+-  .graft(gestalten.tools.modes, gestalten.tools.tool)
+-  .graft(paladin.tools.fs, paladin.tools.shell)
+-  .graft(transcribe);
+#+END_SRC
+
+Measured on a scratch boot shaped like his recipe: the bot calls the harness tools as =harness_runtime_<name>=; until the cut it also declares its own =fs_tree= and siblings. Eager primer: =role= 407 · =identity= 720 · =world= 2019 · =runtime= 426 chars.
+
+Ruled out: =/daemon= lazy under =TOOLED= (his word; it listed 57 daemon tools, about 19,000 chars a request).
+
+Tails: =commons/harnesses/runtime/world.md:4= names =fs_tree= · =shell_run= · =mode_find=, the bot holds them as =harness_runtime_*= · bot threads made before the mask keep their old starter · the repo has no recipe carrying this mask (=commons/social/whatsapp/README.md= shows the bot without a =trait=).
+
+Owed tests: the bot's suite with the bot under =runtime= and this mask, a harness tool called through it · a broad lazy =PRIMED= key over the mode's own home (=systems/runtime/tests/harness.compose.test.js=, beside /a none PRIMED key prunes the thread mode's own section/).
 
 * open
 
@@ -230,7 +272,7 @@ Voice replies · templates outside the 24 h window · a production number with b
 
 * next
 
-First: one text to the test number (+1 555-137-3022) proves the number sort on a real payload (=metadata.phone_number_id= unseen live). Then boot, his /"which shoudl run at boot?"/, my answer unruled: =claim= when the recipe names a hook, =token= as one log line, =state= never; =claim= must run after =resolution.attach= (the hook is mounted there, =systems/runtime/subjects/runtime/lifecycle/index.js:33-34=; listening comes earlier, my word of the morning was wrong), whether a service has an after-boot twitch is unread. Then prod: his push and deploy; the recipe needs no change. Local dev each day: a dashboard token (read: under 2 h, not 24) into =SECRET_VIVA_WHATSAPP_TOKEN=, a tunnel, =/claim= with its hook. A show-me walk of 11-27 is parked at S1/6. Then his amen or change on the two hunks under =* shown 11-26 evening=; prod needs =apk add ffmpeg= in R000's Dockerfile for the tool. The test number is dead by his word (/"the old testing thing is dead!"/), never offered again. His order, 11-26: /"lets do 10 for debugging and then do 9 as the original goal"/, step 8 after. Before 9: his ruling on which thread is current (the row on top of =* found by running=). Then step 9: =decoded= onto =pcm.encode=, PCM into =verbatim= probed first.
+First: his =go= on the cut in =commons/social/personal/tools.js= (under =* the bot's tools off the runtime=), then one message to the live bot on a new thread. Then: one text to the test number (+1 555-137-3022) proves the number sort on a real payload (=metadata.phone_number_id= unseen live). Then boot, his /"which shoudl run at boot?"/, my answer unruled: =claim= when the recipe names a hook, =token= as one log line, =state= never; =claim= must run after =resolution.attach= (the hook is mounted there, =systems/runtime/subjects/runtime/lifecycle/index.js:33-34=; listening comes earlier, my word of the morning was wrong), whether a service has an after-boot twitch is unread. Then prod: his push and deploy; the recipe needs no change. Local dev each day: a dashboard token (read: under 2 h, not 24) into =SECRET_VIVA_WHATSAPP_TOKEN=, a tunnel, =/claim= with its hook. A show-me walk of 11-27 is parked at S1/6. Then his amen or change on the two hunks under =* shown 11-26 evening=; prod needs =apk add ffmpeg= in R000's Dockerfile for the tool. The test number is dead by his word (/"the old testing thing is dead!"/), never offered again. His order, 11-26: /"lets do 10 for debugging and then do 9 as the original goal"/, step 8 after. Before 9: his ruling on which thread is current (the row on top of =* found by running=). Then step 9: =decoded= onto =pcm.encode=, PCM into =verbatim= probed first.
 
 Owed tests: a provider whose =messages= throws at once leaves a timer firing (the spin) · two addresses in =users= land in two users' threads · the pull against a fake provider · a harness fault · a piece failing mid-send · a removed reaction · a send failing in the twitch · a dock-made thread beside the WhatsApp one. Owed since step 2: reader · darkroom · blog onto =bytes()=.
 

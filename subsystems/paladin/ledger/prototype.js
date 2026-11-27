@@ -1,7 +1,6 @@
 import { object, Url, v } from "@vivalence/typology";
 import * as jsonc from "@std/jsonc";
-import { Lock } from "../prototypes/lock.js";
-import { Log } from "../prototypes/log.js";
+import { Locks } from "../prototypes/locks.js";
 import { Instances } from "../prototypes/instances.js";
 import { Registry } from "../prototypes/registry.js";
 import { Die } from "./die.js";
@@ -31,6 +30,7 @@ export const derive = (module, source) => ({ type: "ledger", slug: source.filena
 export class Ledger {
   constructor(paladin) {
     this.paladin = paladin;
+    this.locks = new Locks(paladin);
   }
 
   authored(source) {
@@ -47,7 +47,7 @@ export class Ledger {
     const source = home.branch(RECIPE);
     const value = this.authored(source)?.[slot];
     if (value === undefined) return { path: home.branch(`${slot}.json`), fallback: true };
-    const located = this.paladin.read.locate(source, value, slot);
+    const located = this.paladin.link.part(source, value, slot);
     return { path: located.path ?? null, held: located.held ?? null, from: located.from, fallback: false };
   }
 
@@ -62,22 +62,6 @@ export class Ledger {
     if (this.held) return this.held;
     const { path, ...record } = this.record("registry");
     return (this.held = new Registry(this.paladin, path, record));
-  }
-
-  lock(instance) {
-    return new Lock(this.paladin, this.paladin.scope.ledger.branch(`/locks/${instance}.lock`));
-  }
-
-  async locks() {
-    const home = this.paladin.scope.ledger.branch("locks").absolute;
-    if (!(await Deno.stat(home).catch(() => null))) return [];
-    const files = (await Array.fromAsync(Deno.readDir(home))).filter((entry) => entry.name.endsWith(".lock"));
-    const held = await Promise.all(files.map((entry) => this.lock(entry.name.slice(0, -".lock".length)).read()));
-    return held.filter(Boolean);
-  }
-
-  log(instance) {
-    return new Log(this.paladin, instance);
   }
 
   // the ledger's own declaration — ANY .viva.js at the ledger root (depth 0: instances/ and registry/
@@ -127,7 +111,7 @@ export class Ledger {
     this.paladin.check.instance(this.paladin.instance).throw();
     const port = (serve) => new Url(serve).port;
     const wanted = specs.filter((spec) => spec.serve).map((spec) => port(spec.serve));
-    for (const held of await this.locks()) {
+    for (const held of await this.locks.list()) {
       if (held.instance === instance) continue;
       const taken = held.processes.filter((process) => process.serve && process.status !== "EXITED" && wanted.includes(port(process.serve)));
       if (taken.length)

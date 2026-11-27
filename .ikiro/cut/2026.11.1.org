@@ -1,0 +1,45 @@
+#+title: release v2026.11.1 — the channel tag
+#+status: PUBLISHED 11-27 14:27: tag =v2026.11.1= on =ynvtotnr= =a4954b12=, on =origin= and =github=, =:v2026.11.1= and =:2026.11= on the four images
+# writer: agent · limit: 5000 chars · named after =deno.jsonc:2= at the tag
+
+* intent
+
+/"open a release. yymmv. and that gets written into. published./
+/we could republish teh same yymmv say 2026.11.0 pushed multiple times by addeding to teh change?"/
+
+/"go"/ on the hunk in =.gitlab-ci.yml= · /"bump the versionfor em"/
+
+* the release
+
+- added the image tag =:2026.11=: a tag pipeline moves it onto that build; =:v2026.11.N= never moves. =.gitlab-ci.yml=: =VIVA_CHANNEL= is the version without its last number
+- changed =deno.jsonc:2=: =2026.11.0= → =2026.11.1=
+- not in: anything of the product; the tree is =v2026.11.0= plus these two
+
+* the mark — PUBLISHED 11-27
+
+His, 14:22: the five lines of =.ikiro/world/codemap/release.md=. The registry at 14:38:15, =:v2026.11.1= · =:2026.11= · =:alpine= one digest each:
+
+#+BEGIN_EXAMPLE
+viva           sha256:9453f5f3f2bc3ecc859561f1a3bc8ec39ad8a13d4a1fffc26d9e89d586433e40
+runtime        sha256:3a4d6215d4f6ac65f064fa7c4b63a2ea9b1b48368406d2c1c21a4d8c8e617aae
+anima          sha256:6a14c18dcc74fabbed068d8daf3955a405beacf5a4c9d6d82371e5a0583cf145
+documentation  sha256:f4305ebfc3911b9b0e4526956fbd0c037d7597b25eda00a1a94391d072a619e2
+#+END_EXAMPLE
+
+=documentation= holds the digest it held under =v2026.11.0=.
+
+* after the tag, in the tree, unpublished
+
+- the month is two digits, his /"this is the format. 01. 2026.01.v"/: =subsystems/typology/gestalten/belt/release.js= =parse= · =compare= stand where semver stood, at =commons/datamaps/libsql/migrate.js= and =subsystems/paladin/paladin/lifecycle.js:113=. LANDED 11-27 on his /"land"/
+- its test: =subsystems/typology/tests/gestalten/belt/release.test.js=, 1 passed (5 steps)
+- the walk: =.ikiro/reference/migration-twitch/release.probe.js=, a mount goes =2026.11.0= → =2026.11.1= → =2027.01.10= and hears =2026.12.0= · =2027.01.0= · =2027.01.9= · =2027.01.10=, each once, in order
+- his local mount went =vivalence@2026.11.0= → =vivalence@2026.11.1= at 14:22:51
+- the scheme is written down: =.ikiro/world/codemap/release.md=; the registry reader is =.ikiro/methods/registry.sh=
+
+* handoff
+
+- next :: =deno.jsonc:2= still reads =2026.11.1=, the published version, while the tree is past its tag: his word moves it to =2026.11.2=. A save restamps his local mount
+- open, his :: =master= stands on =v2026.11.0= locally and on 11-06 at =origin=; its push runs a pipeline and a deploy · does an =amen= on the last open show land it · the channel is =:2026.11=, he wrote =v2026.11=
+- owed :: no suite holds the release walk, the probe does · no test holds the tag guard · a rollback stamps backward and hears the older release's steps again: =commons/datamaps/libsql/libsql.viva.js:42= reads =stood !== datamap.version=
+- unread :: the Coolify deploys · the prod mount
+- never :: a published version published again · a month written without its zero

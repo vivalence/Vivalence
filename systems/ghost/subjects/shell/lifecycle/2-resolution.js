@@ -33,7 +33,7 @@ export const runtime = async (shellDie, next) => {
 
   shellDie.controller.stdout.log({
     booting: held.slug,
-    log: paladin.ledger.log(held.slug).base.branch("runtime.out.log").absolute,
+    log: paladin.telemetry.log(held.slug).base.branch("runtime.out.log").absolute,
   });
 
   const booted = await paladin.ledger.boot(paladin.ledger.specs("runtime"), {

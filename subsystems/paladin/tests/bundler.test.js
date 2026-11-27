@@ -3,7 +3,7 @@ import { expect } from "@std/expect";
 import { v, crypto, mime } from "@vivalence/typology";
 import esbuild from "esbuild";
 import paladin from "../mod.js";
-import { MEMBERS } from "../gestalten/belt/bundler.js";
+import { MEMBERS } from "../gestalten/belt/bundle.js";
 
 const SOURCE = [
   "<script>",
@@ -62,13 +62,13 @@ const named = (artifact) =>
 let directory;
 let bundler;
 
-describe("paladin.bundler", { sanitizeResources: false, sanitizeOps: false }, () => {
+describe("paladin.bundle", { sanitizeResources: false, sanitizeOps: false }, () => {
   beforeAll(async () => {
     directory = await Deno.makeTempDir({
       dir: new URL("./", import.meta.url).pathname,
       prefix: "bundler-",
     });
-    bundler = paladin.bundler(directory);
+    bundler = paladin.bundle.directory(directory);
   });
   afterAll(async () => {
     await esbuild.stop();
@@ -172,7 +172,7 @@ describe("paladin.bundler", { sanitizeResources: false, sanitizeOps: false }, ()
   });
 
   it("the members build once: every member a file, every chunk a member names a file", async () => {
-    const held = await paladin.bundler.members();
+    const held = await paladin.bundle.members();
 
     expect(Object.keys(held.imports).sort()).toEqual([...MEMBERS].sort());
     expect(Object.values(held.imports).filter((name) => !(name in held.files))).toEqual([]);
@@ -198,7 +198,7 @@ describe("paladin.bundler", { sanitizeResources: false, sanitizeOps: false }, ()
 
   it("prune removes every hash-named build without its source; a surface's named bundle and every sourced page stay", async () => {
     const root = await Deno.makeTempDir({ dir: directory, prefix: "prune-" });
-    const pruning = paladin.bundler(`${root}/bundles/game/board`);
+    const pruning = paladin.bundle.directory(`${root}/bundles/game/board`);
     const entry = `${root}/Board.svelte`;
     await Deno.writeTextFile(entry, SOURCE);
     const stale = (await pruning.bundle({ mime: mime.dom.svelte, entry })).entries[0];
@@ -207,9 +207,9 @@ describe("paladin.bundler", { sanitizeResources: false, sanitizeOps: false }, ()
     const current = (await pruning.bundle({ mime: mime.dom.svelte, entry })).entries[0];
     const page = (await pruning.bundle({ mime: mime.dom.html, source: "<h1>page</h1>" })).entries[0];
     await Deno.utime(`${pruning.directory}/bundle${page.mount}`, 1, 1);
-    const named = (await paladin.bundler(pruning.directory, root).bundle({ mime: mime.dom.svelte, mount: "Board.svelte", name: "bundle/board.dom.svelte.mjs" })).bundle.entries[0];
+    const named = (await paladin.bundle.directory(pruning.directory, root).bundle({ mime: mime.dom.svelte, mount: "Board.svelte", name: "bundle/board.dom.svelte.mjs" })).bundle.entries[0];
 
-    expect((await paladin.bundler.under(root)).map((held) => held.directory)).toEqual([pruning.directory]);
+    expect((await paladin.bundle.under(root)).map((held) => held.directory)).toEqual([pruning.directory]);
 
     const dry = await pruning.prune({ dry: true });
     expect(dry.kept).toBe(1);
@@ -224,7 +224,7 @@ describe("paladin.bundler", { sanitizeResources: false, sanitizeOps: false }, ()
     expect(await pruning.serve(page.mount)).not.toBe(null);
     expect((await Deno.stat(`${pruning.directory}${named.mount}`)).isFile).toBe(true);
     expect((await pruning.prune()).removed).toEqual([]);
-    expect((await paladin.bundler(`${root}/absent`).prune()).kept).toBe(0);
+    expect((await paladin.bundle.directory(`${root}/absent`).prune()).kept).toBe(0);
   });
 
   it("refuses what it must", async () => {

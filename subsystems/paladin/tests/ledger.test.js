@@ -24,7 +24,7 @@ describe("belt: read/state json + jsonl", () => {
   });
 
   it("state.json writes, read.json reads back", async () => {
-    await paladin.state.json(file, { a: 1, nested: { b: 2 } });
+    await paladin.write.json(file, { a: 1, nested: { b: 2 } });
     expect(await paladin.read.json(file)).toEqual({ a: 1, nested: { b: 2 } });
   });
 
@@ -35,13 +35,13 @@ describe("belt: read/state json + jsonl", () => {
 
   it("state.jsonl appends one line per call, read.jsonl returns the list", async () => {
     const log = paladin.scope.ledger.branch("probe.jsonl");
-    await paladin.state.jsonl(log, { event: "a" });
-    await paladin.state.jsonl(log, { event: "b" });
+    await paladin.write.jsonl(log, { event: "a" });
+    await paladin.write.jsonl(log, { event: "b" });
     expect(await paladin.read.jsonl(log)).toEqual([{ event: "a" }, { event: "b" }]);
   });
 
   it("state.remove deletes, read.json falls back after", async () => {
-    await paladin.state.remove(file);
+    await paladin.remove.file(file);
     expect(await paladin.read.json(file, null)).toBe(null);
   });
 });
@@ -54,18 +54,18 @@ describe("Ledger.lock — one per instance, read prunes the dead", () => {
 
   it("write then read roundtrips a live claim", async () => {
     const claim = { pid: Deno.pid, instance: "inst", status: "ALIVE", processes: [{ process: "runtime", pid: Deno.pid }] };
-    await paladin.ledger.lock("inst").write(claim);
-    expect(await paladin.ledger.lock("inst").read()).toEqual(claim);
+    await paladin.ledger.locks.write("inst", claim);
+    expect(await paladin.ledger.locks.read("inst")).toEqual(claim);
   });
 
   it("read is null after remove", async () => {
-    await paladin.ledger.lock("inst").remove();
-    expect(await paladin.ledger.lock("inst").read()).toBe(null);
+    await paladin.ledger.locks.remove("inst");
+    expect(await paladin.ledger.locks.read("inst")).toBe(null);
   });
 
   it("a dead pid is not a lock — read returns null and removes the file", async () => {
-    await paladin.ledger.lock("ghost").write({ pid: 2147483647, instance: "ghost", processes: [] });
-    expect(await paladin.ledger.lock("ghost").read()).toBe(null);
+    await paladin.ledger.locks.write("ghost", { pid: 2147483647, instance: "ghost", processes: [] });
+    expect(await paladin.ledger.locks.read("ghost")).toBe(null);
     expect(await paladin.read.json(paladin.scope.ledger.branch("/locks/ghost.lock"), null)).toBe(null);
   });
 });
@@ -214,14 +214,14 @@ describe("Ledger.log", () => {
   });
 
   it("append writes a jsonl span line readable via read.jsonl", async () => {
-    await paladin.ledger.log("inst").append({ json: { event: "/turn/open" } });
-    await paladin.ledger.log("inst").append({ json: { event: "/turn/close" } });
+    await paladin.telemetry.log("inst").append({ json: { event: "/turn/open" } });
+    await paladin.telemetry.log("inst").append({ json: { event: "/turn/close" } });
     const spans = await paladin.read.jsonl(paladin.scope.ledger.branch("/logs/inst/spans.jsonl"));
     expect(spans).toEqual([{ event: "/turn/open" }, { event: "/turn/close" }]);
   });
 
   it("open returns an appendable file handle for a child stream", async () => {
-    const handle = await paladin.ledger.log("inst").open("runtime", "out");
+    const handle = await paladin.telemetry.log("inst").open("runtime", "out");
     await handle.write(new TextEncoder().encode("hello\n"));
     handle.close();
     const text = await paladin.read.text(paladin.scope.ledger.branch("/logs/inst/runtime.out.log"));

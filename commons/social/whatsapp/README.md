@@ -301,6 +301,11 @@ Dev uses the test number Meta gives every app, and the temporary token of the AP
      }
    }
    ```
+7. On every new token: write it onto `SECRET_VIVA_WHATSAPP_TOKEN` in the `.env`, restart the
+   runtime, then run step 6 again with it. On the same tunnel the override was still in place
+   under the new token and the write answered `{"success":true}`; it proves the token may write
+   and that the runtime and the tunnel answer Meta. Then read the number back and the token's
+   expiry (`GET /debug_token?input_token=$TOKEN`).
 
 Never press "Verify and save" in the dashboard with a tunnel URL: that moves the app's callback and
 prod goes deaf. Without the override the test number delivers to prod, which answers from the

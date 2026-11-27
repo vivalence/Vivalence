@@ -14,7 +14,7 @@ paths: ["**/tests/**", "**/specimen/**", "**/fixtures/**"]
 ```
 
 ## specimen
-**`index.js`: bdd · assert · expect · `{snapshot}` · `is` + `matches`; direct `paladin/gestalten/belt/scribe.js` · `typology/mod.ts`, reach 360.**
+**`index.js`: bdd · assert · expect · `{snapshot}` · `is` + `matches`; direct `typology/mod.ts`, reach 360.**
 ```js
 // subsystems/typology/specimen/index.js:10
 expect.extend({

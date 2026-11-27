@@ -128,7 +128,7 @@ describe("memo · the card under every history", () => {
 
 describe("memo · the tty surface, frame by frame", { sanitizeOps: false, sanitizeResources: false }, () => {
   const mount = async (data) => {
-    const bundler = paladin.bundler(await Deno.makeTempDir({ prefix: "memo-snapshot-" }));
+    const bundler = paladin.bundle.directory(await Deno.makeTempDir({ prefix: "memo-snapshot-" }));
     const bundle = await bundler.bundle({ mime: mime.tty.solid, entry: new URL("../mode/buffer/memo.jsx", import.meta.url).pathname });
     const served = await bundler.serve(bundle.entries[0].mount);
     const url = URL.createObjectURL(new Blob([served.text], { type: "text/javascript" }));

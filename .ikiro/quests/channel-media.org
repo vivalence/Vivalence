@@ -1,6 +1,6 @@
 #+title: channel media — the cortex holds what a faculty takes and gives, by via, in media types
 #+filetags: :typology:cortex:hallucinators:
-#+status: milestones 1 – 6 LANDED on his /"go. full"/ (tree and registry, unpushed); 7 TANGLED, his walk at stop 1 of 8; 8 DESIGNED
+#+status: milestones 1 – 6 LANDED on his /"go. full"/ (tree and registry, unpushed); 7 LANDED on his /"go. full land."/; 8a – 8e LANDED 11-27 on his /"Land"/, the ledger entry too
 # writer: agent · limit: 14000 chars · unnumbered
 
 * intent
@@ -34,6 +34,8 @@
 | /"filing hangs on /dialogue only today (:435). should this mabybe not be true??"/ | =filing= sits on every route that passes turns |
 | /"2 turns with a file each, right? audio+>transcipt."/ · /"a."/ | a render is turns in, a turn out, for dialogue · object · verbatim · speech; =source= is a stream's |
 | /"make this coherent."/ · /"amen."/ | =rounds= · =backoff= are one =Loop=; a call has no =rounds=; no =config=, no =context: 0= on a faculty |
+| /"if we atttach a file to a turn we expect the models to have access to that files content. fact."/ | a tool's file is read before the next round |
+| /"we want files on the turn as turn.files."/ · /"let the harness do that."/ | parts hold the reference; the harness writes =Turn.files= |
 
 Mine, said in one line each:
 
@@ -54,7 +56,7 @@ Mine, said in one line each:
 
 * as code
 
-The diffs: =.ikiro/quests/channel-media-appendix-I-diffs.org=, by =.ikiro/reference/channel-media/appendix.py= over =todiffs.py=. 54 files edited in 189 hunks, 4 new files. Milestones 5 · 6: appendix II. Milestone 7: =.ikiro/quests/channel-media-appendix-III-diffs.org=, by =appendix3.py=: 18 files in the tree, 2 in =@education=, 54 hunks.
+The diffs: appendix I (milestones 1 – 4), II (5 · 6), III (7), IV (8), each =.ikiro/quests/channel-media-appendix-<n>-diffs.org=, by =.ikiro/reference/channel-media/todiffs.py=.
 
 A render, as a mode calls it after 7:
 
@@ -137,15 +139,19 @@ The faults, as the suites read them:
 
 | n | step | green when | state |
 |---|---|---|---|
-| 1 | the grammar: =v.media()=, =Channel=, =Channels= by via with the call inside, =Faculty.channels= required, =Faculty.via= gone; every declaration and every reader rewritten; strip · wire carry channels | =mime.media= cases, =schematics/channels.test.js=, =Cortex.register= cases, =cortex.stripwire.test.js=; four hallucinators · reader green | LANDED · AMEN (his walk, stops 1 · 2) |
-| 2 | =match= · =lower= · =take= · =give= in =belt/channel.js= | =channel.test.js=, 15 cases | LANDED · AMEN (stops 3 – 7) |
-| 3 | held in: dialogue · object · call lower a turn's parts before the provider; a painter's references are taken | =channels= cases =in · stream= · =in · render= · the tool round · the painter | LANDED · AMEN (stops 8 · 10) |
-| 4 | held out: one generator around the pump reads =/part/open= · =/part/full= · =/turn/full= on both vias; a painter's pictures | =channels= cases =out · stream= · =out · render= | LANDED · AMEN (stop 9) |
+| 1 | the grammar: =v.media()=, =Channel=, =Channels= by via with the call inside, =Faculty.channels= required, =Faculty.via= gone; every declaration and every reader rewritten; strip · wire carry channels | =mime.media= cases, =schematics/channels.test.js=, =Cortex.register= cases, =cortex.stripwire.test.js=; four hallucinators · reader green | LANDED |
+| 2 | =match= · =lower= · =take= · =give= in =belt/channel.js= | =channel.test.js=, 15 cases | LANDED |
+| 3 | held in: dialogue · object · call lower a turn's parts before the provider; a painter's references are taken | =channels= cases =in · stream= · =in · render= · the tool round · the painter | LANDED |
+| 4 | held out: one generator around the pump reads =/part/open= · =/part/full= · =/turn/full= on both vias; a painter's pictures | =channels= cases =out · stream= · =out · render= | LANDED |
 | 4b | filing on every route that passes turns: =/object= and =/call= gain the =filing= shard =/dialogue= has; a file part reaches the faculty as bytes | =systems/runtime/tests/harness.filing.test.js=, 4 cases; red on =/object= · =/call= before | LANDED |
-| 5 | the three registry fixtures follow: =@assembly= =tests/hal.js= · =modes/model/editor/tests/scripted.js=, =@vcompany= =vdex.snapshot.test.js= | both packages' suites equal pristine by step name (=36 passed (203 steps) · 19 failed=, red at base); left unmoved, =P-loop= · =P-named= · =P-refused= · the vdex snapshots go red | LANDED (appendix II; his go per repo) |
+| 5 | the three registry fixtures follow: =@assembly= =tests/hal.js= · =modes/model/editor/tests/scripted.js=, =@vcompany= =vdex.snapshot.test.js= | both packages' suites equal pristine by step name; left unmoved, =P-loop= · =P-named= · =P-refused= · the vdex snapshots go red | LANDED (appendix II) |
 | 6 | a packet carries its media type: =Audio.Packet= =rate= + =codec= become one =mime=; packets are held in and out | the =channels= case /a packet: an undeclared media type faults, in and out/; =dictation.conversation.test.js= /audio packets demand a media type/ | LANDED (appendix II) |
-| 7 | a render is turns in, a turn out: =verbatim.render= · =speech.render= run =respond=; deepgram's nova gains a =render= channel (ogg · mpeg · mp4 · aac) over =POST /v1/listen=; elevenlabs' speech render gives an =audio/mpeg= part; =@education= =harvest/sources/tts.js= reads the part | the =channels= cases /an ear on render/ · /a mouth on render/; =deepgram/tests/provider.test.js= /a file on render/; =elevenlabs= /render speaks each text part/; the harvest suite | TANGLED (appendix III) |
-| 8 | the demo: the bot files what it hears, the whatsapp provider keeps =mime_type= as sent, a =/transcribe= tool | a voice note in → the model reads =[attached audio · file … · audio/ogg; codecs=opus · 18 kB · <faculty> cannot read audio]= → the tool returns the transcript | DESIGNED |
+| 7 | a render is turns in, a turn out: =verbatim.render= · =speech.render= run =respond=; deepgram's nova gains a =render= channel (ogg · mpeg · mp4 · aac) over =POST /v1/listen=; elevenlabs' speech render gives an =audio/mpeg= part; =@education= =harvest/sources/tts.js= reads the part | the =channels= cases /an ear on render/ · /a mouth on render/; =deepgram= /a file on render/; the harvest suite | LANDED (appendix III) |
+| 8a | bytes sent in arrive as a file: =arriving= files a dialogue's parts into the mode's folder | =received.test.js= /a voice note is filed/ | LANDED (appendix IV) |
+| 8b | harness =/verbatim= render over =filing= | a file part in, a text part out | LANDED |
+| 8c | =Turn.files=, written by the harness (=soma.files=) | =turn_files= holds both turns | LANDED |
+| 8d | elevenlabs' =scribe_v3= renders a file; the ledger names it | =elevenlabs= /a file on render/ | LANDED, both ledgers |
+| 8e | the bot's =/file/transcribe= tool; the model reads its file | /the bot transcribes a voice note itself/ | LANDED |
 
 Steps 3 and 4 are one section of the appendix: they share one file.
 
@@ -158,10 +164,6 @@ sh .ikiro/reference/channel-media/replay.sh <copy> 1   # then the suites, then 2
 - Section 3 · 4 lands only on section 1: four of its hunks stand on lines section 1 writes.
 - =systems/runtime/tests/snapshots/cortex-contract-strip.snapshot.json= is pinned to the old shape and ignored by git: one =SNAPSHOT_HOT=1= run of =cortex-contract.snapshot.test.js= after 1.
 - The declarations were rewritten by =.ikiro/reference/channel-media/regrammar.py=; bare test faculties were opened by =open.py= (a local =ANY=).
-
-After 7, on copies: typology =178 passed (808 steps) · 0 failed=; commons =20 passed (213 steps) · 1 failed=, the =bak/= file; runtime =113 passed (725 steps) · 1 failed=, the base red; the stub and =@assembly= · =@vcompany= as before by failing step name; harvest =1 passed (4 steps)=.
-
-After the landing of 1 – 6, on a copy of the tree: typology =178 passed (806 steps)=; runtime =113 passed (725 steps) · 1 failed=, the base red; commons =19 passed (211 steps) · 1 failed=, the =bak/= file.
 
 What the suites do not prove:
 
@@ -179,6 +181,9 @@ What he sees after 1 – 4 land:
 
 * never
 
+- Filing in the bot (=received.js=): it is the harness's.
+- The transcript as text in the tool result: a tool returns a file.
+- A twitch or =TurnRepository.create= writing =Turn.files=: the harness does.
 - =codec= · =rate= · =codecs= keys; =pcm_16000= · =mp3_44100_128=; =audio/L16= (big-endian by RFC 3551, ours is little).
 - A faculty-wide list. =packets= on a channel. verbatim's =event=.
 - =Faculty.via= beside the channels; =register= checking that a via has channels; a list of via names on the wire.
@@ -192,4 +197,4 @@ What he sees after 1 – 4 land:
 
 * next
 
-His walk of 7: stop 1 of 8 awaits his amen. Owed: =App.svelte:477= guards an absent =context=. His =go= lands 7.
+8e GREEN live 11-27 18:32 on his local instance: a WhatsApp voice note, =file_transcribe=, =scribe_v3= on render, a text file, =turn_files= holds both turns. Owed: the backfill on 2026.11.2 (AMEN, not landed: the version in =deno.jsonc= is his), with tool results.

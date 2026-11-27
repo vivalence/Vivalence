@@ -32,14 +32,8 @@ export const lowering = () => async (ctx, next) => {
     ...(marks.length && { cache: { marks } }),
     ...(request.settings && { settings: request.settings }),
     ...(request.output && { output: request.output }),
-    ...(request.source && { source: request.source }),
+    ...(request.source !== undefined && { source: request.source }),
   };
-  await next();
-};
-
-export const sourcing = () => async (ctx, next) => {
-  const request = ctx.input ?? {};
-  ctx.input = { source: request.source, settings: request.settings ?? {} };
   await next();
 };
 
@@ -51,9 +45,12 @@ export const streaming = (cortex, type) => (ctx) => {
   ctx.output = hallucinate.respond(faculty(cortex, type, "stream", ctx.policy), "stream", ctx.input, policyOf(ctx));
 };
 
-export const transcribing = (cortex, via = "stream") => (ctx) => {
-  const transcriber = via === "render" ? hallucinate.transcript : hallucinate.transcribe;
-  ctx.output = transcriber(faculty(cortex, "verbatim", via, ctx.policy), ctx.input, policyOf(ctx));
+export const transcribing = (cortex) => (ctx) => {
+  ctx.output = hallucinate.transcribe(
+    faculty(cortex, "verbatim", "stream", ctx.policy),
+    ctx.input,
+    policyOf(ctx),
+  );
 };
 
 export const calling = (cortex) => (ctx) => {
@@ -65,10 +62,6 @@ export const calling = (cortex) => (ctx) => {
 
 export const synthesizing = (cortex) => (ctx) => {
   ctx.output = hallucinate.synthesize(faculty(cortex, "speech", "stream", ctx.policy), ctx.input, policyOf(ctx));
-};
-
-export const vocalizing = (cortex) => async (ctx) => {
-  ctx.output = await hallucinate.vocalize(faculty(cortex, "speech", "render", ctx.policy), ctx.input, policyOf(ctx));
 };
 
 export const picturing = () => async (ctx, next) => {

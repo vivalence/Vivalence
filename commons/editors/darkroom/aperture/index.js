@@ -14,7 +14,7 @@ const part = async (ctx, id) => {
 };
 
 const filed = async (ctx, buffer, seat, type, bytes) => {
-  const landed = await paladin.state.land(
+  const landed = await paladin.write.stream(
     ctx.mode.mountpoint,
     { path: seat, mime: type },
     new Blob([bytes]).stream(),

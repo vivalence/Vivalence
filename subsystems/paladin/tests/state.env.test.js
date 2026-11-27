@@ -12,87 +12,87 @@ const tmp = async (body = "") => {
 describe("state.env", () => {
   it("creates the file when absent", async () => {
     const file = `${await Deno.makeTempDir()}/nested/.env`;
-    await paladin.state.env(file, { VIVA_A: "1" });
+    await paladin.envfile.write(file, { VIVA_A: "1" });
     expect(await Deno.readTextFile(file)).toBe('VIVA_A="1"\n');
   });
 
   it("replaces a value IN PLACE, keeping comments, blanks and order", async () => {
     const file = await tmp('# addresses\nVIVA_A="old"\n\n# keys\nSECRET_VIVA_B=""\n');
-    await paladin.state.env(file, { VIVA_A: "new" });
+    await paladin.envfile.write(file, { VIVA_A: "new" });
     expect(await Deno.readTextFile(file)).toBe('# addresses\nVIVA_A="new"\n\n# keys\nSECRET_VIVA_B=""\n');
   });
 
   it("appends a key it has never seen, after the existing content", async () => {
     const file = await tmp('# top\nVIVA_A="1"\n');
-    await paladin.state.env(file, { VIVA_B: "2" });
+    await paladin.envfile.write(file, { VIVA_B: "2" });
     expect(await Deno.readTextFile(file)).toBe('# top\nVIVA_A="1"\nVIVA_B="2"\n');
   });
 
   it("writes several keys in one pass, replacing and appending as needed", async () => {
     const file = await tmp('VIVA_A="1"\n');
-    await paladin.state.env(file, { VIVA_A: "9", VIVA_B: "2" });
+    await paladin.envfile.write(file, { VIVA_A: "9", VIVA_B: "2" });
     expect(await Deno.readTextFile(file)).toBe('VIVA_A="9"\nVIVA_B="2"\n');
   });
 
   it("matches an exported line and rewrites it in the same shape", async () => {
     const file = await tmp('export VIVA_A="old"\n');
-    await paladin.state.env(file, { VIVA_A: "new" });
+    await paladin.envfile.write(file, { VIVA_A: "new" });
     expect(await Deno.readTextFile(file)).toBe('VIVA_A="new"\n');
   });
 
   it("does not match a key that merely PREFIXES another", async () => {
     const file = await tmp('VIVA_A_LONGER="keep"\n');
-    await paladin.state.env(file, { VIVA_A: "new" });
+    await paladin.envfile.write(file, { VIVA_A: "new" });
     expect(await Deno.readTextFile(file)).toBe('VIVA_A_LONGER="keep"\nVIVA_A="new"\n');
   });
 
   it("does not disturb a commented-out line of the same key", async () => {
     const file = await tmp('# VIVA_A="disabled"\nVIVA_B="1"\n');
-    await paladin.state.env(file, { VIVA_A: "on" });
+    await paladin.envfile.write(file, { VIVA_A: "on" });
     expect(await Deno.readTextFile(file)).toBe('# VIVA_A="disabled"\nVIVA_B="1"\nVIVA_A="on"\n');
   });
 
   it("writes an unset value as a commented line — unset documents, never claims", async () => {
     const file = await tmp();
-    await paladin.state.env(file, { VIVA_A: "", VIVA_B: null });
+    await paladin.envfile.write(file, { VIVA_A: "", VIVA_B: null });
     expect(await Deno.readTextFile(file)).toBe('# VIVA_A=""\n# VIVA_B=""\n');
   });
 
   it("uncomments a scaffolded blank IN PLACE — same slot, same group, no twin", async () => {
     const file = await tmp('# keys\n# a secret\n# SECRET_VIVA_A=""\nVIVA_B="1"\n');
-    await paladin.state.env(file, { SECRET_VIVA_A: "on" });
+    await paladin.envfile.write(file, { SECRET_VIVA_A: "on" });
     expect(await Deno.readTextFile(file)).toBe('# keys\n# a secret\nSECRET_VIVA_A="on"\nVIVA_B="1"\n');
   });
 
   it("unsetting a live key comments it in place", async () => {
     const file = await tmp('VIVA_A="x"\nVIVA_B="1"\n');
-    await paladin.state.env(file, { VIVA_A: "" });
+    await paladin.envfile.write(file, { VIVA_A: "" });
     expect(await Deno.readTextFile(file)).toBe('# VIVA_A=""\nVIVA_B="1"\n');
   });
 
   it("line is the one grammar: a value is claimed, a blank is commented", () => {
-    expect(paladin.state.line("VIVA_A", "v")).toBe('VIVA_A="v"');
-    expect(paladin.state.line("VIVA_A", "")).toBe('# VIVA_A=""');
-    expect(paladin.state.line("VIVA_A", null)).toBe('# VIVA_A=""');
+    expect(paladin.envfile.entry("VIVA_A", "v")).toBe('VIVA_A="v"');
+    expect(paladin.envfile.entry("VIVA_A", "")).toBe('# VIVA_A=""');
+    expect(paladin.envfile.entry("VIVA_A", null)).toBe('# VIVA_A=""');
   });
 
   it("keeps ${VAR} verbatim — expansion is Env.get's job, not the writer's", async () => {
     const file = await tmp();
-    await paladin.state.env(file, { VIVA_SERVE: "${VIVA_ORIGIN}/" });
+    await paladin.envfile.write(file, { VIVA_SERVE: "${VIVA_ORIGIN}/" });
     expect(await Deno.readTextFile(file)).toBe('VIVA_SERVE="${VIVA_ORIGIN}/"\n');
   });
 
   it("is idempotent — writing the same bag twice changes nothing", async () => {
     const file = await tmp('# c\nVIVA_A="1"\n');
-    await paladin.state.env(file, { VIVA_A: "2" });
+    await paladin.envfile.write(file, { VIVA_A: "2" });
     const once = await Deno.readTextFile(file);
-    await paladin.state.env(file, { VIVA_A: "2" });
+    await paladin.envfile.write(file, { VIVA_A: "2" });
     expect(await Deno.readTextFile(file)).toBe(once);
   });
 
   it("normalises a missing trailing newline before appending", async () => {
     const file = await tmp('VIVA_A="1"');
-    await paladin.state.env(file, { VIVA_B: "2" });
+    await paladin.envfile.write(file, { VIVA_B: "2" });
     expect(await Deno.readTextFile(file)).toBe('VIVA_A="1"\nVIVA_B="2"\n');
   });
 });

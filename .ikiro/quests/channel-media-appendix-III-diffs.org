@@ -810,9 +810,8 @@ sh .ikiro/reference/channel-media/replay.sh <registry copy> 7r
 
 #+begin_src diff
 // education/modes/tactics/harvest/sources/tts.js:1
--import { Controller, Span } from "@vivalence/typology";
-+import { Controller, pcm, Span } from "@vivalence/typology";
-
++import { decodeBase64 } from "jsr:@std/encoding@1.0.10/base64";
+ import { Controller, Span } from "@vivalence/typology";
 #+end_src
 
 #+begin_src diff
@@ -825,7 +824,7 @@ sh .ikiro/reference/channel-media/replay.sh <registry copy> 7r
 +      controller: new Controller({ stdout: new Span("hallucination") }),
 +      turns: [{ role: "assistant", parts: [{ type: "text", text: found.synthesize }] }],
 +    });
-+    return pcm.bytes(said.turns.at(-1).parts[0].data);
++    return decodeBase64(said.turns.at(-1).parts[0].data);
 +  },
  });
 #+end_src

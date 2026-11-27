@@ -198,7 +198,6 @@ export default async function provider(service) {
     type: "picture",
     id: model.id,
     tune: model.tune,
-    context: 0,
     channels: {
       render: {
         in: [{ type: "text" }, { type: "image", count: model.limits.references }],
@@ -206,7 +205,6 @@ export default async function provider(service) {
         via: makePicture(model),
       },
     },
-    limits: model.limits,
   });
 
   const TYPES = { dialogue, choice, picture };

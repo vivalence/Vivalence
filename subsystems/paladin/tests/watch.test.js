@@ -10,7 +10,7 @@ const listening = async (directory) => {
   await sleep.ms(AGED);
   const bursts = [];
   const waiting = [];
-  const stop = paladin.watch(directory, (paths) => {
+  const stop = paladin.watch.directory(directory, (paths) => {
     bursts.push(paths.map((path) => basename(path)).sort());
     for (const resolve of waiting.splice(0)) resolve();
   });
@@ -49,7 +49,7 @@ specimen.describe("paladin.watch — a directory's writes, heard once per settle
     const ear = await listening(directory);
     try {
       const burst = ear.next();
-      await paladin.state.scribe(join(directory, "articles/nested.md"), "# nested");
+      await paladin.write.text(join(directory, "articles/nested.md"), "# nested");
       await burst;
       specimen.expect(ear.bursts.flat().includes("nested.md")).toBe(true);
     } finally {

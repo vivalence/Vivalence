@@ -138,7 +138,7 @@ specimen.describe("the file traits — FILESINK · FILESET · SURFACED over a se
     specimen.expect(surface.files.getItems()).toEqual([]);
 
     const held = await scenario.repos.surface.findOneOrFail({ id: surface.id }, { populate: ["sources"] });
-    const bundling = { bundler: paladin.bundler(join(directory, "surfaced", "mountpoint"), join(directory, "surfaced")) };
+    const bundling = { bundler: paladin.bundle.directory(join(directory, "surfaced", "mountpoint"), join(directory, "surfaced")) };
     const compiled = await scenario.repos.surface.bundle(held, bundling);
     specimen.expect([compiled.path, compiled.mime]).toEqual([surface.entry, mime.javascript]);
     specimen.expect(compiled.mount).toBe(join(directory, "surfaced", "mountpoint", surface.entry));

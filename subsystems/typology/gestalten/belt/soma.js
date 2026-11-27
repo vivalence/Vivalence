@@ -42,6 +42,14 @@ const gathered = (product, yielded) => {
   return next;
 };
 
+export const files = (parts) =>
+  parts.flatMap((part) => {
+    if (part.type === "file") return [part.file];
+    if (part.type === "tool_result" && "file" in part.product)
+      return part.product.file.map((file) => file.id);
+    return [];
+  });
+
 export const spoken = (transcript) =>
   [...transcript.turns, ...(transcript.open ? [transcript.open] : [])]
     .flatMap((turn) => turn.parts)
@@ -102,9 +110,13 @@ const opened = (value) => {
 export function* drain(turn) {
   yield { event: "/turn/open", turn: { role: turn.role } };
   for (let index = 0; index < turn.parts.length; index++) {
-    const { type, ...fields } = turn.parts[index];
+    const { type, mime, ...fields } = turn.parts[index];
     const entries = Object.entries(fields);
-    const shell = { type, ...Object.fromEntries(entries.map(([key, value]) => [key, opened(value)])) };
+    const shell = {
+      type,
+      ...(mime !== undefined && { mime }),
+      ...Object.fromEntries(entries.map(([key, value]) => [key, opened(value)])),
+    };
     const part = Object.fromEntries(entries.filter(([, value]) => opened(value) !== value));
     yield { event: "/part/open", index, part: shell };
     if (Object.keys(part).length) yield { event: "/part/delta", index, part };

@@ -2,8 +2,8 @@ import { Path, Url, Vector, specimen, v } from "@vivalence/typology";
 import { Paladin } from "../paladin/prototype.js";
 import { Instance } from "../instance/prototype.js";
 import { bake, baked, belt } from "../paladin/lifecycle.js";
-import vault from "../gestalten/belt/vault.js";
-import scope from "../gestalten/belt/scope.js";
+import { vault } from "../gestalten/belt/vault.js";
+import { scope } from "../gestalten/belt/scope.js";
 
 const { describe, it, expect } = specimen;
 

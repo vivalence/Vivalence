@@ -74,7 +74,7 @@ const freighted = (held) => ({ ...held, voice: held.voice === null ? null : `htt
 describe("memo · the tablet on the dom, frame by frame", { sanitizeOps: false, sanitizeResources: false }, () => {
   const mount = async (data) => {
     const document = dom();
-    const bundler = paladin.bundler(await Deno.makeTempDir({ prefix: "memo-tablet-snapshot-" }));
+    const bundler = paladin.bundle.directory(await Deno.makeTempDir({ prefix: "memo-tablet-snapshot-" }));
     const bundle = await bundler.bundle({ mime: mime.dom.svelte, entry: new URL("../mode/buffer/Memo.svelte", import.meta.url).pathname });
     const served = await bundler.serve(bundle.entries[0].mount);
     const url = URL.createObjectURL(new Blob([served.text], { type: "text/javascript" }));

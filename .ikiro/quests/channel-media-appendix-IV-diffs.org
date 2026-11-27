@@ -1,0 +1,748 @@
+#+title: channel media — appendix IV: the diffs of milestone 8
+#+status: 8a – 8e LANDED; the backfill AMEN, not landed
+# writer: agent · limit: 60000 chars · by .ikiro/reference/channel-media/todiffs.py
+
+* milestone 8a — bytes sent in arrive as a file, in the mode's folder
+
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/harness.js:208
+   const landed = await paladin.write.stream(
+-    ctx.runtime.mountpoint,
++    ctx.mode.mountpoint,
+     { path: join("files", part.type), mime: part.mime },
+#+end_src
+
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/harness.js:212
+   );
+-  const file = await ctx.entities.file.upload({ ...landed, thread: ctx.thread.id });
++  const file = await ctx.entities.file.upload({
++    ...landed,
++    mode: ctx.mode.id,
++    user: ctx.user.id,
++    thread: ctx.thread.id,
++  });
+   return { type: "file", file: file.id };
++};
++
++const arriving = async (ctx, next) => {
++  ctx.input.parts = await Promise.all(ctx.input.parts.map(filed(ctx)));
++  await next();
+ };
+#+end_src
+
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/harness.js:432
+
+-  harness.branch("/dialogue").use(chaining).use(persisting).use(filing);
++  harness.branch("/dialogue").use(arriving).use(chaining).use(persisting).use(filing);
+   harness.branch("/object").use(filing);
+#+end_src
+
+#+begin_src diff
+// commons/social/personal/tests/received.test.js:14
+ const SERVICE = "@commons/service/whatsapp";
++const VOICE = {
++  mime: "audio/ogg; codecs=opus",
++  bytes: new TextEncoder().encode("OggS-a-voice-note"),
++};
+
+#+end_src
+
+#+begin_src diff
+// commons/social/personal/tests/received.test.js:163
+     graph = Deno.serve({ port: 0, onListen: () => {} }, async (request) => {
++      const asked = new URL(request.url);
++      if (asked.pathname === "/media.VOICE")
++        return Response.json({ url: `${asked.origin}/held/voice`, mime_type: VOICE.mime });
++      if (asked.pathname === "/held/voice") return new Response(VOICE.bytes);
+       const posted = await request.json();
+#+end_src
+
+#+begin_src diff
+// commons/social/personal/tests/received.test.js:311
+
++  it("a voice note is filed: the Turn holds the file, the model reads its line", async () => {
++    await delivered("wamid.V", undefined, 1, {
++      type: "audio",
++      text: undefined,
++      audio: { id: "media.VOICE", mime_type: VOICE.mime, voice: true },
++    });
++    const [turn] = world.query(
++      "select parts from Turn where json_extract(meta, '$.provider.id') = 'wamid.V'",
++    );
++    const held = JSON.parse(turn.parts)[0].file;
++    const [file] = world.query(`select id, mount, mime, bytes from File where id = '${held}'`);
++    expect(JSON.parse(turn.parts)).toEqual([{ type: "file", file: file.id }]);
++    expect([file.mime, file.bytes]).toEqual([VOICE.mime, VOICE.bytes.length]);
++    expect(file.mount.includes("mode_bot_personal/files/audio.")).toBe(true);
++    expect(sent.at(-1).text.body.includes(`[attached audio · file ${file.id}`)).toBe(true);
++  });
++
+   it("a heard message shows typing, tied to its id and marked read", async () => {
+#+end_src
+
+
+* milestone 8b — a filed voice note is transcribed by hand: harness /verbatim render
+
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/harness.js:430
+
++  if (modeDie.cortex.find({ type: "verbatim", via: "render" }).length > 0)
++    harness
++      .branch("/verbatim")
++      .use(filing)
++      .open(
++        {
++          nature: "render",
++          input: v.primitives.harness.Request,
++          output: v.primitives.hallucination.Response,
++        },
++        (ctx) =>
++          ctx.cortex.hallucinate.verbatim.render({
++            controller: ctx.controller.branch("verbatim"),
++            turns: ctx.hallucination.turns,
++            settings: { language: ctx.conversational.language },
++            policy: ctx.conversational.hear,
++          }),
++      );
++
+   if (REQUIRES.CONVERSATION.some((types) => types.every(streams)))
+#+end_src
+
+
+* milestone 8c — Turn.files is written from the file parts
+
+#+begin_src diff
+// subsystems/typology/entities/Turn.ts:10
+   async create({ thread, ...fields }: any, options?) {
+     const owner = await this.em.findOneOrFail(ThreadEntity, thread);
+-    return super.create({ ...fields, thread: owner }, options);
++    return super.create(
++      {
++        ...fields,
++        thread: owner,
++        files: fields.parts.filter((part) => part.type === "file").map((part) => part.file),
++      },
++      options,
++    );
+   }
+#+end_src
+
+#+begin_src diff
+// commons/social/personal/tests/received.test.js:326
+     const [turn] = world.query(
+-      "select parts from Turn where json_extract(meta, '$.provider.id') = 'wamid.V'",
++      "select id, parts from Turn where json_extract(meta, '$.provider.id') = 'wamid.V'",
+     );
+…
+     expect(sent.at(-1).text.body.includes(`[attached audio · file ${file.id}`)).toBe(true);
++    expect(world.query("select turn_id, file_id from turn_files")).toEqual([
++      { turn_id: turn.id, file_id: file.id },
++    ]);
+   });
+#+end_src
+
+
+* milestone 8c — the stored turns are backfilled on 2026.11.2 (AMEN, not landed; the version in deno.jsonc is his)
+
+Probe: =.ikiro/reference/channel-media/backfill.probe.js <mount> <version>=, run from =systems/runtime=.
+
+#+begin_src diff
+// subsystems/typology/entities/Turn.ts:2
+ import { v } from "../schematics/index.js";
++import { Vector } from "../prototypes/vector.js";
+…
++const twitch = new Vector().open("/after/datamap/migrate/2026.11.2", (ctx) =>
++  ctx.migrate.sql(
++    "insert or ignore into `turn_files` (`turn_id`, `file_id`) " +
++      "select `Turn`.`id`, json_extract(part.value, '$.file') " +
++      "from `Turn`, json_each(`Turn`.`parts`) as part " +
++      "where json_extract(part.value, '$.type') = 'file'",
++  ),
++);
++
+ export default {
+   type: "turn",
+   schema: TurnSchema,
+   entity: TurnEntity,
+   repository: TurnRepository,
++  twitch,
+ };
+#+end_src
+
+
+
+* milestone 8d — elevenlabs' scribe renders a file (LANDED)
+
+Probe: =.ikiro/reference/channel-media/scribe.probe.js=.
+
+#+begin_src diff
+// commons/hallucinators/elevenlabs/provider/index.js:1
+-import { encodeBase64 } from "@std/encoding/base64";
++import { decodeBase64, encodeBase64 } from "@std/encoding/base64";
+ import { pcm, Queue, v } from "@vivalence/typology";
+#+end_src
+
+#+begin_src diff
+// commons/hallucinators/elevenlabs/provider/index.js:113
+   languages.length === 1 ? `&language_code=${languages[0]}` : "";
++
++async function listen(key, model, audio, languages = [], signal) {
++  const form = new FormData();
++  form.append("model_id", model);
++  form.append("file", new Blob([decodeBase64(audio.data)], { type: audio.mime }));
++  if (languages.length === 1) form.append("language_code", languages[0]);
++  const response = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
++    method: "POST",
++    signal,
++    headers: { "xi-api-key": key },
++    body: form,
++  });
++  if (!response.ok)
++    throw new Error(`[elevenlabs] listen ${response.status}: ${await response.text()}`);
++  const heard = await response.json();
++  return { type: "text", text: heard.text };
++}
+
+#+end_src
+
+#+begin_src diff
+// commons/hallucinators/elevenlabs/provider/index.js:262
+
+-  function makeVerbatim(entry) {
++  function makeLive(entry) {
+     const transcribe = ({ source, settings = {} }, { signal } = {}) =>
+#+end_src
+
+#+begin_src diff
+// commons/hallucinators/elevenlabs/provider/index.js:288
+
+-  const TYPES = { speech: makeSpeech, verbatim: makeVerbatim };
++  const makeScribe = (entry) => ({
++    ...entry,
++    type: "verbatim",
++    id: entry.id,
++    tune: entry.tune,
++    channels: {
++      render: {
++        in: [
++          {
++            type: "audio",
++            mime: [
++              "audio/ogg",
++              "audio/opus",
++              "audio/mpeg",
++              "audio/mp4",
++              "audio/aac",
++              "audio/wav",
++              "audio/flac",
++              "audio/webm",
++            ],
++          },
++        ],
++        out: [{ type: "text" }],
++        via: async ({ turns, settings = {} }, { signal } = {}) => ({
++          role: "user",
++          parts: await Promise.all(
++            turns
++              .flatMap((turn) => turn.parts)
++              .map((audio) => listen(apiKey, entry.model, audio, settings.language, signal)),
++          ),
++        }),
++      },
++    },
++  });
+
+-  return service.faculties.map((entry) => TYPES[entry.type](entry));
++  const FAMILIES = [
++    [(entry) => entry.type === "speech", makeSpeech],
++    [(entry) => entry.model.endsWith("_live") || entry.model.endsWith("_realtime"), makeLive],
++    [() => true, makeScribe],
++  ];
++
++  return service.faculties.map((entry) =>
++    FAMILIES.find(([matches]) => matches(entry))[1](entry)
++  );
+ }
+#+end_src
+
+#+begin_src diff
+// commons/hallucinators/elevenlabs/tests/provider.test.js:563
+
++specimen.describe("elevenlabs · a file on render", () => {
++  specimen.it("an audio part is posted as a form: the model, the file under its media type", async () => {
++    const [live, scribe] = await provider({
++      secrets: { key: "fake-key" },
++      faculties: [
++        FACULTIES[2],
++        { type: "verbatim", id: "scribe_v3", model: "scribe_v3", tune: [0.8, 0.9, 0.7] },
++      ],
++    });
++    const asked = [];
++    const original = globalThis.fetch;
++    globalThis.fetch = async (url, init) => {
++      const file = init.body.get("file");
++      asked.push({
++        url,
++        headers: init.headers,
++        model: init.body.get("model_id"),
++        language: init.body.get("language_code"),
++        mime: file.type,
++        bytes: [...new Uint8Array(await file.arrayBuffer())],
++      });
++      return Response.json({ language_code: "ita", text: "ci vediamo domani", words: [] });
++    };
++    try {
++      const turn = await scribe.channels.render.via({
++        turns: [
++          {
++            role: "user",
++            parts: [{ type: "audio", mime: "audio/ogg; codecs=opus", data: "T2dnUw==" }],
++          },
++        ],
++        settings: { language: ["it"] },
++      });
++      specimen.expect(turn).toEqual({
++        role: "user",
++        parts: [{ type: "text", text: "ci vediamo domani" }],
++      });
++      specimen.expect(turn).matches(v.primitives.hallucination.Turn);
++      specimen.expect(asked).toEqual([
++        {
++          url: "https://api.elevenlabs.io/v1/speech-to-text",
++          headers: { "xi-api-key": "fake-key" },
++          model: "scribe_v3",
++          language: "it",
++          mime: "audio/ogg; codecs=opus",
++          bytes: [79, 103, 103, 83],
++        },
++      ]);
++      specimen.expect(Object.keys(scribe.channels)).toEqual(["render"]);
++      specimen.expect(Object.keys(live.channels)).toEqual(["stream"]);
++    } finally {
++      globalThis.fetch = original;
++    }
++  });
++
++  specimen.it("a refusal is a fault that carries the status and the body", async () => {
++    const [scribe] = await provider({
++      secrets: { key: "fake-key" },
++      faculties: [{ type: "verbatim", id: "scribe_v3", model: "scribe_v3", tune: [0.8, 0.9, 0.7] }],
++    });
++    const original = globalThis.fetch;
++    globalThis.fetch = async () => new Response("invalid_model_id", { status: 422 });
++    try {
++      await specimen
++        .expect(
++          scribe.channels.render.via({
++            turns: [
++              { role: "user", parts: [{ type: "audio", mime: "audio/ogg", data: "T2dnUw==" }] },
++            ],
++          }),
++        )
++        .rejects.toThrow("[elevenlabs] listen 422: invalid_model_id");
++    } finally {
++      globalThis.fetch = original;
++    }
++  });
++});
++
+ specimen.describe("elevenlabs · a faculty carries its entry forward (m126 Q7A)", () => {
+#+end_src
+
+
+* milestone 8d — the ledger names the new ear (LANDED)
+
+His own =/Users/finn/.viva/ledger.viva.json:152= gains the same entry after =scribe_v3_live=, in its one-key-per-line shape.
+
+#+begin_src diff
+// commons/ledger/ledger.viva.json:40
+-        { "type": "verbatim", "id": "scribe_v3_live", "model": "scribe_v3_live", "tune": [0.8, 0.9, 0.7] }
++        { "type": "verbatim", "id": "scribe_v3_live", "model": "scribe_v3_live", "tune": [0.8, 0.9, 0.7] },
++        { "type": "verbatim", "id": "scribe_v3", "model": "scribe_v3", "tune": [0.8, 0.9, 0.7] }
+#+end_src
+
+
+* milestone 8e — the bot's /file/transcribe tool; the harness writes a turn's files and hands a tool's file to the model (LANDED; holds 8b's test)
+
+#+begin_src diff
+// subsystems/typology/entities/Turn.ts:11
+     const owner = await this.em.findOneOrFail(ThreadEntity, thread);
+-    return super.create(
+-      {
+-        ...fields,
+-        thread: owner,
+-        files: fields.parts.filter((part) => part.type === "file").map((part) => part.file),
+-      },
+-      options,
+-    );
++    return super.create({ ...fields, thread: owner }, options);
+   }
+#+end_src
+
+#+begin_src diff
+// subsystems/typology/gestalten/belt/soma.js:42
+   return next;
+ };
++
++export const files = (parts) =>
++  parts.flatMap((part) => {
++    if (part.type === "file") return [part.file];
++    if (part.type === "tool_result" && "file" in part.product)
++      return part.product.file.map((file) => file.id);
++    return [];
++  });
+
+ export const spoken = (transcript) =>
+#+end_src
+
+#+begin_src diff
+// subsystems/typology/tests/gestalten/hallucinate.test.js:701
+
++  specimen.it("soma.files: the files a turn's parts hold, as parts and in tool results", () => {
++    const parts = [
++      { type: "text", text: "see" },
++      { type: "file", file: "file-a" },
++      {
++        type: "tool_result",
++        id: "call-1",
++        product: { file: [{ id: "file-b" }, { id: "file-c" }] },
++      },
++      { type: "tool_result", id: "call-2", product: { message: "none" } },
++    ];
++    specimen.expect(belt.soma.files(parts)).toEqual(["file-a", "file-b", "file-c"]);
++    specimen.expect(belt.soma.files([])).toEqual([]);
++  });
++
+   specimen.it("an ear on render: an ogg returns its sentence, an amr faults first", async () => {
+#+end_src
+
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/harness.js:5
+ import { v7 } from "uuid";
+-import { TurnEntity } from "@vivalence/runtime";
++import { FileEntity, TurnEntity } from "@vivalence/runtime";
+ import * as gestalten from "../../../gestalten/index.js";
+#+end_src
+
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/harness.js:102
+   tools.use(shard.context.bind("thread", ctx.input.thread));
++  tools.use(async (toolDie, next) => {
++    await next();
++    if (!toolDie.output?.product?.file) return;
++    toolDie.output = {
++      ...toolDie.output,
++      parts: await Promise.all(
++        toolDie.output.product.file.map((file) => handed(ctx)({ type: "file", file: file.id })),
++      ),
++    };
++  });
+   return tools;
+#+end_src
+
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/harness.js:149
+     parts: ctx.input.parts,
++    files: soma.files(ctx.input.parts),
+     parent: ctx.hallucination.turns.at(-1) ?? null,
+#+end_src
+
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/harness.js:198
+ const handed = (ctx) => async (part) => {
++  if (part.type === "tool_result" && "file" in part.product)
++    return [
++      part,
++      ...(await Promise.all(
++        part.product.file.map((file) => handed(ctx)({ type: "file", file: file.id })),
++      )),
++    ];
+   if (part.type !== "file") return part;
+#+end_src
+
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/harness.js:206
+ const filed = (ctx) => async (part) => {
++  if ("file" in part && part.type !== "file") return [];
+   if (!("mime" in part)) return part;
+#+end_src
+
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/harness.js:230
+       role: turn.role,
+-      parts: await Promise.all(turn.parts.map(swap)),
++      parts: (await Promise.all(turn.parts.map(swap))).flat(),
+       meta: turn.meta,
+#+end_src
+
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/harness.js:239
+     ...packet,
+-    turn: { ...packet.turn, parts: await Promise.all(packet.turn.parts.map(file)) },
++    turn: { ...packet.turn, parts: (await Promise.all(packet.turn.parts.map(file))).flat() },
+   }),
+#+end_src
+
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/harness.js:301
+       if (packet.event === "/part/full" && packet.turn) {
+-        const sealed = await em.findOneOrFail(TurnEntity, packet.turn);
++        const sealed = await em.findOneOrFail(TurnEntity, packet.turn, { populate: ["files"] });
+         sealed.parts = sealed.parts.with(packet.index, packet.part);
++        sealed.files.set(soma.files(sealed.parts).map((id) => em.getReference(FileEntity, id)));
+         await em.flush();
+#+end_src
+
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/harness.js:319
+         Object.assign(parent, { parts: folded.turns.at(-1).parts, meta: folded.turns.at(-1).meta });
++        parent.files.set(soma.files(parent.parts).map((id) => em.getReference(FileEntity, id)));
+         await em.flush();
+#+end_src
+
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/harness.js:360
+       parts: turn.parts,
++      files: soma.files(turn.parts),
+       meta: turn.meta,
+#+end_src
+
+#+begin_src diff
+// subsystems/typology/gestalten/belt/hallucinate.js:115
+     child.stop();
+-    return { call, result: { condition: spoken.condition, product: spoken.product } };
++    return {
++      call,
++      result: { condition: spoken.condition, product: spoken.product },
++      parts: spoken.parts,
++    };
+   } catch (fault) {
+#+end_src
+
+#+begin_src diff
+// subsystems/typology/gestalten/belt/hallucinate.js:122
+         : fault.message;
+-    return { call, result: { condition: "ERROR", product: { message } } };
++    return { call, result: { condition: "ERROR", product: { message } }, parts: [] };
+   }
+#+end_src
+
+#+begin_src diff
+// subsystems/typology/gestalten/belt/hallucinate.js:133
+
+-const answer = async (policy, turn) => ({
+-  role: "user",
+-  parts: (await dispatch(policy, turn.parts)).map(({ call, result }) => ({
+-    type: "tool_result",
+-    id: call.id,
+-    condition: result.condition,
+-    product: result.product,
+-  })),
+-});
++const answer = async (policy, turn) => {
++  const settled = await dispatch(policy, turn.parts);
++  return {
++    role: "user",
++    parts: [
++      ...settled.map(({ call, result }) => ({
++        type: "tool_result",
++        id: call.id,
++        condition: result.condition,
++        product: result.product,
++      })),
++      ...settled.flatMap(({ parts }) => parts),
++    ],
++  };
++};
+
+#+end_src
+
+#+begin_src diff
+// subsystems/typology/gestalten/fromm/yield.js:19
+
+-const wrap = (thing) => {
+-  if (thing.product) return { condition: thing.condition ?? "NOMINAL", product: thing.product };
+-  const product = Object.fromEntries(Object.entries(thing).filter(([key]) => key !== "condition"));
+-  return { condition: thing.condition ?? "NOMINAL", product };
+-};
++const wrap = ({ condition = "NOMINAL", parts = [], ...payload }) => ({
++  condition,
++  product: payload.product ? payload.product : payload,
++  parts,
++});
+
+#+end_src
+
+#+begin_src diff
+// subsystems/typology/gestalten/fromm/yield.js:78
+   const [kind, , fill] = probe(thing);
+-  const filled = fill(thing);
++  const filled = { parts: [], ...fill(thing) };
+   return {
+#+end_src
+
+#+begin_src diff
+// subsystems/typology/gestalten/fromm/yield.js:89
+     },
++    get parts() {
++      return filled.parts;
++    },
+   };
+#+end_src
+
+#+begin_src diff
+// commons/social/personal/tools.js:1
++import { join } from "@std/path";
+ import paladin from "@vivalence/paladin";
+ import { gestalten } from "@vivalence/runtime";
+-import { Vector } from "@vivalence/typology";
++import { v, Vector } from "@vivalence/typology";
++
++const transcribe = new Vector().open(
++  {
++    nature: "/file/transcribe",
++    valence:
++      "Transcribe an audio file of this thread into a text file. Pass the id from an " +
++      "[attached audio · file <id> …] line. Returns the text file. " +
++      'Example: { file: "01a21d5b-973b-7239-bd7c-648ef0893b15" }',
++    input: v.object({
++      file: v
++        .string()
++        .desc('The audio file\'s id. Example: "01a21d5b-973b-7239-bd7c-648ef0893b15"'),
++    }),
++  },
++  async (ctx) => {
++    const heard = await ctx.mode.harness.verbatim.render({
++      thread: ctx.thread,
++      turns: [{ role: "user", parts: [{ type: "file", file: ctx.input.file }] }],
++    });
++    const text = heard.turns.at(-1).parts.map((part) => part.text).join("\n");
++    const landed = await paladin.write.stream(
++      ctx.mode.mountpoint,
++      { path: join("files", "verbatim"), mime: "text/plain" },
++      new Blob([text]).stream(),
++    );
++    const file = await ctx.entities.file.upload({
++      ...landed,
++      mode: ctx.mode.id,
++      user: ctx.user.id,
++      thread: ctx.thread,
++    });
++    return { product: { file: [{ id: file.id, mime: file.mime }] } };
++  },
++);
+
+#+end_src
+
+#+begin_src diff
+// commons/social/personal/tools.js:7
+   .graft(gestalten.tools.modes, gestalten.tools.tool)
+-  .graft(paladin.tools.fs, paladin.tools.shell);
++  .graft(paladin.tools.fs, paladin.tools.shell)
++  .graft(transcribe);
+
+#+end_src
+
+#+begin_src diff
+// commons/fixtures/testing/hal/stub/provider/script.js:10
+ //   --rounds 2            ... this many times before answering        default 1
++//   --input '{"a":1}'     ... with this input                         default { query: the prompt }
+ //   --fault retryable     throw — retryable takes the belt's backoff path
+#+end_src
+
+#+begin_src diff
+// commons/fixtures/testing/hal/stub/provider/script.js:19
+
+-export const DEFAULTS = { deltas: 12, pace: 40, stall: 0, tool: null, rounds: 1, fault: null, timeout: false, object: null, say: null, close: null };
++export const DEFAULTS = { deltas: 12, pace: 40, stall: 0, tool: null, input: null, rounds: 1, fault: null, timeout: false, object: null, say: null, close: null };
+
+#+end_src
+
+#+begin_src diff
+// commons/fixtures/testing/hal/stub/provider/script.js:52
+   if (held.tool) plan.tool = held.tool === true ? "lookup" : held.tool;
++  if (held.input) plan.input = json(held.input);
+   if (held.rounds) plan.rounds = Number(held.rounds) || DEFAULTS.rounds;
+#+end_src
+
+#+begin_src diff
+// commons/fixtures/testing/hal/stub/provider/index.js:55
+     };
+-    yield { event: "/part/delta", index: 0, part: { input: { query: spoken(request.turns) } } };
++    yield {
++      event: "/part/delta",
++      index: 0,
++      part: { input: script.input ?? { query: spoken(request.turns) } },
++    };
+     await pause(script.stall || script.pace, signal);
+#+end_src
+
+#+begin_src diff
+// commons/social/personal/tests/received.test.js:1
+-import { encodeHex } from "@std/encoding";
++import { encodeBase64, encodeHex } from "@std/encoding";
+ import { join } from "@std/path";
+#+end_src
+
+#+begin_src diff
+// commons/social/personal/tests/received.test.js:339
+
++  it("a filed voice note is transcribed by hand: a file part in, its text out", async () => {
++    const [turn] = world.query(
++      "select thread, parts from Turn where json_extract(meta, '$.provider.id') = 'wamid.V'",
++    );
++    const response = await world.post(
++      "/daemon/hello/mode/bot/personal/harness/verbatim/render",
++      { thread: turn.thread, turns: [{ role: "user", parts: JSON.parse(turn.parts) }] },
++      finn,
++    );
++    const heard = await response.json();
++    expect(response.status).toBe(200);
++    expect(heard.turns.at(-1)).toEqual({
++      role: "user",
++      parts: [{ type: "text", text: `heard:${encodeBase64(VOICE.bytes)}` }],
++      meta: heard.turns.at(-1).meta,
++    });
++  });
++
++  it("the bot transcribes a voice note itself: the tool makes a text file", async () => {
++    const [voice] = world.query(
++      "select thread, parts from Turn where json_extract(meta, '$.provider.id') = 'wamid.V'",
++    );
++    const held = JSON.parse(voice.parts)[0].file;
++    await delivered(
++      "wamid.T",
++      `write it down --tool file_transcribe --input '{"file":"${held}"}'`,
++      1,
++    );
++    const turns = world.query(
++      `select id, parts from Turn where thread = '${voice.thread}' order by created_at`,
++    );
++    const [called, answered, said] = turns.slice(-3).map((turn) => JSON.parse(turn.parts));
++    const [text] = answered[0].product.file;
++    const [file] = world.query(`select mime, bytes, mount from File where id = '${text.id}'`);
++    expect(called[0].input).toEqual({ file: held });
++    expect(answered.map((part) => part.type)).toEqual(["tool_result"]);
++    expect(answered[0].condition).toBe("NOMINAL");
++    expect(said[0].text.startsWith(`[stub] heard:${encodeBase64(VOICE.bytes)}`)).toBe(true);
++    expect([text.mime, file.mime]).toEqual(["text/plain", "text/plain"]);
++    expect(file.mount.includes("mode_bot_personal/files/verbatim.")).toBe(true);
++    expect(await Deno.readTextFile(file.mount)).toBe(`heard:${encodeBase64(VOICE.bytes)}`);
++    expect(world.query(`select turn_id from turn_files where file_id = '${text.id}'`)).toEqual([
++      { turn_id: turns.at(-2).id },
++    ]);
++  });
++
+   it("a heard message shows typing, tied to its id and marked read", async () => {
+#+end_src
+
+#+begin_src diff
+// commons/instances/hello-world/tests/rig.js:130
+       },
+-      em: { flush: async () => {}, fork: () => ({ create: (Entity, data) => ({ ...data }), flush: async () => {}, clear: () => {}, getReference: () => null }) },
++      em: { flush: async () => {}, fork: () => ({ create: (Entity, data) => ({ ...data, files: { set: () => {} } }), flush: async () => {}, clear: () => {}, getReference: () => null }) },
+       surface: held,
+#+end_src
+

@@ -75,7 +75,7 @@ async function effect(ctx) {
         `${module ?? "nothing declared"}${empty.length ? ` — empty ${empty.join(", ")}` : ""}${why ? ` — ${why}` : ""}`,
       ]),
     ),
-    lock: await paladin.ledger.lock(slug).read(),
+    lock: await paladin.ledger.locks.read(slug),
   };
 }
 

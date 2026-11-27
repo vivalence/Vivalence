@@ -34,7 +34,7 @@ specimen.describe("surfaces bundled through the repository verb", { sanitizeReso
       dir: new URL("./", import.meta.url).pathname,
       prefix: "spawned-",
     });
-    bundler = paladin.bundler(directory);
+    bundler = paladin.bundle.directory(directory);
   });
   specimen.afterAll(async () => {
     await esbuild.stop();

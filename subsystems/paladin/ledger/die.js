@@ -23,7 +23,6 @@ export class Die extends Wafer {
   }
 
   async populate() {
-    this.lock = this.instance ? this.ledger.lock(this.instance) : null;
     this.good = {
       processes: this.specs.map((spec) =>
         new Process({
@@ -39,20 +38,22 @@ export class Die extends Wafer {
   }
 
   claim() {
-    if (!this.lock) return Promise.resolve();
-    return (this.writing = this.writing.then(() => this.lock.write(this.json)));
+    if (!this.instance) return Promise.resolve();
+    return (this.writing = this.writing.then(() =>
+      this.ledger.locks.write(this.instance, this.json)
+    ));
   }
 
   async release() {
-    if (!this.lock) return;
+    if (!this.instance) return;
     this.vigil();
     await this.writing;
-    const held = await this.lock.read();
-    if (held?.token === this.token) await this.lock.remove();
+    const held = await this.ledger.locks.read(this.instance);
+    if (held?.token === this.token) await this.ledger.locks.remove(this.instance);
   }
 
   async resolve() {
-    const held = await this.lock?.read();
+    const held = this.instance ? await this.ledger.locks.read(this.instance) : null;
     if (held) {
       throw new Error(`${this.instance} already running (supervisor ${held.pid}: ${rows(held.processes)}) — viva instance/stop`);
     }

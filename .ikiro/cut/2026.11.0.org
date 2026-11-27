@@ -133,8 +133,8 @@ the two-way call (=m123-call-faculty=, =/call=, milestone 8) · npm and jsr · t
 
 * handoff
 
-- next :: his tag =v2026.11.1=. =deno.jsonc:2= reads =2026.11.1= since 11-27 (his /"bump the versionfor em"/), =mint.test.js= 6 passed after. A tag pipeline also moves =:2026.11= on the four images (his /"go"/, stubbed: =v2026.11.1= 16 pushes). The deploys are unread
+- next :: =v2026.11.1= is published: =.ikiro/cut/2026.11.1.org= holds it and what follows
 - open, his :: ruling 2 · =master= moved locally, unpushed: its push runs a second pipeline and deploy · the =presentation= remote · both Coolify app uuids stand plain in =.gitlab-ci.yml=, now on GitHub · a release page on GitHub and GitLab
-- owed :: no test holds the tag guard: it ran as the job's script with =docker= stubbed, four tags, by hand
+- owed :: no test holds the tag guard: it ran as the job's script with =docker= stubbed, four tags, by hand · no suite holds the release walk, the probe does · a rollback stamps backward and hears the older release's steps again
 - never :: a version read off git inside an image (=.dockerignore= drops =.git= · =.jj=) · a tag typed by hand: it is read off =deno.jsonc= · =jj git push= for a tag: it carries bookmarks only
 - LTS =vN.N.N= :: the guard refuses it, the tree holds one version; it needs its own source

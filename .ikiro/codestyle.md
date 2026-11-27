@@ -5,8 +5,8 @@
 
 ## how we work
 
-- I never write to git or jj. I read with the commands the map lists; any other, its `--help` too, he runs with `!` and I read what it printed. I propose the command, he runs it with `!`. `~/.viva/registry/<pkg>` is jj too.
-- Code, and anything that reaches outside: I propose, he says `go`, per item. `.ikiro/` is mine, unasked.
+- I never write to git or jj. I read with the commands the map lists; any other, its `--help` too, he runs with `!` and I read what it printed. `~/.viva/registry/<pkg>` is jj too.
+- Code, and anything that reaches outside: I propose, he says `go`, per item; hunks that only hold together are one item under one number. `.ikiro/` is mine, unasked.
 - An order is run, never answered with a plan or a question.
 - I claim nothing done, and no design holding, without running the check fresh and reading what it produced, never only that it produced. For a core mechanism the check is its suite, never one probe.
 - "None", "all", "every", any count and any clock time are claims. They are a command's whole output over the whole directory, run before I write it, never my own arithmetic, the one file I read, a cut list or a pattern narrower than the claim.
@@ -14,10 +14,10 @@
 - A line he removed, a shape he rejected and a thing he replaced stay gone, under another name too. His edit and his design are the spec, verbatim and in his order: a design he sketches is written back as code in his own words before any reading of mine stands beside it. A line of his stays: I add beside it.
 - A guard that blocks me is reported that turn, never worked around.
 - A gap, a counterexample or a new use of a mechanism is built the way its siblings already do it. I read the mechanism whole and every sibling's use first; a design on a mechanism I have not read is not shown.
-- A command I hand him I ran first, in a shell holding no variable of mine, entered as he will enter it: a line that reads the keyboard stands alone in its fence. A git or jj write I cannot run is written off its `--help` and said unrun. No placeholder. A secret is typed by him, or written by me where he orders it and never repeated, in a command either; one he has me invent I show him that turn.
+- A command I hand him I ran first, in a shell holding no variable of mine, entered as he will enter it: a line that reads the keyboard stands alone in its fence. A write I cannot run is run up to the write, a git or jj one written off its `--help`, and said unrun. No placeholder. A secret is typed by him, or written by me where he orders it and never repeated, in a command either; one he has me invent I show him that turn.
 - My processes bind free ports, never his `:2501` or `:1794`: the port sits in the recipe I boot, never only in env, and its listen line is read first.
 - A claim about his instance is read from `~/.viva/instances/<slug>/`, and so is one real entity of each kind a hunk reads, before it lands: a stub leaves keys out. A shape a landing kills is grepped in `~/.viva/instances` and `~/.viva/registry` first; every holder is in the show.
-- A claim about a library's limit, an ordering (read off the list that runs the steps, never off one step), a cost, a cause, a consequence, what a value holds or what a key does is probed, or read at the `file:line` its caller runs and at every writer of the value it branches on, before I say it or branch on it. A fault's cause is its own line, read first. A mechanism I did not watch produce the fault he sees is a suspect: named, never shown as code.
+- A claim about a library's limit, an ordering (read off the list that runs the steps, never off one step), a cost, a cause, a consequence, what a value holds, who writes it or what a key does is probed, or read at the `file:line` its caller runs and at every writer of the value it branches on, before I say it or branch on it. A fault's cause is its own line, read first. A mechanism I did not watch produce the fault he sees is a suspect: named, never shown as code.
 - A cost my change adds is measured before it lands.
 - A walk of his product only reads, in a terminal I open, never his, and ends clean: as many threads, terminals, buffers, containers and images after as before.
 - No comments in product source. A comment is the rename I did not make.
@@ -52,7 +52,7 @@
 - `harness`: primer prose plus the tools it arms.
 - `ikiro mark`: write it into ikiro now.
 - `retard` · `i dont understand X` · a bare `what`: skill `fold`, now. Twice on one screen: the shape is wrong, read his sketch again.
-- A number he says (`5%`, `14 words`) is a contract. A few of many: the most read.
+- A number or format he says (`5%`, `YYYY.MM.N`) is a contract; what refuses it is the defect. A few of many: the most read.
 - Caps mean he said it twice before.
 - A typo is parsed, never asked.
 - A name is his noun and stays until he calls it wrong, and a name or an address I write into a recipe or a test is read off the code that takes it as its argument, never off the key it sits under nor off a log that shows one like it. I grep his turns and the tree before I write one. A file I add to a package is named off the code that scans its folder.
@@ -74,7 +74,7 @@
 - Every path is written out.
 - A report is read cold: it opens with what he saw break, in his words, then where the code is (his tree, or a copy he cannot see), what his screen shows after, and what not yet.
 - Whatever removes a thing of his, on his screen or his machine, is said before the act.
-- A move is shown as a tree, a rename as a table, code as a diff.
+- A move is shown as a tree, a rename as a table, code as a diff inside its whole function.
 
 ## code
 
@@ -211,8 +211,8 @@ export const TOOLING = (mode) => {
 ### shown, never wrapped
 
 - Two entries are two functions. Never `Object.fromEntries` over a config.
-- A static set is a literal inside the expression that reads it. No const beside a vector.
-- No helper, method or belt function until a second consumer exists, and no tool he did not ask for: a new operation is composed from the general one.
+- A static set, its cases and an effect sit inside the one body that reads them. No const beside a vector.
+- No function of mine at module level in a product file: one consumer is inline, several are one typology gestalten function. No tool he did not ask for: it is composed from the general one.
 - No options bag on a positional call. No flag that undoes a flag.
 - Read through the context inline: `clientDie.client.runtime.x`. No destructuring, no bag of derived keys.
 - A typology primitive takes the `Path` or `Signature` itself. `.absolute` and `.nature` only at a string boundary.

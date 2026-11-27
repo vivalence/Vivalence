@@ -8,6 +8,7 @@
 //   --stall 4s            one long gap, after the first delta         default none
 //   --tool lookup         call a tool ...
 //   --rounds 2            ... this many times before answering        default 1
+//   --input '{"a":1}'     ... with this input                         default { query: the prompt }
 //   --fault retryable     throw — retryable takes the belt's backoff path
 //   --timeout             yield nothing, ever; only the signal ends it
 //   --object '{"a":1}'    what the object avenue answers
@@ -17,7 +18,7 @@
 // the flags are parsed by Signal, the repo's own CLI grammar — prose around them is left alone.
 import { Signal } from "@vivalence/typology";
 
-export const DEFAULTS = { deltas: 12, pace: 40, stall: 0, tool: null, rounds: 1, fault: null, timeout: false, object: null, say: null, close: null };
+export const DEFAULTS = { deltas: 12, pace: 40, stall: 0, tool: null, input: null, rounds: 1, fault: null, timeout: false, object: null, say: null, close: null };
 
 const MS = { ms: 1, s: 1000 };
 const DURATION = /^(\d+(?:\.\d+)?)(ms|s)?$/;
@@ -50,6 +51,7 @@ export function read(source, scripts = {}, depth = 0) {
   if (held.pace) plan.pace = duration(held.pace, DEFAULTS.pace);
   if (held.stall) plan.stall = duration(held.stall, 4000);
   if (held.tool) plan.tool = held.tool === true ? "lookup" : held.tool;
+  if (held.input) plan.input = json(held.input);
   if (held.rounds) plan.rounds = Number(held.rounds) || DEFAULTS.rounds;
   if (held.fault) plan.fault = held.fault === "retryable" ? "retryable" : "fatal";
   if (held.timeout) plan.timeout = true;

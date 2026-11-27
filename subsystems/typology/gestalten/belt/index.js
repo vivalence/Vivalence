@@ -26,5 +26,6 @@ export * as monad from "./monad.js";
 export * as cortex from "./cortex.js";
 export * as channel from "./channel.js";
 export * as reference from "./reference.js";
+export * as release from "./release.js";
 
 export * as strings from "./string.js"; // depracated

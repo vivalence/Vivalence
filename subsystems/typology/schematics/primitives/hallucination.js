@@ -496,25 +496,33 @@ export const Selector = {
 };
 const shared = Selector;
 
+const Loop = {
+  rounds: v
+    .integer({ minimum: 1, default: 10 })
+    .desc("Rounds per request; a tool call opens the next. Example: 3"),
+  backoff: v
+    .array(v.integer(), { default: [1000, 4000] })
+    .desc("Retry waits in ms. Example: [1000, 4000]"),
+};
+
 export const Policy = {};
 Policy.dialogue = v.object({
   ...shared,
-  rounds: v.integer({ minimum: 1, default: 10 }).desc("Tool rounds per turn. Example: 3"),
-  backoff: v.array(v.integer(), { default: [1000, 4000] }).desc("Retry waits in ms. Example: [1000, 4000]"),
+  ...Loop,
   cache: v.object({ marks: v.array(v.string()) }).optional().desc('System keys, and "tools", that take a cache breakpoint; lowering projects it to Request.cache and derives it when absent. Example: { marks: ["context", "tools"] }'),
 }, { default: {} }).desc("The respond loop, app-side; nothing here crosses the wire.");
 Policy.object = Policy.dialogue;
 Policy.verbatim = v.object({
   ...shared,
   harmonize: v.object({ window: v.integer().optional(), tolerance: v.number().optional(), tail: v.integer().optional() }).optional().desc("belt.verbatim.harmonize options, applied over the faculty's stream. Example: { window: 2 }"),
+  ...Loop,
 }, { default: {} });
-Policy.speech = v.object({ ...shared }, { default: {} });
+Policy.speech = v.object({ ...shared, ...Loop }, { default: {} });
 Policy.call = v.object({
   ...shared,
   hear: v.object({ ...shared }).optional().desc('The ear a cascade hears with. Example: { provider: "elevenlabs" }'),
   mind: v.object({ ...shared }).optional().desc('The mind a cascade thinks with. Example: { tier: "fast" }'),
   speak: v.object({ ...shared }).optional().desc('The mouth a cascade speaks with. Example: { id: "21m00Tcm4TlvDq8ikWAM" }'),
-  rounds: v.integer({ minimum: 1, default: 10 }).desc("Tool rounds per turn. Example: 3"),
 }, { default: {} });
 Policy.choice = v.object({ ...shared }, { default: {} });
 Policy.picture = v.object({ ...shared }, { default: {} });
@@ -538,13 +546,23 @@ Hallucination.object = Hallucination.dialogue;
 
 Hallucination.verbatim = v.object({
   ...controlled(Policy.verbatim),
-  source: v.unknown().desc("An async iterable of Audio.Packet. Example: request.subscribe()"),
+  source: v
+    .unknown()
+    .optional()
+    .desc("On stream: an async iterable of Audio.Packet. Example: request.subscribe()"),
+  turns: v
+    .array(Turn, { default: [] })
+    .desc("On render: the turns whose audio parts are transcribed."),
   settings: Settings.optional().desc('Provider knobs, opaque. Example: { language: "it" }'),
 });
 
 Hallucination.speech = v.object({
   ...controlled(Policy.speech),
-  source: v.unknown().desc('Text, or an async iterable of text. Example: "buongiorno"'),
+  source: v
+    .unknown()
+    .optional()
+    .desc('On stream: text, or an async iterable of text. Example: "buongiorno"'),
+  turns: v.array(Turn, { default: [] }).desc("On render: the turns whose text parts are spoken."),
   settings: Settings.optional().desc('Provider knobs, opaque. Example: { voice: "aria" }'),
 });
 

@@ -6,7 +6,7 @@ import * as gestalten from "../../../gestalten/index.js";
 const mounted = async (view) => {
   const dir = await Deno.makeTempDir({ prefix: "viva-hold-" });
   try {
-    const bundle = await paladin.bundler(dir).bundle({ mime: mime.tty.solid, entry: view });
+    const bundle = await paladin.bundle.directory(dir).bundle({ mime: mime.tty.solid, entry: view });
     return await import(`file://${dir}/bundle${bundle.entries[0].mount}`);
   } finally {
     await Deno.remove(dir, { recursive: true });

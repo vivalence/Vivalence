@@ -329,7 +329,7 @@ specimen.describe("belt.hallucinate", () => {
   });
 
   specimen.describe("the meter — every faculty writes what it used onto its span's usage track", () => {
-    const { transcribe, converse, synthesize, vocalize, depict, choose } = belt.hallucinate;
+    const { transcribe, converse, synthesize, render, depict, choose } = belt.hallucinate;
     const { Usage } = v.primitives.track;
 
     const tenth = btoa(String.fromCharCode(...new Uint8Array(3200)));
@@ -450,12 +450,19 @@ specimen.describe("belt.hallucinate", () => {
       specimen.expect(counted(used(left).at(-1))).toEqual(["input chars text cortex 12", "output seconds audio cortex 0.1"]);
     });
 
-    specimen.it("a mouth, rendered: chars read, bytes returned; a fault still writes its record, closed error", async () => {
+    specimen.it("a mouth, rendered: its audio's bytes; a fault closes error", async () => {
+      const mp3 = btoa(String.fromCharCode(...new Uint8Array(9000)));
+      const spoken = {
+        role: "assistant",
+        parts: [{ type: "audio", mime: "audio/mpeg", data: mp3 }],
+      };
+      const turns = [{ role: "assistant", parts: [{ type: "text", text: "ciao a tutti" }] }];
+      const policy = (controller) => ({ rounds: 1, backoff: [], tools: new Vector(), controller });
       const controller = hallucination();
-      await vocalize(bench("speech", { render: async () => new Uint8Array(9000) }), { source: "ciao a tutti" }, { controller });
-      specimen.expect(used(controller)).toHaveLength(1);
-      specimen.expect(used(controller)[0].subject.via).toBe("render");
-      specimen.expect(counted(used(controller)[0])).toEqual(["input chars text cortex 12", "output bytes audio cortex 9000"]);
+      await render(bench("speech", { render: async () => spoken }), { turns }, policy(controller));
+      specimen.expect(used(controller).at(-1).subject.via).toBe("render");
+      specimen.expect(used(controller).at(-1).state).toBe("complete");
+      specimen.expect(counted(used(controller).at(-1))).toEqual(["output bytes audio cortex 9000"]);
 
       const failing = hallucination();
       const down = bench("speech", {
@@ -463,10 +470,11 @@ specimen.describe("belt.hallucinate", () => {
           throw new Error("provider down");
         },
       });
-      await specimen.expect(vocalize(down, { source: "ciao" }, { controller: failing })).rejects.toThrow("provider down");
+      await specimen
+        .expect(render(down, { turns }, policy(failing)))
+        .rejects.toThrow("provider down");
       specimen.expect(used(failing)).toHaveLength(1);
       specimen.expect(used(failing)[0].state).toBe("error");
-      specimen.expect(counted(used(failing)[0])).toEqual(["input chars text cortex 4"]);
     });
 
     specimen.it("a painter: the prompt's chars, pictures in and out, the provider's cost", async () => {
@@ -689,6 +697,77 @@ specimen.describe("channels — what a faculty takes and gives, held on both via
     specimen.expect(await faulted(synthesize(mouth, { source: "ciao" }, policy()))).toBe(
       `[speech] 'mouth' gives no 'audio/mpeg' audio on stream: it gives ${PCM[0].mime[0]}`,
     );
+  });
+
+  specimen.it("soma.files: the files a turn's parts hold, as parts and in tool results", () => {
+    const parts = [
+      { type: "text", text: "see" },
+      { type: "file", file: "file-a" },
+      {
+        type: "tool_result",
+        id: "call-1",
+        product: { file: [{ id: "file-b" }, { id: "file-c" }] },
+      },
+      { type: "tool_result", id: "call-2", product: { message: "none" } },
+    ];
+    specimen.expect(belt.soma.files(parts)).toEqual(["file-a", "file-b", "file-c"]);
+    specimen.expect(belt.soma.files([])).toEqual([]);
+  });
+
+  specimen.it("an ear on render: an ogg returns its sentence, an amr faults first", async () => {
+    const seen = [];
+    const ear = {
+      type: "verbatim",
+      id: "nova-3",
+      channels: {
+        render: {
+          in: [{ type: "audio", mime: ["audio/ogg", "audio/mpeg", "audio/mp4", "audio/aac"] }],
+          out: [{ type: "text" }],
+          via: async (request) => {
+            seen.push(request);
+            return { role: "user", parts: [{ type: "text", text: "ci vediamo domani" }] };
+          },
+        },
+      },
+    };
+    const { render } = belt.hallucinate;
+    const heard = await render(ear, { turns: said([voice]) }, policy());
+    specimen.expect(heard.turns.at(-1).parts).toEqual([
+      { type: "text", text: "ci vediamo domani" },
+    ]);
+    specimen.expect(seen[0].turns[0].parts).toEqual([voice]);
+
+    const amr = said([{ ...voice, mime: "audio/amr" }]);
+    await specimen
+      .expect(render(ear, { turns: amr }, policy()))
+      .rejects.toThrow(
+        "[verbatim] 'nova-3' takes no 'audio/amr' audio on render: " +
+          "it takes audio/ogg, audio/mpeg, audio/mp4, audio/aac",
+      );
+    specimen.expect(seen).toHaveLength(1);
+  });
+
+  specimen.it("a mouth on render: audio of an undeclared media type closes error", async () => {
+    const mouth = (mime) => ({
+      type: "speech",
+      id: "aria",
+      channels: {
+        render: {
+          in: [{ type: "text" }],
+          out: [{ type: "audio", mime: ["audio/mpeg"] }],
+          via: async () => ({ role: "assistant", parts: [{ type: "audio", mime, data: "AAAA" }] }),
+        },
+      },
+    });
+    const { render } = belt.hallucinate;
+    const words = said([{ type: "text", text: "a domani" }]);
+    const spoken = await render(mouth("audio/mpeg"), { turns: words }, policy());
+    specimen.expect(spoken.turns.at(-1).parts).toEqual([
+      { type: "audio", mime: "audio/mpeg", data: "AAAA" },
+    ]);
+    await specimen
+      .expect(render(mouth("audio/wav"), { turns: words }, policy()))
+      .rejects.toThrow("[speech] 'aria' gives no 'audio/wav' audio on render: it gives audio/mpeg");
   });
 
   specimen.it("in: the request is not mutated", async () => {

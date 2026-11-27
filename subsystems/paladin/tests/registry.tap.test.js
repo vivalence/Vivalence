@@ -109,10 +109,10 @@ describe("Registry.tap — materialize + record, never mount", () => {
     const { boot } = await scaffold();
     const paladin = boot();
     for (const remote of ["https://host/r.git", "http://host/r", "git@github.com:vivalence/registry-standalone.git", "ssh://host/r.git"]) {
-      expect(paladin.clone.remote(remote)).toBe(true);
+      expect(paladin.vcs.remote(remote)).toBe(true);
     }
     for (const local of ["/abs/path", "./rel", "pack", "", null, undefined]) {
-      expect(paladin.clone.remote(local)).toBe(false);
+      expect(paladin.vcs.remote(local)).toBe(false);
     }
   });
 

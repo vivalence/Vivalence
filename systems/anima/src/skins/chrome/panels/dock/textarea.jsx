@@ -178,6 +178,7 @@ const Callline = (props) => {
 export const Textarea = () => {
   const app = ambient.app.consume();
   const terminal = ambient.terminal.consume();
+  const terminals = from(app.client.runtime.entities.terminal.$entities);
   const thread = from(terminal.$thread);
   const activities = from(app.client.runtime.entities.activity.$entities);
   const draft = from(app.bridge.$draft);
@@ -188,6 +189,10 @@ export const Textarea = () => {
   const call = from(app.bridge.$call);
   const uploads = from(app.bridge.$uploads);
   const uploading = () => uploads().some((upload) => upload.file === null);
+  const lens = () => {
+    terminals();
+    return terminal.dock.lens;
+  };
   const hosted = createMemo(() =>
     thread() === null || thread().mode === null
       ? () => null
@@ -242,9 +247,11 @@ export const Textarea = () => {
               <Show
                 when={catalog() === null}
                 fallback={
-                  <div class="field repl">
-                    <span class="pc">{`${PROMPT}${draft()}`}</span>
-                  </div>
+                  <Show when={lens().includes("repl")}>
+                    <div class="field repl">
+                      <span class="pc">{`${PROMPT}${draft()}`}</span>
+                    </div>
+                  </Show>
                 }>
                 <Callline call={call()} rows={controls()} onSignal={sent} />
               </Show>

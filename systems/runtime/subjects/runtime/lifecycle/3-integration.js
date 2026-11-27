@@ -71,7 +71,7 @@ export const userspace = async (die, next) => {
   }
   owned.branch("/file").graft(
     shard.datamap.files(entities, (ctx, dropped, body) =>
-      paladin.state.land(die.runtime.mountpoint, { ...dropped, path: join("files", dropped.path) }, body),
+      paladin.write.stream(die.runtime.mountpoint, { ...dropped, path: join("files", dropped.path) }, body),
     ),
   );
 

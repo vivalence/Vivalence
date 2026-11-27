@@ -51,7 +51,7 @@ describe("the card — one projection of a literal and its notes, for the deck, 
 describe("the memo surface — compiled by paladin's tty.solid row, imported from a blob as ghost does, driven by keys", { sanitizeOps: false, sanitizeResources: false }, () => {
   const mount = async (data) => {
     const store = await Deno.makeTempDir({ prefix: "memo-bundle-" });
-    const bundler = paladin.bundler(store);
+    const bundler = paladin.bundle.directory(store);
     const bundle = await bundler.bundle({ mime: mime.tty.solid, entry: new URL("../mode/buffer/memo.jsx", import.meta.url).pathname });
     const [held] = bundle.entries;
     expect(held.mime).toBe(mime.tty.solid);
@@ -145,7 +145,7 @@ describe("the memo surface — compiled by paladin's tty.solid row, imported fro
 
 describe("the tablet — m32's svelte surface, compiled by paladin's dom.svelte row", { sanitizeOps: false, sanitizeResources: false }, () => {
   it("compiles to one dom.svelte entry and its served module names the Latin grades", async () => {
-    const bundler = paladin.bundler(await Deno.makeTempDir({ prefix: "memo-tablet-" }));
+    const bundler = paladin.bundle.directory(await Deno.makeTempDir({ prefix: "memo-tablet-" }));
     const bundle = await bundler.bundle({ mime: mime.dom.svelte, entry: new URL("../mode/buffer/Memo.svelte", import.meta.url).pathname });
     expect(bundle.entries.map((entry) => entry.mime)).toEqual([mime.dom.svelte]);
     const served = await bundler.serve(bundle.entries[0].mount);

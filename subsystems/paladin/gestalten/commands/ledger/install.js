@@ -82,7 +82,7 @@ export const install = new Vector().open(
     const declaration = await paladin.ledger.recipe();
     for (const slot of ["instances", "registry"]) {
       const { path: record, held } = paladin.ledger.record(slot);
-      if (!held && !(await Deno.stat(record.absolute).catch(() => null))) await paladin.state.json(record, {});
+      if (!held && !(await Deno.stat(record.absolute).catch(() => null))) await paladin.write.json(record, {});
     }
     const commons = paladin.scope.repository.branch("commons").absolute;
     for (const found of await paladin.ledger.registry.discover(new Path(commons))) await paladin.ledger.registry.tap(found.root);
@@ -93,10 +93,10 @@ export const install = new Vector().open(
     const missing = held === null
       ? Object.keys(environment.properties)
       : Object.keys(environment.properties).filter((key) => !new RegExp(`^#?\\s*${key}=`, "m").test(held));
-    if (held === null) await paladin.state.text(env, paladin.envfile.scaffold(environment));
+    if (held === null) await paladin.write.text(env, paladin.envfile.scaffold(environment));
     else if (missing.length) {
       const subset = v.environment(Object.fromEntries(missing.map((key) => [key, environment.properties[key]])));
-      await paladin.state.text(env, `${held.replace(/\n*$/, "\n")}\n${paladin.envfile.scaffold(subset)}`);
+      await paladin.write.text(env, `${held.replace(/\n*$/, "\n")}\n${paladin.envfile.scaffold(subset)}`);
     }
     paladin.claim(await dotenv.load({ envPath: env.absolute }), "ledger", env.absolute);
     const seed = Object.entries(environment.properties).filter(([key]) => paladin.env.get(key) === null && paladin.secret.get(key) === null);

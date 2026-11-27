@@ -61,7 +61,7 @@ async function collectSessions(ledger) {
 
 async function collectLocks(ledger) {
   const row = (held) => [`${held.process}=${held.pid}`, held.status, held.serve].filter(Boolean).join(" ");
-  return (await ledger.locks()).map((held) => ({ ...held, processes: held.processes.map(row).join(" · ") }));
+  return (await ledger.locks.list()).map((held) => ({ ...held, processes: held.processes.map(row).join(" · ") }));
 }
 
 async function collectInstances(instances) {
